@@ -1,0 +1,4 @@
+#!/usr/bin/env node
+var CLI = require("../lib/azk-cli")
+azk = new CLI()
+azk.start()

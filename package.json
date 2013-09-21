@@ -1,0 +1,47 @@
+{
+  "name": "azk",
+  "description": "<tbd>",
+  "version": "0.0.1",
+  "keywords": [
+    "azk",
+    "cli",
+    "tools",
+    "dev",
+    "environment"
+  ],
+  "author": {
+    "name": "azukiapp",
+    "email": "contato@azukiapp.com",
+    "web": "http://azukiapp.com"
+  },
+  "maintainers": [
+    {
+      "name": "Renato Albano",
+      "web": "https://github.com/renatoalbano"
+    },
+    {
+      "name": "Roger Leite",
+      "web": "https://github.com/rogerleite"
+    },
+    {
+      "name": "Everton Ribeiro",
+      "web": "https://github.com/nuxlli"
+    }
+  ],
+  "licenses": [
+    {
+      "type": "Apache v2",
+      "name": "Apache v2 License",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  ],
+  "bin" : {
+    "azk": "./bin/azk"
+  },
+  "dependencies" : {
+    "vows": ">=0.7.0"
+  },
+  "scripts": {
+    "test": "./node_modules/vows/bin/vows test/*.js test/**/*.js --spec"
+  }
+}
