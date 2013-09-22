@@ -9,23 +9,24 @@
     "dev",
     "environment"
   ],
+  "homepage": "https://github.com/azukiapp/azk",
   "author": {
     "name": "azukiapp",
     "email": "contato@azukiapp.com",
-    "web": "http://azukiapp.com"
+    "url": "http://azukiapp.com"
   },
   "maintainers": [
     {
       "name": "Renato Albano",
-      "web": "https://github.com/renatoalbano"
+      "url": "https://github.com/renatoalbano"
     },
     {
       "name": "Roger Leite",
-      "web": "https://github.com/rogerleite"
+      "url": "https://github.com/rogerleite"
     },
     {
       "name": "Everton Ribeiro",
-      "web": "https://github.com/nuxlli"
+      "url": "https://github.com/nuxlli"
     }
   ],
   "licenses": [
@@ -35,6 +36,16 @@
       "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
     }
   ],
+  "bugs": {
+    "url": "https://github.com/azukiapp/azk/issues"
+  },
+  "repository": {
+      "type": "git",
+      "url": "https://github.com/azukiapp/azk.git"
+  },
+  "engines" : {
+    "node" : ">=0.7.0"
+  },
   "bin" : {
     "azk": "./bin/azk"
   },
