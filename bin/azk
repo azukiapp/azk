@@ -1,4 +1,9 @@
 #!/usr/bin/env node
-var CLI = require("../lib/azk-cli")
-azk = new CLI()
-azk.start()
+var package = require('../package.json');
+var AzkCli = require('../lib/azk-cli');
+var InitCommand = require('../lib/init-command');
+
+new AzkCli()
+.version(package.version)
+.command(InitCommand)
+.runWithArgs(process.argv);
