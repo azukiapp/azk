@@ -1,0 +1,66 @@
+{
+  // Box base
+  "box": "azukiapp/ruby-box#0.0.1",
+
+  // Global options
+  "options": {
+    "monitoring": false,
+  },
+
+  // Environments to run and deploy application
+  "envs": {
+    "dev": {
+      "default": true,
+      "host": "dev.azk.io/blog",
+      "alias": [
+        // "blog.dev.azk.io", Default
+        "blog2.dev.azk.io"
+      ],
+      "options": {
+        "logging": true,
+        "box_history": 5,
+      },
+      "env": {
+        "RACK_ENV": "dev"
+      }
+    },
+
+    "prod": {
+      "host": "azukiapp.com/my-blog",
+      "alias": [
+        // "my-blog.azukiapp.com", Default
+        "blog.example.com", // Custo domain
+      ],
+      "env": {
+        "RACK_ENV": "prod"
+      }
+    }
+  },
+
+  // Services box depedencies
+  "services": {
+    "azukiapp/postgresql",
+    "azukiapp/redis#0.0.1",
+  },
+
+  // Build steps
+  "build": {
+    "install binary deps": [
+      "apt-get update",
+      "apt-get install libxml2 curl",
+    ],
+    "install deps": [
+      "bundle install"
+    ]
+  },
+
+  // Services export by this project
+  "services": {
+    "rack run": {
+      "default": true,
+      "command": "thin --rackup config.ru --port $PORT start",
+      "net": "http", // http|tcp|udp|zmq
+    },
+    "worker": "rake worker"
+  }
+}
