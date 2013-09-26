@@ -37,12 +37,6 @@
     }
   },
 
-  // Services box depedencies
-  "services": {
-    "azukiapp/postgresql",
-    "azukiapp/redis#0.0.1",
-  },
-
   // Build steps
   "build": {
     "install binary deps": [
@@ -54,13 +48,18 @@
     ]
   },
 
-  // Services export by this project
   "services": {
-    "rack run": {
+    // Services box depedencies
+    "postgresql": { "box": "azukiapp/postgresql" },
+    "redis": { "box": "azukiapp/redis#0.0.1" },
+    "solr": { "box": "websolr/solr#0.0.1", "envs": ["dev"] },
+
+    // Services export by this project
+    "web": {
       "default": true,
       "command": "thin --rackup config.ru --port $PORT start",
       "net": "http", // http|tcp|udp|zmq
     },
-    "worker": "rake worker"
+    "worker": "rake worker",
   }
 }
