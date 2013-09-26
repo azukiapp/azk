@@ -1,6 +1,11 @@
-# Azk CLI
+# Azk
 
-TBD
+Is a tool to developers it assists in creation, maintenance and isolation
+of the environments of development. Through the installation of some components
+(cli and agent), you will be able easily to create isolated environments to many
+projects and stack of languages.
+
+**Features** : provision, monitoring, builtin load balancer, automatic startup script, logging...
 
 ## Development Use
 
