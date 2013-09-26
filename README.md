@@ -7,6 +7,28 @@ projects and stack of languages.
 
 **Features** : provision, monitoring, builtin load balancer, automatic startup script, logging...
 
+## Usage/Features
+
+```bash
+$ azk init [project] [--box "azukiapp/ruby#0.1.0"] # Create a Azkfile.json
+
+# Run a specific command
+$ azk exec /bin/bash                               # Run bash in box
+$ azk exec gem install rails                       # Install rails gem in box
+
+# Run a background services (Azkfile.json#service)
+$ azk start -i 5                                   # Start 5 instances of default service
+$ azk start worker -i 5                            # Start 5 instances of woker service
+$ azk logs                                         # Display all processes logs in streaming
+$ azk list                                         # Display all processes status
+$ azk monit                                        # Monitor all processes
+$ azk stop azk_id                                  # Stop specific process id
+$ azk stop all                                     # Stop all processes
+$ azk restart azk_id                               # Restart specific process
+$ azk restart all                                  # Hard Restart all proccesses
+$ azk web                                          # Health computer API endpoint (http://[project].dev.azk.io)
+```
+
 ## Development Use
 
 1. install node (>= 0.7.0)
