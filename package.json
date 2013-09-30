@@ -50,7 +50,9 @@
     "azk": "./bin/azk"
   },
   "dependencies" : {
-    "commander": ">=2.0.0"
+    "commander": "2.0.0",
+    "q": "0.9.7",
+    "q-io": ">=1.10.0"
   },
   "devDependencies": {
     "vows": ">=0.7.0"
