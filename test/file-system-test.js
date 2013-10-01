@@ -1,17 +1,17 @@
 var vows = require('vows');
 var assert = require('assert');
-var path = require("path");
+var path = require('path');
 var fs = require('../lib/file-system');
-var fsMock = require("q-io/fs-mock");
+var fsMock = require('q-io/fs-mock');
 
 var makeMock = function(fileName, isNotDir) {
   var tree = {};
   if(fileName) {
     if(isNotDir) {
-      tree[path.resolve('.', fileName)] = new Buffer("normal file", "utf-8");
+      tree[path.resolve('.', fileName)] = new Buffer('normal file', 'utf-8');
     } else {
       tree[path.resolve('.', fileName)] = {
-        "Azkfile.json": new Buffer("json-content", "utf-8")
+        'Azkfile.json': new Buffer('json-content', 'utf-8')
       };
     }
   }
@@ -33,8 +33,10 @@ var pathEligibleToProject = function(fileName, _fs, context) {
 }
 
 vows.describe('file-system module').addBatch({
-  '`pathEligibleToProject`': {
-    'path already exits': {
+  '<pathEligibleToProject>': {
+
+    'path already exists': {
+
       'and path is dir': {
         topic: function() {
           var _fs = makeMock('project');
@@ -46,6 +48,7 @@ vows.describe('file-system module').addBatch({
           assert.equal(err, 'exists');
         }
       },
+
       'and path is not dir': {
         topic: function() {
           var _fs = makeMock('project', true);
@@ -57,8 +60,10 @@ vows.describe('file-system module').addBatch({
           assert.equal(err, 'not-dir');
         }
       }
+
     },
-    'path not exits': {
+
+    'path not exists': {
       topic: function() {
         var _fs = makeMock();
         pathEligibleToProject('project', _fs, this);
@@ -68,5 +73,6 @@ vows.describe('file-system module').addBatch({
         assert.strictEqual(exists, exists);
       }
     }
+
   }
 }).export(module);
