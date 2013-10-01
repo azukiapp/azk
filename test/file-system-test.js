@@ -4,7 +4,7 @@ var path = require('path');
 var fs = require('../lib/file-system');
 var fsMock = require('q-io/fs-mock');
 
-var makeMock = function(fileName, isNotDir) {
+var makeProjectDirMock = function(fileName, isNotDir) {
   var tree = {};
   if(fileName) {
     if(isNotDir) {
@@ -14,6 +14,28 @@ var makeMock = function(fileName, isNotDir) {
         'Azkfile.json': new Buffer('json-content', 'utf-8')
       };
     }
+  }
+  var mock = fsMock(tree);
+  return fs.usingFSLib(mock);
+}
+
+var makeCurrentPathMock = function(hasAzkfile, isDir) {
+  var tree = {};
+  if(hasAzkfile && !isDir) {
+    //Azkfile exists
+    tree[path.resolve('.')] = {
+      'Azkfile.json': new Buffer('json-content', 'utf-8')
+    };
+  } else if(isDir) {
+    //Azfile is dir
+    tree[path.resolve('.')] = {
+      'Azkfile.json': {
+        'some-file': new Buffer('json-content', 'utf-8')
+      }
+    };
+  } else {
+    //current path empty
+    tree[path.resolve('.')] = {}
   }
   var mock = fsMock(tree);
   return fs.usingFSLib(mock);
@@ -32,6 +54,10 @@ var pathEligibleToProject = function(fileName, _fs, context) {
   return callbackWithPromise(_fs.pathEligibleToProject(path.resolve('.', fileName)), context)
 }
 
+var hasAzkfileInCurrentPath = function(currentPath, _fs, context) {
+  return callbackWithPromise(_fs.hasAzkfileInCurrentPath(currentPath), context)
+}
+
 vows.describe('file-system module').addBatch({
   '<pathEligibleToProject>': {
 
@@ -39,7 +65,7 @@ vows.describe('file-system module').addBatch({
 
       'and path is dir': {
         topic: function() {
-          var _fs = makeMock('project');
+          var _fs = makeProjectDirMock('project');
           pathEligibleToProject('project', _fs, this);
         },
         'must reject with: `exists`': function(err, exists) {
@@ -51,7 +77,7 @@ vows.describe('file-system module').addBatch({
 
       'and path is not dir': {
         topic: function() {
-          var _fs = makeMock('project', true);
+          var _fs = makeProjectDirMock('project', true);
           pathEligibleToProject('project', _fs, this);
         },
         'must reject with: `not-dir`': function(err, exists) {
@@ -65,14 +91,52 @@ vows.describe('file-system module').addBatch({
 
     'path not exists': {
       topic: function() {
-        var _fs = makeMock();
+        var _fs = makeProjectDirMock();
         pathEligibleToProject('project', _fs, this);
       },
       'must resolve': function(err, exists) {
         assert.isNull(err);
-        assert.strictEqual(exists, exists);
+        assert.strictEqual(exists, false);
       }
     }
 
+  },
+
+  '<hasAzkfileInCurrentPath>': {
+    topic: function() {
+      return path.resolve('.');
+    },
+    'yes': {
+      topic: function(currentPath) {
+        var _fs = makeCurrentPathMock(true);
+        hasAzkfileInCurrentPath(currentPath, _fs, this);
+      },
+      'must reject with: exists': function(err, exists) {
+        assert.isNotNull(err);
+        assert.isNull(exists);
+        assert.equal(err, 'exists');
+      }
+    },
+    'no': {
+      topic: function(currentPath) {
+        var _fs = makeCurrentPathMock(false);
+        hasAzkfileInCurrentPath(currentPath, _fs, this);
+      },
+      'must resolve': function(err, exists) {
+        assert.isNull(err);
+        assert.strictEqual(exists, false);
+      }
+    },
+    'yes, but is directory': {
+      topic: function(currentPath) {
+        var _fs = makeCurrentPathMock(false, true);
+        hasAzkfileInCurrentPath(currentPath, _fs, this);
+      },
+      'must reject with: is-dir': function(err, exists) {
+        assert.isNotNull(err);
+        assert.isNull(exists);
+        assert.equal(err, 'is-dir');
+      }
+    }
   }
 }).export(module);
