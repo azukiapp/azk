@@ -6,14 +6,14 @@ var fsMock = require('q-io/fs-mock');
 
 var makeProjectDirMock = function(fileName, isNotDir) {
   var tree = {};
-  if(fileName) {
-    if(isNotDir) {
-      tree[path.resolve('.', fileName)] = new Buffer('normal file', 'utf-8');
-    } else {
-      tree[path.resolve('.', fileName)] = {
-        'Azkfile.json': new Buffer('json-content', 'utf-8')
-      };
-    }
+  if(fileName && isNotDir) {
+    tree[path.resolve('.', fileName)] = new Buffer('normal file', 'utf-8');
+  } else if (fileName) {
+    tree[path.resolve('.', fileName)] = {
+      'Azkfile.json': new Buffer('json-content', 'utf-8')
+    };
+  } else {
+    tree[path.resolve('.')] = {};
   }
   var mock = fsMock(tree);
   return fs.usingFSLib(mock);
@@ -56,6 +56,10 @@ var pathEligibleToProject = function(fileName, _fs, context) {
 
 var hasAzkfileInCurrentPath = function(currentPath, _fs, context) {
   return callbackWithPromise(_fs.hasAzkfileInCurrentPath(currentPath), context)
+}
+
+var createProjectDirectory = function(dirPath, _fs, context) {
+  return callbackWithPromise(_fs.createProjectDirectory(dirPath), context)
 }
 
 vows.describe('file-system module').addBatch({
@@ -138,5 +142,44 @@ vows.describe('file-system module').addBatch({
         assert.equal(err, 'is-dir');
       }
     }
+  },
+
+  '<createProjectDirectory>': {
+    topic: function() {
+      return path.resolve('.', 'project');
+    },
+    'dir not exists yet': {
+      topic: function(dirPath) {
+        var _fs = makeProjectDirMock(false, false);
+        createProjectDirectory(dirPath, _fs, this);
+      },
+      'must resolve': function(err, createdPath) {
+        assert.isNull(err);
+        assert.equal(createdPath, path.resolve('.', 'project'));
+      }
+    },
+    'dir already exists': {
+      topic: function(dirPath) {
+        var _fs = makeProjectDirMock('project');
+        createProjectDirectory(dirPath, _fs, this);
+      },
+      'must reject': function(err, createdPath) {
+        assert.isNotNull(err);
+        assert.equal(err, 'dir-exists');
+        assert.isNull(createdPath);
+      }
+    },
+    'with file at that path' : {
+      topic: function(dirPath) {
+        var _fs = makeProjectDirMock('project', true);
+        createProjectDirectory(dirPath, _fs, this);
+      },
+      'must reject': function(err, createdPath) {
+        assert.isNotNull(err);
+        assert.equal(err, 'file-exists');
+        assert.isNull(createdPath);
+      }
+    }
   }
+
 }).export(module);
