@@ -33,21 +33,15 @@ $ azk web                           # Health computer API endpoint (http://[proj
 
 ## Development Use
 
-1. install node (>= 0.7.0)
-    * We recommend to use **nodenv** and **node-build** tools, search at github.
+1. install erlang and elixir
+	* We recommend to use **[kerl](https://github.com/spawngrid/kerl)** and **[exenv](https://github.com/mururu/exenv)**
+	* More options: [http://elixir-lang.org/getting_started/1.html](http://elixir-lang.org/getting_started/1.html)
 2. clone this repo
-    * `$ git clone https://github.com/azukiapp/azk.git` and `$ cd azk`
-3. check tests
-    * `$ npm test`
+   * `$ git clone https://github.com/azukiapp/azk.git` and `$ cd azk`
+3. install depedences and check tests
+   * `$ MIX_ENV=test mix deps.get`
+   * `$ mix test`
 4. `$ ./bin/azk help`
-
-5. if you want to install
-
-```sh
-$ npm pack
-> azk-<VERSION>.tgz
-$ npm install azk-<VERSION>.tgz -g
-```
 
 ## License
 
