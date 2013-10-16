@@ -1,24 +1,6 @@
-## node ##
-lib-cov
-*.seed
-*.log
-*.csv
-*.dat
-*.out
-*.pid
-*.gz
-.DS_STORE
-
-pids
-logs
-results
-
-npm-debug.log
-node_modules
-
-## vim ##
-.*.s[a-w][a-z]
-*.un~
-Session.vim
-.netrwhist
-*~
+.vagrant/
+/ebin
+/deps
+/log
+/tmp
+erl_crash.dump
