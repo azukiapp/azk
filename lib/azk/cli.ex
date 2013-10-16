@@ -1,5 +1,8 @@
 defmodule Azk.Cli do
-  def start(_azk_path) do
+
+  # TODO: parse azkfile.json and save data
+  def start(project_path) do
+    Azk.start([project: project_path])
   end
 
   def run(args // System.argv) do
@@ -13,8 +16,12 @@ defmodule Azk.Cli do
     end
   end
 
+  def project do
+    Azk.Cli.Server.call(:project)
+  end
+
   defp proceed(args) do
-    IO.inspect({:proceed, args})
+    IO.inspect({:proceed, project, args})
   end
 
   defp display_banner() do

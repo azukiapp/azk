@@ -1,7 +1,10 @@
 #!/usr/bin/env elixir
 # vim: ft=elixir
 
-# Azk project paths
+# Project path
+prj_path = System.cwd!
+
+# Azk path
 azk_path = Path.expand(Path.join([__DIR__, ".."]))
 
 File.cd! azk_path, fn ->
@@ -13,6 +16,6 @@ File.cd! azk_path, fn ->
   Mix.loadpaths
 
   # Start azk cli and run
-  Azk.Cli.start(azk_path)
+  Azk.Cli.start(prj_path)
   Azk.Cli.run
 end
