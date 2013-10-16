@@ -23,7 +23,6 @@ defmodule Azk.Cli do
   end
 
   defp display_version() do
-    IO.inspect Mix.project
     IO.puts "Azk #{Mix.project[:version]}"
   end
 

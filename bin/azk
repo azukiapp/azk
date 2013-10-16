@@ -4,13 +4,15 @@
 # Azk project paths
 azk_path = Path.expand(Path.join([__DIR__, ".."]))
 
-# Start mix
-Mix.start
+File.cd! azk_path, fn ->
+  # Start mix
+  Mix.start
 
-# Load azk/mix.exs and set depspath
-Code.load_file Path.join([azk_path, "mix.exs"])
-Mix.loadpaths
+  # Load azk/mix.exs and set depspath
+  Code.load_file Path.join([azk_path, "mix.exs"])
+  Mix.loadpaths
 
-# Start azk cli and run
-Azk.Cli.start(azk_path)
-Azk.Cli.run
+  # Start azk cli and run
+  Azk.Cli.start(azk_path)
+  Azk.Cli.run
+end
