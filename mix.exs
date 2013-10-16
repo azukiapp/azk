@@ -16,6 +16,8 @@ defmodule Azk.Mixfile do
   # Returns the list of dependencies in the format:
   # { :foobar, "~> 0.1", git: "https://github.com/elixir-lang/foobar.git" }
   defp deps do
-    []
+    [
+      {:uuid, github: "gatement/erlang-uuid", commit: "1a4e600f56044c10227a9e5bb5d7c63c7bcb83f6"},
+    ]
   end
 end

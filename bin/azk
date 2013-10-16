@@ -1,9 +1,16 @@
-#!/usr/bin/env node
-var package = require('../package.json');
-var AzkCli = require('../lib/azk-cli');
-var InitCommand = require('../lib/init-command');
+#!/usr/bin/env elixir
+# vim: ft=elixir
 
-new AzkCli()
-.version(package.version)
-.command(InitCommand)
-.runWithArgs(process.argv);
+# Azk project paths
+azk_path = Path.expand(Path.join([__DIR__, ".."]))
+
+# Start mix
+Mix.start
+
+# Load azk/mix.exs and set depspath
+Code.load_file Path.join([azk_path, "mix.exs"])
+Mix.loadpaths
+
+# Start azk cli and run
+Azk.Cli.start(azk_path)
+Azk.Cli.run
