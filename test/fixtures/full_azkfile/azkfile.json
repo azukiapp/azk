@@ -1,4 +1,7 @@
 {
+  // App id
+  "id": "3bc93647-c32c-49e0-8786-242f35ca7340",
+
   // Box base
   "box": "azukiapp/ruby-box#0.0.1",
 
