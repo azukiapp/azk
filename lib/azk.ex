@@ -10,4 +10,8 @@ defmodule Azk do
   def start(args) do
     Azk.Supervisor.start_link(args)
   end
+
+  def azkfile do
+    "azkfile.json"
+  end
 end

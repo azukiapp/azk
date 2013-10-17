@@ -1,7 +1,7 @@
 defmodule AzkTest do
   use ExUnit.Case
 
-  test "the truth" do
-    assert(true)
+  test "return a azkfile name" do
+    assert "azkfile.json" == Azk.azkfile
   end
 end
