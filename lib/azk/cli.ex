@@ -2,7 +2,7 @@ defmodule Azk.Cli do
 
   # TODO: parse azkfile.json and save data
   def start(project_path) do
-    Azk.start([project: project_path])
+    Azk.start([project_path: project_path])
   end
 
   def run(args // System.argv) do

@@ -20,7 +20,9 @@ defmodule Azk.Cli.Server do
   ## Callbacks
 
   def init(args) do
-    project = Keyword.get(args, :project, System.cwd!)
+    project = [
+      project_path: Keyword.get(args, :project_path, System.cwd!)
+    ]
     { :ok, Config[project: project] }
   end
 
