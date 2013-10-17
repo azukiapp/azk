@@ -18,6 +18,7 @@ defmodule Azk.Mixfile do
   defp deps do
     [
       {:uuid, github: "gatement/erlang-uuid", commit: "1a4e600f56044c10227a9e5bb5d7c63c7bcb83f6"},
+      {:jsx , github: "talentdeficit/jsx", compile: "rebar compile" },
     ]
   end
 end
