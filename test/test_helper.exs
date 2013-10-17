@@ -17,6 +17,14 @@ defmodule Azk.TestCase do
     Path.expand(azk)
   end
 
+  @fixture_path Path.expand(Path.join([__DIR__], "fixtures"))
+  def fixture_path(name) do
+    path = Path.join([@fixture_path, "#{name}"])
+    unless File.dir?(path), do: raise "Fixture #{name} not exist"
+    path
+  end
+
+  # TODO: Refactory to use one port
   @ps_out %r/^(?<output>.*)\nresult:\s(?<result>\d*)$/gs
   def run_azk(params // [])
 
