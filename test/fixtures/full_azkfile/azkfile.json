@@ -7,7 +7,7 @@
 
   // Global options
   "options": {
-    "monitoring": false,
+    "monitoring": false
   },
 
   // Environments to run and deploy application
@@ -21,7 +21,7 @@
       ],
       "options": {
         "logging": true,
-        "box_history": 5,
+        "box_history": 5
       },
       "env": {
         "RACK_ENV": "dev"
@@ -32,7 +32,7 @@
       "host": "azukiapp.com/my-blog",
       "alias": [
         // "my-blog.azukiapp.com", Default
-        "blog.example.com", // Custo domain
+        "blog.example.com" // Custo domain
       ],
       "env": {
         "RACK_ENV": "prod"
@@ -44,7 +44,7 @@
   "build": {
     "install binary deps": [
       "apt-get update",
-      "apt-get install libxml2 curl",
+      "apt-get install libxml2 curl"
     ],
     "install deps": [
       "bundle install"
@@ -61,8 +61,8 @@
     "web": {
       "default": true,
       "command": "thin --rackup config.ru --port $PORT start",
-      "net": "http", // http|tcp|udp|zmq
+      "net": "http" // http|tcp|udp|zmq
     },
-    "worker": "rake worker",
+    "worker": "rake worker"
   }
 }
