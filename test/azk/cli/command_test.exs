@@ -3,7 +3,6 @@ defmodule Azk.Cli.Commands.Test.Command do
   use Azk.Cli.Command
 
   @shortdoc "This is short documentation, see"
-  @azkfile_required false
 
   @moduledoc """
   A test task.
@@ -15,7 +14,9 @@ end
 
 defmodule Azk.Cli.Commands.Test.Required do
   use Azk.Cli.Command
-  def run(azkfile, _), do: Utils.parse_azkfile!(azkfile)
+  def run(app_path, _) do
+    Azk.Cli.AzkApp.new(path: app_path).load!
+  end
 end
 
 defmodule Azk.Cli.Commands.Test do
@@ -44,8 +45,9 @@ defmodule Azk.Cli.Commands.Test do
   end
 
   test "run raise a error if not found azkfile" do
-    File.cd! fixture_path(:no_azkfile), fn ->
-      msg = "Could not find a #{Azk.azkfile} in this application folder"
+    path = fixture_path(:no_azkfile)
+    File.cd! path, fn ->
+      msg = "Could not find a #{Azk.azkfile} in this application folder: #{path}"
       assert_raise Azk.Cli.NoAzkfileError, msg, fn ->
         Command.run("test.required")
       end
@@ -53,11 +55,10 @@ defmodule Azk.Cli.Commands.Test do
   end
 
   test "azkfile path chain to run" do
-    prj_path = fixture_path(:full_azkfile)
-    File.cd! prj_path, fn ->
-      file = Azk.Cli.Utils.find_azkfile!(prj_path)
-      data = Azk.Cli.Utils.parse_azkfile!(file)
-      assert Command.run("test.required") == data
+    app_path = fixture_path(:full_azkfile)
+    File.cd! app_path, fn ->
+      app = Azk.Cli.AzkApp.new(path: app_path).load!
+      assert Command.run("test.required") == app
     end
   end
 
@@ -81,10 +82,5 @@ defmodule Azk.Cli.Commands.Test do
 
   test :shortdoc do
     assert Command.shortdoc(TestCommand) == "This is short documentation, see"
-  end
-
-  test :azkfile_required? do
-    refute Command.azkfile_required?(TestCommand)
-    assert Command.azkfile_required?(Required)
   end
 end

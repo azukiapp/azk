@@ -1,5 +1,5 @@
 defmodule Azk.Cli.Test do
-  use Azk.TestCase, async: false
+  use Azk.TestCase
 
   test "show version" do
     version = "Azk #{Mix.project[:version]}\n"
@@ -13,13 +13,14 @@ defmodule Azk.Cli.Test do
 
   test "show a error if azkfile is required but not exist" do
     File.cd! fixture_path(:no_azkfile), fn ->
+      expection = Azk.Cli.NoAzkfileError.new(app_folder: System.cwd!)
       assert capture_io(fn ->
         try do
           Azk.Cli.run(["exec"])
         catch
           :exit, code -> IO.write("#{code}")
         end
-      end) == "** (Azk) #{Azk.Cli.NoAzkfileError.new.message}\n1"
+      end) == "** (Azk) #{expection.message}\n1"
     end
   end
 end

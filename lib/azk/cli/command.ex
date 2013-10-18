@@ -17,8 +17,9 @@ defmodule Azk.Cli.Command do
   defmacro __using__(_opts) do
     quote do
       alias Azk.Cli.Utils
+      alias Azk.Cli.AzkApp
 
-      Enum.each [:shortdoc, :azkfile_required],
+      Enum.each [:shortdoc],
         &(Module.register_attribute(__MODULE__, &1, persist: true))
 
       @azkfile_required true
@@ -80,16 +81,7 @@ defmodule Azk.Cli.Command do
   """
   def run(command, args // []) do
     module = get("#{command}")
-    file   = case Utils.find_azkfile(System.cwd!) do
-      {:ok, file} -> file
-      {:error, file, _} -> file
-    end
-
-    if azkfile_required?(module) && not(File.regular?(file)) do
-      raise Azk.Cli.NoAzkfileError
-    end
-
-    module.run(file, args)
+    module.run(System.cwd!, args)
   end
 
   @doc """
@@ -111,13 +103,6 @@ defmodule Azk.Cli.Command do
     case List.keyfind module.__info__(:attributes), :shortdoc, 0 do
       { :shortdoc, [shortdoc] } -> shortdoc
       _ -> nil
-    end
-  end
-
-  def azkfile_required?(module) when is_atom(module) do
-    case List.keyfind module.__info__(:attributes), :azkfile_required, 0 do
-      { :azkfile_required, [azkfile_required] } -> azkfile_required
-      _ -> true
     end
   end
 
