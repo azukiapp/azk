@@ -1,6 +1,8 @@
 defmodule Azk.Cli.Utils do
   alias Azk.Utils.JSON
 
+  @parse_opts [:comments, {:labels, :atom}]
+
   @doc """
   Search to #{Azk.azkfile} in project path
   """
@@ -20,11 +22,11 @@ defmodule Azk.Cli.Utils do
     return_or_raise(find_azkfile(path))
   end
 
+  # TODO: Raise a Azk specific exceptions
   @doc """
   Parse de #{Azk.azkfile}
   """
   @spec parse_azkfile(String.t) :: {:ok, Keyword.t} | {:error, String.t}
-  @parse_opts [:comments, {:labels, :atom}]
   def parse_azkfile(path) do
     {:ok, JSON.decode(File.read!(path), @parse_opts)}
   rescue
