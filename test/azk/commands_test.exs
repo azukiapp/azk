@@ -3,26 +3,26 @@ defmodule Azk.Cli.Commands.Test.Command do
   use Azk.Cli.Command
 
   @shortdoc "This is short documentation, see"
+  @azkfile_required false
 
   @moduledoc """
   A test task.
   """
-  def run(args) do
+  def run(_, args) do
     "Hello #{inspect(args)}"
   end
 end
 
-defmodule Azk.Cli.Commands.Test.NotRequired do
+defmodule Azk.Cli.Commands.Test.Required do
   use Azk.Cli.Command
-  @azkfile_required false
-  def run(_), do: nil
+  def run(azkfile, _), do: Utils.parse_azkfile!(azkfile)
 end
 
 defmodule Azk.Cli.Commands.Test do
   use Azk.TestCase
   alias Azk.Cli.Command
   alias Azk.Cli.Commands.Test.Command, as: TestCommand
-  alias Azk.Cli.Commands.Test.NotRequired
+  alias Azk.Cli.Commands.Test.Required
 
   test :run do
     assert Command.run(:'test.command') == "Hello []"
@@ -41,6 +41,24 @@ defmodule Azk.Cli.Commands.Test do
 
   test "run with args" do
     assert Command.run("test.command", ["-v"]) == "Hello [\"-v\"]"
+  end
+
+  test "run raise a error if not found azkfile" do
+    File.cd! fixture_path(:no_azkfile), fn ->
+      msg = "Could not find a #{Azk.azkfile} in this application folder"
+      assert_raise Azk.Cli.NoAzkfileError, msg, fn ->
+        Command.run("test.required")
+      end
+    end
+  end
+
+  test "azkfile path chain to run" do
+    prj_path = fixture_path(:full_azkfile)
+    File.cd! prj_path, fn ->
+      file = Azk.Cli.Utils.find_azkfile!(prj_path)
+      data = Azk.Cli.Utils.parse_azkfile!(file)
+      assert Command.run("test.required") == data
+    end
   end
 
   test :get do
@@ -66,7 +84,7 @@ defmodule Azk.Cli.Commands.Test do
   end
 
   test :azkfile_required? do
-    assert Command.azkfile_required?(TestCommand)
-    refute Command.azkfile_required?(NotRequired)
+    refute Command.azkfile_required?(TestCommand)
+    assert Command.azkfile_required?(Required)
   end
 end

@@ -9,7 +9,8 @@ defmodule Azk.Cli.Utils.Test do
   end
 
   test "return a error azkfile not found" do
-    {:error, msg} = Utils.find_azkfile(__DIR__)
+    file = Path.join(__DIR__, Azk.azkfile)
+    {:error, ^file, msg} = Utils.find_azkfile(__DIR__)
     assert Regex.match?(%r/not found.*#{__DIR__}/, msg)
   end
 

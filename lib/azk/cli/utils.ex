@@ -11,7 +11,7 @@ defmodule Azk.Cli.Utils do
     file = Path.join(project_path, Azk.azkfile)
     case File.regular?(file) do
       true -> {:ok, file}
-      _ -> {:error,
+      _ -> {:error, file,
         "#{Azk.azkfile} not found in project path (#{project_path})"
       }
     end
@@ -45,4 +45,5 @@ defmodule Azk.Cli.Utils do
 
   defp return_or_raise({:ok, result}), do: result
   defp return_or_raise({:error, msg}), do: raise msg
+  defp return_or_raise({:error, file, msg}), do: raise file <> " " <> msg
 end

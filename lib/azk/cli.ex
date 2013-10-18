@@ -1,10 +1,5 @@
 defmodule Azk.Cli do
 
-  # TODO: parse azkfile.json and save data
-  def start(project_path) do
-    Azk.start([project_path: project_path])
-  end
-
   def run(args // System.argv) do
     case check_for_shortcuts(args) do
       :help ->
@@ -16,12 +11,31 @@ defmodule Azk.Cli do
     end
   end
 
-  def project do
-    Azk.Cli.Server.call(:project)
+  defp get_command([h|t]) do
+    { h, t }
+  end
+
+  defp run_command(name, args) do
+    try do
+      Azk.Cli.Command.run(name, args)
+    rescue
+      # We only rescue exceptions in the mix namespace, all
+      # others pass through and will explode on the users face
+      exception ->
+        stacktrace = System.stacktrace
+
+        if function_exported?(exception, :azk_error, 0) do
+          if msg = exception.message, do: IO.write "** (Azk) #{msg}\n"
+          exit(1)
+        else
+          raise exception, [], stacktrace
+        end
+    end
   end
 
   defp proceed(args) do
-    IO.inspect({:proceed, project, args})
+    { command, args } = get_command(args)
+    run_command command, args
   end
 
   defp display_banner() do
