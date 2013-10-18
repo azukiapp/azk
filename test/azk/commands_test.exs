@@ -12,10 +12,17 @@ defmodule Azk.Cli.Commands.Test.Command do
   end
 end
 
+defmodule Azk.Cli.Commands.Test.NotRequired do
+  use Azk.Cli.Command
+  @azkfile_required false
+  def run(_), do: nil
+end
+
 defmodule Azk.Cli.Commands.Test do
   use Azk.TestCase
   alias Azk.Cli.Command
   alias Azk.Cli.Commands.Test.Command, as: TestCommand
+  alias Azk.Cli.Commands.Test.NotRequired
 
   test :run do
     assert Command.run(:'test.command') == "Hello []"
@@ -56,5 +63,10 @@ defmodule Azk.Cli.Commands.Test do
 
   test :shortdoc do
     assert Command.shortdoc(TestCommand) == "This is short documentation, see"
+  end
+
+  test :azkfile_required? do
+    assert Command.azkfile_required?(TestCommand)
+    refute Command.azkfile_required?(NotRequired)
   end
 end

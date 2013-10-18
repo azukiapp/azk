@@ -16,7 +16,10 @@ defmodule Azk.Cli.Command do
   @doc false
   defmacro __using__(_opts) do
     quote do
-      Module.register_attribute(__MODULE__, :shortdoc, persist: true)
+      Enum.each [:shortdoc, :azkfile_required],
+        &(Module.register_attribute(__MODULE__, &1, persist: true))
+
+      @azkfile_required true
 
       @behaviour Azk.Cli.Command
     end
@@ -73,6 +76,13 @@ defmodule Azk.Cli.Command do
     case List.keyfind module.__info__(:attributes), :shortdoc, 0 do
       { :shortdoc, [shortdoc] } -> shortdoc
       _ -> nil
+    end
+  end
+
+  def azkfile_required?(module) when is_atom(module) do
+    case List.keyfind module.__info__(:attributes), :azkfile_required, 0 do
+      { :azkfile_required, [azkfile_required] } -> azkfile_required
+      _ -> true
     end
   end
 
