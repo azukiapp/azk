@@ -19,7 +19,7 @@ defmodule Azk.Cli do
     try do
       Azk.Cli.Command.run(name, args)
     rescue
-      # We only rescue exceptions in the mix namespace, all
+      # We only rescue exceptions in the cli namespace, all
       # others pass through and will explode on the users face
       exception ->
         stacktrace = System.stacktrace

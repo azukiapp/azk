@@ -5,7 +5,7 @@ defmodule Azk.Supervisor do
     :supervisor.start_link(__MODULE__, [args])
   end
 
-  def init(args) do
+  def init(_) do
     children = [
       # Define workers and child supervisors to be supervised
       #supervisor(Azk.Cli.Sup, args)
