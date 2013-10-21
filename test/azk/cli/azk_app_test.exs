@@ -5,6 +5,7 @@ defmodule Azk.Cli.AzkApp.Test do
 
   test :is_record do
     assert is_record(AzkApp.new, AzkApp)
+    assert AzkApp.new(__DIR__).path == __DIR__
   end
 
   test "set azkfile based in options" do

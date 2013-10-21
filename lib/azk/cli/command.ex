@@ -22,8 +22,6 @@ defmodule Azk.Cli.Command do
       Enum.each [:shortdoc],
         &(Module.register_attribute(__MODULE__, &1, persist: true))
 
-      @azkfile_required true
-
       @behaviour Azk.Cli.Command
     end
   end

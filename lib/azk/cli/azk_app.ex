@@ -14,6 +14,11 @@ defmodule Azk.Cli.AzkApp do
   Record.import __MODULE__, as: :app
 
   defoverridable new: 1
+
+  def new(path) when is_bitstring(path) do
+    new(path: path)
+  end
+
   def new(opts) do
     opts = Keyword.merge([
       path: System.cwd!,
