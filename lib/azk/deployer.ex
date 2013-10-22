@@ -1,3 +1,10 @@
+defexception Azk.Deployer.DeployerError, origin_path: nil, destiny_path: nil, azk_error: true do
+  def message(exception) do
+    "Unable to deploy the application, from: " <>
+    "#{origin_path(exception)} to #{destiny_path(exception)}"
+  end
+end
+
 defmodule Azk.Deployer do
   use Behaviour
 
@@ -26,6 +33,7 @@ defmodule Azk.Deployer do
   @doc false
   defmacro __using__(_opts) do
     quote do
+      alias Azk.Deployer.DeployerError
       @behaviour unquote(__MODULE__)
     end
   end

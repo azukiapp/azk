@@ -2,9 +2,14 @@ defmodule Azk.Deployers.Bindfs do
   use Azk.Deployer
 
   def sync!(origin, destiny) do
-    unless sync?(origin, destiny), do:
+    unless sync?(origin, destiny) do
+      File.mkdir_p!(destiny)
       0 = exec("bindfs #{origin} #{destiny}")
+    end
     :ok
+  rescue
+    MatchError ->
+      raise DeployerError.new(origin_path: origin, destiny_path: destiny)
   end
 
   def unsync!(origin, destiny) do

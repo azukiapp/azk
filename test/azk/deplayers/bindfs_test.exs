@@ -22,6 +22,13 @@ defmodule Azk.Deployers.Bindfs.Test do
     assert equal_dir?(origin, destiny)
   end
 
+  test "create a destiny folder before sync", var do
+    {origin, destiny} = {var[:origin], var[:destiny]}
+    File.rm_rf!(destiny)
+    assert :ok == Bindfs.sync!(origin, destiny)
+    assert equal_dir?(origin, destiny)
+  end
+
   test "call the sync? to check bind folders", var do
     {origin, destiny} = {var[:origin], var[:destiny]}
     assert :ok == Bindfs.sync!(origin, destiny)
