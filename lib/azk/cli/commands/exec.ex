@@ -13,7 +13,10 @@ defmodule Azk.Cli.Commands.Exec do
   """
   def run(app_path, argv) do
     app = AzkApp.new(path: app_path).load!
-    IO.inspect {app, argv}
+
+    # Deploy
+    IO.puts("Depley app #{app.path} to #{app.mount_folder}")
+    app.deploy!
   end
 end
 
