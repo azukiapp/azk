@@ -33,6 +33,12 @@ $ azk web                           # Health computer API endpoint (http://[proj
 
 ## Development Use
 
+### OS dependencies:
+
+- bindfs
+
+### Install
+
 1. install erlang and elixir
 	* We recommend to use **[kerl](https://github.com/spawngrid/kerl)** and **[exenv](https://github.com/mururu/exenv)**
 	* More options: [http://elixir-lang.org/getting_started/1.html](http://elixir-lang.org/getting_started/1.html)
