@@ -24,6 +24,13 @@ defmodule Azk.TestCase do
     path
   end
 
+  def tmp_path(name) do
+    name = List.wrap(name)
+    path = Path.expand(Path.join([__DIR__, "..", "tmp"] ++ name))
+    unless File.dir?(path), do: File.mkdir_p!(path)
+    path
+  end
+
   # TODO: Refactory to use one port
   @ps_out %r/^(?<output>.*)\nresult:\s(?<result>\d*)$/gs
   def run_azk(params // [])
