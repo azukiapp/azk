@@ -27,8 +27,10 @@ defmodule Azk.Cli.AzkApp.Test do
   test "parse azkfile and set values" do
     path = fixture_path(:full_azkfile)
     File.cd! path, fn ->
-      app = AzkApp.new().load!
-      refute nil == app.id
+      azkfile = (app = AzkApp.new()).azkfile
+      app = app.load!
+      assert app.azkfile == azkfile
+      refute app.id == nil
     end
   end
 

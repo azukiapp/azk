@@ -27,11 +27,12 @@ defmodule Azk.Cli.AzkApp do
     super opts
   end
 
+  # TODO: Valid azkfile
   @doc """
   Load app information from #{Azk.azkfile}
   """
   @spec load!(t) :: t
-  def load!(app(azkfile: azkfile, path: path)) do
+  def load!(app(azkfile: azkfile, path: path) = app) do
     case Utils.parse_azkfile(azkfile) do
       {:ok, azkfile} ->
         app(app, id: azkfile[:id])
