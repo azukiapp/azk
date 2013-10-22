@@ -1,6 +1,5 @@
 defmodule Azk.Bin.Azk.Test do
   use Azk.TestCase
-  alias Mix.Shell
 
   test "run correctly even when other directory" do
     File.cd!(__DIR__, fn ->

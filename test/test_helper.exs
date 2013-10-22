@@ -42,7 +42,7 @@ defmodule Azk.TestCase do
   defp run_fn(params) do
     fn ->
       cmd = bin_azk <> " " <> Enum.join(params, " ")
-      status = Mix.Shell.cmd(cmd, fn data ->
+      status = Azk.Shell.cmd(cmd, fn data ->
         IO.write(data)
       end)
       IO.write("\nresult: #{status}")
