@@ -2,6 +2,13 @@ defmodule Azk.Cli.AzkApp do
   alias Azk.Cli.Utils
   alias Azk.Config
 
+  defrecord Box, type: :git, address: nil, version: nil do
+    @box_parse %r/(?<address>[^\#|.]*)\#?(?<version>.*)/g
+    def new(box) when is_bitstring(box) do
+      new(Regex.named_captures(@box_parse, box))
+    end
+  end
+
   # Fields
   @fields [ id: nil, azkfile: nil, path: nil, box: nil,
     options: [], envs: [], builds: [], services: []
@@ -35,7 +42,10 @@ defmodule Azk.Cli.AzkApp do
   def load!(app(azkfile: azkfile, path: path) = app) do
     case Utils.parse_azkfile(azkfile) do
       {:ok, azkfile} ->
-        app(app, id: azkfile[:id])
+        app(app, [
+          id: azkfile[:id],
+          box: Box.new(azkfile[:box])
+        ])
       _ ->
         raise Azk.Cli.NoAzkfileError.new(app_folder: path)
     end

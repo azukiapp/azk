@@ -51,4 +51,10 @@ defmodule Azk.Cli.AzkApp.Test do
       assert Path.join([apps_folder, app.id]) == app.mount_folder
     end
   end
+
+  test "parse de box information" do
+    app = AzkApp.new(fixture_path(:full_azkfile)).load!
+    box = AzkApp.Box.new(address: "azukiapp/ruby-box", version: "0.0.1")
+    assert box == app.box
+  end
 end
