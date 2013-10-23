@@ -11,7 +11,7 @@ defmodule Azk.Cli.Commands.Exec do
   Examples:
       $ azk exec npm install
   """
-  def run(app_path, argv) do
+  def run(app_path, _argv) do
     app = AzkApp.new(path: app_path).load!
 
     # Deploy
