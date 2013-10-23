@@ -3,4 +3,5 @@
 /deps
 /log
 /tmp
+/data
 erl_crash.dump
