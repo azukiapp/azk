@@ -1,3 +1,0 @@
-[ "jsx": {:git, "git://github.com/talentdeficit/jsx.git", "e50af6e109cb03bd26acf715cbc77de746507d1d", []},
-  "tree_config": {:git, "git://github.com/nuxlli/tree_config.git", "c3604291ca74a5c5c0a9debf70061f8b4d5cf0da", []},
-  "uuid": {:git, "git://github.com/gatement/erlang-uuid.git", "1a4e600f56044c10227a9e5bb5d7c63c7bcb83f6", []} ]
