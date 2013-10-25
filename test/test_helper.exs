@@ -13,7 +13,7 @@ defmodule Azk.TestCase do
 
   # Get path to bin/azk
   def bin_azk do
-    azk = Path.join([__DIR__, "..", "bin", "azk"])
+    azk = Path.join([__DIR__, "..", "bin", "azk.exs"])
     Path.expand(azk)
   end
 
