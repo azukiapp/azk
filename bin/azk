@@ -1,6 +1,10 @@
 #!/bin/bash
 
 __FILE__="${0}"
-export AZK_PATH=`cd \`dirname $(readlink ${__FILE__} || echo ${__FILE__} )\`/..; pwd`
+export _AZK_PATH=`cd \`dirname $(readlink ${__FILE__} || echo ${__FILE__} )\`/..; pwd`
+export PATH=$_AZK_PATH/bin:$PATH
 
-echo $AZK_PATH
+export LUA_PATH="$_AZK_PATH/lib/?.lua;$LUA_PATH"
+export LUA_PATH="$_AZK_PATH/lib/?/init.lua;$LUA_PATH"
+
+luajit $_AZK_PATH/bin/azk.lua ${@}

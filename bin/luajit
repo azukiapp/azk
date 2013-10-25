@@ -1,0 +1,44 @@
+#!/bin/sh
+
+dirname=$(dirname $0)
+pushd $dirname 1>/dev/null 2>/dev/null && absname=$(pwd) && popd 1>/dev/null 2>/dev/null 
+
+OS=Unknown
+ARCH=Unknown
+SO=.Unknown
+
+# Find ARCH by machine
+case `uname -m` in
+    x86_64) ARCH=x64;;
+    i686)   ARCH=x86;;
+    i386)   ARCH=x86;;
+    arm*)   ARCH=arm;;
+esac
+
+# Find OS by kernel name
+case `uname -s` in
+  Linux)
+    OS=linux
+    OSARCH=$OS/$ARCH
+    SO=.so
+    # this should go away at some point (-Wl,-rpath $ORIGN)
+    export LD_LIBRARY_PATH=$absname/luadist/$OSARCH/bin/:$LD_LIBRARY_PATH
+    ;;
+  Darwin)
+    OS=osx
+    OSARCH=$OS # universal
+    SO=.dylib
+    # this should go away at some point (install_name_tool with @rpath and @executable path)
+    export DYLD_LIBRARY_PATH=$absname/luadist/$OSARCH/bin:$DYLD_LIBRARY_PATH
+    ;;
+  *)
+    case `uname -o` in
+      Cygwin)
+        OS=Windows
+        SO=.dll
+        ;;
+    esac
+esac
+
+"$dirname/luadist/$OSARCH/bin/luajit" "$@"
+
