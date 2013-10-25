@@ -64,7 +64,7 @@ defmodule Azk.Cli.AzkApp do
   """
   @spec mount_folder(t) :: String.t
   def mount_folder(app(id: id)) do
-    Path.join([Config.get(:azk_agent_path), "apps", id])
+    Path.join([Config.get(:azk_data_path), "apps", id])
   end
 
   defp find_azkfile(path) do

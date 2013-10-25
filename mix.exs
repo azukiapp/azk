@@ -8,7 +8,7 @@ defmodule Azk.Mixfile do
       deps: deps,
       configs: [
         azk_agent_host: {:from_env, :AZK_AGENT_HOST, "192.168.50.4"},
-        azk_agent_path: {:from_env, :AZK_AGENT_APTH, "/var/lib/azk"},
+        azk_data_path: {:from_env, :AZK_DATA_PATH, Path.join([__DIR__, "/data"])},
         overrides: [ exdocker: [ ] ]
       ]
     ]

@@ -46,7 +46,7 @@ defmodule Azk.Cli.AzkApp.Test do
   test "get azk folder path" do
     path = fixture_path(:full_azkfile)
     File.cd! path, fn ->
-      apps_folder = Path.join([Azk.Config.get(:azk_agent_path), "apps"])
+      apps_folder = Path.join([Azk.Config.get(:azk_data_path), "apps"])
       app = AzkApp.new.load!
       assert Path.join([apps_folder, app.id]) == app.mount_folder
     end
