@@ -1,3 +1,4 @@
-local cli = require('azk/cli')
+#!/usr/bin/env luajit
 
-print(...)
+local cli = require('azk.cli')
+cli.run(...)

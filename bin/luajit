@@ -40,5 +40,25 @@ case `uname -s` in
     esac
 esac
 
-"$dirname/luadist/$OSARCH/bin/luajit" "$@"
+function_exists () {
+  FUNCTION_NAME=$1
+  [ "type $FUNCTION_NAME" = "$FUNCTION_NAME is a shell function" ] && return 1
+  [ -z "$FUNCTION_NAME" ] && return 1
+  declare -F "$FUNCTION_NAME" > /dev/null 2>&1
+  return $?
+}
+
+# Luajit interpreter
+luajit_path="$dirname/luadist/$OSARCH"
+luajit="$luajit_path/bin/luajit"
+
+# main is declared?
+if ! type luajit_main 2>/dev/null | grep 'function$' 1>/dev/null 2>/dev/null; then
+  luajit_main () {
+    $luajit "${@}"
+  }
+fi
+
+# run main function
+luajit_main "${@}"
 

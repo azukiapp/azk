@@ -1,0 +1,7 @@
+#!/bin/sh
+
+luajit_main () {
+  $luajit $luajit_path/bin/busted_bootstrap "$@"
+}
+
+. $(dirname $0)/luajit
