@@ -48,6 +48,9 @@ function_exists () {
   return $?
 }
 
+# Readline wrap
+rlwrap="$(which rlwrap 2>/dev/null || echo "exec")"
+
 # Luajit interpreter
 luajit_path="$dirname/luadist/$OSARCH"
 luajit="$luajit_path/bin/luajit"
@@ -60,7 +63,7 @@ export LUA_PATH
 # main is declared?
 if ! type luajit_main 2>/dev/null | grep 'function$' 1>/dev/null 2>/dev/null; then
   luajit_main () {
-    $luajit "${@}"
+    $rlwrap $luajit "${@}"
   }
 fi
 
