@@ -8,4 +8,9 @@ LUA_PATH="$_AZK_PATH/src/?.lua;$LUA_PATH"
 LUA_PATH="$_AZK_PATH/src/?/init.lua;$LUA_PATH"
 export LUA_PATH
 
-luajit $_AZK_PATH/bin/azk.lua ${@}
+if [ "$1" == "lua" ]; then
+  shift
+  luajit ${@}
+else
+  luajit $_AZK_PATH/bin/azk.lua ${@}
+fi
