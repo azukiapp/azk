@@ -1,7 +1,7 @@
 #!/bin/sh
 
 dirname=$(dirname $0)
-pushd $dirname 1>/dev/null 2>/dev/null && absname=$(pwd) && popd 1>/dev/null 2>/dev/null 
+pushd $dirname 1>/dev/null 2>/dev/null && absname=$(pwd) && popd 1>/dev/null 2>/dev/null
 
 OS=Unknown
 ARCH=Unknown
@@ -52,7 +52,7 @@ function_exists () {
 rlwrap="$(which rlwrap 2>/dev/null || echo "exec")"
 
 # Luajit interpreter
-luajit_path="$dirname/luadist/$OSARCH"
+luajit_path="$dirname/../deps/luadist/$OSARCH"
 luajit="$luajit_path/bin/luajit"
 
 # Lua paths in luadist

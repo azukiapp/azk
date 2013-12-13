@@ -1,8 +1,5 @@
 .vagrant/
-/ebin
 /deps
 /log
 /tmp
 /data
-/bin/luadist
-erl_crash.dump
