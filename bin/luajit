@@ -52,6 +52,11 @@ function_exists () {
 luajit_path="$dirname/luadist/$OSARCH"
 luajit="$luajit_path/bin/luajit"
 
+# Lua paths in luadist
+LUA_PATH="$LUA_PATH;$luajit_path/lib/lua/?.lua"
+LUA_PATH="$LUA_PATH;$luajit_path/lib/lua/?/init.lua"
+export LUA_PATH
+
 # main is declared?
 if ! type luajit_main 2>/dev/null | grep 'function$' 1>/dev/null 2>/dev/null; then
   luajit_main () {
