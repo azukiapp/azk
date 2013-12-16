@@ -9,7 +9,7 @@ local function display_help()
 end
 
 local function display_version()
-  print("Azk " .. azk.version)
+  print("azk " .. azk.version)
 end
 
 local function check_for_shortcuts(...)
