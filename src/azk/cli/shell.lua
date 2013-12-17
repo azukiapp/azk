@@ -23,6 +23,7 @@ end
 
 function print(...)
   output:write(format(...))
+  output:write("\n")
 end
 
 return shell
