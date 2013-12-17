@@ -1,7 +1,82 @@
 #!/bin/sh
 
-luajit_main () {
-  $luajit_path/bin/luadist $luajit_path "$@"
+if [ -z "$AZK_PATH" ]; then
+  dirname=$(dirname $0)
+  pushd $dirname 1>/dev/null 2>/dev/null && absname=$(pwd) && popd 1>/dev/null 2>/dev/null
+  export AZK_PATH="$(cd "$dirname"/..; pwd)"
+fi
+
+OS=Unknown
+ARCH=Unknown
+SO=.Unknown
+
+# Find ARCH by machine
+case `uname -m` in
+    x86_64) ARCH=x64;;
+    i686)   ARCH=x86;;
+    i386)   ARCH=x86;;
+    arm*)   ARCH=arm;;
+esac
+
+# Find OS by kernel name
+case `uname -s` in
+  Linux)
+    OS=linux
+    OSARCH=$OS/$ARCH
+    SO=.so
+    # this should go away at some point (-Wl,-rpath $ORIGN)
+    export LD_LIBRARY_PATH=$absname/luadist/$OSARCH/bin/:$LD_LIBRARY_PATH
+    ;;
+  Darwin)
+    OS=osx
+    OSARCH=$OS # universal
+    SO=.dylib
+    # this should go away at some point (install_name_tool with @rpath and @executable path)
+    export DYLD_LIBRARY_PATH=$absname/luadist/$OSARCH/bin:$DYLD_LIBRARY_PATH
+    ;;
+  *)
+    case `uname -o` in
+      Cygwin)
+        OS=Windows
+        SO=.dll
+        ;;
+    esac
+esac
+
+function_exists () {
+  FUNCTION_NAME=$1
+  [ "type $FUNCTION_NAME" = "$FUNCTION_NAME is a shell function" ] && return 1
+  [ -z "$FUNCTION_NAME" ] && return 1
+  declare -F "$FUNCTION_NAME" > /dev/null 2>&1
+  return $?
 }
 
-. $(dirname $0)/luajit
+# Luajit interpreter
+luajit_path="$AZK_PATH/deps/luadist/$OSARCH"
+luajit="$luajit_path/bin/luajit"
+
+# Lua paths in luadist
+LUA_PATH="$AZK_PATH/src/?.lua;$LUA_PATH"
+LUA_PATH="$AZK_PATH/src/?/init.lua;$LUA_PATH"
+LUA_PATH="$LUA_PATH;$luajit_path/lib/lua/?.lua"
+LUA_PATH="$LUA_PATH;$luajit_path/lib/lua/?/init.lua"
+export LUA_PATH
+
+# PATH
+export PATH="$luajit_path/bin;$PATH"
+
+# main is declared?
+if ! type luajit_main 2>/dev/null | grep 'function$' 1>/dev/null 2>/dev/null; then
+  luajit_main () {
+    if [ "$1" = "exec" -a ! -z "$2" ]; then
+      command="$luajit_path/bin/$2";
+      shift 2; # exec
+      exec $command "${@}"
+    else
+      $luajit_path/bin/luadist $luajit_path "$@"
+    fi
+  }
+fi
+
+# run main function
+luajit_main "${@}"

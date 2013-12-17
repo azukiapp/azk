@@ -6,7 +6,7 @@ test: test-shell test-lua
 
 test-lua:
 	@echo "Lua testes"
-	@./bin/busted spec
+	@./bin/luadist exec busted
 
 test-shell:
 	@echo "Shell tests"

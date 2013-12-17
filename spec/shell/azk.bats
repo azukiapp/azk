@@ -3,7 +3,7 @@
 load ../test_helper
 
 @test "$test_label call luajit" {
-  run luajit -v
+  run luadist exec luajit -v
   assert_success
   assert_match "LuaJIT [0-9]*.[0-9]*.[0-9]*" "$output"
 }

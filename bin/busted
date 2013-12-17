@@ -1,7 +1,0 @@
-#!/bin/sh
-
-luajit_main () {
-  $luajit_path/bin/busted "$@"
-}
-
-. $(dirname $0)/luajit
