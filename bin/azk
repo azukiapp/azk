@@ -1,16 +1,13 @@
 #!/bin/bash
 
 __FILE__="${0}"
-export _AZK_PATH=`cd \`dirname $(readlink ${__FILE__} || echo ${__FILE__} )\`/..; pwd`
-export PATH=$_AZK_PATH/bin:$PATH
-
-LUA_PATH="$_AZK_PATH/src/?.lua;$LUA_PATH"
-LUA_PATH="$_AZK_PATH/src/?/init.lua;$LUA_PATH"
-export LUA_PATH
+export AZK_PATH=`cd \`dirname $(readlink ${__FILE__} || echo ${__FILE__} )\`/..; pwd`
+export AZK_PATH
+export PATH=$AZK_PATH/bin:$PATH
 
 if [ "$1" == "lua" ]; then
   shift
   luajit ${@}
 else
-  luajit $_AZK_PATH/bin/azk.lua ${@}
+  luajit $AZK_PATH/bin/azk.lua ${@}
 fi
