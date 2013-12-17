@@ -1,15 +1,20 @@
 local cli    = {}
 local azk    = require('azk')
 local switch = require('azk.utils').switch
+local shell  = require('azk.cli.shell')
 
 local function proceed()
-end
-
-local function display_help()
+  --args = {...}
+  --command = table.remove(args, 1)
+  --require('azk.cli.command' .. command).run(unpack(args))
 end
 
 local function display_version()
-  print("azk " .. azk.version)
+  shell.print("azk %s", azk.version)
+end
+
+local function display_help()
+  display_version()
 end
 
 local function check_for_shortcuts(...)
@@ -18,7 +23,11 @@ local function check_for_shortcuts(...)
     ["--help"] = h, ["-h"] = h, ["-help"] = h,
     ["--version"] = v, ["-v"] = v
   }
-  return opts[arg[1]]
+  return (opts[select(1, ...)] or h)
+end
+
+function cli.set_output(file)
+  output = file
 end
 
 function cli.run(...)
