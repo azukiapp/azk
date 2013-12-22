@@ -1,7 +1,11 @@
 local cli    = {}
 local azk    = require('azk')
-local switch = require('azk.utils').switch
+local utils  = require('azk.utils')
 local shell  = require('azk.cli.shell')
+
+local each = require('fun').each
+
+local switch = utils.switch
 
 local function proceed()
   --args = {...}

@@ -1,3 +1,5 @@
+--require('spec.helper')
+
 local cli   = require('azk.cli')
 local shell = require('azk.cli.shell')
 
