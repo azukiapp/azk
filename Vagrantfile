@@ -13,19 +13,20 @@ Vagrant.configure("2") do |config|
   data_path = File.expand_path(ENV["AZK_DATA_PATH"] || "./data")
 
   shared = {
-    'azk' => [azk_path, "/home/core/azk"],
-    'azk-data' => [data_path, "/home/core/azk/data"],
-    'azk-apps' => [apps_path, "/home/core/azk/data/apps"],
+    #'azk' => [azk_path, "/home/core/azk"],
+    #'azk-data' => [data_path, "/home/core/azk/data"],
+    #'azk-apps' => [apps_path, "/home/core/azk/data/apps"],
   }
 
   shared.each do |key, value|
     config.vm.synced_folder(
+      #value[0], value[1], id: key, :mount_options => ['ttl=1,dmode=0770,fmode=0660']
       value[0], value[1], id: key, :nfs => true, :mount_options => ['nolock,vers=3,udp']
     )
   end
 
   # Provision
-  config.vm.provision "shell", inline: "/home/core/azk/bin/azk agent-provision"
+  #config.vm.provision "shell", inline: "/home/core/azk/bin/azk agent-provision"
 
   # Fix docker not being able to resolve private registry in VirtualBox
   config.vm.provider :virtualbox do |vb, override|
