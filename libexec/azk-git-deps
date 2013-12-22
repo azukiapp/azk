@@ -1,0 +1,16 @@
+#!/bin/sh
+
+repo="$1"
+path="$2"
+version="${3:-master}"
+
+if [ -d "$path" -a ! -d "$path/.git" ]; then
+  echo "Directory $path exist, and not a git clone." >&2
+  exit 1;
+fi
+
+if [ ! -d "$path" ]; then
+  git clone $repo $path
+fi
+
+git --git-dir="$path/.git" checkout -q "$version"
