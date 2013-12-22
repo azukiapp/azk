@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 
-load ../test_helper
+load ./test_helper
 
 @test "$test_label call luajit" {
   run luadist exec luajit -v
