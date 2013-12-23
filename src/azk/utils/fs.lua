@@ -93,6 +93,27 @@ function rm_rf(path)
   end
 end
 
+function pwd()
+  return lfs.currentdir()
+end
+
+function cd(path, func)
+  if func then
+    local current = pwd()
+    local result, err = lfs.chdir(path)
+    if result then
+      func()
+    else
+      return result, err
+    end
+    path = current
+  end
+  return lfs.chdir(path)
+end
+
+-- TODO: cp
+-- TODO: cp_r
+
 -- Alias
 is_exists = is_exist
 
