@@ -67,8 +67,8 @@ say:set("assertion.blank.negative", "\nExpect %s is not blank")
 assert:register("assertion", "blank", blank, "assertion.blank.positive", "assertion.blank.negative")
 
 say:set_namespace("en")
-say:set("assertion.match.positive", "\n'%s'\nto match with pattern:\n'%s'")
-say:set("assertion.match.negative", "\n'%s'\nnot match with pattern:\n'%s'")
+say:set("assertion.match.positive", "\n%s\nto match with pattern:\n%s")
+say:set("assertion.match.negative", "\n%s\nnot match with pattern:\n%s")
 assert:register("assertion", "match", match, "assertion.match.positive", "assertion.match.negative")
 
 return helper
