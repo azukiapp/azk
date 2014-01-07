@@ -7,6 +7,16 @@ local type     = type
 local error    = error
 local tostring = tostring
 
+local ffi = require('ffi')
+local C = ffi.C
+
+ffi.cdef [[
+  char * getenv(const char *name);
+  int setenv(const char *name, const char *value, int overwrite);
+  int putenv(const char *string);
+  void unsetenv(const char *name);
+]]
+
 local utils = {}
 setfenv(1, utils)
 
@@ -34,6 +44,22 @@ function switch(c)
   return swtbl
 end
 
+-- env
+-- TODO: implement windows version
+-- https://github.com/LuaDist/luaex
+function getenv(name)
+  local value = C.getenv(name)
+  return value ~= nil and ffi.string(value) or nil
+end
+
+function setenv(name, value)
+  return value and C.setenv(name, value, 1) or (C.unsetenv(name) or 0)
+end
+
+function unset(name)
+  return setenv(name)
+end
+
 -- generate unique id
 function unique_id(size)
   return uuid.new():lower():gsub("-", ""):sub(0, size or 32)
@@ -57,6 +83,16 @@ end
 local basedir = ("^(.*)%s.*$"):format(path.separator)
 function __DIR__()
   return __FILE__(3):match(basedir)
+end
+
+-- Utils
+function tmp_dir()
+  return (
+    getenv("TMPDIR") or
+    getenv("TEMP")   or
+    getenv("TMP")    or
+    path.join(path.rootvolume, "tmp")
+  )
 end
 
 return utils
