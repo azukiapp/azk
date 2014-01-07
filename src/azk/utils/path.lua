@@ -6,7 +6,7 @@ local arch = {
   root = ((package.config:sub(1,1) == "/") and "/" or "c:")
 }
 
-local M = { separator = arch.sep }
+local M = { separator = arch.sep, rootvolume = arch.root }
 setfenv(1, M)
 
 -- Split a filename into [root, dir, basename], unix version
@@ -103,6 +103,19 @@ function dirname(filepath)
     return root
   end
   return "."
+end
+
+function basename(filepath, expected_ext)
+  local base, ext_pos = filepath:match("[^" .. arch.sep .. "]+$") or ""
+  if expected_ext then
+     local ext_pos = base:find(expected_ext:gsub('%.', '%.') .. '$')
+     if ext_pos then base = base:sub(1, ext_pos - 1) end
+  end
+  return base
+end
+
+function is_root(path)
+  return path == arch.root
 end
 
 return M
