@@ -1,5 +1,13 @@
-local azk = {}
+local utils = require('azk.utils')
+local path  = require('azk.utils.path')
 
-azk.version = "0.0.1"
+local M = {}
+setfenv(1, M)
 
-return azk
+M.version   = "0.0.1"
+M.manifest  = "azkfile.json"
+M.root_path = path.normalize(
+  path.join(utils.__DIR__(), "..", "..")
+)
+
+return M
