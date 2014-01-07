@@ -1,6 +1,9 @@
+local io  = require('io')
 local lfs = require('lfs')
-local dirname = require('azk.utils.path').dirname
-local join    = require('azk.utils.path').join
+
+local dirname  = require('azk.utils.path').dirname
+local basename = require('azk.utils.path').basename
+local join     = require('azk.utils.path').join
 
 local ffi = require('ffi')
 local C = ffi.C
@@ -13,6 +16,8 @@ local open   = require('io').open
 local remove = require('os').remove
 
 local serpent = require('spec.utils.serpent')
+local error   = error
+local pcall   = pcall
 local g_print = print
 local print   = function(...)
   g_print(serpent.line(...))
@@ -22,6 +27,7 @@ local M = { separator = sep }
 setfenv(1, M)
 
 local no_such_msg = "No such file or directory"
+local bf_size = 2^13
 
 function stat(path)
   return lfs.attributes(path)
@@ -111,10 +117,71 @@ function cd(path, func)
   return lfs.chdir(path)
 end
 
--- TODO: cp
--- TODO: cp_r
+function read(file)
+  local f = io.open(file, "rb")
+  local content = f:read("*all")
+  f:close()
+  return content
+end
+
+function cp_ha(origin, destination)
+  if not is_exist(origin) then
+    error(origin .. ": No such file or directory")
+  elseif is_dir(origin) then
+    error(origin .. " is a directory (not copied)")
+  end
+
+  local base = basename(destination)
+  if base == '' or is_dir(destination) then
+    base = basename(origin)
+    destination = join(destination, base)
+  end
+
+  if not is_dir(dirname(destination)) then
+    error("directory " .. dirname(destination) .. " does not exist")
+  end
+
+  local f_origin = io.open(origin, "rb")
+  local f_dest   = io.open(destination, "wb")
+
+  while true do
+    local block = f_origin:read(bf_size)
+    if not block then break end
+    f_dest:write(block)
+  end
+
+  f_origin:close()
+  f_dest:close()
+end
+
+function cp(origin, dest)
+  return pcall(cp_ha, origin, dest)
+end
+
+function cp_r_ha(origin, dest)
+  if not is_dir(origin) then
+    return cp_ha(origin, dest)
+  elseif not is_dir(dirname(dest)) then
+    error("directory " .. dirname(dest) .. " does not exist")
+  end
+
+  if not is_dir(dest) then mkdir(dest) end
+
+  local entries, dir = lfs.dir(origin)
+  for entrie in entries, dir do
+    if entrie ~= ".." and entrie ~= "." then
+      cp_r_ha(join(origin, entrie), join(dest, entrie))
+    end
+  end
+  dir:close()
+end
+
+function cp_r(origin, dest)
+  return pcall(cp_r_ha, origin, dest)
+end
 
 -- Alias
 is_exists = is_exist
+dir = lfs.dir
 
 return M

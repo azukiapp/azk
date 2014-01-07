@@ -98,7 +98,7 @@ describe("azk utils file", function()
 
   it("should changing current directory", function()
     local current = lfs.currentdir()
-    local result  = fs.cd("../")
+    local result  = fs.cd("..")
     assert.is_true(result)
     assert.is.equal(path.dirname(current), fs.pwd())
     fs.cd(current)
@@ -110,9 +110,66 @@ describe("azk utils file", function()
 
   it("should temporary current directory changing", function()
     local current = fs.pwd()
-    fs.cd("../", function()
+    fs.cd("..", function()
       assert.is.equal(path.dirname(current), fs.pwd())
     end)
     assert.is.equal(current, fs.pwd())
   end)
+
+  it("should read a file content", function()
+    -- Line to test #345
+    local content = fs.read(utils.__FILE__())
+    assert.is.match(content, "should read a file content")
+    assert.is.match(content, "Line to test #345")
+  end)
+
+  it("should be copy the file", function()
+    local o_file = utils.__FILE__()
+    local d_file = path.join(base_dir, "destiny_file")
+
+    local status = fs.cp(o_file, d_file)
+    assert.is_true(status)
+    assert.is.equal(fs.read(d_file), fs.read(o_file))
+  end)
+
+  it("should copy a file without destination name", function()
+    local o_file = utils.__FILE__()
+    local d_file = path.join(base_dir, path.basename(o_file))
+
+    local status = fs.cp(o_file, base_dir)
+    assert.is_true(status)
+    assert.is.equal(fs.read(d_file), fs.read(d_file))
+  end)
+
+  it("should return a errors for invalids copy operations", function()
+    local _, err = fs.cp(utils.__FILE__() .. "_not_exist", "")
+    assert.is.match(err, "_not_exist: No such file or directory")
+
+    local _, err = fs.cp(utils.__DIR__(), "")
+    assert.is.match(err, utils.__DIR__() .. " is a directory %(not copied%)")
+
+    local _, err = fs.cp(utils.__FILE__(), "/__invalid_dir/")
+    assert.is.match(err, "directory /__invalid_dir does not exist")
+  end)
+
+  it("should return a error for invalid directory copy", function()
+    local _, err = fs.cp_r(utils.__DIR__() .. "_not_exist", "")
+    assert.is.match(err, "_not_exist: No such file or directory")
+
+    local _, err = fs.cp_r(utils.__DIR__(), "/__invalid_dir/other")
+    assert.is.match(err, "directory /__invalid_dir does not exist")
+  end)
+
+  it("should copy a directory recursively", function()
+    local origin  = path.join(helper.fixture_path("test-box"))
+    local dest    = path.join(base_dir, "dest")
+
+    local status = fs.cp_r(origin, dest)
+    assert.is_true(status)
+    assert.is_true(fs.is_dir(dest))
+    assert.is_true(fs.is_dir(path.join(dest, "scripts")))
+    assert.is_true(fs.is_regular(path.join(dest, "azkfile.json")))
+    assert.is_true(fs.is_regular(path.join(dest, "scripts", "none")))
+  end)
 end)
+
