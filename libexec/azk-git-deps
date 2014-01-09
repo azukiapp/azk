@@ -3,14 +3,17 @@
 repo="$1"
 path="$2"
 version="${3:-master}"
+git_dir="$path/.git"
 
-if [ -d "$path" -a ! -d "$path/.git" ]; then
+if [ -d "$path" -a ! -d "$git_dir" ]; then
   echo "Directory $path exist, and not a git clone." >&2
   exit 1;
 fi
 
 if [ ! -d "$path" ]; then
-  git clone $repo $path
+  git clone --no-checkout --progress $repo $path
+else
+  git --git-dir="$git_dir" fetch --force --progress
 fi
 
-git --git-dir="$path/.git" checkout -q "$version"
+git --git-dir="$git_dir" checkout --quiet "$version"

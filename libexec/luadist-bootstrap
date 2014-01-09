@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+export BOOTSTRAP_TMP=`pwd`/tmp
+export BOOTSTRAP_INSTALL=`pwd`/deps/luadist
+export BOOTSTRAP_REPOS=`pwd`/deps
+
+echo "Verifying installation of luadist and luajit" >&2
+./bin/luadist exec luajit -v &> /dev/null
+
+if [ $? != "0" ]; then
+  ./deps/bootstrap/bootstrap
+fi
