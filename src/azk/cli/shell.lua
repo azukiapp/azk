@@ -1,11 +1,21 @@
-local shell = {}
+local io     = require('io')
+local colors = require('ansicolors')
+local each   = require('fun').each
 
-local io = require('io')
-local output = io.stdout
-local format = string.format
+local output    = io.stdout
+local format    = string.format
 local std_print = print
+local unpack    = unpack
 
+local shell = {}
 setfenv(1, shell)
+
+local logs_format="%%{reset}%%{%s}azk %s%%{reset}: %s%%{reset}"
+local logs_type = {
+  ['error'] = "red",
+  info      = "blue",
+  warning   = "yellow"
+}
 
 function io_capture(func)
   local tmp_output = io.tmpfile()
@@ -21,9 +31,16 @@ function io_capture(func)
   return tmp_output:read("*a")
 end
 
-function print(...)
-  output:write(format(...))
-  output:write("\n")
+function print(data, ...)
+  data = format(colors.noReset(data), ...)
+  output:write(data.. "\n")
 end
+
+each(function(log, color)
+  shell[log] = function(msgs, ...)
+    msgs = format(logs_format, color, log, msgs)
+    print(msgs, ...)
+  end
+end, logs_type)
 
 return shell
