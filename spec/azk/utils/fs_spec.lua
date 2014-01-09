@@ -1,7 +1,8 @@
-local os    = require('os')
-local utils = require('azk.utils')
-local fs    = require('azk.utils.fs')
-local path  = require('azk.utils.path')
+local os     = require('os')
+local utils  = require('azk.utils')
+local fs     = require('azk.utils.fs')
+local path   = require('azk.utils.path')
+local helper = require('spec.spec_helper')
 
 describe("azk utils file", function()
   local this_file = utils.__FILE__()

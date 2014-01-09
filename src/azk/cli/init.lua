@@ -6,9 +6,6 @@ local utils  = require('azk.utils')
 local path   = require('azk.utils.path')
 local fs     = require('azk.utils.fs')
 
-local each = require('fun').each
-local map  = require('fun').map
-
 local switch = utils.switch
 
 local function process(...)
@@ -55,7 +52,7 @@ local function check_for_shortcuts(...)
     ["--help"] = h, ["-h"] = h, ["-help"] = h,
     ["--version"] = v, ["-v"] = v
   }
-  return (opts[select(1, ...)] or h)
+  return (opts[select(1, ...) or "-v"])
 end
 
 function cli.set_output(file)
@@ -63,10 +60,13 @@ function cli.set_output(file)
 end
 
 function cli.run(...)
+  local args = {...}
   switch(check_for_shortcuts(...)) : caseof {
     ["version"] = display_version,
     ["help"]    = display_help,
-    default     = process
+    default     = function()
+      process(unpack(args))
+    end
   }
 end
 

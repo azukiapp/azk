@@ -9,7 +9,8 @@ load ./test_helper
 }
 
 @test "$test_label blank invocation" {
-  run azk -v
+  run azk --help
   assert_success
   assert_match "azk [0-9]*\.[0-9]*\.[0-9]*" "$output"
+  assert_match "Usage: azk" "$output"
 }
