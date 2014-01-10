@@ -2,7 +2,9 @@ local io     = require('io')
 local colors = require('ansicolors')
 local each   = require('fun').each
 
-local output    = io.stdout
+local output = io.stdout
+local input  = io.stdin
+
 local format    = string.format
 local std_print = print
 local unpack    = unpack
@@ -28,12 +30,38 @@ function io_capture(func)
 
   -- Read
   tmp_output:seek("set")
-  return tmp_output:read("*a")
+  data = tmp_output:read("*a")
+  tmp_output:close()
+
+  return data
+end
+
+function fake_input(data, func)
+  local tmp_input = io.tmpfile()
+  local old_input = input
+
+  -- Fake input
+  tmp_input:write(data)
+  tmp_input:seek("set")
+  input = tmp_input
+  func()
+  input = old_input
+  tmp_input:close()
+end
+
+function write(data, ...)
+  data = format(colors.noReset(data), ...)
+  output:write(data)
 end
 
 function print(data, ...)
-  data = format(colors.noReset(data), ...)
-  output:write(data.. "\n")
+  write(data, ...)
+  output:write("\n")
+end
+
+function capture(...)
+  write(...)
+  return input:read()
 end
 
 each(function(log, color)

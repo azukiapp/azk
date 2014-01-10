@@ -22,6 +22,18 @@ describe("Azk cli shell", function()
     assert.is.equal(sample, result)
   end)
 
+  it("should capture entender data", function()
+    local result = nil
+    local output = shell.io_capture(function()
+      shell.fake_input("foo bar\n", function()
+        result = shell.capture("text?")
+      end)
+    end)
+
+    assert.is.equal("text?", output)
+    assert.is.equal("foo bar", result)
+  end)
+
   local logs_type = {
     ['error'] = "red",
     info      = "blue",
