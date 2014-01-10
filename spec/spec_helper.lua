@@ -28,6 +28,11 @@ function helper.fixture_path(name)
   return path.join(utils.__DIR__(), "fixtures", name)
 end
 
+local quotepattern = '(['..("%^$().[]*+-?"):gsub("(.)", "%%%1")..'])'
+function helper.escape_regexp(str)
+  return str:gsub(quotepattern, "%%%1")
+end
+
 function helper.pp(...)
   print(serpent.block(...))
 end
