@@ -118,10 +118,14 @@ function cd(path, func)
 end
 
 function read(file)
-  local f = io.open(file, "rb")
-  local content = f:read("*all")
-  f:close()
-  return content
+  local f, err = io.open(file, "rb")
+  if not err then
+    local content = f:read("*all")
+    f:close()
+    return content
+  else
+    error(err)
+  end
 end
 
 function cp_ha(origin, destination)

@@ -124,6 +124,12 @@ describe("azk utils file", function()
     assert.is.match(content, "Line to test #345")
   end)
 
+  it("should raise a erro if file not exist in `read`", function()
+    local file = utils.__FILE__() .. "not"
+    local _, err = pcall(fs.read,file)
+    assert.is.match(err, file .. ": No such file or directory")
+  end)
+
   it("should be copy the file", function()
     local o_file = utils.__FILE__()
     local d_file = path.join(base_dir, "destiny_file")
