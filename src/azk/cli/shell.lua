@@ -5,9 +5,9 @@ local each   = require('fun').each
 local output = io.stdout
 local input  = io.stdin
 
-local format    = string.format
-local std_print = print
-local unpack    = unpack
+local str_format = string.format
+local std_print  = print
+local unpack     = unpack
 
 local shell = {}
 setfenv(1, shell)
@@ -49,13 +49,16 @@ function fake_input(data, func)
   tmp_input:close()
 end
 
-function write(data, ...)
-  data = format(colors.noReset(data), ...)
-  output:write(data)
+function format(data, ...)
+  return str_format(colors.noReset(data), ...)
 end
 
-function print(data, ...)
-  write(data, ...)
+function write(...)
+  output:write(format(...))
+end
+
+function print(...)
+  write(...)
   output:write("\n")
 end
 
@@ -66,7 +69,7 @@ end
 
 each(function(log, color)
   shell[log] = function(msgs, ...)
-    msgs = format(logs_format, color, log, msgs)
+    msgs = str_format(logs_format, color, log, msgs)
     print(msgs, ...)
   end
 end, logs_type)

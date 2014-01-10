@@ -37,6 +37,10 @@ function helper.pp(...)
   print(serpent.block(...))
 end
 
+function helper.trim(s)
+  return (s:gsub("^%s*(.-)%s*$", "%1"))
+end
+
 -- Asserts extend
 local assert = require("luassert")
 local say    = require("say")
@@ -52,17 +56,13 @@ local function match(state, arguments)
   end
 end
 
-local function trim(s)
-  return (s:gsub("^%s*(.-)%s*$", "%1"))
-end
-
 local function blank(state, arguments)
   local value = arguments[1]
 
   return(
     value == false or
     value == nil or
-    trim(value) == ""
+    helper.trim(value) == ""
   )
 end
 

@@ -1,6 +1,6 @@
 {
   // Application id
-  "id": "{{{id}}}",
+  "id": "{{{app_id}}}",
 
   "box": "{{{box}}}",
 
