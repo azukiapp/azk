@@ -24,4 +24,8 @@ function new()
   return ffi.string(uu, 36)
 end
 
+function new_clear(sub)
+  return new():gsub("%-", ""):lower():sub(0, sub or 32)
+end
+
 return uuid
