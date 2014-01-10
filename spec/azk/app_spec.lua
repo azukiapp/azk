@@ -19,6 +19,12 @@ describe("Azk app", function()
       fs.rm_rf(base_dir)
     end)
 
+    it("should return a new app id", function()
+      local id = app.new_id()
+      assert.is.equal(15, #id)
+      assert.is.match(id, "^[0-9a-f]+$")
+    end)
+
     it("should return a manifest", function()
       local file = app.find_manifest(box_dir)
       assert.is.equal(path.join(box_dir, azk.manifest), file)
