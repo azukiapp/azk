@@ -1,0 +1,10 @@
+{
+  // Application id
+  "id": "{{{id}}}",
+
+  "box": "{{{box}}}",
+
+  "build": [
+    "# Install dependencies steps"
+  ]
+}

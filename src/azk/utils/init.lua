@@ -17,7 +17,7 @@ ffi.cdef [[
   void unsetenv(const char *name);
 ]]
 
-local utils = {}
+local utils = { path = path }
 setfenv(1, utils)
 
 local current_dir = lfs.currentdir()
