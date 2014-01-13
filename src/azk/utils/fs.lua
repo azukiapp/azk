@@ -1,5 +1,7 @@
-local io  = require('io')
-local lfs = require('lfs')
+local io     = require('io')
+local lfs    = require('lfs')
+local digest = require('crypto').digest
+local pretty = require('pl.pretty')
 
 local dirname  = require('azk.utils.path').dirname
 local basename = require('azk.utils.path').basename
@@ -19,6 +21,7 @@ local serpent = require('spec.utils.serpent')
 local error   = error
 local pcall   = pcall
 local g_print = print
+local table   = table
 local print   = function(...)
   g_print(serpent.line(...))
 end
@@ -182,6 +185,36 @@ end
 
 function cp_r(origin, dest)
   return pcall(cp_r_ha, origin, dest)
+end
+
+local function shasum_dir(sha1, path)
+  local entries, dir = lfs.dir(path)
+  for entrie in entries, dir do
+    if entrie ~= ".." and entrie ~= "." then
+      local p = join(path, entrie)
+      sha1:update(p)
+      if is_regular(p) then
+        sha1:update(read(p))
+      else
+        shasum_dir(sha1, p)
+      end
+    end
+  end
+  dir:close()
+end
+
+function shasum(path)
+  if not is_exist(path) then
+    error(path .. ": No such file or directory")
+  end
+
+  if is_regular(path) then
+    return digest('sha1', read(path))
+  elseif is_dir(path) then
+    local sha1 = digest.new('sha1')
+    shasum_dir(sha1, path)
+    return sha1:final()
+  end
 end
 
 -- Alias

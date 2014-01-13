@@ -1,3 +1,4 @@
+local azk    = require('azk')
 local os     = require('os')
 local utils  = require('azk.utils')
 local fs     = require('azk.utils.fs')
@@ -177,6 +178,23 @@ describe("azk utils file", function()
     assert.is_true(fs.is_dir(path.join(dest, "scripts")))
     assert.is_true(fs.is_regular(path.join(dest, "azkfile.json")))
     assert.is_true(fs.is_regular(path.join(dest, "scripts", "none")))
+  end)
+
+  it("should calculate a sha1sum for file or directory", function()
+    local file     = path.join(azk.root_path, "bin", "azk.lua")
+    local sha_file = fs.shasum(file)
+
+    assert.is.equal("f0d1705e67029ac6cbcf8a97fa46093a45d4a47a", sha_file)
+
+    local dir     = helper.fixture_path("test-box")
+    local sha_dir = fs.shasum(dir)
+
+    assert.is.equal("9a87570da1a86f06fc9a955a580a28d305ea05e5", sha_dir)
+  end)
+
+  it("should raise erro in calculate sha1sum", function()
+    local _, err = pcall(fs.shasum, utils.__FILE__() .. "_not")
+    assert.is.match(err, "_not: No such file or directory")
   end)
 end)
 
