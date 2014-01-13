@@ -1,6 +1,6 @@
 local io     = require('io')
 local lfs    = require('lfs')
-local digest = require('crypto').digest
+local sha2   = require('azk.utils.sha')
 local pretty = require('pl.pretty')
 
 local dirname  = require('azk.utils.path').dirname
@@ -192,9 +192,9 @@ local function shasum_dir(sha1, path)
   for entrie in entries, dir do
     if entrie ~= ".." and entrie ~= "." then
       local p = join(path, entrie)
-      sha1:update(p)
+      sha1:add(entrie)
       if is_regular(p) then
-        sha1:update(read(p))
+        sha1:add(read(p))
       else
         shasum_dir(sha1, p)
       end
@@ -209,11 +209,13 @@ function shasum(path)
   end
 
   if is_regular(path) then
-    return digest('sha1', read(path))
+    return sha2.hash256(read(path))
+    --return digest('sha1', read(path))
   elseif is_dir(path) then
-    local sha1 = digest.new('sha1')
-    shasum_dir(sha1, path)
-    return sha1:final()
+    --local sha1 = digest.new('sha1')
+    local sha = sha2.new256()
+    shasum_dir(sha, path)
+    return sha:close()
   end
 end
 

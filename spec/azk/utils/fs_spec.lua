@@ -184,12 +184,12 @@ describe("azk utils file", function()
     local file     = path.join(azk.root_path, "bin", "azk.lua")
     local sha_file = fs.shasum(file)
 
-    assert.is.equal("f0d1705e67029ac6cbcf8a97fa46093a45d4a47a", sha_file)
+    assert.is.equal("589b3da95e23ffc49e6a8d776d1c0a9fc1a2f49fb7905b25aa19cf938a6e1b12", sha_file)
 
     local dir     = helper.fixture_path("test-box")
     local sha_dir = fs.shasum(dir)
 
-    assert.is.equal("9a87570da1a86f06fc9a955a580a28d305ea05e5", sha_dir)
+    assert.is.equal("a036c37cb960b8c3a488cfc66bae8ec7dd93f53b2500337fff7929de0ce1c548", sha_dir)
   end)
 
   it("should raise erro in calculate sha1sum", function()
