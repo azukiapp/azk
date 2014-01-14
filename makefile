@@ -31,6 +31,5 @@ deps: get-deps
 	@echo Checking the azk depedencies
 	@./bin/luadist install luabitop
 	@./bin/luadist install deps/busted deps/luafun deps/lua-linenoise deps/lua-pry deps/luadist-lustache deps/spfs
-	@./bin/luadist install deps/luadist-ljsyscall deps/luadist-nodish
 
 .PHONY: test test-lua test-shell deps
