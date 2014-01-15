@@ -12,6 +12,10 @@ test-shell:
 	@echo "Shell tests"
 	@bash ./deps/bats/bin/bats ${TEST_FILES}
 
+test-in-agent:
+	@echo "Lua testes: Agent"
+	@bash ./bin/azk agent exec /bin/bash -c 'cd azk; ./bin/luadist exec busted'
+
 get-deps:
 	@mkdir -p deps
 	@./libexec/azk-git-deps https://github.com/sstephenson/bats deps/bats

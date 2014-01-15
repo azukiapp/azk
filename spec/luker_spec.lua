@@ -1,11 +1,7 @@
 local luker  = require('luker')
 local helper = require('spec.spec_helper')
 
-require('fun')()
-
 describe("Luker library", function()
-  --helper.pp(luker)
-
   it("should support get version", function()
     local version = luker.version()
     assert.is.match(version.Version, "^[0-9%.]+$")
