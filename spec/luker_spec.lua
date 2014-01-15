@@ -1,5 +1,6 @@
 local luker  = require('luker')
 local helper = require('spec.spec_helper')
+local tablex = require('pl.tablex')
 
 describe("Luker library", function()
   it("should support get version", function()
@@ -23,9 +24,9 @@ describe("Luker library", function()
     local images = luker.images()
     assert.is.equal("table", type(images))
 
-    local ubuntu = head(filter(function(image)
+    local ubuntu = tablex.filter(images, function(image)
       return image.RepoTags[1] == "ubuntu:12.04"
-    end, images))
+    end)[1]
 
     assert.is.equal("number", type(ubuntu.Created))
     assert.is.equal("ubuntu:12.04", ubuntu.RepoTags[1])

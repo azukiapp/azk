@@ -1,6 +1,4 @@
 -- Spec helpers
-require('fun')()
-
 local azk     = require('azk')
 local utils   = require('azk.utils')
 local path    = require('azk.utils.path')
