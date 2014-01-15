@@ -1,17 +1,11 @@
 local io     = require('io')
 local colors = require('ansicolors')
-local each   = require('fun').each
-
-local output = io.stdout
-local input  = io.stdin
-
-local str_format = string.format
-local std_print  = print
-local unpack     = unpack
+local S      = require('syscall')
+local tablex = require('pl.tablex')
 
 local shell = {}
-setfenv(1, shell)
 
+local str_format = string.format
 local logs_format="%%{reset}%%{%s}azk %s%%{reset}: %s%%{reset}"
 local logs_type = {
   ['error'] = "red",
@@ -19,59 +13,78 @@ local logs_type = {
   warning   = "yellow"
 }
 
-function io_capture(func)
-  local tmp_output = io.tmpfile()
-  local old_output = output
+local _, err, our, ouw = S.pipe()
+local _, err, oer, oew = S.pipe()
 
-  -- Capture
-  output = tmp_output
-  func()
-  output = old_output
+local inb = S.dup(0)
+local oub = S.dup(1)
+local oeb = S.dup(2)
 
-  -- Read
-  tmp_output:seek("set")
-  data = tmp_output:read("*a")
-  tmp_output:close()
+function shell.capture_io(input, func)
+  local _, err, inr, inw = S.pipe()
 
-  return data
-end
+  if func == nil then
+    func, input = input, nil
+  end
 
-function fake_input(data, func)
-  local tmp_input = io.tmpfile()
-  local old_input = input
+  -- Clear before data
+  io.stdout:flush()
+  io.stderr:flush()
 
   -- Fake input
-  tmp_input:write(data)
-  tmp_input:seek("set")
-  input = tmp_input
-  func()
-  input = old_input
-  tmp_input:close()
+  if input ~= nil then
+    inw:write(input .. "\n")
+  end
+
+  -- Replace defaults
+  assert(S.dup2(inr, 0))
+  assert(S.dup2(ouw, 1))
+  assert(S.dup2(oew, 2))
+
+  -- Run code with print and read
+  func(inw, our)
+  ouw:write("\n")
+  oew:write("\n")
+
+  -- Restore and reset default
+  S.dup2(inb, 0)
+  S.dup2(oub, 1)
+  S.dup2(oeb, 2)
+  io.stdout:flush()
+  io.stderr:flush()
+  io.stdout:setvbuf("no")
+  io.stderr:setvbuf("no")
+
+  -- Return capture
+  return {
+    stdout = our:read():gsub("\n$", ""),
+    stderr = oer:read():gsub("\n$", "")
+  }
 end
 
-function format(data, ...)
+function shell.format(data, ...)
   return str_format(colors.noReset(data), ...)
 end
 
-function write(...)
-  output:write(format(...))
+function shell.write(...)
+  io.stdout:write(shell.format(...))
 end
 
-function print(...)
-  write(...)
-  output:write("\n")
+function shell.print(...)
+  shell.write(...)
+  io.stdout:write("\n")
 end
 
-function capture(...)
-  write(...)
-  return input:read()
+function shell.capture(...)
+  shell.write(...)
+  return io.stdin:read()
 end
 
-each(function(log, color)
+tablex.foreach(logs_type, function(color, log)
   shell[log] = function(msgs, ...)
     msgs = str_format(logs_format, color, log, msgs)
-    print(msgs, ...)
+    shell.print(msgs, ...)
   end
-end, logs_type)
+end)
 
 return shell

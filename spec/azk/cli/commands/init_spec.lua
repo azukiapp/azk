@@ -10,7 +10,7 @@ local command = require('azk.cli.commands.init')
 
 function run_capture(...)
   local args = {...}
-  return shell.io_capture(function()
+  return shell.capture_io(function()
     command.run(unpack(args))
   end)
 end
@@ -18,14 +18,14 @@ end
 describe("Azk cli init command", function()
   it("should generate and return a app id", function()
     local result = run_capture("--id")
-    assert.is.equal(16, #result)
-    assert.is.match(result, "^[0-9a-f]+\n$")
+    assert.is.equal(16, #result.stdout)
+    assert.is.match(result.stdout, "^[0-9a-f]+\n$")
   end)
 
   it("should use current directory", function()
     fs.cd(helper.fixture_path('test-box'), function()
       local result = run_capture()
-      assert.is.match(result, "'%./azkfile.json' already exists")
+      assert.is.match(result.stdout, "'%./azkfile.json' already exists")
     end)
   end)
 
@@ -36,20 +36,18 @@ describe("Azk cli init command", function()
     local expect = helper.escape_regexp(
       "'" .. path .. "/azkfile.json' already exists"
     )
-    assert.is.match(result, expect)
+    assert.is.match(result.stdout, expect)
   end)
 
   it("should ask for the box", function()
     local output = nil
     local path   = helper.tmp_dir()
 
-    shell.fake_input("test-box\n", function()
-      output = shell.io_capture(function()
-        command.run(path)
-      end)
+    output = shell.capture_io("test-box\n", function()
+      command.run(path)
     end)
 
-    assert.is.match(output, "Enter a box: ")
+    assert.is.match(output.stdout, "Enter a box: ")
   end)
 
   it("should sugest default box", function()
@@ -57,29 +55,25 @@ describe("Azk cli init command", function()
     local project = helper.tmp_dir()
     fs.touch(project .. "/Gemfile")
 
-    shell.fake_input("\n", function()
-      output = shell.io_capture(function()
-        command.run(project)
-      end)
+    output = shell.capture_io("\n", function()
+      command.run(project)
     end)
 
     local detected = detect.inspect(project)
     local msg = shell.format("Enter a box (default: %{yellow}%s%{reset}): ", detected.box)
-    assert.is.match(output, helper.escape_regexp(msg))
+    assert.is.match(output.stdout, helper.escape_regexp(msg))
   end)
 
   it("should valid a box name", function()
     local output  = nil
     local project = helper.tmp_dir()
 
-    shell.fake_input("\n  \nazukiapp/ruby-box\n", function()
-      output = shell.io_capture(function()
-        command.run(project)
-      end)
+    output = shell.capture_io("\n  \nazukiapp/ruby-box\n", function()
+      command.run(project)
     end)
 
-    assert.is.match(output, "%[init%] '' is a invalid box name")
-    assert.is.match(output, "%[init%] '  ' is a invalid box name")
+    assert.is.match(output.stdout, "%[init%] '' is a invalid box name")
+    assert.is.match(output.stdout, "%[init%] '  ' is a invalid box name")
   end)
 
   it("should create a manifest file", function()
@@ -88,10 +82,8 @@ describe("Azk cli init command", function()
     local manifest = project .. "/" .. azk.manifest
     fs.touch(project .. "/Gemfile")
 
-    shell.fake_input("\n", function()
-      output = shell.io_capture(function()
-        command.run(project)
-      end)
+    output = shell.capture_io("\n", function()
+      command.run(project)
     end)
 
     local detected = detect.inspect(project)
@@ -99,6 +91,6 @@ describe("Azk cli init command", function()
 
     assert.is.match(data, '"box": "' .. helper.escape_regexp(detected.box))
     assert.is.match(data, '"id": "[0-9a-f]+"')
-    assert.is.match(output, "%[init%] '.*/" .. azk.manifest .. "' generated")
+    assert.is.match(output.stdout, "%[init%] '.*/" .. azk.manifest .. "' generated")
   end)
 end)
