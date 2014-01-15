@@ -6,11 +6,6 @@ local fs  = require('azk.utils.fs')
 local azk = require('azk')
 
 local command = {}
--- local print = require('azk.cli.shell').print
-local print  = print
-local unpack = unpack
-
-setfenv(1, command)
 
 command["short_help"] = "Initializes a project by adding the file azkfile.json"
 
@@ -44,7 +39,7 @@ local function create_manifest(path, file)
   detect.render(data, file)
 end
 
-function run(...)
+function command.run(...)
   local args = {...}
 
   -- Only show id
