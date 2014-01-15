@@ -1,8 +1,9 @@
-local azk  = require('azk')
-local path = require('azk.utils.path')
-local os   = require('os')
+local azk    = require('azk')
+local path   = require('azk.utils.path')
+local os     = require('os')
+local tablex = require('pl.tablex')
 
-local cmd     = "/usr/bin/env ssh"
+local cmd     = "/usr/bin/ssh"
 local user    = "core"
 local options = table.concat({
   "-o DSAAuthentication=yes",
@@ -16,7 +17,7 @@ local identify = "-i " .. path.join(
 )
 
 local final  = "%s %s %s@%s %s"
-local with_p = "%s '%s'"
+local with_p = "%s \"%s\""
 
 local ssh = {}
 
@@ -32,7 +33,15 @@ function ssh.run(host, ...)
       _cmd = _cmd .. " -t"
     end
 
-    _cmd = with_p:format(_cmd, table.concat(args, " "))
+    args = tablex.imap(function(arg)
+      if arg:match("%s+") then
+        arg = '\\"' .. arg:gsub('"', '\\\\\\"') .. '\\"'
+      end
+      return arg
+    end, args)
+
+    args = table.concat(args, " ")
+    _cmd = with_p:format(_cmd, args)
   end
 
   return os.execute(_cmd)

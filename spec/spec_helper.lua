@@ -1,14 +1,18 @@
 -- Spec helpers
 require('fun')()
 
-local azk   = require('azk')
-local utils = require('azk.utils')
+local azk     = require('azk')
+local utils   = require('azk.utils')
 local path    = require('azk.utils.path')
 local fs      = require('azk.utils.fs')
-local serpent = require('spec.utils.serpent')
 
+local serpent = require('spec.utils.serpent')
+local socket  = require('socket')
 local random  = require('math').random
 local unique  = require('azk.utils').unique_id
+
+local tablex   = require('pl.tablex')
+local stringx  = require('pl.stringx')
 
 local tmp_path = path.normalize(
   path.join(azk.root_path, "tmp", "test")
@@ -34,11 +38,23 @@ function helper.escape_regexp(str)
 end
 
 function helper.pp(...)
-  print(serpent.block(...))
+  if #{...} == 1 then
+    print(serpent.block(...))
+  else
+    print(serpent.block({...}))
+  end
 end
 
-function helper.trim(s)
-  return (s:gsub("^%s*(.-)%s*$", "%1"))
+function helper.unmock(mock)
+  tablex.foreach(mock, function(v)
+    v:revert()
+  end)
+end
+
+function helper.reset_mock(mock)
+  tablex.foreach(mock, function(v)
+    v.calls = {}
+  end)
 end
 
 -- Asserts extend
@@ -62,7 +78,7 @@ local function blank(state, arguments)
   return(
     value == false or
     value == nil or
-    helper.trim(value) == ""
+    stringx.strip(value) == ""
   )
 end
 
@@ -75,5 +91,9 @@ say:set_namespace("en")
 say:set("assertion.match.positive", "\n%s\nto match with pattern:\n%s")
 say:set("assertion.match.negative", "\n%s\nnot match with pattern:\n%s")
 assert:register("assertion", "match", match, "assertion.match.positive", "assertion.match.negative")
+
+--debug.sethook(function(...)
+  --print(debug.traceback())
+--end, "c")
 
 return helper

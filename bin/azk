@@ -3,4 +3,4 @@
 __FILE__="${0}"
 export AZK_PATH=`cd \`dirname $(readlink ${__FILE__} || echo ${__FILE__} )\`/..; pwd`
 export AZK_PATH
-$AZK_PATH/bin/luadist exec luajit $AZK_PATH/bin/azk.lua ${@}
+$AZK_PATH/bin/luadist exec luajit $AZK_PATH/bin/azk.lua "${@}"

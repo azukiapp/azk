@@ -1,30 +1,31 @@
 local os    = require('os')
+local azk   = require('azk')
 local ssh   = require('azk.agent.ssh')
 local shell = require('azk.cli.shell')
 
 local helper = require('spec.spec_helper')
 
-describe("Azk agent ssh client", function()
+describe("Azk #agent #ssh client", function()
   setup(function()
-    stub(os, "execute")
+    mock(os)
   end)
 
-  before_each(function()
-    os.execute.calls = {}
+  after_each(function()
+    helper.reset_mock(os)
   end)
 
   teardown(function()
-    os.execute:revert()
+    helper.unmock(os)
   end)
 
   it("should execute ssh with specific parameters", function()
-    ssh.run("azk-agent")
+    ssh.run(azk.agent_ip(), "/bin/true")
     local cmd = os.execute.calls[1][1]
 
     assert.spy(os.execute).was.called()
-    assert.is.match(cmd, '^/usr/bin/env ssh')
+    assert.is.match(cmd, '^/usr/bin/ssh')
     assert.is.match(cmd, '%-i /.*/insecure_private_key')
-    assert.is.match(cmd, helper.escape_regexp('core@azk-agent'))
+    assert.is.match(cmd, helper.escape_regexp('core@' .. azk.agent_ip()))
     assert.is.match(cmd, helper.escape_regexp('-o DSAAuthentication=yes'))
     assert.is.match(cmd, helper.escape_regexp('-o StrictHostKeyChecking=no'))
     assert.is.match(cmd, helper.escape_regexp('-o UserKnownHostsFile=/dev/null'))
@@ -33,18 +34,32 @@ describe("Azk agent ssh client", function()
   end)
 
   it("should support execute a command", function()
-    ssh.run("azk-agent", "ls", "-l")
-    local cmd = os.execute.calls[1][1]
+    shell.capture_io(function()
+      ssh.run(azk.agent_ip(), "/bin/bash", "-c", "cd /etc; ls -l")
+    end)
 
+    local cmd = os.execute.calls[1][1]
     assert.spy(os.execute).was.called()
-    assert.is.match(cmd, "'ls %-l'$")
+    assert.is.match(cmd,
+      helper.escape_regexp('"/bin/bash -c \\"cd /etc; ls -l\\""')
+    )
   end)
 
   it("should support interactive mode", function()
-    ssh.run("azk-agent", "-t", "ls", "-l")
-    local cmd = os.execute.calls[1][1]
+    local output = shell.capture_io("uname; exit\n", function()
+      ssh.run(azk.agent_ip(), "-t", "/bin/bash")
+    end)
 
+    local cmd = os.execute.calls[1][1]
     assert.spy(os.execute).was.called()
-    assert.is.match(cmd, "%-t 'ls %-l'$")
+    assert.is.match(cmd, '%-t "/bin/bash"$')
+    assert.is.match(output.stderr, "Pseudo%-terminal will")
+    assert.is.match(output.stdout, "Linux\n")
+  end)
+
+  it("should execute and return code", function()
+    local _, err, code = ssh.run(azk.agent_ip(), "/bin/false")
+    assert.is.equal("exit", err)
+    assert.is.equal(1, code)
   end)
 end)
