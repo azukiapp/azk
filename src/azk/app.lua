@@ -3,6 +3,8 @@ local fs   = require('azk.utils.fs')
 local path = require('azk.utils.path')
 local uuid = require('azk.utils.native.uuid')
 
+local error = error
+
 local M = {}
 setfenv(1, M)
 
@@ -25,7 +27,7 @@ function find_manifest(dir)
     return find_manifest(dir)
   end
 
-  return false, { msg = "azk: manifest not founded" }
+  error({ msg = "manifest not founded" })
 end
 
 function new_id()
