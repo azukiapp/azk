@@ -1,10 +1,7 @@
 local fs   = require('azk.utils.fs')
 local path = require('azk.utils.path')
-local print = print
-local error = error
 
-local M = {}
-setfenv(1, M)
+local box = {}
 
 local regex = {
   github = "^([%w%-]+/[%w%-]+)#?(.*)$",
@@ -59,7 +56,7 @@ local function docker_format(box_name, version)
   }
 end
 
-function parse(box_name)
+function box.parse(box_name)
   local data = {}
 
   -- Github
@@ -82,4 +79,4 @@ function parse(box_name)
   error(invalid:format(box_name))
 end
 
-return M
+return box
