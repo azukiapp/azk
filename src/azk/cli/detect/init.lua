@@ -1,17 +1,8 @@
 local lustache = require "lustache"
-
-local utils = require('azk.utils')
-local fs    = require('azk.utils.fs')
-local path  = utils.path
-local io    = require('io')
-
-local each    = require('fun').each
-local require = require
-local pairs   = pairs
-local print   = print
-
-local M = {}
-setfenv(1, M)
+local utils    = require('azk.utils')
+local fs       = require('azk.utils.fs')
+local path     = utils.path
+local io       = require('io')
 
 local rules = {}
 local rules_path = utils.__DIR__()
@@ -28,7 +19,9 @@ for entrie in entries, dir do
 end
 dir:close()
 
-function inspect(path)
+local M = {}
+
+function M.inspect(path)
   for _, rule in pairs(rules) do
     local result = rule.detect(path)
     if result then
@@ -37,7 +30,7 @@ function inspect(path)
   end
 end
 
-function render(data, file)
+function M.render(data, file)
   local tpl  = fs.read(template)
   local file = io.open(file, "w")
 
