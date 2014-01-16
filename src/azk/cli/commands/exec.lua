@@ -1,15 +1,10 @@
-local command = {}
--- local print = require('azk.cli.shell').print
-local print = print
-local unpack = unpack
+local app   = require('azk.app')
 
-setfenv(1, command)
+local command = {}
 
 command["short_help"] = "Run an executable with the image-app"
-
-function run(...)
-  args = { ... }
-  print(unpack(args))
+function command.run(...)
+  return nil
 end
 
 return command
