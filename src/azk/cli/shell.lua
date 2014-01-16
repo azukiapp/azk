@@ -41,7 +41,8 @@ function shell.capture_io(input, func)
   assert(S.dup2(oew, 2))
 
   -- Run code with print and read
-  func(inw, our)
+  local _, err = pcall(func, inw, our)
+
   ouw:write("\n")
   oew:write("\n")
 
@@ -54,12 +55,20 @@ function shell.capture_io(input, func)
   io.stdout:setvbuf("no")
   io.stderr:setvbuf("no")
 
+  if err then
+    error(err)
+  end
+
   -- Return capture
   return {
     ['stdout'] = our:read():gsub("\n$", ""),
     ['stderr'] = oer:read():gsub("\n$", "")
   }
 end
+
+--function shell.capture_io(input, func)
+  --return {}
+--end
 
 function shell.format(data, ...)
   return colors.noReset(data):format(...)
