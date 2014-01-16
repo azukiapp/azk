@@ -3,7 +3,7 @@ local path  = require('azk.utils.path')
 
 local os = require('os')
 
-describe("Azk utils", function()
+describe("Azk #utils", function()
   local old_tmpdir = utils.getenv("TMPDIR")
 
   teardown(function()
@@ -53,6 +53,17 @@ describe("Azk utils", function()
   it("should unset env varible", function()
     utils.setenv("ENV_TO_TEST")
     assert.is.blank(os.getenv("ENV_TO_TEST"))
+  end)
+
+  it("should return a basename", function()
+    assert.are.equal(utils.basename('bar'), 'bar')
+    assert.are.equal(utils.basename('foo/bar'), 'bar')
+    assert.are.equal(utils.basename('/'), '')
+    assert.are.equal(utils.basename('bar.lua'), 'bar.lua')
+    assert.are.equal(utils.basename('bar.lua', '.lua'), 'bar')
+    assert.are.equal(utils.basename('bar.lua.js', '.lua'), 'bar.lua.js')
+    assert.are.equal(utils.basename('.lua', 'lua'), '.')
+    assert.are.equal(utils.basename('bar', '.lua'), 'bar')
   end)
 
   it("should return a temporary directory", function()

@@ -1,6 +1,7 @@
-local lfs   = require('lfs')
-local path  = require('azk.utils.path')
+--local lfs   = require('lfs')
+--local path  = require('azk.utils.path')
 local uuid  = require('azk.utils.native.uuid')
+local path  = require('pl.path')
 
 local debug    = debug
 local type     = type
@@ -17,10 +18,10 @@ ffi.cdef [[
   void unsetenv(const char *name);
 ]]
 
-local utils = { path = path }
+local utils = { }
 setfenv(1, utils)
 
-local current_dir = lfs.currentdir()
+local current_dir = path.currentdir()
 
 function switch(c)
   local swtbl = {
@@ -66,13 +67,13 @@ function unique_id(size)
 end
 
 -- File and dir informations
-local abs_path = ("@%%.%s(.*)$"):format(path.separator)
+local abs_path = ("@%%.%s(.*)$"):format(path.sep)
 function __FILE__(stack)
   local source = debug.getinfo(stack or 2).source
   local source_path = source:match(abs_path)
 
   if source_path then
-    source_path = path.normalize(path.join(current_dir, source_path))
+    source_path = path.normpath(path.join(current_dir, source_path))
   else
     source_path = source:match("@(.*)$")
   end
@@ -80,9 +81,18 @@ function __FILE__(stack)
   return source_path
 end
 
-local basedir = ("^(.*)%s.*$"):format(path.separator)
+local basedir = ("^(.*)%s.*$"):format(path.sep)
 function __DIR__()
   return __FILE__(3):match(basedir)
+end
+
+function basename(P, ext)
+  local base = path.basename(P)
+  if ext then
+    local ext_pos = base:find(ext:gsub('%.', '%.') .. '$')
+    if ext_pos then base = base:sub(1, ext_pos - 1) end
+  end
+  return base
 end
 
 -- Utils
@@ -91,7 +101,7 @@ function tmp_dir()
     getenv("TMPDIR") or
     getenv("TEMP")   or
     getenv("TMP")    or
-    path.join(path.rootvolume, "tmp")
+    path.join(path.sep, "tmp")
   )
 end
 

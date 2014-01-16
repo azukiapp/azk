@@ -3,8 +3,9 @@ local azk    = require('azk')
 local shell  = require('azk.cli.shell')
 
 local utils  = require('azk.utils')
-local path   = require('azk.utils.path')
-local fs     = require('azk.utils.fs')
+local path   = require('pl.path')
+local dir    = require('pl.dir')
+local tablex = require('pl.tablex')
 
 local switch = utils.switch
 
@@ -22,16 +23,15 @@ local function display_commands_list()
   shell.print("\nSome useful azk commands are:")
 
   local cmds_path = path.join(utils.__DIR__(), "commands")
-  local entries, dir = fs.dir(cmds_path)
-  for entrie in entries, dir do
-    local file = path.join(cmds_path, entrie)
-    if fs.is_regular(file) then
-      entrie = path.basename(entrie, ".lua")
-      local short = require('azk.cli.commands.' .. entrie).short_help
-      shell.print("   %-10s %s", entrie, short)
+  local files = dir.getfiles(cmds_path, "*.lua")
+
+  tablex.foreachi(files, function(file)
+    if path.isfile(file) then
+      local command = utils.basename(file, ".lua")
+      local short = require('azk.cli.commands.' .. command).short_help
+      shell.print("   %-10s %s", command, short)
     end
-  end
-  dir:close()
+  end)
 end
 
 local function display_usage()

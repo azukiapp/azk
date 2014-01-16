@@ -1,5 +1,5 @@
 local utils  = require('azk.utils')
-local path   = require('azk.utils.path')
+local path   = require('pl.path')
 local os     = require('os')
 local socket = require('socket')
 local memoize = require('pl.utils').memoize
@@ -8,7 +8,7 @@ local M = {}
 
 M.version    = "0.0.1"
 M.manifest   = "azkfile.json"
-M.root_path  = path.normalize(
+M.root_path  = path.normpath(
   path.join(utils.__DIR__(), "..", "..")
 )
 

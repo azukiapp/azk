@@ -1,27 +1,23 @@
 local azk  = require('azk')
-local fs   = require('azk.utils.fs')
-local path = require('azk.utils.path')
 local uuid = require('azk.utils.native.uuid')
+local path = require('pl.path')
+local dir  = require('pl.dir')
 
 local app = {}
 
-local function __find_manifest(dir)
-  local entries, dir = fs.dir(dir)
-  for entrie in entries, dir do
-    if entrie == azk.manifest then return true end
-  end
-  dir:close()
-  return false
+local function __find_manifest(target)
+  return #(dir.getfiles(target, azk.manifest)) == 1
 end
 
-function app.find_manifest(dir)
-  if __find_manifest(dir) then
-    return path.join(dir, azk.manifest)
+-- TODO: Fixing windows root
+function app.find_manifest(target)
+  if __find_manifest(target) then
+    return path.join(target, azk.manifest)
   end
 
-  if dir ~= path.rootvolume then
-    dir = path.normalize(path.join(dir, ".."))
-    return app.find_manifest(dir)
+  target = path.normpath(path.join(target, ".."))
+  if target ~= "/" then
+    return app.find_manifest(target)
   end
 
   error({ msg = "manifest not founded" })

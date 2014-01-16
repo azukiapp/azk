@@ -1,23 +1,23 @@
-local lustache = require "lustache"
-local utils    = require('azk.utils')
-local fs       = require('azk.utils.fs')
-local path     = utils.path
-local io       = require('io')
+local lustache  = require "lustache"
+local utils     = require('azk.utils')
+local dir       = require('pl.dir')
+local path      = require('pl.path')
+local pl_utils  = require('pl.utils')
+local tablex    = require('pl.tablex')
+local io        = require('io')
 
-local rules = {}
 local rules_path = utils.__DIR__()
 local template = path.join(rules_path, "azkfile.mustach.json")
 
-local entries, dir = fs.dir(rules_path)
-for entrie in entries, dir do
-  local file = path.join(rules_path, entrie)
-  if entrie:match("[^init|.*].lua$") and fs.is_regular(file) then
-    rules[#rules+1] = require(
-      'azk.cli.detect.' .. path.basename(entrie, ".lua")
-    )
+local files = tablex.filter(
+  dir.getfiles(rules_path, "*.lua"), function(file)
+    return utils.basename(file) ~= "init.lua"
   end
-end
-dir:close()
+)
+local rules = tablex.map(function(file)
+  local rule = utils.basename(file, ".lua")
+  return require('azk.cli.detect.' .. rule)
+end, files)
 
 local M = {}
 
@@ -31,12 +31,13 @@ function M.inspect(path)
 end
 
 function M.render(data, file)
-  local tpl  = fs.read(template)
-  local file = io.open(file, "w")
-
-  file:write(lustache:render(tpl, data))
-
-  file:close()
+  pl_utils.writefile(
+    file,
+    lustache:render(
+      pl_utils.readfile(template),
+      data
+    )
+  )
 end
 
 return M

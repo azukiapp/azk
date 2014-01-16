@@ -1,5 +1,5 @@
 local fs   = require('azk.utils.fs')
-local path = require('azk.utils.path')
+local path = require('pl.path')
 
 local box = {}
 
@@ -27,11 +27,11 @@ end
 local function path_format(box_name)
   -- Expand path
   if not box_name:match("^/.*$") then
-    box_name = path.join(fs.pwd(), box_name)
-    box_name = path.normalize(box_name)
+    box_name = path.join(path.currentdir(), box_name)
+    box_name = path.normpath(box_name)
   end
 
-  if fs.is_dir(box_name) then
+  if path.isdir(box_name) then
     version  = fs.shasum(box_name)
     box_name = box_name:gsub("/$", "")
     return {
