@@ -5,7 +5,6 @@ local tablex = require('pl.tablex')
 
 local shell = {}
 
-local str_format = string.format
 local logs_format="%%{reset}%%{%s}azk %s%%{reset}: %s%%{reset}"
 local logs_type = {
   ['error'] = "red",
@@ -57,13 +56,13 @@ function shell.capture_io(input, func)
 
   -- Return capture
   return {
-    stdout = our:read():gsub("\n$", ""),
-    stderr = oer:read():gsub("\n$", "")
+    ['stdout'] = our:read():gsub("\n$", ""),
+    ['stderr'] = oer:read():gsub("\n$", "")
   }
 end
 
 function shell.format(data, ...)
-  return str_format(colors.noReset(data), ...)
+  return colors.noReset(data):format(...)
 end
 
 function shell.write(...)
@@ -82,7 +81,7 @@ end
 
 tablex.foreach(logs_type, function(color, log)
   shell[log] = function(msgs, ...)
-    msgs = str_format(logs_format, color, log, msgs)
+    msgs = logs_format:format(color, log, msgs)
     shell.print(msgs, ...)
   end
 end)

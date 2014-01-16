@@ -1,15 +1,16 @@
 local helper = require('spec.spec_helper')
 local colors = require('ansicolors')
-local each   = require('fun').each
+local tablex = require('pl.tablex')
 
 local shell = require('azk.cli.shell')
 
 describe("Azk cli #shell", function()
+
   it("should capture stdout and stdin", function()
     local result = shell.capture_io(function()
       print("with print")
-      io.stdout:write("stdout with io")
-      io.stderr:write("stderr with io")
+      io.stdout:write("stdout with io\n")
+      io.stderr:write("stderr with io\n")
     end)
 
     assert.is.match(result.stdout, "with print")
@@ -51,7 +52,7 @@ describe("Azk cli #shell", function()
   }
 
   it("should format logs messages", function()
-    each(function(log, color)
+    tablex.foreach(logs_type, function(color, log)
       local result = shell.capture_io(function()
         shell[log]("already %s", "exists")
       end)
@@ -61,6 +62,6 @@ describe("Azk cli #shell", function()
         color, log
       ))
       assert.is.equal(sample .. "\n", result.stdout)
-    end, logs_type)
+    end)
   end)
 end)

@@ -1,9 +1,8 @@
-local os    = require('os')
-local azk   = require('azk')
-local ssh   = require('azk.agent.ssh')
-local shell = require('azk.cli.shell')
-
+local os     = require('os')
+local azk    = require('azk')
+local ssh    = require('azk.agent.ssh')
 local helper = require('spec.spec_helper')
+local shell  = require('azk.cli.shell')
 
 describe("Azk #agent #ssh client", function()
   setup(function()
@@ -34,7 +33,7 @@ describe("Azk #agent #ssh client", function()
   end)
 
   it("should support execute a command", function()
-    shell.capture_io(function()
+    local output = shell.capture_io(function()
       ssh.run(azk.agent_ip(), "/bin/bash", "-c", "cd /etc; ls -l")
     end)
 

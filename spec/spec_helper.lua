@@ -5,7 +5,6 @@ local path    = require('azk.utils.path')
 local fs      = require('azk.utils.fs')
 
 local serpent = require('spec.utils.serpent')
-local socket  = require('socket')
 local random  = require('math').random
 local unique  = require('azk.utils').unique_id
 
@@ -16,7 +15,7 @@ local tmp_path = path.normalize(
   path.join(azk.root_path, "tmp", "test")
 )
 
-helper = {}
+local helper = {}
 
 function helper.tmp_dir(make)
   local new_path = path.join(tmp_path, unique())
@@ -89,9 +88,5 @@ say:set_namespace("en")
 say:set("assertion.match.positive", "\n%s\nto match with pattern:\n%s")
 say:set("assertion.match.negative", "\n%s\nnot match with pattern:\n%s")
 assert:register("assertion", "match", match, "assertion.match.positive", "assertion.match.negative")
-
---debug.sethook(function(...)
-  --print(debug.traceback())
---end, "c")
 
 return helper
