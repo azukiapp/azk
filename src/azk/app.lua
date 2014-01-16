@@ -3,10 +3,7 @@ local fs   = require('azk.utils.fs')
 local path = require('azk.utils.path')
 local uuid = require('azk.utils.native.uuid')
 
-local error = error
-
-local M = {}
-setfenv(1, M)
+local app = {}
 
 local function __find_manifest(dir)
   local entries, dir = fs.dir(dir)
@@ -17,21 +14,24 @@ local function __find_manifest(dir)
   return false
 end
 
-function find_manifest(dir)
+function app.find_manifest(dir)
   if __find_manifest(dir) then
     return path.join(dir, azk.manifest)
   end
 
   if dir ~= path.rootvolume then
     dir = path.normalize(path.join(dir, ".."))
-    return find_manifest(dir)
+    return app.find_manifest(dir)
   end
 
   error({ msg = "manifest not founded" })
 end
 
-function new_id()
+function app.new(path)
+end
+
+function app.new_id()
   return uuid.new_clear(15)
 end
 
-return M
+return app
