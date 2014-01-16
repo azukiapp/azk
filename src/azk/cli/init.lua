@@ -9,10 +9,11 @@ local tablex = require('pl.tablex')
 
 local switch = utils.switch
 
-local function process(...)
-  args = {...}
-  command = table.remove(args, 1)
-  require('azk.cli.commands.' .. command).run(unpack(args))
+local function commands()
+  return {
+    module = 'azk.cli.commands',
+    path   = path.join(utils.__DIR__(), "commands")
+  }
 end
 
 local function display_version()
@@ -37,8 +38,8 @@ end
 local function display_usage()
   shell.print("Usage: azk <command> [<args>]")
   display_commands_list()
-  shell.print("\nSee `azk help <command> for information on a specific command.")
-  shell.print("For full documentation, see: https://azk.io")
+  shell.print("\nSee `%{yellow}azk help <command>%{reset}` for information on a specific command.")
+  shell.print("For full documentation, see: %{blue}http://azk.io%{blue}")
 end
 
 local function display_help()
@@ -49,23 +50,30 @@ end
 local function check_for_shortcuts(...)
   local h, v = "help", "version"
   local opts = {
-    ["--help"] = h, ["-h"] = h, ["-help"] = h,
+    ["--help"] = h, ["-h"] = h, ["-help"] = h, ["help"] = h,
     ["--version"] = v, ["-v"] = v
   }
   return (opts[select(1, ...) or "-v"])
 end
 
-function cli.set_output(file)
-  output = file
+local function process(command, ...)
+  local module = commands().module .. "." .. command
+  local result, module = pcall(require, module)
+  if result then
+    return module.run(...)
+  end
+  shell.error("no such command '%s'\n", command)
+  display_usage()
+  return 1
 end
 
 function cli.run(...)
   local args = {...}
-  switch(check_for_shortcuts(...)) : caseof {
+  return switch(check_for_shortcuts(...)) : caseof {
     ["version"] = display_version,
     ["help"]    = display_help,
     default     = function()
-      process(unpack(args))
+      return process(unpack(args))
     end
   }
 end

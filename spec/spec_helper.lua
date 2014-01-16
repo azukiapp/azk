@@ -1,8 +1,9 @@
 -- Spec helpers
-local azk     = require('azk')
-local utils   = require('azk.utils')
-local path    = require('azk.utils.path')
-local fs      = require('azk.utils.fs')
+local azk   = require('azk')
+local utils = require('azk.utils')
+local path  = require('azk.utils.path')
+local fs    = require('azk.utils.fs')
+local shell = require('azk.cli.shell')
 
 local serpent = require('spec.utils.serpent')
 local random  = require('math').random
@@ -85,8 +86,8 @@ say:set("assertion.blank.negative", "\nExpect %s is not blank")
 assert:register("assertion", "blank", blank, "assertion.blank.positive", "assertion.blank.negative")
 
 say:set_namespace("en")
-say:set("assertion.match.positive", "\n%s\nto match with pattern:\n%s")
-say:set("assertion.match.negative", "\n%s\nnot match with pattern:\n%s")
+say:set("assertion.match.positive", shell.format("\n%%s\n%{red}to match with pattern%{reset}:\n%{yellow}%%s%{reset}"))
+say:set("assertion.match.negative", shell.format("\n%%s\n%{red}not match with pattern%{reset}:\n%{yellow}%%s%{reset}"))
 assert:register("assertion", "match", match, "assertion.match.positive", "assertion.match.negative")
 
 return helper
