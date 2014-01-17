@@ -1,7 +1,8 @@
-local azk  = require('azk')
-local uuid = require('azk.utils.native.uuid')
-local path = require('pl.path')
-local dir  = require('pl.dir')
+local azk   = require('azk')
+local shell = require('azk.cli.shell')
+local uuid  = require('azk.utils.native.uuid')
+local path  = require('pl.path')
+local dir   = require('pl.dir')
 
 local app = {}
 
@@ -12,7 +13,7 @@ end
 -- TODO: Fixing windows root
 function app.find_manifest(target)
   if __find_manifest(target) then
-    return path.join(target, azk.manifest)
+    return true, path.join(target, azk.manifest)
   end
 
   target = path.normpath(path.join(target, ".."))
@@ -20,10 +21,14 @@ function app.find_manifest(target)
     return app.find_manifest(target)
   end
 
-  error({ msg = "manifest not founded" })
+  return false, nil, shell.format(
+    "no such '%{yellow}%s%{reset}' in current project",
+    azk.manifest
+  )
 end
 
-function app.new(path)
+function app.new(P)
+  local file = app.find_manifest(P)
 end
 
 function app.new_id()
