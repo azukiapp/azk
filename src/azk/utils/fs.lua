@@ -108,10 +108,15 @@ end
 
 function cd(path, func)
   if func then
+    local err = nil
     local current = pwd()
     local result, err = lfs.chdir(path)
     if result then
-      func()
+      local result, err = pcall(func)
+      if not result then
+        lfs.chdir(current)
+        error(err)
+      end
     else
       return result, err
     end
