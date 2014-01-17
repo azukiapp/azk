@@ -52,8 +52,26 @@ describe("Azk #cli #this test", function()
       print("result: " .. cli.run("not_exist"))
     end)
 
-    assert.is.match(output.stdout, "azk error.*: no such command 'not_exist'")
+    assert.is.match(output.stderr, "azk error.*: no such command 'not_exist'")
     assert.is.match(output.stdout, "Some useful azk commands are:")
     assert.is.match(output.stdout, "result: 1")
+  end)
+
+  it("should run specific module command", function()
+    --local result = cli.run("spec.fixtures.custom_command", function()
+      --return 1
+    --end)
+
+    --assert.is.equal(result, 1)
+  end)
+
+  it("should show a internal error", function()
+    --local output = shell.capture_io(function()
+      --cli.run("spec.fixtures.custom_command", function()
+        --error({ msg = "um error" })
+      --end)
+    --end)
+
+    --assert.is.match(output.stderr, "internal error 'um error'")
   end)
 end)

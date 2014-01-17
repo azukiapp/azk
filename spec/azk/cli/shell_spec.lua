@@ -61,7 +61,7 @@ describe("Azk cli #shell", function()
         "%%{%s}azk %s%%{reset}: already exists",
         color, log
       ))
-      assert.is.equal(sample .. "\n", result.stdout)
+      assert.is.equal(sample .. "\n", result.stderr)
     end)
   end)
 end)

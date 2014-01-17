@@ -20,7 +20,7 @@ local oub = S.dup(1)
 local oeb = S.dup(2)
 
 function shell.capture_io(input, func)
-  local _, err, inr, inw = S.pipe()
+  local _, _err, inr, inw = S.pipe()
 
   if func == nil then
     func, input = input, nil
@@ -41,7 +41,11 @@ function shell.capture_io(input, func)
   assert(S.dup2(oew, 2))
 
   -- Run code with print and read
-  local _, err = pcall(func, inw, our)
+  local result, err = xpcall(function()
+     func(inw, our)
+  end, function(err)
+    return debug.traceback(err, 2)
+  end)
 
   ouw:write("\n")
   oew:write("\n")
@@ -55,7 +59,9 @@ function shell.capture_io(input, func)
   io.stdout:setvbuf("no")
   io.stderr:setvbuf("no")
 
-  if err then
+  if not result then
+    our:read()
+    oer:read()
     error(err)
   end
 
@@ -66,21 +72,25 @@ function shell.capture_io(input, func)
   }
 end
 
---function shell.capture_io(input, func)
-  --return {}
---end
-
 function shell.format(data, ...)
   return colors.noReset(data):format(...)
 end
 
+function shell.write_device(device, ...)
+  device:write(shell.format(...))
+end
+
+function shell.print_device(device, ...)
+  shell.write_device(device, ...)
+  device:write("\n")
+end
+
 function shell.write(...)
-  io.stdout:write(shell.format(...))
+  shell.write_device(io.stdout, ...)
 end
 
 function shell.print(...)
-  shell.write(...)
-  io.stdout:write("\n")
+  shell.print_device(io.stdout, ...)
 end
 
 function shell.capture(...)
@@ -91,7 +101,7 @@ end
 tablex.foreach(logs_type, function(color, log)
   shell[log] = function(msgs, ...)
     msgs = logs_format:format(color, log, msgs)
-    shell.print(msgs, ...)
+    shell.print_device(io.stderr, msgs, ...)
   end
 end)
 

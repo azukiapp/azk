@@ -8,7 +8,7 @@ local fs = require('azk.utils.fs')
 
 local command = require('azk.cli.commands.init')
 
-function run_capture(...)
+local function run_capture(...)
   local args = {...}
   return shell.capture_io(function()
     command.run(unpack(args))
@@ -25,7 +25,7 @@ describe("Azk cli init command", function()
   it("should use current directory", function()
     fs.cd(helper.fixture_path('test-box'), function()
       local result = run_capture()
-      assert.is.match(result.stdout, "'%./azkfile.json' already exists")
+      assert.is.match(result.stderr, "'%./azkfile.json' already exists")
     end)
   end)
 
@@ -36,7 +36,7 @@ describe("Azk cli init command", function()
     local expect = helper.escape_regexp(
       "'" .. path .. "/azkfile.json' already exists"
     )
-    assert.is.match(result.stdout, expect)
+    assert.is.match(result.stderr, expect)
   end)
 
   it("should ask for the box", function()
@@ -72,8 +72,8 @@ describe("Azk cli init command", function()
       command.run(project)
     end)
 
-    assert.is.match(output.stdout, "%[init%] '' is a invalid box name")
-    assert.is.match(output.stdout, "%[init%] '  ' is a invalid box name")
+    assert.is.match(output.stderr, "%[init%] '' is a invalid box name")
+    assert.is.match(output.stderr, "%[init%] '  ' is a invalid box name")
   end)
 
   it("should create a manifest file", function()
@@ -91,6 +91,6 @@ describe("Azk cli init command", function()
 
     assert.is.match(data, '"box": "' .. helper.escape_regexp(detected.box))
     assert.is.match(data, '"id": "[0-9a-f]+"')
-    assert.is.match(output.stdout, "%[init%] '.*/" .. azk.manifest .. "' generated")
+    assert.is.match(output.stderr, "%[init%] '.*/" .. azk.manifest .. "' generated")
   end)
 end)

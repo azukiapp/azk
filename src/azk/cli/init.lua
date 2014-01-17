@@ -58,10 +58,24 @@ end
 
 local function process(command, ...)
   local module = commands().module .. "." .. command
+
+  -- Try require
   local result, module = pcall(require, module)
-  if result then
-    return module.run(...)
+  if not result then
+    result, module = pcall(require, command)
   end
+
+  -- Run
+  if result then
+    local result, err = pcall(module.run, ...)
+    if not result then
+      shell.error("internal error '%s'", err.msg)
+      return err.code or 127
+    end
+    return err
+  end
+
+  -- Return error
   shell.error("no such command '%s'\n", command)
   display_usage()
   return 1
