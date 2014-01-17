@@ -8,7 +8,8 @@ command["short_help"] = "Agent agent administration"
 function command.run(...)
   local args = { ... }
   if table.remove(args, 1) == "exec" then
-    return agent_ssh.run(azk.agent_ip(), unpack(args))
+    local _, _, code = agent_ssh.run(azk.agent_ip(), unpack(args))
+    return code
   end
 end
 

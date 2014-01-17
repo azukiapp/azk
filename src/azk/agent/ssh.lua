@@ -35,7 +35,11 @@ function ssh.run(host, ...)
 
     args = tablex.imap(function(arg)
       if arg:match("%s+") then
-        arg = '\\"' .. arg:gsub('"', '\\\\\\"') .. '\\"'
+        arg = '\\"' ..
+          arg:gsub('\\', '\\\\\\\\'):
+          gsub("%$", '\\\\\\$'):
+          gsub('"', '\\\\\\"')
+        .. '\\"'
       end
       return arg
     end, args)

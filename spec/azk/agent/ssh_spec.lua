@@ -34,13 +34,13 @@ describe("Azk #agent #ssh client", function()
 
   it("should support execute a command", function()
     local output = shell.capture_io(function()
-      ssh.run(azk.agent_ip(), "/bin/bash", "-c", "cd /etc; ls -l")
+      ssh.run(azk.agent_ip(), "/bin/bash", "-c", "cd /etc; ls -l; $; \\")
     end)
 
     local cmd = os.execute.calls[1][1]
     assert.spy(os.execute).was.called()
     assert.is.match(cmd,
-      helper.escape_regexp('"/bin/bash -c \\"cd /etc; ls -l\\""')
+      helper.escape_regexp('"/bin/bash -c \\"cd /etc; ls -l; \\\\\\$; \\\\\\\\\\""')
     )
   end)
 
