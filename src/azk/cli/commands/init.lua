@@ -1,5 +1,6 @@
 local shell  = require('azk.cli.shell')
 local detect = require('azk.cli.detect')
+local stringx = require('pl.stringx')
 
 local app = require('azk.app')
 local fs  = require('azk.utils.fs')
@@ -28,7 +29,7 @@ local function create_manifest(path, file)
     if detected and box == "" then
       data = detected
       break
-    elseif box:gsub("^%s*(.-)%s*$", "%1") ~= "" then
+    elseif stringx.strip(box) ~= "" then
       data["box"] = box
       break
     end
