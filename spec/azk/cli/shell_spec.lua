@@ -46,6 +46,15 @@ describe("Azk cli #shell", function()
     assert.is.match(output.stdout, "Result: foo bar")
   end)
 
+  it("should return error in capture_io", function()
+    local result, err = pcall(shell.capture_io, function()
+      error("one error")
+    end)
+
+    assert.is_false(result)
+    assert.is.match(err, "one error")
+  end)
+
   it("should capture only write", function()
     local result = shell.capture_io(function()
       shell.write("only write a line")
