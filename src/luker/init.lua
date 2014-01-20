@@ -1,83 +1,86 @@
-local io     = require('io')
-local http   = require('socket.http')
-local ltn12  = require('ltn12')
-local dkjson = require('dkjson')
+local Spore = require 'Spore'
+local agent = require 'azk.agent'
 
-local table = table
-local error = error
-local type  = type
-local setmetatable = setmetatable
+local json_format = require 'luker.json_format'
 
-local M = {}
-
-setfenv(1, M)
-
-local host = "http://azk-agent:4243"
-
-local function request(method, url)
-  local response = {}
-  local _, c, _ =  http.request({
-    url  = host .. url,
-    sink = ltn12.sink.table(response)
-  })
-
-  local data = table.concat(response)
-  if c == 200 then
-    return dkjson.decode(data)
-  else
-    error {
-      code = c,
-      url  = url,
-      msg  = data:gsub("^%s*(.-)%s*$", "%1")
+local docker = Spore.new_from_lua {
+  base_url = 'http://azk-agent:4243/',
+  version = "1.7",
+  methods = {
+    version = {
+      path = '/version',
+      method = 'GET',
+    },
+    info = {
+      path = '/info',
+      method = 'GET',
+    },
+    containers = {
+      path = '/containers/json',
+      method = 'GET',
+    },
+    images = {
+      path = '/images/json',
+      method = 'GET',
+    },
+    image = {
+      path = '/images/:image/json',
+      method = 'GET',
+      required_params = {
+        'image'
+      }
+    },
+    tag_image = {
+      path = '/images/:image/tag',
+      required_params = {
+        "image",
+        "repo",
+      },
+      optional_params = {
+        "force",
+        "tag",
+      },
+      method = 'POST',
+    },
+    remove_image = {
+      path = '/images/:image',
+      method = "DELETE",
+      required_params = {
+        "image",
+      }
     }
-  end
-end
+  }
+}
 
-M.root = ""
-local function register(endpoint, url, table)
-  table = table or M
-  local root = table.root and (table.root .. "/") or ""
-  if url == nil or type(url) == "string" then
-    table[endpoint] = function()
-      return request("GET", root .. (url or ("/" .. endpoint)))
-    end
-  else
-    local entry = { root = root }
-    entry["root_endpoint"] = function(point)
-      entry["root"] = entry["root"] .. point
-    end
-    entry["register"] = function(endpoint, url)
-      register(endpoint, url, entry)
-    end
-    url(entry)
-    setmetatable(entry, {
-      __call = function(...)
-        return entry["all"](...)
+-- TODO: sugest support a module in spore:enable
+local t = docker.middlewares
+t[#t+1] = {
+  cond = function() return true end,
+  code = function(req)
+    return json_format.call(nil, req)
+  end
+}
+
+-- Don't implemented yet
+local intermediate = {
+  build_image = function(options)
+    target  = options['target']
+    tag     = options['tag']
+
+    local _, dir = agent.mount(target)
+    return agent.run("docker", "build", "-q", "-rm", "-t", tag, dir)
+  end
+}
+
+return setmetatable(intermediate, {
+  __index = function(_table, key)
+    local entry = docker[key]
+    if entry then
+      return function(...)
+        local res = entry(docker, ...)
+        return res.body, res.status
       end
-    })
-    table[endpoint] = entry
-  end
-end
-
-register "version"
-register "info"
-
-register("images", function(entry)
-  entry.root_endpoint("/images")
-  entry.register("all", "/json")
-end)
-
-register("containers", function(entry)
-  entry.root_endpoint("/containers")
-  entry.register("all", "/json")
-end)
-
-setmetatable(M, {
-  __index = function(table, key)
-    return function()
-      error("key entrypoint not implement")
     end
+    error(key .." entrypoint not implement")
   end
 })
-
-return M

@@ -25,6 +25,7 @@ get-deps:
 	@./libexec/azk-git-deps https://github.com/azukiapp/luadist-ljsyscall deps/luadist-ljsyscall
 	@./libexec/azk-git-deps https://github.com/LuaDist/luasocket deps/luasocket
 	@./libexec/azk-git-deps https://github.com/LuaDist/srlua deps/srlua
+	@./libexec/azk-git-deps https://github.com/LuaDist/luajson deps/luajson
 	@./libexec/azk-git-deps https://github.com/azukiapp/busted deps/busted removing_code
 	@./libexec/azk-git-deps https://github.com/nuxlli/lua-linenoise deps/lua-linenoise
 	@./libexec/azk-git-deps https://github.com/azukiapp/lua-pry deps/lua-pry
@@ -34,6 +35,7 @@ deps: get-deps
 	@./libexec/luadist-bootstrap
 	@echo Checking the azk depedencies
 	@./bin/luadist install luabitop
+	@./bin/luadist install deps/luajson lua-spore
 	@./bin/luadist install deps/busted deps/lua-linenoise deps/lua-pry deps/luadist-lustache deps/luadist-ljsyscall deps/spfs
 
 .PHONY: test test-lua test-shell deps
