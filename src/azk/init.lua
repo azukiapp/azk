@@ -12,6 +12,11 @@ M.root_path  = path.normpath(
   path.join(utils.__DIR__(), "..", "..")
 )
 
+M.data_path  = path.join(M.root_path, "data")
+M.boxes_path = path.join(M.data_path, "boxes")
+
+M.agent_mount_path = "/home/core/all"
+
 -- TODO: Add test
 local get_agent_ip = memoize(function(host)
   local result, err = socket.dns.toip(host)

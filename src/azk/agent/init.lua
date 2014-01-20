@@ -29,6 +29,10 @@ local function mount_all()
 end
 
 local function mount(dir)
+  if path.common_prefix(dir, azk.agent_mount_path) == azk.agent_mount_path then
+    return true, dir
+  end
+
   if path.isdir(dir) and mount_all() then
     return true, path.normpath(path.join(
       azk.agent_mount_path,
@@ -38,5 +42,8 @@ local function mount(dir)
 end
 
 return {
-  mount = mount
+  mount = mount,
+  run   = function(...)
+    return ssh.run(azk.agent_ip(), ...)
+  end
 }
