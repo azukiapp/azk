@@ -1,5 +1,6 @@
 local fs   = require('azk.utils.fs')
 local path = require('pl.path')
+local sha2 = require('azk.utils.sha')
 
 local box = {}
 
@@ -20,7 +21,8 @@ local function github_format(repo, version)
     repository = github .. repo,
     path       = repo,
     version    = version,
-    image      = repo .. ':' .. version
+    image      = repo,
+    full_name  = repo .. ':' .. version,
   }
 end
 
@@ -39,7 +41,8 @@ local function path_format(box_name)
       repository = nil,
       path       = box_name,
       version    = version,
-      image      = box_name .. ':' .. version
+      image      = box_name:gsub("^/", ""),
+      full_name  = box_name:gsub("^/", "") .. ':' .. version,
     }
   else
     error(path_not:format(box_name))
@@ -52,7 +55,8 @@ local function docker_format(box_name, version)
     repository = nil,
     path       = nil,
     version    = version,
-    image      = box_name
+    image      = box_name,
+    full_name  = box_name .. ':' .. version
   }
 end
 
@@ -73,7 +77,7 @@ function box.parse(box_name)
   -- Docker
   local image, version = box_name:match(regex.docker)
   if image then
-    return docker_format(box_name, version)
+    return docker_format(image, version)
   end
 
   error(invalid:format(box_name))
