@@ -3,6 +3,9 @@ local shell = require('azk.cli.shell')
 local uuid  = require('azk.utils.native.uuid')
 local path  = require('pl.path')
 local dir   = require('pl.dir')
+local pl_utils = require('pl.utils')
+local json  = require('json')
+local box   = require('azk.box')
 
 local app = {}
 
@@ -28,7 +31,20 @@ function app.find_manifest(target)
 end
 
 function app.new(P)
-  local file = app.find_manifest(P)
+  local result, file, err = app.find_manifest(P)
+  if not result then
+    return result, file, err
+  end
+
+  local data = json.decode(pl_utils.readfile(file))
+
+  data['box'] = box.parse(data['box'])
+
+  return true, {
+    manifest = file,
+    content  = data,
+    from     = data['box'].full_name,
+  }
 end
 
 function app.new_id()
