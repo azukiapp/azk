@@ -36,13 +36,31 @@ describe("Azk cli #shell", function()
   end)
 
   it("should capture entender data", function()
-    local result = nil
     local output = shell.capture_io("foo bar", function()
-      result = shell.capture("text >")
+      shell.info("Log info")
+      print("Result: " .. shell.capture("text >"))
     end)
 
-    assert.is.equal("text >", output.stdout)
-    assert.is.equal("foo bar", result)
+    assert.is.match(output.stderr, "Log info")
+    assert.is.match(output.stdout, "text >")
+    assert.is.match(output.stdout, "Result: foo bar")
+  end)
+
+  it("should capture only write", function()
+    local result = shell.capture_io(function()
+      shell.write("only write a line")
+    end)
+
+    assert.is.match(result.stdout, "only write a line")
+  end)
+
+  it("should return error in capture_io", function()
+    local result, err = pcall(shell.capture_io, function()
+      error("one error")
+    end)
+
+    assert.is_false(result)
+    assert.is.match(err, "one error")
   end)
 
   local logs_type = {

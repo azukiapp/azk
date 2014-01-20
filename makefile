@@ -14,7 +14,7 @@ test-shell:
 
 test-in-agent:
 	@echo "Lua testes: Agent"
-	@bash ./bin/azk agent exec /bin/bash -c 'cd azk; ./bin/luadist exec busted'
+	@bash ./bin/azk agent exec /bin/bash -c "cd all/`pwd`; ./bin/luadist exec busted"
 
 get-deps:
 	@mkdir -p deps

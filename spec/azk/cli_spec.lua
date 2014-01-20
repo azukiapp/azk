@@ -1,12 +1,12 @@
---require('spec.helper')
-
 local helper = require('spec.spec_helper')
 local cli    = require('azk.cli')
 local shell  = require('azk.cli.shell')
 
+os.exit = function() end
+
 local exec_cmd = require('azk.cli.commands.exec')
 
-describe("Azk #cli #this test", function()
+describe("Azk #cli test", function()
   it("should show help if blank invocation", function()
     local output = shell.capture_io(function()
       cli.run()
@@ -49,7 +49,7 @@ describe("Azk #cli #this test", function()
 
   it("should show error if execute a invalid command", function()
     local output = shell.capture_io(function()
-      print("result: " .. cli.run("not_exist"))
+      shell.print("result: " .. cli.run("not_exist"))
     end)
 
     assert.is.match(output.stderr, "azk error.*: no such command 'not_exist'")
@@ -58,20 +58,20 @@ describe("Azk #cli #this test", function()
   end)
 
   it("should run specific module command", function()
-    --local result = cli.run("spec.fixtures.custom_command", function()
-      --return 1
-    --end)
+    local result = cli.run("spec.fixtures.custom_command", function()
+      return 1
+    end)
 
-    --assert.is.equal(result, 1)
+    assert.is.equal(result, 1)
   end)
 
   it("should show a internal error", function()
-    --local output = shell.capture_io(function()
-      --cli.run("spec.fixtures.custom_command", function()
-        --error({ msg = "um error" })
-      --end)
-    --end)
+    local output = shell.capture_io(function()
+      cli.run("spec.fixtures.custom_command", function()
+        error({ msg = "um error" })
+      end)
+    end)
 
-    --assert.is.match(output.stderr, "internal error 'um error'")
+    assert.is.match(output.stderr, "internal error 'um error'")
   end)
 end)

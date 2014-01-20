@@ -33,13 +33,12 @@ describe("Azk #agent #ssh client", function()
   end)
 
   it("should support execute a command", function()
-    local output = shell.capture_io(function()
+    local result = shell.capture_io(function()
       ssh.run(azk.agent_ip(), "/bin/bash", "-c", "cd /etc; ls -l; $; \\")
+      return os.execute.calls[1][1]
     end)
 
-    local cmd = os.execute.calls[1][1]
-    assert.spy(os.execute).was.called()
-    assert.is.match(cmd,
+    assert.is.match(result.result,
       helper.escape_regexp('"/bin/bash -c \\"cd /etc; ls -l; \\\\\\$; \\\\\\\\\\""')
     )
   end)
@@ -47,11 +46,10 @@ describe("Azk #agent #ssh client", function()
   it("should support interactive mode", function()
     local output = shell.capture_io("uname; exit\n", function()
       ssh.run(azk.agent_ip(), "-t", "/bin/bash")
+      return os.execute.calls[1][1]
     end)
 
-    local cmd = os.execute.calls[1][1]
-    assert.spy(os.execute).was.called()
-    assert.is.match(cmd, '%-t "/bin/bash"$')
+    assert.is.match(output.result, '%-t "/bin/bash"$')
     assert.is.match(output.stderr, "Pseudo%-terminal will")
     assert.is.match(output.stdout, "Linux\n")
   end)
