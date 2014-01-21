@@ -127,6 +127,13 @@ tablex.foreach(logs_type, function(color, log)
     msgs = logs_format:format(color, log, msgs)
     shell.print_device(io.stderr, msgs, ...)
   end
+
+  shell[log .. "_format"] = function(msgs, ...)
+    return(shell.format(
+      logs_format:format(color, log, msgs),
+      ...
+    ))
+  end
 end)
 
 return shell

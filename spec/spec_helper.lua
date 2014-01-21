@@ -43,6 +43,8 @@ function helper.pp(...)
   end
 end
 
+_G.pp = pp
+
 function helper.unmock(mock)
   tablex.foreach(mock, function(v)
     v:revert()
@@ -80,14 +82,28 @@ local function blank(state, arguments)
   )
 end
 
+local function has_log(state, arguments)
+  local log_type   = arguments[1]
+  local expect_msg = shell[log_type .. "_format"](arguments[2])
+  local message    = arguments[3]
+
+  arguments[1] = expect_msg
+  arguments[2] = message
+
+  expect_msg = helper.escape_regexp(expect_msg)
+  return message:match(expect_msg) ~= nil
+end
+
 say:set_namespace("en")
 say:set("assertion.blank.positive", "\nExpect %s is blank")
 say:set("assertion.blank.negative", "\nExpect %s is not blank")
-assert:register("assertion", "blank", blank, "assertion.blank.positive", "assertion.blank.negative")
-
-say:set_namespace("en")
 say:set("assertion.match.positive", shell.format("\n%%s\n%{red}to match with pattern%{reset}:\n%{yellow}%%s%{reset}"))
 say:set("assertion.match.negative", shell.format("\n%%s\n%{red}not match with pattern%{reset}:\n%{yellow}%%s%{reset}"))
+say:set("assertion.has_log.positive", "\nExpected log message\n%s\nin:\n%s")
+say:set("assertion.has_log.negative", "\nExpected log message:\n%s\nto not be in:\n%s")
+
+assert:register("assertion", "blank", blank, "assertion.blank.positive", "assertion.blank.negative")
 assert:register("assertion", "match", match, "assertion.match.positive", "assertion.match.negative")
+assert:register("assertion", "has_log", has_log, "assertion.has_log.positive", "assertion.has_log.negative")
 
 return helper

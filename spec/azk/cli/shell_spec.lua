@@ -80,6 +80,20 @@ describe("Azk cli #shell", function()
 
   it("should format logs messages", function()
     tablex.foreach(logs_type, function(color, log)
+      local result = shell[log .. "_format"](
+        "already %s", "exists"
+      )
+
+      local sample = colors(string.format(
+        "%%{%s}azk %s%%{reset}: already exists",
+        color, log
+      ))
+      assert.is.equal(sample, result)
+    end)
+  end)
+
+  it("should format and output logs messages", function()
+    tablex.foreach(logs_type, function(color, log)
       local result = shell.capture_io(function()
         shell[log]("already %s", "exists")
       end)
