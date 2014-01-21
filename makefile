@@ -1,6 +1,6 @@
 
-TEST_FILES := $(shell find spec -name '*.bats' | xargs)
-RERUN_PATTERN := "{Makefile,bin/azk,**/*.bash,**/*.lua,**/*.bats,libexec/**/*,test/**/*azkfile.json}"
+TEST_CMD  := "./bin/luadist exec busted --tags=$(TEST_TAGS)"
+RERUN_PATTERN := "{makefile,bin/azk,**/*.bash,**/*.lua,**/*.bats,libexec/**/*,spec/**/*azkfile.json}"
 
 test: test-shell test-lua
 
@@ -18,18 +18,18 @@ test-in-agent:
 
 get-deps:
 	@mkdir -p deps
-	@./libexec/azk-git-deps https://github.com/sstephenson/bats deps/bats
-	@./libexec/azk-git-deps https://github.com/azukiapp/bootstrap deps/bootstrap
-	@./libexec/azk-git-deps https://github.com/azukiapp/luadist-git deps/luadist-git
-	@./libexec/azk-git-deps https://github.com/azukiapp/luadist-lustache deps/luadist-lustache
-	@./libexec/azk-git-deps https://github.com/azukiapp/luadist-ljsyscall deps/luadist-ljsyscall
-	@./libexec/azk-git-deps https://github.com/LuaDist/luasocket deps/luasocket
-	@./libexec/azk-git-deps https://github.com/LuaDist/srlua deps/srlua
-	@./libexec/azk-git-deps https://github.com/LuaDist/luajson deps/luajson
-	@./libexec/azk-git-deps https://github.com/azukiapp/busted deps/busted removing_code
-	@./libexec/azk-git-deps https://github.com/nuxlli/lua-linenoise deps/lua-linenoise
-	@./libexec/azk-git-deps https://github.com/azukiapp/lua-pry deps/lua-pry
-	@./libexec/azk-git-deps https://github.com/nuxlli/spfs deps/spfs
+	@./libexec/azk-git https://github.com/sstephenson/bats deps/bats
+	@./libexec/azk-git https://github.com/azukiapp/bootstrap deps/bootstrap
+	@./libexec/azk-git https://github.com/azukiapp/luadist-git deps/luadist-git
+	@./libexec/azk-git https://github.com/azukiapp/luadist-lustache deps/luadist-lustache
+	@./libexec/azk-git https://github.com/azukiapp/luadist-ljsyscall deps/luadist-ljsyscall
+	@./libexec/azk-git https://github.com/LuaDist/luasocket deps/luasocket
+	@./libexec/azk-git https://github.com/LuaDist/srlua deps/srlua
+	@./libexec/azk-git https://github.com/LuaDist/luajson deps/luajson
+	@./libexec/azk-git https://github.com/azukiapp/busted deps/busted removing_code
+	@./libexec/azk-git https://github.com/nuxlli/lua-linenoise deps/lua-linenoise
+	@./libexec/azk-git https://github.com/azukiapp/lua-pry deps/lua-pry
+	@./libexec/azk-git https://github.com/nuxlli/spfs deps/spfs
 
 deps: get-deps
 	@./libexec/luadist-bootstrap
@@ -38,4 +38,9 @@ deps: get-deps
 	@./bin/luadist install deps/luajson lua-spore
 	@./bin/luadist install deps/busted deps/lua-linenoise deps/lua-pry deps/luadist-lustache deps/luadist-ljsyscall deps/spfs
 
-.PHONY: test test-lua test-shell deps
+# auto run test in development
+rerun:
+	@which rerun &>/dev/null || (echo "Rerun not found, install: gem install rerun" && exit 1)
+	@bash -c 'rerun -c --no-growl --pattern $(RERUN_PATTERN) $(TEST_CMD)'
+
+.PHONY: test test-lua test-shell test-in-agent deps
