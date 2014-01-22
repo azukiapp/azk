@@ -37,32 +37,38 @@ local function git_clone(repoUrl, version, dir)
   return os.execute(("%s %s %s %s"):format(git, repoUrl, dir, version))
 end
 
+local function check_image(imagem_name, force)
+  shell.info("[image] searching: " .. imagem_name)
+  local image = { image = imagem_name }
+  local result, status = luker.image(image)
+  if status == 200 then
+    shell.info("[image] already provisioned: " .. imagem_name)
+    if not force then
+      return false
+    end
+    luker.remove_image(image)
+  else
+    shell.info("[image] not found: " .. imagem_name)
+  end
+  return true
+end
+
 function provision(box_info, options)
   local options    = options or {}
   local box_path   = nil
   local dir        = nil
-  local image_name = box_info.full_name
+  local imagem_name = box_info.full_name
 
   -- Remove old image
-  shell.info("[image] searching: " .. image_name)
-  local image = { image = image_name }
-  local result, status = luker.image(image)
-  if status == 200 then
-    shell.info("[image] already provisioned: " .. image_name)
-    if not options['force'] then
-      return true
-    end
-    luker.remove_image(image)
-  else
-    shell.info("[image] not found: " .. image_name)
+  if not check_image(imagem_name, options['force']) then
+    return true
   end
-
   shell.info("[image] provision it ...")
 
   -- By path
   if box_info['type'] == "path" then
     box_path = box_info.path
-    dir = path.join(azk.boxes_path, sha2.hash256(image_name))
+    dir = path.join(azk.boxes_path, sha2.hash256(imagem_name))
 
   -- By github
   elseif box_info['type'] == "github" then
@@ -71,15 +77,22 @@ function provision(box_info, options)
     print(git_clone(box_info.repository, box_info.version, box_path))
   end
 
-  local result, app, err = app.new(box_path)
-  if not result then
-    shell.error(err)
-    return false
+  local result, _app, err, code
+
+  if box_info['type'] == "docker" then
+    result, _, code = luker.pull_imagem({ imagem = imagem_name })
+  else
+    result, _app, err = app.new(box_path)
+    if not result then
+      shell.error(err)
+      return false
+    end
+
+    result, _, code = __provision(_app.content.build, dir, _app.from, imagem_name)
   end
 
-  local result, _, code = __provision(app.content.build, dir, app.from, image_name)
   if result then
-    shell.info("[image] provisioned: " .. image_name)
+    shell.info("[image] provisioned: " .. imagem_name)
     return true
   end
   return false

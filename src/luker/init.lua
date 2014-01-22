@@ -64,12 +64,17 @@ t[#t+1] = {
 -- Don't implemented yet
 local intermediate = {
   build_image = function(options)
-    target  = options['target']
-    tag     = options['tag']
+    local target = options.target
+    local tag    = options.tag
 
     local _, dir = agent.mount(target)
     return agent.run("docker", "build", "-q", "-rm", "-t", tag, dir)
-  end
+  end,
+
+  pull_imagem = function(options)
+    local imagem = options.imagem
+    return agent.run("docker", "pull", imagem)
+  end,
 }
 
 return setmetatable(intermediate, {

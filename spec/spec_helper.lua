@@ -35,6 +35,8 @@ function helper.escape_regexp(str)
   return str:gsub(quotepattern, "%%%1")
 end
 
+helper.er = helper.escape_regexp
+
 function helper.pp(...)
   if #{...} == 1 then
     print(serpent.block(...))
@@ -42,8 +44,6 @@ function helper.pp(...)
     print(serpent.block({...}))
   end
 end
-
-_G.pp = pp
 
 function helper.unmock(mock)
   tablex.foreach(mock, function(v)

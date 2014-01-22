@@ -1,4 +1,4 @@
-local helper    = require('spec.spec_helper')
+local h         = require('spec.spec_helper')
 local azk       = require('azk')
 local app       = require('azk.app')
 local shell     = require('azk.cli.shell')
@@ -29,7 +29,7 @@ describe("Azk box #provision", function()
     local old_execute = os.execute
     local git = path.join(azk.root_path, "libexec", "azk-git")
     os.execute = function(cmd)
-      if cmd:match("^" .. helper.escape_regexp(git) .. " .*") then
+      if cmd:match("^" .. h.er(git) .. " .*") then
         local cmd = stringx.split(cmd)
         fs.cp_r(origin, cmd[3])
         return true
@@ -38,8 +38,24 @@ describe("Azk box #provision", function()
     end
   end
 
+  it("should provision a docker imagem", function()
+    local box_data = box.parse("azk:test-box-provision")
+    local result = shell.capture_io(function()
+      os.execute = function(cmd)
+        shell.info(cmd)
+        return true
+      end
+      return provision(box_data)
+    end)
+
+    assert.has_log("info", "[image] searching: " .. box_data.full_name, result.stderr)
+    assert.has_log("info", "[image] not found: " .. box_data.full_name, result.stderr)
+    assert.has_log("info", "[image] provision it ...", result.stderr)
+    assert.is.match(result.stderr, h.er("docker pull " .. box_data.full_name))
+  end)
+
   it("should provision a local repository", function()
-    local box_data = box.parse(helper.fixture_path("test-box"))
+    local box_data = box.parse(h.fixture_path("test-box"))
     images[#images+1] = box_data.full_name
     local result   = shell.capture_io(function()
       return provision(box_data)
@@ -48,15 +64,15 @@ describe("Azk box #provision", function()
     assert.has_log("info", "[image] searching: " .. box_data.full_name, result.stderr)
     assert.has_log("info", "[image] not found: " .. box_data.full_name, result.stderr)
     assert.has_log("info", "[image] provision it ...", result.stderr)
-    assert.is.match(result.stdout, helper.escape_regexp("Step 1 : FROM ubuntu:12.04"))
-    assert.is.match(result.stdout, helper.escape_regexp("Step 2 : RUN echo '# step1' $'\\n'"))
-    assert.is.match(result.stdout, helper.escape_regexp("Successfully built"))
-    assert.is.match(result.stdout, helper.escape_regexp("Removing intermediate container"))
+    assert.is.match(result.stdout, h.er("Step 1 : FROM ubuntu:12.04"))
+    assert.is.match(result.stdout, h.er("Step 2 : RUN echo '# step1' $'\\n'"))
+    assert.is.match(result.stdout, h.er("Successfully built"))
+    assert.is.match(result.stdout, h.er("Removing intermediate container"))
     assert.has_log("info", "[image] provisioned: " .. box_data.full_name, result.stderr)
 
     local result, status = luker.image({ image = box_data.full_name })
     assert.is.equal(200, status)
-    assert.is.match(result.container_config.Cmd[3], helper.escape_regexp(box_data.full_name))
+    assert.is.match(result.container_config.Cmd[3], h.er(box_data.full_name))
   end)
 
   it("should get and provision github repository", function()
@@ -64,26 +80,26 @@ describe("Azk box #provision", function()
     images[#images+1] = box_data.full_name
 
     local result = shell.capture_io(function()
-      mock_git_clone(helper.fixture_path('test-box'))
+      mock_git_clone(h.fixture_path('test-box'))
       return provision(box_data)
     end)
 
     assert.has_log("info", "[image] searching: " .. box_data.full_name, result.stderr)
     assert.has_log("info", "[image] not found: " .. box_data.full_name, result.stderr)
     assert.has_log("info", "[image] provision it ...", result.stderr)
-    assert.is.match(result.stdout, helper.escape_regexp("Step 1 : FROM ubuntu:12.04"))
-    assert.is.match(result.stdout, helper.escape_regexp("Step 2 : RUN echo '# step1' $'\\n'"))
-    assert.is.match(result.stdout, helper.escape_regexp("Successfully built"))
-    assert.is.match(result.stdout, helper.escape_regexp("Removing intermediate container"))
+    assert.is.match(result.stdout, h.er("Step 1 : FROM ubuntu:12.04"))
+    assert.is.match(result.stdout, h.er("Step 2 : RUN echo '# step1' $'\\n'"))
+    assert.is.match(result.stdout, h.er("Successfully built"))
+    assert.is.match(result.stdout, h.er("Removing intermediate container"))
     assert.has_log("info", "[image] provisioned: " .. box_data.full_name, result.stderr)
 
     local result, status = luker.image({ image = box_data.full_name })
     assert.is.equal(200, status)
-    assert.is.match(result.container_config.Cmd[3], helper.escape_regexp(box_data.full_name))
+    assert.is.match(result.container_config.Cmd[3], h.er(box_data.full_name))
   end)
 
   it("should not provision if image exist", function()
-    local box_data = box.parse(helper.fixture_path("test-box"))
+    local box_data = box.parse(h.fixture_path("test-box"))
     images[#images+1] = box_data.full_name
 
     -- Initial provision
@@ -99,13 +115,13 @@ describe("Azk box #provision", function()
     local _, status = luker.image({ image = box_data.full_name })
     assert.is.equal(true, result.result)
     assert.is.equal(200, status)
-    assert.is_not.match(result.stdout, helper.escape_regexp("Step 1 : FROM ubuntu:12.04"))
+    assert.is_not.match(result.stdout, h.er("Step 1 : FROM ubuntu:12.04"))
     assert.has_log("info", "[image] searching: " .. box_data.full_name, result.stderr)
     assert.has_log("info", "[image] already provisioned: " .. box_data.full_name, result.stderr)
   end)
 
   it("should reprovision if force options", function()
-    local box_data = box.parse(helper.fixture_path("test-box"))
+    local box_data = box.parse(h.fixture_path("test-box"))
     images[#images+1] = box_data.full_name
 
     -- Initial provision
@@ -121,14 +137,14 @@ describe("Azk box #provision", function()
     assert.has_log("info", "[image] searching: " .. box_data.full_name, result.stderr)
     assert.has_log("info", "[image] already provisioned: " .. box_data.full_name, result.stderr)
     assert.has_log("info", "[image] provision it ...", result.stderr)
-    assert.is.match(result.stdout, helper.escape_regexp("Step 1 : FROM ubuntu:12.04"))
-    assert.is.match(result.stdout, helper.escape_regexp("Step 2 : RUN echo '# step1' $'\\n'"))
-    assert.is.match(result.stdout, helper.escape_regexp("Successfully built"))
-    assert.is.match(result.stdout, helper.escape_regexp("Removing intermediate container"))
+    assert.is.match(result.stdout, h.er("Step 1 : FROM ubuntu:12.04"))
+    assert.is.match(result.stdout, h.er("Step 2 : RUN echo '# step1' $'\\n'"))
+    assert.is.match(result.stdout, h.er("Successfully built"))
+    assert.is.match(result.stdout, h.er("Removing intermediate container"))
     assert.has_log("info", "[image] provisioned: " .. box_data.full_name, result.stderr)
 
     local result, status = luker.image({ image = box_data.full_name })
     assert.is.equal(200, status)
-    assert.is.match(result.container_config.Cmd[3], helper.escape_regexp(box_data.full_name))
+    assert.is.match(result.container_config.Cmd[3], h.er(box_data.full_name))
   end)
 end)
