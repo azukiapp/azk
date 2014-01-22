@@ -88,7 +88,7 @@ function provision(box_info, options)
       return false
     end
 
-    result, _, code = __provision(_app.content.build, dir, _app.from, imagem_name)
+    result, _, code = __provision(_app.content.build, dir, _app.from.full_name, imagem_name)
   end
 
   if result then

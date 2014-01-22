@@ -1,0 +1,68 @@
+{
+  // App id
+  "id": "def73023f3b54e5",
+
+  // Box base
+  "box": "../test-box",
+
+  // Global options
+  "options": {
+    "monitoring": false
+  },
+
+  // Environments to run and deploy application
+  "envs": {
+    "dev": {
+      "default": true,
+      "host": "dev.azk.io/blog",
+      "alias": [
+        "blog.dev.azk.io", // Default
+        "blog2.dev.azk.io"
+      ],
+      "options": {
+        "logging": true,
+        "box_history": 5
+      },
+      "env": {
+        "RACK_ENV": "dev"
+      }
+    },
+
+    "prod": {
+      "host": "azukiapp.com/my-blog",
+      "alias": [
+        // "my-blog.azukiapp.com", Default
+        "blog.example.com" // Custo domain
+      ],
+      "env": {
+        "RACK_ENV": "prod"
+      }
+    }
+  },
+
+  // Build steps
+  "build": [
+    "# install binary deps",
+      "echo apt-get update",
+      "echo apt-get -y install libxml2 curl",
+
+    "# install deps",
+      "echo gem install bundle",
+      "echo bundle install"
+  ],
+
+  "services": {
+    // Services box depedencies
+    "postgresql": { "box": "azukiapp/postgresql" },
+    "redis": { "box": "azukiapp/redis#0.0.1" },
+    "solr": { "box": "websolr/solr#0.0.1", "envs": ["dev"] },
+
+    // Services export by this project
+    "web": {
+      "default": true,
+      "command": "thin --rackup config.ru --port $PORT start",
+      "net": "http" // http|tcp|udp|zmq
+    },
+    "worker": "rake worker"
+  }
+}

@@ -30,21 +30,36 @@ function app.find_manifest(target)
   )
 end
 
+local function parse_box(value, file)
+  -- Relative box
+  if value:match("^%..*$") then
+    return box.parse(path.normpath(path.join(
+      path.dirname(file), value
+    )))
+  end
+  return box.parse(value)
+end
+
 function app.new(P)
   local result, file, err = app.find_manifest(P)
   if not result then
     return result, file, err
   end
 
-  local data = json.decode(pl_utils.readfile(file))
-
-  data['box'] = box.parse(data['box'])
-
-  return true, {
+  local content = json.decode(pl_utils.readfile(file))
+  local data = {
+    id       = content['id'],
+    path     = path.dirname(file),
     manifest = file,
-    content  = data,
-    from     = data['box'].full_name,
+    content  = content,
   }
+
+  if data['id'] then
+    data['imagem'] = "azk/apps/" .. data['id']
+  end
+
+  data['from'] = parse_box(content['box'], file)
+  return true, data
 end
 
 function app.new_id()
