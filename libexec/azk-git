@@ -16,4 +16,7 @@ else
   git --git-dir="$git_dir" fetch --force --progress
 fi
 
-git --git-dir="$git_dir" checkout --quiet "$version"
+(
+  cd $path
+  git --git-dir="$git_dir" checkout --force --quiet "$version"
+)
