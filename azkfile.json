@@ -1,0 +1,10 @@
+{
+  // Application id
+  "id": "668b8221cd9c43e",
+
+  "box": "ubuntu:12.04",
+
+  "build": [
+    "# Install dependencies steps"
+  ]
+}
