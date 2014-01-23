@@ -4,6 +4,11 @@ local colors = require('ansicolors')
 
 i18n.load({
   en = {
+    app = {
+      label   = colors("%{blue}app%{reset}"),
+      no_such = colors("no such '%{yellow}%<file>.s%{reset}' in current project")
+    },
+
     provision = {
       label    = colors("%{yellow}image%{reset}"),
       --label    = "image",

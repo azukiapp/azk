@@ -1,10 +1,16 @@
 local utils  = require('azk.utils')
-local path   = require('pl.path')
-local os     = require('os')
-local socket = require('socket')
+local i18n   = require('azk.i18n')
+
+local os      = require('os')
+local socket  = require('socket')
+local path    = require('pl.path')
 local memoize = require('pl.utils').memoize
 
-local M = {}
+local M = {
+  i18n  = i18n,
+  path  = path,
+  utils = utils
+}
 
 M.version    = "0.0.1"
 M.manifest   = "azkfile.json"

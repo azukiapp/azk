@@ -8,6 +8,7 @@ local json  = require('json')
 local box   = require('azk.box')
 
 local app = {}
+local i18n_f = azk.i18n.module("app")
 
 local function __find_manifest(target)
   return #(dir.getfiles(target, azk.manifest)) == 1
@@ -24,10 +25,7 @@ function app.find_manifest(target)
     return app.find_manifest(target)
   end
 
-  return false, nil, shell.format(
-    "no such '%{yellow}%s%{reset}' in current project",
-    azk.manifest
-  )
+  return false, nil, i18n_f("no_such", { file = azk.manifest })
 end
 
 local function parse_box(value, file)

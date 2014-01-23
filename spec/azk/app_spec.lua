@@ -47,14 +47,15 @@ describe("Azk #app", function()
     end)
 
     it("should return not found manifest", function()
+      local i18n_f  = azk.i18n.module("app")
       local project = utils.tmp_dir()
       local result, file, err = app.find_manifest(project)
+
       assert.is_false(result)
       assert.is.blank(file)
-      assert.is.match(err, hh.er(shell.format(
-        "no such '%{yellow}%s%{reset}' in current project",
-        azk.manifest
-      )))
+      assert.is.match(err, hh.er(
+        i18n_f("no_such", { file = azk.manifest })
+      ))
     end)
 
     it("should find manifest and parse then", function()
