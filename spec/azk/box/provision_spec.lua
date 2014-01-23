@@ -5,6 +5,7 @@ local shell     = require('azk.cli.shell')
 local fs        = require('azk.utils.fs')
 local box       = require('azk.box')
 local provision = require('azk.box.provision')
+local i18n      = require('azk.i18n')
 local luker     = require('luker')
 
 local tablex    = require('pl.tablex')
@@ -13,6 +14,7 @@ local path      = require('pl.path')
 
 describe("Azk box #provision", function()
   local images = {}
+  local i18n_f = i18n.module("provision")
 
   after_each(function()
     tablex.foreachi(images, function(image)
@@ -38,7 +40,7 @@ describe("Azk box #provision", function()
     end
   end
 
-  it("should provision a docker imagem", function()
+  it("should provision a docker image", function()
     local box_data = box.parse("azk:test-box-provision")
     local result = shell.capture_io(function()
       os.execute = function(cmd)
@@ -48,9 +50,13 @@ describe("Azk box #provision", function()
       return provision(box_data)
     end)
 
-    assert.has_log("info", "[image] searching: " .. box_data.full_name, result.stderr)
-    assert.has_log("info", "[image] not found: " .. box_data.full_name, result.stderr)
-    assert.has_log("info", "[image] provision it ...", result.stderr)
+    local image = { image = box_data.full_name }
+    assert.has_log("info", i18n_f("check", image), result.stderr)
+    assert.has_log("info", i18n_f("detected", { ['type'] = 'docker' }), result.stderr)
+    assert.has_log("info", i18n_f("searching", image), result.stderr)
+    assert.has_log("info", i18n_f("not_found", image), result.stderr)
+    assert.has_log("info", i18n_f("making", image), result.stderr)
+    assert.has_log("info", i18n_f("provisioned", image), result.stderr)
     assert.is.match(result.stderr, h.er("docker pull " .. box_data.full_name))
   end)
 
@@ -61,14 +67,21 @@ describe("Azk box #provision", function()
       return provision(box_data)
     end)
 
-    assert.has_log("info", "[image] searching: " .. box_data.full_name, result.stderr)
-    assert.has_log("info", "[image] not found: " .. box_data.full_name, result.stderr)
-    assert.has_log("info", "[image] provision it ...", result.stderr)
+    local image = { image = box_data.full_name }
+    assert.has_log("info", i18n_f("check", image), result.stderr)
+    assert.has_log("info", i18n_f("detected", { ['type'] = 'path' }), result.stderr)
+    assert.has_log("info", i18n_f("searching", image), result.stderr)
+    assert.has_log("info", i18n_f("not_found", image), result.stderr)
+    assert.has_log("info", i18n_f("making", image), result.stderr)
+    assert.has_log("info",
+      i18n_f("dependence.searching", { image = "ubuntu:12.04" }),
+      result.stderr
+    )
     assert.is.match(result.stdout, h.er("Step 1 : FROM ubuntu:12.04"))
     assert.is.match(result.stdout, h.er("Step 2 : RUN echo '# step1' $'\\n'"))
     assert.is.match(result.stdout, h.er("Successfully built"))
     assert.is.match(result.stdout, h.er("Removing intermediate container"))
-    assert.has_log("info", "[image] provisioned: " .. box_data.full_name, result.stderr)
+    assert.has_log("info", i18n_f("provisioned", image), result.stderr)
 
     local result, status = luker.image({ image = box_data.full_name })
     assert.is.equal(200, status)
@@ -84,14 +97,22 @@ describe("Azk box #provision", function()
       return provision(box_data)
     end)
 
-    assert.has_log("info", "[image] searching: " .. box_data.full_name, result.stderr)
-    assert.has_log("info", "[image] not found: " .. box_data.full_name, result.stderr)
-    assert.has_log("info", "[image] provision it ...", result.stderr)
+    local image = { image = box_data.full_name }
+    assert.has_log("info", i18n_f("check", image), result.stderr)
+    assert.has_log("info", i18n_f("detected", { ['type'] = 'github' }), result.stderr)
+    assert.has_log("info", i18n_f("searching", image), result.stderr)
+    assert.has_log("info", i18n_f("not_found", image), result.stderr)
+    assert.has_log("info", i18n_f("making", image), result.stderr)
+    assert.has_log("info",
+      i18n_f("dependence.searching", { image = "ubuntu:12.04" }),
+      result.stderr
+    )
     assert.is.match(result.stdout, h.er("Step 1 : FROM ubuntu:12.04"))
     assert.is.match(result.stdout, h.er("Step 2 : RUN echo '# step1' $'\\n'"))
     assert.is.match(result.stdout, h.er("Successfully built"))
     assert.is.match(result.stdout, h.er("Removing intermediate container"))
-    assert.has_log("info", "[image] provisioned: " .. box_data.full_name, result.stderr)
+    assert.has_log("info", i18n_f("provisioned", image), result.stderr)
+
 
     local result, status = luker.image({ image = box_data.full_name })
     assert.is.equal(200, status)
@@ -116,8 +137,12 @@ describe("Azk box #provision", function()
     assert.is.equal(true, result.result)
     assert.is.equal(200, status)
     assert.is_not.match(result.stdout, h.er("Step 1 : FROM ubuntu:12.04"))
-    assert.has_log("info", "[image] searching: " .. box_data.full_name, result.stderr)
-    assert.has_log("info", "[image] already provisioned: " .. box_data.full_name, result.stderr)
+
+    local image = { image = box_data.full_name }
+    assert.has_log("info", i18n_f("check", image), result.stderr)
+    assert.has_log("info", i18n_f("detected", { ['type'] = 'path' }), result.stderr)
+    assert.has_log("info", i18n_f("searching", image), result.stderr)
+    assert.has_log("info", i18n_f("already", image), result.stderr)
   end)
 
   it("should reprovision if force options", function()
@@ -134,16 +159,87 @@ describe("Azk box #provision", function()
       return provision(box_data, { force = true })
     end)
 
-    assert.has_log("info", "[image] searching: " .. box_data.full_name, result.stderr)
-    assert.has_log("info", "[image] already provisioned: " .. box_data.full_name, result.stderr)
-    assert.has_log("info", "[image] provision it ...", result.stderr)
+    local image = { image = box_data.full_name }
+    assert.has_log("info", i18n_f("check", image), result.stderr)
+    assert.has_log("info", i18n_f("detected", { ['type'] = 'path' }), result.stderr)
+    assert.has_log("info", i18n_f("searching", image), result.stderr)
+    assert.has_log("info", i18n_f("already", image), result.stderr)
+    assert.has_log("info", i18n_f("making", image), result.stderr)
+    assert.has_log("info",
+      i18n_f("dependence.searching", { image = "ubuntu:12.04" }),
+      result.stderr
+    )
     assert.is.match(result.stdout, h.er("Step 1 : FROM ubuntu:12.04"))
     assert.is.match(result.stdout, h.er("Step 2 : RUN echo '# step1' $'\\n'"))
     assert.is.match(result.stdout, h.er("Successfully built"))
     assert.is.match(result.stdout, h.er("Removing intermediate container"))
-    assert.has_log("info", "[image] provisioned: " .. box_data.full_name, result.stderr)
+    assert.has_log("info", i18n_f("provisioned", image), result.stderr)
 
     local result, status = luker.image({ image = box_data.full_name })
+    assert.is.equal(200, status)
+    assert.is.match(result.container_config.Cmd[3], h.er(box_data.full_name))
+  end)
+
+  it("should return a error if dependece imagem is not satisfied", function()
+    local box_data = box.parse(h.fixture_path("test-box"))
+    images[#images+1] = box_data.full_name
+
+    local result = shell.capture_io(function()
+      luker.image = function(options)
+        return false, 404
+      end
+      return provision(box_data)
+    end)
+
+    assert.is_false(result.result)
+
+    local image = { image = box_data.full_name }
+    local dependence = { image = "ubuntu:12.04" }
+    assert.has_log("info", i18n_f("check", image), result.stderr)
+    assert.has_log("info", i18n_f("detected", { ['type'] = 'path' }), result.stderr)
+    assert.has_log("info", i18n_f("searching", image), result.stderr)
+    assert.has_log("info", i18n_f("not_found", image), result.stderr)
+    assert.has_log("info", i18n_f("dependence.searching", dependence), result.stderr)
+    assert.has_log("error", i18n_f("dependence.not_found", dependence), result.stderr)
+  end)
+
+  it("should recursive provision if dependence is forced", function()
+    local box_data = box.parse(h.fixture_path("test-box"))
+    images[#images+1] = box_data.full_name
+
+    local result = shell.capture_io(function()
+      local execute = os.execute
+      os.execute = function(cmd)
+        shell.info(cmd)
+        return execute(cmd)
+      end
+      luker.image = function(options)
+        return false, 404
+      end
+      return provision(box_data, { loop = true })
+    end)
+
+    assert.is_true(result.result)
+
+    local image = { image = box_data.full_name }
+    local dependence = { image = "ubuntu:12.04" }
+    assert.has_log("info", i18n_f("check", image), result.stderr)
+    assert.has_log("info", i18n_f("detected", { ['type'] = 'path' }), result.stderr)
+    assert.has_log("info", i18n_f("searching", image), result.stderr)
+    assert.has_log("info", i18n_f("not_found", image), result.stderr)
+    assert.has_log("info", i18n_f("dependence.searching", dependence), result.stderr)
+    assert.has_log("info", i18n_f("dependence.not_found_it", dependence), result.stderr)
+
+    assert.has_log("info", i18n_f("check", dependence), result.stderr)
+    assert.has_log("info", i18n_f("detected", { ['type'] = 'docker' }), result.stderr)
+    assert.has_log("info", i18n_f("searching", dependence), result.stderr)
+    assert.has_log("info", i18n_f("not_found", dependence), result.stderr)
+    assert.has_log("info", i18n_f("making", dependence), result.stderr)
+    assert.has_log("info", i18n_f("provisioned", image), result.stderr)
+
+    assert.is.match(result.stderr, h.er("docker pull " .. dependence.image))
+
+    local result, status = luker.image(image)
     assert.is.equal(200, status)
     assert.is.match(result.container_config.Cmd[3], h.er(box_data.full_name))
   end)

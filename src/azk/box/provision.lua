@@ -4,6 +4,7 @@ local utils = require('azk.utils')
 local sha2  = require('azk.utils.sha')
 local shell = require('azk.cli.shell')
 local box   = require('azk.box')
+local i18n  = require('azk.i18n')
 local luker = require('luker')
 
 local path     = require('pl.path')
@@ -11,6 +12,15 @@ local tablex   = require('pl.tablex')
 local pl_utils = require('pl.utils')
 
 local os = require('os')
+
+local i18n_f = i18n.module("provision")
+local function log_info(...)
+  shell.info(i18n_f(...))
+end
+
+local function log_error(...)
+  shell.error(i18n_f(...))
+end
 
 local function __provision(steps, dir, from, image)
   local file = path.join(dir, "Dockerfile")
@@ -37,50 +47,70 @@ local function git_clone(repoUrl, version, dir)
   return os.execute(("%s %s %s %s"):format(git, repoUrl, dir, version))
 end
 
-local function check_image(imagem_name, force)
-  shell.info("[image] searching: " .. imagem_name)
-  local image = { image = imagem_name }
+local function check_image(image_name, force)
+  local image = { image = image_name }
+  log_info("searching",  image)
   local result, status = luker.image(image)
   if status == 200 then
-    shell.info("[image] already provisioned: " .. imagem_name)
+    log_info("already", image)
     if not force then
       return false
     end
     luker.remove_image(image)
   else
-    shell.info("[image] not found: " .. imagem_name)
+    log_info("not_found", image)
+  end
+  return true
+end
+
+local function check_dependece(from, loop)
+  image = { image = from.full_name }
+  log_info("dependence.searching", image)
+  local result, status = luker.image(image)
+  if status ~= 200 then
+    local args = { }
+    if loop then
+      log_info("dependence.not_found_it", image )
+      return provision(from, { loop = true })
+    end
+    log_error("dependence.not_found", image )
+    return false
   end
   return true
 end
 
 function provision(box_info, options)
+  local box_path, work_dir
   local options    = options or {}
-  local box_path   = nil
-  local dir        = nil
-  local imagem_name = box_info.full_name
+  local image_name = box_info.full_name
+  local box_type   = box_info['type']
 
-  -- Remove old image
-  if not check_image(imagem_name, options['force']) then
-    return true
-  end
-  shell.info("[image] provision it ...")
+  log_info("check", { image = image_name })
+  log_info("detected", { ['type'] = box_type })
 
   -- By path
-  if box_info['type'] == "path" then
+  if box_type == "path" then
     box_path = box_info.path
-    dir = path.join(azk.boxes_path, sha2.hash256(imagem_name))
+    work_dir = path.join(azk.boxes_path, sha2.hash256(image_name))
 
   -- By github
-  elseif box_info['type'] == "github" then
+  elseif box_type == "github" then
     box_path = path.join(azk.boxes_path, box_info.path)
-    dir = box_path
+    work_dir = box_path
     print(git_clone(box_info.repository, box_info.version, box_path))
   end
 
-  local result, _app, err, code
+  -- Check for imagem
+  if not check_image(image_name, options['force']) then
+    return true
+  end
 
-  if box_info['type'] == "docker" then
-    result, _, code = luker.pull_imagem({ imagem = imagem_name })
+  -- Remove old image
+  log_info("making")
+
+  local result, _app, err, code
+  if box_type == "docker" then
+    result, _, code = luker.pull_image({ image = image_name })
   else
     result, _app, err = app.new(box_path)
     if not result then
@@ -88,11 +118,17 @@ function provision(box_info, options)
       return false
     end
 
-    result, _, code = __provision(_app.content.build, dir, _app.from.full_name, imagem_name)
+    if not check_dependece(_app.from, options['loop']) then
+      return false
+    end
+
+    result, _, code = __provision(
+      _app.content.build, work_dir, _app.from.full_name, image_name
+    )
   end
 
   if result then
-    shell.info("[image] provisioned: " .. imagem_name)
+    log_info("provisioned", { image = image_name })
     return true
   end
   return false

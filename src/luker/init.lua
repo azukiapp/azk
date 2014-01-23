@@ -62,6 +62,12 @@ t[#t+1] = {
 }
 
 -- Don't implemented yet
+-- TODO: Replacing this by api
+-- https://code.google.com/p/lua-larc
+-- https://github.com/lipp/lua-websockets
+-- http://rachid.koucha.free.fr/tech_corner/pty_pdip.html
+-- https://github.com/dotcloud/docker-py
+-- http://w3.impa.br/~diego/software/luasocket/http.html#request
 local intermediate = {
   build_image = function(options)
     local target = options.target
@@ -71,9 +77,9 @@ local intermediate = {
     return agent.run("docker", "build", "-q", "-rm", "-t", tag, dir)
   end,
 
-  pull_imagem = function(options)
-    local imagem = options.imagem
-    return agent.run("docker", "pull", imagem)
+  pull_image = function(options)
+    local image = options.image
+    return agent.run("docker", "pull", image)
   end,
 }
 
