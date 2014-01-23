@@ -4,6 +4,7 @@ local utils = require('azk.utils')
 local path  = require('azk.utils.path')
 local fs    = require('azk.utils.fs')
 local shell = require('azk.cli.shell')
+local luker = require('luker')
 
 local serpent = require('spec.utils.serpent')
 local random  = require('math').random
@@ -54,6 +55,16 @@ end
 function helper.reset_mock(mock)
   tablex.foreach(mock, function(v)
     v.calls = {}
+  end)
+end
+
+function helper.remove_test_images()
+  local result, code = luker.images()
+  tablex.foreachi(result, function(image)
+    local image = image.RepoTags[1]
+    if image:match("azuki.*test%-box") then
+      luker.remove_image({ image = image })
+    end
   end)
 end
 

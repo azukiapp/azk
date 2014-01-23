@@ -11,9 +11,8 @@ i18n.load({
 
     provision = {
       label    = colors("%{yellow}image%{reset}"),
-      --label    = "image",
       check    = "[%{label}] check image: %{image}",
-      detected = "[%{label}] '%{type}' box type detected",
+      detected = colors("[%<label>.s] '%{blue}%<type>.s%{reset}' box type detected"),
       making   = "[%{label}] provision it ...",
       provisioned = "[%{label}] provisioned: %{image}",
       -- Search

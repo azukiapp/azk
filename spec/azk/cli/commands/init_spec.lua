@@ -40,10 +40,9 @@ describe("Azk cli init command", function()
   end)
 
   it("should ask for the box", function()
-    local output = nil
     local path   = helper.tmp_dir()
 
-    output = shell.capture_io("test-box\n", function()
+    local output = shell.capture_io("test-box\n", function()
       command.run(path)
     end)
 
@@ -51,24 +50,21 @@ describe("Azk cli init command", function()
   end)
 
   it("should sugest default box", function()
-    local output  = nil
     local project = helper.tmp_dir()
     fs.touch(project .. "/Gemfile")
 
-    output = shell.capture_io("\n", function()
+    local result = shell.capture_io("\n", function()
       command.run(project)
     end)
 
     local detected = detect.inspect(project)
     local msg = shell.format("Enter a box (default: %{yellow}%s%{reset}): ", detected.box)
-    assert.is.match(output.stdout, helper.escape_regexp(msg))
+    assert.is.match(result.stdout, helper.escape_regexp(msg))
   end)
 
   it("should valid a box name", function()
-    local output  = nil
     local project = helper.tmp_dir()
-
-    output = shell.capture_io("\n  \nazukiapp/ruby-box\n", function()
+    local output  = shell.capture_io("\n  \nazukiapp/ruby-box\n", function()
       command.run(project)
     end)
 

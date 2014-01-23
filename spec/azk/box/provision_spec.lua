@@ -13,18 +13,11 @@ local stringx   = require('pl.stringx')
 local path      = require('pl.path')
 
 describe("Azk box #provision", function()
-  local images = {}
+  local images = nil
   local i18n_f = i18n.module("provision")
 
   after_each(function()
-    tablex.foreachi(images, function(image)
-      local result, status = luker.image({ image = image })
-      if result.id then
-        local result, status = luker.remove_image({ image = image })
-        assert.is.equal(200, status)
-      end
-    end)
-    images = {}
+    h.remove_test_images()
   end)
 
   local function mock_git_clone(origin)
@@ -62,7 +55,6 @@ describe("Azk box #provision", function()
 
   it("should provision a local repository", function()
     local box_data = box.parse(h.fixture_path("test-box"))
-    images[#images+1] = box_data.full_name
     local result   = shell.capture_io(function()
       return provision(box_data)
     end)
@@ -90,8 +82,6 @@ describe("Azk box #provision", function()
 
   it("should get and provision github repository", function()
     local box_data = box.parse("azukiapp/test-box#stable")
-    images[#images+1] = box_data.full_name
-
     local result = shell.capture_io(function()
       mock_git_clone(h.fixture_path('test-box'))
       return provision(box_data)
@@ -121,7 +111,6 @@ describe("Azk box #provision", function()
 
   it("should not provision if image exist", function()
     local box_data = box.parse(h.fixture_path("test-box"))
-    images[#images+1] = box_data.full_name
 
     -- Initial provision
     shell.capture_io(function()
@@ -147,7 +136,6 @@ describe("Azk box #provision", function()
 
   it("should reprovision if force options", function()
     local box_data = box.parse(h.fixture_path("test-box"))
-    images[#images+1] = box_data.full_name
 
     -- Initial provision
     shell.capture_io(function()
@@ -182,7 +170,6 @@ describe("Azk box #provision", function()
 
   it("should return a error if dependece imagem is not satisfied", function()
     local box_data = box.parse(h.fixture_path("test-box"))
-    images[#images+1] = box_data.full_name
 
     local result = shell.capture_io(function()
       luker.image = function(options)
@@ -205,7 +192,6 @@ describe("Azk box #provision", function()
 
   it("should recursive provision if dependence is forced", function()
     local box_data = box.parse(h.fixture_path("test-box"))
-    images[#images+1] = box_data.full_name
 
     local result = shell.capture_io(function()
       local execute = os.execute
