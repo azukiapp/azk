@@ -1,4 +1,7 @@
 {
+  // App id
+  "id": "fe0598b51044470",
+
   // Box base
   "box": "ubuntu:12.04",
 

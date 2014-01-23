@@ -49,16 +49,13 @@ function app.new(P)
   local content = json.decode(pl_utils.readfile(file))
   local data = {
     id       = content['id'],
+    imagem   = "azk/apps/" .. content['id'],
     path     = path.dirname(file),
     manifest = file,
     content  = content,
+    from     = parse_box(content['box'], file),
   }
 
-  if data['id'] then
-    data['imagem'] = "azk/apps/" .. data['id']
-  end
-
-  data['from'] = parse_box(content['box'], file)
   return true, data
 end
 

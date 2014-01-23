@@ -198,7 +198,7 @@ describe("azk utils file", function()
     local dir     = helper.fixture_path("test-box")
     local sha_dir = fs.shasum(dir)
 
-    assert.is.equal("a036c37cb960b8c3a488cfc66bae8ec7dd93f53b2500337fff7929de0ce1c548", sha_dir)
+    assert.is.equal("642f6b845d0eb51fa08132c247933b4246117eff3713ce188cede98c38cb4ad8", sha_dir)
   end)
 
   it("should raise erro in calculate sha1sum", function()
