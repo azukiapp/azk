@@ -25,7 +25,11 @@ i18n.load({
         not_found = "[%{label}] not found depedence: %{image}",
         not_found_it = "[%{label}] not found depedence, making: %{image}"
       }
-    }
+    },
+
+    exec = {
+      label = colors("%{green}exec%{reset}"),
+    },
   }
 })
 
