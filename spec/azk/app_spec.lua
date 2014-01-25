@@ -22,6 +22,10 @@ describe("Azk #app", function()
       )
     end)
 
+    after_each(function()
+      hh.remove_test_images()
+    end)
+
     teardown(function()
       fs.rm_rf(base_dir)
     end)
@@ -74,6 +78,19 @@ describe("Azk #app", function()
       local result, data = app.new(box_dir)
       assert.is_true(result)
       assert.is.equal("ubuntu:12.04", data.from.image)
+    end)
+
+    it("should execute a command in app image", function()
+      local result, data = app.new(app_dir)
+      data["image"] = "ubuntu:12.04" -- Fake image
+
+      local output = shell.capture_io(function()
+        return app.run(data, "/bin/bash", "-c", "ls -l")
+      end)
+
+      assert.is_true(output.result)
+      assert.is.match(output.stdout, "total 2")
+      assert.is.match(output.stdout, azk.manifest)
     end)
   end)
 end)

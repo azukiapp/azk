@@ -1,11 +1,15 @@
 local azk   = require('azk')
 local shell = require('azk.cli.shell')
 local uuid  = require('azk.utils.native.uuid')
-local path  = require('pl.path')
-local dir   = require('pl.dir')
-local pl_utils = require('pl.utils')
-local json  = require('json')
 local box   = require('azk.box')
+local agent = require('azk.agent')
+
+local path     = require('pl.path')
+local dir      = require('pl.dir')
+local pl_utils = require('pl.utils')
+
+local luker = require('luker')
+local json  = require('json')
 
 local app = {}
 local i18n_f = azk.i18n.module("app")
@@ -61,6 +65,24 @@ function app.new(P)
   }
 
   return true, data
+end
+
+function app.run(data, cmd, ...)
+  local _, mount = agent.mount(data.path)
+  local options = {
+    Image   = data.image,
+    Volumes = {{ mount, "/app" }},
+    WorkingDir = "/app",
+  }
+
+  if cmd == "-i" then
+    options.Tty = true
+    options.Cmd = {...}
+  else
+    options.Cmd = {cmd, ...}
+  end
+
+  return luker.create_container(options)
 end
 
 function app.new_id()
