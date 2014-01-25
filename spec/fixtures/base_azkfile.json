@@ -1,0 +1,18 @@
+{
+  // App id
+  "id": "25b2946ba8a7459",
+
+  // Box base
+  "box": "ubuntu:12.04",
+
+  // Build steps
+  "build": [
+    "# step1",
+      "echo step1",
+
+    "# step2",
+      "echo step2.1",
+      "echo step2.2"
+  ]
+}
+

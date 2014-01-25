@@ -27,8 +27,9 @@ i18n.load({
       }
     },
 
-    exec = {
+    command_exec = {
       label = colors("%{green}exec%{reset}"),
+      short_help = "Run an executable with the image-app",
     },
   }
 })

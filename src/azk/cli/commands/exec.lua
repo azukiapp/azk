@@ -1,19 +1,32 @@
-local app   = require('azk.app')
-local path  = require('pl.path')
-local shell = require('azk.cli.shell')
+local azk       = require('azk')
+local app       = require('azk.app')
+local shell     = require('azk.cli.shell')
+local path      = require('pl.path')
+local provision = require('azk.box.provision')
 
 local command = {}
+local i18n_f = azk.i18n.module("command_exec")
+local function log_info(...)
+  shell.info(i18n_f(...))
+end
 
-command["short_help"] = "Run an executable with the image-app"
+local function log_error(...)
+  shell.error(i18n_f(...))
+end
+
+command["short_help"] = i18n_f("short_help")
 function command.run(...)
-  -- azk exec comand [args]
-  -- azk exec -i command [args]
-
   local args = {...}
+
   if #args >= 1 then
-    local result, file, err = app.find_manifest(path.currentdir())
+    local result, data, err = app.new(path.currentdir())
     if not result then
       shell.error(err)
+      return 1
+    end
+
+    if provision(data, { loop = true }) then
+      app.run(data, ...)
     end
   end
 
