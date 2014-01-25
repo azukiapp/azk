@@ -1,5 +1,7 @@
 local luker  = require('luker')
-local helper = require('spec.spec_helper')
+local agent  = require('azk.agent')
+local shell  = require('azk.cli.shell')
+local hh     = require('spec.spec_helper')
 local tablex = require('pl.tablex')
 
 describe("Luker library", function()
@@ -69,5 +71,50 @@ describe("Luker library", function()
     local containers, status = luker.containers()
     assert.is.equal(200, status)
     assert.is.equal("table", type(containers))
+  end)
+
+  describe("containers", function()
+    local project = hh.tmp_dir()
+    local _, t_project = agent.mount(project)
+
+    local options = {
+      Image   = "ubuntu:12.04",
+      Volumes = {
+        { t_project, "/app" },
+        { t_project, "/project" }
+      },
+      WorkingDir = "/app",
+    }
+
+    it("should support create and run containers", function()
+      options["Cmd"] = { "/bin/bash", "-c", "ls -l /" }
+
+      local output = shell.capture_io(function()
+        return luker.create_container(options)
+      end)
+
+      assert.is_true(output.result)
+      assert.is.match(output.stdout, "drwx.*project")
+      assert.is.match(output.stdout, "drwx.*app")
+    end)
+
+    --it("should support run interactive mode", function()
+      --local options = tablex.deepcopy(options)
+
+      ----options["Cmd"] = { "/bin/bash", "-c", 'exit' }
+      --options["Cmd"] = { "/bin/bash", "-c", "ls -l /; exit" }
+      ----options["Cmd"] = { "/bin/bash", "-c", 'exit' }
+      --options["Tty"] = true
+
+      --local output = shell.capture_io("\n\nvalue\n", function()
+        --return luker.create_container(options)
+      --end)
+
+      --hh.pp(output)
+
+      --assert.is_true(output.result)
+      ----assert.is.match(output.stdout, "drwx.*project")
+      ----assert.is.match(output.stdout, "drwx.*app")
+    --end)
   end)
 end)

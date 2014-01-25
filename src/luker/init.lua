@@ -1,5 +1,7 @@
-local Spore = require 'Spore'
-local agent = require 'azk.agent'
+local Spore  = require 'Spore'
+local agent  = require 'azk.agent'
+local utils  = require 'azk.utils'
+local tablex = require 'pl.tablex'
 
 local json_format = require 'luker.json_format'
 
@@ -18,6 +20,16 @@ local docker = Spore.new_from_lua {
     containers = {
       path = '/containers/json',
       method = 'GET',
+      optional_params = {
+        "all",
+      }
+    },
+    remove_container = {
+      path = '/containers/:Id',
+      method = 'DELETE',
+      required_params = {
+        "Id",
+      },
     },
     images = {
       path = '/images/json',
@@ -80,6 +92,31 @@ local intermediate = {
   pull_image = function(options)
     local image = options.image
     return agent.run("docker", "pull", image)
+  end,
+
+  create_container = function(options)
+    local cmd = {
+      "docker", "run", "-rm",
+      "-w", options.WorkingDir or "/"
+    }
+
+    if options.Tty then
+      cmd = tablex.insertvalues(cmd, 1, { "-t" })
+      cmd[#cmd+1] = "-t"
+      cmd[#cmd+1] = "-i"
+    end
+
+    -- Mount
+    tablex.foreachi(options.Volumes or {}, function(volume, i)
+      cmd[#cmd+1] = "-v"
+      cmd[#cmd+1] = ('"%s:%s"'):format(volume[1], volume[2])
+    end)
+
+    cmd[#cmd+1] = options.Image
+    cmd = tablex.insertvalues(cmd, #cmd+1, options.Cmd or {})
+
+    --return cmd
+    return agent.run(unpack(cmd))
   end,
 }
 
