@@ -58,13 +58,28 @@ function helper.reset_mock(mock)
   end)
 end
 
+local to_remove = {
+  "azuki.*test%-box",
+  "azk/apps/def73023f3b54e5:latest",
+  "azk/apps/25b2946ba8a7459:latest",
+}
+
 function helper.remove_test_images()
+  local containers, code = luker.containers({ all = "true" })
+
   local result, code = luker.images()
   tablex.foreachi(result, function(image)
     local image = image.RepoTags[1]
-    if image:match("azuki.*test%-box") then
-      luker.remove_image({ image = image })
-    end
+    tablex.foreachi(to_remove, function(remove)
+      if image:match(remove) then
+        tablex.foreachi(containers, function(container)
+          if container.Image == image then
+            luker.remove_container({ Id = container.Id })
+          end
+        end)
+        luker.remove_image({ image = image })
+      end
+    end)
   end)
 end
 
