@@ -18,11 +18,11 @@ local function github_format(repo, version)
   version = version ~= "" and version or "master"
   return {
     ['type']   = 'github',
-    repository = github .. repo,
+    origin     = github .. repo,
     path       = repo,
     version    = version,
-    image      = repo,
-    full_name  = repo .. ':' .. version,
+    repository = repo,
+    image      = repo .. ':' .. version,
   }
 end
 
@@ -41,8 +41,8 @@ local function path_format(box_name)
       repository = nil,
       path       = box_name,
       version    = version,
-      image      = box_name:gsub("^/", ""),
-      full_name  = box_name:gsub("^/", "") .. ':' .. version,
+      repository = box_name:gsub("^/", ""),
+      image      = box_name:gsub("^/", "") .. ':' .. version,
     }
   else
     error(path_not:format(box_name))
@@ -55,8 +55,8 @@ local function docker_format(box_name, version)
     repository = nil,
     path       = nil,
     version    = version,
-    image      = box_name,
-    full_name  = box_name .. ':' .. version
+    repository = box_name,
+    image      = box_name .. ':' .. version
   }
 end
 

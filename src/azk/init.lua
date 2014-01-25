@@ -20,6 +20,7 @@ M.root_path  = path.normpath(
 
 M.data_path  = path.join(M.root_path, "data")
 M.boxes_path = path.join(M.data_path, "boxes")
+M.apps_path  = path.join(M.data_path, "apps")
 
 M.agent_mount_path = "/home/core/all"
 

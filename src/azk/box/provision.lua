@@ -64,7 +64,7 @@ local function check_image(image_name, force)
 end
 
 local function check_dependece(from, loop)
-  image = { image = from.full_name }
+  image = { image = from.image }
   log_info("dependence.searching", image)
   local result, status = luker.image(image)
   if status ~= 200 then
@@ -82,7 +82,7 @@ end
 function provision(box_info, options)
   local box_path, work_dir
   local options    = options or {}
-  local image_name = box_info.full_name
+  local image_name = box_info.image
   local box_type   = box_info['type']
 
   log_info("check", { image = image_name })
@@ -123,7 +123,7 @@ function provision(box_info, options)
     end
 
     result, _, code = __provision(
-      _app.content.build, work_dir, _app.from.full_name, image_name
+      _app.content.build, work_dir, _app.from.image, image_name
     )
   end
 

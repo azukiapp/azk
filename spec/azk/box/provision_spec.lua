@@ -43,14 +43,14 @@ describe("Azk box #provision", function()
       return provision(box_data)
     end)
 
-    local image = { image = box_data.full_name }
+    local image = { image = box_data.image }
     assert.has_log("info", i18n_f("check", image), result.stderr)
     assert.has_log("info", i18n_f("detected", { ['type'] = 'docker' }), result.stderr)
     assert.has_log("info", i18n_f("searching", image), result.stderr)
     assert.has_log("info", i18n_f("not_found", image), result.stderr)
     assert.has_log("info", i18n_f("making", image), result.stderr)
     assert.has_log("info", i18n_f("provisioned", image), result.stderr)
-    assert.is.match(result.stderr, h.er("docker pull " .. box_data.full_name))
+    assert.is.match(result.stderr, h.er("docker pull " .. box_data.image))
   end)
 
   it("should provision a local repository", function()
@@ -59,7 +59,7 @@ describe("Azk box #provision", function()
       return provision(box_data)
     end)
 
-    local image = { image = box_data.full_name }
+    local image = { image = box_data.image }
     assert.has_log("info", i18n_f("check", image), result.stderr)
     assert.has_log("info", i18n_f("detected", { ['type'] = 'path' }), result.stderr)
     assert.has_log("info", i18n_f("searching", image), result.stderr)
@@ -75,9 +75,9 @@ describe("Azk box #provision", function()
     assert.is.match(result.stdout, h.er("Removing intermediate container"))
     assert.has_log("info", i18n_f("provisioned", image), result.stderr)
 
-    local result, status = luker.image({ image = box_data.full_name })
+    local result, status = luker.image({ image = box_data.image })
     assert.is.equal(200, status)
-    assert.is.match(result.container_config.Cmd[3], h.er(box_data.full_name))
+    assert.is.match(result.container_config.Cmd[3], h.er(box_data.image))
   end)
 
   it("should get and provision github repository", function()
@@ -87,7 +87,7 @@ describe("Azk box #provision", function()
       return provision(box_data)
     end)
 
-    local image = { image = box_data.full_name }
+    local image = { image = box_data.image }
     assert.has_log("info", i18n_f("check", image), result.stderr)
     assert.has_log("info", i18n_f("detected", { ['type'] = 'github' }), result.stderr)
     assert.has_log("info", i18n_f("searching", image), result.stderr)
@@ -104,9 +104,9 @@ describe("Azk box #provision", function()
     assert.has_log("info", i18n_f("provisioned", image), result.stderr)
 
 
-    local result, status = luker.image({ image = box_data.full_name })
+    local result, status = luker.image({ image = box_data.image })
     assert.is.equal(200, status)
-    assert.is.match(result.container_config.Cmd[3], h.er(box_data.full_name))
+    assert.is.match(result.container_config.Cmd[3], h.er(box_data.image))
   end)
 
   it("should not provision if image exist", function()
@@ -122,12 +122,12 @@ describe("Azk box #provision", function()
       return provision(box_data)
     end)
 
-    local _, status = luker.image({ image = box_data.full_name })
+    local _, status = luker.image({ image = box_data.image })
     assert.is.equal(true, result.result)
     assert.is.equal(200, status)
     assert.is_not.match(result.stdout, h.er("Step 1 : FROM ubuntu:12.04"))
 
-    local image = { image = box_data.full_name }
+    local image = { image = box_data.image }
     assert.has_log("info", i18n_f("check", image), result.stderr)
     assert.has_log("info", i18n_f("detected", { ['type'] = 'path' }), result.stderr)
     assert.has_log("info", i18n_f("searching", image), result.stderr)
@@ -147,7 +147,7 @@ describe("Azk box #provision", function()
       return provision(box_data, { force = true })
     end)
 
-    local image = { image = box_data.full_name }
+    local image = { image = box_data.image }
     assert.has_log("info", i18n_f("check", image), result.stderr)
     assert.has_log("info", i18n_f("detected", { ['type'] = 'path' }), result.stderr)
     assert.has_log("info", i18n_f("searching", image), result.stderr)
@@ -163,9 +163,9 @@ describe("Azk box #provision", function()
     assert.is.match(result.stdout, h.er("Removing intermediate container"))
     assert.has_log("info", i18n_f("provisioned", image), result.stderr)
 
-    local result, status = luker.image({ image = box_data.full_name })
+    local result, status = luker.image({ image = box_data.image })
     assert.is.equal(200, status)
-    assert.is.match(result.container_config.Cmd[3], h.er(box_data.full_name))
+    assert.is.match(result.container_config.Cmd[3], h.er(box_data.image))
   end)
 
   it("should return a error if dependece imagem is not satisfied", function()
@@ -180,7 +180,7 @@ describe("Azk box #provision", function()
 
     assert.is_false(result.result)
 
-    local image = { image = box_data.full_name }
+    local image = { image = box_data.image }
     local dependence = { image = "ubuntu:12.04" }
     assert.has_log("info", i18n_f("check", image), result.stderr)
     assert.has_log("info", i18n_f("detected", { ['type'] = 'path' }), result.stderr)
@@ -207,7 +207,7 @@ describe("Azk box #provision", function()
 
     assert.is_true(result.result)
 
-    local image = { image = box_data.full_name }
+    local image = { image = box_data.image }
     local dependence = { image = "ubuntu:12.04" }
     assert.has_log("info", i18n_f("check", image), result.stderr)
     assert.has_log("info", i18n_f("detected", { ['type'] = 'path' }), result.stderr)
@@ -227,6 +227,6 @@ describe("Azk box #provision", function()
 
     local result, status = luker.image(image)
     assert.is.equal(200, status)
-    assert.is.match(result.container_config.Cmd[3], h.er(box_data.full_name))
+    assert.is.match(result.container_config.Cmd[3], h.er(box_data.image))
   end)
 end)

@@ -45,13 +45,19 @@ function app.new(P)
   end
 
   local content = json.decode(pl_utils.readfile(file))
+  local repository = "azk/apps/" .. content['id']
   local data = {
+    -- App data
     id       = content['id'],
-    imagem   = "azk/apps/" .. content['id'],
-    path     = path.dirname(file),
     manifest = file,
     content  = content,
     from     = parse_box(content['box'], file),
+
+    -- Box info
+    ['type']   = "app",
+    repository = repository,
+    image      = repository .. ":latest",
+    path       = path.dirname(file),
   }
 
   return true, data
