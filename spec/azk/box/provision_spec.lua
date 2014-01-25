@@ -229,4 +229,32 @@ describe("Azk box #provision", function()
     assert.is.equal(200, status)
     assert.is.match(result.container_config.Cmd[3], h.er(box_data.image))
   end)
+
+  it("should provision app imagem and depedence", function()
+    local project = h.tmp_dir()
+    fs.cp_r(h.fixture_path("base_azkfile.json"), path.join(project, azk.manifest))
+    local _, app_data = app.new(project)
+    local result = shell.capture_io(function()
+      provision(app_data)
+    end)
+
+    assert.has_log("info", i18n_f("check"    , app_data), result.stderr)
+    assert.has_log("info", i18n_f("detected" , app_data), result.stderr)
+    assert.has_log("info", i18n_f("searching", app_data), result.stderr)
+    assert.has_log("info", i18n_f("not_found", app_data), result.stderr)
+    assert.has_log("info", i18n_f("making"   , app_data), result.stderr)
+
+    local depedence =  { image = "ubuntu:12.04" }
+    assert.has_log("info", i18n_f("dependence.searching", depedence), result.stderr)
+
+    assert.is.match(result.stdout, h.er("Step 1 : FROM ubuntu:12.04"))
+    assert.is.match(result.stdout, h.er("Step 2 : RUN echo '# step1' $'\\n'"))
+    assert.is.match(result.stdout, h.er("Successfully built"))
+    assert.is.match(result.stdout, h.er("Removing intermediate container"))
+    assert.has_log("info", i18n_f("provisioned", app_data), result.stderr)
+
+    local result, status = luker.image({ image = app_data.image })
+    assert.is.equal(200, status)
+    assert.is.match(result.container_config.Cmd[3], h.er(app_data.image))
+  end)
 end)

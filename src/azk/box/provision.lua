@@ -89,7 +89,11 @@ function provision(box_info, options)
   log_info("detected", { ['type'] = box_type })
 
   -- By path
-  if box_type == "path" then
+  if box_type == "app" then
+    box_path = box_info.path
+    work_dir = path.join(azk.apps_path, sha2.hash256(image_name))
+
+  elseif box_type == "path" then
     box_path = box_info.path
     work_dir = path.join(azk.boxes_path, sha2.hash256(image_name))
 
@@ -112,10 +116,14 @@ function provision(box_info, options)
   if box_type == "docker" then
     result, _, code = luker.pull_image({ image = image_name })
   else
-    result, _app, err = app.new(box_path)
-    if not result then
-      shell.error(err)
-      return false
+    if box_type == "app" then
+      _app = box_info
+    else
+      result, _app, err = app.new(box_path)
+      if not result then
+        shell.error(err)
+        return false
+      end
     end
 
     if not check_dependece(_app.from, options['loop']) then
