@@ -71,18 +71,21 @@ function app.run(data, cmd, ...)
   local _, mount = agent.mount(data.path)
   local options = {
     Image   = data.image,
-    Volumes = {{ mount, "/app" }},
+    Volumes = { ["/app"] = {} },
     WorkingDir = "/app",
+    Binds = { ("%s:/app"):format(mount) }
   }
 
   if cmd == "-i" then
     options.Tty = true
+    options.OpenStdin = true
+    options.AttachStdin = true
     options.Cmd = {...}
   else
     options.Cmd = {cmd, ...}
   end
 
-  return luker.create_container(options)
+  return luker.run_container({ payload = options })
 end
 
 function app.new_id()

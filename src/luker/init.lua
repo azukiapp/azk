@@ -6,7 +6,7 @@ local tablex = require 'pl.tablex'
 local json_format = require 'luker.json_format'
 
 local docker = Spore.new_from_lua {
-  base_url = 'http://azk-agent:4243/',
+  base_url = 'http://azk-agent:4243/v1.8/',
   version = "1.7",
   methods = {
     version = {
@@ -23,6 +23,32 @@ local docker = Spore.new_from_lua {
       optional_params = {
         "all",
       }
+    },
+    create_container = {
+      path = '/containers/create',
+      method = 'POST',
+      required_payload = true,
+      options_params = {
+        "name"
+      },
+    },
+    start_container = {
+      path = '/containers/:id/start',
+      method = 'POST',
+      required_payload = true,
+      required_params = {
+        "id",
+      }
+    },
+    stop_container = {
+      path = '/containers/:id/stop',
+      method = 'POST',
+      required_params = {
+        "id",
+      },
+      optional_params = {
+        "t",
+      },
     },
     remove_container = {
       path = '/containers/:Id',
@@ -80,6 +106,7 @@ t[#t+1] = {
 -- http://rachid.koucha.free.fr/tech_corner/pty_pdip.html
 -- https://github.com/dotcloud/docker-py
 -- http://w3.impa.br/~diego/software/luasocket/http.html#request
+local luker = {}
 local intermediate = {
   build_image = function(options)
     local target = options.target
@@ -94,7 +121,31 @@ local intermediate = {
     return agent.run("docker", "pull", image)
   end,
 
-  create_container = function(options)
+  --run_container = function(options, pp)
+    --local result, code = luker.create_container(options)
+    --local id = result.Id
+    --local result, code = luker.start_container({
+      --id = id, payload = options.payload
+    --})
+    --pp(result, code)
+
+    --local result, err, code
+
+    --print(id)
+
+    ----if options.payload.Tty then
+      --result, err, code = agent.run("docker", "attach", id)
+    ----else
+      ----result, err, code = agent.run("docker", "logs", id)
+      --luker.remove_container({ Id = id })
+    ----end
+
+    --return result, err, code
+  --end,
+
+  run_container = function(options)
+    local options = options.payload
+
     local cmd = {
       "docker", "run", "-rm",
       "-w", options.WorkingDir or "/"
@@ -107,9 +158,9 @@ local intermediate = {
     end
 
     -- Mount
-    tablex.foreachi(options.Volumes or {}, function(volume, i)
+    tablex.foreachi(options.Binds or {}, function(volume, i)
       cmd[#cmd+1] = "-v"
-      cmd[#cmd+1] = ('"%s:%s"'):format(volume[1], volume[2])
+      cmd[#cmd+1] = ('"%s"'):format(volume)
     end)
 
     cmd[#cmd+1] = options.Image
@@ -119,6 +170,8 @@ local intermediate = {
     return agent.run(unpack(cmd))
   end,
 }
+
+luker = intermediate
 
 return setmetatable(intermediate, {
   __index = function(_table, key)
