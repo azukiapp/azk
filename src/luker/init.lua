@@ -24,6 +24,13 @@ local docker = Spore.new_from_lua {
         "all",
       }
     },
+    container = {
+      path = '/containers/:id/json',
+      method = 'GET',
+      required_params = {
+        "id",
+      }
+    },
     create_container = {
       path = '/containers/create',
       method = 'POST',
@@ -147,15 +154,38 @@ local intermediate = {
     local options = options.payload
 
     local cmd = {
-      "docker", "run", "-rm",
+      "docker", "run",
       "-w", options.WorkingDir or "/"
     }
+
+    if options.Name then
+      cmd[#cmd+1] = "-name"
+      cmd[#cmd+1] = options.Name
+    end
 
     if options.Tty then
       cmd = tablex.insertvalues(cmd, 1, { "-t" })
       cmd[#cmd+1] = "-t"
       cmd[#cmd+1] = "-i"
     end
+
+    if options.Daemon then
+      cmd[#cmd+1] = "-d"
+    else
+      cmd[#cmd+1] = "-rm"
+    end
+
+    -- Env
+    tablex.foreachi(options.Env or {}, function(var)
+      cmd[#cmd+1] = "-e"
+      cmd[#cmd+1] = var
+    end)
+
+    -- Ports
+    tablex.foreach(options.Ports or {}, function(_, port)
+      cmd[#cmd+1] = "-p"
+      cmd[#cmd+1] = port
+    end)
 
     -- Mount
     tablex.foreachi(options.Binds or {}, function(volume, i)

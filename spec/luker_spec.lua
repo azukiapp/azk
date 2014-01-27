@@ -79,24 +79,31 @@ describe("Luker library", function()
 
     local options = {
       payload = {
-        Cmd  = { "/bin/bash", "-c", "ls -l /app" },
+        Cmd  = { "/bin/bash", "-c", "ls -l /app; env" },
         Image    = "ubuntu:12.04",
+        Env      = {
+          "PORT=8080",
+          "__VAR_TEST=foobar",
+        },
         Volumes  = {
           ['/app'] = { },
         },
         WorkingDir = "/app",
         Binds = { ("%s:/app"):format(project) },
+        Name  = "test-luker",
       }
     }
 
     it("should support create and run containers", function()
       local output = shell.capture_io(function()
-        return luker.run_container(options, hh.pp)
+        return luker.run_container(options)
       end)
 
       assert.is_true(output.result)
       assert.is.match(output.stdout, "%-.*azkfile.json")
       assert.is.match(output.stdout, "drwx.*bin")
+      assert.is.match(output.stdout, "PORT=8080")
+      assert.is.match(output.stdout, "__VAR_TEST=foobar")
     end)
 
     --it("should support run interactive mode", function()
