@@ -3,8 +3,8 @@ local colors  = require('ansicolors')
 local S       = require('syscall')
 local tablex  = require('pl.tablex')
 local json    = require('json')
-local serpent = require('spec.utils.serpent')
 local stringx = require('pl.stringx')
+local serpent = require('serpent')
 
 local shell = {}
 

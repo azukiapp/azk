@@ -17,14 +17,10 @@ ffi.cdef [[
 local open   = require('io').open
 local remove = require('os').remove
 
-local serpent = require('spec.utils.serpent')
 local error   = error
 local pcall   = pcall
 local g_print = print
 local table   = table
-local print   = function(...)
-  g_print(serpent.line(...))
-end
 
 local M = { separator = sep }
 setfenv(1, M)

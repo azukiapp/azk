@@ -6,7 +6,7 @@ local fs    = require('azk.utils.fs')
 local shell = require('azk.cli.shell')
 local luker = require('luker')
 
-local serpent = require('spec.utils.serpent')
+local serpent = require('serpent')
 local random  = require('math').random
 local unique  = require('azk.utils').unique_id
 
