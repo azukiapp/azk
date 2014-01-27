@@ -91,7 +91,7 @@ function provision(box_info, options)
   -- By path
   if box_type == "app" then
     box_path = box_info.path
-    work_dir = path.join(azk.apps_path, sha2.hash256(image_name))
+    work_dir = path.join(azk.apps_path, box_info.id)
 
   elseif box_type == "path" then
     box_path = box_info.path

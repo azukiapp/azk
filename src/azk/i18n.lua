@@ -6,7 +6,8 @@ i18n.load({
   en = {
     app = {
       label   = colors("%{blue}app%{reset}"),
-      no_such = colors("no such '%{yellow}%<file>.s%{reset}' in current project")
+      no_such = colors("no such '%{yellow}%<file>.s%{reset}' in current project"),
+      not_service = colors("not such service '%{red}%<service>.s%{reset}' for this project"),
     },
 
     provision = {
@@ -30,6 +31,10 @@ i18n.load({
     command_exec = {
       label = colors("%{green}exec%{reset}"),
       short_help = "Run an executable with the image-app",
+    },
+
+    command_service = {
+      label = colors("%{green}service%{reset}"),
     },
   }
 })
