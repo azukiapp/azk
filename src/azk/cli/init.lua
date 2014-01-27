@@ -69,7 +69,11 @@ local function process(command, ...)
   if result then
     local result, err = pcall(module.run, ...)
     if not result then
-      shell.error("internal error '%s'", err.msg)
+      if type(err) == "table" and err.msg then
+        shell.error(err.msg)
+      else
+        shell.error("internal error '%s'", err)
+      end
       return err.code or 127
     end
     return err

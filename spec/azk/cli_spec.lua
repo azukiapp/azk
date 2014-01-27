@@ -72,6 +72,6 @@ describe("Azk #cli test", function()
       end)
     end)
 
-    assert.is.match(output.stderr, "internal error 'um error'")
+    assert.has_log("error", "um error", output.stderr)
   end)
 end)
