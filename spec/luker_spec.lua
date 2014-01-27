@@ -105,24 +105,5 @@ describe("Luker library", function()
       assert.is.match(output.stdout, "PORT=8080")
       assert.is.match(output.stdout, "__VAR_TEST=foobar")
     end)
-
-    --it("should support run interactive mode", function()
-      --local options = tablex.deepcopy(options)
-
-      --options.payload["Cmd"] = { "/bin/bash" }
-      --options.payload["Tty"] = true
-      --options.payload["OpenStdin"] = true
-      --options.payload["AttachStdin"] = true
-
-      ----local output = shell.capture_io("exit\n", function()
-        ----return luker.run_container(options, hh.pp)
-      ----end)
-
-      ----hh.pp(output)
-
-      ----assert.is_true(output.result)
-      ----assert.is.match(output.stdout, "drwx.*project")
-      ----assert.is.match(output.stdout, "drwx.*app")
-    --end)
   end)
 end)

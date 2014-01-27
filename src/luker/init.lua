@@ -128,28 +128,6 @@ local intermediate = {
     return agent.run("docker", "pull", image)
   end,
 
-  --run_container = function(options, pp)
-    --local result, code = luker.create_container(options)
-    --local id = result.Id
-    --local result, code = luker.start_container({
-      --id = id, payload = options.payload
-    --})
-    --pp(result, code)
-
-    --local result, err, code
-
-    --print(id)
-
-    ----if options.payload.Tty then
-      --result, err, code = agent.run("docker", "attach", id)
-    ----else
-      ----result, err, code = agent.run("docker", "logs", id)
-      --luker.remove_container({ Id = id })
-    ----end
-
-    --return result, err, code
-  --end,
-
   run_container = function(options)
     local options = options.payload
 
