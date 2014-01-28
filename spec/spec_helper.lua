@@ -17,6 +17,9 @@ local tmp_path = path.normalize(
   path.join(azk.root_path, "tmp", "test")
 )
 
+-- Force debug mode
+azk.debug = true
+
 local helper = {}
 
 function helper.tmp_dir(make)

@@ -5,6 +5,7 @@ local tablex  = require('pl.tablex')
 local json    = require('json')
 local stringx = require('pl.stringx')
 local serpent = require('serpent')
+local azk     = require('azk')
 
 local shell = {}
 
@@ -46,12 +47,6 @@ function shell.capture_io(input, func)
     io.stdout:setvbuf("no")
     io.stderr:setvbuf("no")
 
-    --io.stdout:flush()
-    --io.stderr:flush()
-
-    --io.stdout:seek("end")
-    --io.stderr:seek("end")
-
     ---- Run code with print and read
     local status, err = xpcall(function()
       return func(inw, our)
@@ -61,9 +56,6 @@ function shell.capture_io(input, func)
 
     ouw:write("\n")
     oew:write("\n")
-
-    --io.stdout:flush()
-    --io.stderr:flush()
 
     local result = {
       ['stdout'] = our:read():gsub("\n$", ""),
@@ -124,8 +116,10 @@ end
 
 tablex.foreach(logs_type, function(color, log)
   shell[log] = function(msgs, ...)
-    msgs = logs_format:format(color, log, msgs)
-    shell.print_device(io.stderr, msgs, ...)
+    if azk.debug then
+      msgs = logs_format:format(color, log, msgs)
+      shell.print_device(io.stderr, msgs, ...)
+    end
   end
 
   shell[log .. "_format"] = function(msgs, ...)

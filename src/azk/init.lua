@@ -24,6 +24,9 @@ M.apps_path  = path.join(M.data_path, "apps")
 
 M.agent_mount_path = "/home/core/all"
 
+--M.debug = os.getenv("AZK_DEBUG") and true or false
+M.debug = true
+
 -- TODO: Add test
 local get_agent_ip = memoize(function(host)
   local result, err = socket.dns.toip(host)
