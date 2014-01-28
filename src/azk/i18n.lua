@@ -7,7 +7,16 @@ i18n.load({
     app = {
       label   = colors("%{blue}app%{reset}"),
       no_such = colors("no such '%{yellow}%<file>.s%{reset}' in current project"),
-      not_service = colors("not such service '%{red}%<service>.s%{reset}' for this project"),
+    },
+
+    service = {
+      label    = colors("%{green}service%{green}"),
+      not_service = colors("[%<label>.s] not such service '%{red}%<service>.s%{reset}' for this project"),
+      scale  = "[%{label}] scale service '%{service}' from %{from} to %{to} instances",
+      up     = "[%{label}] starting service: '%{name}'",
+      down   = "[%{label}] stoping service: '%{name}'",
+      running = colors("[%<label>.s] %{green}running%{reset}, %<instances>.d instance(s)"),
+      not_running = colors("[%<label>.s] %{red}not running"),
     },
 
     provision = {

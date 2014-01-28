@@ -15,6 +15,7 @@ local json  = require('json')
 
 local app = {}
 local i18n_f = azk.i18n.module("app")
+local i18n_service_f = azk.i18n.module("service")
 
 local function __find_manifest(target)
   return #(dir.getfiles(target, azk.manifest)) == 1
@@ -122,13 +123,12 @@ function app.service(data, service, action, options, pp)
   local options  = tablex.merge({
     number   = action ~= "stop" and 1 or 0,
     timeout  = 5,
-    progress = function() end
   }, options or {}, true)
   local services = data.content.services or {}
 
   -- Guard
   if not services[service] then
-    error({ msg = i18n_f("not_service", { service = service })})
+    error({ msg = i18n_service_f("not_service", { service = service })})
   end
 
   -- Actual status
@@ -140,18 +140,31 @@ function app.service(data, service, action, options, pp)
   end)
 
   if action == "status" then
+    if #containers > 0 then
+      shell.info(i18n_service_f("running", { instances = #containers }))
+    else
+      shell.info(i18n_service_f("not_running"))
+    end
     return true, containers
   else
     if #containers ~= options.number then
       local diff = options.number - #containers
 
+      shell.info(i18n_service_f("scale", {
+        service = service,
+        from    = #containers,
+        to      = #containers + diff,
+      }))
+
       -- kill
       if diff < 0 then
         diff = diff * -1
         tablex.foreachi(tablex.range(1, diff), function(i)
+          shell.info(i18n_service_f("down", {
+            service = service, name = containers[i].Names[1]
+          }))
           luker.stop_container({ id = containers[i].Id, t = options.timeout})
           luker.remove_container({ Id = containers[i].Id })
-          options.progress(-1)
         end)
       -- Start
       else
@@ -171,6 +184,10 @@ function app.service(data, service, action, options, pp)
           run_opt.Daemon = true
           run_opt.Cmd = { "/bin/bash", "-c", command, "&>/dev/null" }
 
+          shell.info(i18n_service_f("up", {
+            service = service, name = run_opt.Name
+          }))
+
           -- Ports
           if service == "web" then
             run_opt.Ports = { ["8080/tcp"] = {} }
@@ -183,7 +200,6 @@ function app.service(data, service, action, options, pp)
           end)
 
           call_to_run(run_opt)
-          options.progress(1)
         end)
       end
     end

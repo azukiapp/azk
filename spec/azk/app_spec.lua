@@ -10,6 +10,7 @@ local azk = require('azk')
 local app = require('azk.app')
 
 local i18n_f = azk.i18n.module("app")
+local i18n_service_f = azk.i18n.module("service")
 
 describe("Azk #app current", function()
   describe("in valid a 'azk app' folder", function()
@@ -26,11 +27,16 @@ describe("Azk #app current", function()
       )
     end)
 
+    before_each(function()
+      azk.debug = false
+    end)
+
     after_each(function()
       hh.remove_test_images()
     end)
 
     teardown(function()
+      azk.debug = true
       fs.rm_rf(base_dir)
     end)
 
@@ -55,7 +61,6 @@ describe("Azk #app current", function()
     end)
 
     it("should return not found manifest", function()
-      local i18n_f  = azk.i18n.module("app")
       local project = utils.tmp_dir()
       local result, file, err = app.find_manifest(project)
 
@@ -118,7 +123,7 @@ describe("Azk #app current", function()
         local result, err = pcall(app.service, data, "not", "status")
 
         assert.is_false(result)
-        assert.is.equal(i18n_f("not_service", { service = "not" }), err.msg)
+        assert.is.equal(i18n_service_f("not_service", { service = "not" }), err.msg)
       end)
 
       it("should start a service with a name", function()
@@ -131,21 +136,48 @@ describe("Azk #app current", function()
 
       it("should get service status by name", function()
         local result = app.service(data, "worker", "start")
-        local status, containers = app.service(data, "worker", "status")
+        local output = shell.capture_io(function()
+          azk.debug = true
+          return app.service(data, "worker", "status")
+        end)
 
+        local status, containers = app.service(data, "worker", "status")
         assert.is.equal(1, #containers)
         assert.is.equal(data.image, containers[1].Image)
+        assert.has_log("info", i18n_service_f("running", { instances = 1 }), output.stderr)
       end)
 
       it("should scale service to a numer of process", function()
-        app.service(data, "worker", "start", { number = 2 })
+        local output = shell.capture_io(function()
+          azk.debug = true
+          app.service(data, "worker", "start", { number = 2 })
+        end)
         local status, containers = app.service(data, "worker", "status")
+
+        local msg = i18n_service_f("scale", {
+          service = "worker",
+          from = 0,
+          to   = 2
+        })
+
+        assert.has_log("info", msg, output.stderr)
 
         assert.is.equal(2, #containers)
         assert.is.equal(data.image, containers[1].Image)
 
-        app.service(data, "worker", "scale", { number = 1 })
+        local output = shell.capture_io(function()
+          azk.debug = true
+          app.service(data, "worker", "scale", { number = 1 })
+        end)
         local status, containers = app.service(data, "worker", "status")
+
+        local msg = i18n_service_f("scale", {
+          service = "worker",
+          from = 2,
+          to   = 1
+        })
+
+        assert.has_log("info", msg, output.stderr)
 
         assert.is.equal(1, #containers)
         assert.is.equal(data.image, containers[1].Image)
@@ -161,23 +193,6 @@ describe("Azk #app current", function()
         local status, containers = app.service(data, "worker", "status")
 
         assert.is.equal(0, #containers)
-      end)
-
-      it("should support progress function", function()
-        local count    = 0
-        local progress = function(inc)
-          count = count + inc
-        end
-
-        app.service(data, "worker", "scale", { number = 2, progress = progress})
-        local status, containers = app.service(data, "worker", "status")
-        assert.is.equal(2, #containers)
-        assert.is.equal(count, #containers)
-
-        app.service(data, "worker", "scale", { number = 0, progress = progress})
-        local status, containers = app.service(data, "worker", "status")
-        assert.is.equal(0, #containers)
-        assert.is.equal(count, #containers)
       end)
 
       it("should log in working directory", function()

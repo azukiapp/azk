@@ -59,6 +59,18 @@ describe("Azk #cli #commandservice", function()
         assert.has_log("info", i18n_prov_f("check", app_data), output.stderr)
       end)
     end)
+
+    it("should show progress to start and stop services", function()
+      local _, app_data = app.new(project)
+      fs.cd(project, function()
+        local output = shell.capture_io(function()
+          command.run("web", "start", "-n", "2")
+        end)
+
+        assert.has_log("info", i18n_prov_f("check", app_data), output.stderr)
+        assert.is.match(output.stderr, "Up: ++")
+      end)
+    end)
   end)
 end)
 

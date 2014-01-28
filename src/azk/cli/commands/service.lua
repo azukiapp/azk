@@ -28,7 +28,7 @@ function command.run(service, action, ...)
     local options = { }
 
     if args[1] == "-n" and args[2] then
-      options.number = arg[2]
+      options.number = tonumber(args[2])
     end
 
     if provision(data, { loop = true }) then
