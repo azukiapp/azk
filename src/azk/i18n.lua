@@ -45,6 +45,13 @@ i18n.load({
     command_service = {
       label = colors("%{green}service%{reset}"),
     },
+
+    command_ps = {
+      label = colors("%{green}processes%{reset}"),
+      short_help    = "Displays a information about all of application process",
+      not_provision = "[%{label}] application image not found, try 'azk provision'",
+      line  = colors("%{blue}%<id>-13s%{reset}"),
+    }
   }
 })
 
