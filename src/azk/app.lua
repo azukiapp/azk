@@ -5,6 +5,8 @@ local box   = require('azk.box')
 local agent = require('azk.agent')
 local fs    = require('azk.utils.fs')
 
+local balancer = require('azk.balancer')
+
 local path     = require('pl.path')
 local dir      = require('pl.dir')
 local pl_utils = require('pl.utils')
@@ -148,7 +150,14 @@ function app.service(data, service, action, options, pp)
     return true, containers
   else
     if #containers ~= options.number then
-      local diff = options.number - #containers
+      local diff  = options.number - #containers
+      local alias = (data.envs["dev"] or {}).alias or {}
+
+      if service == "web" then
+        tablex.foreachi(alias, function(name)
+          balancer.init(name, data.id)
+        end)
+      end
 
       shell.info(i18n_service_f("scale", {
         service = service,
@@ -160,11 +169,18 @@ function app.service(data, service, action, options, pp)
       if diff < 0 then
         diff = diff * -1
         tablex.foreachi(tablex.range(1, diff), function(i)
+          local container = containers[i]
           shell.info(i18n_service_f("down", {
-            service = service, name = containers[i].Names[1]
+            service = service, name = container.Names[1]
           }))
-          luker.stop_container({ id = containers[i].Id, t = options.timeout})
-          luker.remove_container({ Id = containers[i].Id })
+          if service == "web" then
+            local port = container.Ports[1].PublicPort
+            tablex.foreachi(alias, function(name)
+              balancer.remove(name, "http://azk-agent:" .. port)
+            end)
+          end
+          luker.stop_container({ id = container.Id, t = options.timeout})
+          luker.remove_container({ Id = container.Id })
         end)
       -- Start
       else
@@ -200,7 +216,21 @@ function app.service(data, service, action, options, pp)
           end)
 
           call_to_run(run_opt)
+
+          if service == "web" then
+            local container, code = luker.container({ id = run_opt.Name })
+            local port = container.NetworkSettings.Ports["8080/tcp"][1].HostPort
+            tablex.foreachi(alias, function(name)
+              balancer.add(name, "http://azk-agent:" .. port)
+            end)
+          end
         end)
+
+        if service == "web" then
+          tablex.foreachi(alias, function(name)
+            shell.info(i18n_service_f("access", { host = name }))
+          end)
+        end
       end
     end
     return true

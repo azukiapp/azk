@@ -17,6 +17,7 @@ i18n.load({
       down   = "[%{label}] stoping service: '%{name}'",
       running = colors("[%<label>.s] %{green}running%{reset}, %<instances>.d instance(s)"),
       not_running = colors("[%<label>.s] %{red}not running"),
+      access = "[%<label>.s] open in browser: http://%<host>.s",
     },
 
     provision = {

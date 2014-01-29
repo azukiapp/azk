@@ -35,7 +35,7 @@ get-deps:
 deps: get-deps
 	@./libexec/luadist-bootstrap
 	@echo Checking the azk depedencies
-	@./bin/luadist install luabitop
+	@./bin/luadist install luabitop lua-hiredis
 	@./bin/luadist install deps/luajson lua-spore
 	@./bin/luadist install deps/busted deps/lua-linenoise deps/lua-pry deps/luadist-lustache deps/luadist-i18n deps/luadist-ljsyscall deps/spfs
 
