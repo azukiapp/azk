@@ -2,11 +2,13 @@ local Spore  = require 'Spore'
 local agent  = require 'azk.agent'
 local utils  = require 'azk.utils'
 local tablex = require 'pl.tablex'
+local os     = require 'os'
 
 local json_format = require 'luker.json_format'
+local docker_url  = os.getenv('DOCKER_HOST') or 'azk-agent'
 
 local docker = Spore.new_from_lua {
-  base_url = 'http://azk-agent:4243/v1.8/',
+  base_url = 'http://' .. docker_url .. ':4243/v1.8/',
   version = "1.7",
   methods = {
     version = {
