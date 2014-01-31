@@ -1,4 +1,4 @@
 .vagrant/
-/deps
 /log
 /tmp
+/node_modules
