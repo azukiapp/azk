@@ -1,0 +1,11 @@
+{
+  "commands": {
+    "not_found": "%s: Command not found",
+    "exec": {
+      "description": "Run a command in application box context"
+    },
+    "init": {
+      "description": "Initializes a project by adding the file azkfile.json"
+    }
+  }
+}
