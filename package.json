@@ -26,16 +26,15 @@
     "url": "https://github.com/azukiapp/azk/issues"
   },
   "dependencies": {
-    "commander": "~2.1.0",
+    "commander": "git+ssh://git@github.com/scinos/commander.js.git#master",
     "cli-table": "~0.2.0",
     "node-json-minify": "~0.1.3-a",
     "glob": "~3.2.8",
     "underscore": "~1.5.2",
     "q": "~1.0.0",
     "prompt": "~0.2.12",
-    "docker-modem": "git+ssh://git@github.com/azukiapp/docker-modem.git#master",
-    "dockerode": "git+ssh://git@github.com/azukiapp/dockerode.git#attach_stdin",
-    "i18next": "~1.7.1"
+    "i18next": "~1.7.1",
+    "dockerode": "~1.2.5"
   },
   "devDependencies": {
     "chai": "~1.9.0",
