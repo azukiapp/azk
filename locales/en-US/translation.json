@@ -1,4 +1,10 @@
 {
+  "app" : {
+    "box": {
+      "invalid": "'%s' is not a valid definition of box"
+    }
+  },
+
   "commands": {
     "not_found": "%s: Command not found",
     "agent": {
