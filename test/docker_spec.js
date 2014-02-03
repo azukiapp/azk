@@ -1,7 +1,7 @@
-var expect = require('chai').expect;
 var helper = require('./spec_helper.js');
-
 var docker = require('../lib/docker');
+
+var expect = helper.expect;
 
 describe("Azk docker client", function() {
   it("should use constants options", function(done) {
