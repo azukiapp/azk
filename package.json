@@ -38,12 +38,14 @@
     "dockerode": "~1.2.5",
     "fstream": "~0.1.25",
     "tar": "~0.1.19",
-    "q-io": "~1.10.8"
+    "q-io": "~1.10.8",
+    "q-ify": "~0.1.0"
   },
   "devDependencies": {
     "chai": "~1.9.0",
     "mocha": "~1.17.1",
     "mocha-as-promised": "~2.0.0",
-    "chai-as-promised": "~4.1.0"
+    "chai-as-promised": "~4.1.0",
+    "memorystream": "~0.2.0"
   }
 }
