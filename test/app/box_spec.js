@@ -8,10 +8,6 @@ var Q      = require('q');
 var expect = helper.expect;
 
 describe("Azk app box", function() {
-  setup(function(done) {
-    azk.init().then(done);
-  });
-
   it("should support github format", function() {
     var result = Box.parse("azukiapp/ruby-box#stable");
     return Q.all([

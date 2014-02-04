@@ -4,10 +4,8 @@ var azk    = require('../../lib/azk');
 var expect = helper.expect;
 
 describe("Azk utils sha1", function() {
-  it("should calculate a sha1 for path", function(done) {
+  it("should calculate a sha1 for path", function() {
     var box_path = helper.fixture_path("test-box");
-    sha1.calculate(box_path).then(function(hash) {
-      expect(hash).to.match(/^\w{40}$/)
-    }).then(done).fail(done);
+    return expect(sha1.calculate(box_path)).to.eventually.match(/^\w{40}$/)
   });
 });
