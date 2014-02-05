@@ -28,20 +28,20 @@
   "dependencies": {
     "commander": "git+ssh://git@github.com/scinos/commander.js.git#master",
     "cli-table": "~0.2.0",
+    "prompt": "~0.2.12",
     "node-json-minify": "~0.1.3-a",
-    "glob": "~3.2.8",
     "underscore": "~1.5.2",
     "q": "~1.0.0",
-    "prompt": "~0.2.12",
+    "q-io": "~1.10.8",
+    "q-ify": "~0.1.0",
     "i18next": "~1.7.1",
     "docker-modem": "0.1.7",
     "dockerode": "~1.2.5",
-    "fstream": "~0.1.25",
-    "tar": "~0.1.19",
-    "q-io": "~1.10.8",
     "node-uuid": "~1.4.1",
-    "q-ify": "~0.1.0",
-    "archiver": "~0.5.2"
+    "archiver": "~0.5.2",
+    "glob": "~3.2.8",
+    "moment": "~2.5.1",
+    "parentpath": "~0.2.0"
   },
   "devDependencies": {
     "chai": "~1.9.0",
