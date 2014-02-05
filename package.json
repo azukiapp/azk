@@ -40,7 +40,8 @@
     "tar": "~0.1.19",
     "q-io": "~1.10.8",
     "node-uuid": "~1.4.1",
-    "q-ify": "~0.1.0"
+    "q-ify": "~0.1.0",
+    "archiver": "~0.5.2"
   },
   "devDependencies": {
     "chai": "~1.9.0",
