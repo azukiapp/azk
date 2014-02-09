@@ -41,7 +41,10 @@
     "archiver": "~0.5.2",
     "glob": "~3.2.8",
     "moment": "~2.5.1",
-    "parentpath": "~0.2.0"
+    "parentpath": "~0.2.0",
+    "touch": "0.0.3",
+    "mustache": "~0.8.1",
+    "colors": "~0.6.2"
   },
   "devDependencies": {
     "chai": "~1.9.0",

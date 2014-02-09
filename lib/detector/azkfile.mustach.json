@@ -1,0 +1,26 @@
+{
+  // Application id
+  "id": "{{app_id}}",
+
+  "box": "{{box}}",
+
+  "envs": {
+    "dev": {
+      "default": true,
+      "alias": [
+        "exemplo.dev.azk.io"
+      ]
+    }
+  },
+
+  "build": [
+    "# Extra install steps"
+  ],
+
+  "services": {
+    "web": {
+      "default": true,
+      "command": "node index.js"
+    }
+  }
+}
