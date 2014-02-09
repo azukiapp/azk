@@ -42,6 +42,10 @@
     "glob": "~3.2.8",
     "moment": "~2.5.1",
     "parentpath": "~0.2.0",
+    "debug": "~0.7.4",
+    "axon-rpc": "0.0.2",
+    "axon": "~1.0.0",
+    "eventemitter2": "~0.4.13",
     "touch": "0.0.3",
     "mustache": "~0.8.1",
     "colors": "~0.6.2"
