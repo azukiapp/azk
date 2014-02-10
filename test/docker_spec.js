@@ -4,7 +4,7 @@ var MemoryStream = require('memorystream');
 
 var expect = helper.expect;
 
-describe.only("Azk docker client", function() {
+describe("Azk docker client", function() {
   it("should use constants options", function() {
     return expect(docker.info())
       .to.eventually.have.property("Containers")
