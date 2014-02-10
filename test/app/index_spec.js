@@ -43,6 +43,12 @@ describe("Azk app module", function() {
         expect(app).to.have.deep.property("content.box", "../test-box");
         expect(app).to.have.deep.property("from.path", box_dir);
       });
+
+      it("should parse box manifest", function() {
+        var id  = "fe0598b51044470";
+        var app = new App(box_dir);
+        expect(app).to.have.deep.property("from.image", "ubuntu:12.04");
+      });
     });
   });
 });
