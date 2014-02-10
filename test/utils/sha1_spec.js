@@ -6,7 +6,7 @@ var path   = require('path');
 
 var expect = helper.expect;
 
-describe.only("Azk utils sha1", function() {
+describe("Azk utils sha1", function() {
   var box_path = helper.fixture_path("test-box");
 
   it("should calculate a sha1 for path", function() {
@@ -22,7 +22,7 @@ describe.only("Azk utils sha1", function() {
     var hash = sha1.calculateSync(box_path);
     expect(hash).to.match(/^\w{40}$/);
 
-    touch(path.join(box_path, 'scripts', 'node'));
+    touch(path.join(box_path, 'scripts', 'none'));
     expect(hash).to.not.equal(sha1.calculateSync(box_path));
   });
 });

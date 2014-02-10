@@ -7,7 +7,7 @@ var Q      = require('q');
 
 var expect = helper.expect;
 
-describe.only("Azk app box", function() {
+describe("Azk app box", function() {
   it("should support github format", function() {
     var box = new Box("azukiapp/ruby-box#stable");
     expect(box).to.have.property("type", "github");

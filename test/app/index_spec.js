@@ -8,32 +8,10 @@ var expect = helper.expect;
 
 var Q = azk.Q;
 
-describe("Azk app", function() {
+describe("Azk app module", function() {
   describe("with valid 'azk app' folder", function() {
-    var app_dir = null;
-    var box_dir = null;
-
-    before(function() {
-      return helper.tmp.dir({ prefix: "azk-" })
-      .then(function(dir) {
-        var old = process.cwd();
-        process.chdir(dir);
-        dir     = process.cwd();
-        process.chdir(old);
-
-        app_dir = path.join(dir, "app");
-        box_dir = path.join(dir, "test-box");
-
-        return Q.all([
-          fs.makeDirectory(app_dir),
-          fs.copyTree(helper.fixture_path('test-box'), box_dir),
-          fs.copy(
-            helper.fixture_path('full_azkfile.json'),
-            path.join(app_dir, azk.cst.MANIFEST)
-          )
-        ])
-      });
-    });
+    var app_dir = helper.fixture_path('test-app');
+    var box_dir = helper.fixture_path('test-box');
 
     it("should return a new app id", function() {
       var id = App.new_id()
@@ -54,7 +32,17 @@ describe("Azk app", function() {
     });
 
     describe("and request a new object", function() {
+      it("should find manifest and parse then", function() {
+        var id  = "25b2946ba8a7459";
+        var app = new App(app_dir);
 
+        expect(app).to.have.property("id", id);
+        expect(app).to.have.property("repository", "azk/apps/" + id);
+        expect(app).to.have.property("image", "azk/apps/" + id + ":latest");
+        expect(app).to.have.property("path" , app_dir);
+        expect(app).to.have.deep.property("content.box", "../test-box");
+        expect(app).to.have.deep.property("from.path", box_dir);
+      });
     });
   });
 });
