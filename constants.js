@@ -19,11 +19,14 @@ var default_conf = {
   DAEMON_PUB_PORT     : parseInt(process.env.AZK_PUB_PORT)  || 5639, // Realtime events
 
   AZK_AGENT           : process.env.AZK_AGENT || false,
-  AZK_AGENT_MOUNT     : "/home/docker/.azk/data/all",
+  AZK_AGENT_MOUNT     : "/home/docker/.azk/data/files",
 
   DEBUG               : process.env.AZK_DEBUG || false,
   PREFIX_MSG          : '\x1B[32mAZK \x1B[39m',
   PREFIX_MSG_ERR      : '\x1B[31mAZK [ERROR] \x1B[39m',
+
+  SPFS_PORT           : 5641,
+  SPFS_IP             : '127.0.0.1',
 
   SUCCESS_EXIT        : 0,
   ERROR_EXIT          : 1,

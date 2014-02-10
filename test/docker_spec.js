@@ -4,7 +4,7 @@ var MemoryStream = require('memorystream');
 
 var expect = helper.expect;
 
-describe("Azk docker client", function() {
+describe.only("Azk docker client", function() {
   it("should use constants options", function() {
     return expect(docker.info())
       .to.eventually.have.property("Containers")
@@ -21,21 +21,32 @@ describe("Azk docker client", function() {
   });
 
   describe("run", function() {
-    it("should demux outputs", function() {
-      var outputs = { stdout: '', stderr: '' };
+    var stdin, stdout, stderr;
+    var outputs = { stdout: '', stderr: '' };
 
-      var stdout = new MemoryStream();
+    beforeEach(function() {
+      stdin  = new MemoryStream();
+      stdout = new MemoryStream();
+      stderr = new MemoryStream();
+
+      stdin.setRawMode = function() { };
+
       stdout.on('data', function(data) {
         outputs.stdout += data.toString();
       });
 
-      var stderr = new MemoryStream();
       stderr.on('data', function(data) {
         outputs.stderr += data.toString();
       });
 
-      var cmd  = ["/bin/bash", "-c", "echo 'error' >&2; echo 'out';" ]
-      var opts = { stdout: stdout, stderr: stderr }
+      outputs.stdout = '';
+      outputs.stderr = '';
+    });
+
+    it("should demux outputs", function() {
+      var cmd  = ["/bin/bash", "-c", "echo 'error' >&2; echo 'out';" ];
+      var opts = { stdout: stdout, stderr: stderr };
+
       return docker.run("ubuntu:12.04", cmd, opts)
       .then(function(container) {
         expect(outputs.stdout).to.equal("out\n");
@@ -45,24 +56,30 @@ describe("Azk docker client", function() {
     })
 
     it("should support interactive run", function() {
-      var stdin  = new MemoryStream();
-      stdin.setRawMode = function() { };
+      var cmd  = ["/bin/bash"];
+      var opts = { stdin: stdin, stdout: stdout };
 
-      var stdout = new MemoryStream();
-      var output = '';
-      stdout.on('data', function(data) {
-        output += data.toString();
-      });
-
-      return docker.run("ubuntu:12.04", ["/bin/bash"], { stdin: stdin, stdout: stdout })
+      return docker.run("ubuntu:12.04", cmd, opts)
       .progress(function(event) {
         if (event == "started") {
           stdin.write("uptime; exit\n");
         }
       })
       .then(function(container) {
-        expect(output).to.match(/.*users.*load average.*/);
+        expect(outputs.stdout).to.match(/.*users.*load average.*/);
         return container.remove();
+      });
+    });
+
+    it("should support mount volumes", function() {
+      var cmd  = ["/bin/bash", "-c", "ls -l /azk"];
+      var opts = { stdout: stdout, rm: true, volumes: {} };
+
+      opts.volumes[__dirname] = [ "/azk" ];
+
+      return docker.run("ubuntu:12.04", cmd, opts)
+      .then(function() {
+        expect(outputs.stdout).to.match(/docker_spec\.js/);
       });
     });
 

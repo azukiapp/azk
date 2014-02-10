@@ -7,7 +7,7 @@ var fs     = require('fs');
 var detect = require('../../lib/detector');
 var cst = helper.azk.cst;
 
-describe.only("Azk cli detect tool", function() {
+describe("Azk cli detect tool", function() {
     var app_dir = null;
     var box_dir = null;
 
@@ -41,5 +41,5 @@ describe.only("Azk cli detect tool", function() {
       expect(data).to.match(/box/);
     });
   })
-})
+});
 
