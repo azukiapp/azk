@@ -9,6 +9,7 @@ var default_conf = {
   MANIFEST           : "azkfile.json",
 
   DEFAULT_FILE_PATH   : DEFAULT_FILE_PATH,
+  AZK_CLONE_PATH      : p.join(DEFAULT_FILE_PATH, 'boxes'),
   AZK_LOG_FILE_PATH   : p.join(DEFAULT_LOG_PATH , 'azk.log'),
   AZK_PID_FILE_PATH   : p.join(DEFAULT_PID_PATH , 'azk.pid'),
   DEFAULT_PID_PATH    : DEFAULT_PID_PATH,
