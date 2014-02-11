@@ -1,7 +1,8 @@
 {
   "app" : {
     "box": {
-      "invalid": "'%s' is not a valid definition of box"
+      "invalid": "'%s' is not a valid definition of box",
+      "not_found": "no such '%s' in current project"
     }
   },
 
@@ -17,5 +18,7 @@
     "init": {
       "description": "Initializes a project by adding the file azkfile.json"
     }
-  }
+  },
+
+  "i18n_test": "test i18n module"
 }
