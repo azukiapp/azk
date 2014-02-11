@@ -11,8 +11,9 @@
       "echo step1",
 
     "# step2",
-      "echo step2.1",
-      "echo step2.2"
+      [ "add", "scripts/none", "/none" ],
+      [ "run", ["chmod", "+x", "/none"]],
+      [ "run", ["/none"]]
   ]
 }
 

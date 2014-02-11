@@ -35,7 +35,7 @@
     "q-io": "~1.10.8",
     "q-ify": "~0.1.0",
     "i18next": "~1.7.1",
-    "docker-modem": "~0.1.9",
+    "docker-modem": "~0.1.10",
     "dockerode": "~1.2.5",
     "node-uuid": "~1.4.1",
     "archiver": "~0.5.2",
