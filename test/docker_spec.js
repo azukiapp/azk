@@ -57,11 +57,11 @@ describe("Azk docker client", function() {
 
     it("should support interactive run", function() {
       var cmd  = ["/bin/bash"];
-      var opts = { stdin: stdin, stdout: stdout };
+      var opts = { tty: true, stdin: stdin, stdout: stdout };
 
       return docker.run("ubuntu:12.04", cmd, opts)
       .progress(function(event) {
-        if (event == "started") {
+        if (event.type == "started") {
           stdin.write("uptime; exit\n");
         }
       })
