@@ -66,6 +66,7 @@ after(function() {
 
 var Helper = module.exports = {
   azk: azk,
+  azk_bin: path.join(azk.cst.AZK_ROOT_PATH, 'bin', 'azk'),
   tmp: {
     dir: Q.denodeify(tmp.dir),
   },

@@ -1,12 +1,14 @@
 
 var p = require('path');
 
+
 DEFAULT_FILE_PATH = p.resolve(process.env.HOME, '.azk', 'data');
 DEFAULT_PID_PATH  = p.join(DEFAULT_FILE_PATH, 'pids');
 DEFAULT_LOG_PATH  = p.join(DEFAULT_FILE_PATH, 'logs');
 
 var default_conf = {
-  MANIFEST           : "azkfile.json",
+  MANIFEST            : "azkfile.json",
+  AZK_ROOT_PATH       : __dirname,
 
   DEFAULT_FILE_PATH   : DEFAULT_FILE_PATH,
   AZK_CLONE_PATH      : p.join(DEFAULT_FILE_PATH, 'boxes'),
