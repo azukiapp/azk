@@ -20,42 +20,64 @@ describe("Azk app provision module", function() {
   }
 
   before(remove);
-  after(remove);
+  afterEach(remove);
 
   it("should return a error if image from not exist", function() {
     return expect(provision("not_exist"))
       .to.eventually.rejectedWith(errors.ImageNotExistError, /not_exist/)
   });
 
-  it("should generate Dockerfile and build image", function() {
-    var memStream = new MemoryStream();
-    var output = '';
+  describe("if from is valid image", function() {
+    var project = __dirname;
+    var stdout, output;
 
-    var steps = [
-      "echo 'azk' > /azk",
-      ["run", ["/bin/bash", "-c", 'cat "/azk"']],
-      ["add", __filename, "/provision_spec.js"],
-    ];
-
-    memStream.on('data', function(data) {
-      output += data;
+    beforeEach(function() {
+      stdout = new MemoryStream();
+      output = '';
+      stdout.on('data', function(data) {
+        output += data.toString();
+      });
     });
 
-    var result = (Q.async(function* () {
-      var prov = yield provision(
-        "ubuntu:12.04", provision_image, memStream,
-        {steps: steps, verbose: true, cache: false }
-      );
+    it("should generate Dockerfile and build image", function() {
+      var steps = [
+        "# comment",
+        "echo 'azk' > /azk",
+        ["run", ["/bin/bash", "-c", 'cat "/azk"']],
+        ["add", "provision_spec.js", "/provision_spec.js"],
+        ["run", ["cat", "/provision_spec.js"]],
+      ];
 
-      //console.log(output);
-      expect(output).to.match(/FROM ubuntu:12.04/);
-      expect(output).to.match(/RUN echo 'azk' > \/azk/);
-      expect(output).to.match(/RUN \/bin\/bash -c "cat \\"\/azk\\""/);
-      expect(output).to.match(/ADD .*\/provision_spec.js \/provision_spec.js/);
+      var result = (Q.async(function* () {
+        var prov = yield provision(
+          "ubuntu:12.04", provision_image, project, stdout,
+          {steps: steps, verbose: true, cache: false }
+        );
 
-      return yield docker.getImage(provision_image).inspect();
-    }))();
+        expect(output).to.match(/FROM ubuntu:12.04/);
+        expect(output).to.match(/RUN # comment/);
+        expect(output).to.match(/RUN echo 'azk' > \/azk/);
+        expect(output).to.match(/RUN \/bin\/bash -c "cat \\"\/azk\\""/);
+        expect(output).to.match(/ADD provision_spec.js \/provision_spec.js/);
+        expect(output).to.match(/match_with_this/);
 
-    return expect(result).to.eventually.has.property("id");
+        return yield docker.getImage(provision_image).inspect();
+      }))();
+
+      return expect(result).to.eventually.has.property("id");
+    });
+
+    it("should raise error if add a invalid file", function() {
+      var steps  = [["add", "invalid", "/file"]]
+      var result = (Q.async(function* () {
+        yield provision(
+          "ubuntu:12.04", provision_image, project, stdout,
+          {steps: steps, verbose: true, cache: false }
+        );
+      }))();
+
+      return expect(result).to.eventually
+        .rejectedWith(azk.errors.InvalidFileError, /invalid/);
+    });
   });
 });
