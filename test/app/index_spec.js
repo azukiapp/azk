@@ -37,11 +37,17 @@ describe("Azk app module", function() {
         var app = new App(app_dir);
 
         expect(app).to.have.property("id", id);
+        expect(app).to.have.property("file" , path.join(app_dir, azk.cst.MANIFEST));
+
+        expect(app).to.have.property("type", "app");
         expect(app).to.have.property("repository", "azk/apps/" + id);
         expect(app).to.have.property("image", "azk/apps/" + id + ":latest");
         expect(app).to.have.property("path" , app_dir);
+
         expect(app).to.have.deep.property("content.box", "../test-box");
         expect(app).to.have.deep.property("from.path", box_dir);
+
+        expect(app).to.have.deep.property("steps[0]", "# step1");
       });
 
       it("should parse box manifest", function() {
