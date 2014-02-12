@@ -1,64 +1,31 @@
-var h     = require('../spec_helper.js');
-var child = require('child_process');
-var MemoryStream = require('memorystream');
-var path  = require('path');
+var h      = require('../spec_helper.js');
+var path   = require('path');
 var docker = require('../../lib/docker');
-var App   = require('../../lib/app');
+var App    = require('../../lib/app');
 
 var azk = h.azk;
 var Q   = azk.Q;
 var _   = azk._;
 
 describe("Azk exec command", function() {
-  var app_dir = h.fixture_path('test-app');
-  var app     = new App(app_dir);
-  var stdout, stderr, outputs;
+  var app = null;
 
-  beforeEach(function() {
-    stdout = new MemoryStream();
-    stderr = new MemoryStream();
-    outputs = { stdout: '', stderr: '' };
-    stdout.on('data', function(data) {
-      outputs.stdout += data.toString();
-    });
-    stderr.on('data', function(data) {
-      outputs.stderr += data.toString();
+  before(function() {
+    return h.mock_app().then(function(dir) {
+      app = new App(dir);
     });
   });
 
-  function exec(dir, args, stdin) {
-    var done = Q.defer();
-    var opts = {
-      cwd: dir,
-      env: _.extend({ DEBUG: "azk:*" }, process.env),
-    }
-
-    args.unshift("exec");
-    var exec = child.spawn(h.azk_bin, args, opts);
-
-    if (stdin) {
-      process.nextTick(function() {
-        _.each(stdin, function(data) {
-          exec.stdin.write(data + "\n");
-        });
-      });
-    }
-
-    exec.stdout.pipe(stdout);
-    exec.stderr.pipe(stderr);
-    exec.on("close", function(code) {
-      done.resolve(code);
-    });
-
-    return done.promise;
-  }
+  var outputs = { };
+  var mocks   = h.mock_outputs(beforeEach, outputs);
+  var exec    = h.mock_exec(mocks, "exec");
 
   it("should execute and return error if azkfile.json not found", function() {
     return h.tmp.dir().then(function(tmp) {
       var result = exec(tmp, ["/bin/true"]);
 
       return result.then(function(code) {
-        var msg = azk.t("app.box.not_found", azk.cst.MANIFEST);
+        var msg = azk.t("app.manifest.not_found", azk.cst.MANIFEST);
 
         h.expect(code).to.equal(1);
         h.expect(outputs.stderr).to.match(RegExp(msg));
@@ -82,7 +49,7 @@ describe("Azk exec command", function() {
   describe("in a provisioned app", function() {
     before(function() {
       this.timeout(0);
-      return app.provision({ force: true }, new MemoryStream());
+      return app.provision({ force: true }, new h.MemoryStream());
     });
 
     it("should execute a command and remove a container", function() {

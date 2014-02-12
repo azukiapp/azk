@@ -130,6 +130,35 @@ Helper.mock_outputs = function(func, outputs) {
   return mocks;
 }
 
+Helper.mock_exec = function(mocks, command) {
+  return function(dir, args, stdin) {
+    var done = Q.defer();
+    var opts = {
+      cwd: dir,
+      env: _.extend({ DEBUG: "azk:*" }, process.env),
+    }
+
+    args.unshift(command);
+    var exec = child.spawn(Helper.azk_bin, args, opts);
+
+    if (stdin) {
+      process.nextTick(function() {
+        _.each(stdin, function(data) {
+          exec.stdin.write(data + "\n");
+        });
+      });
+    }
+
+    exec.stdout.pipe(mocks.stdout);
+    exec.stderr.pipe(mocks.stderr);
+    exec.on("close", function(code) {
+      done.resolve(code);
+    });
+
+    return done.promise;
+  }
+}
+
 Helper.mock_app = function(data) {
   data = _.extend({
     id  : "azk-test-" + App.new_id(),
