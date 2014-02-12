@@ -34,6 +34,7 @@ var default_conf = {
   SUCCESS_EXIT        : 0,
   ERROR_EXIT          : 1,
 
+  DOCKER_NS_NAME      : 'azk',
   DOCKER_HOST         : process.env.DOCKER_HOST || "http://127.0.0.1:5642"
 }
 

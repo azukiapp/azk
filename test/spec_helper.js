@@ -15,6 +15,8 @@ var App    = require('../lib/app');
 var Q = azk.Q;
 var _ = azk._;
 
+azk.cst.DOCKER_NS_NAME = "azk-test-";
+
 // Extensions
 require("mocha-as-promised")();
 chai.use(require('chai-as-promised'));
@@ -73,6 +75,7 @@ after(function() {
 });
 
 var Helper = module.exports = {
+  Q  : Q,
   azk: azk,
   azk_bin: path.join(azk.cst.AZK_ROOT_PATH, 'bin', 'azk'),
   tmp: {
@@ -108,7 +111,7 @@ Helper.remove_images = function(images) {
   });
 }
 
-Helper.mock_outputs = function(func, outputs) {
+Helper.mock_outputs = function(func, outputs, extra) {
   var mocks = {};
 
   func(function() {
@@ -125,6 +128,9 @@ Helper.mock_outputs = function(func, outputs) {
     mocks.stderr.on('data', function(data) {
       outputs.stderr += data.toString();
     });
+
+    if (extra)
+      extra();
   });
 
   return mocks;
