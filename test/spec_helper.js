@@ -36,6 +36,8 @@ before(function() {
 });
 
 after(function() {
+  this.timeout(0);
+
   return docker.listContainers({ all: true })
   .then(function(containers) {
     return Q.all(_.map(containers, function(c) {
@@ -92,5 +94,20 @@ Helper.make_git_repo = function(origin, dest) {
 
 Helper.escapeRegExp = function(value) {
   return value.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&");
+}
+
+Helper.remove_images = function(images) {
+  if (!_.isArray(images))
+    images = [images];
+
+  var removes = _.map(images, function(image) {
+    return docker.getImage(image).remove();
+  });
+
+  return Q.all(removes).fail(function(err) {
+    if (err.statusCode == 404)
+      return null;
+    throw err;
+  });
 }
 

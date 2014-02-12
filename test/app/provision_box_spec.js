@@ -11,8 +11,7 @@ var expect = h.expect;
 var Q      = azk.Q;
 
 describe("Azk box provision from", function() {
-//describe.only("Azk box provision from", function() {
-  this.timeout(10000);
+  this.timeout(0);
   var stdout, output;
 
   beforeEach(function(done) {
@@ -108,15 +107,7 @@ describe("Azk box provision from", function() {
     var app = new App(h.fixture_path("test-app"));
 
     beforeEach(function() {
-      return Q.all([
-        docker.getImage(app.image).remove(),
-        docker.getImage(app.from.image).remove(),
-      ])
-      .fail(function(err) {
-        if (err.statusCode == 404)
-          return null;
-        throw err;
-      });
+      return h.remove_images([app.image, app.from.image]);
     });
 
     it("should return a error if dependece imagem is not satisfied", function() {
