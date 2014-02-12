@@ -1,12 +1,16 @@
 {
   "app" : {
-    "box": {
-      "invalid": "'%s' is not a valid definition of box",
+    "manifest": {
       "not_found": "no such '%s' in current project"
     },
 
+    "box": {
+      "invalid": "'%s' is not a valid definition of box"
+    },
+
     "image": {
-      "not_provision": "applicatio image '%s' not found, try `azk provision`"
+      "provisioned": "image '%s' has be provisioned",
+      "not_provision": "application image '%s' not found, try `azk provision`"
     }
   },
 
@@ -21,6 +25,10 @@
     },
     "init": {
       "description": "Initializes a project by adding the file azkfile.json"
+    },
+    "provision": {
+      "description": "",
+      "removing": "Removing old image '%s'"
     }
   },
 
