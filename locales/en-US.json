@@ -3,6 +3,10 @@
     "box": {
       "invalid": "'%s' is not a valid definition of box",
       "not_found": "no such '%s' in current project"
+    },
+
+    "image": {
+      "not_provision": "applicatio image '%s' not found, try `azk provision`"
     }
   },
 
