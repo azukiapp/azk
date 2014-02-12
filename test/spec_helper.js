@@ -1,11 +1,15 @@
 var path   = require('path');
-var azk    = require('../lib/azk');
 var chai   = require('chai');
 var tmp    = require('tmp');
-var docker = require('../lib/docker');
-var Agent  = require('../lib/agent');
 var exec   = require('child_process').exec;
 var qfs    = require('q-io/fs');
+var child  = require('child_process');
+var MemoryStream = require('memorystream');
+
+var azk    = require('../lib/azk');
+var docker = require('../lib/docker');
+var Agent  = require('../lib/agent');
+var App    = require('../lib/app');
 
 // Shortcuts
 var Q = azk.Q;
@@ -53,9 +57,11 @@ after(function() {
     .then(function(images) {
       var removes = [];
       _.each(images, function(image) {
-        if (!image.RepoTags[0].match(/ubuntu/)) {
-          removes.push(docker.getImage(image.Id).remove());
-        }
+        _.each(image.RepoTags, function(tag) {
+          if (tag.match(/azk-test-/)) {
+            removes.push(docker.getImage(tag).remove());
+          }
+        });
       });
       return Q.all(removes).fail(function(err) {
         if (err.statusCode != 404) {
@@ -72,6 +78,7 @@ var Helper = module.exports = {
   tmp: {
     dir: Q.denodeify(tmp.dir),
   },
+  MemoryStream: MemoryStream,
   expect: chai.expect,
   fixture_path: function(fixture) {
     return path.resolve(
@@ -81,16 +88,6 @@ var Helper = module.exports = {
 }
 
 var exec = Q.denodeify(exec);
-Helper.make_git_repo = function(origin, dest) {
-  return qfs.copyTree(origin, dest)
-    .then(function() {
-      var cmd = 'git init; git add .; git commit -m "first version";'
-      return exec(cmd, { cwd: dest });
-    })
-    .then(function(stdout, stderr) {
-      return path.join(dest, ".git");
-    });
-}
 
 Helper.escapeRegExp = function(value) {
   return value.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&");
@@ -111,3 +108,50 @@ Helper.remove_images = function(images) {
   });
 }
 
+Helper.mock_outputs = function(func, outputs) {
+  var mocks = {};
+
+  func(function() {
+    // Clear
+    outputs.stdout = '';
+    outputs.stderr = '';
+
+    mocks.stdout = new MemoryStream();
+    mocks.stderr = new MemoryStream();
+
+    mocks.stdout.on('data', function(data) {
+      outputs.stdout += data.toString();
+    });
+    mocks.stderr.on('data', function(data) {
+      outputs.stderr += data.toString();
+    });
+  });
+
+  return mocks;
+}
+
+Helper.mock_app = function(data) {
+  data = _.extend({
+    id  : "azk-test-" + App.new_id(),
+    box : "ubuntu:12.04",
+    build: [],
+    services: [],
+  }, data || {});
+
+  return Q.async(function* () {
+    var tmp  = yield Helper.tmp.dir({ prefix: "azk-test-" });
+    var file = path.join(tmp, azk.cst.MANIFEST);
+
+    yield qfs.write(file, JSON.stringify(data));
+
+    if (data.__git) {
+      var cmd = 'git init; git add .; git commit -m "first version";'
+      tmp = yield exec(cmd, { cwd: tmp })
+        .then(function(stdout, stderr) {
+          return path.join(tmp, ".git");
+        });
+    };
+
+    return tmp;
+  })();
+}
