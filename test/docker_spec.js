@@ -91,5 +91,15 @@ describe("Azk docker client", function() {
         })
       ).to.eventually.rejectedWith(Error, /404/);
     });
+
+    it("should get and inspect image by name", function() {
+      return expect(docker.findImage("ubuntu:12.04")).
+        to.eventually.has.property("id");
+    });
+
+    it("should get and return null if not exist image", function() {
+      return expect(docker.findImage("not_exist")).
+        to.eventually.not.exist;
+    });
   })
 })
