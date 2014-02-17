@@ -2,3 +2,9 @@
 /log
 /tmp
 /node_modules
+/lib/libexec/nvm.sh
+/lib/libexec/boot2docker
+/data/nvm
+/data/boot2docker
+/data/pids
+/data/logs

@@ -1,6 +1,105 @@
 #!/bin/bash
 
+set -e
+
 __FILE__="${0}"
-export AZK_PATH=`cd \`dirname $(readlink ${__FILE__} || echo ${__FILE__} )\`/..; pwd`
-export AZK_PATH
-node --harmony $AZK_PATH/bin/azk.js "${@}"
+export AZK_ROOT_PATH=`cd \`dirname $(readlink ${__FILE__} || echo ${__FILE__} )\`/..; pwd`
+export DEFAULT_FILE_PATH=${DEFAULT_FILE_PATH:-$AZK_ROOT_PATH/data}
+
+export PATH=/usr/bin:/bin:/usr/sbin
+export PATH=$AZK_ROOT_PATH/bin:$PATH
+export PATH=$AZK_ROOT_PATH/lib/libexec:$PATH
+
+# Configure NVM and boot2docker
+export NVM_DIR=$DEFAULT_FILE_PATH/nvm
+export BOOT2DOCKER_SSH_KEY=$AZK_ROOT_PATH/lib/share/id_rsa_insecure
+export BOOT2DOCKER_CFG_DIR=$DEFAULT_FILE_PATH/boot2docker
+export VM_NAME=azk-agent
+
+# local
+node_version=v0.11.11
+libexec_deps=$AZK_ROOT_PATH/lib/libexec
+
+# Check if all required commands exist
+cmd_exists() {
+  while [ -n "$1" ]; do
+    command -v $1 >/dev/null 2>&1 || \
+      { echo >&2 "command '$1' is required but not installed.  Aborting."; notOK=1; }
+    shift
+  done
+  if [ -n "$notOK" ]; then
+    exit 1
+  fi
+}
+cmd_exists git nc curl grep head tr
+
+# Check for depedencies
+check_depedencies() {
+  msg="azk dependencies not installed. Run 'azk configure'"
+  if [ ! -f $libexec_deps/nvm.sh ]; then
+    echo >&2 $msg
+    exit 1
+  fi
+
+  . $libexec_deps/nvm.sh
+  if ! nvm use $node_version &>/dev/null ; then
+    echo >&2 $msg
+    exit 1
+  fi;
+
+  if [ ! -f $libexec_deps/boot2docker ]; then
+    echo >&2 $msg
+    exit 1
+  fi
+}
+
+configure() {
+  if [ ! -f $libexec_deps/boot2docker ]; then
+    echo "Install boot2docker" >&2
+    mkdir -p $libexec_deps
+    curl https://raw2.github.com/azukiapp/boot2docker/master/boot2docker -o $libexec_deps/boot2docker
+    chmod +x $libexec_deps/boot2docker
+  fi
+
+  if [ ! -f $libexec_deps/nvm.sh ]; then
+    echo "Install nvm..." >&2
+    mkdir -p $libexec_deps
+    curl https://raw2.github.com/creationix/nvm/master/nvm.sh -o $libexec_deps/nvm.sh
+  fi
+
+  mkdir -p $NVM_DIR
+  . $libexec_deps/nvm.sh
+
+  if ! nvm use $node_version &>/dev/null ; then
+    echo "Install node..." >&2
+    nvm install $node_version
+  fi
+
+  if ! -d $AZK_ROOT_PATH/node_modules ; then
+    echo "Install node depedencies" >&2
+    npm install
+  fi
+}
+
+azk_main() {
+  case "$1" in
+    configure)
+      configure
+      ;;
+    nvm)
+      check_depedencies
+      shift; "${@}"
+      ;;
+    b2d)
+      check_depedencies
+      #shift; bash -x boot2docker "${@}"
+      shift; boot2docker "${@}"
+      ;;
+    *)
+      check_depedencies
+      node --harmony $AZK_ROOT_PATH/bin/azk.js "${@}"
+  esac
+}
+
+# run main function
+azk_main "${@}"
