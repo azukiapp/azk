@@ -69,26 +69,19 @@ The entire process of provisioning and configuring the environment in which the 
 
   **Zsh note**: Modify your `~/.zshrc` file instead of `~/.bash_profile`.
 
-4. Restart your shell so that PATH changes take effect. (Opening a new terminal tab will usually do it.) Now check if ask was set up:
-
-  ```bash
-  $ type azk
-  #=> "azk is a function"
-  ```
-
-5. Install depedencies and configure vm:
+4. Install depedencies and configure vm:
 
 	```bash
 	$ azk configure
 	```
 
-6. Run `azk-agent`:
+5. Run `azk-agent`:
 
 	```bash
 	$ azk agent start
 	```
 
-7. Enjoy
+6. Enjoy
 
   ```bash
   $ azk help
