@@ -1,4 +1,4 @@
-# ![azk](https://github.com/azukiapp/azk/raw/master/lib/share/pres/top-logo-wo.png)
+-> ![azk](https://github.com/azukiapp/azk/raw/master/lib/share/pres/top-logo-wo.png) <-
 
 # Azk
 
@@ -56,7 +56,7 @@ The entire process of provisioning and configuring the environment in which the 
   In order to give `azk` access to `azk agent`, it is necessary to define an IP address to the virtual machine. This IP address will be used to establish a private network between the physical machine running `azk` and the virtual machine where `azk agent` is in execution. 
 
   ```bash
-  $ echo '192.168.115.4 azk-agent` | sudo tee -a /etc/hosts 
+  $ echo '192.168.115.4 azk-agent' | sudo tee -a /etc/hosts 
   ```
 
 3. Add `~/.azk/bin` to your $PATH for access to the ask command-line utility.
