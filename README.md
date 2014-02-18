@@ -1,19 +1,16 @@
 # Azk
 
-`azk` is a tool that assists web developers in the creation, maintenance and isolation
-of development environments. Through the installation of some components
-(`cli` and `agent`), you will be able to easily create isolated environments to many
-projects using several different stacks.
+`azk` is a tool that assists web developers in the creation, maintenance and isolation of development environments. Through the installation of some components (`cli` and `agent`), you will be able to easily create isolated environments to many projects using several different stacks.
 
 **Features** : provisioning, monitoring, built-in load balancer, automatic start-up script, logging and more.
 
 ## How It Works
 
-At the high level, `azk` is a command line tool that uses a given configuration file (`azkfile,jason`) to define the necessary steps to build (installation and configuration) the proper environment to executing and/or compiling a given application.
+At the high level, `azk` is a command line tool that uses a given configuration file (`azkfile.json`) to define the necessary steps to build (installation and configuration) the proper environment to executing and/or compiling a given application.
 
 Besides, it features several commands that allow for executing these tasks and controlling the execution of services related to the application, such as databases and queues. 
 
-At the low level, `azk` is a tool that leverages a container system for Linux called [Docker](http://docker.io) in order to create isolated environments for executing all the different parts of an application. 
+At the low level, `azk` is a tool that leverages a container system for Linux called [Docker][docker] in order to create isolated environments for executing all the different parts of an application. 
 
 `azk` is able to perform these jobs through calls to the Docker API. That way, `azk` is capable of provisioning images as well as of controlling the execution of services based on these images. Beyond that, `azk` is also capable of broader tasks such as: balancing HTTP calls to instances of an application, storing execution and resources usage logs and other general tasks related to the lifecycle management of an application since its development.
 
@@ -25,24 +22,22 @@ Once the `azk app` is deemed valid, the `azk` command searches for `azk agent`, 
 
 ### Understanding azk-agent
 
-`azk agent` can be described as the service responsible for executing `azk` commands in an isolated environment by making use of the containers system. At its deepest level, `azk agent` is a virtual machine running [coreOS](http://coreos.com) over VirtualBox (support to VMware is in the roadmap).
+`azk agent` can be described as the service responsible for executing `azk` commands in an isolated environment by making use of the containers system. At its deepest level, `azk agent` is a virtual machine running [boot2docker][boot2docker] over VirtualBox (support to VMware is in the roadmap).
 
 ### Understanding disk mapping
 
 Since `azk agent` runs over a virtual machine, it is necessary to share the host machine's disk with that virtual machine.
 
-In order to avoid that new portions of the disk be separated and mounted for each `azk app`, `azk` creates a folder during its own installation in which all applications developed with `azk` must be placed. From then on, it takes care by itself of the process to `resolve` this folder's address within the virtual machine.
-
-For customizing this folder, the environment variable `AZK_APPS_PATH` must be defined before the `azk` installation process is started.
+That's why azk has a built-in a file server [p9fs][p9fs]. This server only runs with user permission and must only affect the communication interface with VirtualBox (and thus avoid security problems).
 
 ## Installation
 
-The entire process of provisioning and configuring the environment in which the applications will be executed happens within a virtual machine. Currently, this virtual machine is managed by the application [Vagrant](http://www.vagrantup.com), which is therefore a requisite for using `azk`.
+The entire process of provisioning and configuring the environment in which the applications will be executed happens within a virtual machine.
 
 ### Requirements
 
 * Linux or Mac OS X (Windows: planned)
-* [Vagrant](http://www.vagrantup.com)
+* [VirtualBox][virtualbox_dl], version 4.3.4+ (VMware: planned)
 * Internet connection (for the provisioning process)
 * git
 
@@ -72,22 +67,26 @@ The entire process of provisioning and configuring the environment in which the 
 
   **Zsh note**: Modify your `~/.zshrc` file instead of `~/.bash_profile`.
 
-4. Add azk init to your shell to enable autocompletion.
-
-  ```bash
-  $ echo 'eval "$(azk sh-init -)"' >> ~/.bash_profile
-  ```
-
-  Same as in previous step, use `~/.bashrc` on Ubuntu, or `~/.zshrc` for Zsh.
-
-5. Restart your shell so that PATH changes take effect. (Opening a new terminal tab will usually do it.) Now check if ask was set up:
+4. Restart your shell so that PATH changes take effect. (Opening a new terminal tab will usually do it.) Now check if ask was set up:
 
   ```bash
   $ type azk
   #=> "azk is a function"
   ```
 
-6. Enjoy
+5. Install depedencies and configure vm:
+
+	```bash
+	$ azk configure
+	```
+
+6. Run `azk-agent`:
+
+	```bash
+	$ azk agent start
+	```
+
+7. Enjoy
 
   ```bash
   $ azk help
@@ -126,3 +125,7 @@ Azk source code is released under Apache 2 License.
 
 Check LEGAL and LICENSE files for more information.
 
+[docker]: http://docker.io
+[boot2docker]: https://github.com/steeve/boot2docker
+[p9fs]: [https://github.com/azukiapp/node-p9fs]
+[virtualbox_dl]: [http://www.vagrantup.com/downloads.html]
