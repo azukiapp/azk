@@ -1,3 +1,5 @@
+# ![azk](https://github.com/azukiapp/azk/raw/master/lib/share/pres/top-logo-wo.png)
+
 # Azk
 
 `azk` is a tool that assists web developers in the creation, maintenance and isolation of development environments. Through the installation of some components (`cli` and `agent`), you will be able to easily create isolated environments to many projects using several different stacks.
