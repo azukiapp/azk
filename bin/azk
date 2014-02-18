@@ -15,16 +15,29 @@ export NVM_DIR=$DEFAULT_FILE_PATH/nvm
 export BOOT2DOCKER_SSH_KEY=$AZK_ROOT_PATH/lib/share/id_rsa_insecure
 export BOOT2DOCKER_CFG_DIR=$DEFAULT_FILE_PATH/boot2docker
 export VM_NAME=azk-agent
+export VM_HOSTONLY_IP=192.168.50.4
 
 # local
 node_version=v0.11.11
 libexec_deps=$AZK_ROOT_PATH/lib/libexec
+git_raw=https://raw2.github.com
+b2d_url=$git_raw/azukiapp/boot2docker/master/boot2docker
+nvm_url=$git_raw/creationix/nvm/master/nvm.sh
+
+log() {
+  e="echo"
+  if [ -n "$2" -a "$1" == "-n" ]; then
+    shift
+    e="echo -n"
+  fi
+  $e >&2 "[`date +"%Y-%m-%d %H:%M:%S"`] ${*}"
+}
 
 # Check if all required commands exist
 cmd_exists() {
   while [ -n "$1" ]; do
     command -v $1 >/dev/null 2>&1 || \
-      { echo >&2 "command '$1' is required but not installed.  Aborting."; notOK=1; }
+      { log "command '$1' is required but not installed.  Aborting."; notOK=1; }
     shift
   done
   if [ -n "$notOK" ]; then
@@ -33,52 +46,77 @@ cmd_exists() {
 }
 cmd_exists git nc curl grep head tr
 
+# Roles
+check_nvm() {
+  [ -f $libexec_deps/nvm.sh ]
+}
+
+check_node() {
+  . $libexec_deps/nvm.sh
+  nvm use $node_version &>/dev/null
+}
+
+check_b2d() {
+  [ -f $libexec_deps/boot2docker ]
+}
+
+check_npm() {
+  [ -d $AZK_ROOT_PATH/node_modules ]
+}
+
 # Check for depedencies
 check_depedencies() {
-  msg="azk dependencies not installed. Run 'azk configure'"
-  if [ ! -f $libexec_deps/nvm.sh ]; then
-    echo >&2 $msg
+  msg() {
+    log "azk dependencies '$1' not installed. Run 'azk configure'"
     exit 1
-  fi
+  }
 
-  . $libexec_deps/nvm.sh
-  if ! nvm use $node_version &>/dev/null ; then
-    echo >&2 $msg
-    exit 1
-  fi;
+  check_nvm  || msg nvm
+  check_node || msg node
+  check_b2d  || msg boot2docker
+  check_npm  || msg 'node dependencies'
+}
 
-  if [ ! -f $libexec_deps/boot2docker ]; then
-    echo >&2 $msg
-    exit 1
+check_install() {
+  log -n "$2: "
+  if `$1` ; then
+    echo "ok" >&2
+  else
+    echo "fail" >&2
+    return 1
   fi
 }
 
 configure() {
-  if [ ! -f $libexec_deps/boot2docker ]; then
-    echo "Install boot2docker" >&2
-    mkdir -p $libexec_deps
-    curl https://raw2.github.com/azukiapp/boot2docker/master/boot2docker -o $libexec_deps/boot2docker
-    chmod +x $libexec_deps/boot2docker
-  fi
+  ok()   { echo "ok" >&2; }
+  fail() { echo "fail" >&2; }
 
-  if [ ! -f $libexec_deps/nvm.sh ]; then
-    echo "Install nvm..." >&2
-    mkdir -p $libexec_deps
-    curl https://raw2.github.com/creationix/nvm/master/nvm.sh -o $libexec_deps/nvm.sh
-  fi
+  check_install "check_nvm" "Check nvm" || {
+    log "Install nvm..."
+    curl $nvm_url -o $libexec_deps/nvm.sh
+  }
 
+  # Load nvm
   mkdir -p $NVM_DIR
   . $libexec_deps/nvm.sh
 
-  if ! nvm use $node_version &>/dev/null ; then
-    echo "Install node..." >&2
+  check_install "check_node" "Check node" || {
+    log "Install node..."
     nvm install $node_version
-  fi
+  }
 
-  if ! -d $AZK_ROOT_PATH/node_modules ; then
-    echo "Install node depedencies" >&2
+  nvm use $node_version &>/dev/null
+  check_install "check_npm" "Check azk node dependencies" || {
+    log "Install node depedencies..."
+    cd $AZK_ROOT_PATH
     npm install
-  fi
+  }
+
+  check_install "check_b2d" "Check boot2docker" || {
+    log "Install boot2docker"
+    curl $boot2docker_url -o $libexec_deps/boot2docker
+    chmod +x $libexec_deps/boot2docker
+  }
 }
 
 azk_main() {
