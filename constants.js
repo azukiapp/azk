@@ -31,6 +31,11 @@ var default_conf = {
   SPFS_PORT           : 5641,
   SPFS_IP             : '127.0.0.1',
 
+  VM_NAME             : 'azk-agent',
+  VM_BLANK_DISK       : p.join(DEFAULT_FILE_PATH, "boot2docker", "azk-agent.vmdk.bz"),
+  VM_BOOT_DISK        : p.join(DEFAULT_FILE_PATH, "boot2docker", "boot2docker.iso"),
+  VM_DATA_DISK        : p.join(DEFAULT_FILE_PATH, "boot2docker", "azk-agent.vmdk"),
+
   SUCCESS_EXIT        : 0,
   ERROR_EXIT          : 1,
 

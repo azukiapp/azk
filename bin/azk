@@ -23,6 +23,7 @@ libexec_deps=$AZK_ROOT_PATH/lib/libexec
 git_raw=https://raw2.github.com
 b2d_url=$git_raw/azukiapp/boot2docker/master/boot2docker
 nvm_url=$git_raw/creationix/nvm/master/nvm.sh
+data_url=http://bit.ly/1gHfPEj
 
 log() {
   e="echo"
@@ -56,12 +57,12 @@ check_node() {
   nvm use $node_version &>/dev/null
 }
 
-check_b2d() {
-  [ -f $libexec_deps/boot2docker ]
-}
-
 check_npm() {
   [ -d $AZK_ROOT_PATH/node_modules ]
+}
+
+check_data_disk() {
+  [ -f $BOOT2DOCKER_CFG_DIR/azk-agent.vmdk.bz ]
 }
 
 # Check for depedencies
@@ -73,8 +74,8 @@ check_depedencies() {
 
   check_nvm  || msg nvm
   check_node || msg node
-  check_b2d  || msg boot2docker
   check_npm  || msg 'node dependencies'
+  check_data_disk || msg 'blank data disk'
 }
 
 check_install() {
@@ -112,10 +113,9 @@ configure() {
     npm install
   }
 
-  check_install "check_b2d" "Check boot2docker" || {
-    log "Install boot2docker"
-    curl $boot2docker_url -o $libexec_deps/boot2docker
-    chmod +x $libexec_deps/boot2docker
+  check_install "check_data_disk" "Check blank data disk" || {
+    log "Download disk"
+    curl -L $data_url -o $BOOT2DOCKER_CFG_DIR/azk-agent.vmdk.bz
   }
 }
 

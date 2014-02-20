@@ -1,5 +1,5 @@
 var azk    = require('../../lib/azk');
-var helper = require('../spec_helper.js');
+var helper = require('../spec_helper');
 var docker = require('../../lib/docker');
 var MemoryStream = require('memorystream');
 
