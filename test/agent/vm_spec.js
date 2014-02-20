@@ -18,20 +18,30 @@ describe.only("Azk agent vm", function() {
     data : path.join(azk.cst.DEFAULT_FILE_PATH, "boot2docker", "test-disk.vmdk"),
   };
 
+  // Setups
+  var remove_disk = function(file) {
+    return vm.exec("closemedium", "disk", file).fail(function() {
+    });
+  }
+
   var remove = function() {
     return Q.async(function* () {
       if (yield qfs.exists(opts.data)) {
         yield qfs.remove(opts.data);
       }
+      yield vm.stop(opts.name);
       yield vm.delete(opts.name);
+      yield remove_disk(opts.data);
+      yield remove_disk(opts.data + ".tmp");
     })();
   }
 
   after(remove);
   before(remove);
 
+  // Tests
   it("should return installed", function() {
-    return h.expect(vm.installed(opts.name)).to.eventually.fail
+    return h.expect(vm.is_installed(opts.name)).to.eventually.fail
   });
 
   describe("with have a vm", function() {
@@ -77,7 +87,19 @@ describe.only("Azk agent vm", function() {
 
     it("should connect boot and data disks", function() {
       h.expect(info).has.property("SATA-0-0", opts.boot);
-      //h.expect(info).has.property("SATA-1-0", opts.data);
+      h.expect(info).has.property("SATA-1-0", opts.data);
+    });
+
+    it("should start, stop and return vm status", function() {
+      this.timeout(4000);
+      return Q.async(function* () {
+        h.expect(yield vm.start(opts.name)).to.ok
+        h.expect(yield vm.start(opts.name)).to.fail
+        h.expect(yield vm.is_running(opts.name)).to.ok
+        h.expect(yield vm.stop(opts.name)).to.ok
+        h.expect(yield vm.is_running(opts.name)).to.fail
+        h.expect(yield vm.stop(opts.name)).to.fail
+      })();
     });
   });
 });
