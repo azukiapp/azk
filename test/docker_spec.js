@@ -6,6 +6,8 @@ var path   = require('path');
 var azk = h.azk;
 
 describe("Azk docker client", function() {
+  this.timeout(5000);
+
   it("should use constants options", function() {
     return h.expect(docker.info())
       .to.eventually.have.property("Containers")
@@ -80,7 +82,7 @@ describe("Azk docker client", function() {
         var data = yield container.inspect();
         var port = data.NetworkSettings.Ports["1500/tcp"][0].HostPort;
 
-        var _cmd = ["/bin/bash", "-c", "echo | nc -d 10.0.2.15 " + port];
+        var _cmd = ["/bin/bash", "-c", "echo | nc -d " + azk.cst.VM_IP + " " + port];
         yield docker.run("ubuntu:12.04", _cmd, { stdout: mocks.stdout });
 
         h.expect(outputs.stdout).to.match(/HTTP\/1\.1/);

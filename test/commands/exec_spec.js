@@ -47,8 +47,9 @@ describe("Azk exec command", function() {
   });
 
   describe("in a provisioned app", function() {
+    this.timeout(0);
+
     before(function() {
-      this.timeout(0);
       return app.provision({ force: true }, new h.MemoryStream());
     });
 

@@ -40,6 +40,7 @@ describe("Azk app provision module", function() {
     });
 
     it("should generate Dockerfile and build image", function() {
+      this.timeout(5000);
       var steps = [
         "# comment",
         "echo 'azk' > /azk",

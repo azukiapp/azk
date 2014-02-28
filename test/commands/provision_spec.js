@@ -26,6 +26,7 @@ describe("Azk provision command", function() {
   });
 
   describe("in valid app dir", function() {
+    this.timeout(10000);
     var app;
 
     beforeEach(function() {
