@@ -1,7 +1,6 @@
 
 var p = require('path');
 
-
 DEFAULT_FILE_PATH = p.resolve(process.env.HOME, '.azk', 'data');
 DEFAULT_PID_PATH  = p.join(DEFAULT_FILE_PATH, 'pids');
 DEFAULT_LOG_PATH  = p.join(DEFAULT_FILE_PATH, 'logs');
@@ -29,18 +28,20 @@ var default_conf = {
   PREFIX_MSG_ERR      : '\x1B[31mAZK [ERROR] \x1B[39m',
 
   SPFS_PORT           : 5641,
-  SPFS_IP             : '127.0.0.1',
+  SPFS_IP             : null,
 
   VM_NAME             : 'azk-agent',
+  VM_SSH_MAP_PORT     : 5622,
   VM_BLANK_DISK       : p.join(DEFAULT_FILE_PATH, "boot2docker", "azk-agent.vmdk.bz"),
   VM_BOOT_DISK        : p.join(DEFAULT_FILE_PATH, "boot2docker", "boot2docker.iso"),
   VM_DATA_DISK        : p.join(DEFAULT_FILE_PATH, "boot2docker", "azk-agent.vmdk"),
+  VM_KEY              : p.join(__dirname, "lib", "share", "id_rsa_insecure"),
 
   SUCCESS_EXIT        : 0,
   ERROR_EXIT          : 1,
 
   DOCKER_NS_NAME      : 'azk',
-  DOCKER_HOST         : process.env.DOCKER_HOST || "http://127.0.0.1:5642"
+  DOCKER_HOST         : process.env.DOCKER_HOST || "http://azk-agent:4243"
 }
 
 module.exports = default_conf;

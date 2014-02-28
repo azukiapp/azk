@@ -10,10 +10,11 @@ var Q    = azk.Q;
 var _    = azk._;
 var exec = Q.nbind(vbm.command.exec, vbm.command);
 
-describe.only("Azk agent vm", function() {
+describe("Azk agent vm", function() {
   var opts   = {
     name : "azk-agent-test",
     ip   : "192.168.51.4",
+    ssh_port: 2222,
     boot : azk.cst.VM_BOOT_DISK,
     data : path.join(azk.cst.DEFAULT_FILE_PATH, "boot2docker", "test-disk.vmdk"),
   };
@@ -25,6 +26,7 @@ describe.only("Azk agent vm", function() {
   }
 
   var remove = function() {
+    this.timeout(0);
     return Q.async(function* () {
       if (yield qfs.exists(opts.data)) {
         yield qfs.remove(opts.data);
@@ -66,6 +68,9 @@ describe.only("Azk agent vm", function() {
       h.expect(info).has.property("nictype1", "virtio");
       h.expect(info).has.property("cableconnected1", true);
       h.expect(info).has.property("hostonlyadapter1").and.match(/vboxnet/);
+
+      h.expect(info).has.property("nic2", "nat");
+      h.expect(info).has.property("cableconnected2", true);
     });
 
     it("should configure dhcp server", function() {
@@ -100,6 +105,38 @@ describe.only("Azk agent vm", function() {
         h.expect(yield vm.is_running(opts.name)).to.fail
         h.expect(yield vm.stop(opts.name)).to.fail
       })();
+    });
+  });
+
+  describe("with a vm is running", function() {
+    var name, ip, outputs = {};
+    var mocks = h.mock_outputs(before, outputs, function() {
+      name = azk.cst.VM_NAME;
+      ip   = azk.cst.VM_IP;
+    });
+
+    it("should return error if vm not exist", function() {
+      return h.expect(vm.ssh("not-exist")).to.eventually.rejectedWith(/vm is not running/);
+    });
+
+    it("should execute a ssh command", function() {
+      this.timeout(0);
+      var result = vm.ssh(name, ip, 22, "uptime");
+
+      result.progress(function(event) {
+        if (event.type == "stream") {
+          event.stream.pipe(mocks.stdout);
+        }
+      });
+
+      return result.then(function(code) {
+        h.expect(code).to.equal(0);
+        h.expect(outputs.stdout).to.match(/load average/);
+      });
+    });
+
+    it("should return code to execute ssh command", function() {
+      return h.expect(vm.ssh(name, ip, 22, "exit 127")).to.eventually.equal(127);
     });
   });
 });
