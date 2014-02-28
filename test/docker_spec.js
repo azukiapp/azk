@@ -6,7 +6,7 @@ var path   = require('path');
 var azk = h.azk;
 
 describe("Azk docker client", function() {
-  this.timeout(5000);
+  this.timeout(20000);
 
   it("should use constants options", function() {
     return h.expect(docker.info())
@@ -145,7 +145,7 @@ describe("Azk docker client", function() {
 
   it("should get and inspect image by name", function() {
     return h.expect(docker.findImage("ubuntu:12.04")).
-      to.eventually.has.property("id");
+      to.eventually.has.property("name");
   });
 
   it("should get and return null if not exist image", function() {

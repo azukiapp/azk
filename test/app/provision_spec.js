@@ -10,17 +10,8 @@ var Q = azk.Q;
 var provision = require('../../lib/app/provision');
 
 describe("Azk app provision module", function() {
-  var provision_image = "azk-test";
+  var provision_image = "azk-test-provision";
   var image = docker.getImage(provision_image)
-
-  var remove = function() {
-    return image.inspect().then(function() {
-      return image.remove();
-    }, function() {});
-  }
-
-  before(remove);
-  afterEach(remove);
 
   it("should return a error if image from not exist", function() {
     return expect(provision("not_exist"))
@@ -28,6 +19,7 @@ describe("Azk app provision module", function() {
   });
 
   describe("if from is valid image", function() {
+    this.timeout(0);
     var project = __dirname;
     var stdout, output;
 
@@ -40,7 +32,6 @@ describe("Azk app provision module", function() {
     });
 
     it("should generate Dockerfile and build image", function() {
-      this.timeout(5000);
       var steps = [
         "# comment",
         "echo 'azk' > /azk",
@@ -60,6 +51,7 @@ describe("Azk app provision module", function() {
         expect(output).to.match(/RUN echo 'azk' > \/azk/);
         expect(output).to.match(/RUN \/bin\/bash -c "cat \\"\/azk\\""/);
         expect(output).to.match(/ADD provision_spec.js \/provision_spec.js/);
+        expect(output).to.match(/RUN cat \/provision_spec.js/);
         expect(output).to.match(/match_with_this/);
 
         return yield docker.getImage(provision_image).inspect();

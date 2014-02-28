@@ -141,7 +141,7 @@ Helper.mock_exec = function(mocks, command) {
     var done = Q.defer();
     var opts = {
       cwd: dir,
-      env: _.extend({ DEBUG: "azk:*" }, process.env),
+      env: _.extend({ AZK_DEBUG: "azk:*" }, process.env),
     }
 
     args.unshift(command);
