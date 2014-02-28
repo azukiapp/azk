@@ -63,6 +63,8 @@ describe("Azk exec command", function() {
         h.expect(stderr).to.match(regex);
         h.expect(id).to.match(/[0-9a-f]{64}/);
 
+        h.expect(outputs.stdout).to.match(/azkfile.json/);
+
         return docker.getContainer(id).remove();
       });
 

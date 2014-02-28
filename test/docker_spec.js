@@ -58,6 +58,19 @@ describe("Azk docker client", function() {
       });
     });
 
+    it("should support envs", function() {
+      var cmd  = ["/bin/bash", "-c", "env"];
+      var opts = { stdout: mocks.stdout, rm: true, env: {
+        FOO: "bar", BAZ: "qux"
+      }};
+
+      return docker.run("ubuntu:12.04", cmd, opts)
+      .then(function() {
+        h.expect(outputs.stdout).to.match(/FOO=bar/);
+        h.expect(outputs.stdout).to.match(/BAZ=qux/);
+      });
+    });
+
     it("should support bind volumes", function() {
       var cmd  = ["/bin/bash", "-c", "ls -l /azk"];
       var opts = { stdout: mocks.stdout, rm: true, volumes: {} };
