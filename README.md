@@ -1,4 +1,4 @@
--> ![azk](https://github.com/azukiapp/azk/raw/master/lib/share/pres/top-logo-wo.png) <-
+![azk](https://github.com/azukiapp/azk/raw/master/lib/share/pres/top-logo-wo.png)
 
 # Azk
 
@@ -75,10 +75,10 @@ The entire process of provisioning and configuring the environment in which the 
 	$ azk configure
 	```
 
-5. Run `azk-agent`:
+5. Run `azk-agent` in a terminal:
 
 	```bash
-	$ azk agent start
+	$ azk agent start -D
 	```
 
 6. Enjoy
