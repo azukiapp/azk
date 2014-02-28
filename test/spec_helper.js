@@ -71,7 +71,8 @@ after(function() {
         }
       });
     });
-  });
+  })
+  .fail(function() { } );
 });
 
 var Helper = module.exports = {
@@ -169,15 +170,24 @@ Helper.mock_app = function(data) {
   data = _.extend({
     id  : "azk-test-" + App.new_id(),
     box : "ubuntu:12.04",
+    envs: {
+      dev: {
+        env: {
+          "ENVS_ENV_VAR": "bar"
+        }
+      }
+    },
     build: [],
     services: [],
   }, data || {});
 
   return Q.async(function* () {
-    var tmp  = yield Helper.tmp.dir({ prefix: "azk-test-" });
-    var file = path.join(tmp, azk.cst.MANIFEST);
+    var tmp    = yield Helper.tmp.dir({ prefix: "azk-test-" });
+    var m_file = path.join(tmp, azk.cst.MANIFEST);
+    var e_file = path.join(tmp, ".env");
 
-    yield qfs.write(file, JSON.stringify(data));
+    yield qfs.write(m_file, JSON.stringify(data));
+    yield qfs.write(e_file, "FOO=bar\nBAZ=qux");
 
     if (data.__git) {
       var cmd = 'git init; git add .; git commit -m "first version";'

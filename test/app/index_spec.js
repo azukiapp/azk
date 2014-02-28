@@ -62,6 +62,14 @@ describe("Azk app module", function() {
         h.expect(app).to.have.deep.property("steps[0]", "# step1");
       });
 
+      it("should parse envs", function() {
+        var app = new App(app_dir);
+
+        h.expect(app).to.have.deep.property("env.env.ENVS_ENV_VAR", "bar");
+        h.expect(app).to.have.deep.property("env.env.FOO", "bar");
+        h.expect(app).to.have.deep.property("env.env.BAZ", "qux");
+      });
+
       it("should parse box manifest", function() {
         var id  = "fe0598b51044470";
         var app = new App(ancestor_dir);
