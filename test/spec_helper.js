@@ -130,7 +130,7 @@ Helper.mock_outputs = function(func, outputs, extra) {
     });
 
     if (extra)
-      extra();
+      extra.call(this);
   });
 
   return mocks;
