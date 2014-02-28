@@ -60,7 +60,7 @@ describe("Azk agent vm", function() {
     it("should configure cpus", function() {
       h.expect(info).has.property("ostype").and.match(/Linux.*64/);
       h.expect(info).has.property("cpus", os.cpus().length);
-      h.expect(info).has.property("memory", 1024);
+      h.expect(info).has.property("memory", os.totalmem()/1024/1024/4);
     });
 
     it("should configure network", function() {
