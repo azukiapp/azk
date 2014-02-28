@@ -42,7 +42,6 @@
     "moment": "~2.5.1",
     "parentpath": "~0.2.0",
     "node-p9fs": "git+ssh://git@github.com/azukiapp/node-p9fs.git#master",
-    "debug": "~0.7.4",
     "axon-rpc": "0.0.2",
     "axon": "~1.0.0",
     "eventemitter2": "~0.4.13",
