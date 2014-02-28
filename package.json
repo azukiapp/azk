@@ -50,7 +50,8 @@
     "mustache": "~0.8.1",
     "colors": "~0.6.2",
     "printf": "~0.1.2",
-    "vboxmanage": "0.0.15"
+    "vboxmanage": "0.0.15",
+    "ssh2": "~0.2.18"
   },
   "devDependencies": {
     "chai": "~1.9.0",
