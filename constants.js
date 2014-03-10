@@ -1,7 +1,8 @@
 
 var p = require('path');
+var utils = require('./lib/utils');
 
-DEFAULT_FILE_PATH = p.resolve(process.env.HOME, '.azk', 'data');
+DEFAULT_FILE_PATH = utils.resolve(p.join(process.env.HOME, '.azk', 'data'));
 DEFAULT_PID_PATH  = p.join(DEFAULT_FILE_PATH, 'pids');
 DEFAULT_LOG_PATH  = p.join(DEFAULT_FILE_PATH, 'logs');
 
@@ -36,6 +37,7 @@ var default_conf = {
   VM_BOOT_DISK        : p.join(DEFAULT_FILE_PATH, "boot2docker", "boot2docker.iso"),
   VM_DATA_DISK        : p.join(DEFAULT_FILE_PATH, "boot2docker", "azk-agent.vmdk"),
   VM_KEY              : p.join(__dirname, "lib", "share", "id_rsa_insecure"),
+  VM_USER             : "docker",
 
   SUCCESS_EXIT        : 0,
   ERROR_EXIT          : 1,

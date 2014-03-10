@@ -73,25 +73,7 @@ describe("Azk agent vm", function() {
       h.expect(info).has.property("cableconnected2", true);
     });
 
-    it("should configure dhcp server", function() {
-      var list   = Q.denodeify(vbm.dhcp.list_servers)
-      var result = list().then(function(servers) {
-        return _.find(servers, function(server) {
-          return server.NetworkName.match(RegExp(info.hostonlyadapter1));
-        });
-      });
-
-      return result.then(function(server) {
-        h.expect(server).has.property("IP", "192.168.51.1");
-        h.expect(server).has.property("NetworkMask", "255.255.255.0");
-        h.expect(server).has.property("lowerIPAddress", "192.168.51.4");
-        h.expect(server).has.property("upperIPAddress", "192.168.51.4");
-        h.expect(server).has.property("Enabled", "Yes");
-      });
-    });
-
     it("should connect boot and data disks", function() {
-      h.expect(info).has.property("SATA-0-0", opts.boot);
       h.expect(info).has.property("SATA-1-0", opts.data);
     });
 
