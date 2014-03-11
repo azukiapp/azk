@@ -24,12 +24,32 @@
       "interactive": "Run command in interactive"
     },
     "init": {
-      "description": "Initializes a project by adding the file azkfile.json"
+      "description": "Initializes a project by adding the file azkfile.json",
+      "enter": "Enter the box name",
+      "generated": "'%s' generated",
+      "id": "Generate a new app id",
+      "already": "'%s' already exists",
+      "generated": "'%s' generated"
     },
     "provision": {
       "description": "",
       "removing": "Removing old image '%s'"
+    },
+    "ps": {
+      "description": "Displays a information about the application process"
+    },
+    "service": {
+      "description": "",
+      "instances": "",
+      "invalid_service": "",
+      "scale": "scale from %s to %s instances",
+      "not_runnig": "service not running",
+      "running": "running `%s` instances"
     }
+  },
+
+  "docker": {
+    "connect": "connecting docker: %s"
   },
 
   "i18n_test": "test i18n module"
