@@ -43,6 +43,12 @@ The entire process of provisioning and configuring the environment in which the 
 * [VirtualBox][virtualbox_dl], version 4.3.6+ (VMware: planned)
 * Internet connection (for the provisioning process)
 
+Use [Homebrew Cask][homebrew_cask]? For VirtualBox, too easy!
+
+```sh
+brew cask install virtualbox --appdir=/Applications
+```
+
 ### Basic GitHub Checkout
 
 1. Check out ask into `~/.azk`.
@@ -122,5 +128,6 @@ Check LEGAL and LICENSE files for more information.
 
 [docker]: http://docker.io
 [debian2docker]: https://github.com/unclejack/debian2docker
-[p9fs]: [https://github.com/azukiapp/node-p9fs]
-[virtualbox_dl]: [http://www.vagrantup.com/downloads.html]
+[p9fs]: https://github.com/azukiapp/node-p9fs
+[virtualbox_dl]: http://www.vagrantup.com/downloads.html
+[homebrew_cask]: https://github.com/phinze/homebrew-cask
