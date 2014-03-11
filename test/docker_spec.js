@@ -84,7 +84,7 @@ describe("Azk docker client", function() {
     });
 
     it("should support bind ports", function() {
-      var script = 'while true ; do (echo -e "HTTP/1.1\\n\\n $(date)") | nc -l 1500; done';
+      var script = 'while true ; do (echo -e "HTTP/1.1\\n\\n $(date)") | nc -l 1500; test $? -gt 128 && break; sleep 1; done';
       var cmd = ["/bin/bash", "-c", script];
       var opts = { daemon: true, ports: {} };
 
