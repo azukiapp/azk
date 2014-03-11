@@ -4,26 +4,23 @@ set -e
 
 __FILE__="${0}"
 export AZK_ROOT_PATH=`cd \`dirname $(readlink ${__FILE__} || echo ${__FILE__} )\`/..; pwd`
-export DEFAULT_FILE_PATH=${DEFAULT_FILE_PATH:-$AZK_ROOT_PATH/data}
+export DEFAULT_DATA_PATH=${DEFAULT_DATA_PATH:-$AZK_ROOT_PATH/data}
 
 export PATH=/usr/bin:/bin:/usr/sbin
 export PATH=$AZK_ROOT_PATH/bin:$PATH
 export PATH=$AZK_ROOT_PATH/lib/libexec:$PATH
 
-# Configure NVM and boot2docker
-export NVM_DIR=$DEFAULT_FILE_PATH/nvm
-export BOOT2DOCKER_SSH_KEY=$AZK_ROOT_PATH/lib/share/id_rsa_insecure
-export BOOT2DOCKER_CFG_DIR=$DEFAULT_FILE_PATH/boot2docker
-export VM_NAME=azk-agent
-export VM_HOSTONLY_IP=192.168.50.4
+# Configure NVM and VM
+export NVM_DIR=$DEFAULT_DATA_PATH/nvm
+export VM_DISK_PATH=$DEFAULT_DATA_PATH/vm
 
 # local
 node_version=v0.11.11
 libexec_deps=$AZK_ROOT_PATH/lib/libexec
 git_raw=https://raw2.github.com
-b2d_url=$git_raw/azukiapp/boot2docker/master/boot2docker
 nvm_url=$git_raw/creationix/nvm/master/nvm.sh
-data_url=http://bit.ly/1gHfPEj
+data_url=http://goo.gl/OKXJO7
+boot_url=http://goo.gl/DAnaCj
 
 log() {
   e="echo"
@@ -61,14 +58,19 @@ check_npm() {
   [ -d $AZK_ROOT_PATH/node_modules ]
 }
 
+check_boot_disk() {
+  [ -f $VM_DISK_PATH/debian2docker.iso ]
+}
+
 check_data_disk() {
-  [ -f $BOOT2DOCKER_CFG_DIR/azk-agent.vmdk.bz ]
+  [ -f $VM_DISK_PATH/azk-agent.vmdk.bz ]
 }
 
 # Check for depedencies
+# TODO: format logs as standard
 check_depedencies() {
   msg() {
-    log "azk dependencies '$1' not installed. Run 'azk configure'"
+    log "azk:error dependencies '$1' not installed. Run 'azk configure'"
     exit 1
   }
 
@@ -76,6 +78,7 @@ check_depedencies() {
   check_node || msg node
   check_npm  || msg 'node dependencies'
   check_data_disk || msg 'blank data disk'
+  check_boot_disk || msg 'iso vm boot'
 }
 
 check_install() {
@@ -113,9 +116,17 @@ configure() {
     npm install
   }
 
+  # Vm disks
+  mkdir -p $VM_DISK_PATH
+
+  check_install "check_boot_disk" "Check iso to boot vm" || {
+    log "Download iso"
+    curl -L $boot_url -o $VM_DISK_PATH/debian2docker.iso
+  }
+
   check_install "check_data_disk" "Check blank data disk" || {
     log "Download disk"
-    curl -L $data_url -o $BOOT2DOCKER_CFG_DIR/azk-agent.vmdk.bz
+    curl -L $data_url -o $VM_DISK_PATH/azk-agent.vmdk.bz
   }
 }
 
@@ -127,11 +138,6 @@ azk_main() {
     nvm)
       check_depedencies
       shift; "${@}"
-      ;;
-    b2d)
-      check_depedencies
-      #shift; bash -x boot2docker "${@}"
-      shift; boot2docker "${@}"
       ;;
     *)
       check_depedencies

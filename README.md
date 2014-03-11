@@ -24,7 +24,7 @@ Once the `azk app` is deemed valid, the `azk` command searches for `azk agent`, 
 
 ### Understanding azk-agent
 
-`azk agent` can be described as the service responsible for executing `azk` commands in an isolated environment by making use of the containers system. At its deepest level, `azk agent` is a virtual machine running [boot2docker][boot2docker] over VirtualBox (support to VMware is in the roadmap).
+`azk agent` can be described as the service responsible for executing `azk` commands in an isolated environment by making use of the containers system. At its deepest level, `azk agent` is a virtual machine running [debian2docker][debian2docker] over VirtualBox (support to VMware is in the roadmap).
 
 ### Understanding disk mapping
 
@@ -39,9 +39,9 @@ The entire process of provisioning and configuring the environment in which the 
 ### Requirements
 
 * Linux or Mac OS X (Windows: planned)
-* [VirtualBox][virtualbox_dl], version 4.3.4+ (VMware: planned)
+* git, curl
+* [VirtualBox][virtualbox_dl], version 4.3.6+ (VMware: planned)
 * Internet connection (for the provisioning process)
-* git
 
 ### Basic GitHub Checkout
 
@@ -69,13 +69,13 @@ The entire process of provisioning and configuring the environment in which the 
 
   **Zsh note**: Modify your `~/.zshrc` file instead of `~/.bash_profile`.
 
-4. Install depedencies and configure vm:
+4. Install depedencies and configure vm (will download ~130MB):
 
 	```bash
 	$ azk configure
 	```
 
-5. Run `azk-agent` in a terminal:
+5. Run `azk-agent` in a terminal (daemon mode soon):
 
 	```bash
 	$ azk agent start -D
@@ -121,6 +121,6 @@ Azk source code is released under Apache 2 License.
 Check LEGAL and LICENSE files for more information.
 
 [docker]: http://docker.io
-[boot2docker]: https://github.com/steeve/boot2docker
+[debian2docker]: https://github.com/unclejack/debian2docker
 [p9fs]: [https://github.com/azukiapp/node-p9fs]
 [virtualbox_dl]: [http://www.vagrantup.com/downloads.html]

@@ -16,7 +16,7 @@ describe("Azk agent vm", function() {
     ip   : "192.168.51.4",
     ssh_port: 2222,
     boot : azk.cst.VM_BOOT_DISK,
-    data : path.join(azk.cst.DEFAULT_FILE_PATH, "boot2docker", "test-disk.vmdk"),
+    data : path.join(azk.cst.DEFAULT_DATA_PATH, "vm", "test-disk.vmdk"),
   };
 
   // Setups
