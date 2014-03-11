@@ -96,7 +96,7 @@ brew cask install virtualbox --appdir=/Applications
 ## Usage/Features
 
 ```bash
-# Create a initial a azkfile.json
+# Create initial azkfile.json
 $ azk init [--box "azukiapp/ruby-box#stable"] [project_path] 
 
 # Run a specific command
