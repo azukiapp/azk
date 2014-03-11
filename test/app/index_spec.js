@@ -3,8 +3,8 @@ var App  = require('../../lib/app');
 var path = require('path');
 var fs   = require('q-io/fs');
 
-var azk  = h.azk;
-var Q = azk.Q;
+var azk = h.azk;
+var Q   = azk.Q;
 
 describe("Azk app module", function() {
   describe("with valid 'azk app' folder", function() {
@@ -62,6 +62,14 @@ describe("Azk app module", function() {
         h.expect(app).to.have.deep.property("steps[0]", "# step1");
       });
 
+      it("should return a log path", function() {
+        var app = new App(app_dir);
+
+        h.expect(app).to.have.deep.property(
+          "log.path", path.join(azk.cst.DEFAULT_LOG_PATH, app.id)
+        );
+      });
+
       it("should parse envs", function() {
         var app = new App(app_dir);
 
@@ -73,7 +81,7 @@ describe("Azk app module", function() {
       it("should parse box manifest", function() {
         var id  = "fe0598b51044470";
         var app = new App(ancestor_dir);
-        h.expect(app).to.have.deep.property("from.image", "ubuntu:12.04");
+        h.expect(app).to.have.deep.property("from.image", azk.cst.DOCKER_DEFAULT_IMG);
       });
     });
   });

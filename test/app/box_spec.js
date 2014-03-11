@@ -65,13 +65,14 @@ describe("Azk app box", function() {
   })
 
   it("should support docker format", function() {
-    var box = new Box("ubuntu:12.04");
+    var image = azk.cst.DOCKER_DEFAULT_IMG.split(":");
+    var box = new Box(azk.cst.DOCKER_DEFAULT_IMG);
     h.expect(box).to.have.property("type", "docker");
     h.expect(box).to.have.property("origin", null);
     h.expect(box).to.have.property("path", null);
-    h.expect(box).to.have.property("version", "12.04");
-    h.expect(box).to.have.property("repository", "ubuntu");
-    h.expect(box).to.have.property("image", "ubuntu:12.04");
+    h.expect(box).to.have.property("version", image[1]);
+    h.expect(box).to.have.property("repository", image[0]);
+    h.expect(box).to.have.property("image", azk.cst.DOCKER_DEFAULT_IMG);
   });
 
   it("should return erro for invalid box", function() {

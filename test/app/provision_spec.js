@@ -1,9 +1,7 @@
 var azk    = require('../../lib/azk');
-var helper = require('../spec_helper');
+var h      = require('../spec_helper');
 var docker = require('../../lib/docker');
-var MemoryStream = require('memorystream');
 
-var expect = helper.expect;
 var errors = azk.errors;
 var Q = azk.Q;
 
@@ -14,7 +12,7 @@ describe("Azk app provision module", function() {
   var image = docker.getImage(provision_image)
 
   it("should return a error if image from not exist", function() {
-    return expect(provision("not_exist"))
+    return h.expect(provision("not_exist"))
       .to.eventually.rejectedWith(errors.ImageNotExistError, /not_exist/)
   });
 
@@ -24,7 +22,7 @@ describe("Azk app provision module", function() {
     var stdout, output;
 
     beforeEach(function() {
-      stdout = new MemoryStream();
+      stdout = new h.MemoryStream();
       output = '';
       stdout.on('data', function(data) {
         output += data.toString();
@@ -42,34 +40,33 @@ describe("Azk app provision module", function() {
 
       var result = (Q.async(function* () {
         var prov = yield provision(
-          "ubuntu:12.04", provision_image, project, stdout,
+          azk.cst.DOCKER_DEFAULT_IMG, provision_image, project, stdout,
           {steps: steps, verbose: true, cache: false }
         );
 
-        expect(output).to.match(/FROM ubuntu:12.04/);
-        expect(output).to.match(/RUN # comment/);
-        expect(output).to.match(/RUN echo 'azk' > \/azk/);
-        expect(output).to.match(/RUN \/bin\/bash -c "cat \\"\/azk\\""/);
-        expect(output).to.match(/ADD provision_spec.js \/provision_spec.js/);
-        expect(output).to.match(/RUN cat \/provision_spec.js/);
-        expect(output).to.match(/match_with_this/);
+        h.expect(output).to.match(RegExp("FROM " + h.escapeRegExp(azk.cst.DOCKER_DEFAULT_IMG)));
+        h.expect(output).to.match(/RUN # comment/);
+        h.expect(output).to.match(/RUN echo 'azk' > \/azk/);
+        h.expect(output).to.match(/RUN \/bin\/bash -c "cat \\"\/azk\\""/);
+        h.expect(output).to.match(/ADD provision_spec.js \/provision_spec.js/);
+        h.expect(output).to.match(/RUN cat \/provision_spec.js/);
 
         return yield docker.getImage(provision_image).inspect();
       }))();
 
-      return expect(result).to.eventually.has.property("id");
+      return h.expect(result).to.eventually.has.property("id");
     });
 
     it("should raise error if add a invalid file", function() {
       var steps  = [["add", "invalid", "/file"]]
       var result = (Q.async(function* () {
         yield provision(
-          "ubuntu:12.04", provision_image, project, stdout,
+          azk.cst.DOCKER_DEFAULT_IMG, provision_image, project, stdout,
           {steps: steps, verbose: true, cache: false }
         );
       }))();
 
-      return expect(result).to.eventually
+      return h.expect(result).to.eventually
         .rejectedWith(azk.errors.InvalidFileError, /invalid/);
     });
   });

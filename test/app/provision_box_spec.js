@@ -26,7 +26,7 @@ describe("Azk box provision from", function() {
   });
 
   it("should provision a docker image", function() {
-    var box = new Box("ubuntu:12.04");
+    var box = new Box(azk.cst.DOCKER_DEFAULT_IMG);
     var result = provision_box(box, { force: true }, mocks.stdout);
 
     return expect(result)
@@ -46,7 +46,7 @@ describe("Azk box provision from", function() {
       var image   = yield provision_box(box, { force: true }, mocks.stdout);
 
       expect(image).to.equal(box.image);
-      expect(outputs.stdout).to.match(/Step 0 : FROM ubuntu:12\.04/);
+      expect(outputs.stdout).to.match(RegExp("Step 0 : FROM " + h.escapeRegExp(azk.cst.DOCKER_DEFAULT_IMG)));
       expect(outputs.stdout).to.match(/None script/);
 
       var data = yield docker.getImage(box.image).inspect();
@@ -68,14 +68,14 @@ describe("Azk box provision from", function() {
 
     it("should get and provision repository", function() {
       var box = new Box("azukiapp/azk-test-#master");
-      box.origin  = repo;
+      box.origin = repo;
 
       return (Q.async(function* () {
         var opts  = { force: true, cache: false };
         var image = yield provision_box(box, opts, mocks.stdout);
 
         expect(image).to.equal(box.image);
-        expect(outputs.stdout).to.match(/Step 0 : FROM ubuntu:12\.04/);
+        expect(outputs.stdout).to.match(RegExp("Step 0 : FROM " + h.escapeRegExp(azk.cst.DOCKER_DEFAULT_IMG)));
         expect(outputs.stdout).to.match(/None script/);
 
         var data = yield docker.getImage(box.image).inspect();
@@ -85,12 +85,12 @@ describe("Azk box provision from", function() {
   });
 
   it("should not provision if image exist", function() {
-    var box = new Box("ubuntu:12.04");
+    var box = new Box(azk.cst.DOCKER_DEFAULT_IMG);
 
     return (Q.async(function* () {
       var image = yield provision_box(box, {}, mocks.stdout);
 
-      expect(image).to.equal("ubuntu:12.04");
+      expect(image).to.equal(azk.cst.DOCKER_DEFAULT_IMG);
       expect(outputs.stdout).to.not.match(/Pulling repository azk/);
       expect(outputs.stdout).to.not.match(/Download complete/);
     }))();
@@ -127,7 +127,7 @@ describe("Azk box provision from", function() {
 
         expect(image).to.equal(app.image);
         expect(outputs.stdout).to.match(RegExp("Step 0 : FROM " + from));
-        expect(outputs.stdout).to.match(/Step 0 : FROM ubuntu:12\.04/);
+        expect(outputs.stdout).to.match(RegExp("Step 0 : FROM " + h.escapeRegExp(azk.cst.DOCKER_DEFAULT_IMG)));
         expect(outputs.stdout).to.match(/None script/);
       }))();
     });

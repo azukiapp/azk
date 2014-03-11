@@ -15,8 +15,8 @@ describe("Azk docker client", function() {
   })
 
   it("should get a image", function() {
-    var image = docker.getImage("ubuntu:12.04");
-    h.expect(image.name).to.equal("ubuntu:12.04");
+    var image = docker.getImage(azk.cst.DOCKER_DEFAULT_IMG);
+    h.expect(image.name).to.equal(azk.cst.DOCKER_DEFAULT_IMG);
 
     return h.expect(image.inspect())
       .to.eventually.have.property("id")
@@ -34,7 +34,7 @@ describe("Azk docker client", function() {
       var cmd  = ["/bin/bash", "-c", "echo 'error' >&2; echo 'out';" ];
       var opts = { stdout: mocks.stdout, stderr: mocks.stderr };
 
-      return docker.run("ubuntu:12.04", cmd, opts)
+      return docker.run(azk.cst.DOCKER_DEFAULT_IMG, cmd, opts)
       .then(function(container) {
         h.expect(outputs.stdout).to.equal("out\n");
         h.expect(outputs.stderr).to.equal("error\n");
@@ -46,14 +46,14 @@ describe("Azk docker client", function() {
       var cmd  = ["/bin/bash"];
       var opts = { tty: true, stdin: stdin, stdout: mocks.stdout };
 
-      return docker.run("ubuntu:12.04", cmd, opts)
+      return docker.run(azk.cst.DOCKER_DEFAULT_IMG, cmd, opts)
       .progress(function(event) {
         if (event.type == "started") {
-          stdin.write("uptime; exit\n");
+          stdin.write("uname; exit\n");
         }
       })
       .then(function(container) {
-        h.expect(outputs.stdout).to.match(/.*users.*load average.*/);
+        h.expect(outputs.stdout).to.match(/Linux/);
         return container.remove();
       });
     });
@@ -64,7 +64,7 @@ describe("Azk docker client", function() {
         FOO: "bar", BAZ: "qux"
       }};
 
-      return docker.run("ubuntu:12.04", cmd, opts)
+      return docker.run(azk.cst.DOCKER_DEFAULT_IMG, cmd, opts)
       .then(function() {
         h.expect(outputs.stdout).to.match(/FOO=bar/);
         h.expect(outputs.stdout).to.match(/BAZ=qux/);
@@ -77,7 +77,7 @@ describe("Azk docker client", function() {
 
       opts.volumes[__dirname] = [ "/azk" ];
 
-      return docker.run("ubuntu:12.04", cmd, opts)
+      return docker.run(azk.cst.DOCKER_DEFAULT_IMG, cmd, opts)
       .then(function() {
         h.expect(outputs.stdout).to.match(/docker_spec\.js/);
       });
@@ -91,12 +91,12 @@ describe("Azk docker client", function() {
       opts.ports["1500/tcp"] = [{ HostIp: "0.0.0.0" }];
 
       return h.Q.async(function* () {
-        var container = yield docker.run("ubuntu:12.04", cmd, opts);
+        var container = yield docker.run(azk.cst.DOCKER_DEFAULT_IMG, cmd, opts);
         var data = yield container.inspect();
         var port = data.NetworkSettings.Ports["1500/tcp"][0].HostPort;
 
         var _cmd = ["/bin/bash", "-c", "echo | nc -d " + azk.cst.VM_IP + " " + port];
-        yield docker.run("ubuntu:12.04", _cmd, { stdout: mocks.stdout });
+        yield docker.run(azk.cst.DOCKER_DEFAULT_IMG, _cmd, { stdout: mocks.stdout });
 
         h.expect(outputs.stdout).to.match(/HTTP\/1\.1/);
 
@@ -106,7 +106,7 @@ describe("Azk docker client", function() {
 
     it("should support autoremove container", function() {
       return h.expect(
-        docker.run("ubuntu:12.04", ["/bin/true"], { rm: true }).
+        docker.run(azk.cst.DOCKER_DEFAULT_IMG, ["/bin/true"], { rm: true }).
         then(function(container) {
           return container.inspect();
         })
@@ -120,7 +120,7 @@ describe("Azk docker client", function() {
         var opts = { daemon: true, volumes: {}, working_dir: "/azk" };
         opts.volumes[azk.utils.resolve(dir)] = ["/azk"];
 
-        var container = yield docker.run("ubuntu:12.04", cmd, opts);
+        var container = yield docker.run(azk.cst.DOCKER_DEFAULT_IMG, cmd, opts);
         var data = yield container.inspect();
         h.expect(data).to.have.deep.property("State.Running", true);
 
@@ -136,7 +136,7 @@ describe("Azk docker client", function() {
         var name = "/azk-test-cont-name";
         var cmd  = ["/bin/true"];
         var opts = { name: name, rm: false, stdout: mocks.stdout };
-        var cont = yield docker.run("ubuntu:12.04", cmd, opts);
+        var cont = yield docker.run(azk.cst.DOCKER_DEFAULT_IMG, cmd, opts);
         var data = yield cont.inspect();
 
         h.expect(data).to.have.property('Name', name);
@@ -147,7 +147,7 @@ describe("Azk docker client", function() {
       return h.Q.async(function* () {
         var cmd  = ["/bin/true"];
         var opts = { rm: false, stdout: mocks.stdout };
-        var cont = yield docker.run("ubuntu:12.04", cmd, opts);
+        var cont = yield docker.run(azk.cst.DOCKER_DEFAULT_IMG, cmd, opts);
         var data = yield cont.inspect();
 
         var name = RegExp(azk.cst.DOCKER_NS_NAME + ".run.[0-9a-f]+");
@@ -157,7 +157,7 @@ describe("Azk docker client", function() {
   });
 
   it("should get and inspect image by name", function() {
-    return h.expect(docker.findImage("ubuntu:12.04")).
+    return h.expect(docker.findImage(azk.cst.DOCKER_DEFAULT_IMG)).
       to.eventually.has.property("name");
   });
 
