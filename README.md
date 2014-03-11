@@ -96,7 +96,7 @@ brew cask install virtualbox --appdir=/Applications
 ## Usage/Features
 
 ```bash
-$ azk init [project] [--box "azukiapp/ruby-box#stable"] # Create a initial a azkfile.json
+$ azk init [project_path] # Create a initial a azkfile.json
 
 # Run a specific command
 $ azk exec -i /bin/bash           # Run bash (interactive mode)
@@ -111,11 +111,7 @@ $ azk service stop                # Stop all default service processes
 $ azk service restart azk_id      # Restart specific process
 $ azk service restart all         # Hard Restart all default service proccesses
 $ azk service redis restart       # Restart redis service
-$ azk logs                        # Display all processes logs in streaming
 $ azk ps                          # Display all processes status
-$ azk monit                       # Monitor in real time all processes
-$ azk web                         # Health computer API endpoint:
-                                  # (http://[project].dev.azk.io)
 ```
 
 ## License
