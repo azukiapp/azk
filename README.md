@@ -96,13 +96,14 @@ brew cask install virtualbox --appdir=/Applications
 ## Usage/Features
 
 ```bash
-$ azk init [project_path] # Create a initial a azkfile.json
+# Create a initial a azkfile.json
+$ azk init [--box "azukiapp/ruby-box#stable"] [project_path] 
 
 # Run a specific command
 $ azk exec -i /bin/bash           # Run bash (interactive mode)
 $ azk exec /bin/bash --version    # Show the version bash installed in image-app
 
-# Run a background services (Azkfile.json#service)
+# Run a background services (azkfile.json#services)
 $ azk service start -n 5          # Start 5 instances of default service
 $ azk service worker start -n 5   # Start 5 instances of woker service
 $ azk service worker scale -n 10  # Scale to 10 instances of woker service

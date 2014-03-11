@@ -1,8 +1,8 @@
 {
   // Application id
-  "id": "{{app_id}}",
+  "id": "{{&app_id}}",
 
-  "box": "{{box}}",
+  "box": "{{&box}}",
 
   "envs": {
     "dev": {
