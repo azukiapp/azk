@@ -34,7 +34,7 @@ var default_conf = {
   VM_NAME             : 'azk-agent',
   VM_SSH_MAP_PORT     : 5622,
   VM_BLANK_DISK       : p.join(DEFAULT_FILE_PATH, "boot2docker", "azk-agent.vmdk.bz"),
-  VM_BOOT_DISK        : p.join(DEFAULT_FILE_PATH, "boot2docker", "boot2docker.iso"),
+  VM_BOOT_DISK        : p.join(DEFAULT_FILE_PATH, "boot2docker", "debian2docker.iso"),
   VM_DATA_DISK        : p.join(DEFAULT_FILE_PATH, "boot2docker", "azk-agent.vmdk"),
   VM_KEY              : p.join(__dirname, "lib", "share", "id_rsa_insecure"),
   VM_USER             : "docker",
@@ -43,6 +43,7 @@ var default_conf = {
   ERROR_EXIT          : 1,
 
   DOCKER_NS_NAME      : 'azk',
+  DOCKER_DEFAULT_IMG  : "racker/precise-with-updates:latest",
   DOCKER_HOST         : process.env.DOCKER_HOST || "http://azk-agent:4243"
 }
 
