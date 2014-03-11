@@ -1,3 +1,10 @@
 #!/usr/bin/env node
 
-require('../lib/cli')(process.argv)
+var cli = require('../lib/cli');
+
+process.once("azk:command:exit", function(code) {
+  process.exit(code);
+});
+
+cli.cwd = process.cwd();
+cli(process.argv);

@@ -4,22 +4,26 @@ var tmp    = require('tmp');
 var exec   = require('child_process').exec;
 var qfs    = require('q-io/fs');
 var child  = require('child_process');
-var MemoryStream = require('memorystream');
+var MemoryStream  = require('memorystream');
+var StdOutFixture = require('fixture-stdout');
 
 var azk    = require('../lib/azk');
 var docker = require('../lib/docker');
 var Agent  = require('../lib/agent');
 var App    = require('../lib/app');
+var cli    = require('../lib/cli');
 
 // Shortcuts
 var Q = azk.Q;
 var _ = azk._;
 
+//process.env.AZK_DEBUG  = "azk:*";
 azk.cst.DOCKER_NS_NAME = "azk-test-";
 
 // Extensions
 require("mocha-as-promised")();
 chai.use(require('chai-as-promised'));
+chai.use(require('chai-things'));
 
 // Remove tmp
 tmp.setGracefulCleanup();
@@ -38,41 +42,35 @@ before(function() {
     Agent.start();
 
     return done.promise;
-  });
+  })
 });
 
-after(function() {
+before(function() {
   this.timeout(0);
 
-  return docker.listContainers({ all: true })
-  .then(function(containers) {
-    return Q.all(_.map(containers, function(c) {
-      c = docker.getContainer(c.Id)
-      return Q.ninvoke(c, "kill")
-      .then(function() {
-        return Q.ninvoke(c, "remove");
-      });
-    }))
-  })
-  .then(function() {
-    return docker.listImages()
-    .then(function(images) {
-      var removes = [];
-      _.each(images, function(image) {
-        _.each(image.RepoTags, function(tag) {
-          if (tag.match(/azk-test-/)) {
-            removes.push(docker.getImage(tag).remove());
-          }
-        });
-      });
-      return Q.all(removes).fail(function(err) {
-        if (err.statusCode != 404) {
-          throw err;
+  return Q.async(function* () {
+    var removes    = [];
+    var images     = yield docker.listImages();
+    var containers = yield docker.listContainers({ all: true });
+
+    _.each(containers, function(container) {
+      container = docker.getContainer(container.Id);
+      removes.push(container.stop({ f: 5 }).then(function() {
+        return container.remove();
+      }));
+    });
+    yield Q.all(removes);
+
+    removes = [];
+    _.each(images, function(image) {
+      _.each(image.RepoTags, function(tag) {
+        if (tag.match(/azk-test-/)) {
+          removes.push(docker.getImage(tag).remove().fail(function() { }));
         }
       });
     });
-  })
-  .fail(function() { } );
+    return yield Q.all(removes);
+  })();
 });
 
 var Helper = module.exports = {
@@ -120,15 +118,26 @@ Helper.mock_outputs = function(func, outputs, extra) {
     outputs.stdout = '';
     outputs.stderr = '';
 
-    mocks.stdout = new MemoryStream();
-    mocks.stderr = new MemoryStream();
+    outputs.__proto__.show = function() {
+      console.log("Stdout:");
+      process.stdout.write(this.stdout);
+      console.log("Stderr:");
+      process.stdout.write(this.stderr);
+    }
 
-    mocks.stdout.on('data', function(data) {
-      outputs.stdout += data.toString();
-    });
-    mocks.stderr.on('data', function(data) {
-      outputs.stderr += data.toString();
-    });
+    outputs.__proto__.reset = function() {
+      mocks.stdout = new MemoryStream();
+      mocks.stderr = new MemoryStream();
+
+      mocks.stdout.on('data', function(data) {
+        outputs.stdout += data.toString();
+      });
+      mocks.stderr.on('data', function(data) {
+        outputs.stderr += data.toString();
+      });
+    }
+
+    outputs.reset();
 
     if (extra)
       extra.call(this);
@@ -137,39 +146,12 @@ Helper.mock_outputs = function(func, outputs, extra) {
   return mocks;
 }
 
-Helper.mock_exec = function(mocks, command) {
-  return function(dir, args, stdin) {
-    var done = Q.defer();
-    var opts = {
-      cwd: dir,
-      env: _.extend({ AZK_DEBUG: "azk:*" }, process.env),
-    }
-
-    args.unshift(command);
-    var exec = child.spawn(Helper.azk_bin, args, opts);
-
-    if (stdin) {
-      process.nextTick(function() {
-        _.each(stdin, function(data) {
-          exec.stdin.write(data + "\n");
-        });
-      });
-    }
-
-    exec.stdout.pipe(mocks.stdout);
-    exec.stderr.pipe(mocks.stderr);
-    exec.on("close", function(code) {
-      done.resolve(code);
-    });
-
-    return done.promise;
-  }
-}
-
+var count_apps = 0;
 Helper.mock_app = function(data) {
+  count_apps++;
   data = _.extend({
-    id  : "azk-test-" + App.new_id(),
-    box : "ubuntu:12.04",
+    id  : "azk-test-" + count_apps,
+    box : azk.cst.DOCKER_DEFAULT_IMG,
     envs: {
       dev: {
         env: {
@@ -178,7 +160,25 @@ Helper.mock_app = function(data) {
       }
     },
     build: [],
-    services: [],
+    services: {
+      web: {
+        command:
+          'while true ; do ' +
+            'echo "init"; ' +
+            '(echo -e "HTTP/1.1\\n\\n $(date)") | nc -l 1500; ' +
+            'test $? -gt 128 && break; ' +
+            'sleep 1; ' +
+          'done',
+        port: 1500
+      },
+
+      web2: {
+        command:
+          'while true; do ' +
+            'env; sleep 1; ' +
+          'done;'
+      }
+    },
   }, data || {});
 
   return Q.async(function* () {
@@ -199,4 +199,53 @@ Helper.mock_app = function(data) {
 
     return tmp;
   })();
+}
+
+var fixtures = {
+  stdout: new StdOutFixture(),
+  stderr: new StdOutFixture({ stream: process.stderr }),
+}
+
+Helper.capture_io = function(block) {
+  return Q.when(null, function() {
+    var writes = { stdout: '', stderr: '' };
+
+    // Capture a write to stdout
+    _.each(fixtures, function(fixture, key) {
+      fixture.capture( function onWrite (string, encoding, fd) {
+        writes[key] += string;
+        return false;
+      });
+    });
+
+    var fail = function(err) {
+      _.each(fixtures, function(fixture) { fixture.release(); });
+      throw err;
+    }
+
+    try {
+      var result = block();
+    } catch (err) { return fail(err) };
+
+    return Q.when(result, function(value) {
+      _.each(fixtures, function(fixture) { fixture.release(); });
+      return [value, writes];
+    }, fail);
+  });
+}
+
+Helper.capture_evs = function(events) {
+  var make_func = function(type) {
+    return function() {
+      var args = _.toArray(arguments);
+      args.unshift(type);
+      events.push(args);
+    }
+  }
+
+  return {
+    log  : make_func("log"),
+    fail : make_func("fail"),
+    ok   : make_func("ok")
+  }
 }

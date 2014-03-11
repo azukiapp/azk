@@ -50,7 +50,9 @@
     "colors": "~0.6.2",
     "printf": "~0.1.2",
     "vboxmanage": "0.0.15",
-    "ssh2": "~0.2.18"
+    "ssh2": "~0.2.18",
+    "fixture-stdout": "~0.2.1",
+    "chai-things": "~0.2.0"
   },
   "devDependencies": {
     "chai": "~1.9.0",

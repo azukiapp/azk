@@ -2,31 +2,22 @@ var h      = require('../spec_helper');
 var path   = require('path');
 var docker = require('../../lib/docker');
 var App    = require('../../lib/app');
+var cmd    = require('../../lib/commands/provision');
 
 var azk = h.azk;
 var Q   = azk.Q;
 var _   = azk._;
 
 describe("Azk provision command", function() {
-  var outputs = { };
-  var mocks   = h.mock_outputs(beforeEach, outputs);
-  var exec    = h.mock_exec(mocks, "provision");
+  this.timeout(0);
+  var events, out, outputs = {};
 
-  it("should return error if manifest not found", function() {
-    return h.tmp.dir().then(function(tmp) {
-      var result = exec(tmp, []);
-
-      return result.then(function(code) {
-        var msg = azk.t("app.manifest.not_found", azk.cst.MANIFEST);
-
-        h.expect(code).to.equal(1);
-        h.expect(outputs.stderr).to.match(RegExp(msg));
-      });
-    });
+  var mocks = h.mock_outputs(beforeEach, outputs, function() {
+    events = [];
+    out = h.capture_evs(events);
   });
 
   describe("in valid app dir", function() {
-    this.timeout(10000);
     var app;
 
     beforeEach(function() {
@@ -36,11 +27,12 @@ describe("Azk provision command", function() {
     });
 
     it("should provision image", function() {
-      return exec(app.path, ["--no-cache"]).then(function(code) {
-        var msg = azk.t("app.image.provisioned", app.image);
+      var result = cmd.run(app, out, { cache: false, stdout: mocks.stdout });
 
+      return result.then(function(code) {
         h.expect(code).to.equal(0);
-        h.expect(outputs.stderr).to.match(RegExp(msg));
+        var event = ["log", "app.image.provisioned", app.image];
+        h.expect(events).to.include.something.deep.equal(event);
         h.expect(outputs.stdout).to.match(RegExp("FROM " + app.from.image));
       });
     });
@@ -49,11 +41,11 @@ describe("Azk provision command", function() {
       var pre = app.provision({}, new h.MemoryStream());
 
       return pre.then(function() {
-        return exec(app.path, []).then(function(code) {
-          var msg = azk.t("app.image.already", app.image);
-
+        var result = cmd.run(app, out, { cache: false, stdout: mocks.stdout });
+        return result.fail(function(code) {
           h.expect(code).to.equal(1);
-          h.expect(outputs.stderr).to.match(RegExp(msg));
+          var event = ["fail", "app.image.already", app.image];
+          h.expect(events).to.include.something.deep.equal(event);
         });
       });
     });
@@ -62,15 +54,14 @@ describe("Azk provision command", function() {
       var pre = app.provision({}, new h.MemoryStream());
 
       return pre.then(function() {
-        return exec(app.path, ["--force"]).then(function(code) {
-          var msg = azk.t("app.image.provisioned", app.image);
-
+        var result = cmd.run(app, out, { cache: false, force: true, stdout: mocks.stdout });
+        return result.then(function(code) {
           h.expect(code).to.equal(0);
-          h.expect(outputs.stderr).to.match(RegExp(msg));
+          var event = ["log", "commands.provision.removing", app.image];
+          h.expect(events).to.include.something.deep.equal(event);
+          var event = ["log", "app.image.provisioned", app.image];
+          h.expect(events).to.include.something.deep.equal(event);
           h.expect(outputs.stdout).to.match(RegExp("FROM " + app.from.image));
-
-          var msg = azk.t("commands.provision.removing", app.image);
-          h.expect(outputs.stderr).to.match(RegExp(msg));
         });
       });
     });
@@ -90,19 +81,16 @@ describe("Azk provision command", function() {
     });
 
     it("should provision all", function() {
-      return exec(app.path, ["--no-cache"]).then(function(code) {
+      var result = cmd.run(app, out, { cache: false, force: true, stdout: mocks.stdout });
+
+      return result.then(function(code) {
         h.expect(code).to.equal(0);
-
-        var msg = azk.t("app.image.provisioned", app.image);
-        h.expect(outputs.stderr).to.match(RegExp(msg));
-
-        var msg = azk.t("app.image.provisioned", app.from.image);
-        h.expect(outputs.stderr).to.match(RegExp(msg));
-
-        h.expect(outputs.stdout).to.match(
-          RegExp("FROM " + ancestor.from.image));
-        h.expect(outputs.stdout).to.match(
-          RegExp("FROM " + ancestor.from.image));
+        var event = ["log", "app.image.provisioned", app.image];
+        h.expect(events).to.include.something.deep.equal(event);
+        var event = ["log", "app.image.provisioned", app.from.image];
+        h.expect(events).to.include.something.deep.equal(event);
+        h.expect(outputs.stdout).to.match(RegExp("FROM " + app.from.image));
+        h.expect(outputs.stdout).to.match(RegExp("FROM " + ancestor.from.image));
       });
     });
   });
