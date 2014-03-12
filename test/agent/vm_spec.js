@@ -78,7 +78,7 @@ describe("Azk agent vm", function() {
     });
 
     it("should start, stop and return vm status", function() {
-      this.timeout(10000);
+      this.timeout(4000);
       return Q.async(function* () {
         h.expect(yield vm.start(opts.name)).to.ok
         h.expect(yield vm.start(opts.name)).to.fail
