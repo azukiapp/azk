@@ -83,6 +83,14 @@ describe("Azk app module", function() {
         var app = new App(ancestor_dir);
         h.expect(app).to.have.deep.property("from.image", azk.cst.DOCKER_DEFAULT_IMG);
       });
+
+      it("should return a erro for invalid json", function() {
+        //var err = new azk.errors.InvalidManifestFormatError("azkfile.json", "SyntaxError: Unexpected token }")
+        var fn = function() {
+          new App(h.fixture_path("test-invalid"));
+        }
+        h.expect(fn).to.throw(azk.errors.InvalidManifestFormatError);
+      });
     });
   });
 });
