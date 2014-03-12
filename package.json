@@ -52,7 +52,8 @@
     "vboxmanage": "0.0.15",
     "ssh2": "~0.2.18",
     "fixture-stdout": "~0.2.1",
-    "chai-things": "~0.2.0"
+    "chai-things": "~0.2.0",
+    "http-proxy": "~1.0.2"
   },
   "devDependencies": {
     "chai": "~1.9.0",

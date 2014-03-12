@@ -18,8 +18,9 @@ var default_conf = {
   DEFAULT_LOG_PATH    : DEFAULT_LOG_PATH,
 
   DAEMON_BIND_HOST    : process.env.AZK_BIND_ADDR || 'localhost',
-  DAEMON_RPC_PORT     : parseInt(process.env.AZK_RPC_PORT)  || 5640, // RPC commands
-  DAEMON_PUB_PORT     : parseInt(process.env.AZK_PUB_PORT)  || 5639, // Realtime events
+  DAEMON_PROXY_PORT   : parseInt(process.env.AZK_PROXY_PORT) || 15680, // RPC commands
+  DAEMON_RPC_PORT     : parseInt(process.env.AZK_RPC_PORT)   || 5640, // RPC commands
+  DAEMON_PUB_PORT     : parseInt(process.env.AZK_PUB_PORT)   || 5639, // Realtime events
 
   AZK_AGENT           : process.env.AZK_AGENT || false,
   AZK_AGENT_MOUNT     : "/home/docker/.azk/data/files",
