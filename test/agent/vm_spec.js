@@ -65,7 +65,6 @@ describe("Azk agent vm", function() {
 
     it("should configure network", function() {
       h.expect(info).has.property("nic1", "hostonly");
-      h.expect(info).has.property("nictype1", "virtio");
       h.expect(info).has.property("cableconnected1", true);
       h.expect(info).has.property("hostonlyadapter1").and.match(/vboxnet/);
 
@@ -78,7 +77,7 @@ describe("Azk agent vm", function() {
     });
 
     it("should start, stop and return vm status", function() {
-      this.timeout(4000);
+      this.timeout(10000);
       return Q.async(function* () {
         h.expect(yield vm.start(opts.name)).to.ok
         h.expect(yield vm.start(opts.name)).to.fail
