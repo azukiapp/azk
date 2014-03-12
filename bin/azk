@@ -9,6 +9,7 @@ export DEFAULT_DATA_PATH=${DEFAULT_DATA_PATH:-$AZK_ROOT_PATH/data}
 export PATH=/usr/bin:/bin:/usr/sbin
 export PATH=$AZK_ROOT_PATH/bin:$PATH
 export PATH=$AZK_ROOT_PATH/lib/libexec:$PATH
+export PATH=$AZK_ROOT_PATH/node_modules/.bin:$PATH
 
 # Configure NVM and VM
 export NVM_DIR=$DEFAULT_DATA_PATH/nvm
