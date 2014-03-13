@@ -78,6 +78,17 @@ describe("Azk app module", function() {
         h.expect(app).to.have.deep.property("env.env.BAZ", "qux");
       });
 
+      it("should parse host and alias", function() {
+        var app    = new App(app_dir);
+        var domain = azk.cst.DEFAULT_DOMAIN;
+        var alias  = ([
+          app.env.host + "." + domain,
+          app.id + "." + domain,
+        ]).concat(app.content.envs["dev"].alias || []);
+
+        h.expect(app).to.have.deep.property("env.alias").and.eql(alias);
+      });
+
       it("should parse box manifest", function() {
         var id  = "fe0598b51044470";
         var app = new App(ancestor_dir);
