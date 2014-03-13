@@ -55,5 +55,13 @@
     "connect": "connecting docker: %s"
   },
 
+  "proxy": {
+    "adding_backend": "adding backend:%(backend)s to hostname:%(hostname)s",
+    "removing_backend": "removing backend:%(backend)s to hostname:%(hostname)s",
+    "request": "proxy request %s => %s",
+    "started": "proxy started in %s port",
+    "not_configured": "host '%s' not configured in proxy"
+  },
+
   "i18n_test": "test i18n module"
 }

@@ -62,7 +62,7 @@ describe("Azk agent proxy", function() {
     proxy.register(domain, backend);
 
     return request(domain).spread(function(code, body) {
-      var event = ['azk.proxy.request', 'example.com', backend];
+      var event = ['proxy.request', 'example.com', backend];
       h.expect(code).to.equal(200);
       h.expect(body).to.match(/foo bar/);
       h.expect(events).to.include.something.deep.equal(event);
@@ -71,7 +71,7 @@ describe("Azk agent proxy", function() {
 
   it("should return 404 if not have a backend", function() {
     return request("example.com").spread(function(code, body) {
-      var event = ['azk.proxy.not_configured', 'example.com'];
+      var event = ['proxy.not_configured', 'example.com'];
       h.expect(code).to.equal(400);
       h.expect(body).to.match(/No Application Configured/);
       h.expect(events).to.include.something.deep.equal(event);
