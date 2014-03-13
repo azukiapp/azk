@@ -120,6 +120,32 @@ describe("Azk cli helpers", function() {
           h.expect(outputs.stderr).to.match(RegExp(exp));
         });
       });
+
+      it("should support tables", function() {
+        return h.capture_io(function() {
+          var done = Q.defer();
+
+          process.once("azk:command:exit", function(code) {
+            done.resolve(code);
+          });
+
+          process.env.AZK_DEBUG = "azk:*";
+          cli.helpers.run_with_log("helpers", { skip_app: true, cwd: app.path}, function(_, out) {
+            out.table_add('table1', { head: ['TH 1 label', 'TH 2 label'] });
+            out.table_push('table1', ['First value', 'Second value']);
+            out.table_show('table1');
+            return 0;
+          });
+          return done.promise;
+        }).then(function(result) {
+          var output = result[1].stdout;
+
+          h.expect(output).to.match(/┌─────────────┬──────────────┐/);
+          h.expect(output).to.match(/TH 1 label.*TH 2 label/);
+          h.expect(output).to.match(/First value.*Second value/);
+          h.expect(output).to.match(/└─────────────┴──────────────┘/);
+        });
+      });
     });
   });
 });
