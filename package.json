@@ -51,8 +51,6 @@
     "printf": "~0.1.2",
     "vboxmanage": "git+https://github.com/nuxlli/node-vboxmanage#master",
     "ssh2": "~0.2.18",
-    "fixture-stdout": "~0.2.1",
-    "chai-things": "~0.2.0",
     "http-proxy": "~1.0.2"
   },
   "devDependencies": {
@@ -60,7 +58,10 @@
     "mocha": "~1.17.1",
     "mocha-as-promised": "~2.0.0",
     "chai-as-promised": "~4.1.0",
+    "chai-things": "~0.2.0",
     "tmp": "0.0.23",
-    "memorystream": "~0.2.0"
+    "memorystream": "~0.2.0",
+    "fixture-stdout": "~0.2.1",
+    "nodemon": "~1.0.15"
   }
 }

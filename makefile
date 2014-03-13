@@ -18,4 +18,8 @@ test-w:
 		--watch \
 		${TEST_FILES}
 
-.PHONY: test test-w
+# auto run test in development
+rerun:
+	@azk nvm nodemon -e "js" --ignore data --ignore node_modules --exec "bash -c" -- 'clear; make TEST_FILES=$(TEST_FILES)'
+
+.PHONY: test test-w rerun
