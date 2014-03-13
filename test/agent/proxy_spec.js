@@ -9,28 +9,7 @@ var _    = azk._;
 var port = 8124;
 
 function request(host) {
-  var done = Q.defer();
-
-  var opts = {
-    method: 'GET',
-    hostname: '127.0.0.1',
-    port: port + 1,
-    path: '/',
-    headers: { 'host': host }
-  }
-
-  http.request(opts, function(res) {
-    var body = '';
-    res.setEncoding('utf8');
-    res.on('data', function (chunk) {
-      body += chunk;
-    });
-    res.on('end', function() {
-      done.resolve([res.statusCode, body]);
-    });
-  }).end();
-
-  return done.promise;
+  return h.request('127.0.0.1', port + 1, host);
 }
 
 describe("Azk agent proxy", function() {
@@ -57,6 +36,13 @@ describe("Azk agent proxy", function() {
     var backend = "127.0.0.1:" + port;
     proxy.register("example.com", backend);
     h.expect(proxy.get("example.com")).to.equal(backend);
+  });
+
+  it("should return list of backends", function() {
+    proxy.register("example.com", "http://127.0.0.1");
+    proxy.register("example.com", "http://127.0.0.2");
+
+    h.expect(proxy.list("example.com")).to.eql(["http://127.0.0.1", "http://127.0.0.2"]);
   });
 
   it("should remove a backend", function() {

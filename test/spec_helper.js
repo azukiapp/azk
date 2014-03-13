@@ -4,6 +4,7 @@ var tmp    = require('tmp');
 var exec   = require('child_process').exec;
 var qfs    = require('q-io/fs');
 var child  = require('child_process');
+var http   = require('http');
 var MemoryStream  = require('memorystream');
 var StdOutFixture = require('fixture-stdout');
 
@@ -248,4 +249,29 @@ Helper.capture_evs = function(events) {
     fail : make_func("fail"),
     ok   : make_func("ok")
   }
+}
+
+Helper.request = function(ip, port, hostname) {
+  var done = Q.defer();
+
+  var opts = {
+    method: 'GET',
+    hostname: ip,
+    port: port,
+    path: '/',
+    headers: { 'host': hostname }
+  }
+
+  http.request(opts, function(res) {
+    var body = '';
+    res.setEncoding('utf8');
+    res.on('data', function (chunk) {
+      body += chunk;
+    });
+    res.on('end', function() {
+      done.resolve([res.statusCode, body]);
+    });
+  }).end();
+
+  return done.promise;
 }
