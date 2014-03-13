@@ -8,6 +8,7 @@ DEFAULT_LOG_PATH  = p.join(DEFAULT_DATA_PATH, 'logs');
 
 var default_conf = {
   MANIFEST            : "azkfile.json",
+  DEFAULT_DOMAIN      : "dev.azk.io",
   AZK_ROOT_PATH       : __dirname,
 
   DEFAULT_DATA_PATH   : DEFAULT_DATA_PATH,

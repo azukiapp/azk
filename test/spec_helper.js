@@ -150,11 +150,14 @@ Helper.mock_outputs = function(func, outputs, extra) {
 var count_apps = 0;
 Helper.mock_app = function(data) {
   count_apps++;
+  var app_id = "azk-test-" + count_apps
   data = _.extend({
-    id  : "azk-test-" + count_apps,
+    id  : app_id,
     box : azk.cst.DOCKER_DEFAULT_IMG,
     envs: {
       dev: {
+        host: "host." + app_id,
+        alias: [ "1-" + app_id + ".example.com" ],
         env: {
           "ENVS_ENV_VAR": "bar"
         }
@@ -163,13 +166,7 @@ Helper.mock_app = function(data) {
     build: [],
     services: {
       web: {
-        command:
-          'while true ; do ' +
-            'echo "init"; ' +
-            '(echo -e "HTTP/1.1\\n\\n $(date)") | nc -l 1500; ' +
-            'test $? -gt 128 && break; ' +
-            'sleep 1; ' +
-          'done',
+        command: 'chmod +x ./bash_server; ./bash_server',
         port: 1500
       },
 
@@ -183,7 +180,11 @@ Helper.mock_app = function(data) {
   }, data || {});
 
   return Q.async(function* () {
-    var tmp    = yield Helper.tmp.dir({ prefix: "azk-test-" });
+    var tmp = yield Helper.tmp.dir({ prefix: "azk-test-" });
+
+    // Copy structure
+    yield qfs.copyTree(Helper.fixture_path('test-app'), tmp);
+
     var m_file = path.join(tmp, azk.cst.MANIFEST);
     var e_file = path.join(tmp, ".env");
 
