@@ -15,13 +15,16 @@
   },
 
   "commands": {
-    "not_found": "%s: Command not found",
+    "not_found": "%s: Command '%s' not found",
     "agent": {
       "description": "Control azk agent"
     },
     "exec": {
       "description": "Run a command in application box context",
       "interactive": "Run command in interactive"
+    },
+    "help": {
+      "description": "Show help about the specific command"
     },
     "init": {
       "description": "Initializes a project by adding the file azkfile.json",
@@ -32,16 +35,16 @@
       "generated": "'%s' generated"
     },
     "provision": {
-      "description": "",
+      "description": "Provision app image",
       "removing": "Removing old image '%s'"
     },
     "ps": {
       "description": "Displays a information about the application process"
     },
     "service": {
-      "description": "",
-      "instances": "",
-      "invalid_service": "",
+      "description": "Control application services",
+      "instances": "number of instances to be added or removed",
+      "invalid_service": "'%s' not a valid service for this application",
       "scale": "scale from %s to %s instances",
       "not_runnig": "service not running",
       "running": "running `%s` instances"
