@@ -57,8 +57,6 @@ describe("Azk provision command", function() {
         var result = cmd.run(app, out, { cache: false, force: true, stdout: mocks.stdout });
         return result.then(function(code) {
           h.expect(code).to.equal(0);
-          var event = ["log", "commands.provision.removing", app.image];
-          h.expect(events).to.include.something.deep.equal(event);
           var event = ["log", "app.image.provisioned", app.image];
           h.expect(events).to.include.something.deep.equal(event);
           h.expect(outputs.stdout).to.match(RegExp("FROM " + app.from.image));
