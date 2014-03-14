@@ -30,7 +30,7 @@ describe("Azk service command", function() {
       var result = cmd.run(app, out, "invalid", "status");
 
       return result.fail(function(code) {
-        var event = ["fail", "command.service.invalid_service", "invalid"]
+        var event = ["fail", "commands.service.invalid_service", "invalid"]
         h.expect(code).to.equal(3);
         h.expect(events).to.include.something.eql(event);
       });

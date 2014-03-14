@@ -68,6 +68,12 @@ describe("Azk app module", function() {
         h.expect(app).to.have.deep.property(
           "log.path", path.join(azk.cst.DEFAULT_LOG_PATH, app.id)
         );
+
+        var log_dir = path.join(app.path, "logs");
+        return h.mock_app({ envs: { dev: { log_dir: log_dir } } }).then(function(app_dir) {
+          var app = new App(app_dir);
+          h.expect(app).to.have.deep.property("log.path", log_dir);
+        });
       });
 
       it("should parse envs", function() {

@@ -11,7 +11,7 @@ var azk = h.azk;
 var Q   = azk.Q;
 var _   = azk._;
 
-describe("Azk ps command", function() {
+describe.skip("Azk ps command", function() {
   var app = null;
   var events = [];
   var out = h.capture_evs(events);
