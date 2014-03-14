@@ -6,10 +6,15 @@
 
   "envs": {
     "dev": {
-      "default": true,
+      // "log_dir": "./log",
+      "host": "{{&host}}",
       "alias": [
-        "exemplo.dev.azk.io"
-      ]
+      ],
+      "env": {
+      {{#envs}}
+        "{{key}}": "{{value}}"
+      {{/envs}}
+      }
     }
   },
 
@@ -18,9 +23,12 @@
   ],
 
   "services": {
+    // Services box depedencies
+    // "postgresql": { "box": "azukiapp/postgresql" },
+    // "redis": { "box": "azukiapp/redis#0.0.1" },
+
     "web": {
-      "default": true,
-      "command": "node index.js"
+      "command": "{{&cmd}}"
     }
   }
 }
