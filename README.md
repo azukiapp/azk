@@ -38,7 +38,7 @@ The entire process of provisioning and configuring the environment in which the 
 
 ### Requirements
 
-* Linux or Mac OS X (Windows: planned)
+* Linux (x86_64 only) or Mac OS X (Windows: planned)
 * git, curl
 * [VirtualBox][virtualbox_dl], version 4.3.6+ (VMware: planned)
 * Internet connection (for the provisioning process)
