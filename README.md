@@ -54,7 +54,7 @@ brew cask install virtualbox --appdir=/Applications
 1. Check out ask into `~/.azk`.
 
   ```bash
-  $ git clone https://github.com/azukiapp/azk.git ~/.azk
+  $ git clone -b stable https://github.com/azukiapp/azk.git ~/.azk
   ```
 
 2. Configure azk-agent IP address

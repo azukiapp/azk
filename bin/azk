@@ -20,8 +20,11 @@ node_version=v0.11.11
 libexec_deps=$AZK_ROOT_PATH/lib/libexec
 git_raw=https://raw2.github.com
 nvm_url=$git_raw/creationix/nvm/master/nvm.sh
+nvm_file=$libexec_deps/nvm.sh
 data_url=http://goo.gl/OKXJO7
 boot_url=http://goo.gl/DAnaCj
+boot_file=$VM_DISK_PATH/debian2docker.iso
+update=""
 
 log() {
   e="echo"
@@ -47,7 +50,8 @@ cmd_exists git nc curl grep head tr
 
 # Roles
 check_nvm() {
-  [ -f $libexec_deps/nvm.sh ]
+  [ -n "$update" ] && rm $nvm_file
+  [ -f $nvm_file ]
 }
 
 check_node() {
@@ -56,11 +60,23 @@ check_node() {
 }
 
 check_npm() {
+  [ -n "$update" ] && return 1;
   [ -d $AZK_ROOT_PATH/node_modules ]
 }
 
+check_sum() {
+  shasum --portable $1 | awk '{ print $1 }'
+}
+
 check_boot_disk() {
-  [ -f $VM_DISK_PATH/debian2docker.iso ]
+  [ -n "$update" -a -f $boot_file ] && {
+    actual_version=`shasum --portable $boot_file | awk '{ print $1 }'`
+    new_version=`curl http://azk.s3.amazonaws.com/debian2docker.sha 2>/dev/null`
+    [ "${actual_version}" != "${new_version}" ] && {
+      rm $boot_file
+    }
+  }
+  [ -f $boot_file ]
 }
 
 check_data_disk() {
@@ -83,6 +99,7 @@ check_depedencies() {
 }
 
 check_install() {
+  echo $1
   log -n "$2: "
   if `$1` ; then
     echo "ok" >&2
@@ -92,13 +109,28 @@ check_install() {
   fi
 }
 
+update_code_base() {
+  if [ -n "$update" ]; then
+    cd "$AZK_ROOT_PATH"
+    if `./bin/azk agent status 2>/dev/null` ; then
+      log "Azk agent is running, stop before update!"
+      exit 1;
+    fi
+    git pull . origin/stable
+  fi
+}
+
 configure() {
+  [ "$1" == '--update' ] && { update="true"; }
   ok()   { echo "ok" >&2; }
   fail() { echo "fail" >&2; }
 
+  # Update azk code base
+  update_code_base
+
   check_install "check_nvm" "Check nvm" || {
     log "Install nvm..."
-    curl $nvm_url -o $libexec_deps/nvm.sh
+    curl $nvm_url -o $nvm_file
   }
 
   # Load nvm
@@ -122,7 +154,7 @@ configure() {
 
   check_install "check_boot_disk" "Check iso to boot vm" || {
     log "Download iso"
-    curl -L $boot_url -o $VM_DISK_PATH/debian2docker.iso
+    curl -L $boot_url -o $boot_file
   }
 
   check_install "check_data_disk" "Check blank data disk" || {
@@ -133,6 +165,9 @@ configure() {
 
 azk_main() {
   case "$1" in
+    update)
+      configure --update
+      ;;
     configure)
       configure
       ;;
