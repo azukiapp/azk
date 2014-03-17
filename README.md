@@ -93,6 +93,15 @@ brew cask install virtualbox --appdir=/Applications
   $ azk help
   ```
 
+## Update
+
+```bash
+$ cd ~/.azk
+$ azk agent stop
+$ azk update
+$ azk agent start
+```
+
 ## Usage/Features
 
 ```bash
