@@ -25,42 +25,6 @@ describe("Azk exec command", function() {
     });
   });
 
-  it("should execute a command and remove a container", function() {
-    var args   = ["/bin/bash", "-c", "ls -l"]
-    var result = cmd.run(app, out, args, {
-      remove: true, stdout: mocks.stdout, stderr: mocks.stderr,
-    });
-
-    result = result.then(function(code) {
-      h.expect(code).to.equal(0);
-
-      var created = _.first(events);
-      h.expect(created[0]).to.equal('log');
-      h.expect(created[2]).to.equal('created');
-
-      h.expect(outputs.stdout).to.match(/azkfile.json/);
-
-      var id = created[3];
-      var event = ["log", "removing container: %s", id];
-      h.expect(events).to.include.something.deep.equal(event);
-
-      return h.expect(docker.getContainer(id).remove())
-        .to.eventually.rejectedWith(/404/);
-    });
-  });
-
-  it("should execute a command and not remove a container", function() {
-    var args   = ["/bin/bash", "-c", "ls -l"];
-    var result = cmd.run(app, out, args, {
-      remove: false, stdout: mocks.stdout, stderr: mocks.stderr,
-    });
-
-    return result.then(function(code) {
-      h.expect(code).to.equal(0);
-      return docker.getContainer(events[1][3]).remove();
-    });
-  });
-
   it("should execute a interactive command", function() {
     var stdin  = new h.MemoryStream();
     var out    = {
@@ -71,7 +35,8 @@ describe("Azk exec command", function() {
     }
 
     var result = cmd.run(app, out, ["/bin/bash"], {
-      remove: true, interactive: true, stdin: stdin, stdout: mocks.stdout, stderr: mocks.stderr,
+      interactive: true,
+      stdin: stdin, stdout: mocks.stdout, stderr: mocks.stderr,
     });
 
     return result.then(function(code) {
@@ -83,7 +48,7 @@ describe("Azk exec command", function() {
   it("should mount app directory", function() {
     var args   = ["/bin/bash", "-c", "cat /azk/app/azkfile.json"];
     var result = cmd.run(app, out, args, {
-      remove: true, stdout: mocks.stdout, stderr: mocks.stderr
+      stdout: mocks.stdout, stderr: mocks.stderr
     });
 
     return result.then(function(code) {
@@ -94,9 +59,7 @@ describe("Azk exec command", function() {
 
   it("should return result code", function() {
     var args   = ["/bin/bash", "-c", "exit 127"];
-    var result = cmd.run(app, out, args, {
-      remove: true,
-    });
+    var result = cmd.run(app, out, args, {});
 
     return result.then(function(code) {
       h.expect(code).to.equal(127);
