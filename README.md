@@ -102,6 +102,16 @@ $ azk update
 $ azk agent start
 ```
 
+## Test
+
+Note that running the tests requires you to be with `azk agent` running.
+
+```bash
+$ cd ~/.azk
+$ azk nvm install
+$ make
+```
+
 ## Usage/Features
 
 ```bash
