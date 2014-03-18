@@ -2,14 +2,16 @@
 
 `azk` is a tool that assists web developers in the creation, maintenance and isolation of development environments. Through the installation of some components (`cli` and `agent`), you will be able to easily create isolated environments to many projects using several different stacks.
 
-**Features** : provisioning, monitoring, built-in load balancer, automatic start-up script, logging and more.
-
 ## Main features
 
-* Support recipes to provisioning
-* Support the hierarchy of recipes
+* Provisioning: with custom recipes and scripts
 * Builtin load-balancer
-* Builtin files sync
+* Monitoring
+* Builtin file sync
+* Automatic start-up (and reload) script
+* Logging
+
+Works on Linux & MacOS (require 64 bit platform)
 
 ## How It Works
 
