@@ -105,12 +105,21 @@ describe("Azk docker client", function() {
     });
 
     it("should support autoremove container", function() {
-      return h.expect(
-        docker.run(azk.cst.DOCKER_DEFAULT_IMG, ["/bin/true"], { rm: true }).
-        then(function(container) {
-          return container.inspect();
-        })
-      ).to.eventually.rejectedWith(Error, /404/);
+      var result  = docker.run(azk.cst.DOCKER_DEFAULT_IMG, ["/bin/true"], { rm: true });
+      var removed = false;
+
+      result = result.progress(function(event) {
+        if (event.type == "removing") {
+          removed = true;
+        }
+      });
+
+      result = result.then(function(container) {
+        h.expect(removed).to.ok;
+        return container.inspect();
+      });
+
+      return h.expect(result).to.eventually.rejectedWith(Error, /404/);
     });
 
     it("should support run daemon mode", function() {
