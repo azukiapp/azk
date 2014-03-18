@@ -32,7 +32,7 @@ log() {
     shift
     e="echo -n"
   fi
-  $e >&2 "[`date +"%Y-%m-%d %H:%M:%S"`] ${*}"
+  $e >&2 "${*}"
 }
 
 # Check if all required commands exist
@@ -99,8 +99,7 @@ check_depedencies() {
 }
 
 check_install() {
-  echo $1
-  log -n "$2: "
+  log -n "- $2: "
   if `$1` ; then
     echo "ok" >&2
   else
