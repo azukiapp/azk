@@ -76,6 +76,8 @@ brew cask install virtualbox --appdir=/Applications
 
   ```bash
   $ echo 'export PATH="$HOME/.azk/bin:$PATH"' >> ~/.bash_profile
+  # and reload
+  $ source ~/.bash_profile
   ```
 
   **Ubuntu Desktop note**: Modify your `~/.bashrc` instead of `~/.bash_profile`.
