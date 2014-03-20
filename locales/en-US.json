@@ -34,6 +34,9 @@
       "already": "'%s' already exists",
       "generated": "'%s' generated"
     },
+    "kill": {
+      "description": "Kill a azk process by `azk pid`"
+    },
     "provision": {
       "description": "Provision app image",
       "removing": "Removing old image '%s'"
