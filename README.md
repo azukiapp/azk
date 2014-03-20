@@ -5,13 +5,13 @@
 ## Main features
 
 * Provisioning: with custom recipes and scripts
-* Builtin load-balancer
+* Built in load-balancer
 * Monitoring
-* Builtin file sync
+* Built in file sync
 * Automatic start-up (and reload) script
 * Logging
 
-Works on Linux & MacOS (require 64 bit platform)
+Works on Linux & MacOS (require 64 bit platform in both cases)
 
 ## How It Works
 
@@ -45,7 +45,7 @@ The entire process of provisioning and configuring the environment in which the 
 
 ### Requirements
 
-* Linux (x86_64 only) or Mac OS X (Windows: planned)
+* Linux or Mac OS X (require 64 bit platform in both cases) (Windows: planned) 
 * git, curl
 * [VirtualBox][virtualbox_dl], version 4.3.6+ (VMware: planned)
 * Internet connection (for the provisioning process)
@@ -119,16 +119,6 @@ $ azk update
 $ azk agent start
 ```
 
-## Test
-
-Note that running the tests requires you to be with `azk agent` running.
-
-```bash
-$ cd ~/.azk
-$ azk nvm install
-$ make
-```
-
 ## Usage/Features
 
 ```bash
@@ -149,6 +139,16 @@ $ azk service restart azk_id      # Restart specific process
 $ azk service restart all         # Hard Restart all default service proccesses
 $ azk service redis restart       # Restart redis service
 $ azk ps                          # Display all processes status
+```
+
+## Test (for experts only)
+
+Note that running the tests requires you to have `azk agent` running.
+
+```bash
+$ cd ~/.azk
+$ azk nvm npm install
+$ make
 ```
 
 ## License
