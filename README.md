@@ -50,7 +50,15 @@ The entire process of provisioning and configuring the environment in which the 
 * [VirtualBox][virtualbox_dl], version 4.3.6+ (VMware: planned)
 * Internet connection (for the provisioning process)
 
-Use [Homebrew Cask][homebrew_cask]? For VirtualBox, too easy!
+#### Linux
+
+For VirtualBox, too easy!
+
+[Virtual Box Install][virtualbox_dl_linux] 
+
+#### Mac OS X
+
+Use [Homebrew Cask][homebrew_cask]? For VirtualBox, too easier!
 
 ```sh
 brew cask install virtualbox --appdir=/Applications
@@ -155,4 +163,5 @@ Check LEGAL and LICENSE files for more information.
 [debian2docker]: https://github.com/unclejack/debian2docker
 [p9fs]: https://github.com/azukiapp/node-p9fs
 [virtualbox_dl]: http://www.vagrantup.com/downloads.html
+[virtualbox_dl_linux]: https://www.virtualbox.org/wiki/Linux_Downloads
 [homebrew_cask]: https://github.com/phinze/homebrew-cask
