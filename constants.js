@@ -2,9 +2,9 @@
 var p = require('path');
 var utils = require('./lib/utils');
 
-DEFAULT_DATA_PATH = utils.resolve(p.join(process.env.HOME, '.azk', 'data'));
-DEFAULT_PID_PATH  = p.join(DEFAULT_DATA_PATH, 'pids');
-DEFAULT_LOG_PATH  = p.join(DEFAULT_DATA_PATH, 'logs');
+var DEFAULT_DATA_PATH = utils.resolve(p.join(process.env.HOME, '.azk', 'data'));
+var DEFAULT_PID_PATH  = p.join(DEFAULT_DATA_PATH, 'pids');
+var DEFAULT_LOG_PATH  = p.join(DEFAULT_DATA_PATH, 'logs');
 
 var default_conf = {
   MANIFEST            : "azkfile.json",
