@@ -51,8 +51,7 @@
     "printf": "~0.1.2",
     "vboxmanage": "git+https://github.com/nuxlli/node-vboxmanage#master",
     "ssh2": "~0.2.18",
-    "http-proxy": "~1.0.2",
-    "traceur": "0.0.32"
+    "http-proxy": "~1.0.2"
   },
   "devDependencies": {
     "chai": "~1.9.0",
