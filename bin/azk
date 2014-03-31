@@ -11,6 +11,10 @@ export PATH=$AZK_ROOT_PATH/bin:$PATH
 export PATH=$AZK_ROOT_PATH/lib/libexec:$PATH
 export PATH=$AZK_ROOT_PATH/node_modules/.bin:$PATH
 
+# Azk opts
+export AZK_CURRENT_SYSTEM="${AZK_CURRENT_SYSTEM:-`pwd`}"
+[ -n "$AZK_DEBUG" ] && { export NODE_DEBUG="${NODE_DEBUG:---debug-brk}"; }
+
 # Configure NVM and VM
 export NVM_DIR=$DEFAULT_DATA_PATH/nvm
 export VM_DISK_PATH=$DEFAULT_DATA_PATH/vm
@@ -176,7 +180,7 @@ azk_main() {
       ;;
     *)
       check_depedencies
-      node --harmony $AZK_ROOT_PATH/bin/azk.js "${@}"
+      cd $AZK_ROOT_PATH && node $NODE_DEBUG --harmony $AZK_ROOT_PATH/bin/azk.js "${@}"
   esac
 }
 
