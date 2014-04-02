@@ -1,0 +1,105 @@
+/*
+ * Copyright 2043, All Rights Reserved.
+ *
+ * @author Everton Ribeiro <nuxlli@gmail.com>
+ */
+
+'use strict';
+
+module.exports = function(azk) {
+
+  azk.systems({
+    front: {
+      depends: [ "api" ],
+      hostname: "front",
+      alias: [
+        "front.__default__"
+      ],
+      image: { "tag": "abril/rails:3.2.0" },
+      volumes: {
+        ".": "/app"
+      }
+      command: "rails -s mongrel",
+    },
+
+    api: {
+      depends: [ "db" ],
+      //"image": { "tag": "binaryphile/ruby:2.0.0-p247" },
+      build: {
+        image: { tag: "binaryphile/ruby:2.0.0-p247" },
+        steps: [
+          "apt-get update",
+          "apt-get install imagemagick -y",
+        ]
+      }
+      volumes: {
+        ".": "/app"
+      }
+      command: "rackup -S thin -G /app/config.ru"
+      envs: {},
+    },
+
+    worker: {
+      build: { "path": "../worker" }
+      volumes: {
+        "../worker": "/worker"
+      },
+      command: "python worker.py",
+      depends: [ "db", "api" ]
+    },
+
+    db_master: {
+      image: "orchardup/postgresql",
+    },
+
+    db_slave: {
+      image: "orchardup/postgresql",
+      depends: [ "db_master" ]
+    }
+  });
+
+  azk.registerBins("rails-c", ["exec", "-i", "/bin/bash", "-c", "rails c"]);
+};
+
+/*
+$ azk run
+  - db - docker run -p 6379 orchardup/postgresql
+    - 435436:6379
+    -
+  - worker, front
+    - DB_HOST
+    - DB_PORT
+    - DB_URL=
+
+$ azk process front start
+$ azk ps front start
+  # error: front require started db
+
+$ azk ps front exec -i -s /bin/bash
+
+$ azk exec -i # use default
+
+  azk.initConfig({
+    "api": {
+    },
+
+    "front": {
+    }
+
+    "db": {
+    }
+  })
+
+  azk.registerAlias("web", ["api", "front"])
+
+  // $ azk start -s api,front
+  // $ azk exec -s api /bin/bash
+  // $ azk console
+  //
+  azk.registerAlias("rails-c", "exec", "-s api", "-i", "/bin/bash", "-c", "rails c")
+
+  // $azk rails-c
+  // $azk generator bins
+  //
+  // ./bin/rails-c
+*/

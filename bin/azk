@@ -15,6 +15,10 @@ export PATH=$AZK_ROOT_PATH/node_modules/.bin:$PATH
 export AZK_CURRENT_SYSTEM="${AZK_CURRENT_SYSTEM:-`pwd`}"
 [ -n "$AZK_DEBUG" ] && { export NODE_DEBUG="${NODE_DEBUG:---debug-brk}"; }
 
+export NODE_PATH=$AZK_ROOT_PATH
+export NODE_PATH=$AZK_ROOT_PATH/node_modules:$NODE_PATH
+export NODE_PATH=$AZK_ROOT_PATH/build:$NODE_PATH
+
 # Configure NVM and VM
 export NVM_DIR=$DEFAULT_DATA_PATH/nvm
 export VM_DISK_PATH=$DEFAULT_DATA_PATH/vm

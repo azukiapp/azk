@@ -3,3 +3,4 @@
 /node_modules
 /lib/libexec/nvm.sh
 /data
+build/*
