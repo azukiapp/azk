@@ -1,4 +1,5 @@
-import { expect, fixture_path } from 'spec/spec_helper';
+import { join } from 'path';
+import h from 'spec/spec_helper';
 import utils from 'azk/utils';
 
 describe("Azk utils module", function() {
@@ -8,9 +9,14 @@ describe("Azk utils module", function() {
     utils.cd(__dirname, () => {
       other = process.cwd();
     })
-    expect(current).to.not.equal(other);
-    expect(current).to.equal(process.cwd());
-    expect(other).to.equal(__filename);
+    h.expect(current).to.not.equal(other);
+    h.expect(current).to.equal(process.cwd());
+    h.expect(other).to.equal(__dirname);
+  });
+
+  it("should real resolve a path", function() {
+    var result = utils.resolve('./', '../');
+    h.expect(result).to.equal(join(process.cwd(), '..'));
   });
 });
 

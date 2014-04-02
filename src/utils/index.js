@@ -1,16 +1,18 @@
 
-export class Utils {
-  static cd(target, func) {
+import { join } from 'path';
+
+var Utils = {
+  cd(target, func) {
     var old    = process.cwd();
     process.chdir(target);
     var result = func();
     process.chdir(old);
 
     return result;
-  }
+  },
 
-  static resolve(path) {
-    return cd(path, function() {
+  resolve(...path) {
+    return Utils.cd(join(...path), function() {
       return process.cwd();
     });
   }
