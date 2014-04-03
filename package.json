@@ -26,16 +26,19 @@
     "url": "https://github.com/azukiapp/azk/issues"
   },
   "dependencies": {
-    "traceur": "git+https://github.com/google/traceur-compiler#0.0.33",
     "q": "~1.0.1",
-    "parentpath": "^0.2.0"
+    "traceur": "git+https://github.com/google/traceur-compiler#0.0.33",
+    "parentpath": "^0.2.0",
+    "touch": "0.0.3"
   },
   "devDependencies": {
-    "gulp": "~3.6.0",
-    "gulp-mocha": "~0.4.1",
-    "gulp-plumber": "~0.5.6",
-    "gulp-shell": "~0.2.4",
-    "gulp-traceur": "git+https://github.com/nuxlli/gulp-traceur#sourceMap-traceur-0_0_33",
+    "grunt": "^0.4.4",
+    "grunt-cli": "^0.1.13",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-mocha-test": "^0.10.0",
+    "grunt-traceur": "git+https://github.com/nuxlli/grunt-traceur",
+    "grunt-newer": "^0.7.0",
+    "grunt-exec": "^0.4.5",
     "keypress": "~0.2.1",
     "chai": "~1.9.0",
     "mocha": "~1.17.1",
