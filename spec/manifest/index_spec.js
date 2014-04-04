@@ -1,6 +1,8 @@
 import { config } from 'azk';
-import { Manifest } from 'azk/manifest';
+import { Manifest, file_name } from 'azk/manifest';
 import h from 'spec/spec_helper';
+
+var path = require('path');
 
 describe("Azk manifest module", function() {
   it("should return not found manifest", function() {
@@ -10,9 +12,16 @@ describe("Azk manifest module", function() {
   });
 
   describe("dsl spec", function() {
-    it("should require and run a file", function() {
-      var project = h.fixture_path('full_example');
-      console.log(project)
+    var project  = h.fixture_path('full_example');
+
+    it("should find manifest file", function() {
+      var manifest = new Manifest(project);
+      h.expect(manifest).to.have.property('file', path.join(project, file_name));
+    });
+
+    it("should parse manifest file", function() {
+      var manifest = new Manifest(project);
+      h.expect(manifest).to.have.property('systems');
     });
   });
 });
