@@ -1,17 +1,47 @@
 import { sync as parent } from 'parentpath';
-import { cst, config } from 'azk';
-import Utils from 'azk/utils';
+import { cst, config, unders as _ } from 'azk';
 import { runInNewContext } from 'vm';
 import { readFileSync } from 'fs';
+import { System } from 'azk/manifest/system';
+import Utils from 'azk/utils';
 
 var path = require('path');
 var file_name = config('MANIFEST');
+
+var ManifestDsl = {
+  system(name, data) {
+    this.addSystem(name, data);
+  },
+
+  systems(systems) {
+    _.each(systems, (system, name) => {
+      this.addSystem(name, system);
+    });
+  },
+
+  imageAlias(name, image) {
+    this.images[name] = image;
+  },
+
+  setDefault(name) {
+    this.default = name;
+  }
+}
+
+function createDslContext(target) {
+  var context = {};
+  _.each(ManifestDsl, (func, name) => {
+    context[name] = func.bind(target);
+  });
+  return context;
+}
 
 export class Manifest {
   constructor(cwd) {
     this.file    = Manifest.find_manifest(cwd);
     this.images  = {};
     this.systems = {};
+    this.default = null;
 
     if (this.file) {
       this.parse();
@@ -20,19 +50,23 @@ export class Manifest {
 
   parse() {
     var content = readFileSync(this.file);
-
-    runInNewContext(content, {
-      systems: this.system.bind(this),
-      imageAlias: this.imageAlias.bind(this),
-    }, this.file);
+    runInNewContext(content, createDslContext(this), this.file);
   }
 
-  system(name, data) {
+  addSystem(name, data) {
+    if (!(data instanceof System)) {
+      data = new System(data);
+    }
+
     this.systems[name] = data;
   }
 
-  imageAlias(name, image) {
-    this.images[name] = image;
+  system(name) {
+    return this.systems[name];
+  }
+
+  get systemDefault() {
+    return this.system(this.default);
   }
 
   static find_manifest(target) {
@@ -43,4 +77,4 @@ export class Manifest {
   }
 }
 
-export { file_name };
+export { file_name, System };

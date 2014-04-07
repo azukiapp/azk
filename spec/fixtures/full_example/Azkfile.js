@@ -65,7 +65,11 @@ systems({
   }
 });
 
-//setDefault("front");
+system("db", {
+  image: "orchardup/redis"
+});
+
+setDefault("front");
 //registerBin("rails-c", ["exec", "-i", "/bin/bash", "-c", "rails c"]);
 
 /*
