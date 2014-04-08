@@ -30,7 +30,9 @@
     "traceur": "git+https://github.com/google/traceur-compiler#0.0.33",
     "parentpath": "^0.2.0",
     "touch": "0.0.3",
-    "underscore": "^1.6.0"
+    "underscore": "^1.6.0",
+    "docker-modem": "^0.1.12",
+    "dockerode": "^1.2.9"
   },
   "devDependencies": {
     "grunt": "^0.4.4",
