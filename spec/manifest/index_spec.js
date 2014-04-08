@@ -4,7 +4,7 @@ import h from 'spec/spec_helper';
 
 var path = require('path');
 
-describe("Azk manifest module", function() {
+describe("Azk manifest class", function() {
   it("should return not found manifest", function() {
     return h.tmp_dir({ prefix: "azk-" }).then(function(dir) {
       h.expect(Manifest.find_manifest(dir)).to.equal(null);

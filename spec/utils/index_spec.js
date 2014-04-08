@@ -1,6 +1,7 @@
 import { join } from 'path';
 import h from 'spec/spec_helper';
 import utils from 'azk/utils';
+import { Q } from 'azk/utils';
 
 describe("Azk utils module", function() {
   it("should run function in cwd", function() {
@@ -17,6 +18,42 @@ describe("Azk utils module", function() {
   it("should real resolve a path", function() {
     var result = utils.resolve('./', '../');
     h.expect(result).to.equal(join(process.cwd(), '..'));
+  });
+
+  describe("in a class with async method", function() {
+    class FooBar {
+      constructor(name) { this.name = name };
+      getAsyncName(callback) {
+        setImmediate( () => {
+          if (this.name)
+            callback(null, this.name);
+          else
+            callback(new Error());
+        });
+      }
+    }
+
+    var OtherBar = utils.qify(FooBar);
+
+    it("should not qify a original class", function(done) {
+      var a = new FooBar('aname');
+      h.expect(a.getAsyncName(function(err, name) {
+        h.expect(err).not.exist;
+        h.expect(name).to.equal('aname');
+        done();
+      })).not.exist;
+    });
+
+    it("should qify a class methods", function() {
+      var b = new OtherBar('bname');
+      var c = new OtherBar('cname');
+
+      return Q.all([
+        b.getAsyncName(), c.getAsyncName()
+      ]).then((results) => {
+        h.expect(results).to.eql(['bname', 'cname']);
+      })
+    });
   });
 });
 
