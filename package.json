@@ -50,6 +50,7 @@
     "chai-things": "~0.2.0",
     "tmp": "0.0.23",
     "source-map-support": "~0.2.5",
-    "node-inspector": "~0.7.2"
+    "node-inspector": "~0.7.2",
+    "memorystream": "^0.2.0"
   }
 }
