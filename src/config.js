@@ -1,4 +1,4 @@
-import { _ } from 'azk/utils';
+import { _, resolve } from 'azk/utils';
 var path = require('path');
 var deepExtend = require('deep-extend');
 
@@ -19,6 +19,7 @@ function merge(options) {
 var options = merge({
   '*': {
     manifest        : "Azkfile.js",
+    locale          : 'en-US',
     docker          : {
       host          : docker_host,
       namespace     : 'azk',

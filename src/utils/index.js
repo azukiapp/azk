@@ -42,4 +42,5 @@ var Utils = {
 };
 
 export default Utils;
+export { i18n } from 'azk/utils/i18n';
 export { Q, _ };

@@ -34,7 +34,8 @@
     "docker-modem": "^0.1.12",
     "dockerode": "^1.2.9",
     "node-uuid": "^1.4.1",
-    "deep-extend": "^0.2.8"
+    "deep-extend": "^0.2.8",
+    "printf": "^0.2.0"
   },
   "devDependencies": {
     "grunt": "^0.4.4",
