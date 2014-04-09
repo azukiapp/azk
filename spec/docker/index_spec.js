@@ -23,14 +23,35 @@ describe("Azk docker client", function() {
       .and.is.an("String");
   });
 
-  it("should get and inspect image by name", function() {
-    var image = docker.findImage(default_img);
-    return h.expect(image).to.eventually.has.property("name", default_img);
-  });
+  describe("finders", function() {
+    it("should get and inspect image by name", function() {
+      var image = docker.findImage(default_img);
+      return h.expect(image).to.eventually.has.property("name", default_img);
+    });
 
-  it("should get and return null if not exist image", function() {
-    return h.expect(docker.findImage("not_exist")).
-      to.eventually.not.exist;
+    it("should get and return null if not exist image", function() {
+      return h.expect(docker.findImage("not_exist"))
+        .to.eventually.not.exist;
+    });
+
+    it("should get and inspect a container by id", function() {
+      var result = docker.run(default_img,
+        ["/bin/bash", "-c", "exit" ],
+        { }
+      );
+
+      return result.then((container) => {
+        var id = container.id;
+        return docker.findContainer(id).then((container) => {
+          h.expect(container).to.have.property('id', id);
+        });
+      });
+    });
+
+    it("should get and return null if not exist container", function() {
+      return h.expect(docker.findContainer("not_exist"))
+        .to.eventually.not.exist;
+    });
   });
 
   describe("run", function() {

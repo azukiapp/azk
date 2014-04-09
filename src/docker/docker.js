@@ -38,16 +38,23 @@ export class Docker extends Utils.qify('dockerode') {
     return new Container(this.modem, id);
   }
 
+  __findObj(obj) {
+    return obj.inspect().then(
+      (_data) => { return obj; },
+      (err  ) => {
+        if (err.statusCode == 404)
+          return null;
+        throw err;
+      }
+    );
+  }
+
   findImage(name) {
-    return this.getImage(name).inspect()
-      .then(
-        (_data) => { return this.getImage(name); },
-        (err  ) => {
-          if (err.statusCode == 404)
-            return null;
-          throw err;
-        }
-      );
+    return this.__findObj(this.getImage(name));
+  }
+
+  findContainer(id) {
+    return this.__findObj(this.getContainer(id));
   }
 
   run(image, cmd, opts = { }) {
