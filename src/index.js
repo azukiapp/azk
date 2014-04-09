@@ -14,6 +14,6 @@ function pp(...args) {
 // Default i18n method
 var t = new i18n({ locale: config('locale') }).t;
 
-export { pp };
+export { pp, t };
 export { Q, _ as unders, _, config };
 export default Azk;

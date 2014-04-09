@@ -23,12 +23,15 @@ var options = merge({
     docker          : {
       host          : docker_host,
       namespace     : 'azk',
+      repository    : 'azk',
       image_default : 'racker/precise-with-updates:latest',
     }
   },
   test: {
     docker: {
-      namespace: 'azk.test'
+      namespace   : 'azk.test',
+      repository  : 'azk-test',
+      image_empty : 'cevich/empty_base_image',
     }
   }
 });
