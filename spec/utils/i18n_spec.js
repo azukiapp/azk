@@ -25,7 +25,7 @@ describe("Azk i18n module", function() {
 
   it("should support a load dictionary", function() {
     var i = new i18n({ locale: 'en-US' });
-    h.expect(i.t("i18n_test")).to.equal(
+    h.expect(i.t("test.i18n_test")).to.equal(
       "test i18n module"
     );
   });
