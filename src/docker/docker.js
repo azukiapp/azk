@@ -7,7 +7,7 @@ export class Image extends Utils.qify('dockerode/lib/image') {}
 
 export class Container extends Utils.qify('dockerode/lib/container') {
   static generateName(ns) {
-    return `${config('DOCKER_NS_NAME')}.${ns}.${uuid.v1().replace(/-/g, "")}`;
+    return `${config('docker:namespace')}.${ns}.${uuid.v1().replace(/-/g, "")}`;
   }
 }
 

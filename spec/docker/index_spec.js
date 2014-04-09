@@ -2,9 +2,11 @@ import { Q, config } from 'azk';
 import docker from 'azk/docker';
 import h from 'spec/spec_helper';
 
+var default_img = config('docker:image_default');
+var namespace = config('docker:namespace');
+
 describe("Azk docker client", function() {
   this.timeout(20000);
-  var default_img = config('DOCKER_DEFAULT_IMG')
 
   it("should use constants options", function() {
     return h.expect(docker.info())
@@ -153,7 +155,7 @@ describe("Azk docker client", function() {
 
     it("should support create with a name", function() {
       return Q.async(function* () {
-        var name = "/azk-test-cont-name";
+        var name = `/${namespace}.azk-test-cont-name`;
         var cmd  = ["/bin/true"];
         var opts = { name: name, rm: false, stdout: mocks.stdout };
         var cont = yield docker.run(default_img, cmd, opts);
@@ -170,7 +172,7 @@ describe("Azk docker client", function() {
         var cont = yield docker.run(default_img, cmd, opts);
         var data = yield cont.inspect();
 
-        var name = RegExp(config('DOCKER_NS_NAME') + ".run.[0-9a-f]+");
+        var name = RegExp(namespace + ".run.[0-9a-f]+");
         h.expect(data).to.have.property('Name').and.match(name);
       })();
     });

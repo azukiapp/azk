@@ -6,7 +6,7 @@ import { System } from 'azk/manifest/system';
 import Utils from 'azk/utils';
 
 var path = require('path');
-var file_name = config('MANIFEST');
+var file_name = config('manifest');
 
 var ManifestDsl = {
   system(name, data) {

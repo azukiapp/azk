@@ -6,7 +6,7 @@ var url  = require('url');
 module.exports = {
   get default() {
     if (!this.connect) {
-      var opts = url.parse(config('DOCKER_HOST'));
+      var opts = url.parse(config('docker:host'));
       this.connect = new Docker({
         host: 'http://' + opts.hostname,
         port: opts.port,

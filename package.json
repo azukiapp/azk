@@ -33,7 +33,8 @@
     "underscore": "^1.6.0",
     "docker-modem": "^0.1.12",
     "dockerode": "^1.2.9",
-    "node-uuid": "^1.4.1"
+    "node-uuid": "^1.4.1",
+    "deep-extend": "^0.2.8"
   },
   "devDependencies": {
     "grunt": "^0.4.4",
