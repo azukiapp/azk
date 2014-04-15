@@ -35,7 +35,8 @@
     "dockerode": "^1.2.9",
     "node-uuid": "^1.4.1",
     "deep-extend": "^0.2.8",
-    "printf": "^0.2.0"
+    "printf": "^0.2.0",
+    "xregexp": "^2.0.0"
   },
   "devDependencies": {
     "grunt": "^0.4.4",
@@ -50,7 +51,7 @@
     "mocha": "~1.17.1",
     "mocha-as-promised": "~2.0.0",
     "chai-as-promised": "~4.1.0",
-    "chai-things": "~0.2.0",
+    "chai-things": "^0.2.0",
     "tmp": "0.0.23",
     "source-map-support": "~0.2.5",
     "node-inspector": "~0.7.2",
