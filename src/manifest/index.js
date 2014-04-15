@@ -19,7 +19,7 @@ var ManifestDsl = {
     });
   },
 
-  imageAlias(name, image) {
+  addImage(name, image) {
     this.images[name] = image;
   },
 

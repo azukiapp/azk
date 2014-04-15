@@ -3,7 +3,13 @@
  */
 
 // Global image to reuse
-imageAlias('base', { repository: "azukiapp/rails" });
+addImage('base', { repository: "cevich/empty_base_image" }); // tag: latest
+addImage('base:0.0.1', "cevich/empty_base_image:latest");    // Alias
+addImage('base:0.0.2', { Dockerfile: "." });                 // From Dockerfile
+addImage('base:0.0.3', { from: "base:0.0.1", steps: [
+  ["add", "./bin/script", "/script"],
+  ["run", "chmod +x /script"],
+]}); // Inline build
 
 systems({
   front: {
@@ -31,6 +37,7 @@ systems({
   api: {
     depends: [ "db_slave" ],
     image: {
+      // Autoname: [project_id]/[projec_folder]/api
       // Don't use direct docker image, build one from a Dockerfile
       Dockerfile: "./api"
     },
