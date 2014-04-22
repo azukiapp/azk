@@ -36,6 +36,7 @@ var default_conf = {
   VM_NAME             : 'azk-agent',
   VM_SSH_MAP_PORT     : 5622,
   VM_USER             : "docker",
+  VM_PASSWORD         : "live",
   VM_BLANK_DISK       : p.join(DEFAULT_DATA_PATH, "vm", "azk-agent.vmdk.bz"),
   VM_BOOT_DISK        : p.join(DEFAULT_DATA_PATH, "vm", "debian2docker.iso"),
   VM_DATA_DISK        : p.join(DEFAULT_DATA_PATH, "vm", "azk-agent.vmdk"),
