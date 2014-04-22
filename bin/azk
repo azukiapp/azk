@@ -24,7 +24,7 @@ export NVM_DIR=$DEFAULT_DATA_PATH/nvm
 export VM_DISK_PATH=$DEFAULT_DATA_PATH/vm
 
 # local
-node_version=v0.10.26
+node_version="${NODE_VERSION:-v0.10.26}"
 libexec_deps=$AZK_ROOT_PATH/lib/libexec
 git_raw=https://raw2.github.com
 nvm_url=$git_raw/creationix/nvm/master/nvm.sh
