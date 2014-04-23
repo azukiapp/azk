@@ -36,7 +36,8 @@
     "node-uuid": "^1.4.1",
     "deep-extend": "^0.2.8",
     "printf": "^0.2.0",
-    "xregexp": "^2.0.0"
+    "xregexp": "^2.0.0",
+    "glob": "^3.2.9"
   },
   "devDependencies": {
     "grunt": "^0.4.4",
