@@ -17,3 +17,24 @@ export class ProvisionPullError extends Error {
     this.message = `Error in pull docker imagem: ${image}, msg: ${msg}`;
   }
 }
+
+export class InvalidOptionError extends Error {
+  constructor(option) {
+    this.message = `Invalid argument option: ${option}`;
+  }
+}
+
+export class InvalidValueError extends InvalidOptionError {
+  constructor(option, value) {
+    this.option  = option;
+    this.value   = value;
+    this.message = `Invalid value: ${value} in option ${option}`;
+  }
+}
+
+export class RequiredOptionError extends Error {
+  constructor(option) {
+    this.option  = option;
+    this.message = `Option ${option} is required`;
+  }
+}
