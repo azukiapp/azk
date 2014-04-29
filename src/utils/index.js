@@ -20,6 +20,10 @@ var Utils = {
     });
   },
 
+  netCalcIp(ip) {
+    return ip.replace(/^(.*)\..*$/, "$1.1");
+  },
+
   qify(klass) {
     if (_.isString(klass))
       klass = require(klass);
@@ -38,6 +42,19 @@ var Utils = {
     });
 
     return newClass;
+  },
+
+  qifyModule(mod) {
+    var newMod = _.clone(mod);
+
+    _.each(_.methods(mod), (method) => {
+      var original = mod[method];
+      newMod[method] = function(...args) {
+        return Q.nbind(original, this)(...args);
+      };
+    });
+
+    return newMod;
   }
 };
 

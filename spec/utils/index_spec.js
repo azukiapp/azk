@@ -55,5 +55,28 @@ describe("azk utils module", function() {
       })
     });
   });
+
+  describe("in a module with async functions", function() {
+    var mod = {
+      getAsyncName(name, callback) {
+        setImmediate( () => {
+            callback(null, name);
+        });
+      }
+    }
+    var a = utils.qifyModule(mod);
+
+    it("should qify a methods", function() {
+      return h.expect(a.getAsyncName('name')).to.eventually.equal('name');
+    });
+
+    it("should not change original method", function(done) {
+      mod.getAsyncName('oname', function(err, name) {
+        h.expect(err).to.not.exist;
+        h.expect(name).to.equal('oname');
+        done();
+      });
+    });
+  });
 });
 
