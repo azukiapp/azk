@@ -27,20 +27,22 @@ function merge(options) {
 
 var options = merge({
   '*': {
-    azk_root        : azk_root,
-    manifest        : "Azkfile.js",
-    locale          : 'en-US',
-    paths           : {
-      data          : data_path,
+    azk_root: azk_root,
+    manifest: "Azkfile.js",
+    locale  : 'en-US',
+    paths   : {
+      data  : data_path,
     },
-    docker          : {
+    docker  : {
       host          : docker_host,
       namespace     : 'azk',
       repository    : 'azk',
       image_default : 'racker/precise-with-updates:latest',
     },
-    agent : {
-      vm  : {
+    agent: {
+      vm: {
+        name      : "azk-agent",
+        ssh_port  : 2222,
         boot_disk : path.join(data_path, "vm", "debian2docker.iso"),
         data_disk : path.join(data_path, "vm", "azk-agent.vmdk"),
         blank_disk: path.join(data_path, "vm", "azk-agent.vmdk.bz"),
@@ -52,6 +54,13 @@ var options = merge({
       namespace   : 'azk.test',
       repository  : 'azk-test',
       image_empty : 'cevich/empty_base_image',
+    },
+    agent: {
+      vm: {
+        name : "azk-agent-test",
+        ssh_port  : 2223,
+        data_disk : path.join(data_path, "vm", "azk-agent-test.vmdk"),
+      }
     }
   }
 });

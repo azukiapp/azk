@@ -9,13 +9,13 @@ var vbm  = require('vboxmanage');
 var qfs  = require('q-io/fs');
 var exec = Q.nbind(vbm.command.exec, vbm.command);
 
-describe.only("Azk agent vm", function() {
+describe("Azk agent vm", function() {
   var opts   = {
-    name    : "azk-agent-test",
+    name    : config("agent:vm:name"),
     ip      : "192.168.51.4",
-    ssh_port: 2222,
+    ssh_port: config("agent:vm:ssh_port"),
     boot    : config("agent:vm:boot_disk"),
-    data    : path.join(config("paths:data"), "vm", "test-disk.vmdk"),
+    data    : config("agent:vm:data_disk"),
   };
 
   // Setups
