@@ -1,7 +1,9 @@
 
 import { join } from 'path';
-var Q = require('q');
-var _ = require('underscore');
+var Q    = require('q');
+var _    = require('underscore');
+var fs   = require('fs');
+var zlib = require('zlib');
 
 var Utils = {
   cd(target, func) {
@@ -18,6 +20,15 @@ var Utils = {
     return Utils.cd(join(...path), function() {
       return process.cwd();
     });
+  },
+
+  defer(func) {
+    var done   = Q.defer();
+    var result = func(done);
+    if (Q.isPromise(result)) {
+      result.progress(done.notify).then(done.resolve, done.reject);
+    }
+    return done.promise;
   },
 
   netCalcIp(ip) {
@@ -55,9 +66,24 @@ var Utils = {
     });
 
     return newMod;
+  },
+
+  unzip(origin, target) {
+    return Utils.defer((done) => {
+      try {
+        var input  = fs.createReadStream(origin);
+        var output = fs.createWriteStream(target);
+
+        output.on("close", () => done.resolve());
+        input.pipe(zlib.createGunzip()).pipe(output);
+      } catch (err) {
+        done.reject(err);
+      }
+    });
   }
 };
 
+var defer = Utils.defer;
 export default Utils;
 export { i18n } from 'azk/utils/i18n';
-export { Q, _ };
+export { Q, _, defer };

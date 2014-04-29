@@ -1,35 +1,14 @@
 import { _, Q, config } from 'azk';
 import Utils from 'azk/utils';
 
-var zlib = require('zlib');
 var vbm  = require('vboxmanage');
 var qfs  = require('q-io/fs');
 var os   = require('os');
-var fs   = require('fs');
 
 var machine  = Utils.qifyModule(vbm.machine );
 var instance = Utils.qifyModule(vbm.instance);
 var hostonly = Utils.qifyModule(vbm.hostonly);
 var dhcp     = Utils.qifyModule(vbm.dhcp    );
-
-function unzip(origin, target) {
-  var done  = Q.defer();
-
-  try {
-    var input  = fs.createReadStream(origin);
-    var output = fs.createWriteStream(target);
-
-    output.on("close", function() {
-      done.resolve();
-    });
-
-    input.pipe(zlib.createGunzip()).pipe(output);
-  } catch (err) {
-    done.reject(err);
-  }
-
-  return done.promise;
-}
 
 var _exec = Q.nbind(vbm.command.exec, vbm.command);
 function exec(...args) {
@@ -130,7 +109,7 @@ function conf_disks(name, boot, data) {
   return Q.async(function* () {
     if (!(yield qfs.exists(data))) {
       var file = data + ".tmp";
-      yield unzip(config("agent:vm:blank_disk"), file);
+      yield Utils.unzip(config("agent:vm:blank_disk"), file);
       yield hdds.clonehd(file, data);
     }
 
