@@ -2,6 +2,11 @@ import { _, resolve } from 'azk/utils';
 var path = require('path');
 var deepExtend = require('deep-extend');
 
+// Root path
+var azk_root =
+  process.env.AZK_ROOT_PATH ||
+  path.join('..', '..');
+
 // Docker opts
 var docker_host =
   process.env.AZK_DOCKER_HOST ||
@@ -18,6 +23,7 @@ function merge(options) {
 
 var options = merge({
   '*': {
+    azk_root        : azk_root,
     manifest        : "Azkfile.js",
     locale          : 'en-US',
     docker          : {
