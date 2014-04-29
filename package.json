@@ -37,7 +37,9 @@
     "deep-extend": "^0.2.8",
     "printf": "^0.2.0",
     "xregexp": "^2.0.0",
-    "glob": "^3.2.9"
+    "glob": "^3.2.9",
+    "vboxmanage": "0.0.15",
+    "q-io": "^1.11.0"
   },
   "devDependencies": {
     "grunt": "^0.4.4",

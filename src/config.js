@@ -7,6 +7,10 @@ var azk_root =
   process.env.AZK_ROOT_PATH ||
   path.join('..', '..');
 
+var data_path =
+  process.env.AZK_DATA_PATH ||
+  path.join(process.env.HOME, '.azk', 'data');
+
 // Docker opts
 var docker_host =
   process.env.AZK_DOCKER_HOST ||
@@ -26,11 +30,21 @@ var options = merge({
     azk_root        : azk_root,
     manifest        : "Azkfile.js",
     locale          : 'en-US',
+    paths           : {
+      data          : data_path,
+    },
     docker          : {
       host          : docker_host,
       namespace     : 'azk',
       repository    : 'azk',
       image_default : 'racker/precise-with-updates:latest',
+    },
+    agent : {
+      vm  : {
+        boot_disk : path.join(data_path, "vm", "debian2docker.iso"),
+        data_disk : path.join(data_path, "vm", "azk-agent.vmdk"),
+        blank_disk: path.join(data_path, "vm", "azk-agent.vmdk.bz"),
+      }
     }
   },
   test: {
