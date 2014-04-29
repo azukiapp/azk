@@ -1,65 +1,10 @@
 import { _ } from 'azk';
-import { sync as glob } from 'glob';
-import {
-  InvalidOptionError,
-  InvalidValueError,
-  RequiredOptionError
-} from 'azk/utils/errors';
+import { InvalidOptionError, RequiredOptionError } from 'azk/utils/errors';
+import { Option } from 'azk/cli/option';
 
-var path = require('path');
-var boolean_opts = ['1', '0', 'false', 'true', false, true];
-
-class Option {
-  constructor(opts) {
-    this.name     = opts.name;
-    this.desc     = opts.desc;
-    this.alias    = opts.alias;
-    this._type    = opts.type;
-    this.required = opts.required;
-    this.options  = opts.options;
-    this.stop     = opts.stop;
-
-    if (_.has(opts, 'default'))
-      this._default = opts.default;
-  }
-
-  get default() {
-    return _.has(this, '_default') ? this._default : (
-      this.type == Boolean ? true : null
-    )
-  }
-
-  set default(value) {
-    this._default = value;
-  }
-
-  set type(value) {
-    this._type = value;
-  }
-
-  get type() {
-    return this._type || (_.isArray(this.options) ? String : Boolean);
-  }
-
-  processValue(value) {
-    switch(this.type) {
-      case String:
-        if (_.isArray(this.options) && !_.contains(this.options, value)) {
-          throw new InvalidValueError(this.name, value);
-        }
-        return value;
-      case Number:
-        return value.match(/^-?[\d|.|,]*$/) ? Number(value) : null;
-      default:
-        if (!_.contains(boolean_opts, value))
-          throw new InvalidValueError(this.name, value);
-        return (value == "true" || value == 1) ? true : false;
-    }
-  }
-}
-
+export { Option };
 export class Command {
-  constructor(name, user_interface, cmds_cwd) {
+  constructor(name, user_interface) {
     this.stackable = [];
     this.commands  = {};
     this.options   = {};
@@ -71,11 +16,6 @@ export class Command {
       this.parent.addCmd(this);
     } else {
       this.__user_interface = user_interface;
-    }
-
-    // Load sub-commands
-    if (cmds_cwd) {
-      this.__load_cmds(cmds_cwd);
     }
   }
 
@@ -91,24 +31,6 @@ export class Command {
     });
 
     return name;
-  }
-
-  __load_cmds(cwd) {
-    var cmds = glob("*.js", { cwd: cwd });
-    _.each(cmds, (cmd) => {
-      require(path.join(cwd, cmd)).init(this);
-    });
-  }
-
-  // External options
-  addCmd(cmd) {
-    var opt = _.find(this.stackable, (opt) => { return opt.name == 'command' });
-    if (!opt) {
-      opt = new Option({ name: 'command', type: String, require: true, options: [], stop: true });
-      this.stackable.push(opt);
-    }
-    opt.options.push(cmd.name);
-    this.commands[cmd.name] = cmd;
   }
 
   addOption(alias, options) {
@@ -201,15 +123,12 @@ export class Command {
     })
   }
 
-  run(args, opts = null) {
+  run(args = [], opts = null) {
     this.action(this.parse(args), opts);
   }
 
-  action(opts, parent_opts) {
-    var cmd = this.commands[opts.command];
-    if (cmd && cmd instanceof Command) {
-      cmd.run(_.clone(opts.__leftover), opts);
-    }
+  action() {
+    throw new Error("Don't use Command directly, implemente the action.");
   }
 
   // Outputs and debugs
