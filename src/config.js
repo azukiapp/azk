@@ -40,9 +40,9 @@ var options = merge({
       image_default : 'racker/precise-with-updates:latest',
     },
     agent: {
+      portrange_start: 11000,
       vm: {
         name      : "azk-agent",
-        ssh_port  : 2222,
         boot_disk : path.join(data_path, "vm", "debian2docker.iso"),
         data_disk : path.join(data_path, "vm", "azk-agent.vmdk"),
         blank_disk: path.join(data_path, "vm", "azk-agent.vmdk.bz"),

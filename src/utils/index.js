@@ -1,11 +1,18 @@
-
 import { join } from 'path';
+import { i18n } from 'azk/utils/i18n';
+
 var Q    = require('q');
 var _    = require('underscore');
 var fs   = require('fs');
 var zlib = require('zlib');
 
 var Utils = {
+  get default() { return Utils },
+  get i18n()    { return i18n; },
+  get Q()       { return Q; },
+  get _()       { return _; },
+  get net()     { return require('azk/utils/net').default },
+
   cd(target, func) {
     var result, old = process.cwd();
 
@@ -29,10 +36,6 @@ var Utils = {
       result.progress(done.notify).then(done.resolve, done.reject);
     }
     return done.promise;
-  },
-
-  netCalcIp(ip) {
-    return ip.replace(/^(.*)\..*$/, "$1.1");
   },
 
   qify(klass) {
@@ -83,7 +86,11 @@ var Utils = {
   }
 };
 
-var defer = Utils.defer;
-export default Utils;
-export { i18n } from 'azk/utils/i18n';
-export { Q, _, defer };
+module.exports = Utils;
+
+//module.exports = {
+//};
+
+//_.each(_.methods(Utils), (method) => {
+  //module.exports[method] = Utils[method];
+//});

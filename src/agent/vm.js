@@ -68,13 +68,14 @@ function conf_networking(name, ip, ssh_port) {
       "--hostonlyadapter1", inter
     ]);
 
+    console.log(ssh_port);
     yield modifyvm(name, [
       "--nic2", "nat",
       "--cableconnected2", "on",
       "--natpf2", "ssh,tcp,127.0.0.1," + ssh_port + ",,22"
     ]);
 
-    var net_ip   = Utils.netCalcIp(ip);
+    var net_ip   = Utils.net.calculateNetIp(ip);
     var net_mask = "255.255.255.0";
     yield hostonly.configure_if(inter, net_ip, net_mask);
   })();
@@ -153,8 +154,9 @@ var vm = {
           cmd.push('--vtxux', 'on');
         }
 
+        var ssh_port = yield Utils.net.getPort();
         yield modifyvm(name, cmd);
-        yield conf_networking(name, opts.ip, opts.ssh_port);
+        yield conf_networking(name, opts.ip, ssh_port);
         yield conf_disks(name, opts.boot, opts.data);
 
         return yield vm.info(name);
