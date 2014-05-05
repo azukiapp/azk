@@ -1,9 +1,10 @@
 import { _ } from 'azk';
 import { InvalidOptionError, RequiredOptionError } from 'azk/utils/errors';
 import { Option } from 'azk/cli/option';
+import { UIProxy, UI } from 'azk/cli/ui';
 
-export { Option };
-export class Command {
+export { Option, UI };
+export class Command extends UIProxy {
   constructor(name, user_interface) {
     this.stackable = [];
     this.commands  = {};
@@ -11,13 +12,13 @@ export class Command {
     this.name      = this.__parse_name(name);
 
     // Parent or interface
-    if (user_interface instanceof Command) {
-      this.parent = user_interface;
-      this.parent.addCmd(this);
-    } else {
-      this.__user_interface = user_interface;
+    super(user_interface);
+    if (this.parent) {
+      this.parent.initChildren(this);
     }
   }
+
+  initChildren(parent) { }
 
   __parse_name(name) {
     var names = name.split(' ');
@@ -124,19 +125,10 @@ export class Command {
   }
 
   run(args = [], opts = null) {
-    this.action(this.parse(args), opts);
+    return this.action(this.parse(args), opts);
   }
 
   action() {
     throw new Error("Don't use Command directly, implemente the action.");
-  }
-
-  // Outputs and debugs
-  get userInterface() {
-    return this.parent ? this.parent.userInterface : this.__user_interface;
-  }
-
-  dir(...data) {
-    this.userInterface.dir(...data);
   }
 }

@@ -15,6 +15,10 @@ export class Cli extends Command {
     }
   }
 
+  initChildren(children) {
+    this.addCmd(children);
+  }
+
   __load_cmds(cwd) {
     var cmds = glob("*.js", { cwd: cwd });
     _.each(cmds, (cmd) => {
@@ -38,7 +42,7 @@ export class Cli extends Command {
   action(opts, parent_opts) {
     var cmd = this.commands[opts.command];
     if (cmd && cmd instanceof Command) {
-      cmd.run(_.clone(opts.__leftover), opts);
+      return cmd.run(_.clone(opts.__leftover), opts);
     }
   }
 }

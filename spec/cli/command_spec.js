@@ -12,6 +12,7 @@ describe('Azk cli command module', function() {
   beforeEach(() => outputs = []);
 
   var UI = {
+    isUI: true,
     dir(...args) {
       outputs.push(...args);
     }
