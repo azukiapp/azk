@@ -11,11 +11,14 @@ var data_path =
   process.env.AZK_DATA_PATH ||
   path.join(process.env.HOME, '.azk', 'data');
 
+// Use virtual machine
+var requires_vm = process.platform == 'linux' ?
+  (process.env.AZK_USE_VM || false) : true;
+
 // Docker opts
 var docker_host =
-  process.env.AZK_DOCKER_HOST ||
-  process.env.DOCKER_HOST     ||
-  "http://azk-agent:4243";
+  process.env.AZK_DOCKER_HOST || process.env.DOCKER_HOST ||
+  (requires_vm ? "http://azk-agent:4243" : "unix:///var/run/docker.sock");
 
 function merge(options) {
   _.each(options, (values, key) => {
@@ -30,6 +33,7 @@ var options = merge({
     azk_root: azk_root,
     manifest: "Azkfile.js",
     locale  : 'en-US',
+    requires_vm: requires_vm,
     paths   : {
       data  : data_path,
     },

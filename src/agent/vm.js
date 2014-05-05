@@ -71,6 +71,7 @@ function conf_networking(name, ip, ssh_port) {
 
     yield modifyvm(name, [
       "--nic2", "nat",
+      "--nictype2", "virtio",
       "--cableconnected2", "on",
       "--natpf2", "ssh,tcp,127.0.0.1," + ssh_port + ",,22"
     ]);

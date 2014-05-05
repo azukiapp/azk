@@ -7,10 +7,16 @@ module.exports = {
   get default() {
     if (!this.connect) {
       var opts = url.parse(config('docker:host'));
-      this.connect = new Docker({
-        host: 'http://' + opts.hostname,
-        port: opts.port,
-      });
+
+      if (opts.protocol == 'unix:') {
+        opts = { socketPath: opts.pathname }
+      } else {
+        opts = {
+          host: 'http://' + opts.hostname,
+          port: opts.port,
+        }
+      }
+      this.connect = new Docker(opts);
     }
     return this.connect;
   },
