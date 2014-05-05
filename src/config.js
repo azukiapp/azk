@@ -43,6 +43,8 @@ var options = merge({
       portrange_start: 11000,
       vm: {
         name      : "azk-agent",
+        user      : "docker",
+        password  : "live",
         boot_disk : path.join(data_path, "vm", "debian2docker.iso"),
         data_disk : path.join(data_path, "vm", "azk-agent.vmdk"),
         blank_disk: path.join(data_path, "vm", "azk-agent.vmdk.bz"),
@@ -57,9 +59,7 @@ var options = merge({
     },
     agent: {
       vm: {
-        name : "azk-agent-test",
-        ssh_port  : 2223,
-        data_disk : path.join(data_path, "vm", "azk-agent-test.vmdk"),
+        data_disk : path.join(data_path, "vm", "azk-agent-spec.vmdk"),
       }
     }
   }

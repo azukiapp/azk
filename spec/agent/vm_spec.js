@@ -10,12 +10,15 @@ var vbm  = require('vboxmanage');
 var qfs  = require('q-io/fs');
 var exec = Q.nbind(vbm.command.exec, vbm.command);
 
-describe.only("Azk agent vm", function() {
-  var opts   = {
-    name    : config("agent:vm:name"),
-    ip      : "192.168.51.4",
-    boot    : config("agent:vm:boot_disk"),
-    data    : config("agent:vm:data_disk"),
+describe("Azk agent vm", function() {
+  var data_path = config("agent:vm:data_disk");
+  var data_test = path.join(path.dirname(data_path), "test-" + path.basename(data_path));
+
+  var opts = {
+    name: "test-" + config("agent:vm:name"),
+    ip  : "192.168.51.4",
+    boot: config("agent:vm:boot_disk"),
+    data: data_test,
   };
 
   // Setups
@@ -41,7 +44,7 @@ describe.only("Azk agent vm", function() {
 
   // Tests
   it("should return installed", function() {
-    return h.expect(VM.is_installed(opts.name)).to.eventually.fail
+    return h.expect(VM.isInstalled(opts.name)).to.eventually.fail
   });
 
   describe("with have a vm", function() {
@@ -67,14 +70,11 @@ describe.only("Azk agent vm", function() {
 
       h.expect(info).has.property("nic2", "nat");
       h.expect(info).has.property("cableconnected2", true);
-
-      console.dir(info);
     });
 
     it("should forwarding ssh port", function() {
-      var port = info['Forwarding(0)'].replace(/ssh,tcp,127.0.0.1,(.*),,22/, '$1');
       var portrange = config("agent:portrange_start");
-      h.expect(port).to.above(portrange - 1);
+      h.expect(info.ssh_port).to.above(portrange - 1);
     });
 
     it("should connect boot and data disks", function() {
@@ -86,44 +86,43 @@ describe.only("Azk agent vm", function() {
       return Q.async(function* () {
         h.expect(yield VM.start(opts.name)).to.ok
         h.expect(yield VM.start(opts.name)).to.fail
-        h.expect(yield VM.is_running(opts.name)).to.ok
+        h.expect(yield VM.isRunnig(opts.name)).to.ok
         h.expect(yield VM.stop(opts.name)).to.ok
-        h.expect(yield VM.is_running(opts.name)).to.fail
+        h.expect(yield VM.isRunnig(opts.name)).to.fail
         h.expect(yield VM.stop(opts.name)).to.fail
       })();
     });
   });
 
-  //describe("with a vm is running", function() {
-    //var name, ip, outputs = {};
-    //var mocks = h.mock_outputs(before, outputs, function() {
-      //name = azk.cst.VM_NAME;
-      //ip   = azk.cst.VM_IP;
-    //});
+  describe("with a vm is running", function() {
+    this.timeout(10000);
+    var name = config("agent:vm:name");
+    var data = "";
 
-    //it("should return error if vm not exist", function() {
-      //return h.expect(VM.ssh("not-exist")).to.eventually.rejectedWith(/vm is not running/);
-    //});
+    beforeEach(() => data = "");
 
-    //it("should execute a ssh command", function() {
-      //this.timeout(0);
-      //var result = VM.ssh(name, ip, 22, "uptime");
+    it("should return error if vm not exist", function() {
+      return h.expect(VM.ssh("not-exist")).to.eventually.rejectedWith(/vm is not running/);
+    });
 
-      //result.progress(function(event) {
-        //if (event.type == "stream") {
-          //event.stream.pipe(mocks.stdout);
-        //}
-      //});
+    it("should execute a ssh command", function() {
+      var result = VM.ssh(name, "uptime");
 
-      //return result.then(function(code) {
-        //h.expect(code).to.equal(0);
-        //h.expect(outputs.stdout).to.match(/load average/);
-      //});
-    //});
+      result.progress(function(event) {
+        if (event.type == "stdout") {
+          data += event.data.toString();
+        }
+      });
 
-    //it("should return code to execute ssh command", function() {
-      //return h.expect(VM.ssh(name, ip, 22, "exit 127")).to.eventually.equal(127);
-    //});
-  //});
+      return result.then(function(code) {
+        h.expect(code).to.equal(0);
+        h.expect(data).to.match(/load average/);
+      });
+    });
+
+    it("should return code to execute ssh command", function() {
+      return h.expect(VM.ssh(name, "exit 127")).to.eventually.equal(127);
+    });
+  });
 });
 

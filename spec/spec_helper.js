@@ -1,8 +1,9 @@
 require('source-map-support').install();
 
-import { Q, Azk, pp, _, config } from 'azk';
+import { Q, Azk, pp, _, config, t } from 'azk';
 import Utils from 'azk/utils';
 import { set as configSet } from 'azk/config';
+import { VM } from 'azk/agent/vm';
 
 var chai = require('chai');
 var tmp  = require('tmp');
@@ -36,6 +37,24 @@ var Helpers = {
     return value.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&");
   }
 }
+
+// In specs the virtual machine is required
+before(() => {
+  console.log(t('test.before'));
+  console.log(`  ${t('test.check_vm')}`);
+
+  var vm_name = config("agent:vm:name");
+  return Q.async(function* () {
+    var installed = yield VM.isInstalled(vm_name);
+    var running   = (installed) ? yield VM.isRunnig(vm_name) : false;
+
+    if (!installed) {
+      throw new Error(t("commands.vm.not_installed"));
+    } else if (!running) {
+      throw new Error(t("commands.vm.not_runnig"));
+    }
+  })();
+});
 
 // Helpers
 require('spec/spec_helpers/dustman').extend(Helpers);

@@ -48,7 +48,6 @@ export function extend(Helpers) {
   // Remove all containers before run
   before(function() {
     this.timeout(0);
-    console.log(t('test.before'));
     return Helpers.remove_containers()
       .then(Helpers.remove_images)
       .then(() => console.log("\n"))

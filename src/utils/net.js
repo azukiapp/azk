@@ -1,6 +1,7 @@
 import { Q, defer, config } from 'azk';
 
 var nativeNet = require('net');
+var dns       = require('dns');
 var portrange = config("agent:portrange_start");
 
 var net = {
@@ -25,6 +26,12 @@ var net = {
   calculateNetIp(ip) {
     return ip.replace(/^(.*)\..*$/, "$1.1");
   },
+
+  getAgentIp(name) {
+    return Q.nfcall(dns.lookup, name).then((result) => {
+      return result[0];
+    });
+  }
 }
 
 export default net;

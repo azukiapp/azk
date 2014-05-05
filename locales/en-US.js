@@ -52,6 +52,22 @@ module.exports = {
       scale: "scale from %s to %s instances",
       not_runnig: "service not running",
       running: "running `%s` instances"
+    },
+    vm: {
+      installed: "virtual machine already installed.",
+      installed_successfully: "virtual machine was successfully installed.",
+      not_installed: "virtual machine is not installed, try `azk vm install`.",
+      running: "virtual machine is running",
+      not_runnig: "virtual machine is not running, try `azk vm start`",
+      starting: "starting virtual machine...",
+      started: "virtual machine was successfully started.",
+      stoping: "stoping virtual machine...",
+      stoped: "virtual machine was successfully stoped.",
+      removing: "removing virtual machine...",
+      removed: "virtual machine was successfully removed.",
+      network_pogress: "try connect vm and configure hostonly ip (%(attempts)d/%(max)d) ...",
+      setting_network: "configuring the network virtual machine...",
+      network_configured: "virtual machine network configured."
     }
   },
 
@@ -71,6 +87,7 @@ module.exports = {
     before: "Before all tasks:",
     remove_containers: "- Removing %s containers before run tests",
     remove_images: "- Removing %s images before run tests",
+    check_vm: "- Check for required vm",
     i18n_test: "test i18n module"
   }
 }

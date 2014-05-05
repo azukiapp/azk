@@ -1,9 +1,10 @@
-import { _, Q, config } from 'azk';
+import { _, Q, config, defer, t } from 'azk';
 import Utils from 'azk/utils';
 
 var vbm  = require('vboxmanage');
 var qfs  = require('q-io/fs');
 var os   = require('os');
+var ssh2 = require('ssh2');
 
 var machine  = Utils.qifyModule(vbm.machine );
 var instance = Utils.qifyModule(vbm.instance);
@@ -68,7 +69,6 @@ function conf_networking(name, ip, ssh_port) {
       "--hostonlyadapter1", inter
     ]);
 
-    console.log(ssh_port);
     yield modifyvm(name, [
       "--nic2", "nat",
       "--cableconnected2", "on",
@@ -123,7 +123,7 @@ function conf_disks(name, boot, data) {
 var vm = {
   init(opts) {
     var name = opts.name;
-    return vm.is_installed(name).then((result) => {
+    return vm.isInstalled(name).then((result) => {
       if (result) return false;
 
       return Q.async(function* () {
@@ -165,14 +165,20 @@ var vm = {
   },
 
   info(name) {
-    return machine.info(name).fail((err) => {
+    return machine.info(name).then((info) => {
+      var port = info['Forwarding(0)'].replace(/ssh,tcp,127.0.0.1,(.*),,22/, '$1');
+      if (port) {
+        info.ssh_port = port;
+      }
+      return info;
+    }, (err) => {
       if (err.message.match(/cannot show vm info/))
         return {};
       throw err;
     });
   },
 
-  is_installed(name_or_info) {
+  isInstalled(name_or_info) {
     var promise = _.isObject(name_or_info) ?
       Q(name_or_info) : vm.info(name_or_info);
 
@@ -181,7 +187,7 @@ var vm = {
     });
   },
 
-  is_running(name_or_info) {
+  isRunnig(name_or_info) {
     var promise = _.isObject(name_or_info) ?
       Q(name_or_info) : vm.info(name_or_info);
 
@@ -193,8 +199,8 @@ var vm = {
   start(name) {
     return Q.async(function* () {
       var info      = yield vm.info(name);
-      var installed = yield vm.is_installed(info);
-      var running   = yield vm.is_running(info);
+      var installed = yield vm.isInstalled(info);
+      var running   = yield vm.isRunnig(info);
 
       if (installed && !(running)) {
         return instance.start(name).then(() => { return true });
@@ -207,8 +213,8 @@ var vm = {
   stop(name) {
     return Q.async(function* () {
       var info      = yield vm.info(name);
-      var installed = yield vm.is_installed(info);
-      var running   = yield vm.is_running(info);
+      var installed = yield vm.isInstalled(info);
+      var running   = yield vm.isRunnig(info);
 
       if (installed && running) {
         yield instance.stop(name);
@@ -239,7 +245,78 @@ var vm = {
         }
       }
     })();
+  },
+
+  ssh(name, cmd) {
+    var self = this;
+    return Q.async(function* () {
+      var info    = yield self.info(name);
+      var running = yield self.isRunnig(info);
+      if (running) {
+        return yield ssh_run('127.0.0.1', info.ssh_port, cmd);
+      } else {
+        throw new Error("vm is not running");
+      }
+    })();
+  },
+
+  configureIp(name, ip) {
+    return defer((done) => {
+      var cmd = [
+        'for i in {0..1}; do',
+        '  interface="eth$i"; ',
+        '  is_set=`/sbin/ifconfig $interface | grep "inet addr:"` ;',
+        '  ( [ -z "$is_set" ] && sudo /sbin/ifconfig $interface ' + ip + ');',
+        'done; ',
+      ]
+
+      var attempts  = 1, max = 15;
+      var configure = function() {
+        done.notify({ attempts, max });
+        return vm.ssh(name, cmd.join(' '))
+          .then(done.resolve, function(err) {
+            if (attempts < max) {
+              attempts++;
+              return configure();
+            }
+            done.reject(err);
+          });
+      }
+
+      process.nextTick(() => configure().fail(done.reject) );
+    });
   }
+}
+
+function ssh_run(host, port, cmd) {
+  return defer((done) => {
+    var c = new ssh2();
+
+    c.on("ready", () => {
+      done.notify({ type: 'connected' });
+
+      c.exec(cmd, (err, stream) => {
+        if (err) return done.reject(err);
+        stream.on('data', (data, extended) => {
+          done.notify({ type: extended ? extended : 'stdout', data: data });
+        });
+
+        stream.on('exit', (code) => {
+          done.resolve(code);
+          process.nextTick(() => c.end());
+        });
+      });
+    });
+
+    c.on('error', (err) => done.reject(err));
+
+    c.connect({
+      host, port,
+      username: config("agent:vm:user"),
+      readyTimeout: 10000,
+      password: config("agent:vm:password"),
+    });
+  });
 }
 
 export { vm as VM };
