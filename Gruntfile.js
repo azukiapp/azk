@@ -38,7 +38,7 @@ module.exports = function(grunt) {
         files: [{
           expand: true,
           cwd: 'src/',
-          src: '**/*.js',
+          src: ['**/*.js', '!share/*.js'],
           dest: 'build/azk/',
           ext: '.js'
         }]
@@ -74,6 +74,7 @@ module.exports = function(grunt) {
       files: [
         'Gruntfile.js',
         'src/**/*.js',
+        '!src/share/*.js',
         'spec/**/*.js',
       ],
       tasks: ['test']
