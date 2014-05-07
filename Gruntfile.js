@@ -27,7 +27,6 @@ module.exports = function(grunt) {
 
   // Project configuration.
   grunt.initConfig({
-
     // Configuration to be run (and then tested).
     traceur: {
       options: {
@@ -71,15 +70,26 @@ module.exports = function(grunt) {
     },
 
     watch: {
-      files: [
-        'Gruntfile.js',
-        'src/**/*.js',
-        '!src/share/*.js',
-        'spec/**/*.js',
-      ],
-      tasks: ['test']
-    },
+      spec: {
+        files: [
+          'Gruntfile.js',
+          'src/**/*.js',
+          '!src/share/*.js',
+          'spec/**/*.js',
+        ],
+        tasks: ['test']
+      },
 
+      traceur: {
+        files: [
+          'Gruntfile.js',
+          'src/**/*.js',
+          '!src/share/*.js',
+          'spec/**/*.js',
+        ],
+        tasks: ['exec:clear', 'newer:traceur']
+      }
+    },
   });
 
   grunt.loadNpmTasks('grunt-exec');
@@ -89,8 +99,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
 
   grunt.registerTask('test', ['exec:clear', 'newer:traceur', 'mochaTest']);
+  grunt.registerTask('compile', ['exec:clear', 'newer:traceur', 'watch:traceur']);
   grunt.registerTask('default', function() {
     key_watch(grunt);
-    return grunt.task.run(['test', 'watch']);
+    return grunt.task.run(['test', 'watch:spec']);
   });
 };
