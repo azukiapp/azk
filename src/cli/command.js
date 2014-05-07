@@ -26,9 +26,10 @@ export class Command extends UIProxy {
 
     _.each(names, (option) => {
       var type     = String;
-      var name     = option.replace(/^[\[|\{](.*)[\]|\}]$/, "$1");
+      var stop     = option.match(/^[\[|\{]\*.*[\]|\}]$/) ? true : false;
+      var name     = option.replace(/^[\[|\{]\*?(.*)[\]|\}]$/, "$1");
       var required = option.match(/^\{.*\}$/) ? true : false;
-      this.stackable.push(new Option({name, type, required}));
+      this.stackable.push(new Option({name, type, required, stop}));
     });
 
     return name;

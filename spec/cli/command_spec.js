@@ -7,7 +7,7 @@ import {
   RequiredOptionError
 } from 'azk/utils/errors';
 
-describe('Azk cli command module', function() {
+describe.only('Azk cli command module', function() {
   var outputs = [];
   beforeEach(() => outputs = []);
 
@@ -63,7 +63,8 @@ describe('Azk cli command module', function() {
   describe("with a sub commands and options", function() {
     var cmd = new TestCmd('test_sub {sub_command} [sub_command_opt]', UI);
     cmd.addOption(['--string', '-s'], {
-      required: true, type: String, desc: "String description" });
+      required: true, type: String, desc: "String description"
+    });
 
     it("should be parse subcommand option", function() {
       cmd.run(['command1', 'command2', '--string', 'foo']);
@@ -81,6 +82,22 @@ describe('Azk cli command module', function() {
 
       var func = () => cmd.run(['--string=value']);
       h.expect(func).to.throw(RequiredOptionError, /sub_command/);
+    });
+  });
+
+  describe("with a validate subcommand", function() {
+    var cmd = new TestCmd('test_sub {*sub_command}', UI);
+    cmd.addOption(['--string', '-s'], {
+      type: String, desc: "String description"
+    });
+
+    it("should capture any think after sub_command", function() {
+      cmd.run(['--string', 'foo', 'subcommand', "--sub-options"]);
+      h.expect(outputs).to.eql([{
+        sub_command: "subcommand",
+        string: "foo",
+        __leftover: ["--sub-options"]
+      }]);
     });
   });
 
