@@ -1,5 +1,5 @@
 import { _ } from 'azk';
-import { InvalidOptionError, RequiredOptionError } from 'azk/utils/errors';
+import { InvalidOptionError, RequiredOptionError, InvalidValueError } from 'azk/utils/errors';
 import { Option } from 'azk/cli/option';
 import { UIProxy, UI } from 'azk/cli/ui';
 
@@ -35,7 +35,7 @@ export class Command extends UIProxy {
     return name;
   }
 
-  addOption(alias, options) {
+  addOption(alias, options = {}) {
     alias = _.isArray(alias) ? alias : [alias];
     alias = _.map(alias, (alias) => alias.replace(/^-*/, ''));
     options.name = _.first(alias);
@@ -83,7 +83,16 @@ export class Command extends UIProxy {
         }
 
         if (previous) {
-          opts[previous.name] = previous.processValue(previous_value);
+          try {
+            var value = previous.processValue(previous_value);
+          } catch (err) {
+            if (err instanceof InvalidValueError && stackable.length > 0) {
+              previous = null;
+              return process();
+            }
+            throw err;
+          }
+          opts[previous.name] = value;
           stop = previous.stop;
           previous_value = previous = null;
         } else {

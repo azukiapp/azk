@@ -90,12 +90,23 @@ describe.only('Azk cli command module', function() {
     cmd.addOption(['--string', '-s'], {
       type: String, desc: "String description"
     });
+    cmd.addOption(['--flag']);
 
     it("should capture any think after sub_command", function() {
       cmd.run(['--string', 'foo', 'subcommand', "--sub-options"]);
       h.expect(outputs).to.eql([{
         sub_command: "subcommand",
         string: "foo",
+        __leftover: ["--sub-options"]
+      }]);
+    });
+
+    it("should capture any think even if a flag is used", function() {
+      cmd.run(['--string', 'foo', '--flag', 'subcommand', "--sub-options"]);
+      h.expect(outputs).to.eql([{
+        sub_command: "subcommand",
+        string: "foo",
+        flag: true,
         __leftover: ["--sub-options"]
       }]);
     });
