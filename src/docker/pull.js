@@ -39,7 +39,7 @@ export function pull(docker, repository, tag, stdout) {
 
   docker.createImage({
     fromImage: repository,
-    tag: null,
+    tag: tag,
   }).then((stream) => {
     stream.on('data', (data) => {
       var msg = JSON.parse(data.toString());

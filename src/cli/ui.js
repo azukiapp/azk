@@ -1,8 +1,10 @@
 import { _, t } from 'azk';
+import { Multibar } from 'azk/cli/multi_bars';
 require('colors');
 
-var ok = 'azk'.green;
-var fail = 'azk'.red;
+var ok    = 'azk'.green;
+var fail  = 'azk'.red;
+var mbars = [];
 
 var UI = {
   isUI: true,
@@ -25,6 +27,19 @@ var UI = {
 
   exit(code = 0) {
     process.emit("azk:command:exit", code);
+  },
+
+  newMultiBars() {
+    mbars.push(new Multibar());
+    return mbars.length - 1;
+  },
+
+  newBar(mbar, ...args) {
+    return mbars[mbar].newBar(...args);
+  },
+
+  get stdout() {
+    return process.stdout;
   }
 }
 
@@ -47,6 +62,6 @@ export class UIProxy {
 
 _.each(_.methods(UI), (method) => {
   UIProxy.prototype[method] = function(...args) {
-    this.userInterface[method](...args);
+    return this.userInterface[method](...args);
   }
 });

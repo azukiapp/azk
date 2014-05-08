@@ -21,11 +21,19 @@ module.exports = {
       description: "Control azk agent"
     },
     exec: {
+      check_image: "Check for image: `%s`",
       description: "Run a command in application box context",
       interactive: "Run command in interactive"
     },
     help: {
       description: "Show help about the specific command"
+    },
+    helpers: {
+      pull: {
+        pulling: 'Pulling repository %s',
+        bar_progress: '  :title [:bar] :percent :progress',
+        bar_status: '  :title :msg',
+      }
     },
     init: {
       description: "Initializes a project by adding the file azkfile.json",
@@ -33,7 +41,7 @@ module.exports = {
       generated: "'%s' generated",
       id: "Generate a new app id",
       already: "'%s' already exists",
-      generated: "'%s' generated"
+      generated: "'%s' generated",
     },
     kill: {
       description: "Kill a azk process by `azk pid`"
