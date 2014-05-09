@@ -34,7 +34,7 @@ class ExecCmd extends Command {
               bar.tick(progress.current - bar.curr, { title, progress: event.progress });
               break;
             default:
-              bar.tick(bar.curr, { title, format: fmt_s, msg: event.status });
+              bar.tick(bar.curr, { title, fmt: fmt_s, msg: event.status });
           }
 
           bars[event.id] = bar;
