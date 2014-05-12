@@ -1,4 +1,5 @@
-import { Q, _ } from 'azk';
+import { Q, _, config } from 'azk';
+var path = require('path');
 
 function new_resize(container) {
   return function() {
@@ -108,7 +109,11 @@ export function run(docker, Container, image, cmd, opts = { }) {
 
     // Start container
     for(var i = 0; i < v_binds.length; i++) {
-      v_binds[i] = v_binds[i][0] + ':' + v_binds[i][1];
+      var target = v_binds[i][0];
+      if (config('requires_vm')) {
+        target = path.join(config('agent:vm:mount_point'), target);
+      }
+      v_binds[i] = target + ':' + v_binds[i][1];
     }
 
     yield container.start({ "Binds": v_binds, PortBindings: p_binds });
