@@ -2,20 +2,30 @@ import { _ } from 'azk';
 import { InvalidOptionError, RequiredOptionError, InvalidValueError } from 'azk/utils/errors';
 import { Option } from 'azk/cli/option';
 import { UIProxy, UI } from 'azk/cli/ui';
+import { Helpers } from 'azk/cli/helpers';
 
-export { Option, UI };
+export { Option, UI, Helpers };
 export class Command extends UIProxy {
   constructor(name, user_interface) {
     this.stackable = [];
     this.commands  = {};
     this.options   = {};
     this.name      = this.__parse_name(name);
+    this.__cwd     = null;
 
     // Parent or interface
     super(user_interface);
     if (this.parent) {
       this.parent.initChildren(this);
     }
+  }
+
+  get cwd() {
+    return (this.parent) ? this.parent.cwd : this.__cwd;
+  }
+
+  set cwd(value) {
+    this.__cwd = value;
   }
 
   initChildren(parent) { }

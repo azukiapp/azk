@@ -5,8 +5,10 @@ import { UI } from 'azk/cli/ui';
 var path = require('path');
 var cmds_path = path.join(__dirname, "..", "cmds");
 
-export function cli(args, ui = UI) {
+export function cli(args, cwd, ui = UI) {
   var azk_cli = new Cli('azk', ui, cmds_path);
+  azk_cli.cwd = cwd;
+
   var result  = azk_cli.run(_.rest(args, 2));
   if (Q.isPromise(result)) {
     result.then((code) => {

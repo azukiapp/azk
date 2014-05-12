@@ -6,5 +6,4 @@ process.once("azk:command:exit", function(code) {
   process.exit(code);
 });
 
-cli.cwd = process.env.AZK_CURRENT_SYSTEM || process.cwd();
-cli(process.argv);
+cli(process.argv, process.env.AZK_CURRENT_SYSTEM || process.cwd());
