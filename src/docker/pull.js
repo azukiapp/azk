@@ -59,7 +59,7 @@ export function pull(docker, repository, tag, stdout) {
       }
     });
 
-    stream.on('end', () => done.resolve());
+    stream.on('end', () => done.resolve(image));
   })
   .fail(done.reject);
 
