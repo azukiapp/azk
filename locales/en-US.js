@@ -21,9 +21,12 @@ module.exports = {
       description: "Control azk agent"
     },
     exec: {
-      check_image: "Check for image: `%s`",
       description: "Run a command in application box context",
-      interactive: "Run command in interactive"
+      check_image: "Check for image: `%s`",
+      opts: {
+        interactive: "Run command in interactive",
+        image: "Docker image use to run command",
+      }
     },
     help: {
       description: "Show help about the specific command"

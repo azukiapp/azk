@@ -38,9 +38,17 @@ var UI = {
     return mbars[mbar].newBar(...args);
   },
 
-  get stdout() {
+  stdout() {
     return process.stdout;
-  }
+  },
+
+  stderr() {
+    return process.stderr;
+  },
+
+  stdin() {
+    return process.stdin;
+  },
 }
 
 export { UI };
