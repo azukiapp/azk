@@ -83,14 +83,21 @@ var Utils = {
         done.reject(err);
       }
     });
+  },
+
+  deepExtend(origin, target) {
+    target = _.clone(target);
+
+    _.each(origin, (value, key) => {
+      if (!_.has(target, key) || typeof(target[key]) != typeof(value)) {
+        target[key] = value;
+      } else if (_.isObject(target[key]) && _.isObject(value)) {
+        target[key] = Utils.deepExtend(value, target[key]);
+      }
+    });
+
+    return target;
   }
 };
 
 module.exports = Utils;
-
-//module.exports = {
-//};
-
-//_.each(_.methods(Utils), (method) => {
-  //module.exports[method] = Utils[method];
-//});

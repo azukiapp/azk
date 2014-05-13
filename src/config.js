@@ -1,6 +1,5 @@
-import { _, resolve } from 'azk/utils';
+import { _, resolve, deepExtend } from 'azk/utils';
 var path = require('path');
-var deepExtend = require('deep-extend');
 
 // Root path
 var azk_root =
@@ -85,6 +84,3 @@ export function get(key) {
 
   return buffer;
 };
-
-export function set(...args) {
-}

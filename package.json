@@ -63,6 +63,7 @@
     "source-map-support": "~0.2.5",
     "node-inspector": "~0.7.2",
     "fixture-stdout": "^0.2.1",
-    "memorystream": "^0.2.0"
+    "memorystream": "^0.2.0",
+    "grunt-env": "^0.4.1"
   }
 }
