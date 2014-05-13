@@ -27,6 +27,13 @@ module.exports = function(grunt) {
 
   // Project configuration.
   grunt.initConfig({
+    // ENV's
+    env: {
+      test: {
+        NODE_ENV: "test",
+      }
+    },
+
     // Configuration to be run (and then tested).
     traceur: {
       options: {
@@ -93,12 +100,13 @@ module.exports = function(grunt) {
   });
 
   grunt.loadNpmTasks('grunt-exec');
+  grunt.loadNpmTasks('grunt-env');
   grunt.loadNpmTasks('grunt-newer');
   grunt.loadNpmTasks('grunt-traceur');
   grunt.loadNpmTasks('grunt-mocha-test');
   grunt.loadNpmTasks('grunt-contrib-watch');
 
-  grunt.registerTask('test', ['exec:clear', 'newer:traceur', 'mochaTest']);
+  grunt.registerTask('test', ['env:test', 'exec:clear', 'newer:traceur', 'mochaTest']);
   grunt.registerTask('compile', ['exec:clear', 'newer:traceur', 'watch:traceur']);
   grunt.registerTask('default', function() {
     key_watch(grunt);
