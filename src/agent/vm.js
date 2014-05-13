@@ -134,6 +134,7 @@ var vm = {
           "--ostype", "Linux26_64",
           "--cpus", os.cpus().length,
           "--memory", Math.floor(os.totalmem()/1024/1024/4),
+          "--vram", "9",
           "--rtcuseutc", "on",
           "--acpi", "on",
           "--ioapic", "on",
