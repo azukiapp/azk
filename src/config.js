@@ -19,6 +19,9 @@ var docker_host =
   process.env.AZK_DOCKER_HOST || process.env.DOCKER_HOST ||
   (requires_vm ? "http://azk-agent:4243" : "unix:///var/run/docker.sock");
 
+// Log level
+var log_level = process.env.AZK_DEBUG ? 'debug' : 'warn';
+
 function merge(options) {
   _.each(options, (values, key) => {
     if (key != '*')
@@ -35,6 +38,11 @@ var options = merge({
     requires_vm: requires_vm,
     paths   : {
       data  : data_path,
+      log   : path.join(data_path, 'logs', 'azk.log'),
+    },
+    logs_level: {
+      console: (process.env.AZK_DEBUG ? 'debug' : 'warn'),
+      file: process.env.AZK_LOG_LEVEL || 'info',
     },
     docker  : {
       host          : docker_host,
@@ -56,6 +64,9 @@ var options = merge({
     }
   },
   test: {
+    paths: {
+      log: path.join(data_path, 'logs', 'azk_test.log'),
+    },
     docker: {
       namespace   : 'azk.test',
       repository  : 'azk-test',
@@ -74,6 +85,8 @@ function env() {
 }
 
 export function get(key) {
+  if (key == "env") return env();
+
   var keys   = key.split(':');
   var buffer = options[env()] || options['*'];
 

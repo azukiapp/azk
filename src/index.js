@@ -3,17 +3,31 @@ import { version } from 'package.json';
 import { get as config }  from 'azk/config';
 import { Q, _, i18n, defer } from 'azk/utils';
 
-export class Azk {
+class Azk {
   static get version() { return version };
-}
 
-function pp(...args) {
-  return console.log(...args);
+  static pp(...args) {
+    return console.log(...args);
+  }
 }
 
 // Default i18n method
-var t = new i18n({ locale: config('locale') }).t;
+var t    = new i18n({ locale: config('locale') }).t;
+var _log = null;
 
-export { pp, t, defer };
-export { Q, _ as unders, _, config };
-export default Azk;
+module.exports = {
+  get default() { return Azk },
+  get pp() { return Azk.pp },
+  get Q()  { return Q },
+  get _()  { return _ },
+  get t()  { return t },
+  get config() { return config },
+  get defer()  { return defer },
+
+  get log() {
+    if (!_log) {
+      _log = require('azk/utils/log').log;
+    }
+    return _log;
+  },
+};

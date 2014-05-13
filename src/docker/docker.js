@@ -1,6 +1,6 @@
 var uuid = require('node-uuid');
 
-import { Q, pp, config, unders as _ } from 'azk';
+import { Q, pp, config, _, log } from 'azk';
 import Utils from 'azk/utils';
 import { parseRepositoryTag } from 'dockerode/lib/util';
 
@@ -22,7 +22,7 @@ export class Container extends Utils.qify('dockerode/lib/container') {
 
 export class Docker extends Utils.qify('dockerode') {
   constructor(opts) {
-    console.log("Connect %s:%s", opts.host, opts.port);
+    log.info("Connect %s:%s", opts.host, opts.port);
     super(opts);
   }
 

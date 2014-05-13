@@ -34,7 +34,6 @@
     "docker-modem": "^0.1.12",
     "dockerode": "^1.2.9",
     "node-uuid": "^1.4.1",
-    "deep-extend": "^0.2.8",
     "printf": "^0.2.0",
     "xregexp": "^2.0.0",
     "glob": "^3.2.9",
@@ -43,7 +42,8 @@
     "colors": "^0.6.2",
     "ssh2": "^0.2.22",
     "handlebars": "^2.0.0-alpha.2",
-    "progress": "git+https://github.com/nuxlli/node-progress"
+    "progress": "git+https://github.com/nuxlli/node-progress",
+    "winston": "^0.7.3"
   },
   "devDependencies": {
     "grunt": "^0.4.4",

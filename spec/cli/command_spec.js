@@ -7,7 +7,7 @@ import {
   RequiredOptionError
 } from 'azk/utils/errors';
 
-describe.only('Azk cli command module', function() {
+describe('Azk cli command module', function() {
   var outputs = [];
   beforeEach(() => outputs = []);
 
