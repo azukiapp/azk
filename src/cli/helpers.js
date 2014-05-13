@@ -17,7 +17,7 @@ var Helpers = {
     var bars  = {};
 
     cmd.ok('commands.exec.check_image', image.name);
-    return image.pull(cmd.stdout()).progress((event) => {
+    return image.pull(cmd.stdout().isTTY ? null : cmd.stdout()).progress((event) => {
       if (!event.id) return;
 
       var status = event.statusParsed;
