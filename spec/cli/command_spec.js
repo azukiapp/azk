@@ -27,9 +27,9 @@ describe('Azk cli command module', function() {
   describe("with a simple options", function() {
     var cmd = new TestCmd('test_options', UI);
     cmd
-      .addOption(['--number' , '-n'], { type: Number, desc: "Number description" })
-      .addOption(['--verbose', '-v'], { desc: "Verbose description" })
-      .addOption(['--flag'   , '-f'], { desc: "Flag description" })
+      .addOption(['--verbose', '-v'])
+      .addOption(['--flag'   , '-f'])
+      .addOption(['--number' , '-n'], { type: Number })
       .addOption(['--size'], { options: ["small", "big"] });
 
     it("should parse args and exec", function() {
@@ -62,9 +62,9 @@ describe('Azk cli command module', function() {
 
   describe("with a sub commands and options", function() {
     var cmd = new TestCmd('test_sub {sub_command} [sub_command_opt]', UI);
-    cmd.addOption(['--string', '-s'], {
-      required: true, type: String, desc: "String description"
-    });
+    cmd.setOptions('sub_command', { options: ['command1', 'command2'] });
+    cmd.addOption(['--string', '-s'], { required: true, type: String });
+    cmd.addOption(['--flag', '-f']);
 
     it("should be parse subcommand option", function() {
       cmd.run(['command1', 'command2', '--string', 'foo']);
@@ -76,12 +76,38 @@ describe('Azk cli command module', function() {
       }]);
     });
 
+    it("should support flag merged with subcommand", function() {
+      cmd.run(["--flag", "command1", '--string', 'foo']);
+      h.expect(outputs).to.deep.property("[0].sub_command", "command1");
+      h.expect(outputs).to.deep.property("[0].flag", true);
+
+      cmd.run(["--flag", "true", "command1", '--string', 'foo']);
+      h.expect(outputs).to.deep.property("[1].sub_command", "command1");
+      h.expect(outputs).to.deep.property("[1].flag", true);
+
+      cmd.run(["--flag", "false", "command1", '--string', 'foo']);
+      h.expect(outputs).to.deep.property("[2].sub_command", "command1");
+      h.expect(outputs).to.deep.property("[2].flag", false);
+
+      cmd.run(["--no-flag", "command1", '--string', 'foo']);
+      h.expect(outputs).to.deep.property("[3].sub_command", "command1");
+      h.expect(outputs).to.deep.property("[3].flag", false);
+    });
+
     it("should be raise a required option", function() {
       var func = () => cmd.run([]);
       h.expect(func).to.throw(RequiredOptionError, /string/);
 
       var func = () => cmd.run(['--string=value']);
       h.expect(func).to.throw(RequiredOptionError, /sub_command/);
+    });
+
+    it("should support valid options", function() {
+      cmd.run(['command2', '--string', 'foo']);
+      h.expect(outputs).to.deep.property("[0].sub_command", "command2");
+
+      var func = () => cmd.run(['invalid_value', '--string', 'foo']);
+      h.expect(func).to.throw(InvalidValueError, /invalid_value.*sub_command/);
     });
   });
 

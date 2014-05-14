@@ -35,11 +35,12 @@ export class Command extends UIProxy {
     name = names.shift();
 
     _.each(names, (option) => {
-      var type     = String;
-      var stop     = option.match(/^[\[|\{]\*.*[\]|\}]$/) ? true : false;
-      var name     = option.replace(/^[\[|\{]\*?(.*)[\]|\}]$/, "$1");
-      var required = option.match(/^\{.*\}$/) ? true : false;
-      this.stackable.push(new Option({name, type, required, stop}));
+      this.stackable.push(new Option({
+        type     : String,
+        stop     : option.match(/^[\[|\{]\*.*[\]|\}]$/) ? true : false,
+        name     : option.replace(/^[\[|\{]\*?(.*)[\]|\}]$/, "$1"),
+        required : option.match(/^\{.*\}$/) ? true : false,
+      }));
     });
 
     return name;
@@ -51,6 +52,17 @@ export class Command extends UIProxy {
     options.name = _.first(alias);
     _.each(alias, (name) => this.options[name] = new Option(options));
     return this;
+  }
+
+  setOptions(name, options = {}) {
+    var option = _.find(this.stackable, (opt) => opt.name == name);
+    if (!option) {
+      option = this.options[name];
+    }
+
+    if (option) {
+      _.each(options, (value, key) => option[key] = value);
+    }
   }
 
   // Parse and execute
@@ -96,7 +108,11 @@ export class Command extends UIProxy {
           try {
             var value = previous.processValue(previous_value);
           } catch (err) {
-            if (err instanceof InvalidValueError && stackable.length > 0) {
+            if (
+              err instanceof InvalidValueError
+              && stackable.length > 0
+              && !previous.required
+            ) {
               previous = null;
               return process();
             }

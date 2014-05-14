@@ -60,14 +60,6 @@ class VmCmd extends Command {
     });
   }
 
-  //action_ssh() {
-    //this.ok("commands.vm.stoping");
-    //return VM.stop(vm_name).then(() => {
-      //this.ok("commands.vm.stoped");
-      //return 0;
-    //});
-  //}
-
   action_status() {
     this.ok("commands.vm.running");
   }
@@ -109,6 +101,6 @@ class VmCmd extends Command {
 
 export function init(cli) {
   (new VmCmd('vm {action}', cli))
-    //.addValid('action', { options: ['install', 'start', 'status', 'stop', 'remove'] });
+    .setOptions('action', { options: ['install', 'start', 'status', 'stop', 'remove'] });
 }
 

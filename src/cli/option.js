@@ -5,13 +5,13 @@ var boolean_opts = ['1', '0', 'false', 'true', false, true];
 
 export class Option {
   constructor(opts) {
-    this.name     = opts.name;
-    this.desc     = opts.desc;
-    this.alias    = opts.alias;
-    this._type    = opts.type;
-    this.required = opts.required;
-    this.options  = opts.options;
-    this.stop     = opts.stop;
+    this.name      = opts.name;
+    this.desc      = opts.desc;
+    this.alias     = opts.alias;
+    this._type     = opts.type;
+    this.required  = opts.required;
+    this.options   = opts.options;
+    this.stop      = opts.stop;
 
     if (_.has(opts, 'default'))
       this._default = opts.default;
