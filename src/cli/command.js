@@ -225,6 +225,7 @@ export class Command extends UIProxy {
         var tKey = this.tKeyPath("options", opt.name);
         this.output();
         this.output("%s:", t([...tKey, "name"]) || opt.name);
+        this.output();
         this.outputWithLabel(opt.helpValues([...tKey, "options"]), '  ');
       }
     });

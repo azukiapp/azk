@@ -59,17 +59,25 @@ export class Option {
     var help = [];
 
     _.each(this.options, (opt) => {
-      help.push(opt + '\t' + t([...tKey, opt]));
+      var desc = t(_.isObject(opt) ? ["commands", opt.name, "description"] : [...tKey, opt]);
+      help.push(this.__optionName(opt) + '\t' + desc);
     });
 
     return help;
   }
 
+  __optionName(opt) {
+    return _.isObject(opt) ? opt.name : opt
+  }
+
   processValue(value) {
     switch(this.type) {
       case String:
-        if (_.isArray(this.options) && !_.contains(this.options, value)) {
-          throw new InvalidValueError(this.name, value);
+        if (_.isArray(this.options)) {
+          var options = _.map(this.options, this.__optionName);
+          if (!_.contains(options, value)) {
+            throw new InvalidValueError(this.name, value);
+          }
         }
         return value;
       case Number:

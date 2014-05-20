@@ -11,7 +11,7 @@ var path   = require('path');
 var printf = require('printf');
 var stripIdent = require("strip-indent");
 
-describe.only('Azk cli command module', function() {
+describe('Azk cli command module', function() {
   var outputs = [];
   beforeEach(() => outputs = []);
 
@@ -165,10 +165,10 @@ describe.only('Azk cli command module', function() {
     h.expect(outputs).to.deep.property("[00]", 'Usage: $ test_help [options] {subcommand} [*command]');
     h.expect(outputs).to.deep.property("[02]", 'Test help description');
     h.expect(outputs).to.deep.property("[04]", 'options:');
-    h.expect(outputs).to.deep.property("[06]", '  --verbose, -v Verbose mode (default: true)');
-    h.expect(outputs).to.deep.property("[07]", '  --string=""   String option');
+    h.expect(outputs).to.deep.property("[06]", '  --verbose, -v  Verbose mode (default: true)');
+    h.expect(outputs).to.deep.property("[07]", '  --string=""    String option');
     h.expect(outputs).to.deep.property("[09]", 'subcommand:');
-    h.expect(outputs).to.deep.property("[10]", '  start Start service');
-    h.expect(outputs).to.deep.property("[11]", '  stop  Stop service');
+    h.expect(outputs).to.deep.property("[11]", '  start  Start service');
+    h.expect(outputs).to.deep.property("[12]", '  stop   Stop service');
   });
 });

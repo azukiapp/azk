@@ -35,7 +35,7 @@ export class Cli extends Command {
       });
       this.stackable.push(opt);
     }
-    opt.options.push(cmd.name);
+    opt.options.push(cmd);
     this.commands[cmd.name] = cmd;
   }
 

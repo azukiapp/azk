@@ -32,7 +32,7 @@ var UI = {
     }, 0);
 
     _.each(rows, (row) => {
-      this.output("%s%-*s %s", ident, row.shift(), size, ...row);
+      this.output("%s%-*s  %s", ident, row.shift(), size, ...row);
     });
   },
 

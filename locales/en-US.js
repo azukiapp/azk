@@ -16,7 +16,17 @@ module.exports = {
   },
 
   commands: {
-    not_found: "%s: Command '%s' not found",
+    not_found: "Command '%s' not found",
+    azk: {
+      description: "Azk short help",
+      options: {
+        command: {
+          name: "command"
+        },
+        log: "Set a log level",
+        help: "Show this help",
+      },
+    },
     agent: {
       description: "Control azk agent"
     },
@@ -67,6 +77,7 @@ module.exports = {
       running: "running `%s` instances"
     },
     vm: {
+      description: "Control a virtual machine",
       installed: "virtual machine already installed.",
       installed_successfully: "virtual machine was successfully installed.",
       not_installed: "virtual machine is not installed, try `azk vm install`.",
