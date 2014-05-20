@@ -20,8 +20,8 @@ export class i18n {
     }
   }
 
-  translate(key) {
-    var keys   = key.split('.');
+  translate(key, ...args) {
+    var keys   = (typeof(key) == "string") ? key.split('.') : key;
     var buffer = this.dict || {};
 
     for(var i = 0; i < keys.length; i++) {
@@ -29,12 +29,7 @@ export class i18n {
       if (!buffer) break;
     }
 
-    if (buffer) {
-      var args = Array.prototype.slice.call(arguments, 1);
-      args.unshift(buffer)
-      return printf.apply(this, args);
-    }
-    return key;
+    return buffer ? printf(buffer, ...args) : key;
   }
 }
 

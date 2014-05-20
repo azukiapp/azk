@@ -17,6 +17,10 @@ describe("Azk i18n module", function() {
     h.expect(t("key.found")).to.equal("foobar");
   });
 
+  it("should support a array as key", function() {
+    h.expect(t(["key", "found"])).to.equal("foobar");
+  });
+
   it("should support formated", function() {
     h.expect(t("formated", "foobar")).to.equal(
       "formated foobar"
