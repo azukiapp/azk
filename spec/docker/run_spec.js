@@ -62,19 +62,17 @@ describe("Azk docker module, run method", function() {
     });
   });
 
-  it("should support bind volumes", function() {
-    var result = docker.run(default_img,
-      ["/bin/bash", "-c", "ls -l /azk"],
-      {
-        stdout: mocks.stdout, rm: true,
-        volumes: {
-          '/etc/': [ "/azk" ]
-        }
+  it.only("should support bind volumes", function() {
+    var cmd = ["/bin/bash", "-c", "ls -l /azk"];
+    var options = {
+      stdout: mocks.stdout, rm: true,
+      volumes: {
+        [__dirname]: "/azk"
       }
-    );
+    }
 
-    return result.then(() => {
-      h.expect(outputs.stdout).to.match(/hosts/);
+    return docker.run(default_img, cmd, options).then(() => {
+      h.expect(outputs.stdout).to.match(/run_spec.js/);
     })
   });
 
