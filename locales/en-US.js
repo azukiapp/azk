@@ -29,7 +29,9 @@ module.exports = {
       }
     },
     help: {
-      description: "Show help about the specific command"
+      description: "Show help about the specific command",
+      usage: 'Usage: $ %s',
+      options: "options:",
     },
     helpers: {
       pull: {
@@ -99,6 +101,22 @@ module.exports = {
     remove_containers: "- Removing %s containers before run tests",
     remove_images: "- Removing %s images before run tests",
     check_vm: "- Check for required vm",
-    i18n_test: "test i18n module"
+    i18n_test: "test i18n module",
+    commands: {
+      test_help: {
+        description: "Test help description",
+        options: {
+          verbose: "Verbose mode",
+          string: "String option",
+          subcommand: {
+            name: "subcommand",
+            options: {
+              start: "Start service",
+              stop: "Stop service",
+            },
+          }
+        },
+      },
+    },
   }
 }

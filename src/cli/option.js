@@ -1,4 +1,4 @@
-import { _ } from 'azk';
+import { _, t } from 'azk';
 import { InvalidValueError } from 'azk/utils/errors';
 
 var boolean_opts = ['1', '0', 'false', 'true', false, true];
@@ -33,6 +33,36 @@ export class Option {
 
   get type() {
     return this._type || (_.isArray(this.options) ? String : Boolean);
+  }
+
+  help(desc) {
+    var help = [];
+
+    // Names
+    var names = _.map(this.alias, (alias) => {
+      return ((alias.length > 1) ? '--' : '-') + alias;
+    });
+
+    switch(this.type) {
+      case String:
+        names[0] += `="${this.default != null ? this.default : ''}"`;
+        break;
+      case Boolean:
+        desc += ` (default: ${this.default})`;
+        break;
+    }
+
+    return [names.join(', '), desc].join('\t');
+  }
+
+  helpValues(tKey) {
+    var help = [];
+
+    _.each(this.options, (opt) => {
+      help.push(opt + '\t' + t([...tKey, opt]));
+    });
+
+    return help;
   }
 
   processValue(value) {

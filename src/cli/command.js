@@ -1,4 +1,4 @@
-import { _ } from 'azk';
+import { _, t } from 'azk';
 import { InvalidOptionError, RequiredOptionError, InvalidValueError } from 'azk/utils/errors';
 import { Option } from 'azk/cli/option';
 import { UIProxy, UI } from 'azk/cli/ui';
@@ -49,7 +49,8 @@ export class Command extends UIProxy {
   addOption(alias, options = {}) {
     alias = _.isArray(alias) ? alias : [alias];
     alias = _.map(alias, (alias) => alias.replace(/^-*/, ''));
-    options.name = _.first(alias);
+    options.alias = alias;
+    options.name  = _.first(alias);
     _.each(alias, (name) => this.options[name] = new Option(options));
     return this;
   }
@@ -63,6 +64,8 @@ export class Command extends UIProxy {
     if (option) {
       _.each(options, (value, key) => option[key] = value);
     }
+
+    return this;
   }
 
   // Parse and execute
@@ -166,5 +169,64 @@ export class Command extends UIProxy {
 
   action() {
     throw new Error("Don't use Command directly, implemente the action.");
+  }
+
+  tKeyPath(...keys) {
+    return ['commands', this.name, ...keys];
+  }
+
+  showUsage() {
+    this.__show_usage();
+    this.__show_description();
+    this.__show_options();
+    this.__show_stackables();
+  }
+
+  __show_usage() {
+    var usage = [this.name];
+
+    if (_.keys(this.options).length > 0) {
+      usage.push('[options]');
+    }
+
+    _.each(this.stackable, (option) => {
+      var r    = option.required;
+      var stop = option.stop ? '*' : '';
+      usage.push((r ? '{' : '[') + stop + option.name + (r ? '}' : ']'));
+    });
+
+    this.tOutput("commands.help.usage", usage.join(" "));
+  }
+
+  __show_description() {
+    this.output();
+    this.tOutput(this.tKeyPath("description"));
+  }
+
+  __show_options() {
+    if (_.keys(this.options).length > 0) {
+      this.output();
+      this.tOutput("commands.help.options");
+      this.output();
+      var rows = [];
+      _.each(this.options, (opt, key) => {
+        // Skip alias
+        if (key == opt.name) {
+          rows.push(opt.help(t(this.tKeyPath("options", opt.name))));
+        }
+      });
+      this.outputWithLabel(rows, '  ');
+    }
+  }
+
+  __show_stackables() {
+    _.each(this.stackable, (opt) => {
+      if (opt.options && opt.options.length > 0) {
+        var tKey = this.tKeyPath("options", opt.name);
+        this.output();
+        this.output("%s:", t([...tKey, "name"]) || opt.name);
+        this.outputWithLabel(opt.helpValues([...tKey, "options"]), '  ');
+      }
+    });
   }
 }

@@ -2,9 +2,10 @@ import { _, t } from 'azk';
 import { Multibar } from 'azk/cli/multi_bars';
 require('colors');
 
-var ok    = 'azk'.green;
-var fail  = 'azk'.red;
-var mbars = [];
+var printf = require('printf');
+var ok     = 'azk'.green;
+var fail   = 'azk'.red;
+var mbars  = [];
 
 var UI = {
   isUI: true,
@@ -13,8 +14,26 @@ var UI = {
     console.dir(...args);
   },
 
+  output(string, ...args) {
+    this.stdout().write(printf(string || "", ...args) + "\n");
+  },
+
   tOutput(...args) {
-    console.log(t(...args));
+    this.stdout().write(t(...args) + "\n");
+  },
+
+  outputWithLabel(rows, ident = '') {
+    rows = _.map(rows, (row) => {
+      return _.isArray(row) ? row : row.split('\t');
+    });
+
+    var size = _.reduce(rows, (acc, row) => {
+      return acc > row[0].length ? acc : row[0].length;
+    }, 0);
+
+    _.each(rows, (row) => {
+      this.output("%s%-*s %s", ident, row.shift(), size, ...row);
+    });
   },
 
   ok(...args) {

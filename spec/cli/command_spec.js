@@ -1,26 +1,36 @@
-var path = require('path');
 import h from 'spec/spec_helper';
-import { Command } from 'azk/cli/command';
+import { t, _ } from 'azk';
+import { Command, UI as OriginalUI } from 'azk/cli/command';
 import {
   InvalidOptionError,
   InvalidValueError,
   RequiredOptionError
 } from 'azk/utils/errors';
 
-describe('Azk cli command module', function() {
+var path   = require('path');
+var printf = require('printf');
+var stripIdent = require("strip-indent");
+
+describe.only('Azk cli command module', function() {
   var outputs = [];
   beforeEach(() => outputs = []);
 
-  var UI = {
-    isUI: true,
-    dir(...args) {
-      outputs.push(...args);
+  // Mock UI
+  var UI = _.clone(OriginalUI);
+  UI.dir    = (...args) => outputs.push(...args);
+  UI.stdout = () => { return {
+    write(data) {
+      outputs.push(data.replace(/(.*)\n/, "$1"));
     }
-  }
+  }};
 
   class TestCmd extends Command {
     action(opts) {
       this.dir(opts);
+    }
+
+    tKeyPath(...keys) {
+      return ['test', 'commands', this.name, ...keys];
     }
   }
 
@@ -142,5 +152,23 @@ describe('Azk cli command module', function() {
     var cmd  = new Command('test', UI);
     h.expect(() => cmd.run()).to.throw(Error, /Don't use/);
   });
-});
 
+  it("should a usage and help options", function() {
+    var cmd = new TestCmd('test_help {subcommand} [command]', UI);
+    cmd
+      .addOption(['--verbose', '-v'])
+      .addOption(['--string'], { type: String })
+      .setOptions("subcommand", { options: ["start", "stop"] })
+      .setOptions("command", { stop: true });
+
+    cmd.showUsage();
+    h.expect(outputs).to.deep.property("[00]", 'Usage: $ test_help [options] {subcommand} [*command]');
+    h.expect(outputs).to.deep.property("[02]", 'Test help description');
+    h.expect(outputs).to.deep.property("[04]", 'options:');
+    h.expect(outputs).to.deep.property("[06]", '  --verbose, -v Verbose mode (default: true)');
+    h.expect(outputs).to.deep.property("[07]", '  --string=""   String option');
+    h.expect(outputs).to.deep.property("[09]", 'subcommand:');
+    h.expect(outputs).to.deep.property("[10]", '  start Start service');
+    h.expect(outputs).to.deep.property("[11]", '  stop  Stop service');
+  });
+});
