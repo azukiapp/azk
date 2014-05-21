@@ -17,12 +17,14 @@ var _log = null;
 
 module.exports = {
   get default() { return Azk },
-  get pp() { return Azk.pp },
-  get Q()  { return Q },
-  get _()  { return _ },
-  get t()  { return t },
-  get config() { return config },
-  get defer()  { return defer },
+  get pp() { return Azk.pp; },
+  get Q()  { return Q; },
+  get _()  { return _; },
+  get t()  { return t; },
+  get config() { return config; },
+  get defer()  { return defer; },
+  get path()   { return require('path'); },
+  get fs()     { return require('fs'); },
 
   get log() {
     if (!_log) {

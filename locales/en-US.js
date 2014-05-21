@@ -55,7 +55,7 @@ module.exports = {
       enter: "Enter the box name",
       generated: "'%s' generated",
       id: "Generate a new app id",
-      already: "'%s' already exists",
+      already: "'%s' already exists (try: --force)",
       generated: "'%s' generated",
     },
     kill: {

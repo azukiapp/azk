@@ -1,5 +1,5 @@
 /**
- * http://azk.io file
+ * Documentation: http://docs.azk.io/Azkfile.js
  */
 
 // Global image to reuse
