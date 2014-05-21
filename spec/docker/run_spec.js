@@ -62,7 +62,7 @@ describe("Azk docker module, run method", function() {
     });
   });
 
-  it.only("should support bind volumes", function() {
+  it("should support bind volumes", function() {
     var cmd = ["/bin/bash", "-c", "ls -l /azk"];
     var options = {
       stdout: mocks.stdout, rm: true,
