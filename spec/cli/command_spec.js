@@ -61,6 +61,25 @@ describe('Azk cli command module', function() {
     });
   });
 
+  describe("with options that have default values", function() {
+    var cmd = new TestCmd('test_options', UI);
+    cmd
+      .addOption(['--verbose', '-v'], { default: false })
+      .addOption(['--flag'   , '-f'], { default: true })
+
+    it("should render a defaults values", function() {
+      cmd.run();
+      h.expect(outputs).to.deep.property("[0].verbose", false);
+      h.expect(outputs).to.deep.property("[0].flag", true);
+    });
+
+    it("should replace default values", function() {
+      cmd.run(["--verbose", "--no-flag"]);
+      h.expect(outputs).to.deep.property("[0].verbose", true);
+      h.expect(outputs).to.deep.property("[0].flag", false);
+    });
+  });
+
   describe("with a sub commands and options", function() {
     var cmd = new TestCmd('test_sub {sub_command} [sub_command_opt]', UI);
     cmd.setOptions('sub_command', { options: ['command1', 'command2'] });

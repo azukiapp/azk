@@ -102,6 +102,14 @@ export class Command extends UIProxy {
 
   parse(args) {
     var opts = {};
+
+    // Set a default values
+    _.each(this.options, (opt) => {
+      if (opt.haveDefault() && !_.has(opts, opt.name)) {
+        opts[opt.name] = opt.default;
+      }
+    });
+
     var [previous, previous_value] = [null, null];
     var stackable = _.clone(this.stackable);
     var stop = false;
@@ -121,6 +129,9 @@ export class Command extends UIProxy {
               && stackable.length > 0
               && !previous.required
             ) {
+              if (previous.type == Boolean) {
+                opts[previous.name] = true;
+              }
               previous = null;
               return process();
             }
@@ -142,7 +153,7 @@ export class Command extends UIProxy {
         arg = arg.replace(/^-*/, '');
         if (this.options[arg]) {
           previous = this.options[arg];
-          opts[previous.name] = previous.default;
+          opts[previous.name] = (previous.type == Boolean) ? true : previous.default;
         } else {
           this.invalid_options(arg);
         }

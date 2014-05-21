@@ -27,6 +27,10 @@ export class Option {
     this._default = value;
   }
 
+  haveDefault() {
+    return _.has(this, "_default");
+  }
+
   set type(value) {
     this._type = value;
   }
