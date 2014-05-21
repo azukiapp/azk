@@ -1,6 +1,7 @@
 import { _ } from 'azk';
 import { sync as glob } from 'glob';
 import { Command, Option } from 'azk/cli/command';
+import { InvalidValueError } from 'azk/utils/errors';
 
 var path = require('path');
 
@@ -37,6 +38,18 @@ export class Cli extends Command {
     }
     opt.options.push(cmd);
     this.commands[cmd.name] = cmd;
+  }
+
+  showUsage(command = null) {
+    if (!command) return super();
+
+    var cmd = this.commands[command];
+    if (!cmd)
+      throw new InvalidValueError('command', command);
+
+    // Show usage for command
+    var prefix = this.usageLine("command");
+    return cmd.showUsage(prefix);
   }
 
   action(opts, parent_opts) {

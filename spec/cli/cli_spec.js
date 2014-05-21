@@ -9,14 +9,7 @@ import {
 
 describe('Azk cli module', function() {
   var outputs = [];
-  beforeEach(() => outputs = []);
-
-  var UI = {
-    isUI: true,
-    dir(...args) {
-      outputs.push(...args);
-    }
-  }
+  var UI = h.mockUI(beforeEach, outputs);
 
   var cmds = path.join(__dirname, '../fixtures/cmds');
   var cli  = new Cli('azk-test', UI, cmds);
@@ -34,6 +27,11 @@ describe('Azk cli module', function() {
   it("should raise a invalid command", function() {
     var func = () => cli.run(['invalid_cmd']);
     h.expect(func).to.throw(InvalidValueError, /invalid_cmd.*command/);
+  });
+
+  it("should show a usage subcommand", function() {
+    cli.showUsage("test_options");
+    h.expect(outputs).to.deep.property("[00]", 'Usage: $ azk-test test_options [options]');
   });
 });
 

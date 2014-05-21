@@ -14,7 +14,7 @@ class CmdCli extends Cli {
   }
 
   action(opts, parent_opts) {
-    if (opts.help || _.isEmpty(opts.__leftover)) {
+    if (opts.help || (_.isEmpty(opts.command) && _.isEmpty(opts.__leftover))) {
       this.showUsage();
       return Q(0);
     }
