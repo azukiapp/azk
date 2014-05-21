@@ -13,16 +13,7 @@ var stripIdent = require("strip-indent");
 
 describe('Azk cli command module', function() {
   var outputs = [];
-  beforeEach(() => outputs = []);
-
-  // Mock UI
-  var UI = _.clone(OriginalUI);
-  UI.dir    = (...args) => outputs.push(...args);
-  UI.stdout = () => { return {
-    write(data) {
-      outputs.push(data.replace(/(.*)\n/, "$1"));
-    }
-  }};
+  var UI = h.mockUI(beforeEach, outputs);
 
   class TestCmd extends Command {
     action(opts) {
@@ -153,22 +144,32 @@ describe('Azk cli command module', function() {
     h.expect(() => cmd.run()).to.throw(Error, /Don't use/);
   });
 
-  it("should a usage and help options", function() {
-    var cmd = new TestCmd('test_help {subcommand} [command]', UI);
-    cmd
-      .addOption(['--verbose', '-v'])
-      .addOption(['--string'], { type: String })
-      .setOptions("subcommand", { options: ["start", "stop"] })
-      .setOptions("command", { stop: true });
+  describe("call showUsage", function() {
+    it("should a usage and help options", function() {
+      var cmd = new TestCmd('test_help {subcommand} [command]', UI);
+      cmd
+        .addOption(['--verbose', '-v'])
+        .addOption(['--string'], { type: String })
+        .setOptions("subcommand", { options: ["start", "stop"] })
+        .setOptions("command", { stop: true });
 
-    cmd.showUsage();
-    h.expect(outputs).to.deep.property("[00]", 'Usage: $ test_help [options] {subcommand} [*command]');
-    h.expect(outputs).to.deep.property("[02]", 'Test help description');
-    h.expect(outputs).to.deep.property("[04]", 'options:');
-    h.expect(outputs).to.deep.property("[06]", '  --verbose, -v  Verbose mode (default: true)');
-    h.expect(outputs).to.deep.property("[07]", '  --string=""    String option');
-    h.expect(outputs).to.deep.property("[09]", 'subcommand:');
-    h.expect(outputs).to.deep.property("[11]", '  start  Start service');
-    h.expect(outputs).to.deep.property("[12]", '  stop   Stop service');
+      cmd.showUsage();
+      h.expect(outputs).to.deep.property("[00]", 'Usage: $ test_help [options] {subcommand} [*command]');
+      h.expect(outputs).to.deep.property("[02]", 'Test help description');
+      h.expect(outputs).to.deep.property("[04]", 'options:');
+      h.expect(outputs).to.deep.property("[06]", '  --verbose, -v  Verbose mode (default: true)');
+      h.expect(outputs).to.deep.property("[07]", '  --string=""    String option');
+      h.expect(outputs).to.deep.property("[09]", 'subcommand:');
+      h.expect(outputs).to.deep.property("[11]", '  start  Start service');
+      h.expect(outputs).to.deep.property("[12]", '  stop   Stop service');
+    });
+
+    it("shund support a prefix in usage", function() {
+      var cmd = new TestCmd('test_help {subcommand} [command]', UI);
+      cmd.showUsage("azk %s {after}");
+      h.expect(outputs).to.deep.property(
+        "[00]", 'Usage: $ azk test_help {subcommand} [command] {after}'
+      );
+    });
   });
 });

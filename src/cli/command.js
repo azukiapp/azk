@@ -4,6 +4,8 @@ import { Option } from 'azk/cli/option';
 import { UIProxy, UI } from 'azk/cli/ui';
 import { Helpers } from 'azk/cli/helpers';
 
+var printf = require('printf');
+
 export { Option, UI, Helpers };
 export class Command extends UIProxy {
   constructor(name, user_interface) {
@@ -51,7 +53,10 @@ export class Command extends UIProxy {
     alias = _.map(alias, (alias) => alias.replace(/^-*/, ''));
     options.alias = alias;
     options.name  = _.first(alias);
-    _.each(alias, (name) => this.options[name] = new Option(options));
+
+    var option = new Option(options);
+    _.each(alias, (name) => this.options[name] = option);
+
     return this;
   }
 
@@ -175,14 +180,14 @@ export class Command extends UIProxy {
     return ['commands', this.name, ...keys];
   }
 
-  showUsage() {
-    this.__show_usage();
+  showUsage(prefix = null) {
+    this.__show_usage(prefix);
     this.__show_description();
     this.__show_options();
     this.__show_stackables();
   }
 
-  __show_usage() {
+  usageLine(replace = null) {
     var usage = [this.name];
 
     if (_.keys(this.options).length > 0) {
@@ -190,12 +195,25 @@ export class Command extends UIProxy {
     }
 
     _.each(this.stackable, (option) => {
-      var r    = option.required;
-      var stop = option.stop ? '*' : '';
-      usage.push((r ? '{' : '[') + stop + option.name + (r ? '}' : ']'));
+      if (replace == option.name) {
+        usage.push("%s");
+      } else {
+        var r    = option.required;
+        var stop = option.stop ? '*' : '';
+        usage.push((r ? '{' : '[') + stop + option.name + (r ? '}' : ']'));
+      }
     });
 
-    this.tOutput("commands.help.usage", usage.join(" "));
+    return usage.join(" ");
+  }
+
+  __show_usage(prefix) {
+    var usage = this.usageLine();
+
+    if (prefix)
+      usage = printf(prefix, usage);
+
+    this.tOutput("commands.help.usage", usage);
   }
 
   __show_description() {
