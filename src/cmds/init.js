@@ -4,8 +4,6 @@ import docker from 'azk/docker';
 
 class InitCmd extends Command {
   action(opts) {
-    console.log(opts);
-
     var manifest = config("manifest");
     var cwd  = opts.path || this.parent.cwd;
     var file = path.join(cwd, manifest);
@@ -15,7 +13,6 @@ class InitCmd extends Command {
       return 1;
     }
 
-    //console.log(path);
     return 0;
   }
 }

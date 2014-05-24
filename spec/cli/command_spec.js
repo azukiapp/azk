@@ -9,7 +9,6 @@ import {
 
 var path   = require('path');
 var printf = require('printf');
-var stripIdent = require("strip-indent");
 
 describe('Azk cli command module', function() {
   var outputs = [];
