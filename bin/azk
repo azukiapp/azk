@@ -4,7 +4,7 @@ set -e
 
 __FILE__="${0}"
 export AZK_ROOT_PATH=`cd \`dirname $(readlink ${__FILE__} || echo ${__FILE__} )\`/..; pwd`
-export DEFAULT_DATA_PATH=${DEFAULT_DATA_PATH:-$AZK_ROOT_PATH/data}
+export AZK_DATA_PATH=${AZK_DATA_PATH:-$AZK_ROOT_PATH/data}
 
 export PATH=/usr/bin:/bin:/usr/sbin
 export PATH=$AZK_ROOT_PATH/bin:$PATH
@@ -20,8 +20,8 @@ export NODE_PATH=$AZK_ROOT_PATH/node_modules:$NODE_PATH
 export NODE_PATH=$AZK_ROOT_PATH/build:$NODE_PATH
 
 # Configure NVM and VM
-export NVM_DIR=$DEFAULT_DATA_PATH/nvm
-export VM_DISK_PATH=$DEFAULT_DATA_PATH/vm
+export NVM_DIR=$AZK_DATA_PATH/nvm
+export VM_DISK_PATH=$AZK_DATA_PATH/vm
 
 # local
 node_version="${NODE_VERSION:-v0.10.26}"
@@ -33,6 +33,13 @@ data_url=http://goo.gl/OKXJO7
 boot_url=http://goo.gl/DAnaCj
 boot_file=$VM_DISK_PATH/debian2docker.iso
 update=""
+data_folders=(
+  "$AZK_DATA_PATH"
+  "$NVM_DIR"
+  "$VM_DISK_PATH"
+  "$AZK_DATA_PATH/pids"
+  "$AZK_DATA_PATH/logs"
+)
 
 log() {
   e="echo"
@@ -57,6 +64,12 @@ cmd_exists() {
 cmd_exists git nc curl grep head tr
 
 # Roles
+check_data_folders() {
+  for dir in "${data_folders[@]}"; do
+    [ -d "$dir" ] || mkdir -p $dir
+  done
+}
+
 check_nvm() {
   [ -n "$update" ] && rm $nvm_file
   [ -f $nvm_file ]
@@ -99,6 +112,7 @@ check_depedencies() {
     exit 1
   }
 
+  check_data_folders
   check_nvm  || msg nvm
   check_node || msg node
   check_npm  || msg 'node dependencies'
