@@ -1,7 +1,20 @@
 import { path, _ } from 'azk';
 var glob = require('glob');
 
+var example_system = {
+  name    : "example",
+  depends : [],
+  image   : { repository: "[repository]", tag: "[tag]" },
+  workdir : "/app",
+  balancer: true,
+  command : "# command to run app",
+  sync_files : true,
+  data_folder: false,
+};
+
 var Helpers = {
+  example_system,
+
   nameByDir(dir) {
     return path.basename(dir);
   },
@@ -14,7 +27,8 @@ var Helpers = {
       };
 
       if (dir != options.root) {
-        system.cmd = `cd ${path.relative(options.root, dir)}; ${suggestion.cmd}`
+        var relative = path.relative(options.root, dir);
+        system.workdir = path.join(suggestion.workdir, relative);
       }
 
       systems.push(_.extend({}, suggestion, system));
@@ -36,4 +50,4 @@ var Helpers = {
   },
 }
 
-export { Helpers };
+export { Helpers, example_system };

@@ -8,22 +8,26 @@
 systems({
   {{#each systems ~}}
   {{&name}}: {
-    {{#if depends ~}}
+    // Dependent systems
     depends: {{&json depends}},
-    {{/if ~}}
-    image: {{&json image}},
-    {{#balancer ~}}
-    // Enable balancer over de instances
-    balancer: {
-      hostname: "{{&name}}_<%= system.name %>",
-      alias: [
-        "front.<%= azk.default_domain %>"
+    // More imagens http://images.azk.io
+    {{#if image.build ~}}
+    image: {
+      build: [
+        {{#each image.build ~}}
+        {{&json this}},
+        {{/each ~}}
       ]
     },
-    {{/balancer ~}}
+    {{else ~}}
+    image: {{&json image}},
+    {{/if ~}}
+    {{#if workdir ~}}
+    workdir: "{{&workdir}}",
+    {{/if ~}}
     command: "{{&command}}",
     {{#sync_files ~}}
-    // Enable sync current project folder to '/app' in containers
+    // Enable sync in current project folder to '/app' in containers
     sync_files: {
       ".": "/app",
     },
@@ -32,7 +36,17 @@ systems({
     // Active a persistent data folder in '/data' in containers
     data_folder: true,
     {{/data_folder ~}}
+    {{#balancer ~}}
+    // Enable balancer over the instances
+    balancer: {
+      hostname: "<%= system.name %>.<%= default_domain %>",
+      alias: [
+        "front.<%= default_domain %>"
+      ]
+    },
+    {{/balancer ~}}
     envs: {
+      // Export global variables
       {{#each envs ~}}
       {{@key}}: "{{this}}",
       {{~/each}}
@@ -41,5 +55,9 @@ systems({
   {{~/each}}
 });
 
+{{#if default ~}}
 setDefault("{{default}}");
-//registerBin("rails-c", ["exec", "-i", "/bin/bash", "-c", "rails c"]);
+{{/if ~}}
+{{#each bins ~}}
+registerBin("{{&this.name}}", {{&json this.command}});
+{{/each}}

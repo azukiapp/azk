@@ -1,4 +1,5 @@
 import { _, config } from 'azk';
+import { Helpers, example_system } from 'azk/generator/rules';
 
 var glob = require('glob');
 var path = require('path');
@@ -9,12 +10,15 @@ var template = path.join(
   config('azk_root'), 'src', 'share', 'Azkfile.mustach.js'
 );
 
+var rules = {
+  runtime  : [],
+  database : [],
+  tasks    : [],
+};
+
 var generator = {
-  __rules: {
-    runtime  : [],
-    database : [],
-    tasks    : [],
-  },
+  example_system,
+  __rules: rules,
 
   load(dir) {
     _.each(glob.sync(path.join(dir, '**/*.js')), (file) => {
@@ -49,18 +53,23 @@ var generator = {
   },
 
   render(data, file) {
+    data = _.extend({
+      bins: [],
+    }, data);
     fs.writeFileSync(file, this.tpl(data));
   }
 }
 
-Handlebars.registerHelper('json', (data) => {
+function json(data) {
   return JSON.stringify(data || null, null, ' ')
     .replace(/\n/g, '')
     .replace(/^(\{|\[) /, '$1');
-});
+}
+
+Handlebars.registerHelper('json', json);
 
 // Load default rules
 generator.load(path.join(__dirname, "rules"));
 
-export { generator }
+export { generator, example_system, rules };
 
