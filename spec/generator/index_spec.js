@@ -1,30 +1,14 @@
-import { config } from 'azk';
+import { config, path, fs, _ } from 'azk';
 import h from 'spec/spec_helper';
 import { generator } from 'azk/generator';
 
-var path  = require('path');
 var touch = require('touch');
-var fs    = require('fs');
 
 describe("Azk generator tool", function() {
-  var app_dir = null;
-  var box_dir = null;
-
-  it("should detect project type for path", function() {
-    return h.tmp_dir({ prefix: "azk-" }).then((project) => {
-      touch.sync(path.join(project, "Gemfile"));
-
-      var detected = generator.inspect(project);
-      h.expect(detected).to.have.property("box")
-        .and.match(/ruby/);
-
-      touch.sync(path.join(project, "package.json"));
-
-      var detected = generator.inspect(project);
-      h.expect(detected).to.have.property("box")
-        .and.match(/node/);
-    });
-  })
+  it("should load default rules", function() {
+    var node = generator.rule("node");
+    h.expect(node).to.have.property("type", "runtime");
+  });
 
   it("should format template", function() {
     return h.tmp_dir({ prefix: "azk-" }).then((project) => {

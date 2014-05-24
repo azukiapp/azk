@@ -9,20 +9,37 @@ var template = path.join(
   config('azk_root'), 'src', 'share', 'Azkfile.mustach.js'
 );
 
-var files = glob.sync("roles/*.js", { cwd: __dirname });
-var rules = _.map(files, (role) => {
-  return require(path.join(__dirname, role));
-});
-
 var generator = {
-  inspect(dir) {
-    var result = null;
+  __rules: {
+    runtime  : [],
+    database : [],
+    tasks    : [],
+  },
 
-    _.some(rules, (rule) => {
-      return result = rule.detect(dir);
+  load(dir) {
+    _.each(glob.sync(path.join(dir, '**/*.js')), (file) => {
+      var rule  = require(file).default || {};
+      if (_.isArray(this.__rules[rule.type])) {
+        rule.name = path.basename(file, ".js");
+        this.__rules[rule.type].push(rule);
+      }
     });
+  },
 
-    return result;
+  rule(name) {
+    return _.find(this.rules, (rule) => { return rule.name == name });
+  },
+
+  get rules() {
+    return [...this.__rules.runtime, ...this.__rules.database, ...this.__rules.tasks];
+  },
+
+  findSystems(dir) {
+    var systems = [];
+
+    return _.reduce(this.rules, (systems, rule) => {
+      return systems.concat(rule.findSystems(dir, systems) || []);
+    }, []);
   },
 
   get tpl() {
@@ -41,6 +58,9 @@ Handlebars.registerHelper('json', (data) => {
     .replace(/\n/g, '')
     .replace(/^(\{|\[) /, '$1');
 });
+
+// Load default rules
+generator.load(path.join(__dirname, "rules"));
 
 export { generator }
 
