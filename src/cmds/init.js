@@ -1,6 +1,7 @@
 import { Q, _, config, t, fs, path } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
 import docker from 'azk/docker';
+import { generator, example_system } from 'azk/generator';
 
 class InitCmd extends Command {
   action(opts) {
@@ -12,6 +13,11 @@ class InitCmd extends Command {
       this.fail(this.tKeyPath("already"), manifest);
       return 1;
     }
+
+    var systems = generator.findSystems(cwd);
+    generator.render({
+      systems: _.isEmpty(systems) ? [example_system] : systems,
+    }, file);
 
     return 0;
   }

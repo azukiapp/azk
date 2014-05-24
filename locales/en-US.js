@@ -52,9 +52,6 @@ module.exports = {
     },
     init: {
       description: "Initializes a project by adding the file azkfile.json",
-      enter: "Enter the box name",
-      generated: "'%s' generated",
-      id: "Generate a new app id",
       already: "'%s' already exists (try: --force)",
       generated: "'%s' generated",
     },
