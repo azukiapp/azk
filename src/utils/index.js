@@ -2,7 +2,7 @@ import { join } from 'path';
 import { i18n } from 'azk/utils/i18n';
 
 var Q    = require('q');
-var _    = require('underscore');
+var _    = require('lodash');
 var fs   = require('fs');
 var zlib = require('zlib');
 
