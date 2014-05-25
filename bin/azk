@@ -37,7 +37,7 @@ data_folders=(
   "$AZK_DATA_PATH"
   "$NVM_DIR"
   "$VM_DISK_PATH"
-  "$AZK_DATA_PATH/pids"
+  "$AZK_DATA_PATH/run"
   "$AZK_DATA_PATH/logs"
 )
 

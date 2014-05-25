@@ -15,6 +15,15 @@ module.exports = {
     }
   },
 
+  agent: {
+    status: {
+      running: "Agent is running",
+      not_running: "Agent is not running (try: azk agent)",
+      share_running: "Filesharing running",
+      not_share_running: "Sharing files not running (try: azk agent reload)",
+    },
+  },
+
   commands: {
     not_found: "Command '%s' not found",
     azk: {
@@ -28,7 +37,10 @@ module.exports = {
       },
     },
     agent: {
-      description: "Control azk agent"
+      description: "Control azk agent",
+      options: {
+        force_vm: "Forces the use of the virtual machine when it is not needed (linux with docker)."
+      }
     },
     exec: {
       description: "Run a command in application box context",

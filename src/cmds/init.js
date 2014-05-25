@@ -1,9 +1,8 @@
 import { Q, _, config, t, fs, path } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
-import docker from 'azk/docker';
 import { generator, example_system } from 'azk/generator';
 
-class InitCmd extends Command {
+class Cmd extends Command {
   action(opts) {
     var manifest = config("manifest");
     var cwd  = opts.path || this.parent.cwd;
@@ -24,7 +23,7 @@ class InitCmd extends Command {
 }
 
 export function init(cli) {
-  (new InitCmd('init [path]', cli))
+  (new Cmd('init [path]', cli))
     .addOption(['--force', '-f'], { default: false })
 }
 

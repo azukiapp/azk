@@ -39,6 +39,9 @@ var options = merge({
     paths   : {
       data  : data_path,
       log   : path.join(data_path, 'logs', 'azk.log'),
+      agent_socket: path.join(data_path, 'run', 'agent.socket'),
+      agent_pid: path.join(data_path, 'run', 'agent.pid'),
+      unfsd_pid: path.join(data_path, 'run', 'unfsd.pid'),
     },
     logs_level: {
       console: (process.env.AZK_DEBUG ? 'debug' : 'warn'),
