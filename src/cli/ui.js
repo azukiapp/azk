@@ -44,8 +44,11 @@ var UI = {
     console.log(fail + ": " + t(...args));
   },
 
+  // TOOD: Flush log (https://github.com/flatiron/winston/issues/228)
   exit(code = 0) {
-    process.emit("azk:command:exit", code);
+    setTimeout(() => {
+      process.emit("azk:command:exit", code);
+    }, 500);
   },
 
   newMultiBars() {
