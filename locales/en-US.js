@@ -17,10 +17,22 @@ module.exports = {
 
   agent: {
     status: {
-      running: "Agent is running",
-      not_running: "Agent is not running (try: azk agent)",
-      share_running: "Filesharing running",
-      not_share_running: "Sharing files not running (try: azk agent reload)",
+      agent: {
+        running: "Agent is running",
+        not_running: "Agent is not running (try: azk agent)",
+      },
+      unfsd: {
+        running: "Filesharing running",
+        not_running: "Sharing files not running (try: azk agent reload)",
+      },
+      vm: {
+        running: "",
+        not_running: "",
+      },
+      balancer: {
+        running: "",
+        not_running: "",
+      },
     },
   },
 
