@@ -33,7 +33,8 @@ var Utils = {
     return Q.Promise((resolve, reject, notify) => {
       process.nextTick(() => {
         try {
-          var result = func({ resolve, reject, notify });
+          resolve = _.extend(resolve, { resolve, reject, notify });
+          var result = func(resolve, reject, notify);
         } catch (e) {
           reject(e);
         }
