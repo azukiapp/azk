@@ -25,18 +25,18 @@ var log_level = process.env.AZK_DEBUG ? 'debug' : 'warn';
 function merge(options) {
   _.each(options, (values, key) => {
     if (key != '*')
-      options[key] = deepExtend(options['*'], values);
+      options[key] = _.merge({}, options['*'], values);
   });
   return options;
 }
 
 var options = merge({
   '*': {
-    azk_root: azk_root,
     manifest: "Azkfile.js",
     locale  : 'en-US',
     requires_vm: requires_vm,
     paths   : {
+      azk_root,
       data  : data_path,
       log   : path.join(data_path, 'logs', 'azk.log'),
       agent_socket: path.join(data_path, 'run', 'agent.socket'),
@@ -100,3 +100,21 @@ export function get(key) {
 
   return buffer;
 };
+
+export function set(key, value) {
+  if (key == "env") {
+    process.env.NODE_ENV = value;
+  } else {
+    var keys   = [env(), ...key.split(':')];
+    var buffer = { [keys.pop()]: value };
+    while(key  = keys.pop()) { buffer = { [key]: buffer } };
+
+    // Check env exist
+    if (!options[env()]) {
+      options[env()] = _.cloneDeep(options['*']);
+    }
+
+    _.merge(options, buffer);
+  }
+  return value;
+}
