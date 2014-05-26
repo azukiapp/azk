@@ -1,6 +1,6 @@
 require('traceur');
 import { version } from 'package.json';
-import { get as config }  from 'azk/config';
+import { get as config, set as set_config }  from 'azk/config';
 import { Q, _, i18n, defer } from 'azk/utils';
 
 class Azk {
@@ -22,6 +22,7 @@ module.exports = {
   get _()  { return _; },
   get t()  { return t; },
   get config() { return config; },
+  get set_config() { return set_config; },
   get defer()  { return defer; },
   get path()   { return require('path'); },
   get fs()     { return require('fs'); },

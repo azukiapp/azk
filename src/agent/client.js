@@ -21,7 +21,7 @@ var Client = {
         return done.resolve(1);
       }
 
-      return Agent.start(opts);
+      return Agent.start(opts).then(() => { return 0 });
     });
   }
 }

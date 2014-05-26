@@ -1,6 +1,6 @@
 import { Q, config, defer, log } from 'azk';
 import { Pid } from 'azk/utils/pid';
-import { Server } from 'azk/agent/app';
+import { Server } from 'azk/agent/server';
 
 var Agent = {
   start(opts) {
@@ -14,12 +14,6 @@ var Agent = {
     return a_pid;
   },
 
-  sharePid() {
-    log.info('get share file service status');
-    var u_pid = new Pid(config("paths:unfsd_pid"));
-    log.info('file share is running: %s', a_pid.running);
-    return u_pid;
-  },
 
   processStateHandler() {
     var pid = this.agentPid();
@@ -30,7 +24,9 @@ var Agent = {
           pid.unlink();
         } catch(e){}
         process.exit(0);
-      }).fail(console.error);
+      }).fail((error) => {
+        console.log(error.stack);
+      });
     }
 
     try {
@@ -54,7 +50,7 @@ var Agent = {
       var child = require('child_process').fork(__filename, [], {
         silent     : false,
         detached   : true,
-        cwd        : config('azk_root'),
+        cwd        : config('paths:azk_root'),
         env        : _.extend({
           //'SILENT' : cst.AZK_DEBUG ? !cst.AZK_DEBUG : true,
           //'HOME'   : process.env.HOME,
@@ -62,7 +58,7 @@ var Agent = {
         }, process.env),
         stdio      : 'ignore'
       }, (err, stdout, stderr) => {
-        if (err) done.reject(err);
+        if (err) done.reject(err.stack);
       });
 
       child.unref();

@@ -1,9 +1,14 @@
-import { Q, _, config, t, fs, path } from 'azk';
+import { Q, _, config, set_config } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
 import { Client } from 'azk/agent/client';
 
 class Cmd extends Command {
   action(opts) {
+    // Force vm use?
+    if (opts.force_vm) {
+      set_config('agent:requires_vm', true);
+    }
+
     var keys = ["agent", "status"];
     return (Client[opts.action](opts)).progress((event) => {
       if (event.running) {
