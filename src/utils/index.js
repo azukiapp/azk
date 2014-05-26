@@ -30,12 +30,21 @@ var Utils = {
   },
 
   defer(func) {
-    var done   = Q.defer();
-    var result = func(done);
-    if (Q.isPromise(result)) {
-      result.progress(done.notify).then(done.resolve, done.reject);
-    }
-    return done.promise;
+    return Q.Promise((resolve, reject, notify) => {
+      process.nextTick(() => {
+        try {
+          var result = func({ resolve, reject, notify });
+        } catch (e) {
+          reject(e);
+        }
+
+        if (Q.isPromise(result)) {
+          result.progress(notify).then(resolve, reject);
+        } else if (typeof(result) != "undefined") {
+          resolve(result);
+        }
+      });
+    });
   },
 
   qify(klass) {
