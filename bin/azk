@@ -6,6 +6,9 @@ __FILE__="${0}"
 export AZK_ROOT_PATH=`cd \`dirname $(readlink ${__FILE__} || echo ${__FILE__} )\`/..; pwd`
 export AZK_DATA_PATH=${AZK_DATA_PATH:-$AZK_ROOT_PATH/data}
 
+# Share system
+export AZK_UNFSD_PATH=`which unfsd`
+
 export PATH=/usr/bin:/bin:/usr/sbin
 export PATH=$AZK_ROOT_PATH/bin:$PATH
 export PATH=$AZK_ROOT_PATH/lib/libexec:$PATH

@@ -50,6 +50,8 @@ var options = merge({
 
       agent_socket: path.join(data_path, 'run', 'agent.socket'),
       unfsd_file: path.join(data_path, 'run', 'exports'),
+
+      unfsd: process.env.AZK_UNFSD_PATH,
     },
     logs_level: {
       console: (process.env.AZK_DEBUG ? 'debug' : 'warn'),
