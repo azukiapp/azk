@@ -18,7 +18,7 @@ var net = {
         server.close();
       });
       server.on('error', (err) => {
-        done.resolve(getPort());
+        done.resolve(this.getPort());
       });
     });
   },
@@ -26,12 +26,6 @@ var net = {
   calculateNetIp(ip) {
     return ip.replace(/^(.*)\..*$/, "$1.1");
   },
-
-  getAgentIp(name) {
-    return Q.nfcall(dns.lookup, name).then((result) => {
-      return result[0];
-    });
-  }
 }
 
 export default net;

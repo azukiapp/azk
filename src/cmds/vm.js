@@ -39,7 +39,7 @@ class VmCmd extends Command {
       self.ok("commands.vm.started");
 
       self.ok("commands.vm.setting_network");
-      var confg = VM.configureIp(vm_name, yield net.getAgentIp(vm_name));
+      var confg = VM.configureIp(vm_name, config("agent:vm:ip"));
       yield confg.progress((event) => {
         self.ok("commands.vm.network_pogress", event);
       });
@@ -74,7 +74,7 @@ class VmCmd extends Command {
     return Q.async(function* () {
       var opts = {
         name: vm_name,
-        ip  : yield net.getAgentIp(vm_name),
+        ip  : config("agent:vm:ip"),
         boot: config("agent:vm:boot_disk"),
         data: config("agent:vm:data_disk"),
       }

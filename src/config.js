@@ -1,5 +1,6 @@
-import { _, resolve, deepExtend } from 'azk/utils';
-var path = require('path');
+import { _ } from 'azk/utils';
+var path    = require('path');
+var dnsSync = require('dns-sync');
 
 // Root path
 var azk_root =
@@ -13,6 +14,11 @@ var data_path =
 // Use virtual machine
 var requires_vm = process.platform == 'linux' ?
   (process.env.AZK_USE_VM || false) : true;
+
+// Vm informations
+// TODO: Show erro if not resolve ip
+var vm_name = "azk-agent";
+var vm_ip   = dnsSync.resolve(vm_name);
 
 // Docker opts
 var docker_host =
@@ -38,9 +44,12 @@ var options = merge({
       azk_root,
       data  : data_path,
       log   : path.join(data_path, 'logs', 'azk.log'),
-      agent_socket: path.join(data_path, 'run', 'agent.socket'),
+
       agent_pid: path.join(data_path, 'run', 'agent.pid'),
       unfsd_pid: path.join(data_path, 'run', 'unfsd.pid'),
+
+      agent_socket: path.join(data_path, 'run', 'agent.socket'),
+      unfsd_file: path.join(data_path, 'run', 'exports'),
     },
     logs_level: {
       console: (process.env.AZK_DEBUG ? 'debug' : 'warn'),
@@ -56,7 +65,8 @@ var options = merge({
       requires_vm: requires_vm,
       portrange_start: 11000,
       vm: {
-        name       : "azk-agent",
+        ip         : vm_ip,
+        name       : vm_name,
         user       : "docker",
         password   : "live",
         boot_disk  : path.join(data_path, "vm", "debian2docker.iso"),

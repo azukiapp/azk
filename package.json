@@ -45,7 +45,8 @@
     "progress": "git+https://github.com/nuxlli/node-progress",
     "winston": "^0.7.3",
     "lodash": "^2.4.1",
-    "express": "^4.3.1"
+    "express": "^4.3.1",
+    "dns-sync": "^0.1.0"
   },
   "devDependencies": {
     "grunt": "^0.4.4",
