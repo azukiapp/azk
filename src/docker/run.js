@@ -110,7 +110,7 @@ export function run(docker, Container, image, cmd, opts = { }) {
     // Start container
     for(var i = 0; i < v_binds.length; i++) {
       var target = v_binds[i][0];
-      if (config('requires_vm')) {
+      if (config('agent:requires_vm')) {
         target = path.join(config('agent:vm:mount_point'), target);
       }
       v_binds[i] = target + ':' + v_binds[i][1];

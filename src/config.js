@@ -34,7 +34,6 @@ var options = merge({
   '*': {
     manifest: "Azkfile.js",
     locale  : 'en-US',
-    requires_vm: requires_vm,
     paths   : {
       azk_root,
       data  : data_path,
@@ -54,6 +53,7 @@ var options = merge({
       image_default : 'racker/precise-with-updates:latest',
     },
     agent: {
+      requires_vm: requires_vm,
       portrange_start: 11000,
       vm: {
         name       : "azk-agent",
