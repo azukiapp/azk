@@ -1,6 +1,6 @@
 import { Q, config, defer, log } from 'azk';
 import { Pid } from 'azk/utils/pid';
-import { Server } from 'azk/agent/server';
+import { Server } from 'azk/agent/app';
 
 var Agent = {
   start(opts) {
