@@ -5,11 +5,11 @@ import { Unfsd } from 'azk/agent/unfsd';
 
 var Server = {
   server: null,
-  vm_started: false,
 
+  // TODO: log start machine steps
   start() {
     var self = this;
-    return Q.async(function* () {
+    return async(function* () {
       log.info_t("commands.agent.starting");
 
       // Virtual machine is required?
@@ -25,17 +25,13 @@ var Server = {
       var socket  = config('paths:agent_socket');
       self.server = app.listen(socket);
       log.info_t("commands.agent.started", socket);
-
-      return defer(() => {});
-    })();
+    })
   },
 
   stop() {
     var self = this;
     return Q.async(function* () {
-      //if (self.vm_started) {
-        yield self.stopVM();
-      //}
+      yield self.stopVM();
       yield self.removeShare();
 
       if (self.server) {
@@ -75,7 +71,6 @@ var Server = {
 
       if (!running && start) {
         yield VM.start(vm_name);
-        self.vm_started = true;
         yield VM.configureIp(vm_name, config("agent:vm:ip")).progress(progress);
         yield Unfsd.mount(vm_name).progress(progress);
       };

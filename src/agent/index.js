@@ -1,21 +1,50 @@
-import { Q, config, defer, log } from 'azk';
+import { Q, config, defer, log, _ } from 'azk';
 import { Pid } from 'azk/utils/pid';
 import { Server } from 'azk/agent/server';
 
 var Agent = {
   wait_kill: null,
 
-  start(opts) {
-    return this.processWrapper();
+  wait_notify(status) {
+    if (typeof(process.send) === 'function') {
+      try {
+        process.send(status);
+      } catch (err) { }
+    }
+  },
+
+  change_status(status) {
+    this.wait_notify({ type: "status", status, pid: process.pid });
+  },
+
+  start(options) {
+    var pid = this.agentPid();
+    return defer((resolve, reject, notify) => {
+      this.wait_notify = notify;
+
+      if (pid.running) {
+        this.change_status('already');
+        resolve(1);
+      } else {
+        this.change_status('starting');
+        if (options.daemon) {
+          return this.launchDaemon();
+        } else {
+          this.wait_kill = resolve;
+          this.processWrapper().progress(notify);
+        }
+      }
+    });
   },
 
   stop(opts) {
     var self = this;
     var pid  = this.agentPid();
-    return defer((resolve) => {
+    return defer((resolve, reject, notify) => {
       if (pid.running) {
+        self.wait_notify = notify;
+        self.wait_kill   = resolve;
         pid.term();
-        self.wait_kill = resolve;
       } else {
         resolve();
       }
@@ -34,17 +63,20 @@ var Agent = {
     var gracefullExit = () => {
       var kill = (code) => {
         if (this.wait_kill) {
+          this.change_status("stoped");
           this.wait_kill(code);
         } else {
           process.exit(code);
         }
       }
 
-      Server.stop().then(() => {
+      this.change_status("stoping");
+      Server.stop().progress(this.wait_notify).then(() => {
         log.info('azk has been killed by signal');
         try { pid.unlink(); } catch(e) {}
         kill(0);
       }).fail((error) => {
+        config.log(error.stack || error);
         log.error(error.stack || error);
         kill(1);
       });
@@ -60,32 +92,34 @@ var Agent = {
   },
 
   processWrapper() {
-    this.processStateHandler();
-    return Server.start();
+    return defer((resolve, reject, notify) => {
+      this.processStateHandler();
+      return Server.start().then(() => {
+        this.change_status("started");
+      });
+    });
   },
 
   launchDaemon() {
     return defer((done) => {
-      log.debug("Launching daemon");
+      log.debug("Launching agent in daemon mode");
 
       var child = require('child_process').fork(__filename, [], {
-        silent     : false,
         detached   : true,
         cwd        : config('paths:azk_root'),
         env        : _.extend({
-          //'SILENT' : cst.AZK_DEBUG ? !cst.AZK_DEBUG : true,
-          //'HOME'   : process.env.HOME,
-          //'AZK_DEBUG' : '*',
         }, process.env),
-        stdio      : 'ignore'
       }, (err, stdout, stderr) => {
         if (err) done.reject(err.stack);
       });
 
       child.unref();
       child.once('message', (msg) => {
-        process.emit('agent:daemon:ready');
-        done.resolve();
+        log.debug('agent child msg: %s', msg);
+        this.change_status(msg.status);
+        if (msg.status == "started") {
+          done.resolve(0);
+        }
       });
     });
   },
@@ -98,6 +132,6 @@ export { Agent };
 // this process is being forked by azk itself
 //
 if (require.main === module) {
-  process.title = 'azk: Agent Daemonizer';
+  process.title = 'azk-agent';
   Agent.processWrapper();
 }

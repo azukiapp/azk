@@ -5,24 +5,25 @@ import { Client } from 'azk/agent/client';
 var keys = ["commands", "agent", "status"];
 
 class Cmd extends Command {
-  progress(event) {
+  progress(action, event) {
     if (event) {
-      if (event.running) {
-        this.ok([...keys, event.type, "running"]);
-      } else {
-        this.fail([...keys, event.type, "not_running"]);
+      // running, starting, not_running, already
+      switch(event.status) {
+        case "not_running":
+        case "already":
+          this.fail([...keys, "agent", event.status]);
+          break;
+        default:
+          this.ok([...keys, "agent", event.status]);
       }
     }
   }
 
   action(opts) {
-    // Force vm use?
-    if (opts.force_vm) {
-      set_config('agent:requires_vm', true);
-    }
+    var progress = (...args) => { this.progress(opts.action, ...args) };
+    var result   = (Client[opts.action](opts)).progress(progress);
 
-    var progress = (...args) => { this.progress(...args) };
-    var result = (Client[opts.action](opts)).progress(progress);
+    // Results and fails
     if (opts.action == "start") {
       result = result.fail((err) => {
         this.fail("commands.agent.start_fail", err.stack);
@@ -37,5 +38,5 @@ class Cmd extends Command {
 export function init(cli) {
   (new Cmd('agent {action}', cli))
     .setOptions('action', { options: ['start', 'status', 'stop'] })
-    .addOption(['--force_vm', '-f'], { default: false })
+    .addOption(['--daemon', '-d'], { default: false })
 }

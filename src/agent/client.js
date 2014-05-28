@@ -3,26 +3,19 @@ import { Agent } from 'azk/agent';
 
 var Client = {
   status(opts) {
-    return defer((deferred) => {
+    return defer((resolve, _reject, notify) => {
       if (Agent.agentPid().running) {
-        deferred.notify({ type: "agent", running: true });
-        deferred.resolve(0);
+        notify({ type: "status", status: "running" });
+        resolve(0);
       } else {
-        deferred.notify({ type: "agent", running: false });
-        deferred.resolve(1);
+        notify({ type: "status", status: "not_running" });
+        resolve(1);
       }
     });
   },
 
   start(opts) {
-    return defer((done) => {
-      if (Agent.agentPid().running) {
-        done.notify({ type: "agent", running: true });
-        return done.resolve(1);
-      }
-
-      return Agent.start(opts).then(() => { return 0 });
-    });
+    return Agent.start(opts).then(() => { return 0 });
   },
 
   stop(opts) {
