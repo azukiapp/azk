@@ -30,6 +30,45 @@ var net = {
   calculateGatewayIp(ip) {
     return ip.replace(/^(.*)\..*$/, "$1.1");
   },
+
+  // TODO: change for a generic service wait function
+  waitForwardingService(host, port, retry = 15, timeout = 10000) {
+    return defer((resolve, reject, notify) => {
+      var client   = null;
+      var attempts = 1, max = retry;
+      var connect  = () => {
+        notify({ type: 'try_connect', attempts, max });
+
+        var timeout_func = function() {
+          attempts += 1;
+          connect();
+        }
+
+        client = nativeNet.connect({ host, port}, function() {
+          client.on('data', function(data) {
+            client.destroy();
+            resolve();
+          });
+          if (attempts <= max) {
+            client.setTimeout(timeout, timeout_func);
+          } else {
+            client.destroy();
+            reject();
+          }
+        });
+
+        client.on('error', (error) => {
+          if(error.code == 'ECONNREFUSED' && attempts <= max) {
+            setTimeout(timeout_func, timeout);
+          } else {
+            reject(error)
+          }
+        });
+      }
+
+      connect();
+    });
+  },
 }
 
 export default net;
