@@ -94,7 +94,7 @@ function config_net_interfaces(name, ip) {
     // nat interfance
     yield config_nat_interface(name);
 
-    var net_ip   = Utils.net.calculateNetIp(ip);
+    var net_ip   = Utils.net.calculateGatewayIp(ip);
     var net_mask = "255.255.255.0";
     yield hostonly.configure_if(inter, net_ip, net_mask);
   })();

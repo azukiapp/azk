@@ -24,6 +24,10 @@ var net = {
   },
 
   calculateNetIp(ip) {
+    return ip.replace(/^(.*)\..*$/, "$1.0/24");
+  },
+
+  calculateGatewayIp(ip) {
     return ip.replace(/^(.*)\..*$/, "$1.1");
   },
 }

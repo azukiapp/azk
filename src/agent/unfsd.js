@@ -74,7 +74,7 @@ var Unfsd = {
     // set content
     fs.writeFileSync(file, [
       "# All",
-      "/ " + net.calculateNetIp(config("agent:vm:ip")) + "/24(rw)"
+      "/ " + net.calculateNetIp(config("agent:vm:ip")) + "(rw)"
     ].join("\n"));
 
     return file;
