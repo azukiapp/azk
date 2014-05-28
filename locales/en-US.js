@@ -15,27 +15,6 @@ module.exports = {
     }
   },
 
-  agent: {
-    status: {
-      agent: {
-        running: "Agent is running",
-        not_running: "Agent is not running (try: azk agent)",
-      },
-      unfsd: {
-        running: "Filesharing running",
-        not_running: "Sharing files not running (try: azk agent reload)",
-      },
-      vm: {
-        running: "",
-        not_running: "",
-      },
-      balancer: {
-        running: "",
-        not_running: "",
-      },
-    },
-  },
-
   commands: {
     not_found: "Command '%s' not found",
     azk: {
@@ -50,6 +29,25 @@ module.exports = {
     },
     agent: {
       description: "Control azk agent",
+      start_fail: "Start agent fail: %s",
+      status: {
+        agent: {
+          running: "Agent is running",
+          not_running: "Agent is not running (try: azk agent)",
+        },
+        unfsd: {
+          running: "Filesharing running",
+          not_running: "Sharing files not running (try: azk agent reload)",
+        },
+        vm: {
+          running: "",
+          not_running: "",
+        },
+        balancer: {
+          running: "",
+          not_running: "",
+        },
+      },
       options: {
         force_vm: "Forces the use of the virtual machine when it is not needed (linux with docker)."
       }

@@ -9,32 +9,41 @@ var Unfsd = {
   start() {
     var self = this;
     var pid  = this.sharePid();
-    return Q.async(function* () {
-      if (!self.isRunnig()) {
-        var port = yield net.getPort();
+    return defer((resolve, reject) => {
+      net.getPort().then((port) => {
+        var file = self.__checkConfig();
         var args = [
           config("paths:unfsd"),
           "-s", "-d", "-p", "-t",
           "-n", port,
           "-m", port,
-          "-e", self.__checkConfig()
+          "-e", file
         ]
 
+        log.info("starting unfsd");
         self.child = forever.start(args, {
           max : 5,
           silent : false,
           pidFile: pid.file
         });
-      }
-    })();
+
+        self.child.on('start', () => {
+          log.info("unsfd started in %s port with file config", port, file);
+          resolve();
+        });
+      }, reject);
+    });
   },
 
   stop() {
     return defer((resolve) => {
+      log.debug("call to stop unsfd");
       if (this.child) {
         this.child.on('stop', () => {
+          log.info('unsfd stoped');
           resolve();
         });
+        log.info('stopping unsfd');
         this.child.stop();
       } else {
         resolve();

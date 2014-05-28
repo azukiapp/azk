@@ -23,6 +23,10 @@ var Client = {
 
       return Agent.start(opts).then(() => { return 0 });
     });
+  },
+
+  stop(opts) {
+    return Agent.stop();
   }
 }
 

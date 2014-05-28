@@ -1,26 +1,30 @@
-import { config, Q, defer } from 'azk';
+import { config, Q, defer, async, log } from 'azk';
 import { app }   from 'azk/agent/app';
 import { VM  }   from 'azk/agent/vm';
 import { Unfsd } from 'azk/agent/unfsd';
 
 var Server = {
   server: null,
-  vm_instaled: false,
+  vm_started: false,
 
   start() {
     var self = this;
     return Q.async(function* () {
+      log.info_t("commands.agent.starting");
+
       // Virtual machine is required?
       if (config('agent:requires_vm')) {
         yield self.installShare();
-        //yield self.installVM(true);
+        yield self.installVM(true);
       }
 
       // Load balancer
       //self.installBalancer();
 
       // Start web api
-      self.server = app.listen(config('paths:agent_socket'));
+      var socket  = config('paths:agent_socket');
+      self.server = app.listen(socket);
+      log.info_t("commands.agent.started", socket);
 
       return defer(() => {});
     })();
@@ -29,6 +33,9 @@ var Server = {
   stop() {
     var self = this;
     return Q.async(function* () {
+      //if (self.vm_started) {
+        yield self.stopVM();
+      //}
       yield self.removeShare();
 
       if (self.server) {
@@ -48,27 +55,41 @@ var Server = {
     return Unfsd.stop();
   },
 
-  //installVM(start = false) {
-    //var vm_name = config("agent:vm:name");
-    //return Q.async(function* () {
-      //var installed = yield VM.isInstalled(vm_name);
-      //var running   = (installed) ? yield VM.isRunnig(vm_name) : false;
+  installVM(start = false, progress = () => {}) {
+    var self = this;
+    var vm_name = config("agent:vm:name");
+    return Q.async(function* () {
+      var installed = yield VM.isInstalled(vm_name);
+      var running   = (installed) ? yield VM.isRunnig(vm_name) : false;
 
-      //if (!installed) {
-        //var opts = {
-          //name: vm_name,
-          //ip  : config("agent:vm:ip"),
-          //boot: config("agent:vm:boot_disk"),
-          //data: config("agent:vm:data_disk"),
-        //}
+      if (!installed) {
+        var opts = {
+          name: vm_name,
+          ip  : config("agent:vm:ip"),
+          boot: config("agent:vm:boot_disk"),
+          data: config("agent:vm:data_disk"),
+        }
 
-        //var info = yield VM.init(opts);
-      //}
-    //})();
-  //}
+        yield VM.init(opts);
+      }
 
-  //__check_vm() {
-  //}
+      if (!running && start) {
+        yield VM.start(vm_name);
+        self.vm_started = true;
+        yield VM.configureIp(vm_name, config("agent:vm:ip")).progress(progress);
+      };
+    })();
+  },
+
+  stopVM(running) {
+    var vm_name = config("agent:vm:name");
+    return async(function* () {
+      running = (running == null) ? (yield VM.isRunnig(vm_name)) : false;
+      if (running) {
+        yield VM.stop(vm_name);
+      }
+    });
+  },
 }
 
 export { Server };

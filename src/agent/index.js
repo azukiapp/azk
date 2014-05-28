@@ -3,8 +3,23 @@ import { Pid } from 'azk/utils/pid';
 import { Server } from 'azk/agent/server';
 
 var Agent = {
+  wait_kill: null,
+
   start(opts) {
     return this.processWrapper();
+  },
+
+  stop(opts) {
+    var self = this;
+    var pid  = this.agentPid();
+    return defer((resolve) => {
+      if (pid.running) {
+        pid.term();
+        self.wait_kill = resolve;
+      } else {
+        resolve();
+      }
+    });
   },
 
   agentPid() {
@@ -14,18 +29,24 @@ var Agent = {
     return a_pid;
   },
 
-
   processStateHandler() {
     var pid = this.agentPid();
     var gracefullExit = () => {
+      var kill = (code) => {
+        if (this.wait_kill) {
+          this.wait_kill(code);
+        } else {
+          process.exit(code);
+        }
+      }
+
       Server.stop().then(() => {
         log.info('azk has been killed by signal');
-        try {
-          pid.unlink();
-        } catch(e){}
-        process.exit(0);
+        try { pid.unlink(); } catch(e) {}
+        kill(0);
       }).fail((error) => {
-        console.log(error.stack);
+        log.error(error.stack || error);
+        kill(1);
       });
     }
 
