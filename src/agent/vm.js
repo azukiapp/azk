@@ -1,10 +1,12 @@
-import { _, Q, config, defer, t } from 'azk';
+import { _, Q, config, defer, t, log } from 'azk';
 import Utils from 'azk/utils';
 
 var vbm  = require('vboxmanage');
 var qfs  = require('q-io/fs');
 var os   = require('os');
 var ssh2 = require('ssh2');
+
+var ssh_timeout = 10000;
 
 var machine  = Utils.qifyModule(vbm.machine );
 var instance = Utils.qifyModule(vbm.instance);
@@ -55,7 +57,27 @@ var hdds = {
   },
 }
 
-function conf_networking(name, ip, ssh_port) {
+function config_nat_interface(name, replace = false) {
+  return Q.async(function* () {
+    var ssh_port  = yield Utils.net.getPort();
+    var ssh_natpf = ["--natpf2", "ssh,tcp,127.0.0.1," + ssh_port + ",,22"]
+
+    if (replace) {
+      // Remove and add
+      yield modifyvm(name, ["--natpf2", "delete", "ssh"]);
+      yield modifyvm(name, ssh_natpf);
+    } else {
+      yield modifyvm(name, [
+        "--nic2", "nat",
+        "--nictype2", "virtio",
+        "--cableconnected2", "on",
+        ...ssh_natpf
+      ]);
+    }
+  })();
+}
+
+function config_net_interfaces(name, ip) {
   var nat_name = "azk-nat-network";
 
   return Q.async(function* () {
@@ -69,12 +91,8 @@ function conf_networking(name, ip, ssh_port) {
       "--hostonlyadapter1", inter
     ]);
 
-    yield modifyvm(name, [
-      "--nic2", "nat",
-      "--nictype2", "virtio",
-      "--cableconnected2", "on",
-      "--natpf2", "ssh,tcp,127.0.0.1," + ssh_port + ",,22"
-    ]);
+    // nat interfance
+    yield config_nat_interface(name);
 
     var net_ip   = Utils.net.calculateNetIp(ip);
     var net_mask = "255.255.255.0";
@@ -82,7 +100,7 @@ function conf_networking(name, ip, ssh_port) {
   })();
 }
 
-function conf_disks(name, boot, data) {
+function config_disks(name, boot, data) {
   var storage_opts = [
     "storagectl"   , name  ,
     "--name"       , "SATA",
@@ -124,6 +142,7 @@ function conf_disks(name, boot, data) {
 var vm = {
   init(opts) {
     var name = opts.name;
+    log.info_t("commands.vm.installing");
     return vm.isInstalled(name).then((result) => {
       if (result) return false;
 
@@ -156,11 +175,11 @@ var vm = {
           cmd.push('--vtxux', 'on');
         }
 
-        var ssh_port = yield Utils.net.getPort();
         yield modifyvm(name, cmd);
-        yield conf_networking(name, opts.ip, ssh_port);
-        yield conf_disks(name, opts.boot, opts.data);
+        yield config_net_interfaces(name, opts.ip);
+        yield config_disks(name, opts.boot, opts.data);
 
+        log.info_t("commands.vm.installed_successfully");
         return yield vm.info(name);
       })();
     });
@@ -168,9 +187,11 @@ var vm = {
 
   info(name) {
     return machine.info(name).then((info) => {
-      var port = info['Forwarding(0)'].replace(/ssh,tcp,127.0.0.1,(.*),,22/, '$1');
-      if (port) {
-        info.ssh_port = port;
+      if (info['Forwarding(0)']) {
+        var port = info['Forwarding(0)'].replace(/ssh,tcp,127.0.0.1,(.*),,22/, '$1');
+        if (port) {
+          info.ssh_port = port;
+        }
       }
       return info;
     }, (err) => {
@@ -198,14 +219,22 @@ var vm = {
     });
   },
 
+  // TODO: Move install to start
   start(name) {
+    log.debug("call to start vm %s", name);
     return Q.async(function* () {
       var info      = yield vm.info(name);
       var installed = yield vm.isInstalled(info);
       var running   = yield vm.isRunnig(info);
 
       if (installed && !(running)) {
-        return instance.start(name).then(() => { return true });
+        // Reconfigures the interface nat all times
+        log.info_t("commands.vm.network_pogress.starting");
+        yield config_nat_interface(name, true);
+        return instance.start(name).then(() => {
+          log.info_t("commands.vm.network_pogress.started");
+          return true
+        });
       }
 
       return false;
@@ -213,13 +242,16 @@ var vm = {
   },
 
   stop(name) {
+    log.debug("call to stop vm %s", name);
     return Q.async(function* () {
       var info      = yield vm.info(name);
       var installed = yield vm.isInstalled(info);
       var running   = yield vm.isRunnig(info);
 
       if (installed && running) {
+        log.info_t("commands.vm.stoping");
         yield instance.stop(name);
+        log.info_t("commands.vm.stoped");
         return true;
       }
 
@@ -249,76 +281,115 @@ var vm = {
     })();
   },
 
-  ssh(name, cmd) {
+  make_ssh(name) {
     var self = this;
     return Q.async(function* () {
       var info    = yield self.info(name);
       var running = yield self.isRunnig(info);
       if (running) {
-        return yield ssh_run('127.0.0.1', info.ssh_port, cmd);
+        return (cmd) => {
+          return ssh_run('127.0.0.1', info.ssh_port, cmd);
+        }
       } else {
         throw new Error("vm is not running");
       }
     })();
   },
 
-  configureIp(name, ip) {
-    return defer((done) => {
-      var cmd = [
-        'for i in {0..1}; do',
-        '  interface="eth$i"; ',
-        '  is_set=`/sbin/ifconfig $interface | grep "inet addr:"` ;',
-        '  ( [ -z "$is_set" ] && sudo /sbin/ifconfig $interface ' + ip + ');',
-        'done; ',
-      ]
+  ssh(name, cmd) {
+    return this.make_ssh(name).then((ssh) => { return ssh(cmd) });
+  },
 
-      var attempts  = 1, max = 15;
-      var configure = function() {
-        done.notify({ attempts, max });
-        return vm.ssh(name, cmd.join(' '))
-          .then(done.resolve, function(err) {
+  configureIp(name, ip) {
+    return this.make_ssh(name).then((ssh_func) => {
+      return defer((done) => {
+        var cmd = [
+          'for i in {0..1}; do',
+          '  interface="eth$i"; ',
+          '  is_set=`/sbin/ifconfig $interface | grep "inet addr:"` ;',
+          '  ( [ -z "$is_set" ] && sudo /sbin/ifconfig $interface ' + ip + ');',
+          'done; ',
+        ]
+
+        var attempts  = 1, max = 15;
+        var configure = function() {
+          done.notify({ attempts, max });
+          log.info_t("commands.vm.network_pogress", { attempts, max });
+          var ssh  = ssh_func(cmd.join(' '));
+          var time = setTimeout(() => {
+            log.debug("configure ip timeout");
+            ssh.close(true);
+          }, ssh_timeout + 1000);
+
+          ssh.then(() => {
+            clearTimeout(time);
+            done.resolve();
+          }, (err) => {
+            clearTimeout(time);
             if (attempts < max) {
               attempts++;
               return configure();
             }
             done.reject(err);
           });
-      }
-
-      process.nextTick(() => configure().fail(done.reject) );
+        }
+        configure();
+      }).then(() => {
+        log.info_t("commands.vm.network_configured");
+      });
     });
   }
 }
 
 function ssh_run(host, port, cmd) {
-  return defer((done) => {
-    var c = new ssh2();
+  var client  = new ssh2();
+  var closed  = false;
+  var force_close = false;
+  var promise = defer((done) => {
+    var exit_code = null;
 
-    c.on("ready", () => {
+    client.on("ready", () => {
       done.notify({ type: 'connected' });
 
-      c.exec(cmd, (err, stream) => {
+      client.exec(cmd, (err, stream) => {
         if (err) return done.reject(err);
         stream.on('data', (data, extended) => {
           done.notify({ type: extended ? extended : 'stdout', data: data });
         });
 
         stream.on('exit', (code) => {
-          done.resolve(code);
-          process.nextTick(() => c.end());
+          exit_code = code;
+          process.nextTick(() => client.end());
         });
       });
     });
 
-    c.on('error', (err) => done.reject(err));
+    client.on('end', () => {
+      closed = true;
+      if (force_close)
+        done.reject();
+      else
+        done.resolve(exit_code);
+    });
 
-    c.connect({
+    client.on('error', (err) => done.reject(err));
+
+    client.connect({
       host, port,
       username: config("agent:vm:user"),
-      readyTimeout: 10000,
+      readyTimeout: ssh_timeout,
       password: config("agent:vm:password"),
     });
   });
+
+  promise.close = (force) => {
+    force_close = force;
+    if (!closed) {
+      client.end();
+    }
+  };
+
+  return promise;
 }
 
 export { vm as VM };

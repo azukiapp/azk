@@ -99,6 +99,7 @@ module.exports = {
     },
     vm: {
       description: "Control a virtual machine",
+      installing: "adding virtual machine...",
       installed: "virtual machine already installed.",
       installed_successfully: "virtual machine was successfully installed.",
       not_installed: "virtual machine is not installed, try `azk vm install`.",
