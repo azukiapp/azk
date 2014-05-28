@@ -111,7 +111,8 @@ module.exports = {
       removed: "virtual machine was successfully removed.",
       network_pogress: "try connect vm and configure hostonly ip (%(attempts)d/%(max)d) ...",
       setting_network: "configuring the network virtual machine...",
-      network_configured: "virtual machine network configured."
+      network_configured: "virtual machine network configured.",
+      configureip_fail: "virtual machine configure ip fail: %s",
     }
   },
 

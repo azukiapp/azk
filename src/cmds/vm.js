@@ -41,7 +41,9 @@ class VmCmd extends Command {
       self.ok("commands.vm.setting_network");
       var confg = VM.configureIp(vm_name, config("agent:vm:ip"));
       yield confg.progress((event) => {
-        self.ok("commands.vm.network_pogress", event);
+        if (event && event.type == 'try_connect') {
+          self.ok("commands.vm.network_pogress", event);
+        }
       });
       self.ok("commands.vm.network_configured");
     })();

@@ -1,4 +1,4 @@
-import { _, Q, config, defer, t, log } from 'azk';
+import { _, Q, config, defer, async, t, log } from 'azk';
 import Utils from 'azk/utils';
 
 var vbm  = require('vboxmanage');
@@ -229,10 +229,10 @@ var vm = {
 
       if (installed && !(running)) {
         // Reconfigures the interface nat all times
-        log.info_t("commands.vm.network_pogress.starting");
+        log.info_t("commands.vm.starting");
         yield config_nat_interface(name, true);
         return instance.start(name).then(() => {
-          log.info_t("commands.vm.network_pogress.started");
+          log.info_t("commands.vm.started");
           return true
         });
       }
@@ -287,8 +287,8 @@ var vm = {
       var info    = yield self.info(name);
       var running = yield self.isRunnig(info);
       if (running) {
-        return (cmd) => {
-          return ssh_run('127.0.0.1', info.ssh_port, cmd);
+        return (...args) => {
+          return ssh_run('127.0.0.1', info.ssh_port, ...args);
         }
       } else {
         throw new Error("vm is not running");
@@ -304,92 +304,88 @@ var vm = {
     return this.make_ssh(name).then((ssh_func) => {
       return defer((done) => {
         var cmd = [
-          'for i in {0..1}; do',
-          '  interface="eth$i"; ',
-          '  is_set=`/sbin/ifconfig $interface | grep "inet addr:"` ;',
-          '  ( [ -z "$is_set" ] && sudo /sbin/ifconfig $interface ' + ip + ');',
-          'done; ',
-        ]
+          'for i in {0..1}',
+          'do interface="eth$i"',
+          '  is_set=`/sbin/ifconfig $interface | grep "inet addr:"`',
+          '  ( [ -z "$is_set" ] && sudo /sbin/ifconfig $interface ' + ip + ')',
+          'done',
+          '[[ `/sbin/ifconfig` =~ "inet addr:' + ip + '" ]]',
+        ].join('; ');
 
-        var attempts  = 1, max = 15;
-        var configure = function() {
-          done.notify({ attempts, max });
-          log.info_t("commands.vm.network_pogress", { attempts, max });
-          var ssh  = ssh_func(cmd.join(' '));
-          var time = setTimeout(() => {
-            log.debug("configure ip timeout");
-            ssh.close(true);
-          }, ssh_timeout + 1000);
+        var data = null;
+        var ssh  = ssh_func(cmd, true).progress((event) => {
+          if (event && event.type == 'try_connect') {
+            done.notify(event);
+            log.info_t("commands.vm.network_pogress", event);
+          } else if (event && event.type == "stderr") {
+            data = event.data.toString();
+          } else {
+            done.notify(event);
+          }
+        });
 
-          ssh.then(() => {
-            clearTimeout(time);
+        return ssh.then((return_code) => {
+          if (return_code == 0) {
+            log.info_t("commands.vm.network_configured");
             done.resolve();
-          }, (err) => {
-            clearTimeout(time);
-            if (attempts < max) {
-              attempts++;
-              return configure();
-            }
-            done.reject(err);
-          });
-        }
-        configure();
-      }).then(() => {
-        log.info_t("commands.vm.network_configured");
+          } else {
+            log.error_t('commands.vm.configureip_fail', data);
+            done.reject(1);
+          }
+        });
       });
     });
   }
 }
 
-function ssh_run(host, port, cmd) {
-  var client  = new ssh2();
-  var closed  = false;
-  var force_close = false;
-  var promise = defer((done) => {
-    var exit_code = null;
+function ssh_run(host, port, cmd, wait = false) {
+  var execute = () => {
+    return defer((done) => {
+      var client    = new ssh2();
+      var exit_code = 0;
 
-    client.on("ready", () => {
-      done.notify({ type: 'connected' });
+      client.on("ready", () => {
+        done.notify({ type: 'connected' });
+        log.debug("agent vm ssh connected");
+        log.debug("agent vm ssh cmd: %s", cmd);
 
-      client.exec(cmd, (err, stream) => {
-        if (err) return done.reject(err);
-        stream.on('data', (data, extended) => {
-          done.notify({ type: extended ? extended : 'stdout', data: data });
-        });
+        client.exec(cmd, (err, stream) => {
+          if (err) return done.reject(err);
+          stream.on('data', (data, extended) => {
+            done.notify({ type: extended ? extended : 'stdout', data: data });
+          });
 
-        stream.on('exit', (code) => {
-          exit_code = code;
-          process.nextTick(() => client.end());
+          stream.on('exit', (code) => {
+            exit_code = code;
+            log.debug("agent vm ssh result: %s", code);
+            process.nextTick(() => client.end());
+          });
         });
       });
-    });
 
-    client.on('end', () => {
-      closed = true;
-      if (force_close)
-        done.reject();
-      else
+      client.on('end', () => {
         done.resolve(exit_code);
+      });
+
+      client.on('error', (err) => done.reject(err));
+
+      client.connect({
+        host, port,
+        username: config("agent:vm:user"),
+        readyTimeout: ssh_timeout,
+        password: config("agent:vm:password"),
+      });
     });
+  }
 
-    client.on('error', (err) => done.reject(err));
-
-    client.connect({
-      host, port,
-      username: config("agent:vm:user"),
-      readyTimeout: ssh_timeout,
-      password: config("agent:vm:password"),
+  // TODO: change timeout and attempts for a logic value
+  if (wait) {
+    return Utils.net.waitForwardingService(host, port, 15).then(() => {
+      return execute();
     });
-  });
-
-  promise.close = (force) => {
-    force_close = force;
-    if (!closed) {
-      client.end();
-    }
-  };
-
-  return promise;
+  } else {
+    return execute();
+  }
 }
 
 export { vm as VM };
