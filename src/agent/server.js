@@ -77,6 +77,7 @@ var Server = {
         yield VM.start(vm_name);
         self.vm_started = true;
         yield VM.configureIp(vm_name, config("agent:vm:ip")).progress(progress);
+        yield Unfsd.mount(vm_name).progress(progress);
       };
     })();
   },
