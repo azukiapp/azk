@@ -48,6 +48,10 @@ var Utils = {
     });
   },
 
+  async(func, ...args) {
+    return Q.async(func)(...args);
+  },
+
   qify(klass) {
     if (_.isString(klass))
       klass = require(klass);
