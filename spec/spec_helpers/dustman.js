@@ -48,9 +48,12 @@ export function extend(Helpers) {
   // Remove all containers before run
   before(function() {
     this.timeout(0);
-    return Helpers.remove_containers()
-      .then(Helpers.remove_images)
-      .then(() => console.log("\n"))
-      .progress((event) => console.log(`  ${event}`));
+    var progress = (event) => console.log(`  ${event}`);
+    var funcs = [
+      Helpers.remove_containers,
+      Helpers.remove_images,
+      () => console.log("\n")
+    ]
+    return funcs.reduce(Q.when, Q()).progress(progress);
   });
 }
