@@ -33,7 +33,12 @@ module.exports = {
       status: {
         agent: {
           running: "Agent is running",
-          not_running: "Agent is not running (try: azk agent)",
+          not_running: "Agent is not running (try: azk agent start)",
+          starting: "The agent is being initialized",
+          already: "Agent is already running",
+          started: "Agent has been successfully launched",
+          stoping: "Agent is being finalized.",
+          stoped: "Agent was successfully stoped.",
         },
         unfsd: {
           running: "Filesharing running",

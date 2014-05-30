@@ -2,6 +2,7 @@ import { config, Q, defer, async, log } from 'azk';
 import { app }   from 'azk/agent/app';
 import { VM  }   from 'azk/agent/vm';
 import { Unfsd } from 'azk/agent/unfsd';
+import { Balancer } from 'azk/agent/balancer';
 
 var Server = {
   server: null,
@@ -19,7 +20,7 @@ var Server = {
       }
 
       // Load balancer
-      //self.installBalancer();
+      yield self.installBalancer();
 
       // Start web api
       var socket  = config('paths:agent_socket');
@@ -31,6 +32,7 @@ var Server = {
   stop() {
     var self = this;
     return Q.async(function* () {
+      yield self.removeBalancer();
       yield self.stopVM();
       yield self.removeShare();
 
@@ -41,6 +43,14 @@ var Server = {
         return Q.reject("Server not running");
       }
     })();
+  },
+
+  installBalancer() {
+    return Balancer.start();
+  },
+
+  removeBalancer() {
+    return Balancer.stop();
   },
 
   installShare() {

@@ -47,9 +47,13 @@ var options = merge({
 
       agent_pid: path.join(data_path, 'run', 'agent.pid'),
       unfsd_pid: path.join(data_path, 'run', 'unfsd.pid'),
+      memcached_pid: path.join(data_path, 'run', 'memcachedjs.pid'),
+      hipache_pid: path.join(data_path, 'run', 'hipache.pid'),
 
-      agent_socket: path.join(data_path, 'run', 'agent.socket'),
-      unfsd_file: path.join(data_path, 'run', 'exports'),
+      agent_socket : path.join(data_path, 'run', 'agent.socket'),
+      memcached_socket : path.join(data_path, 'run', 'memcachedjs.socket'),
+      unfsd_file   : path.join(data_path, 'run', 'exports'),
+      balancer_file: path.join(data_path, 'run', 'hipache.json'),
 
       unfsd: process.env.AZK_UNFSD_PATH,
     },
@@ -64,6 +68,7 @@ var options = merge({
       image_default : 'racker/precise-with-updates:latest',
     },
     agent: {
+      port: 8080,
       requires_vm: requires_vm,
       portrange_start: 11000,
       vm: {
