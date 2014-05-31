@@ -5,7 +5,7 @@ var example_system = {
   name    : "example",
   depends : [],
   image   : { repository: "[repository]", tag: "[tag]" },
-  workdir : "/app",
+  workdir : "/azk/<%= manifest.dir %>",
   balancer: true,
   command : "# command to run app",
   sync_files : true,

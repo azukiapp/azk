@@ -29,7 +29,7 @@ systems({
     {{#sync_files ~}}
     // Enable sync in current project folder to '/app' in containers
     sync_files: {
-      ".": "/app",
+      ".": "/azk/<%= manifest.dir %>",
     },
     {{/sync_files ~}}
     {{#data_folder ~}}

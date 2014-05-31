@@ -11,6 +11,7 @@ export class System {
     this.manifest = manifest;
     this.name     = name;
     this.image    = new Image(image);
+    this.options  = options;
     this.options  = this._expand_template(options);
   }
 
@@ -25,6 +26,10 @@ export class System {
 
   get depends() {
     return this.options.depends || [];
+  }
+
+  get dir() {
+    return path.join(this.manifest.manifestDirName, this.options.dir || ".")
   }
 
   instances() {
@@ -86,9 +91,9 @@ export class System {
 
     // Log
     var log_dir  = path.join(config('paths:logs'), self.manifest.namespace);
-    var log_file = '/azk/logs/' + self.name + '.log';
+    var log_file = '/azk/__logs/' + self.name + '.log';
     var cmd      = ['/bin/sh', '-c', "( " + self.options.command + " ) >> " + log_file ];
-    options.volumes[log_dir] = '/azk/logs';
+    options.volumes[log_dir] = '/azk/__logs';
 
     // Port map
     var port = self.options.port || 3000;
@@ -183,7 +188,12 @@ export class System {
 
   _expand_template(options) {
     return JSON.parse(_.template(JSON.stringify(options), {
-      system: this,
+      system: {
+        name: this.name,
+      },
+      manifest: {
+        dir: this.manifest.manifestDirName
+      },
       azk: {
         default_domain: config('docker:default_domain'),
       }

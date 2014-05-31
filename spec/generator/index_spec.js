@@ -18,7 +18,7 @@ describe("Azk generator tool", function() {
       var front = {
         name : 'front',
         depends: ['db'],
-        workdir: '/app',
+        workdir: '/azk/<%= manifest.dir %>',
         image: { repository: 'base', tag: '0.1' },
         sync_files: true,
         command: 'bundle exec rackup config.ru',
@@ -36,8 +36,8 @@ describe("Azk generator tool", function() {
       h.expect(data).to.match(/front: \{/);
       h.expect(data).to.match(/depends: \["db"\]/);
       h.expect(data).to.match(/image: \{.*repository.*base.*\}/);
-      h.expect(data).to.match(/workdir: "\/app"/);
-      h.expect(data).to.match(/sync_files: \{\n.*\/app/g);
+      h.expect(data).to.match(/workdir: "\/azk\/<%= manifest.dir %>"/);
+      h.expect(data).to.match(/sync_files: \{\n.*\/azk\/<%= manifest.dir %>/g);
       h.expect(data).to.match(/setDefault\("front"\);/);
       h.expect(data).to.match(/registerBin\("console", \["bundler", "exec".*\);/);
     });
@@ -52,7 +52,8 @@ describe("Azk generator tool", function() {
       h.expect(data).to.match(/example: \{/);
       h.expect(data).to.match(/depends: \[\],/);
       h.expect(data).to.match(/image: \{.*repository.*\[repository\].*\}/);
-      h.expect(data).to.match(/workdir: "\/app"/);
+      h.expect(data).to.match(/sync_files: \{\n.*\/azk\/<%= manifest\.dir %>/g);
+      h.expect(data).to.match(/workdir: "\/azk\/<%= manifest\.dir %>"/);
     });
   });
 });

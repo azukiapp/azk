@@ -20,7 +20,7 @@ describe("Azk generator node rule", function() {
     var systems = generator.findSystems(project);
     h.expect(systems).to.have.deep.property("[0].name", name);
     h.expect(systems).to.have.deep.property("[0].depends").and.to.eql([]);
-    h.expect(systems).to.have.deep.property("[0].workdir", "/app");
+    h.expect(systems).to.have.deep.property("[0].workdir", "/azk/<%= manifest.dir %>");
     h.expect(systems).to.have.deep.property("[0].sync_files", true);
     h.expect(systems).to.have.deep.property("[0].command")
       .and.to.eql("node index.js");
@@ -34,6 +34,6 @@ describe("Azk generator node rule", function() {
     h.expect(systems).to.have.length(2);
     h.expect(systems).to.have.deep.property("[0].name", name);
     h.expect(systems).to.have.deep.property("[1].name", "sub");
-    h.expect(systems).to.have.deep.property("[1].workdir", "/app/sub");
+    h.expect(systems).to.have.deep.property("[1].workdir", "/azk/<%= manifest.dir %>/sub");
   });
 });

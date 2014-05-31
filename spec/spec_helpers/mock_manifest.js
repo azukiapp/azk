@@ -18,7 +18,7 @@ export function extend(h) {
           {
             name: 'example',
             depends: ["db"],
-            workdir: '/app',
+            workdir: '/azk/<%= manifest.dir %>',
             image: default_img,
             sync_files: true,
             balancer: true,
@@ -28,7 +28,7 @@ export function extend(h) {
             }
           }, {
             name: "db",
-            workdir: "/app",
+            workdir: '/azk/<%= manifest.dir %>',
             image: default_img,
             sync_files: false,
             balancer: false,

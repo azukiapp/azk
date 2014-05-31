@@ -13,7 +13,6 @@ var suggestion = _.extend({}, example_system, {
     ],
   },
   // TODO: extract this information package.json
-  workdir : "/app",
   sync_files: true,
   command : "node index.js",
   envs    : {

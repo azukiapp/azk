@@ -22,11 +22,13 @@ systems({
         "front.<%= azk.default_domain %>"
       ],
     },
+    // Run dir app
+    workdir: "/azk/<%= system.name %>",
     // Enable sync current project folder to '/app' in containers
     sync_files: {
-      ".": "/app",
+      ".": "/azk/<%= system.name %>",
     },
-    // Active a persistent data folder in '/data' in containers
+    // Active a persistent data folder in '/azk/data' in containers
     data_folder: true,
     command: "rails -s mongrel",
     envs: {

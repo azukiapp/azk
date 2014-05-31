@@ -80,6 +80,10 @@ export class Manifest {
     return path.dirname(this.file);
   }
 
+  get manifestDirName() {
+    return path.basename(this.manifestPath);
+  }
+
   static find_manifest(target) {
     var dir = Utils.cd(target, function() {
       return parent(file_name);
