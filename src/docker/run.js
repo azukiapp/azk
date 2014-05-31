@@ -33,9 +33,13 @@ export function run(docker, Container, image, cmd, opts = { }) {
 
   // Volumes
   var volumes = {}, v_binds = [];
-  _.each(opts.volumes || [], function(point, target) {
+  _.each(opts.volumes || {}, (point, target) => {
     volumes[point] = {};
-    v_binds.push([target, point]);
+    v_binds.push([target, point, 'remote']);
+  });
+  _.each(opts.local_volumes || {}, (point, target) => {
+    volumes[point] = {};
+    v_binds.push([target, point, 'local']);
   });
 
   // Ports
@@ -109,7 +113,7 @@ export function run(docker, Container, image, cmd, opts = { }) {
     // Start container
     for(var i = 0; i < v_binds.length; i++) {
       var target = v_binds[i][0];
-      if (config('agent:requires_vm')) {
+      if (v_binds[i][2] == "remote" && config('agent:requires_vm')) {
         target = path.join(config('agent:vm:mount_point'), target);
       }
       v_binds[i] = target + ':' + v_binds[i][1];
