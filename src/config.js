@@ -46,6 +46,8 @@ var options = merge({
       logs  : path.join(data_path, 'logs'),
       log   : path.join(data_path, 'logs', 'azk.log'),
 
+      persistent_dirs: path.join(data_path, 'persistent_dirs'),
+
       agent_pid: path.join(data_path, 'run', 'agent.pid'),
       unfsd_pid: path.join(data_path, 'run', 'unfsd.pid'),
       memcached_pid: path.join(data_path, 'run', 'memcachedjs.pid'),
@@ -81,7 +83,8 @@ var options = merge({
         boot_disk  : path.join(data_path, "vm", "debian2docker.iso"),
         data_disk  : path.join(data_path, "vm", "azk-agent.vmdk"),
         blank_disk : path.join(data_path, "vm", "azk-agent.vmdk.bz"),
-        mount_point: '/home/docker/files'
+        mount_point: '/home/docker/files',
+        persistent_dirs: '/home/docker/persistent_dirs',
       }
     }
   },

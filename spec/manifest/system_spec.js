@@ -75,11 +75,6 @@ describe("Azk system class", function() {
           });
         })
 
-        it("should set command and working dir", function() {
-          var dir = manifest.manifestDirName;
-          h.expect(instance).to.have.deep.property('Config.WorkingDir', '/azk/' + dir);
-        });
-
         it("should bind port", function() {
           h.expect(instances).to.have.deep.property('[0].Ports[0]');
           var port = instances[0].Ports[0];
@@ -88,20 +83,41 @@ describe("Azk system class", function() {
           h.expect(port).to.have.property('Type', 'tcp');
         });
 
-        it("should mount a sync_files", function() {
-          h.expect(instance).to.have.deep.property('HostConfig.Binds[0]')
-            .to.match(RegExp(manifest.manifestPath + ":/azk/" + manifest.manifestDirName));
-          h.expect(instance).to.have.deep.property('HostConfig.Binds[1]')
-            .to.match(RegExp(__dirname + ":/spec"));
+        it("should set working dir", function() {
+          var dir = manifest.manifestDirName;
+          h.expect(instance).to.have.deep.property('Config.WorkingDir', '/azk/' + dir);
         });
 
-        it("should add log volume and change command", function() {
-          var log_path = '/azk/__logs/' + system.name + '.log';
+        it("should mount a sync_files", function() {
+          h.expect(instance).to.have.deep.property('Volumes')
+            .and.have.property('/azk/' + manifest.manifestDirName)
+            .and.match(RegExp(manifest.manifestPath));
+
+          h.expect(instance).to.have.deep.property('Volumes')
+            .and.have.property('/spec')
+            .and.match(RegExp(__dirname));
+        });
+
+        it("should add logs volume and change command", function() {
+          var log_path = '/azk/_logs_/' + system.name + '.log';
           var log_dir  = path.join(config('paths:logs'), manifest.namespace);
-          h.expect(instance).to.have.deep.property('HostConfig.Binds[2]')
-            .and.to.match(RegExp(log_dir + ":/azk/__logs"));
+
+          h.expect(instance).to.have.deep.property('Volumes')
+            .and.have.property('/azk/_logs_')
+            .and.match(RegExp(log_dir));
+
           h.expect(instance).to.have.deep.property('Config.Cmd')
             .and.eql(['/bin/sh', '-c', "( " + system.options.command + " ) >> " + log_path]);
+        });
+
+        it("should mount data dir", function() {
+          return async(function* () {
+            var instances = yield db_system.instances();
+            var container = yield docker.getContainer(instances[0].Id).inspect();
+            h.expect(container).to.have.deep.property('Volumes')
+              .and.have.property('/azk/_data_')
+              .and.match(RegExp(manifest.namespace + '/' + db_system.name));
+          });
         });
 
         it("should add and remove from balancer", function() {

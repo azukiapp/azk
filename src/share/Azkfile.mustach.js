@@ -32,10 +32,10 @@ systems({
       ".": "/azk/<%= manifest.dir %>",
     },
     {{/sync_files ~}}
-    {{#data_folder ~}}
-    // Active a persistent data folder in '/data' in containers
-    data_folder: true,
-    {{/data_folder ~}}
+    {{#persistent_dir ~}}
+    // Active a persistent data folder in '/azk/_data_' in containers
+    persistent_dir: true,
+    {{/persistent_dir ~}}
     {{#balancer ~}}
     // Enable balancer over the instances
     balancer: {

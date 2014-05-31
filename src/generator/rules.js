@@ -9,7 +9,7 @@ var example_system = {
   balancer: true,
   command : "# command to run app",
   sync_files : true,
-  data_folder: false,
+  persistent_dir: false,
 };
 
 var Helpers = {

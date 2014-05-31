@@ -28,8 +28,10 @@ export class System {
     return this.options.depends || [];
   }
 
-  get dir() {
-    return path.join(this.manifest.manifestDirName, this.options.dir || ".")
+  get persistent_dir() {
+    var key  = config('agent:requires_vm') ? 'agent:vm' : 'paths';
+    var base = config(key + ':persistent_dirs');
+    return path.join(base, this.manifest.namespace, this.name);
   }
 
   instances() {
@@ -77,6 +79,7 @@ export class System {
       env: self.options.env || {},
       ports: {},
       volumes: {},
+      local_volumes: {},
       ns: name,
     }
 
@@ -89,11 +92,16 @@ export class System {
       options.volumes[point] = target;
     });
 
+    // Persistent dir
+    if (self.options.persistent_dir) {
+      options.local_volumes[self.persistent_dir] = '/azk/_data_';
+    }
+
     // Log
     var log_dir  = path.join(config('paths:logs'), self.manifest.namespace);
-    var log_file = '/azk/__logs/' + self.name + '.log';
+    var log_file = '/azk/_logs_/' + self.name + '.log';
     var cmd      = ['/bin/sh', '-c', "( " + self.options.command + " ) >> " + log_file ];
-    options.volumes[log_dir] = '/azk/__logs';
+    options.volumes[log_dir] = '/azk/_logs_';
 
     // Port map
     var port = self.options.port || 3000;

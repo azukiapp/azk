@@ -30,6 +30,7 @@ export function extend(h) {
             name: "db",
             workdir: '/azk/<%= manifest.dir %>',
             image: default_img,
+            persistent_dir: true,
             sync_files: false,
             balancer: false,
             command: command,

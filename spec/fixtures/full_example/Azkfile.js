@@ -28,8 +28,8 @@ systems({
     sync_files: {
       ".": "/azk/<%= system.name %>",
     },
-    // Active a persistent data folder in '/azk/data' in containers
-    data_folder: true,
+    // Active a persistent data folder in '/azk/_data_' in containers
+    persistent_dir: true,
     command: "rails -s mongrel",
     envs: {
       RAILS_VERSION: "3.2.0"
