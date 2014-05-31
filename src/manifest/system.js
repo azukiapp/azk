@@ -1,6 +1,7 @@
 import { _, path, config, async } from 'azk';
 import { Image } from 'azk/images';
 import { Balancer } from 'azk/agent/balancer';
+import { SystemDependError } from 'azk/utils/errors';
 import docker from 'azk/docker';
 
 var printf = require('printf');
@@ -18,8 +19,12 @@ export class System {
   }
 
   get hosts() {
-    var balancer = this.options.balancer;
-    return [...balancer.alias, balancer.hostname ];
+    var balancer = this.options.balancer || {};
+    return [...balancer.alias || [], balancer.hostname || [] ];
+  }
+
+  get depends() {
+    return this.options.depends || [];
   }
 
   instances() {
@@ -40,22 +45,25 @@ export class System {
   scale(instances, stdout) {
     var self = this;
     return async(function* () {
-      var containers = yield self.instances();
-      yield self.image.pull(stdout);
+      var depends_instances = yield self._dependencies_instances();
+      if (self._check_dependencies(depends_instances)) {
+        var containers = yield self.instances();
+        yield self.image.pull(stdout);
 
-      var from = containers.length;
-      var to   = instances - from;
+        var from = containers.length;
+        var to   = instances - from;
 
-      if (to > 0) {
-        yield self.run(true, to);
-      } else if (to < 0) {
-        containers = containers.reverse().slice(0, Math.abs(to));
-        yield self._kill_or_stop(containers);
+        if (to > 0) {
+          yield self.run(true, to, depends_instances);
+        } else if (to < 0) {
+          containers = containers.reverse().slice(0, Math.abs(to));
+          yield self._kill_or_stop(containers);
+        }
       }
     });
   }
 
-  run(daemon, instances) {
+  run(daemon, instances, depends_instances) {
     var self    = this;
     var name    = self.namespace + '.daemon';
     var cmd     = ['/bin/sh', '-c', self.options.command];
@@ -67,6 +75,9 @@ export class System {
       volumes: {},
       ns: name,
     }
+
+    // dependencies instances map
+    options.env = _.merge(self._dependencies_map(depends_instances), options.env);
 
     // Volumes
     _.each(self.options.sync_files, (target, point) => {
@@ -88,6 +99,46 @@ export class System {
     });
   }
 
+  _check_dependencies(instances) {
+    var not_valid = _.find(this.depends, (depend_name) => {
+      return instances[depend_name].length <= 0
+    });
+    if (not_valid) {
+      throw new SystemDependError(this.name, not_valid, 'run');
+    }
+    return true;
+  }
+
+  _dependencies_instances() {
+    var self = this;
+    var instances = {};
+    return async(function* () {
+      for (var depend_name of self.depends) {
+        var depend = self.manifest.systems[depend_name];
+        if (depend instanceof System) {
+          instances[depend_name] = yield depend.instances();
+        } else {
+          throw new SystemDependError(self.name, depend_name, 'define');
+        }
+      }
+      return instances;
+    });
+  }
+
+  // TODO: fix api x database
+  _dependencies_map(depends_instances) {
+    var envs = {};
+
+    _.each(depends_instances, (instances, depend) => {
+      _.each(instances, (instance) => {
+        envs[depend.toUpperCase() + '_HOST'] = config('agent:vm:ip');
+        envs[depend.toUpperCase() + '_PORT'] = instance.Ports[0].PublicPort;
+      })
+    });
+
+    return envs;
+  }
+
   _kill_or_stop(instances, kill = false) {
     var self = this;
     var port = self.options.port || 3000;
@@ -106,19 +157,23 @@ export class System {
   }
 
   _balancer_add(port_name, container) {
-    var backend = printf(
-          "http://%s:%s", config('agent:vm:ip'),
-          container.NetworkSettings.Ports[port_name][0].HostPort
-        );
-    return Balancer.addBackend(this.hosts, backend);
+    if (!_.isEmpty(this.hosts)) {
+      var backend = printf(
+            "http://%s:%s", config('agent:vm:ip'),
+            container.NetworkSettings.Ports[port_name][0].HostPort
+          );
+      return Balancer.addBackend(this.hosts, backend);
+    }
   }
 
   _remove_proxy(port, container) {
-    var backend = printf(
-          "http://%s:%s", config('agent:vm:ip'),
-          container.Ports[0].PublicPort
-        );
-    return Balancer.removeBackend(this.hosts, backend);
+    if (!_.isEmpty(this.hosts)) {
+      var backend = printf(
+            "http://%s:%s", config('agent:vm:ip'),
+            container.Ports[0].PublicPort
+          );
+      return Balancer.removeBackend(this.hosts, backend);
+    }
   }
 
   _expand_template(options) {

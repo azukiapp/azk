@@ -38,3 +38,14 @@ export class RequiredOptionError extends Error {
     this.message = `Option ${option} is required`;
   }
 }
+
+export class SystemDependError extends Error {
+  constructor(system, depend) {
+    this.system = system;
+    this.depend = depend;
+  }
+
+  toString() {
+    return `System ${this.system} depends on the system ${this.depend}`;
+  }
+}
