@@ -29,6 +29,11 @@ describe("Azk manifest class", function() {
         .and.have.property('front');
     });
 
+    it("should calculate a namespace", function() {
+      h.expect(manifest).to.have.property('namespace')
+        .and.length(20);
+    });
+
     it("should set a default system", function() {
       h.expect(manifest).to.have.property('systemDefault')
         .and.eql(manifest.system('front'));

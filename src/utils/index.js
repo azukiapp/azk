@@ -1,6 +1,7 @@
 import { join } from 'path';
 import { i18n } from 'azk/utils/i18n';
 
+var crypto = require('crypto');
 var Q    = require('q');
 var _    = require('lodash');
 var fs   = require('fs');
@@ -111,7 +112,13 @@ var Utils = {
     });
 
     return target;
-  }
+  },
+
+  calculateHash(string) {
+    var shasum = crypto.createHash('sha1');
+    shasum.update(string);
+    return shasum.digest('hex');
+  },
 };
 
 module.exports = Utils;

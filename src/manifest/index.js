@@ -44,6 +44,7 @@ export class Manifest {
     this.default = null;
 
     if (this.file) {
+      this.namespace = Utils.calculateHash(this.file).slice(0, 20);
       this.parse();
     }
   }
