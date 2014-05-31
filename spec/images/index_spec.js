@@ -37,6 +37,14 @@ describe("Azk image class", function() {
         h.expect(img).to.have.property("tag", "0.0.1");
       });
     });
+
+    describe("by another image", function() {
+      it("should return same image", function() {
+        var img  = new Image({ repository: "azukiapp/image" });
+        var img2 = new Image(img);
+        h.expect(img2).to.eql(img);
+      });
+    });
   });
 
   it("pull a image", function() {
