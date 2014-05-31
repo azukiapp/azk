@@ -1,6 +1,5 @@
 import { Q, fs, config, log, defer } from 'azk';
 import { net } from 'azk/utils';
-import { Pid } from 'azk/utils/pid';
 import { VM  } from 'azk/agent/vm';
 var forever = require('forever-monitor');
 
@@ -82,9 +81,6 @@ var Unfsd = {
         //throw new Error('not mount share files');
       }
     });
-  },
-
-  unmount() {
   },
 
   isRunnig() {
