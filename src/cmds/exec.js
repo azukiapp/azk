@@ -23,7 +23,7 @@ class ExecCmd extends Command {
       name += (opts.interactive ? 'interactive' : 'raw');
 
       var container = yield docker.run(image.name, cmd, {
-        tty: self.stdout().isTTY,
+        tty: opts.interactive ? self.stdout().isTTY : false,
         stdout: self.stdout(),
         stderr: self.stderr(),
         stdin: opts.interactive ? (self.stdin()) : null,

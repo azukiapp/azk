@@ -14,26 +14,6 @@ function new_resize(container) {
   }
 }
 
-// TODO: Fix trucate
-function demuxStream(stream, stdout, stderr) {
-  var header = null;
-
-  stream.on('readable', function() {
-    header = header || stream.read(8);
-    while(header !== null) {
-      var type = header.readUInt8(0);
-      var payload = stream.read(header.readUInt32BE(4));
-      if (payload === null) break;
-      if(type == 2) {
-        stderr.write(payload);
-      } else {
-        stdout.write(payload);
-      }
-      header = stream.read(8);
-    }
-  });
-};
-
 export function run(docker, Container, image, cmd, opts = { }) {
   var self = docker;
   var done = Q.defer();
@@ -111,7 +91,7 @@ export function run(docker, Container, image, cmd, opts = { }) {
       if (interactive) {
         stream.pipe(opts.stdout);
       } else {
-        demuxStream(stream, opts.stdout, opts.stderr);
+        container.modem.demuxStream(stream, opts.stdout, opts.stderr);
       }
 
       // Connect stdin
