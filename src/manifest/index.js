@@ -1,11 +1,10 @@
 import { sync as parent } from 'parentpath';
-import { cst, config, _ } from 'azk';
+import { path, config, _ } from 'azk';
 import { runInNewContext } from 'vm';
 import { readFileSync } from 'fs';
 import { System } from 'azk/manifest/system';
 import Utils from 'azk/utils';
 
-var path = require('path');
 var file_name = config('manifest');
 
 var ManifestDsl = {
@@ -23,9 +22,13 @@ var ManifestDsl = {
     this.images[name] = image;
   },
 
+  registerBin(name, ...args) {
+    this.bins[name] = [...args];
+  },
+
   setDefault(name) {
     this.default = name;
-  }
+  },
 }
 
 function createDslContext(target) {
@@ -41,6 +44,7 @@ export class Manifest {
     this.file    = Manifest.find_manifest(cwd);
     this.images  = {};
     this.systems = {};
+    this.bins    = {};
     this.default = null;
 
     if (this.file) {
@@ -56,7 +60,9 @@ export class Manifest {
 
   addSystem(name, data) {
     if (!(data instanceof System)) {
-      data = new System(data);
+      var image = data.image;
+      delete data.image;
+      data  = new System(this, name, image, data);
     }
 
     this.systems[name] = data;
@@ -68,6 +74,10 @@ export class Manifest {
 
   get systemDefault() {
     return this.system(this.default);
+  }
+
+  get manifestPath() {
+    return path.dirname(this.file);
   }
 
   static find_manifest(target) {

@@ -25,7 +25,7 @@ systems({
     {{#if workdir ~}}
     workdir: "{{&workdir}}",
     {{/if ~}}
-    command: "{{&command}}",
+    command: {{&json command}},
     {{#sync_files ~}}
     // Enable sync in current project folder to '/app' in containers
     sync_files: {
@@ -39,9 +39,9 @@ systems({
     {{#balancer ~}}
     // Enable balancer over the instances
     balancer: {
-      hostname: "<%= system.name %>.<%= default_domain %>",
+      hostname: "<%= system.name %>.<%= azk.default_domain %>",
       alias: [
-        "front.<%= default_domain %>"
+        "front.<%= azk.default_domain %>"
       ]
     },
     {{/balancer ~}}

@@ -65,6 +65,7 @@ var options = merge({
       host          : docker_host,
       namespace     : 'azk',
       repository    : 'azk',
+      default_domain: 'dev.azk.io',
       image_default : 'racker/precise-with-updates:latest',
     },
     agent: {
