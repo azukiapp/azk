@@ -60,5 +60,6 @@ before(() => {
 require('spec/spec_helpers/dustman').extend(Helpers);
 require('spec/spec_helpers/mock_outputs').extend(Helpers);
 require('spec/spec_helpers/mock_ui').extend(Helpers);
+require('spec/spec_helpers/mock_manifest').extend(Helpers);
 
 export default Helpers;

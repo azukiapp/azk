@@ -22,7 +22,9 @@ export function extend(Helpers) {
         containers = _.filter(containers, filter_containers);
         done.notify(t('test.remove_containers', containers.length));
         return Q.all(_.map(containers, (container) => {
-          return docker.getContainer(container.Id).remove({ force: true });
+          var c = docker.getContainer(container.Id);
+          c.kill();
+          return c.remove({ force: true });
         }));
       });
     });
