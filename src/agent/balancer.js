@@ -1,11 +1,58 @@
-import { Q, path, fs, config, log, defer, async } from 'azk';
+import { _, Q, path, fs, config, log, defer, async } from 'azk';
 import { net } from 'azk/utils';
 var forever = require('forever-monitor');
+
+var MemcachedDriver = require('memcached');
 
 // TODO: Reaplce forever for a better solution :/
 var Balancer = {
   memcached: null,
   hipache  : null,
+  mem_client : null,
+
+  get memCached() {
+    if (!this.mem_client) {
+      var socket = config('paths:memcached_socket');
+      this.mem_client = new MemcachedDriver(socket);
+    }
+    return this.mem_client;
+  },
+
+  getBackends(host) {
+    var key = 'frontend:' + host;
+    return Q.ninvoke(this.memCached, 'get', key).then((entries) => {
+      return entries ? entries : [host];
+    });
+  },
+
+  addBackend(hosts, backend) {
+    var self = this;
+    return async(function* () {
+      for(var host of (_.isArray(hosts) ? hosts : [hosts])) {
+        var key = 'frontend:' + host
+        var entries = yield self.getBackends(host);
+        entries = self._removeEntry(entries, backend);
+        entries.push(backend);
+        yield Q.ninvoke(self.memCached, 'set', key, entries, 0);
+      }
+    });
+  },
+
+  removeBackend(hosts, backend) {
+    var self = this;
+    return async(function* () {
+      for(var host of (_.isArray(hosts) ? hosts : [hosts])) {
+        var key = 'frontend:' + host;
+        var entries = yield self.getBackends(host);
+        entries = self._removeEntry(entries, backend);
+        yield Q.ninvoke(self.memCached, 'set', key, entries, 0);
+      }
+    });
+  },
+
+  _removeEntry(entries, backend) {
+    return _.filter(entries, (entry) => { return entry != backend });
+  },
 
   start() {
     var self = this;
