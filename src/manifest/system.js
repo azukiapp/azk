@@ -66,7 +66,6 @@ export class System {
   run(daemon, instances, depends_instances) {
     var self    = this;
     var name    = self.namespace + '.daemon';
-    var cmd     = ['/bin/sh', '-c', self.options.command];
     var options = {
       daemon: true,
       working_dir: self.options.workdir,
@@ -84,6 +83,12 @@ export class System {
       point = path.resolve(self.manifest.manifestPath, point);
       options.volumes[point] = target;
     });
+
+    // Log
+    var log_dir  = path.join(config('paths:logs'), self.manifest.namespace);
+    var log_file = '/azk/logs/' + self.name + '.log';
+    var cmd      = ['/bin/sh', '-c', "( " + self.options.command + " ) >> " + log_file ];
+    options.volumes[log_dir] = '/azk/logs';
 
     // Port map
     var port = self.options.port || 3000;

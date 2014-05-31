@@ -43,6 +43,7 @@ var options = merge({
     paths   : {
       azk_root,
       data  : data_path,
+      logs  : path.join(data_path, 'logs'),
       log   : path.join(data_path, 'logs', 'azk.log'),
 
       agent_pid: path.join(data_path, 'run', 'agent.pid'),

@@ -1,4 +1,4 @@
-import { Q, config, async } from 'azk';
+import { Q, config, async, path } from 'azk';
 import h from 'spec/spec_helper';
 import { Image  } from 'azk/images';
 import { System } from 'azk/manifest/system';
@@ -28,7 +28,7 @@ describe.only("Azk system class", function() {
         db_system = manifest.systems.db;
 
         // Add extras
-        system.options.sync_files[__dirname] = "/azk";
+        system.options.sync_files[__dirname] = "/spec";
       });
     });
 
@@ -77,8 +77,6 @@ describe.only("Azk system class", function() {
 
         it("should set command and working dir", function() {
           h.expect(instance).to.have.deep.property('Config.WorkingDir', '/app');
-          h.expect(instance).to.have.deep.property('Config.Cmd')
-            .and.eql(['/bin/sh', '-c', system.options.command]);
         });
 
         it("should bind port", function() {
@@ -93,7 +91,16 @@ describe.only("Azk system class", function() {
           h.expect(instance).to.have.deep.property('HostConfig.Binds[0]')
             .to.match(RegExp(manifest.manifestPath + ":/app"));
           h.expect(instance).to.have.deep.property('HostConfig.Binds[1]')
-            .to.match(RegExp(__dirname + ":/azk"));
+            .to.match(RegExp(__dirname + ":/spec"));
+        });
+
+        it("should add log volume and change command", function() {
+          var log_path = '/azk/logs/' + system.name + '.log';
+          var log_dir  = path.join(config('paths:logs'), manifest.namespace);
+          h.expect(instance).to.have.deep.property('HostConfig.Binds[2]')
+            .and.to.match(RegExp(log_dir + ":/azk/logs"));
+          h.expect(instance).to.have.deep.property('Config.Cmd')
+            .and.eql(['/bin/sh', '-c', "( " + system.options.command + " ) >> " + log_path]);
         });
 
         it("should add and remove from balancer", function() {
