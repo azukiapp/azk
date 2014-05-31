@@ -1,4 +1,4 @@
-import { _, path, config, async } from 'azk';
+import { _, path, fs, config, async } from 'azk';
 import { Image } from 'azk/images';
 import { Balancer } from 'azk/agent/balancer';
 import { SystemDependError } from 'azk/utils/errors';
@@ -83,8 +83,9 @@ export class System {
       ns: name,
     }
 
-    // dependencies instances map
+    // dependencies instances variables map
     options.env = _.merge(self._dependencies_map(depends_instances), options.env);
+    options.env = _.merge(self._envs_from_file(), options.env);
 
     // Volumes
     _.each(self.options.sync_files, (target, point) => {
@@ -206,5 +207,20 @@ export class System {
         default_domain: config('docker:default_domain'),
       }
     }));
+  }
+
+  _envs_from_file() {
+    var envs = {};
+    var file = path.join(this.manifest.manifestPath, '.env');
+
+    if (fs.existsSync(file)) {
+      var content = fs.readFileSync(file).toString();
+      _.each(content.split('\n'), (entry) => {
+        entry = entry.split('=');
+        envs[entry[0]] = entry[1];
+      });
+    }
+
+    return envs;
   }
 }

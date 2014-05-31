@@ -134,11 +134,22 @@ describe("Azk system class", function() {
           });
         });
 
-        it("shuld map depends envs", function() {
-          var envs = instance.Config.Env;
-          h.expect(envs).to.include('PORT=3000');
-          h.expect(envs).to.include('AZK_NAME=' + instance.Name.slice(1));
-          h.expect(envs).to.include('DB_HOST='  + config('agent:vm:ip'));
+        describe("map envs variables", function() {
+          var envs;
+          before(() => envs = instance.Config.Env);
+
+          it("shuld from the azk env", function() {
+            h.expect(envs).to.include('PORT=3000');
+            h.expect(envs).to.include('AZK_NAME=' + instance.Name.slice(1));
+          });
+
+          it("shuld from the dependents systems", function() {
+            h.expect(envs).to.include('DB_HOST='  + config('agent:vm:ip'));
+          });
+
+          it("shuld from the .env file", function() {
+            h.expect(envs).to.include('FROM_DOT_ENV=azk is beautiful');
+          });
         });
       });
     });
