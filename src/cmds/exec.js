@@ -11,20 +11,18 @@ class ExecCmd extends Command {
       var env = {};
 
       // Get image
-      if (opts.image) {
-        var image = yield Helpers.pull_image(self, opts.image);
-      }
-
-      var manifest = Manifest.makeFake(dir, image.name);
+      var progress = Helpers.newPullProgress(self);
+      var manifest = Manifest.makeFake(dir, opts.image);
       var system   = manifest.systemDefault;
       var options  = {
+        pull: self.stdout().isTTY ? true : cmd.stdout(),
         interactive: opts.interactive,
         stdout: self.stdout(),
         stderr: self.stderr(),
         stdin: self.stdin(),
       }
 
-      return system.exec(cmd, options);
+      return system.exec(cmd, options).progress(progress);
     })();
   }
 }

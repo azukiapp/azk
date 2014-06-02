@@ -47,14 +47,21 @@ describe("Azk image class", function() {
     });
   });
 
-  it("pull a image", function() {
+  describe("new image", function() {
     var img = new Image(config("docker:image_empty"));
-    var events = [];
-    return img.pull().progress((event) => events.push(event))
-      .then(() => {
-        h.expect(events)
-          .to.contain.an.item.with
-          .deep.property('statusParsed.type', 'download_complete');
-      });
+
+    it("should check image is avaible", function() {
+      return h.expect(img.check()).to.eventually.equal(null);
+    });
+
+    it.skip("pull a image", function() {
+      var events = [];
+      return img.pull().progress((event) => events.push(event))
+        .then(() => {
+          h.expect(events)
+            .to.contain.an.item.with
+            .deep.property('statusParsed.type', 'download_complete');
+        });
+    });
   });
 });

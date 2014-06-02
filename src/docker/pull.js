@@ -42,7 +42,8 @@ export function pull(docker, repository, tag, stdout) {
     tag: tag,
   }).then((stream) => {
     stream.on('data', (data) => {
-      var msg = JSON.parse(data.toString());
+      var msg  = JSON.parse(data.toString());
+      msg.type = "pull_msg";
       if (msg.error) {
         if (msg.error.match(/404/)) {
           return done.reject(new ProvisionNotFound(image));

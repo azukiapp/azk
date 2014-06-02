@@ -1,7 +1,7 @@
 import { _, path, fs, config, async } from 'azk';
 import { Image } from 'azk/images';
 import { Balancer } from 'azk/agent/balancer';
-import { SystemDependError } from 'azk/utils/errors';
+import { SystemDependError, ImageNotAvailable } from 'azk/utils/errors';
 import docker from 'azk/docker';
 
 var printf = require('printf');
@@ -70,13 +70,16 @@ export class System {
     });
   }
 
-  scale(instances, stdout) {
+  scale(instances, stdout, pull = false) {
     var self = this;
     return async(function* (notify) {
       var depends_instances = yield self._dependencies_instances();
       if (self._check_dependencies(depends_instances)) {
         var containers = yield self.instances();
-        yield self.image.pull(stdout);
+        if (pull)
+          yield self.image.pull(pull);
+        else
+          yield self._check_image();
 
         var from = containers.length;
         var to   = instances - from;
@@ -91,6 +94,7 @@ export class System {
           yield self._kill_or_stop(containers);
         }
       }
+      return true;
     });
   }
 
@@ -121,12 +125,17 @@ export class System {
   }
 
   exec(command, opts) {
+    var self  = this;
     var run_options = this.make_options(false, opts);
     var image = this.image.name;
 
     run_options.env = this._more_envs(run_options.env, {});
 
     return async(function* () {
+      if (opts.pull)
+        yield self.image.pull(opts.pull);
+      else
+        yield self._check_image();
       var container = yield docker.run(image, command, run_options);
       var data      = yield container.inspect();
       return data.State.ExitCode
@@ -162,6 +171,14 @@ export class System {
         notify({ type: 'run_service', service: self.name });
         var container = yield docker.run(self.image.name, cmd, options);
         yield self._balancer_add(port_name, yield container.inspect());
+      }
+    });
+  }
+
+  _check_image() {
+    return this.image.check().then((image) => {
+      if (image == null) {
+        throw new ImageNotAvailable(this.name, this.image.name);
       }
     });
   }

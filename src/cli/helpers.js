@@ -11,14 +11,12 @@ var bar_opts = {
 }
 
 var Helpers = {
-  pull_image(cmd, image_name) {
-    var image = new Image(image_name);
+  newPullProgress(cmd) {
     var mbars = cmd.newMultiBars();
     var bars  = {};
 
-    cmd.ok('commands.exec.check_image', image.name);
-    return image.pull(cmd.stdout().isTTY ? null : cmd.stdout()).progress((event) => {
-      if (!event.id) return;
+    return (event) => {
+      if (event.type != "pull_msg" || !event.id) return;
 
       var status = event.statusParsed;
       var title  = `${event.id}:`;
@@ -36,8 +34,7 @@ var Helpers = {
       }
 
       bars[event.id] = bar;
-    });
-
+    }
   }
 }
 

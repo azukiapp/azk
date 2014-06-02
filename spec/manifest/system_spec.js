@@ -1,16 +1,16 @@
-import { Q, config, async, path } from 'azk';
+import { Q, config, async, defer, path } from 'azk';
 import h from 'spec/spec_helper';
 import { Image  } from 'azk/images';
 import { System } from 'azk/manifest/system';
 import { Manifest } from 'azk/manifest';
 import { Balancer } from 'azk/agent/balancer';
-import { SystemDependError } from 'azk/utils/errors';
+import { SystemDependError, ImageNotAvailable } from 'azk/utils/errors';
 import docker from 'azk/docker';
 
 var touch = require('touch');
 var default_img = config('docker:image_default');
 
-describe.only("Azk system class", function() {
+describe("Azk system class", function() {
   it("should return a System class", function() {
     var sys = new System({ ns: 'azk-test' }, 'sysname', default_img);
     h.expect(sys).to.have.property('manifest').and.eql({ ns: 'azk-test' });
@@ -30,6 +30,32 @@ describe.only("Azk system class", function() {
 
         // Add extras
         system.options.sync_files[__dirname] = "/spec";
+      });
+    });
+
+    describe("if image is not download", function() {
+      before(() => h.remove_images());
+
+      it("should raise error if imagem not provisioned", function() {
+        var system = manifest.systems.empty;
+        return h.expect(system.scale(1)).to.eventually.rejectedWith(ImageNotAvailable);
+      });
+
+      it("should download image before execute", function() {
+        this.timeout(0);
+        var system = manifest.systems.empty;
+        var check_call = false;
+        system.image = {
+          name: default_img,
+          pull() {
+            check_call = true;
+            defer((resolve) => { process.nextTick(resolve) });
+          }
+        }
+        return system.scale(1, null, true).then((result) => {
+          h.expect(result).to.ok
+          h.expect(check_call).to.ok
+        });
       });
     });
 
