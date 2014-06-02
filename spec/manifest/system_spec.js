@@ -32,6 +32,32 @@ describe("Azk system class", function() {
       });
     });
 
+    describe("call exec", function() {
+      var stdin, outputs = { };
+      var mocks = h.mockOutputs(beforeEach, outputs, function() {
+        stdin  = h.makeMemoryStream();
+        stdin.setRawMode = function() { };
+      });
+
+      it("should support a interactive option", function() {
+        var result = system.exec(
+          ["/bin/sh"],
+          { interactive: true, tty: true, stdin: stdin, stdout: mocks.stdout }
+        );
+
+        result = result.progress((event) => {
+          if (event.type == "started") {
+            stdin.write("uname; exit\n");
+          }
+        });
+
+        return result.then((exitcode) => {
+          h.expect(outputs.stdout).to.match(/Linux/);
+          h.expect(exitcode).to.equal(0);
+        });
+      });
+    });
+
     it("should not run system if its dependencies are not met", function() {
       return h.expect(system.scale(1)).to.eventually.rejectedWith(SystemDependError)
     });

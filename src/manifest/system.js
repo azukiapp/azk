@@ -34,6 +34,18 @@ export class System {
     return path.join(base, this.manifest.namespace, this.name);
   }
 
+  get volumes() {
+    var volumes = { };
+
+    // Volumes
+    _.each(this.options.sync_files, (target, point) => {
+      point = path.resolve(this.manifest.manifestPath, point);
+      volumes[point] = target;
+    });
+
+    return volumes;
+  }
+
   instances() {
     return docker.listContainers().then((containers) => {
       var regex = RegExp(this.namespace);
@@ -70,35 +82,58 @@ export class System {
     });
   }
 
+  make_options(daemon, opts = {}) {
+    var name = this.namespace + (daemon ? '.daemon' : '.exec');
+    var run_options = {
+      daemon: daemon,
+      ports: {},
+      volumes: this.volumes,
+      local_volumes: {},
+      working_dir: this.options.workdir,
+      env: this.options.env || {},
+    }
+
+    // Daemon or exec mode?
+    if (!daemon) {
+      name += opts.interactive ? '.interactive' : '.raw';
+      _.merge(run_options, {
+        tty: opts.interactive ? opts.stdout.isTTY : false,
+        stdout: opts.stdout,
+        stderr: opts.stderr || opts.stdout,
+        stdin: opts.interactive ? (opts.stdin) : null,
+      });
+    }
+
+    run_options.ns = name;
+    return run_options;
+  }
+
+  exec(command, opts) {
+    var run_options = this.make_options(false, opts);
+    var image = this.image.name;
+
+    run_options.env = this._more_envs(run_options.env, {});
+
+    return async(function* () {
+      var container = yield docker.run(image, command, run_options);
+      var data      = yield container.inspect();
+      return data.State.ExitCode
+    });
+  }
+
   run(daemon, instances, depends_instances) {
     var self    = this;
-    var name    = self.namespace + '.daemon';
-    var options = {
-      daemon: true,
-      working_dir: self.options.workdir,
-      env: self.options.env || {},
-      ports: {},
-      volumes: {},
-      local_volumes: {},
-      ns: name,
-    }
+    var options = this.make_options(true);
 
-    // dependencies instances variables map
-    options.env = _.merge(self._dependencies_map(depends_instances), options.env);
-    options.env = _.merge(self._envs_from_file(), options.env);
-
-    // Volumes
-    _.each(self.options.sync_files, (target, point) => {
-      point = path.resolve(self.manifest.manifestPath, point);
-      options.volumes[point] = target;
-    });
+    // Add more envs
+    options.env = this._more_envs(options.env, {}, depends_instances);
 
     // Persistent dir
-    if (self.options.persistent_dir) {
-      options.local_volumes[self.persistent_dir] = '/azk/_data_';
+    if (this.options.persistent_dir) {
+      options.local_volumes[this.persistent_dir] = '/azk/_data_';
     }
 
-    // Log
+    // Logs
     var log_dir  = path.join(config('paths:logs'), self.manifest.namespace);
     var log_file = '/azk/_logs_/' + self.name + '.log';
     var cmd      = ['/bin/sh', '-c', "( " + self.options.command + " ) >> " + log_file ];
@@ -142,20 +177,6 @@ export class System {
       }
       return instances;
     });
-  }
-
-  // TODO: fix api x database
-  _dependencies_map(depends_instances) {
-    var envs = {};
-
-    _.each(depends_instances, (instances, depend) => {
-      _.each(instances, (instance) => {
-        envs[depend.toUpperCase() + '_HOST'] = config('agent:vm:ip');
-        envs[depend.toUpperCase() + '_PORT'] = instance.Ports[0].PublicPort;
-      })
-    });
-
-    return envs;
   }
 
   _kill_or_stop(instances, kill = false) {
@@ -207,6 +228,28 @@ export class System {
         default_domain: config('docker:default_domain'),
       }
     }));
+  }
+
+  _more_envs(envs, options, depends_instances = []) {
+    return _.merge({},
+      this._dependencies_envs(depends_instances),
+      this._envs_from_file(),
+      envs
+    )
+  }
+
+  // TODO: fix api x database
+  _dependencies_envs(depends_instances) {
+    var envs = {};
+
+    _.each(depends_instances, (instances, depend) => {
+      _.each(instances, (instance) => {
+        envs[depend.toUpperCase() + '_HOST'] = config('agent:vm:ip');
+        envs[depend.toUpperCase() + '_PORT'] = instance.Ports[0].PublicPort;
+      })
+    });
+
+    return envs;
   }
 
   _envs_from_file() {
