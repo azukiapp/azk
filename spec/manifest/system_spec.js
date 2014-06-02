@@ -10,7 +10,7 @@ import docker from 'azk/docker';
 var touch = require('touch');
 var default_img = config('docker:image_default');
 
-describe("Azk system class", function() {
+describe.only("Azk system class", function() {
   it("should return a System class", function() {
     var sys = new System({ ns: 'azk-test' }, 'sysname', default_img);
     h.expect(sys).to.have.property('manifest').and.eql({ ns: 'azk-test' });
@@ -95,8 +95,12 @@ describe("Azk system class", function() {
     });
 
     describe("and have one instances", function() {
+      var events   = [];
+      var progress = (event) => events.push(event);
+
       before(() => {
         return manifest.systems.db.scale(1).then(() => {
+          events = [];
           return system.scale(1)
         });
       });
@@ -112,7 +116,7 @@ describe("Azk system class", function() {
       });
 
       it("should scale up and down instances", function() {
-        return async(function* () {
+        var promise = async(function* () {
           yield system.scale(2);
           var instances = yield system.instances();
           h.expect(instances).to.length(2);
@@ -120,6 +124,21 @@ describe("Azk system class", function() {
           yield system.scale(1);
           instances = yield system.instances();
           h.expect(instances).to.length(1);
+        }).progress(progress);
+
+        return promise.then(() => {
+          h.expect(events).to.include.something.that.deep.equals({
+            type: 'scale', from: 1, to: 2, service: 'example'
+          });
+          h.expect(events).to.include.something.that.deep.equals({
+            type: 'scale', from: 2, to: 1, service: 'example'
+          });
+          h.expect(events).to.include.something.that.deep.equals({
+            type: 'run_service', service: 'example'
+          });
+          h.expect(events).to.include.something.that.deep.equals({
+            type: 'stop_service', service: 'example'
+          });
         });
       });
 

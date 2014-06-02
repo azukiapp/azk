@@ -72,7 +72,7 @@ export class System {
 
   scale(instances, stdout) {
     var self = this;
-    return async(function* () {
+    return async(function* (notify) {
       var depends_instances = yield self._dependencies_instances();
       if (self._check_dependencies(depends_instances)) {
         var containers = yield self.instances();
@@ -80,6 +80,9 @@ export class System {
 
         var from = containers.length;
         var to   = instances - from;
+
+        if (to != 0)
+          notify({ type: "scale", from, to: from + to, service: self.name });
 
         if (to > 0) {
           yield self.run(true, to, depends_instances);
@@ -154,8 +157,9 @@ export class System {
     options.ports[port_name] = [{ HostIp: "0.0.0.0" }];
     options.env.PORT = port;
 
-    return async(function* () {
+    return async(function* (notify) {
       for(var i = 0; i < instances; i++) {
+        notify({ type: 'run_service', service: self.name });
         var container = yield docker.run(self.image.name, cmd, options);
         yield self._balancer_add(port_name, yield container.inspect());
       }
@@ -191,14 +195,16 @@ export class System {
   _kill_or_stop(instances, kill = false) {
     var self = this;
     var port = self.options.port || 3000;
-    return async(function* () {
+    return async(function* (notify) {
       var container = null;
       while (container = instances.pop()) {
         yield self._remove_proxy(port, container);
         container = docker.getContainer(container.Id);
         if (kill) {
+          notify({ type: 'kill_service', service: self.name });
           yield container.kill();
         } else {
+          notify({ type: 'stop_service', service: self.name });
           yield container.stop();
         }
       }
