@@ -6,7 +6,9 @@ var log = new winston.Logger();
 // File log
 log.add(winston.transports.File, {
   filename: config('paths:log'),
-  level: config('logs_level:file')
+  level: config('logs_level:file'),
+  colorize: true,
+  json: false,
 });
 
 // Console log
