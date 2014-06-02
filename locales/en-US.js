@@ -1,5 +1,11 @@
 
 module.exports = {
+  errors: {
+    required_option_error: "Option %(option)s is required",
+    system_depend_error: "System `%(system)s` depends on the system `%(depend)s`",
+    image_not_available: "System `%(system)s` require image `%(image)s`, and not avaible",
+  },
+
   app : {
     manifest: {
       not_found: "no such '%s' in current project"

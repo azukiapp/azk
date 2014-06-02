@@ -1,4 +1,5 @@
 var printf = require('printf');
+import { t } from 'azk';
 
 export class ImageNotExistError extends Error {
   constructor(image) {
@@ -32,20 +33,39 @@ export class InvalidValueError extends InvalidOptionError {
   }
 }
 
-export class RequiredOptionError extends Error {
-  constructor(option) {
-    this.option  = option;
-    this.message = `Option ${option} is required`;
+export class TError extends Error {
+  constructor(translation_key) {
+    this.translation_key = translation_key;
   }
-}
 
-export class SystemDependError extends Error {
-  constructor(system, depend) {
-    this.system = system;
-    this.depend = depend;
+  get message() {
+    return this.toString();
   }
 
   toString() {
-    return `System ${this.system} depends on the system ${this.depend}`;
+    return t('errors.' + this.translation_key, this);
+  }
+}
+
+export class RequiredOptionError extends TError {
+  constructor(option) {
+    super('required_option_error');
+    this.option  = option;
+  }
+}
+
+export class SystemDependError extends TError {
+  constructor(system, depend) {
+    super('system_depend_error');
+    this.system = system;
+    this.depend = depend;
+  }
+}
+
+export class ImageNotAvailable extends TError {
+  constructor(system, image) {
+    super('image_not_available');
+    this.system = system;
+    this.image  = image;
   }
 }
