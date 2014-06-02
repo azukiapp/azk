@@ -1,3 +1,4 @@
+var version = "Show azk version";
 
 module.exports = {
   errors: {
@@ -31,7 +32,11 @@ module.exports = {
         },
         log: "Set a log level",
         help: "Show this help",
+        version: version,
       },
+    },
+    version: {
+      description: version
     },
     agent: {
       description: "Control azk agent",

@@ -34,6 +34,10 @@ export function extend(h) {
             sync_files: false,
             balancer: false,
             command: command,
+          }, {
+            name: "empty",
+            image: config('docker:image_empty'),
+            command: "/bin/false"
           }
         ],
         default: 'example',
