@@ -50,7 +50,9 @@ var Utils = {
   },
 
   async(func, ...args) {
-    return Q.async(func)(...args);
+    return Utils.defer((_resolve, _reject, notify) => {
+      return Q.async(func)(...args, notify);
+    });
   },
 
   qify(klass) {

@@ -78,5 +78,50 @@ describe("azk utils module", function() {
       });
     });
   });
+
+  describe("provides facilities to use Q", function() {
+    var defer = utils.defer;
+    var async = utils.async;
+
+    var will_solve = () => {
+      return defer((resolve, reject, notify) => {
+        process.nextTick(() => {
+          notify("notify");
+          resolve(1);
+        });
+      });
+    }
+
+    var will_fail = () => {
+      return defer((resolve, reject, notify) => {
+        process.nextTick(() => reject(new Error()));
+      });
+    }
+
+    it("should support create a promise in a short alias", function() {
+      return Q.all([
+        h.expect(will_solve()).to.eventually.equal(1),
+        h.expect(will_fail()).to.eventually.rejectedWith(Error),
+      ]);
+    });
+
+    it("should support a async alias", function() {
+      var events   = [];
+      var progress = (event) => events.push(event);
+
+      var promise = async(function* (notify) {
+        notify("fromasync");
+        var number = yield will_solve();
+        h.expect(number).to.equal(1);
+        return true;
+      }).progress(progress);
+
+      return promise.then((result) => {
+        h.expect(result).to.equal(true);
+        h.expect(events).to.include("notify");
+        h.expect(events).to.include("fromasync");
+      });
+    });
+  });
 });
 
