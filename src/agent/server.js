@@ -22,10 +22,7 @@ var Server = {
       // Load balancer
       yield self.installBalancer();
 
-      // Start web api
-      var socket  = config('paths:agent_socket');
-      self.server = app.listen(socket);
-      log.info_t("commands.agent.started", socket);
+      log.info_t("commands.agent.started");
     })
   },
 
@@ -35,13 +32,6 @@ var Server = {
       yield self.removeBalancer();
       yield self.stopVM();
       yield self.removeShare();
-
-      if (self.server) {
-        // Stop service
-        yield Q.ninvoke(self.server, "close");
-      } else {
-        return Q.reject("Server not running");
-      }
     })();
   },
 
