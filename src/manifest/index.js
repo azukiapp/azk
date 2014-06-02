@@ -1,7 +1,6 @@
 import { sync as parent } from 'parentpath';
-import { path, config, _ } from 'azk';
+import { path, fs, config, _ } from 'azk';
 import { runInNewContext } from 'vm';
-import { readFileSync } from 'fs';
 import { System } from 'azk/manifest/system';
 import Utils from 'azk/utils';
 
@@ -40,21 +39,29 @@ function createDslContext(target) {
 }
 
 export class Manifest {
-  constructor(cwd) {
-    this.file    = Manifest.find_manifest(cwd);
+  constructor(cwd, file = null) {
     this.images  = {};
     this.systems = {};
     this.bins    = {};
     this.default = null;
+    this.file    = file || Manifest.find_manifest(cwd);
+  }
 
-    if (this.file) {
-      this.namespace = Utils.calculateHash(this.file).slice(0, 20);
+  get file() {
+    return this.__file;
+  }
+
+  set file(value) {
+    this.cwd = path.dirname(value);
+    this.__file = value;
+    this.namespace = Utils.calculateHash(value).slice(0, 20);
+    if (fs.existsSync(value)) {
       this.parse();
     }
   }
 
   parse() {
-    var content = readFileSync(this.file);
+    var content = fs.readFileSync(this.file);
     runInNewContext(content, createDslContext(this), this.file);
   }
 
@@ -66,6 +73,9 @@ export class Manifest {
     }
 
     this.systems[name] = data;
+    if (!this.default) this.default = name;
+
+    return this;
   }
 
   system(name) {
@@ -77,7 +87,7 @@ export class Manifest {
   }
 
   get manifestPath() {
-    return path.dirname(this.file);
+    return this.cwd;
   }
 
   get manifestDirName() {
@@ -90,6 +100,23 @@ export class Manifest {
     });
     return dir ? path.join(dir, file_name) : null;
   }
+
+  static makeFake(cwd, image) {
+    var file = path.join(cwd, file_name);
+    var manifest = new Fake(null, file);
+
+    return manifest.addSystem("__tmp__", {
+      image: image,
+      workdir: "/azk/<%= manifest.dir %>",
+      sync_files: {
+        ".": "/azk/<%= manifest.dir %>",
+      },
+    });
+  }
+}
+
+class Fake extends Manifest {
+  parse() {}
 }
 
 export { file_name, System };
