@@ -7,6 +7,7 @@ import { Balancer } from 'azk/agent/balancer';
 import { SystemDependError } from 'azk/utils/errors';
 import docker from 'azk/docker';
 
+var touch = require('touch');
 var default_img = config('docker:image_default');
 
 describe("Azk system class", function() {
@@ -39,6 +40,18 @@ describe("Azk system class", function() {
         stdin.setRawMode = function() { };
       });
 
+      it("should demux outputs", function() {
+        var result = system.exec(
+          ["/bin/bash", "-c", "echo 'error' >&2; echo 'out';" ],
+          { stdout: mocks.stdout, stderr: mocks.stderr }
+        );
+
+        return result.then((container) => {
+          h.expect(outputs.stdout).to.equal("out\n");
+          h.expect(outputs.stderr).to.equal("error\n");
+        });
+      })
+
       it("should support a interactive option", function() {
         var result = system.exec(
           ["/bin/sh"],
@@ -54,6 +67,25 @@ describe("Azk system class", function() {
         return result.then((exitcode) => {
           h.expect(outputs.stdout).to.match(/Linux/);
           h.expect(exitcode).to.equal(0);
+        });
+      });
+
+      it("should run a command in a fake system", function() {
+        return async(function* () {
+          var dir = yield h.tmp_dir({ prefix: "azk-test-" });
+          var manifest = Manifest.makeFake(dir, default_img);
+          var system   = manifest.systemDefault;
+
+          yield Q.nfcall(touch, path.join(dir, "anyfile"));
+
+          var result = system.exec(
+            ["/bin/bash", "-c", "ls -l" ],
+            { stdout: mocks.stdout }
+          );
+
+          return result.then((container) => {
+            h.expect(outputs.stdout).to.match(/anyfile/);
+          });
         });
       });
     });

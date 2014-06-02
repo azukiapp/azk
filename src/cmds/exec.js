@@ -1,6 +1,6 @@
 import { Q, _, config, t } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
-import docker from 'azk/docker';
+import { Manifest } from 'azk/manifest';
 
 class ExecCmd extends Command {
   action(opts) {
@@ -15,26 +15,16 @@ class ExecCmd extends Command {
         var image = yield Helpers.pull_image(self, opts.image);
       }
 
-      // Default volumes
-      var volumes = { [dir]: "/azk/app" };
-
-      // Container name
-      var name = ".exec.";
-      name += (opts.interactive ? 'interactive' : 'raw');
-
-      var container = yield docker.run(image.name, cmd, {
-        tty: opts.interactive ? self.stdout().isTTY : false,
+      var manifest = Manifest.makeFake(dir, image.name);
+      var system   = manifest.systemDefault;
+      var options  = {
+        interactive: opts.interactive,
         stdout: self.stdout(),
         stderr: self.stderr(),
-        stdin: opts.interactive ? (self.stdin()) : null,
-        volumes: volumes,
-        working_dir: volumes[dir],
-        env: env,
-        ns: name,
-      });
+        stdin: self.stdin(),
+      }
 
-      var data = yield container.inspect();
-      return data.State.ExitCode
+      return system.exec(cmd, options);
     })();
   }
 }

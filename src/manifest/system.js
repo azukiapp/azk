@@ -11,8 +11,17 @@ export class System {
     this.manifest = manifest;
     this.name     = name;
     this.image    = new Image(image);
-    this.options  = options;
+    this.options  = _.merge({}, this.default_options, options);
     this.options  = this._expand_template(options);
+  }
+
+  get default_options() {
+    return {
+      depens: [],
+      balancer: null,
+      persistent_dir: false,
+      envs: {},
+    }
   }
 
   get namespace() {
