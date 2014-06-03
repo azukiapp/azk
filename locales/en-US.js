@@ -7,19 +7,8 @@ module.exports = {
     image_not_available: "System `%(system)s` require image `%(image)s`, and not avaible",
   },
 
-  app : {
-    manifest: {
-      not_found: "no such '%s' in current project"
-    },
-
-    box: {
-      invalid: "'%s' is not a valid definition of box"
-    },
-
-    image: {
-      provisioned: "image '%s' has be provisioned",
-      not_provision: "application image '%s' not found, try `azk provision`"
-    }
+  manifest: {
+    not_found: "no such '%s' in current project",
   },
 
   commands: {
@@ -69,11 +58,12 @@ module.exports = {
       }
     },
     exec: {
-      description: "Run a command in application box context",
-      check_image: "Check for image: `%s`",
+      description: "Run a arbitrary command in a system conext",
+      system_not: "System `%(system)s` not found in Azkfile.js (try: %(systems)s)",
       opts: {
         interactive: "Run command in interactive",
         image: "Docker image use to run command",
+        system: "A system conext to execute command",
       }
     },
     help: {
@@ -89,7 +79,7 @@ module.exports = {
       }
     },
     init: {
-      description: "Initializes a project by adding the file azkfile.json",
+      description: "Initializes a project by adding the file Azkfile.js",
       already: "'%s' already exists (try: --force)",
       generated: "'%s' generated",
     },
