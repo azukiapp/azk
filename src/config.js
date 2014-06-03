@@ -17,8 +17,8 @@ var requires_vm = process.platform == 'linux' ?
 
 // Vm informations
 // TODO: Show erro if not resolve ip
-var vm_name = "azk-agent";
-var vm_ip   = dnsSync.resolve(vm_name);
+var vm_name = process.env.AZK_AGENT_VM_NAME || "azk-agent";
+var vm_ip   = process.env.AZK_AGENT_VM_IP || dnsSync.resolve(vm_name);
 
 // Docker opts
 var docker_host =

@@ -8,6 +8,7 @@ export AZK_DATA_PATH=${AZK_DATA_PATH:-$AZK_ROOT_PATH/data}
 
 # Share system
 export AZK_UNFSD_PATH=`which unfsd`
+export AZK_PING_PATH=`which ping`
 
 export PATH=/usr/bin:/bin:/usr/sbin
 export PATH=$AZK_ROOT_PATH/bin:$PATH
@@ -22,9 +23,15 @@ export NODE_PATH=$AZK_ROOT_PATH
 export NODE_PATH=$AZK_ROOT_PATH/node_modules:$NODE_PATH
 export NODE_PATH=$AZK_ROOT_PATH/build:$NODE_PATH
 
+agent_ip() {
+  $AZK_PING_PATH -q -c 1 -t 1 $1 2>/dev/null | grep PING | sed -e "s/).*//" | sed -e "s/.*(//"
+}
+
 # Configure NVM and VM
 export NVM_DIR=$AZK_DATA_PATH/nvm
 export VM_DISK_PATH=$AZK_DATA_PATH/vm
+export AZK_AGENT_VM_NAME="${AZK_AGENT_VM_NAME:-azk-agent}"
+export AZK_AGENT_VM_IP="${AZK_AGENT_VM_IP:-`agent_ip $AZK_AGENT_VM_NAME`}"
 
 # local
 node_version="${NODE_VERSION:-v0.10.26}"
