@@ -40,6 +40,7 @@ var options = merge({
   '*': {
     manifest: "Azkfile.js",
     locale  : 'en-US',
+    azk_dir : ".azk",
     paths   : {
       azk_root,
       data  : data_path,

@@ -51,7 +51,9 @@
     "forever-monitor": "^1.2.3",
     "memcached": "^0.2.8",
     "memcachedjs": "0.0.1",
-    "hipache": "git+https://github.com/azukiapp/hipache#memcache_unix_socket"
+    "hipache": "git+https://github.com/azukiapp/hipache#memcache_unix_socket",
+    "fscache": "git+https://github.com/nuxlli/fscache",
+    "mkdirp": "^0.5.0"
   },
   "devDependencies": {
     "grunt": "^0.4.4",

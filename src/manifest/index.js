@@ -2,6 +2,8 @@ import { sync as parent } from 'parentpath';
 import { path, fs, config, _ } from 'azk';
 import { runInNewContext } from 'vm';
 import { System } from 'azk/manifest/system';
+import { createSync as createCache } from 'fscache';
+import { sync as mkdir } from 'mkdirp';
 import Utils from 'azk/utils';
 
 var file_name = config('manifest');
@@ -38,6 +40,43 @@ function createDslContext(target) {
   return context;
 }
 
+class Meta {
+  constructor(manifest, cache = null) {
+    this.manifest = manifest;
+  }
+
+  set cache(value) {
+    this.__cache = value;
+  }
+
+  get cache() {
+    if (!this.__cache) {
+      var cache_dir = this.manifest.cache_dir;
+      mkdir(cache_dir);
+      this.__cache = createCache(cache_dir);
+    }
+    return this.__cache;
+  }
+
+  getOrSet(key, defaultValue) {
+    var value = this.cache.getSync(key);
+    if (!value && defaultValue) {
+      value = defaultValue;
+      this.set(key, value);
+    }
+    return value;
+  }
+
+  get(key, defaultValue) {
+    return this.cache.getSync(key) || defaultValue;
+  }
+
+  set(key, value) {
+    this.cache.putSync(key, value);
+    return this;
+  }
+}
+
 export class Manifest {
   constructor(cwd, file = null) {
     this.images  = {};
@@ -45,19 +84,7 @@ export class Manifest {
     this.bins    = {};
     this.default = null;
     this.file    = file || Manifest.find_manifest(cwd);
-  }
-
-  get file() {
-    return this.__file;
-  }
-
-  set file(value) {
-    this.cwd = path.dirname(value);
-    this.__file = value;
-    this.namespace = Utils.calculateHash(value).slice(0, 20);
-    if (fs.existsSync(value)) {
-      this.parse();
-    }
+    this.meta    = new Meta(this);
   }
 
   parse() {
@@ -82,6 +109,15 @@ export class Manifest {
     return this.systems[name];
   }
 
+  setMeta(...args) {
+    this.meta.set(...args);
+    return this;
+  }
+
+  getMeta(...args) {
+    return this.meta.getOrSet(...args);
+  }
+
   get systemDefault() {
     return this.system(this.default);
   }
@@ -92,6 +128,35 @@ export class Manifest {
 
   get manifestDirName() {
     return path.basename(this.manifestPath);
+  }
+
+  get file() {
+    return this.__file;
+  }
+
+  set file(value) {
+    this.cwd = path.dirname(value);
+    this.__file = value;
+    if (fs.existsSync(value)) {
+      this.parse();
+    }
+  }
+
+  get file_relative() {
+    return path.relative(this.manifestPath, this.file);
+  }
+
+  get namespace() {
+    var def = Utils.calculateHash(this.file).slice(0, 20);
+    return this.meta.getOrSet('namespace', def);
+  }
+
+  get cache_dir() {
+    return path.join(
+      this.cwd,
+      config('azk_dir'),
+      this.file_relative
+    )
   }
 
   static find_manifest(target) {
@@ -116,6 +181,21 @@ export class Manifest {
 }
 
 class Fake extends Manifest {
+  constructor(...args) {
+    super(...args);
+    this.meta.cache = {
+      values: {},
+      keyCalc: function(key) {
+        return Utils.calculateHash(JSON.stringify(key));
+      },
+      getSync: function(key) {
+        return this.values[this.keyCalc(key)];
+      },
+      putSync: function(key, value) {
+        this.values[this.keyCalc(key)] = value;
+      }
+    }
+  }
   parse() {}
 }
 
