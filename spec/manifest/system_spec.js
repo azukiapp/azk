@@ -10,6 +10,7 @@ import docker from 'azk/docker';
 var touch = require('touch');
 var default_img = config('docker:image_default');
 
+// TODO: Split test in more files :P
 describe("Azk system class", function() {
   it("should return a System class", function() {
     var sys = new System({ ns: 'azk-test' }, 'sysname', default_img);
@@ -199,18 +200,6 @@ describe("Azk system class", function() {
           h.expect(instance).to.have.deep.property('Volumes')
             .and.have.property('/spec')
             .and.match(RegExp(__dirname));
-        });
-
-        it("should add logs volume and change command", function() {
-          var log_path = '/azk/_logs_/' + system.name + '.log';
-          var log_dir  = path.join(config('paths:logs'), manifest.namespace);
-
-          h.expect(instance).to.have.deep.property('Volumes')
-            .and.have.property('/azk/_logs_')
-            .and.match(RegExp(log_dir));
-
-          h.expect(instance).to.have.deep.property('Config.Cmd')
-            .and.eql(['/bin/sh', '-c', "( " + system.options.command + " ) >> " + log_path]);
         });
 
         it("should mount data dir", function() {

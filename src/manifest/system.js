@@ -154,12 +154,6 @@ export class System {
       options.local_volumes[this.persistent_dir] = '/azk/_data_';
     }
 
-    // Logs
-    var log_dir  = path.join(config('paths:logs'), self.manifest.namespace);
-    var log_file = '/azk/_logs_/' + self.name + '.log';
-    var cmd      = ['/bin/sh', '-c', "( " + self.options.command + " ) >> " + log_file ];
-    options.volumes[log_dir] = '/azk/_logs_';
-
     // Port map
     var port = self.options.port || 3000;
     var port_name = port + "/tcp";

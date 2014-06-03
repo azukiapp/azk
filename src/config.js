@@ -44,7 +44,6 @@ var options = merge({
     paths   : {
       azk_root,
       data  : data_path,
-      logs  : path.join(data_path, 'logs'),
       log   : path.join(data_path, 'logs', 'azk.log'),
 
       persistent_dirs: path.join(data_path, 'persistent_dirs'),
