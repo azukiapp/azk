@@ -1,6 +1,5 @@
 import { Q, _, config, set_config } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
-import { Client } from 'azk/agent/client';
 
 var keys = ["commands", "agent", "status"];
 
@@ -20,6 +19,7 @@ class Cmd extends Command {
   }
 
   action(opts) {
+    var Client   = require('azk/agent/client').Client;
     var progress = (...args) => { this.progress(opts.action, ...args) };
     var result   = (Client[opts.action](opts)).progress(progress);
 

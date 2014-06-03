@@ -1,5 +1,4 @@
 import { config, Q, defer, async, log } from 'azk';
-import { app }   from 'azk/agent/app';
 import { VM  }   from 'azk/agent/vm';
 import { Unfsd } from 'azk/agent/unfsd';
 import { Balancer } from 'azk/agent/balancer';
