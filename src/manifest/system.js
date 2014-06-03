@@ -154,6 +154,9 @@ export class System {
       options.local_volumes[this.persistent_dir] = '/azk/_data_';
     }
 
+    // Command
+    var cmd = ['/bin/sh', '-c', self.options.command];
+
     // Port map
     var port = self.options.port || 3000;
     var port_name = port + "/tcp";
