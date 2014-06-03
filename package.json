@@ -41,7 +41,7 @@
     "glob": "^3.2.9",
     "docker-modem": "^0.1.16",
     "dockerode": "^1.3.0",
-    "vboxmanage": "0.0.15",
+    "vboxmanage": "git+https://github.com/nuxlli/node-vboxmanage",
     "ssh2": "^0.2.22",
     "handlebars": "^2.0.0-alpha.2",
     "progress": "git+https://github.com/nuxlli/node-progress",

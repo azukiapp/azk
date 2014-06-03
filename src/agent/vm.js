@@ -12,8 +12,8 @@ var machine  = Utils.qifyModule(vbm.machine );
 var instance = Utils.qifyModule(vbm.instance);
 var hostonly = Utils.qifyModule(vbm.hostonly);
 var dhcp     = Utils.qifyModule(vbm.dhcp    );
-
 var _exec = Q.nbind(vbm.command.exec, vbm.command);
+
 function exec(...args) {
   return _exec(...args).then((result) => {
     if (result[0] != 0) {
@@ -303,6 +303,7 @@ var vm = {
   configureIp(name, ip) {
     return this.make_ssh(name).then((ssh_func) => {
       return defer((done) => {
+        log.debug("Call configure vm with ip: %s", ip);
         var cmd = [
           'for i in {0..1}',
           'do interface="eth$i"',
