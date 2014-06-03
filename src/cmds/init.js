@@ -18,6 +18,9 @@ class Cmd extends Command {
       systems: _.isEmpty(systems) ? [example_system] : systems,
     }, file);
 
+    this.ok(this.tKeyPath('generated'), manifest);
+    this.tOutput(this.tKeyPath('github'));
+
     return 0;
   }
 }

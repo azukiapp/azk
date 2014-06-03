@@ -82,6 +82,7 @@ module.exports = {
       description: "Initializes a project by adding the file Azkfile.js",
       already: "'%s' already exists (try: --force)",
       generated: "'%s' generated",
+      github: "\nTip:\n  Add the `.azk` in .gitignore\n  echo '.azk' >> .gitignore \n",
     },
     kill: {
       description: "Kill a azk process by `azk pid`"
