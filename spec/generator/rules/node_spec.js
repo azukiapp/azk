@@ -4,7 +4,7 @@ import { generator } from 'azk/generator';
 
 var touch = require('touch');
 
-describe("Azk generator node rule", function() {
+describe.only("Azk generator node rule", function() {
   var project = null;
   var name    = null;
 
@@ -19,6 +19,8 @@ describe("Azk generator node rule", function() {
     touch.sync(path.join(project, "package.json"));
     var systems = generator.findSystems(project);
     h.expect(systems).to.have.deep.property("[0].name", name);
+    h.expect(systems).to.have.deep.property("[0].image.repository", "jprjr/stackbrew-node");
+    h.expect(systems).to.have.deep.property("[0].image.tag", "latest");
     h.expect(systems).to.have.deep.property("[0].depends").and.to.eql([]);
     h.expect(systems).to.have.deep.property("[0].workdir", "/azk/<%= manifest.dir %>");
     h.expect(systems).to.have.deep.property("[0].sync_files", true);

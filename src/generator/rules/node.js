@@ -5,12 +5,7 @@ import { Helpers, example_system } from 'azk/generator/rules';
 
 var suggestion = _.extend({}, example_system, {
   image : {
-    build: [
-      ["from", "jolicode/nvm:latest"],
-      ["env" , "NODE_VERSION v0.10.26"],
-      ["run" , "nvm install $NODE_VERSION"],
-      ["run" , "nvm alias default $NODE_VERSION"],
-    ],
+    repository: "jprjr/stackbrew-node", tag: "latest"
   },
   // TODO: extract this information package.json
   sync_files: true,
