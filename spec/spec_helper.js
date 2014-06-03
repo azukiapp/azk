@@ -1,6 +1,6 @@
 require('source-map-support').install();
 
-import { Q, Azk, pp, _, config, t } from 'azk';
+import { Q, Azk, pp, _, config, t, async } from 'azk';
 import Utils from 'azk/utils';
 import { set as configSet } from 'azk/config';
 import { VM } from 'azk/agent/vm';
@@ -8,6 +8,7 @@ import { VM } from 'azk/agent/vm';
 var chai = require('chai');
 var tmp  = require('tmp');
 var path = require('path');
+var qfs  = require('q-io/fs');
 
 // Chai extensions
 require("mocha-as-promised")();
@@ -20,8 +21,21 @@ var MemoryStream  = require('memorystream');
 var Helpers = {
   pp: pp,
   capture_io: capture_io,
-  tmp_dir: Q.denodeify(tmp.dir),
   expect : chai.expect,
+
+  tmp_dir() {
+    return Q.nfcall(tmp.dir).then((dir) => {
+      return Utils.resolve(dir);
+    });
+  },
+
+  copyToTmp(origin) {
+    return this.tmp_dir({ prefix: 'azk-test-'}).then((dir) => {
+      return qfs.copyTree(origin, dir).then(() => {
+        return dir;
+      });
+    });
+  },
 
   fixture_path(fixture) {
     return Utils.resolve(

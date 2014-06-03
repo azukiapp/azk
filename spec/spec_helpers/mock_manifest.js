@@ -1,13 +1,11 @@
 import { fs, path, _, config, async } from 'azk';
 import { generator } from 'azk/generator';
-var qfs = require('q-io/fs');
 
 export function extend(h) {
   h.mockManifest = function(data) {
     return async(function* () {
       // Copy structure
-      var tmp = yield h.tmp_dir({ prefix: "azk-test-" });
-      yield qfs.copyTree(h.fixture_path('test-app'), tmp);
+      var tmp = yield h.copyToTmp(h.fixture_path('test-app'));
       var default_img = config('docker:image_default');
 
       var command = 'while true ; do (echo -e "HTTP/1.1\\n\\n $(date) $(ECHO_DATA)") | nc -l 1500; test $? -gt 128 && break; sleep 1; done';
