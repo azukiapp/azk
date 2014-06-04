@@ -8,7 +8,7 @@ export function extend(h) {
       var tmp = yield h.copyToTmp(h.fixture_path('test-app'));
       var default_img = config('docker:image_default');
 
-      var command = 'while true ; do (echo -e "HTTP/1.1\\n\\n $(date) $(ECHO_DATA)") | nc -l 1500; test $? -gt 128 && break; sleep 1; done';
+      var command   = "socat TCP4-LISTEN:$PORT EXEC:`pwd`/src/bashttpd";
       var provision = ["ls -l ./src", "./src/bashttpd", "exit 0"];
 
       // Data merge

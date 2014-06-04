@@ -4,7 +4,7 @@ import { generator } from 'azk/generator';
 
 var touch = require('touch');
 
-describe.only("Azk generator node rule", function() {
+describe("Azk generator node rule", function() {
   var project = null;
   var name    = null;
 

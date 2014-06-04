@@ -5,6 +5,7 @@ module.exports = {
     required_option_error: "Option %(option)s is required",
     system_depend_error: "System `%(system)s` depends on the system `%(depend)s`",
     image_not_available: "System `%(system)s` require image `%(image)s`, and not avaible",
+    run_command_error: "Run `%(command)s` error:\n`%(output)s`"
   },
 
   manifest: {

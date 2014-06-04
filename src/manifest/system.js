@@ -1,9 +1,14 @@
-import { _, path, fs, config, async } from 'azk';
+import { _, path, fs, config, async, defer } from 'azk';
 import { Image } from 'azk/images';
 import { Balancer } from 'azk/agent/balancer';
-import { SystemDependError, ImageNotAvailable } from 'azk/utils/errors';
 import docker from 'azk/docker';
+import {
+  SystemDependError,
+  ImageNotAvailable,
+  RunCommandError,
+} from 'azk/utils/errors';
 
+var MemoryStream  = require('memorystream');
 var printf = require('printf');
 
 export class System {
@@ -139,6 +144,50 @@ export class System {
       var container = yield docker.run(image, command, run_options);
       var data      = yield container.inspect();
       return data.State.ExitCode
+    });
+  }
+
+  get provision_steps() {
+    var steps = this.options.provision || [];
+    if (!_.isArray(steps)) steps = [];
+    return steps;
+  }
+
+  get provisioned() {
+    var key  = this.name + ":provisioned";
+    var date = this.manifest.getMeta(key);
+    return date ? new Date(date) : null;
+  }
+
+  set provisioned(value) {
+    var key  = this.name + ":provisioned";
+    return this.manifest.setMeta(key, value);
+  }
+
+  provision(opts = {}) {
+    return defer((resolve, reject, notify) => {
+      var steps = this.provision_steps;
+      if ((!opts.force_provision && this.provisioned) || steps.length == 0)
+        return null;
+
+      // provision command (require /bin/sh)
+      var cmd  = ["/bin/sh", "-c", "( " + steps.join('; ') + " )"];
+
+      // Erros
+      opts = _.clone(opts);
+      opts.stdout = new MemoryStream();
+      var output  = "";
+      opts.stdout.on('data', (data) => {
+        output += data.toString();
+      });
+
+      notify({ type: "provision", system: this.name });
+      return this.exec(cmd, opts).then((code) => {
+        if (code != 0) {
+          throw new RunCommandError(cmd.join(' '), output);
+        }
+        this.provisioned = new Date();
+      });
     });
   }
 

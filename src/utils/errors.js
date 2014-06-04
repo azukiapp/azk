@@ -69,3 +69,11 @@ export class ImageNotAvailable extends TError {
     this.image  = image;
   }
 }
+
+export class RunCommandError extends TError {
+  constructor(command, output) {
+    super('run_command_error');
+    this.command = command;
+    this.output = output;
+  }
+}

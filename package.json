@@ -53,7 +53,8 @@
     "memcachedjs": "0.0.1",
     "hipache": "git+https://github.com/azukiapp/hipache#memcache_unix_socket",
     "fscache": "git+https://github.com/nuxlli/fscache",
-    "mkdirp": "^0.5.0"
+    "mkdirp": "^0.5.0",
+    "memorystream": "^0.2.0"
   },
   "devDependencies": {
     "grunt": "^0.4.4",
@@ -72,7 +73,6 @@
     "tmp": "0.0.23",
     "node-inspector": "~0.7.2",
     "fixture-stdout": "^0.2.1",
-    "memorystream": "^0.2.0",
     "grunt-env": "^0.4.1"
   }
 }
