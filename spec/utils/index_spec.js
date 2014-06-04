@@ -130,6 +130,15 @@ describe("azk utils module", function() {
         h.expect(events).to.include("fromasync");
       });
     });
+
+    it("should support a sync with bind", function() {
+      this.var = 'onevalue';
+
+      return h.expect(async(this, function* () {
+        h.expect(this.var).to.equal('onevalue');
+        return true;
+      })).to.eventually.ok;
+    });
   });
 });
 

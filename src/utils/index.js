@@ -49,8 +49,15 @@ var Utils = {
     });
   },
 
-  async(func, ...args) {
+  async(obj, func, ...args) {
     return Utils.defer((_resolve, _reject, notify) => {
+      if (typeof obj == "function")
+        [func, obj] = [obj, null];
+
+      if (typeof obj == "object") {
+        func = func.bind(obj);
+      }
+
       return Q.async(func)(...args, notify);
     });
   },
