@@ -37,7 +37,7 @@ var Utils = {
           resolve = _.extend(resolve, { resolve, reject, notify });
           var result = func(resolve, reject, notify);
         } catch (e) {
-          reject(e);
+          return reject(e);
         }
 
         if (Q.isPromise(result)) {

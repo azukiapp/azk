@@ -98,6 +98,14 @@ describe("azk utils module", function() {
       });
     }
 
+    it("should return a error in promise scope", function() {
+      var promise = defer(() => {
+        self.test();
+      });
+
+      return h.expect(promise).to.eventually.rejectedWith(Error);
+    });
+
     it("should support create a promise in a short alias", function() {
       return Q.all([
         h.expect(will_solve()).to.eventually.equal(1),
