@@ -1,6 +1,8 @@
 import { config, path, fs, _ } from 'azk';
 import h from 'spec/spec_helper';
 import { generator } from 'azk/generator';
+import { Manifest } from 'azk/manifest';
+import { example_system as node_example }  from 'azk/generator/rules/node';
 
 var touch = require('touch');
 
@@ -34,14 +36,18 @@ describe("Azk generator tool", function() {
         ]
       }, manifest);
 
-      var data = fs.readFileSync(manifest).toString();
-      h.expect(data).to.match(/front: \{/);
-      h.expect(data).to.match(/depends: \["db"\]/);
-      h.expect(data).to.match(/image: \{.*repository.*base.*\}/);
-      h.expect(data).to.match(/workdir: "\/azk\/<%= manifest.dir %>"/);
-      h.expect(data).to.match(/sync_files: \{\n.*\/azk\/<%= manifest.dir %>/g);
-      h.expect(data).to.match(/setDefault\("front"\);/);
-      h.expect(data).to.match(/registerBin\("console", \["bundler", "exec".*\);/);
+      var manifest = new Manifest(project);
+      var system   = manifest.systemDefault;
+      var name     = path.basename(project);
+
+      h.expect(system).to.have.deep.property("name", "front");
+      h.expect(system).to.have.deep.property("image.name", "base:0.1");
+      h.expect(system).to.have.deep.property("depends").and.to.eql(["db"]);
+      h.expect(system).to.have.deep.property("options.workdir", "/azk/" + name);
+      h.expect(system).to.have.deep.property("options.sync_files")
+        .and.to.eql({ ".": "/azk/" + name});
+      h.expect(system).to.have.deep.property("options.command")
+        .and.to.eql("bundle exec rackup config.ru");
     });
   })
 
@@ -53,13 +59,18 @@ describe("Azk generator tool", function() {
         default: 'example-system'
       }, manifest);
 
-      var data = fs.readFileSync(manifest).toString();
-      h.expect(data).to.match(/example_system: \{/);
-      h.expect(data).to.match(/depends: \[\],/);
-      h.expect(data).to.match(/image: \{.*repository.*\[repository\].*\}/);
-      h.expect(data).to.match(/sync_files: \{\n.*\/azk\/<%= manifest\.dir %>/g);
-      h.expect(data).to.match(/workdir: "\/azk\/<%= manifest\.dir %>"/);
-      h.expect(data).to.match(/setDefault\("example_system"\);/);
+      var manifest = new Manifest(project);
+      var system   = manifest.systemDefault;
+      var name     = path.basename(project);
+
+      h.expect(system).to.have.deep.property("name", "example-system");
+      h.expect(system).to.have.deep.property("image.name", "[repository]:[tag]");
+      h.expect(system).to.have.deep.property("depends").and.to.eql([]);
+      h.expect(system).to.have.deep.property("options.workdir", "/azk/" + name);
+      h.expect(system).to.have.deep.property("options.sync_files")
+        .and.to.eql({ ".": "/azk/" + name});
+      h.expect(system).to.have.deep.property("options.command")
+        .and.to.eql("# command to run app");
     });
   });
 });

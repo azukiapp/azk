@@ -1,8 +1,7 @@
 import { config, path, fs } from 'azk';
 import h from 'spec/spec_helper';
 import { generator } from 'azk/generator';
-
-var touch = require('touch');
+import { Manifest } from 'azk/manifest';
 
 describe("Azk generator node rule", function() {
   var project = null;
@@ -15,27 +14,38 @@ describe("Azk generator node rule", function() {
     });
   });
 
+  var generateAndReturnManifest = (project) => {
+    var manifest = path.join(project, config('manifest'));
+    generator.render({
+      systems: generator.findSystems(project),
+    }, manifest);
+    return new Manifest(project);
+  }
+
   it("should detect single node system", function() {
-    touch.sync(path.join(project, "package.json"));
-    var systems = generator.findSystems(project);
-    h.expect(systems).to.have.deep.property("[0].name", name);
-    h.expect(systems).to.have.deep.property("[0].image.repository", "jprjr/stackbrew-node");
-    h.expect(systems).to.have.deep.property("[0].image.tag", "latest");
-    h.expect(systems).to.have.deep.property("[0].depends").and.to.eql([]);
-    h.expect(systems).to.have.deep.property("[0].workdir", "/azk/<%= manifest.dir %>");
-    h.expect(systems).to.have.deep.property("[0].sync_files", true);
-    h.expect(systems).to.have.deep.property("[0].command")
+    h.touchSync(path.join(project, "package.json"));
+    var manifest = generateAndReturnManifest(project);
+    var system   = manifest.systemDefault;
+
+    h.expect(system).to.have.deep.property("name", name);
+    h.expect(system).to.have.deep.property("image.name", "jprjr/stackbrew-node:latest");
+    h.expect(system).to.have.deep.property("depends").and.to.eql([]);
+    h.expect(system).to.have.deep.property("options.workdir", "/azk/" + name);
+    h.expect(system).to.have.deep.property("options.sync_files")
+      .and.to.eql({ ".": "/azk/" + name });
+    h.expect(system).to.have.deep.property("options.command")
       .and.to.eql("node index.js");
   });
 
   it("should detect sub-system", function() {
     var sub = path.join(project, "sub");
     fs.mkdirSync(sub);
-    touch.sync(path.join(sub, "package.json"));
-    var systems = generator.findSystems(project);
-    h.expect(systems).to.have.length(2);
-    h.expect(systems).to.have.deep.property("[0].name", name);
-    h.expect(systems).to.have.deep.property("[1].name", "sub");
-    h.expect(systems).to.have.deep.property("[1].workdir", "/azk/<%= manifest.dir %>/sub");
+    h.touchSync(path.join(sub, "package.json"));
+
+    var manifest = generateAndReturnManifest(project);
+    var system   = manifest.system("sub");
+
+    h.expect(system).to.have.deep.property("name", "sub");
+    h.expect(system).to.have.deep.property("options.workdir", "/azk/" + name + "/sub");
   });
 });

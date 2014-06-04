@@ -39,11 +39,9 @@ var generator = {
   },
 
   findSystems(dir) {
-    var systems = [];
-
     return _.reduce(this.rules, (systems, rule) => {
-      return systems.concat(rule.findSystems(dir, systems) || []);
-    }, []);
+      return _.merge(systems, rule.findSystems(dir, systems) || {});
+    }, {});
   },
 
   get tpl() {
@@ -67,7 +65,7 @@ function json(data) {
 }
 
 function hash_key(data) {
-  return data.replace(/-/g, '_');
+  return data.match(/-/) ? `'${data}'` : data;
 }
 
 Handlebars.registerHelper('json', json);

@@ -31,9 +31,9 @@ var Helpers = {
         system.workdir = path.join(suggestion.workdir, relative);
       }
 
-      systems.push(_.extend({}, suggestion, system));
+      systems[system.name] = _.extend({}, suggestion, system);
       return systems;
-    }, []);
+    }, {});
   },
 
   searchSystemsByFile(dir, file_name) {

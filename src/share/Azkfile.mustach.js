@@ -63,7 +63,7 @@ systems({
 });
 
 {{#if default ~}}
-setDefault("{{&hash_key default}}");
+setDefault("{{&default}}");
 {{/if ~}}
 {{#each bins ~}}
 registerBin("{{&this.name}}", {{&json this.command}});

@@ -5,10 +5,11 @@ import Utils from 'azk/utils';
 import { set as configSet } from 'azk/config';
 import { VM } from 'azk/agent/vm';
 
-var chai = require('chai');
-var tmp  = require('tmp');
-var path = require('path');
-var qfs  = require('q-io/fs');
+var chai  = require('chai');
+var tmp   = require('tmp');
+var path  = require('path');
+var qfs   = require('q-io/fs');
+var touch = require('touch');
 
 // Chai extensions
 require("mocha-as-promised")();
@@ -27,6 +28,10 @@ var Helpers = {
     return Q.nfcall(tmp.dir).then((dir) => {
       return Utils.resolve(dir);
     });
+  },
+
+  touchSync(path) {
+    return touch.sync(path);
   },
 
   copyToTmp(origin) {
