@@ -1,6 +1,7 @@
 import { fs, config } from 'azk';
 import { Manifest, System, file_name } from 'azk/manifest';
 import { createSync as createCache } from 'fscache';
+import { ManifestError } from 'azk/utils/errors';
 import h from 'spec/spec_helper';
 
 var default_img = config('docker:image_default');
@@ -78,6 +79,26 @@ describe("Azk manifest class", function() {
       var manifest = Manifest.makeFake(project, default_img);
       manifest.setMeta('anykey', 'anyvalue');
       h.expect(manifest.getMeta('anykey')).to.equal('anyvalue');
+    });
+  });
+
+  describe("in a not manifest with a valid syntax", function() {
+    var project;
+
+    before(() => {
+      return h.tmp_dir({ prefix: "azk-test-" }).then((dir) => project = dir);
+    });
+
+    it("should raise a sytax error", function() {
+      fs.writeFileSync(path.join(project, file_name), "var a; \n var = ;");
+      var func = () => { var manifest = new Manifest(project); };
+      h.expect(func).to.throw(ManifestError).and.match(/Unexpected token =/);
+    });
+
+    it("should raise invalud function error", function() {
+      fs.writeFileSync(path.join(project, file_name), "__not_exist()");
+      var func = () => { var manifest = new Manifest(project); };
+      h.expect(func).to.throw(ManifestError).and.match(/ReferenceError: __not_exist is not defined/);
     });
   });
 });

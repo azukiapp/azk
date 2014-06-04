@@ -1,12 +1,14 @@
 import { sync as parent } from 'parentpath';
-import { path, fs, config, _ } from 'azk';
-import { runInNewContext } from 'vm';
+import { path, fs, config, _, t } from 'azk';
+import { runInNewContext, createScript } from 'vm';
 import { System } from 'azk/manifest/system';
 import { createSync as createCache } from 'fscache';
 import { sync as mkdir } from 'mkdirp';
+import { ManifestError } from 'azk/utils/errors';
 import Utils from 'azk/utils';
 
 var file_name = config('manifest');
+var check = require('syntax-error');
 
 var ManifestDsl = {
   system(name, data) {
@@ -30,14 +32,6 @@ var ManifestDsl = {
   setDefault(name) {
     this.default = name;
   },
-}
-
-function createDslContext(target) {
-  var context = {};
-  _.each(ManifestDsl, (func, name) => {
-    context[name] = func.bind(target);
-  });
-  return context;
 }
 
 class Meta {
@@ -89,7 +83,25 @@ export class Manifest {
 
   parse() {
     var content = fs.readFileSync(this.file);
-    runInNewContext(content, createDslContext(this), this.file);
+    var err = check(content, this.file);
+    if (err) {
+      throw new ManifestError(this.file, err);
+    } else {
+      try {
+        runInNewContext(content, Manifest.createDslContext(this), this.file);
+      } catch (e) {
+        var stack = e.stack.split('\n');
+        var msg   = stack[0] + "\n" + stack[1];
+        throw new ManifestError(this.file, msg);
+      }
+    }
+  }
+
+  static createDslContext(target, source, file) {
+    return _.reduce(ManifestDsl, (context, func, name) => {
+      context[name] = func.bind(target);
+      return context;
+    }, { });
   }
 
   addSystem(name, data) {

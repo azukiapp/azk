@@ -1,4 +1,5 @@
 var printf = require('printf');
+var path   = require('path');
 import { t } from 'azk';
 
 export class ImageNotExistError extends Error {
@@ -75,5 +76,13 @@ export class RunCommandError extends TError {
     super('run_command_error');
     this.command = command;
     this.output = output;
+  }
+}
+
+export class ManifestError extends TError {
+  constructor(file, err_message) {
+    super('manifest_error');
+    this.file = file;
+    this.err_message = err_message;
   }
 }
