@@ -4,7 +4,7 @@ import { runInNewContext, createScript } from 'vm';
 import { System } from 'azk/manifest/system';
 import { createSync as createCache } from 'fscache';
 import { sync as mkdir } from 'mkdirp';
-import { ManifestError } from 'azk/utils/errors';
+import { ManifestError, ManifestRequiredError } from 'azk/utils/errors';
 import Utils from 'azk/utils';
 
 var file_name = config('manifest');
@@ -72,12 +72,19 @@ class Meta {
 }
 
 export class Manifest {
-  constructor(cwd, file = null) {
+  constructor(cwd, file = null, required = false) {
+    if (typeof file == "boolean")
+      [required, file] = [file, null];
+
     this.images  = {};
     this.systems = {};
     this.bins    = {};
     this.default = null;
     this.file    = file || Manifest.find_manifest(cwd);
+
+    if (required && !this.exist)
+      throw new ManifestRequiredError(cwd);
+
     this.meta    = new Meta(this);
   }
 
@@ -146,10 +153,14 @@ export class Manifest {
     return this.__file;
   }
 
+  get exist() {
+    return fs.existsSync(this.file);
+  }
+
   set file(value) {
     this.cwd = path.dirname(value);
     this.__file = value;
-    if (fs.existsSync(value)) {
+    if (this.exist) {
       this.parse();
     }
   }

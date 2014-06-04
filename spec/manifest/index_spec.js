@@ -1,13 +1,13 @@
 import { fs, config } from 'azk';
 import { Manifest, System, file_name } from 'azk/manifest';
 import { createSync as createCache } from 'fscache';
-import { ManifestError } from 'azk/utils/errors';
+import { ManifestError, ManifestRequiredError } from 'azk/utils/errors';
 import h from 'spec/spec_helper';
 
 var default_img = config('docker:image_default');
 var path = require('path');
 
-describe("Azk manifest class", function() {
+describe.only("Azk manifest class", function() {
   describe("in a valid azk project folder", function() {
     var project, manifest;
 
@@ -63,6 +63,13 @@ describe("Azk manifest class", function() {
 
     it("should return not found manifest", function() {
       h.expect(Manifest.find_manifest(project)).to.equal(null);
+      var manifest = new Manifest(project);
+      h.expect(manifest).to.have.property("exist").and.fail;
+    });
+
+    it("should raise a error if manifest is required", function() {
+      var func = () => { new Manifest(project, true) };
+      h.expect(func).to.throw(ManifestRequiredError, RegExp(h.escapeRegExp(project)));
     });
 
     it("should be make a fake manifest", function() {
@@ -95,7 +102,7 @@ describe("Azk manifest class", function() {
       h.expect(func).to.throw(ManifestError).and.match(/Unexpected token =/);
     });
 
-    it("should raise invalud function error", function() {
+    it("should raise invalid function error", function() {
       fs.writeFileSync(path.join(project, file_name), "__not_exist()");
       var func = () => { var manifest = new Manifest(project); };
       h.expect(func).to.throw(ManifestError).and.match(/ReferenceError: __not_exist is not defined/);
