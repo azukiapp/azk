@@ -1,8 +1,7 @@
 import { _, Q, log, t } from 'azk';
 import { Cli } from 'azk/cli/cli';
 import { UI } from 'azk/cli/ui';
-import { InvalidValueError } from 'azk/utils/errors';
-
+import { InvalidValueError, AzkError } from 'azk/utils/errors';
 
 var path = require('path');
 var cmds_path = path.join(__dirname, "..", "cmds");
@@ -34,13 +33,15 @@ class CmdCli extends Cli {
 }
 
 export function cli(args, cwd, ui = UI) {
-  var azk_cli = new CmdCli('azk', ui, cmds_path);
-  azk_cli.addOption(['--version', '-v'], { default: false, show_default: false });
-  azk_cli.addOption(['--log', '-l'] , { type: String});
-  azk_cli.addOption(['--help', '-h'], { show_default: false } );
-
-  azk_cli.cwd = cwd;
   try {
+    var azk_cli = new CmdCli('azk', ui, cmds_path);
+
+
+    azk_cli.addOption(['--version', '-v'], { default: false, show_default: false });
+    azk_cli.addOption(['--log', '-l'] , { type: String});
+    azk_cli.addOption(['--help', '-h'], { show_default: false } );
+
+    azk_cli.cwd = cwd;
     var result = azk_cli.run(_.rest(args, 2));
   } catch (e) {
     var result = (e instanceof InvalidValueError && e.option == "command") ?
@@ -51,8 +52,12 @@ export function cli(args, cwd, ui = UI) {
     result.then((code) => {
       ui.exit(code ? code : 0);
     }, (error) => {
-      console.log(error.stack ? error.stack : error);
-      ui.exit(127);
+      if (error instanceof AzkError) {
+        ui.fail(error.toString());
+      } else {
+        ui.fail(error.stack ? error.stack : error);
+      }
+      ui.exit(error.code ? error.code : 127);
     });
   }
 }

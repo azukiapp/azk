@@ -2,25 +2,28 @@ var printf = require('printf');
 var path   = require('path');
 import { t } from 'azk';
 
-export class ImageNotExistError extends Error {
+export class AzkError extends Error {
+}
+
+export class ImageNotExistError extends AzkError {
   constructor(image) {
     this.message = `Image from '${image}' not found`;
   }
 }
 
-export class ProvisionNotFound extends Error {
+export class ProvisionNotFound extends AzkError {
   constructor(image) {
     this.message = `Not found '${image}' docker image`;
   }
 }
 
-export class ProvisionPullError extends Error {
+export class ProvisionPullError extends AzkError {
   constructor(image, msg) {
     this.message = `Error in pull docker imagem: ${image}, msg: ${msg}`;
   }
 }
 
-export class InvalidOptionError extends Error {
+export class InvalidOptionError extends AzkError {
   constructor(option) {
     this.message = `Invalid argument option: ${option}`;
   }
@@ -34,7 +37,7 @@ export class InvalidValueError extends InvalidOptionError {
   }
 }
 
-export class TError extends Error {
+export class TError extends AzkError {
   constructor(translation_key) {
     this.translation_key = translation_key;
   }
@@ -79,10 +82,19 @@ export class RunCommandError extends TError {
   }
 }
 
+export class ManifestRequiredError extends TError {
+  constructor(cwd) {
+    super('manifest_required');
+    this.cwd  = cwd;
+    this.code = 2;
+  }
+}
+
 export class ManifestError extends TError {
   constructor(file, err_message) {
     super('manifest_error');
     this.file = file;
     this.err_message = err_message;
+    this.code = 2;
   }
 }
