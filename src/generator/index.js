@@ -66,7 +66,12 @@ function json(data) {
     .replace(/^(\{|\[) /, '$1');
 }
 
+function hash_key(data) {
+  return data.replace(/-/g, '_');
+}
+
 Handlebars.registerHelper('json', json);
+Handlebars.registerHelper('hash_key', hash_key);
 
 // Load default rules
 generator.load(path.join(__dirname, "rules"));

@@ -16,16 +16,18 @@ describe("Azk generator tool", function() {
 
       // Genereate manifest file
       var front = {
-        name : 'front',
-        depends: ['db'],
-        workdir: '/azk/<%= manifest.dir %>',
-        image: { repository: 'base', tag: '0.1' },
-        sync_files: true,
-        command: 'bundle exec rackup config.ru',
-        envs: { RACK_ENV: 'dev' },
       };
       generator.render({
-        systems: [front],
+        systems: {
+          front: {
+            depends: ['db'],
+            workdir: '/azk/<%= manifest.dir %>',
+            image: { repository: 'base', tag: '0.1' },
+            sync_files: true,
+            command: 'bundle exec rackup config.ru',
+            envs: { RACK_ENV: 'dev' },
+          }
+        },
         default: 'front',
         bins: [
           { name: "console", command: ["bundler", "exec"] }
@@ -46,14 +48,18 @@ describe("Azk generator tool", function() {
   it("should render a example if not have any systems", function() {
     return h.tmp_dir({ prefix: "azk-" }).then((project) => {
       var manifest = path.join(project, config('manifest'));
-      generator.render({ systems: [generator.example_system], default: 'example' }, manifest);
+      generator.render({
+        systems: { 'example-system': generator.example_system },
+        default: 'example-system'
+      }, manifest);
 
       var data = fs.readFileSync(manifest).toString();
-      h.expect(data).to.match(/example: \{/);
+      h.expect(data).to.match(/example_system: \{/);
       h.expect(data).to.match(/depends: \[\],/);
       h.expect(data).to.match(/image: \{.*repository.*\[repository\].*\}/);
       h.expect(data).to.match(/sync_files: \{\n.*\/azk\/<%= manifest\.dir %>/g);
       h.expect(data).to.match(/workdir: "\/azk\/<%= manifest\.dir %>"/);
+      h.expect(data).to.match(/setDefault\("example_system"\);/);
     });
   });
 });

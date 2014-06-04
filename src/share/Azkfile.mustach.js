@@ -7,7 +7,7 @@
 
 systems({
   {{#each systems ~}}
-  {{&name}}: {
+  {{&hash_key @key}}: {
     // Dependent systems
     depends: {{&json depends}},
     // More imagens http://images.azk.io
@@ -22,6 +22,13 @@ systems({
     {{else ~}}
     image: {{&json image}},
     {{/if ~}}
+    {{#if provision ~}}
+    provision: [
+      {{#each provision ~}}
+      {{&json this}},
+      {{/each ~}}
+    ],
+    {{/if}}
     {{#if workdir ~}}
     workdir: "{{&workdir}}",
     {{/if ~}}
@@ -56,7 +63,7 @@ systems({
 });
 
 {{#if default ~}}
-setDefault("{{default}}");
+setDefault("{{&hash_key default}}");
 {{/if ~}}
 {{#each bins ~}}
 registerBin("{{&this.name}}", {{&json this.command}});
