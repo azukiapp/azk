@@ -77,7 +77,7 @@ describe("Azk docker module, run method", function() {
   });
 
   it("should support bind ports", function() {
-    var script = 'while true ; do (echo -e "HTTP/1.1\\n\\n $(date)") | nc -l 1500; test $? -gt 128 && break; sleep 1; done';
+    var script = 'socat TCP-LISTEN:1500,fork SYSTEM:\'echo -e "HTTP/1.1\\n\\n $(date)"\'';
     var cmd  = ["/bin/bash", "-c", script];
     var opts = { daemon: true, ports: {} };
     opts.ports["1500/tcp"] = [{ HostIp: "0.0.0.0" }];
@@ -96,7 +96,7 @@ describe("Azk docker module, run method", function() {
       var port = data.NetworkSettings.Ports["1500/tcp"][0].HostPort;
 
       // Request
-      var _cmd = ["/bin/bash", "-c", `echo | nc -d ${host} ${port}`];
+      var _cmd = ["/bin/bash", "-c", `exec 3<>/dev/tcp/${host}/${port}; echo -e "" >&3; cat <&3`];
       yield docker.run(default_img, _cmd, { stdout: mocks.stdout });
       h.expect(outputs.stdout).to.match(/HTTP\/1\.1/);
 

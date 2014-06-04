@@ -69,7 +69,7 @@ var options = merge({
       namespace     : 'azk',
       repository    : 'azk',
       default_domain: 'dev.azk.io',
-      image_default : 'racker/precise-with-updates:latest',
+      image_default : 'azukiapp/busybox:latest',
     },
     agent: {
       port: 8080,
