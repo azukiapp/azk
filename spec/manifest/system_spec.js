@@ -155,16 +155,16 @@ describe("Azk system class", function() {
 
         return promise.then(() => {
           h.expect(events).to.include.something.that.deep.equals({
-            type: 'scale', from: 1, to: 2, service: 'example'
+            type: 'scale', from: 1, to: 2, system: 'example'
           });
           h.expect(events).to.include.something.that.deep.equals({
-            type: 'scale', from: 2, to: 1, service: 'example'
+            type: 'scale', from: 2, to: 1, system: 'example'
           });
           h.expect(events).to.include.something.that.deep.equals({
-            type: 'run_service', service: 'example'
+            type: 'run_service', system: 'example'
           });
           h.expect(events).to.include.something.that.deep.equals({
-            type: 'stop_service', service: 'example'
+            type: 'stop_service', system: 'example'
           });
         });
       });

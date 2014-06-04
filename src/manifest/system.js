@@ -85,7 +85,7 @@ export class System {
         var to   = instances - from;
 
         if (to != 0)
-          notify({ type: "scale", from, to: from + to, service: self.name });
+          notify({ type: "scale", from, to: from + to, system: self.name });
 
         if (to > 0) {
           yield self.run(true, to, depends_instances);
@@ -165,7 +165,7 @@ export class System {
 
     return async(function* (notify) {
       for(var i = 0; i < instances; i++) {
-        notify({ type: 'run_service', service: self.name });
+        notify({ type: 'run_service', system: self.name });
         var container = yield docker.run(self.image.name, cmd, options);
         yield self._balancer_add(port_name, yield container.inspect());
       }
@@ -215,10 +215,10 @@ export class System {
         yield self._remove_proxy(port, container);
         container = docker.getContainer(container.Id);
         if (kill) {
-          notify({ type: 'kill_service', service: self.name });
+          notify({ type: 'kill_service', system: self.name });
           yield container.kill();
         } else {
-          notify({ type: 'stop_service', service: self.name });
+          notify({ type: 'stop_service', system: self.name });
           yield container.stop();
         }
       }
