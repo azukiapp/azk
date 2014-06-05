@@ -35,8 +35,6 @@ class CmdCli extends Cli {
 export function cli(args, cwd, ui = UI) {
   try {
     var azk_cli = new CmdCli('azk', ui, cmds_path);
-
-
     azk_cli.addOption(['--version', '-v'], { default: false, show_default: false });
     azk_cli.addOption(['--log', '-l'] , { type: String});
     azk_cli.addOption(['--help', '-h'], { show_default: false } );

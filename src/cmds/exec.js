@@ -1,58 +1,39 @@
-import { Q, _, config, t } from 'azk';
+import { _, config, t, async } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
 import { Manifest } from 'azk/manifest';
 
-class ExecCmd extends Command {
+class Cmd extends Command {
   action(opts) {
-    var self = this;
-    return Q.async(function* () {
+    return async(this, function* () {
       var cmd = [opts.cmd, ...opts.__leftover];
-      var dir = self.cwd;
+      var dir = this.cwd;
       var env = {};
-      var progress = Helpers.newPullProgress(self);
+      var progress = Helpers.newPullProgress(this);
 
       if (opts.image) {
         // Arbitrary image
         var manifest = Manifest.makeFake(dir, opts.image);
         var system   = manifest.systemDefault;
       } else {
-        var manifest = new Manifest(dir);
-        if (!manifest.file) {
-          self.fail('manifest.not_found');
-          return 1;
-        }
-
-        if (opts.system) {
-          var system = manifest.system(opts.system);
-          if (!system) {
-            var systems = _.map(manifest.systems, (_, name) => {
-              return name
-            }).join(',');
-            self.fail('commands.exec.system_not', {
-              system: opts.system,
-              systems: systems
-            });
-            return 1;
-          }
-        } else {
-          var system = manifest.systemDefault;
-        }
+        var manifest = new Manifest(dir, true);
+        var system   = manifest.systemDefault;
+        if (opts.system) system = manifest.system(opts.system, true);
       }
 
       var options  = {
-        pull: self.stdout().isTTY ? true : cmd.stdout(),
+        pull: this.stdout().isTTY ? true : cmd.stdout(),
         interactive: opts.interactive,
-        stdout: self.stdout(),
-        stderr: self.stderr(),
-        stdin: self.stdin(),
+        stdout: this.stdout(),
+        stderr: this.stderr(),
+        stdin: this.stdin(),
       }
       return system.exec(cmd, options).progress(progress);
-    })();
+    });
   }
 }
 
 export function init(cli) {
-  (new ExecCmd('exec {*cmd}', cli))
+  (new Cmd('exec {*cmd}', cli))
     .addOption(['--system', '-s'], { type: String })
     .addOption(['--image', '-I'], { type: String })
     .addOption(['--interactive', '-i'])
