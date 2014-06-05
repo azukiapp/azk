@@ -8,30 +8,28 @@ var Server = {
 
   // TODO: log start machine steps
   start() {
-    var self = this;
-    return async(function* () {
+    return async(this, function* () {
       log.info_t("commands.agent.starting");
 
       // Virtual machine is required?
       if (config('agent:requires_vm')) {
-        yield self.installShare();
-        yield self.installVM(true);
+        yield this.installShare();
+        yield this.installVM(true);
       }
 
       // Load balancer
-      yield self.installBalancer();
+      yield this.installBalancer();
 
       log.info_t("commands.agent.started");
-    })
+    });
   },
 
   stop() {
-    var self = this;
-    return Q.async(function* () {
-      yield self.removeBalancer();
-      yield self.stopVM();
-      yield self.removeShare();
-    })();
+    return async(this, function* () {
+      yield this.removeBalancer();
+      yield this.stopVM();
+      yield this.removeShare();
+    });
   },
 
   installBalancer() {

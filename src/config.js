@@ -15,6 +15,12 @@ var data_path =
 var requires_vm = process.platform == 'linux' ?
   (process.env.AZK_USE_VM || false) : true;
 
+// Balancer configuration
+var balancer = {
+  host: process.env.AZK_BALANCER_HOST || "dev.azk.io",
+  port: process.env.AZK_BALANCER_PORT || 80,
+};
+
 // Vm informations
 // TODO: Show erro if not resolve ip
 var vm_name = process.env.AZK_AGENT_VM_NAME || "azk-agent";
@@ -72,9 +78,9 @@ var options = merge({
       image_default : 'azukiapp/busybox:latest',
     },
     agent: {
-      port: 8080,
       requires_vm: requires_vm,
       portrange_start: 11000,
+      balancer,
       vm: {
         ip         : vm_ip,
         name       : vm_name,
@@ -84,7 +90,7 @@ var options = merge({
         data_disk  : path.join(data_path, "vm", "azk-agent.vmdk"),
         blank_disk : path.join(data_path, "vm", "azk-agent.vmdk.bz"),
         mount_point: '/home/docker/files',
-        persistent_dirs: '/home/docker/persistent_dirs',
+        persistent_dirs: '/mnt/sda1/azk/persistent_dirs',
       }
     }
   },

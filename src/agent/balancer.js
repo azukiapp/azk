@@ -1,7 +1,8 @@
 import { _, Q, path, fs, config, log, defer, async } from 'azk';
 import { net } from 'azk/utils';
-var forever = require('forever-monitor');
+var MemoryStream = require('memorystream');
 
+var forever = require('forever-monitor');
 var MemcachedDriver = require('memcached');
 
 // TODO: Reaplce forever for a better solution :/
@@ -56,19 +57,42 @@ var Balancer = {
 
   start() {
     var self = this;
-    return async(function* () {
-      if (!self.isRunnig()) {
+    return async(this, function* () {
+      if (!this.isRunnig()) {
         var socket = config('paths:memcached_socket');
-        yield self.start_memcached(socket);
-        yield self.start_hipache(socket);
+        var ip     = net.calculateGatewayIp(config("agent:vm:ip"))
+        var port   = yield net.getPort();
+        yield this.start_memcached(socket);
+        yield this.start_hipache(ip, port, socket);
+        yield self.start_socat(ip, port);
       }
     });
   },
 
-  start_hipache(socket) {
-    var port = config('agent:port');
+  start_socat(ip, port) {
+    return async(this, function* () {
+      var Manifest = require('azk/manifest').Manifest;
+      var manifest = new Manifest(config('paths:azk_root'), true);
+      var system   = manifest.system('balancer_redirect', true);
+      system.add_env('BALANCER_IP', ip);
+      system.add_env('BALANCER_PORT', port);
+
+      var stdout = new MemoryStream();
+      var output = "";
+      stdout.on('data', (data) => {
+        output += data.toString();
+      });
+
+      var result = yield system.scale(1, stdout, true);
+      if (!result) {
+        throw new Error('Fail to start balancer: ' + output);
+      }
+    });
+  },
+
+  start_hipache(ip, port, socket) {
     var pid  = config("paths:hipache_pid");
-    var file = this._check_config(port, socket);
+    var file = this._check_config(ip, port, socket);
     var cmd = [ 'nvm', 'hipache', '--config', file ];
 
     log.info("starting hipache");
@@ -165,7 +189,7 @@ var Balancer = {
     });
   },
 
-  _check_config(port, memcached_socket) {
+  _check_config(ip, port, memcached_socket) {
     var file   = config('paths:balancer_file');
 
     var data = {
@@ -177,7 +201,7 @@ var Balancer = {
       },
       http: {
         port: port,
-        address: ["127.0.0.1", "::1"]
+        bind: ["127.0.0.1", ip, "::1"]
       },
       driver: ["memcached://" + memcached_socket]
     }

@@ -26,5 +26,13 @@ systems({
       ]
     },
   },
+
+  balancer_redirect: {
+    image: "azukiapp/busybox",
+    command: "socat TCP4-LISTEN:$HTTP_PORT,fork TCP:$BALANCER_IP:$BALANCER_PORT",
+    ports: {
+      http: "80:<%= azk.balancer_port %>/tcp",
+    }
+  }
 });
 

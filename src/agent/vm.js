@@ -336,7 +336,7 @@ var vm = {
         });
       });
     });
-  }
+  },
 }
 
 function ssh_run(host, port, cmd, wait = false) {
