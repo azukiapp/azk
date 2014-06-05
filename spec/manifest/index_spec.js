@@ -1,13 +1,13 @@
 import { fs, config } from 'azk';
 import { Manifest, System, file_name } from 'azk/manifest';
 import { createSync as createCache } from 'fscache';
-import { ManifestError, ManifestRequiredError } from 'azk/utils/errors';
+import { ManifestError, ManifestRequiredError, SystemNotFoundError } from 'azk/utils/errors';
 import h from 'spec/spec_helper';
 
 var default_img = config('docker:image_default');
 var path = require('path');
 
-describe.only("Azk manifest class", function() {
+describe("Azk manifest class", function() {
   describe("in a valid azk project folder", function() {
     var project, manifest;
 
@@ -52,6 +52,11 @@ describe.only("Azk manifest class", function() {
       manifest.setMeta('anykey', 'anyvalue');
       h.expect(manifest.getMeta('anykey')).to.equal('anyvalue');
     });
+
+    it("should raise an error if not found a required system", function() {
+      var func = () => manifest.system("not_found_system", true);
+      h.expect(func).to.throw(SystemNotFoundError, /not_found_system/);
+    });
   });
 
   describe("in a directory", function() {
@@ -67,7 +72,7 @@ describe.only("Azk manifest class", function() {
       h.expect(manifest).to.have.property("exist").and.fail;
     });
 
-    it("should raise a error if manifest is required", function() {
+    it("should raise an error if manifest is required", function() {
       var func = () => { new Manifest(project, true) };
       h.expect(func).to.throw(ManifestRequiredError, RegExp(h.escapeRegExp(project)));
     });

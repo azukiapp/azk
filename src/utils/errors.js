@@ -2,6 +2,16 @@ var printf = require('printf');
 var path   = require('path');
 import { t } from 'azk';
 
+var MANIFEST_CODE_ERROR = 2;
+var SYSTEMS_CODE_ERROR  = 3;
+var IMAGES_CODE_ERROR   = 4;
+
+export {
+  MANIFEST_CODE_ERROR,
+  SYSTEMS_CODE_ERROR ,
+  IMAGES_CODE_ERROR  ,
+}
+
 export class AzkError extends Error {
 }
 
@@ -63,6 +73,7 @@ export class SystemDependError extends TError {
     super('system_depend_error');
     this.system = system;
     this.depend = depend;
+    this.code   = SYSTEMS_CODE_ERROR;
   }
 }
 
@@ -71,30 +82,45 @@ export class ImageNotAvailable extends TError {
     super('image_not_available');
     this.system = system;
     this.image  = image;
+    this.code   = IMAGES_CODE_ERROR;
   }
 }
 
 export class RunCommandError extends TError {
   constructor(command, output) {
     super('run_command_error');
+
     this.command = command;
-    this.output = output;
+    this.output  = output;
+    this.code    = SYSTEMS_CODE_ERROR;
   }
 }
 
 export class ManifestRequiredError extends TError {
   constructor(cwd) {
     super('manifest_required');
+
     this.cwd  = cwd;
-    this.code = 2;
+    this.code = MANIFEST_CODE_ERROR;
   }
 }
 
 export class ManifestError extends TError {
   constructor(file, err_message) {
     super('manifest_error');
+
     this.file = file;
     this.err_message = err_message;
-    this.code = 2;
+    this.code = MANIFEST_CODE_ERROR;
+  }
+}
+
+export class SystemNotFoundError extends TError {
+  constructor(manifest, system) {
+    super('system_not_found');
+
+    this.manifest = manifest;
+    this.system   = system;
+    this.code     = SYSTEMS_CODE_ERROR;
   }
 }

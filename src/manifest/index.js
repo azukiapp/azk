@@ -4,7 +4,7 @@ import { runInNewContext, createScript } from 'vm';
 import { System } from 'azk/manifest/system';
 import { createSync as createCache } from 'fscache';
 import { sync as mkdir } from 'mkdirp';
-import { ManifestError, ManifestRequiredError } from 'azk/utils/errors';
+import { ManifestError, ManifestRequiredError, SystemNotFoundError } from 'azk/utils/errors';
 import Utils from 'azk/utils';
 
 var file_name = config('manifest');
@@ -124,8 +124,13 @@ export class Manifest {
     return this;
   }
 
-  system(name) {
-    return this.systems[name];
+  system(name, isRequired = false) {
+    var sys = this.systems[name];
+
+    if (isRequired && !sys)
+      throw new SystemNotFoundError(this.file, name);
+
+    return sys;
   }
 
   setMeta(...args) {
