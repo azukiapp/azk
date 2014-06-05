@@ -1,7 +1,9 @@
 var version = "Show azk version";
+var systems_options = "Target systems of action";
 
 module.exports = {
   errors: {
+    not_bee_implemented: "This feature: `%(feature)s` has not been implemented yet",
     system_not_found: "System `%(system)s` not found in `%(manifest)s`",
     manifest_required: "Manifest is required, but not found in `%(cwd)s`",
     manifest_error: "Manifest not valid (see http://doc.azk.io), error:\n%(err_message)s",
@@ -92,22 +94,31 @@ module.exports = {
       description: "Start an one instance of the system(s)",
       already: "System `%(name)s` already started",
       options: {
-        system: "System(s) name(s)",
+        system: systems_options,
       }
     },
     stop: {
       description: "Start an one instance of the system(s)",
       already: "System `%(name)s` already started",
       options: {
-        system: "System(s) name(s)",
+        system: systems_options,
       }
     },
     scale: {
       description: "Scale (up or down) an instances of the system(s)",
       options: {
-        system: "System(s) name(s)",
+        system: systems_options,
         instances: "Number of instances",
       }
+    },
+    reload: {
+      description: "Stop all system, re-provision and starts again",
+      options: {
+        system: systems_options,
+      }
+    },
+    up: {
+      description: "Start all systems in order dependencies"
     },
     status: {
       description: "Show systems(s) instances status",

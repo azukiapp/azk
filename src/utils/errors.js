@@ -2,11 +2,13 @@ var printf = require('printf');
 var path   = require('path');
 import { t } from 'azk';
 
+var BASE_CODE_ERROR     = 1;
 var MANIFEST_CODE_ERROR = 2;
 var SYSTEMS_CODE_ERROR  = 3;
 var IMAGES_CODE_ERROR   = 4;
 
 export {
+  BASE_CODE_ERROR,
   MANIFEST_CODE_ERROR,
   SYSTEMS_CODE_ERROR ,
   IMAGES_CODE_ERROR  ,
@@ -122,5 +124,14 @@ export class SystemNotFoundError extends TError {
     this.manifest = manifest;
     this.system   = system;
     this.code     = SYSTEMS_CODE_ERROR;
+  }
+}
+
+export class NotBeenImplementedError extends TError {
+  constructor(feature) {
+    super('not_bee_implemented');
+
+    this.feature = feature;
+    this.code    = BASE_CODE_ERROR;
   }
 }

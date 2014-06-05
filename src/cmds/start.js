@@ -1,7 +1,7 @@
 import { _, async, config, t } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
 import { Manifest } from 'azk/manifest';
-import { SYSTEMS_CODE_ERROR } from 'azk/utils/errors';
+import { SYSTEMS_CODE_ERROR, NotBeenImplementedError } from 'azk/utils/errors';
 
 class Cmd extends Command {
   action(opts) {
@@ -64,6 +64,14 @@ class Cmd extends Command {
       }
     });
   }
+
+  reload(manifest, systems, opts) {
+    throw new NotBeenImplementedError('reload');
+  }
+
+  up(manifest, systems, opts) {
+    throw new NotBeenImplementedError('up');
+  }
 }
 
 export function init(cli) {
@@ -80,5 +88,10 @@ export function init(cli) {
 
   (new Cmd('status', cli))
     .addOption(['--system', '-s'], { type: String })
-    .addOption(['--all', '-a'], { default: false })
+    .addOption(['--all', '-a'], { default: false });
+
+  (new Cmd('reload', cli))
+    .addOption(['--system', '-s'], { type: String });
+
+  (new Cmd('up', cli));
 }
