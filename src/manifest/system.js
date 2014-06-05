@@ -313,11 +313,16 @@ export class System {
     }));
   }
 
+  add_env(key, value) {
+    this.__extra_envs = _.merge(this.__extra_envs || {}, { [key]: value });
+  }
+
   _more_envs(envs, options, depends_instances = []) {
     return _.merge({},
       this._dependencies_envs(depends_instances),
       this._envs_from_file(),
-      envs
+      envs,
+      this.__extra_envs || {}
     )
   }
 
