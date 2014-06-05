@@ -126,6 +126,12 @@ export class System {
       });
     }
 
+    // Persistent dir
+    if (this.options.persistent_dir) {
+      run_options.local_volumes[this.persistent_dir] = '/azk/_data_';
+      run_options.env.AZK_PERSISTENT_DIR = '/azk/_data_';
+    }
+
     run_options.ns = name;
     return run_options;
   }
@@ -198,11 +204,6 @@ export class System {
 
     // Add more envs
     options.env = this._more_envs(options.env, {}, depends_instances);
-
-    // Persistent dir
-    if (this.options.persistent_dir) {
-      options.local_volumes[this.persistent_dir] = '/azk/_data_';
-    }
 
     // Command
     var cmd = ['/bin/sh', '-c', self.options.command];
@@ -299,9 +300,11 @@ export class System {
     return JSON.parse(_.template(JSON.stringify(options), {
       system: {
         name: this.name,
+        persistent_dir: "/azk/_data_",
       },
       manifest: {
-        dir: this.manifest.manifestDirName
+        dir: this.manifest.manifestDirName,
+        project_name: this.manifest.manifestDirName,
       },
       azk: {
         default_domain: config('docker:default_domain'),

@@ -27,6 +27,10 @@ class Cmd extends Command {
         stderr: this.stderr(),
         stdin: this.stdin(),
       }
+
+      if (!opts['skip-provision']) {
+        yield system.provision(options.reprovision);
+      }
       return system.exec(cmd, options).progress(progress);
     });
   }
@@ -37,4 +41,6 @@ export function init(cli) {
     .addOption(['--system', '-s'], { type: String })
     .addOption(['--image', '-I'], { type: String })
     .addOption(['--interactive', '-i'])
+    .addOption(['--reprovision', '-r'], { default: false })
+    .addOption(['--skip-provision', '-S'], { default: false })
 }
