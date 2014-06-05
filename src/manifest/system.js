@@ -174,8 +174,9 @@ export class System {
   provision(opts = {}) {
     return defer((resolve, reject, notify) => {
       var steps = this.provision_steps;
-      if ((!opts.force_provision && this.provisioned) || steps.length == 0)
-        return null;
+
+      if (steps.length == 0) return null;
+      if ((!opts.force_provision) && this.provisioned) return null;
 
       // provision command (require /bin/sh)
       var cmd  = ["/bin/sh", "-c", "( " + steps.join('; ') + " )"];

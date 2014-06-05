@@ -4,11 +4,12 @@ import { Manifest } from 'azk/manifest';
 
 class Cmd extends Command {
   action(opts) {
+    var progress = Helpers.newPullProgress(this);
+
     return async(this, function* () {
       var cmd = [opts.cmd, ...opts.__leftover];
       var dir = this.cwd;
       var env = {};
-      var progress = Helpers.newPullProgress(this);
 
       if (opts.image) {
         // Arbitrary image
@@ -29,10 +30,10 @@ class Cmd extends Command {
       }
 
       if (!opts['skip-provision']) {
-        yield system.provision(options.reprovision);
+        yield system.provision({ force_provision: opts.reprovision });
       }
-      return system.exec(cmd, options).progress(progress);
-    });
+      return yield system.exec(cmd, options);
+    }).progress(progress);
   }
 }
 
