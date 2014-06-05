@@ -31,19 +31,18 @@ var Agent = {
           return this.launchDaemon();
         } else {
           this.wait_kill = resolve;
-          this.processWrapper().progress(notify);
+          this.processWrapper().progress(notify).fail(reject);
         }
       }
     });
   },
 
   stop(opts) {
-    var self = this;
     var pid  = this.agentPid();
     return defer((resolve, reject, notify) => {
       if (pid.running) {
-        self.wait_notify = notify;
-        self.wait_kill   = resolve;
+        this.wait_notify = notify;
+        this.wait_kill   = resolve;
         pid.term();
       } else {
         resolve();
