@@ -1,6 +1,7 @@
 import { _, path, fs, config, async, defer } from 'azk';
 import { Image } from 'azk/images';
 import { Balancer } from 'azk/agent/balancer';
+import { XRegExp } from 'xregexp';
 import docker from 'azk/docker';
 import {
   SystemDependError,
@@ -8,8 +9,11 @@ import {
   RunCommandError,
 } from 'azk/utils/errors';
 
-var MemoryStream  = require('memorystream');
-var printf = require('printf');
+var MemoryStream = require('memorystream');
+var printf       = require('printf');
+var regex_port   = new XRegExp(
+  "(?<private>[0-9]{1,})(:(?<public>[0-9]{1,})){0,1}(/(?<protocol>tcp|udp)){0,1}", "x"
+)
 
 export class System {
   constructor(manifest, name, image, options = {}) {
@@ -36,6 +40,10 @@ export class System {
   get hosts() {
     var balancer = this.options.balancer || {};
     return (balancer.alias || []).concat(balancer.hostname);
+  }
+
+  get balanceable() {
+    return this.hosts.length > 0;
   }
 
   get depends() {
@@ -199,6 +207,29 @@ export class System {
     });
   }
 
+  get ports() {
+    var ports = this.options.ports || {};
+    if (_.keys(ports).length == 0) {
+      ports.__default__ = "5000/tcp"
+    }
+
+    return _.reduce(ports, (ports, port, name) => {
+      port = XRegExp.exec(port, regex_port);
+      port.protocol = port.protocol || "tcp";
+
+      var config = { HostIp: "0.0.0.0" };
+      if (port.public)
+        config.HostPort = port.public;
+
+      ports[name] = {
+        config : config,
+        name   : port.private + "/" + port.protocol,
+        private: port.private
+      };
+      return ports;
+    }, {})
+  }
+
   run(daemon, instances, depends_instances) {
     var self    = this;
     var options = this.make_options(true);
@@ -207,19 +238,23 @@ export class System {
     options.env = this._more_envs(options.env, {}, depends_instances);
 
     // Command
-    var cmd = ['/bin/sh', '-c', self.options.command];
+    var cmd = ['/bin/sh', '-c', this.options.command];
 
     // Port map
-    var port = self.options.port || 3000;
-    var port_name = port + "/tcp";
-    options.ports[port_name] = [{ HostIp: "0.0.0.0" }];
-    options.env.PORT = port;
+    _.each(this.ports, (data, name) => {
+      var env_key = "PORT";
+      if (name != "__default__")
+        env_key = `${name.toUpperCase()}_${env_key}`;
 
-    return async(function* (notify) {
+      options.env[env_key] = data.private;
+      options.ports[data.name] = [data.config]
+    });
+
+    return async(this, function* (notify) {
       for(var i = 0; i < instances; i++) {
-        notify({ type: 'run_service', system: self.name });
-        var container = yield docker.run(self.image.name, cmd, options);
-        yield self._balancer_add(port_name, yield container.inspect());
+        notify({ type: 'run_service', system: this.name });
+        var container = yield docker.run(this.image.name, cmd, options);
+        yield this._balancer_add(yield container.inspect());
       }
     });
   }
@@ -277,11 +312,14 @@ export class System {
     })
   }
 
-  _balancer_add(port_name, container) {
-    if (!_.isEmpty(this.hosts)) {
+  _balancer_add(container) {
+    if (this.balanceable) {
+      var ports = this.ports;
+      var port  = ports.http || ports.__default__;
+
       var backend = printf(
             "http://%s:%s", config('agent:vm:ip'),
-            container.NetworkSettings.Ports[port_name][0].HostPort
+            container.NetworkSettings.Ports[port.name][0].HostPort
           );
       return Balancer.addBackend(this.hosts, backend);
     }
@@ -309,6 +347,7 @@ export class System {
       },
       azk: {
         default_domain: config('docker:default_domain'),
+        balancer_port: config('agent:balancer:port'),
       }
     }));
   }
@@ -327,6 +366,7 @@ export class System {
   }
 
   // TODO: fix api x database
+  // TODO: fix multi port
   _dependencies_envs(depends_instances) {
     var envs = {};
 

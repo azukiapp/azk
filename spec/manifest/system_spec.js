@@ -244,7 +244,7 @@ describe("Azk system class", function() {
           before(() => envs = instance.Config.Env);
 
           it("shuld from the azk env", function() {
-            h.expect(envs).to.include('PORT=3000');
+            h.expect(envs).to.include('PORT=5000');
             h.expect(envs).to.include('AZK_NAME=' + instance.Name.slice(1));
           });
 
