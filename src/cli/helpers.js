@@ -1,5 +1,4 @@
 import { t } from 'azk';
-import { Image } from 'azk/images';
 
 var fmt_p = t('commands.helpers.pull.bar_progress');
 var fmt_s = t('commands.helpers.pull.bar_status');

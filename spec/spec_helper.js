@@ -24,8 +24,8 @@ var Helpers = {
   capture_io: capture_io,
   expect : chai.expect,
 
-  tmp_dir() {
-    return Q.nfcall(tmp.dir).then((dir) => {
+  tmp_dir(opts = { prefix: "azk-test-"}) {
+    return Q.nfcall(tmp.dir, opts).then((dir) => {
       return Utils.resolve(dir);
     });
   },

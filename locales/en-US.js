@@ -99,7 +99,7 @@ module.exports = {
     },
     stop: {
       description: "Start an one instance of the system(s)",
-      already: "System `%(name)s` already started",
+      not_running: "System `%(name)s` not running",
       options: {
         system: systems_options,
       }
@@ -122,8 +122,8 @@ module.exports = {
     },
     status: {
       description: "Show systems(s) instances status",
-      status: "%(system)s: %(instances)d instances",
-      status_with_dead: "%(system)s: %(instances)d up and %(down)d down",
+      status: "%(system)s: %(instances)d instances - %(hosts)s",
+      status_with_dead: "%(system)s: %(instances)d up and %(down)d down - %(hosts)s",
       options: {
         system: "System(s) name(s)",
         all: "Include all instances (including terminated)",
