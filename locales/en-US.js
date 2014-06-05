@@ -2,6 +2,7 @@ var version = "Show azk version";
 
 module.exports = {
   errors: {
+    system_not_found: "System `%(system)s` not found in `%(manifest)s`",
     manifest_required: "Manifest is required, but not found in `%(cwd)s`",
     manifest_error: "Manifest not valid (see http://doc.azk.io), error:\n%(err_message)s",
     required_option_error: "Option %(option)s is required",
@@ -87,6 +88,36 @@ module.exports = {
       generated: "'%s' generated",
       github: "\nTip:\n  Add the `.azk` in .gitignore\n  echo '.azk' >> .gitignore \n",
     },
+    start: {
+      description: "Start an one instance of the system(s)",
+      already: "System `%(name)s` already started",
+      options: {
+        system: "System(s) name(s)",
+      }
+    },
+    stop: {
+      description: "Start an one instance of the system(s)",
+      already: "System `%(name)s` already started",
+      options: {
+        system: "System(s) name(s)",
+      }
+    },
+    scale: {
+      description: "Scale (up or down) an instances of the system(s)",
+      options: {
+        system: "System(s) name(s)",
+        instances: "Number of instances",
+      }
+    },
+    status: {
+      description: "Show systems(s) instances status",
+      status: "%(system)s: %(instances)d instances",
+      status_with_dead: "%(system)s: %(instances)d up and %(down)d down",
+      options: {
+        system: "System(s) name(s)",
+        all: "Include all instances (including terminated)",
+      }
+    },
     kill: {
       description: "Kill a azk process by `azk pid`"
     },
@@ -96,14 +127,6 @@ module.exports = {
     },
     ps: {
       description: "Displays a information about the application process"
-    },
-    service: {
-      description: "Control application services",
-      instances: "number of instances to be added or removed",
-      invalid_service: "'%s' not a valid service for this application",
-      scale: "scale from %s to %s instances",
-      not_runnig: "service not running",
-      running: "running `%s` instances"
     },
     vm: {
       description: "Control a virtual machine",
