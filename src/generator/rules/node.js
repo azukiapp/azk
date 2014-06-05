@@ -5,7 +5,7 @@ import { Helpers, example_system } from 'azk/generator/rules';
 
 var suggestion = _.extend({}, example_system, {
   image : {
-    repository: "jprjr/stackbrew-node", tag: "latest"
+    repository: "dockerfile/nodejs", tag: "latest"
   },
   // TODO: extract this information package.json
   sync_files: true,

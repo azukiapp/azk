@@ -28,7 +28,7 @@ describe("Azk generator node rule", function() {
     var system   = manifest.systemDefault;
 
     h.expect(system).to.have.deep.property("name", name);
-    h.expect(system).to.have.deep.property("image.name", "jprjr/stackbrew-node:latest");
+    h.expect(system).to.have.deep.property("image.name", "dockerfile/nodejs:latest");
     h.expect(system).to.have.deep.property("depends").and.to.eql([]);
     h.expect(system).to.have.deep.property("options.workdir", "/azk/" + name);
     h.expect(system).to.have.deep.property("options.sync_files")
