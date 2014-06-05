@@ -35,7 +35,7 @@ export class System {
 
   get hosts() {
     var balancer = this.options.balancer || {};
-    return [...balancer.alias || [], balancer.hostname || [] ];
+    return (balancer.alias || []).concat(balancer.hostname);
   }
 
   get depends() {

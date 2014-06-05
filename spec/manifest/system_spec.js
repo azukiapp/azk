@@ -228,7 +228,7 @@ describe("Azk system class", function() {
         it("should add and remove from balancer", function() {
           return async(function* () {
             var balancer = system.options.balancer;
-            var alias = [...balancer.alias, balancer.hostname ];
+            var alias = (balancer.alias || []).concat(balancer.hostname);
 
             for (var host of alias) {
               var backends = yield Balancer.getBackends(host);
