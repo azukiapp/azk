@@ -169,7 +169,7 @@ describe("Azk system class", function() {
         });
       });
 
-      describe("and get a instance", function() {
+      describe("and get instances", function() {
         var instance, instances;
 
         before(() => {
@@ -178,6 +178,19 @@ describe("Azk system class", function() {
             instance  = yield docker.getContainer(instances[0].Id).inspect();
           });
         })
+
+        it("should support get dead instances", function() {
+          return async(function* () {
+            h.expect(instances).to.length(1);
+
+            // Up and down
+            yield system.scale(2);
+            yield system.scale(1);
+            var insts = yield system.instances(true);
+
+            h.expect(insts).to.length.above(1);
+          });
+        });
 
         it("should bind port", function() {
           h.expect(instances).to.have.deep.property('[0].Ports[0]');

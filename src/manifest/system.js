@@ -60,8 +60,9 @@ export class System {
     return volumes;
   }
 
-  instances() {
-    return docker.listContainers().then((containers) => {
+  instances(include_dead = false) {
+    if (include_dead) include_dead = { all: true };
+    return docker.listContainers(include_dead).then((containers) => {
       var regex = RegExp(this.namespace);
       return _.filter(containers, function(container) {
         return container.Names[0].match(regex)
