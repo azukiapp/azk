@@ -262,7 +262,7 @@ configure() {
   check_install "check_npm" "azk node dependencies" || {
     log_i "Install node depedencies..."
     cd $AZK_ROOT_PATH
-    npm install --production
+    npm install --production &>/dev/null
   }
 
   # Vm disks
