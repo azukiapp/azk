@@ -6,9 +6,28 @@ __FILE__="${0}"
 export AZK_ROOT_PATH=`cd \`dirname $(readlink ${__FILE__} || echo ${__FILE__} )\`/..; pwd`
 export AZK_DATA_PATH=${AZK_DATA_PATH:-$AZK_ROOT_PATH/data}
 
+# OS
+UNFSD_INSTALL="Install unfs3 packaged before continue.";
+case `uname -s` in
+  Linux)
+    SO="linux"
+    export AZK_USE_VM=${AZK_USE_VM:-false}
+    ;;
+  Darwin)
+    SO="darwin"
+    if [ -n `which brew` ]; then
+      UNFSD_INSTALL="\`brew install unfs3\` before continue.";
+    fi;
+    export AZK_USE_VM=${AZK_USE_VM:-true}
+    ;;
+  *)
+    echo "azk: System not supported (see http://azk.io)";
+    exit 1;
+esac
+
 # Share system
-export AZK_UNFSD_PATH=`which unfsd`
-export AZK_PING_PATH=`which ping`
+export AZK_UNFSD_PATH=${AZK_UNFSD_PATH:-`which unfsd`}
+export AZK_PING_PATH=${AZK_PING_PATH:-`which ping`}
 
 export PATH=/usr/bin:/bin:/usr/sbin
 export PATH=$AZK_ROOT_PATH/bin:$PATH
@@ -32,6 +51,7 @@ export NVM_DIR=$AZK_DATA_PATH/nvm
 export VM_DISK_PATH=$AZK_DATA_PATH/vm
 export AZK_AGENT_VM_NAME="${AZK_AGENT_VM_NAME:-azk-agent}"
 export AZK_AGENT_VM_IP="${AZK_AGENT_VM_IP:-`agent_ip $AZK_AGENT_VM_NAME`}"
+export AZK_AGENT_VM_IP="${AZK_AGENT_VM_IP:-127.0.0.1}"
 
 # local
 node_version="${NODE_VERSION:-v0.10.26}"
@@ -51,20 +71,49 @@ data_folders=(
   "$AZK_DATA_PATH/logs"
 )
 
+azk.tput() {
+  [ -z "$TERM" ] && return 0
+  eval "tput $@"
+}
+
+azk.escape() {
+  echo "$@" | sed "
+    s/%{red}/$(azk.tput setaf 1)/g;
+    s/%{green}/$(azk.tput setaf 2)/g;
+    s/%{yellow}/$(azk.tput setaf 3)/g;
+    s/%{blue}/$(azk.tput setaf 4)/g;
+    s/%{magenta}/$(azk.tput setaf 5)/g;
+    s/%{cyan}/$(azk.tput setaf 6)/g;
+    s/%{white}/$(azk.tput setaf 7)/g;
+    s/%{reset}/$(azk.tput sgr0)/g;
+    s/%{[a-z]*}//g;
+  "
+}
+
+azk.escape_clear() {
+  echo "$@" | sed "s/%{[a-z]*}//g;"
+}
+
 log() {
   e="echo"
   if [ -n "$2" -a "$1" == "-n" ]; then
     shift
     e="echo -n"
   fi
-  $e >&2 "${*}"
+  $e >&2 "$(azk.escape "${*}")"
+  $e >&1 "$(azk.escape_clear "${*}")" | logger -t azk-configure
+}
+
+download() {
+  log "%{cyan}azk%{reset}: Downloading $1 to $2" | logger -t azk-configure
+  curl -L "$1" -o "$2" --connect-timeout 10 &>/dev/null
 }
 
 # Check if all required commands exist
 cmd_exists() {
   while [ -n "$1" ]; do
     command -v $1 >/dev/null 2>&1 || \
-      { log "command '$1' is required but not installed.  Aborting."; notOK=1; }
+      { log "command '$1' is required but not installed. Aborting."; notOK=1; }
     shift
   done
   if [ -n "$notOK" ]; then
@@ -81,7 +130,7 @@ check_data_folders() {
 }
 
 check_nvm() {
-  [ -n "$update" ] && rm $nvm_file
+  [ -n "$update" ] && rm $nvm_file 2>/dev/null
   [ -f $nvm_file ]
 }
 
@@ -97,6 +146,11 @@ check_npm() {
 
 check_sum() {
   shasum --portable $1 | awk '{ print $1 }'
+}
+
+check_unfsd() {
+  [ "$AZK_USE_VM" == "false" ] && return 0;
+  [ -n "$AZK_UNFSD_PATH" ]
 }
 
 check_boot_disk() {
@@ -116,26 +170,28 @@ check_data_disk() {
 
 # Check for depedencies
 # TODO: format logs as standard
-check_depedencies() {
-  msg() {
-    log "azk:error dependencies '$1' not installed. Run 'azk configure'"
-    exit 1
-  }
+msg_depens() {
+  inst=${2:-Run 'azk configure'}
+  log "%{red}azk%{reset}: error dependencies '$1' not installed. $inst"
+  exit 1
+}
 
+check_depedencies() {
   check_data_folders
-  check_nvm  || msg nvm
-  check_node || msg node
-  check_npm  || msg 'node dependencies'
-  check_data_disk || msg 'blank data disk'
-  check_boot_disk || msg 'iso vm boot'
+  check_unfsd || msg_depens 'unfsd' "$UNFSD_INSTALL"
+  check_nvm  || msg_depens nvm
+  check_node || msg_depens node
+  check_npm  || msg_depens 'node dependencies'
+  check_data_disk || msg_depens 'blank data disk'
+  check_boot_disk || msg_depens 'iso vm boot'
 }
 
 check_install() {
-  log -n "- $2: "
+  log -n "%{yellow}azk%{reset}: Check $2: "
   if `$1` ; then
-    echo "ok" >&2
+    azk.escape "[%{green}ok%{reset}]" >&2
   else
-    echo "fail" >&2
+    azk.escape "[%{red}fail%{reset}]" >&2
     return 1
   fi
 }
@@ -143,54 +199,62 @@ check_install() {
 update_code_base() {
   if [ -n "$update" ]; then
     cd "$AZK_ROOT_PATH"
-    if `./bin/azk agent status 2>/dev/null` ; then
-      log "Azk agent is running, stop before update!"
+    ./bin/azk agent status &>/dev/null && {
+      log "%{red}azk%{reset}: agent is running, stop before update!"
       exit 1;
-    fi
-    git pull . origin/stable
+    }
+    log -n "%{green}azk%{reset}: Update code..."
+    git pull . origin/stable 2>&1 | logger -t azk
+    log "[%{green}ok%{reset}]" >&2
   fi
 }
 
 configure() {
+  check_unfsd || msg_depens 'unfsd' "$UNFSD_INSTALL"
+
   [ "$1" == '--update' ] && { update="true"; }
-  ok()   { echo "ok" >&2; }
-  fail() { echo "fail" >&2; }
+  log_i() { azk.escape -n "%{green}azk%{reset}: ${@}"; }
 
   # Update azk code base
   update_code_base
 
-  check_install "check_nvm" "Check nvm" || {
-    log "Install nvm..."
-    curl $nvm_url -o $nvm_file
+  check_install "check_nvm" "nvm" || {
+    log_i "Install nvm..."
+    download $nvm_url $nvm_file
   }
 
   # Load nvm
   mkdir -p $NVM_DIR
   . $libexec_deps/nvm.sh
 
-  check_install "check_node" "Check node" || {
-    log "Install node..."
+  check_install "check_node" "node" || {
+    log_i "Install node..."
     nvm install $node_version
   }
 
   nvm use $node_version &>/dev/null
-  check_install "check_npm" "Check azk node dependencies" || {
-    log "Install node depedencies..."
+  check_install "check_npm" "azk node dependencies" || {
+    log_i "Install node depedencies..."
     cd $AZK_ROOT_PATH
-    npm install --production
+    #npm install --production
   }
 
   # Vm disks
   mkdir -p $VM_DISK_PATH
 
-  check_install "check_boot_disk" "Check iso to boot vm" || {
-    log "Download iso"
-    curl -L $boot_url -o $boot_file
+  check_install "check_boot_disk" "iso to boot vm" || {
+    log_i "Download iso"
+    download $boot_url $boot_file
   }
 
-  check_install "check_data_disk" "Check blank data disk" || {
-    log "Download disk"
-    curl -L $data_url -o $VM_DISK_PATH/azk-agent.vmdk.bz
+  check_install "check_data_disk" "blank data disk" || {
+    log_i "Download disk"
+    download $data_url $VM_DISK_PATH/azk-agent.vmdk.bz
+  }
+
+  [ -n "$update" ] && {
+    log "%{magenta}azk%{reset}: Update done, re-check dependencies";
+    exec $AZK_ROOT_PATH/bin/azk configure;
   }
 }
 

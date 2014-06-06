@@ -12,8 +12,7 @@ var data_path =
   path.join(process.env.HOME, '.azk', 'data');
 
 // Use virtual machine
-var requires_vm = process.platform == 'linux' ?
-  (process.env.AZK_USE_VM || false) : true;
+var requires_vm = (process.env.AZK_USE_VM == "true");
 
 // Balancer configuration
 var balancer = {
