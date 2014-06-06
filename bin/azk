@@ -4,7 +4,6 @@ set -e
 
 __FILE__="${0}"
 export AZK_ROOT_PATH=`cd \`dirname $(readlink ${__FILE__} || echo ${__FILE__} )\`/..; pwd`
-export AZK_DATA_PATH=${AZK_DATA_PATH:-$AZK_ROOT_PATH/data}
 
 # OS
 UNFSD_INSTALL="Install unfs3 packaged before continue.";
@@ -19,6 +18,7 @@ case `uname -s` in
       UNFSD_INSTALL="\`brew install unfs3\` before continue.";
     fi;
     export AZK_USE_VM=${AZK_USE_VM:-true}
+    export AZK_DATA_PATH=${AZK_DATA_PATH:-$AZK_ROOT_PATH/data}
     ;;
   *)
     echo "azk: System not supported (see http://azk.io)";
@@ -55,10 +55,9 @@ export AZK_AGENT_VM_IP="${AZK_AGENT_VM_IP:-127.0.0.1}"
 
 # local
 node_version="${NODE_VERSION:-v0.10.26}"
-libexec_deps=$AZK_ROOT_PATH/lib/libexec
 git_raw=https://raw2.github.com
 nvm_url=$git_raw/creationix/nvm/master/nvm.sh
-nvm_file=$libexec_deps/nvm.sh
+nvm_file=$NVM_DIR/bin/nvm.sh
 data_url=http://goo.gl/OKXJO7
 boot_url=http://goo.gl/DAnaCj
 boot_file=$VM_DISK_PATH/debian2docker.iso
@@ -93,6 +92,10 @@ azk.escape() {
 azk.escape_clear() {
   echo "$@" | sed "s/%{[a-z]*}//g;"
 }
+
+azk=$AZK_ROOT_PATH/bin/azk
+azk_ok="%{green}azk%{reset}"
+azk_fail="%{red}azk%{reset}"
 
 log() {
   e="echo"
@@ -135,7 +138,7 @@ check_nvm() {
 }
 
 check_node() {
-  . $libexec_deps/nvm.sh
+  . $nvm_file
   nvm use $node_version &>/dev/null
 }
 
@@ -172,7 +175,7 @@ check_data_disk() {
 # TODO: format logs as standard
 msg_depens() {
   inst=${2:-Run 'azk configure'}
-  log "%{red}azk%{reset}: error dependencies '$1' not installed. $inst"
+  log "$azk_fail: error dependencies '$1' not installed. $inst"
   exit 1
 }
 
@@ -182,8 +185,11 @@ check_depedencies() {
   check_nvm  || msg_depens nvm
   check_node || msg_depens node
   check_npm  || msg_depens 'node dependencies'
-  check_data_disk || msg_depens 'blank data disk'
-  check_boot_disk || msg_depens 'iso vm boot'
+
+  if [ "$AZK_USE_VM" != "false" ]; then
+    check_data_disk || msg_depens 'initial data disk'
+    check_boot_disk || msg_depens 'iso vm boot'
+  fi
 }
 
 check_install() {
@@ -200,23 +206,42 @@ update_code_base() {
   if [ -n "$update" ]; then
     cd "$AZK_ROOT_PATH"
     ./bin/azk agent status &>/dev/null && {
-      log "%{red}azk%{reset}: agent is running, stop before update!"
+      log "$azk_fail: agent is running, stop before update!"
       exit 1;
     }
-    log -n "%{green}azk%{reset}: Update code..."
+    log -n "$azk_ok: Update code..."
     git pull . origin/stable 2>&1 | logger -t azk
     log "[%{green}ok%{reset}]" >&2
   fi
 }
 
-configure() {
-  check_unfsd || msg_depens 'unfsd' "$UNFSD_INSTALL"
+update_vm() {
+  [ "$AZK_USE_VM" == "false" ] && return 0;
+  if [ -n "$update" ]; then
+    $azk vm installed &>/dev/null || return 0;
+    $azk vm remove
+  fi
+}
 
-  [ "$1" == '--update' ] && { update="true"; }
+check_is_installed() {
+  $AZK_ROOT_PATH/bin/azk --version &>/dev/null
+}
+
+configure() {
   log_i() { azk.escape -n "%{green}azk%{reset}: ${@}"; }
 
+  check_unfsd || msg_depens 'unfsd' "$UNFSD_INSTALL"
+
   # Update azk code base
-  update_code_base
+  [ "$1" == '--update' ] && {
+    check_is_installed || {
+      log "$azk_fail: Can not be updated because it does not installed. Try \`azk configure\`";
+      exit 1;
+    }
+    update="true"
+    update_code_base
+    update_vm
+  }
 
   check_install "check_nvm" "nvm" || {
     log_i "Install nvm..."
@@ -225,7 +250,7 @@ configure() {
 
   # Load nvm
   mkdir -p $NVM_DIR
-  . $libexec_deps/nvm.sh
+  . $nvm_file
 
   check_install "check_node" "node" || {
     log_i "Install node..."
@@ -240,17 +265,19 @@ configure() {
   }
 
   # Vm disks
-  mkdir -p $VM_DISK_PATH
+  if [ "$AZK_USE_VM" != "false" ]; then
+    mkdir -p $VM_DISK_PATH
 
-  check_install "check_boot_disk" "iso to boot vm" || {
-    log_i "Download iso"
-    download $boot_url $boot_file
-  }
+    check_install "check_boot_disk" "iso to boot vm" || {
+      log_i "Download iso"
+      download $boot_url $boot_file
+    }
 
-  check_install "check_data_disk" "blank data disk" || {
-    log_i "Download disk"
-    download $data_url $VM_DISK_PATH/azk-agent.vmdk.bz
-  }
+    check_install "check_data_disk" "initial data disk" || {
+      log_i "Download disk"
+      download $data_url $VM_DISK_PATH/azk-agent.vmdk.bz
+    }
+  fi
 
   [ -n "$update" ] && {
     log "%{magenta}azk%{reset}: Update done, re-check dependencies";
