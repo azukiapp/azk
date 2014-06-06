@@ -6,12 +6,14 @@ var BASE_CODE_ERROR     = 1;
 var MANIFEST_CODE_ERROR = 2;
 var SYSTEMS_CODE_ERROR  = 3;
 var IMAGES_CODE_ERROR   = 4;
+var AGENT_CODE_ERROR    = 5;
 
 export {
   BASE_CODE_ERROR,
   MANIFEST_CODE_ERROR,
   SYSTEMS_CODE_ERROR ,
   IMAGES_CODE_ERROR  ,
+  AGENT_CODE_ERROR,
 }
 
 export class AzkError extends Error {
@@ -133,5 +135,14 @@ export class NotBeenImplementedError extends TError {
 
     this.feature = feature;
     this.code    = BASE_CODE_ERROR;
+  }
+}
+
+export class AgentStartError extends TError {
+  constructor(error) {
+    super('agent_start');
+
+    this.error = error;
+    this.code  = AGENT_CODE_ERROR;
   }
 }

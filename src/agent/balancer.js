@@ -142,22 +142,23 @@ var Balancer = {
   },
 
   stop() {
-    var self = this;
     if (this.isRunnig()) {
       log.debug("call to stop balancer");
-      return async(function* () {
+      return async(this, function* () {
         yield defer((resolve) => {
-          if (self.hipache.running) {
-            self.hipache.on('stop', resolve);
-            process.kill(self.hipache.pid);
+          if (this.hipache && this.hipache.running) {
+            log.debug("call to stop balancer: hipache");
+            this.hipache.on('stop', resolve);
+            process.kill(this.hipache.pid);
           } else {
             resolve();
           }
         });
         yield defer((resolve) => {
-          if (self.memcached.running) {
-            self.memcached.on('stop', resolve);
-            process.kill(self.memcached.pid);
+          if (this.memcached && this.memcached.running) {
+            log.debug("call to stop balancer: memcached");
+            this.memcached.on('stop', resolve);
+            process.kill(this.memcached.pid);
           } else {
             resolve();
           }
@@ -169,7 +170,10 @@ var Balancer = {
   },
 
   isRunnig() {
-    return (this.hipache && this.hipache.running);
+    return (
+      (this.hipache && this.hipache.running) ||
+      (this.memcached && this.memcached.running)
+    );
   },
 
   _start_service(cmd, pid) {

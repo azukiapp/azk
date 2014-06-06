@@ -3,6 +3,7 @@ var systems_options = "Target systems of action";
 
 module.exports = {
   errors: {
+    agent_start: "Start azk agent error: %(error)s",
     not_bee_implemented: "This feature: `%(feature)s` has not been implemented yet",
     system_not_found: "System `%(system)s` not found in `%(manifest)s`",
     manifest_required: "Manifest is required, but not found in `%(cwd)s`",
@@ -45,6 +46,7 @@ module.exports = {
           started: "Agent has been successfully launched",
           stoping: "Agent is being finalized.",
           stoped: "Agent was successfully stoped.",
+          error: "Agent starting error: %(data)s",
         },
         unfsd: {
           running: "Filesharing running",

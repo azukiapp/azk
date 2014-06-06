@@ -12,6 +12,9 @@ class Cmd extends Command {
         case "already":
           this.fail([...keys, "agent", event.status]);
           break;
+        case "error":
+          this.fail([...keys, "agent", event.status], event);
+          break;
         default:
           this.ok([...keys, "agent", event.status]);
       }
@@ -20,18 +23,9 @@ class Cmd extends Command {
 
   action(opts) {
     var Client   = require('azk/agent/client').Client;
-    var progress = (...args) => { this.progress(opts.action, ...args) };
-    var result   = (Client[opts.action](opts)).progress(progress);
-
-    // Results and fails
-    if (opts.action == "start") {
-      result = result.fail((err) => {
-        this.fail("commands.agent.start_fail", err.stack);
-        return Client.stop().progress(progress);
-      });
-    }
-
-    return result;
+    return Client[opts.action](opts).progress((...args) => {
+      this.progress(opts.action, ...args)
+    });
   }
 }
 
