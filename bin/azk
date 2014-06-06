@@ -262,7 +262,7 @@ configure() {
   check_install "check_npm" "azk node dependencies" || {
     log_i "Install node depedencies..."
     cd $AZK_ROOT_PATH
-    #npm install --production
+    npm install --production
   }
 
   # Vm disks
@@ -280,10 +280,12 @@ configure() {
     }
   fi
 
-  [ -n "$update" ] && {
+  if [ -n "$update" ]; then
     log "%{magenta}azk%{reset}: Update done, re-check dependencies";
     exec $AZK_ROOT_PATH/bin/azk configure;
-  }
+  else
+    log "$azk_ok: Azk has installed and configured"
+  fi
 }
 
 azk_main() {
