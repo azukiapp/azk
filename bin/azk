@@ -4,6 +4,7 @@ set -e
 
 __FILE__="${0}"
 export AZK_ROOT_PATH=`cd \`dirname $(readlink ${__FILE__} || echo ${__FILE__} )\`/..; pwd`
+export AZK_DATA_PATH=${AZK_DATA_PATH:-$AZK_ROOT_PATH/data}
 
 # OS
 UNFSD_INSTALL="Install unfs3 packaged before continue.";
@@ -244,12 +245,12 @@ configure() {
   }
 
   check_install "check_nvm" "nvm" || {
+    mkdir -p $NVM_DIR/bin
     log_i "Install nvm..."
     download $nvm_url $nvm_file
   }
 
   # Load nvm
-  mkdir -p $NVM_DIR
   . $nvm_file
 
   check_install "check_node" "node" || {
