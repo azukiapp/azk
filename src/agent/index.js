@@ -33,7 +33,7 @@ var Agent = {
         } else {
           this.wait = resolve;
           this.processWrapper().progress(notify).fail((err) => {
-            this.change_status("error", err);
+            this.change_status("error", err.stack || err);
             return this.stop().progress(notify).then(() => {
               return 0;
             });

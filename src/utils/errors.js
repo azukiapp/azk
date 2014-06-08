@@ -142,7 +142,11 @@ export class AgentStartError extends TError {
   constructor(error) {
     super('agent_start');
 
-    this.error = error;
-    this.code  = AGENT_CODE_ERROR;
+    this.__error = __error;
+    this.code    = AGENT_CODE_ERROR;
+  }
+
+  get error() {
+    return this.__error.stack || this.__error;
   }
 }

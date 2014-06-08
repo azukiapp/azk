@@ -1,6 +1,7 @@
 import { Q, fs, config, log, defer } from 'azk';
 import { net } from 'azk/utils';
 import { VM  } from 'azk/agent/vm';
+import { Tools } from 'azk/agent/tools';
 var forever = require('forever-monitor');
 
 var Unfsd = {
@@ -9,47 +10,44 @@ var Unfsd = {
   ip   : null,
 
   start() {
-    var self = this;
-    if (!self.isRunnig()) {
+    return Tools.async_status("unsfd", this, function* (change_status) {
+      if (this.isRunnig()) return;
+
+      var port = this.port = yield net.getPort();
+      var file = this.__checkConfig();
+      var args = [
+        config("paths:unfsd"),
+        "-s", "-d", "-p", "-t",
+        "-n", port,
+        "-m", port,
+        "-e", file
+      ]
+
       return defer((resolve, reject) => {
-        net.getPort().then((port) => {
-          var file = self.__checkConfig();
-          var args = [
-            config("paths:unfsd"),
-            "-s", "-d", "-p", "-t",
-            "-n", port,
-            "-m", port,
-            "-e", file
-          ]
+        change_status("starting");
+        this.child = forever.start(args, {
+          max : 5,
+          silent : true,
+          pidFile: config("paths:unfsd_pid")
+        });
 
-          log.info("starting unfsd");
-          self.port  = port;
-          self.child = forever.start(args, {
-            max : 5,
-            silent : true,
-            pidFile: config("paths:unfsd_pid")
-          });
-
-          self.child.on('start', () => {
-            log.info("unsfd started in %s port with file config", port, file);
-            resolve();
-          });
-        }, reject);
+        this.child.on('start', () => {
+          change_status("started", { port: port, file: file });
+          resolve();
+        });
       });
-    } else {
-      return Q();
-    }
+    });
   },
 
   stop() {
-    return defer((resolve) => {
+    return Tools.defer_status("unsfd", (resolve, _reject, change_status) => {
       log.debug("call to stop unsfd");
       if (this.child) {
         this.child.on('stop', () => {
-          log.info('unsfd stoped');
+          change_status("stoped");
           resolve();
         });
-        log.info('stopping unsfd');
+        change_status("stopping");
         this.child.stop();
       } else {
         resolve();
@@ -58,28 +56,30 @@ var Unfsd = {
   },
 
   mount(vm_name) {
-    var point = config('agent:vm:mount_point');
-    var ip    = net.calculateGatewayIp(config("agent:vm:ip"))
-    var opts  = [
-      `port=${this.port}`,
-      `mountport=${this.port}`,
-      'mountvers=3',
-      'nfsvers=3',
-      'nolock',
-      'tcp',
-    ]
-    var mount = `sudo mount -o ${opts.join(',')} ${ip}:/ ${point}`
-    var cmd = [
-      `[ -d "${point}" ] || mkdir -p ${point}`,
-      "[[ `mount` =~ " + point + " ]] || " + mount,
-      "[[ `mount` =~ " + point + " ]]",
-    ].join("; ");
+    return Tools.defer_status("unsfd", (_resolve, _reject, change_status) => {
+      var point = config('agent:vm:mount_point');
+      var ip    = net.calculateGatewayIp(config("agent:vm:ip"))
+      var opts  = [
+        `port=${this.port}`,
+        `mountport=${this.port}`,
+        'mountvers=3',
+        'nfsvers=3',
+        'nolock',
+        'tcp',
+      ]
+      var mount = `sudo mount -o ${opts.join(',')} ${ip}:/ ${point}`
+      var cmd = [
+        `[ -d "${point}" ] || mkdir -p ${point}`,
+        "[[ `mount` =~ " + point + " ]] || " + mount,
+        "[[ `mount` =~ " + point + " ]]",
+      ].join("; ");
 
-    return VM.ssh(vm_name, cmd).then((code) => {
-      if (code != 0) {
-        log.error('not mount share files');
-        //throw new Error('not mount share files');
-      }
+      change_status("mounting");
+      return VM.ssh(vm_name, cmd).then((code) => {
+        if (code != 0)
+          throw new Error('not mount share files');
+        change_status("mounted");
+      });
     });
   },
 

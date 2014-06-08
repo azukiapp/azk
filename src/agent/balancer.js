@@ -1,8 +1,9 @@
 import { _, Q, path, fs, config, log, defer, async } from 'azk';
 import { net } from 'azk/utils';
-var MemoryStream = require('memorystream');
+import { Tools } from 'azk/agent/tools';
 
 var forever = require('forever-monitor');
+var MemoryStream    = require('memorystream');
 var MemcachedDriver = require('memcached');
 
 // TODO: Reaplce forever for a better solution :/
@@ -56,15 +57,26 @@ var Balancer = {
   },
 
   start() {
-    var self = this;
-    return async(this, function* () {
+    return Tools.async_status("balancer", this, function* (change_status) {
       if (!this.isRunnig()) {
         var socket = config('paths:memcached_socket');
         var ip     = net.calculateGatewayIp(config("agent:vm:ip"))
         var port   = yield net.getPort();
+
+        // Memcached
+        change_status("starting_memcached");
         yield this.start_memcached(socket);
+        change_status("started_memcached");
+
+        // Hipache
+        change_status("starting_hipache");
         yield this.start_hipache(ip, port, socket);
-        yield self.start_socat(ip, port);
+        change_status("started_hipache");
+
+        // Socat
+        change_status("starting_socat");
+        yield this.start_socat(ip, port);
+        change_status("started_socat");
       }
     });
   },
@@ -144,11 +156,14 @@ var Balancer = {
   stop() {
     if (this.isRunnig()) {
       log.debug("call to stop balancer");
-      return async(this, function* () {
+      return Tools.async_status("balancer", this, function* (change_status) {
         yield defer((resolve) => {
           if (this.hipache && this.hipache.running) {
-            log.debug("call to stop balancer: hipache");
-            this.hipache.on('stop', resolve);
+            change_status("stopping_hipache");
+            this.hipache.on('stop', () => {
+              change_status("stoped_hipache");
+              resolve();
+            });
             process.kill(this.hipache.pid);
           } else {
             resolve();
@@ -156,8 +171,11 @@ var Balancer = {
         });
         yield defer((resolve) => {
           if (this.memcached && this.memcached.running) {
-            log.debug("call to stop balancer: memcached");
-            this.memcached.on('stop', resolve);
+            change_status("stopping_memcached");
+            this.memcached.on('stop', () => {
+              change_status("stoped_memcached");
+              resolve();
+            });
             process.kill(this.memcached.pid);
           } else {
             resolve();

@@ -1,4 +1,4 @@
-import { t } from 'azk';
+import { t, log } from 'azk';
 
 var fmt_p = t('commands.helpers.pull.bar_progress');
 var fmt_s = t('commands.helpers.pull.bar_status');
@@ -10,6 +10,35 @@ var bar_opts = {
 }
 
 var Helpers = {
+  vmStartProgress(cmd) {
+    return (event) => {
+      if (!event) return;
+
+      var context = event.context || "agent"
+      var keys    = ["commands", context, "status"];
+
+      if (event.type == "status") {
+        // running, starting, not_running, already
+        switch(event.status) {
+          case "not_running":
+          case "already":
+            cmd.fail([...keys, event.status]);
+            break;
+          case "error":
+            cmd.fail([...keys, event.status], event);
+            break;
+          default:
+            cmd.ok([...keys,  event.status]);
+        }
+      } else if (event.type == "try_connect") {
+        log.info_t("commands.vm.progress", event);
+        cmd.ok("commands.vm.progress", event);
+      } else {
+        console.log(event);
+      }
+    };
+  },
+
   newPullProgress(cmd) {
     var mbars = cmd.newMultiBars();
     var bars  = {};

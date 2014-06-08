@@ -1,7 +1,9 @@
-import { config, Q, defer, async, log } from 'azk';
+import { config, defer, async, t, log } from 'azk';
 import { VM  }   from 'azk/agent/vm';
 import { Unfsd } from 'azk/agent/unfsd';
 import { Balancer } from 'azk/agent/balancer';
+import { net as net_utils } from 'azk/utils';
+import { AgentStartError } from 'azk/utils/errors';
 
 var Server = {
   server: null,
@@ -48,10 +50,9 @@ var Server = {
     return Unfsd.stop();
   },
 
-  installVM(start = false, progress = () => {}) {
-    var self = this;
+  installVM(start = false, mount = true) {
     var vm_name = config("agent:vm:name");
-    return Q.async(function* () {
+    return async(this, function* (notify) {
       var installed = yield VM.isInstalled(vm_name);
       var running   = (installed) ? yield VM.isRunnig(vm_name) : false;
 
@@ -68,10 +69,21 @@ var Server = {
 
       if (!running && start) {
         yield VM.start(vm_name);
-        yield VM.configureIp(vm_name, config("agent:vm:ip")).progress(progress);
-        yield Unfsd.mount(vm_name).progress(progress);
+
+        // Wait for vm start
+        var n = (status) => notify({ type: "status", context: "vm", status });
+        n("wait");
+        var success = yield net_utils.waitService(config("agent:vm:ip"), 22, 10);
+        if (!success) {
+          throw new AgentStartError(t(errors.not_vm_start));
+        }
+        n("initialized");
+
+        // Mount share fs
+        if (mount)
+          yield Unfsd.mount(vm_name)
       };
-    })();
+    });
   },
 
   stopVM(running) {

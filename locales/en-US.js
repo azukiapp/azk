@@ -38,28 +38,14 @@ module.exports = {
       description: "Control azk agent",
       start_fail: "Start agent fail: %s",
       status: {
-        agent: {
-          running: "Agent is running",
-          not_running: "Agent is not running (try: azk agent start)",
-          starting: "The agent is being initialized",
-          already: "Agent is already running",
-          started: "Agent has been successfully launched",
-          stoping: "Agent is being finalized.",
-          stoped: "Agent was successfully stoped.",
-          error: "Agent starting error: %(data)s",
-        },
-        unfsd: {
-          running: "Filesharing running",
-          not_running: "Sharing files not running (try: azk agent reload)",
-        },
-        vm: {
-          running: "",
-          not_running: "",
-        },
-        balancer: {
-          running: "",
-          not_running: "",
-        },
+        running: "Agent is running",
+        not_running: "Agent is not running (try: azk agent start)",
+        starting: "The agent is being initialized",
+        already: "Agent is already running",
+        started: "Agent has been successfully launched",
+        stoping: "Agent is being finalized.",
+        stoped: "Agent was successfully stoped.",
+        error: "Agent starting error: %(data)s",
       },
       options: {
         force_vm: "Forces the use of the virtual machine when it is not needed (linux with docker)."
@@ -142,23 +128,37 @@ module.exports = {
       description: "Displays a information about the application process"
     },
     vm: {
-      description: "Control a virtual machine",
-      installing: "adding virtual machine...",
-      installed: "virtual machine already installed.",
-      installed_successfully: "virtual machine was successfully installed.",
+      status: {
+        installing: "adding virtual machine...",
+        installed : "virtual machine was successfully installed.",
+        starting  : "starting virtual machine...",
+        started   : "virtual machine was successfully started.",
+        stoping   : "stoping virtual machine...",
+        stoped    : "virtual machine was successfully stoped.",
+        removing  : "removing virtual machine...",
+        removed   : "virtual machine was successfully removed.",
+        wait      : "waiting for initialization of virtual machine",
+        initialized : "the virtual machine is ready for use",
+      },
+      description  : "Control a virtual machine",
+      already      : "virtual machine already installed.",
       not_installed: "virtual machine is not installed, try `azk vm install`.",
-      running: "virtual machine is running",
-      not_runnig: "virtual machine is not running, try `azk vm start`",
-      starting: "starting virtual machine...",
-      started: "virtual machine was successfully started.",
-      stoping: "stoping virtual machine...",
-      stoped: "virtual machine was successfully stoped.",
-      removing: "removing virtual machine...",
-      removed: "virtual machine was successfully removed.",
-      network_pogress: "try connect vm and configure hostonly ip (%(attempts)d/%(max)d) ...",
-      setting_network: "configuring the network virtual machine...",
-      network_configured: "virtual machine network configured.",
-      configureip_fail: "virtual machine configure ip fail: %s",
+      running      : "virtual machine running",
+      already_running : "virtual machine already running",
+      not_runnig   : "virtual machine is not running, try `azk vm start`",
+      progress     : "try connect vm (%(attempts)d/%(max)d) ...",
+      error        : "vm error: %(error)s",
+    }
+  },
+
+  unsfd: {
+    status: {
+      starting : "starting unsfd",
+      started  : "unsfd started in %(port)s port with file config: %(file)s",
+      stopping : "stopping unsfd",
+      stoped   : "unsfd has stoped",
+      mounting : "mount the share unsfd folder in virtual machine",
+      mounted  : "unsfd shared folder has mounted",
     }
   },
 
