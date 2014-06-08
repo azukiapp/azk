@@ -31,6 +31,39 @@ var net = {
     return ip.replace(/^(.*)\..*$/, "$1.1");
   },
 
+  waitService(host, port, retry = 15, timeout = 10000) {
+    return defer((resolve, reject, notify) => {
+      var client   = null;
+      var attempts = 1, max = retry;
+      var connect  = () => {
+        notify({ type: 'try_connect', attempts, max });
+        var t = null;
+
+        client = nativeNet.connect({ host, port}, function() {
+          client.end();
+          clearTimeout(t);
+          resolve(true);
+        });
+
+        t = setTimeout(() => {
+          client.end();
+          if (attempts > max) return resolve(false);
+
+          attempts += 1;
+          connect();
+        }, timeout);
+
+        client.on('error', (error) => {
+          //if(error.code != 'ECONNREFUSED') {
+            //clearTimeout(t);
+            //reject(error)
+          //}
+        });
+      }
+      connect();
+    });
+  },
+
   // TODO: change for a generic service wait function
   waitForwardingService(host, port, retry = 15, timeout = 10000) {
     return defer((resolve, reject, notify) => {
