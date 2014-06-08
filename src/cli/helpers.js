@@ -31,10 +31,11 @@ var Helpers = {
             cmd.ok([...keys,  event.status]);
         }
       } else if (event.type == "try_connect") {
-        log.info_t("commands.vm.progress", event);
-        cmd.ok("commands.vm.progress", event);
+        var tKey = ["commands", event.context, "progress"];
+        log.info_t(tKey, event);
+        cmd.ok(tKey, event);
       } else {
-        console.log(event);
+        log.debug(event);
       }
     };
   },

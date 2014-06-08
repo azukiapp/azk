@@ -3,6 +3,8 @@ var systems_options = "Target systems of action";
 
 module.exports = {
   errors: {
+    not_vm_start: "Unable to install and configure the virtual machine",
+    not_connect_docker: "Could not initialize the balancer because the Docker was not available",
     agent_start: "Start azk agent error: %(error)s",
     not_bee_implemented: "This feature: `%(feature)s` has not been implemented yet",
     system_not_found: "System `%(system)s` not found in `%(manifest)s`",
@@ -148,6 +150,12 @@ module.exports = {
       not_runnig   : "virtual machine is not running, try `azk vm start`",
       progress     : "try connect vm (%(attempts)d/%(max)d) ...",
       error        : "vm error: %(error)s",
+    }
+  },
+
+  socat: {
+    status: {
+      progress : "try connect docker (%(attempts)d/%(max)d) ...",
     }
   },
 

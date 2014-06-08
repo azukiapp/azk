@@ -1,4 +1,4 @@
-import { Q, defer, config } from 'azk';
+import { Q, _, defer, config } from 'azk';
 
 var nativeNet = require('net');
 var dns       = require('dns');
@@ -31,12 +31,14 @@ var net = {
     return ip.replace(/^(.*)\..*$/, "$1.1");
   },
 
-  waitService(host, port, retry = 15, timeout = 10000) {
+  waitService(host, port, retry = 15, opts = {}) {
+    opts = _.merge({ timeout: 10000 }, opts);
+
     return defer((resolve, reject, notify) => {
       var client   = null;
       var attempts = 1, max = retry;
       var connect  = () => {
-        notify({ type: 'try_connect', attempts, max });
+        notify({ type: 'try_connect', attempts, max, context: opts.context });
         var t = null;
 
         client = nativeNet.connect({ host, port}, function() {
@@ -51,7 +53,7 @@ var net = {
 
           attempts += 1;
           connect();
-        }, timeout);
+        }, opts.timeout);
 
         client.on('error', (error) => {
           //if(error.code != 'ECONNREFUSED') {

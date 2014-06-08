@@ -35,7 +35,7 @@ describe("azk utils.net module", function() {
       }
 
       var connect = () => {
-        return net_utils.waitService("localhost", port, 2, 100);
+        return net_utils.waitService("localhost", port, 2, { timeout: 100 });
       }
 
       return async(function* () {

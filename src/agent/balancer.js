@@ -1,7 +1,9 @@
 import { _, Q, path, fs, config, log, defer, async } from 'azk';
 import { net } from 'azk/utils';
 import { Tools } from 'azk/agent/tools';
+import { AgentStartError } from 'azk/utils/errors';
 
+var url     = require('url');
 var forever = require('forever-monitor');
 var MemoryStream    = require('memorystream');
 var MemcachedDriver = require('memcached');
@@ -88,6 +90,13 @@ var Balancer = {
       var system   = manifest.system('balancer_redirect', true);
       system.add_env('BALANCER_IP', ip);
       system.add_env('BALANCER_PORT', port);
+
+      // Wait docker
+      var address = url.parse(config("docker:host"));
+      var success = yield net.waitService(address.hostname, address.port, 5, { context: "socat" });
+      if (!success) {
+        throw new AgentStartError(t(errors.not_connect_docker));
+      }
 
       var stdout = new MemoryStream();
       var output = "";

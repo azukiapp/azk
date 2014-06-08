@@ -4,7 +4,7 @@ var Tools = {
   change_status(key, notify, status, data) {
     var keys = ["commands", key, "status", status];
     (status != "error") ?  log.info_t(keys, data) : null;
-    notify({ type: "status", context: "unfsd", status: status, data: data });
+    notify({ type: "status", context: key, status: status, data: data });
   },
 
   defer_status(key, func) {

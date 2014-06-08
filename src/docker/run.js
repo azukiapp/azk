@@ -1,4 +1,4 @@
-import { Q, _, config } from 'azk';
+import { _, async, config } from 'azk';
 var path = require('path');
 
 function new_resize(container) {
@@ -15,8 +15,6 @@ function new_resize(container) {
 }
 
 export function run(docker, Container, image, cmd, opts = { }) {
-  var self = docker;
-  var done = Q.defer();
   var container = null;
 
   opts.stdout = opts.stdout || process.stdout;
@@ -74,9 +72,9 @@ export function run(docker, Container, image, cmd, opts = { }) {
     'name': name,
   }
 
-  var block = Q.async(function* () {
-    container = yield self.createContainer(optsc);
-    done.notify({type: "created", id: container.id});
+  return async(docker, function* (notify) {
+    container = yield this.createContainer(optsc);
+    notify({type: "created", id: container.id});
 
     // Resize tty
     if (interactive) {
@@ -90,7 +88,7 @@ export function run(docker, Container, image, cmd, opts = { }) {
         log: true, stream: true,
         stdin: interactive, stdout: true, stderr: true
       });
-      done.notify({type: "attached", id: container.id});
+      notify({type: "attached", id: container.id});
 
       if (interactive) {
         stream.pipe(opts.stdout);
@@ -110,7 +108,7 @@ export function run(docker, Container, image, cmd, opts = { }) {
       }
     }
 
-    // Start container
+    // Make start options
     for(var i = 0; i < v_binds.length; i++) {
       var target = v_binds[i][0];
       if (v_binds[i][2] == "remote" && config('agent:requires_vm')) {
@@ -119,8 +117,9 @@ export function run(docker, Container, image, cmd, opts = { }) {
       v_binds[i] = target + ':' + v_binds[i][1];
     }
 
+    // Start container
     yield container.start({ "Binds": v_binds, PortBindings: p_binds });
-    done.notify({type: "started", id: container.id});
+    notify({type: "started", id: container.id});
 
     if (!daemon) {
       if (interactive && opts.tty) {
@@ -129,7 +128,7 @@ export function run(docker, Container, image, cmd, opts = { }) {
       }
 
       // Wait container
-      done.notify({type: "wait", id: container.id});
+      notify({type: "wait", id: container.id});
       yield container.wait();
       if (interactive) {
         opts.stdout.removeListener('resize', resize);
@@ -142,9 +141,7 @@ export function run(docker, Container, image, cmd, opts = { }) {
         stream.end();
       }
     }
-  })()
 
-  // Returns
-  block.then(() => done.resolve(container), done.reject);
-  return done.promise;
+    return container;
+  });
 }
