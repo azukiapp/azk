@@ -262,6 +262,7 @@ update_code_base() {
 update_vm() {
   [ "$AZK_USE_VM" == "false" ] && return 0;
   if [ -n "$update" ]; then
+    [ -d "$AZK_ROOT_PATH/.azk" ] && rm -Rf $AZK_ROOT_PATH/.azk
     $azk vm installed &>/dev/null || return 0;
     $azk vm remove
   fi
@@ -369,6 +370,8 @@ azk_main() {
       ssh_opts="StrictHostKeyChecking=no -o LogLevel=quiet -o UserKnownHostsFile=/dev/null"
        id_file="$AZK_ROOT_PATH/src/share/id_rsa_insecure"
         vm_url="docker@$AZK_AGENT_VM_IP"
+
+      chmod og-rwx $id_file
       shift; exec ssh -i $id_file -o $ssh_opts $vm_url $*
       ;;
     *)
