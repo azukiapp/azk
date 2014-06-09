@@ -174,7 +174,7 @@ check_data_disk() {
 # Check for depedencies
 # TODO: format logs as standard
 msg_depens() {
-  inst=${2:-Run 'azk configure'}
+  inst=${2:-Run '`azk check-install`'}
   log "$azk_fail: error dependencies '$1' not installed. $inst"
   exit 1
 }
@@ -227,7 +227,7 @@ check_is_installed() {
   $AZK_ROOT_PATH/bin/azk --version &>/dev/null
 }
 
-configure() {
+install() {
   log_i() { azk.escape -n "%{green}azk%{reset}: ${@}"; }
 
   check_unfsd || msg_depens 'unfsd' "$UNFSD_INSTALL"
@@ -235,7 +235,7 @@ configure() {
   # Update azk code base
   [ "$1" == '--update' ] && {
     check_is_installed || {
-      log "$azk_fail: Can not be updated because it does not installed. Try \`azk configure\`";
+      log "$azk_fail: Can not be updated because it does not installed. Try \`azk check-install\`";
       exit 1;
     }
     update="true"
@@ -274,14 +274,14 @@ configure() {
     }
 
     check_install "check_data_disk" "initial data disk" || {
-      log_i "Download disk"
+      log_i "Download initial data disk"
       download $data_url $VM_DISK_PATH/azk-agent.vmdk.bz
     }
   fi
 
   if [ -n "$update" ]; then
     log "%{magenta}azk%{reset}: Update done, re-check dependencies";
-    exec $AZK_ROOT_PATH/bin/azk configure;
+    exec $AZK_ROOT_PATH/bin/azk check-install;
   else
     log "$azk_ok: Azk has installed and configured"
   fi
@@ -290,10 +290,10 @@ configure() {
 azk_main() {
   case "$1" in
     update)
-      configure --update
+      install --update
       ;;
-    configure)
-      configure
+    check-install|configure)
+      install
       ;;
     nvm)
       check_depedencies
