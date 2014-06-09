@@ -3,7 +3,7 @@ import h from 'spec/spec_helper';
 import { generator } from 'azk/generator';
 import { Manifest } from 'azk/manifest';
 
-describe.only("Azk generator node rule", function() {
+describe("Azk generator node rule", function() {
   var project = null;
   var name    = null;
 
