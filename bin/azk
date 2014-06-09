@@ -197,7 +197,7 @@ check_install() {
   if `$1` ; then
     azk.escape "[%{green}ok%{reset}]" >&2
   else
-    azk.escape "[%{red}fail%{reset}]" >&2
+    azk.escape "[%{red}not_found%{reset}]" >&2
     return 1
   fi
 }
