@@ -45,7 +45,7 @@ module.exports = function(grunt) {
           expand: true,
           cwd: 'src/',
           src: ['**/*.js', '!share/*.js'],
-          dest: 'build/azk/',
+          dest: 'lib/azk/',
           ext: '.js'
         }]
       },
@@ -54,7 +54,7 @@ module.exports = function(grunt) {
           expand: true,
           cwd: 'spec/',
           src: '**/*.js',
-          dest: 'build/spec/',
+          dest: 'lib/spec/',
           ext: '.js'
         }]
       }
@@ -72,7 +72,7 @@ module.exports = function(grunt) {
           reporter: 'spec',
           timeout: 5000
         },
-        src: ['build/spec/**/*_spec.js']
+        src: ['lib/spec/**/*_spec.js']
       }
     },
 

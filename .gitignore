@@ -1,8 +1,7 @@
 /log
 /tmp
 /node_modules
-/lib/libexec/nvm.sh
 /data
-build/*
+/lib/spec
 .vimrc
 .azk

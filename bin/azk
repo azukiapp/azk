@@ -32,7 +32,6 @@ export AZK_PING_PATH=${AZK_PING_PATH:-`which ping`}
 
 export PATH=/usr/bin:/bin:/usr/sbin
 export PATH=$AZK_ROOT_PATH/bin:$PATH
-export PATH=$AZK_ROOT_PATH/lib/libexec:$PATH
 export PATH=$AZK_ROOT_PATH/node_modules/.bin:$PATH
 
 # Azk opts
@@ -41,7 +40,7 @@ export AZK_CURRENT_SYSTEM="${AZK_CURRENT_SYSTEM:-`pwd`}"
 
 export NODE_PATH=$AZK_ROOT_PATH
 export NODE_PATH=$AZK_ROOT_PATH/node_modules:$NODE_PATH
-export NODE_PATH=$AZK_ROOT_PATH/build:$NODE_PATH
+export NODE_PATH=$AZK_ROOT_PATH/lib:$NODE_PATH
 
 agent_ip() {
   $AZK_PING_PATH -q -c 1 -t 1 $1 2>/dev/null | grep PING | sed -e "s/).*//" | sed -e "s/.*(//"
