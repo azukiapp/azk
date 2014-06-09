@@ -65,11 +65,10 @@ export AZK_AGENT_VM_IP="${AZK_AGENT_VM_IP:-`agent_ip $AZK_AGENT_VM_NAME`}"
 
 # local
 node_version="${NODE_VERSION:-v0.10.26}"
-git_raw=https://raw2.github.com
-nvm_url=$git_raw/creationix/nvm/master/nvm.sh
 nvm_file=$AZK_ROOT_PATH/vendor/bin/nvm.sh
-data_url=http://goo.gl/OKXJO7
-boot_url=http://goo.gl/DAnaCj
+aws_bucket=https://s3-sa-east-1.amazonaws.com/azk
+data_url=$aws_bucket/azk-agent.vmdk.gz
+boot_url=$aws_bucket/debian2docker.iso
 boot_file=$VM_DISK_PATH/debian2docker.iso
 update=""
 data_folders=(
@@ -134,8 +133,22 @@ log() {
 }
 
 download() {
-  log "%{cyan}azk%{reset}: Downloading $1 to $2" | logger -t azk-configure
-  curl -L "$1" -o "$2" --connect-timeout 10 &>/dev/null
+  log -n "%{cyan}azk%{reset}: Downloading $1 to $2" | logger -t azk-install
+  (
+    {
+      result="`curl -L -sS $1 -o $2 --connect-timeout 10 2>&1`"
+    } && {
+      azk.escape " [%{green}ok%{reset}]"
+      echo $result | logger -t azk-install >/dev/null
+      return 0;
+    } || {
+      azk.escape " [%{red}fail%{reset}]"
+      logger -t azk-install $result >/dev/null
+      azk.escape "$azk_fail: ${result}"
+      azk.escape "$azk_fail: try again or report"
+      return 1;
+    }
+  )
 }
 
 # Check if all required commands exist
@@ -180,7 +193,7 @@ check_unfsd() {
 check_boot_disk() {
   [ -n "$update" -a -f $boot_file ] && {
     actual_version=`shasum --portable $boot_file | awk '{ print $1 }'`
-    new_version=`curl http://azk.s3.amazonaws.com/debian2docker.sha 2>/dev/null`
+    new_version=`curl $aws_bucket/debian2docker.sha 2>/dev/null`
     [ "${actual_version}" != "${new_version}" ] && {
       rm $boot_file
     }
