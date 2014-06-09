@@ -6,6 +6,8 @@ import { SYSTEMS_CODE_ERROR, NotBeenImplementedError } from 'azk/utils/errors';
 class Cmd extends Command {
   action(opts) {
     return async(this, function* () {
+      yield Helpers.requireAgent();
+
       var manifest = new Manifest(this.cwd, true);
       var systems  = [manifest.systemDefault];
 

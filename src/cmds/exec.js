@@ -11,6 +11,8 @@ class Cmd extends Command {
       var dir = this.cwd;
       var env = {};
 
+      yield Helpers.requireAgent();
+
       if (opts.image) {
         // Arbitrary image
         var manifest = Manifest.makeFake(dir, opts.image);

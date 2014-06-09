@@ -1,4 +1,6 @@
 import { t, log } from 'azk';
+import { Client } from 'azk/agent/client';
+import { AgentNotRunning } from 'azk/utils/errors';
 
 var fmt_p = t('commands.helpers.pull.bar_progress');
 var fmt_s = t('commands.helpers.pull.bar_status');
@@ -15,29 +17,37 @@ var Helpers = {
       if (!event) return;
 
       var context = event.context || "agent"
-      var keys    = ["commands", context, "status"];
+      var keys    = ["status", context];
 
       if (event.type == "status") {
         // running, starting, not_running, already
         switch(event.status) {
           case "not_running":
           case "already":
-            cmd.fail([...keys, event.status]);
+            cmd.fail([...keys, event.status], event.data);
             break;
           case "error":
             cmd.fail([...keys, event.status], event);
             break;
           default:
-            cmd.ok([...keys,  event.status]);
+            cmd.ok([...keys,  event.status], event.data);
         }
       } else if (event.type == "try_connect") {
-        var tKey = ["commands", event.context, "progress"];
+        var tKey = [...keys, "progress"];
         log.info_t(tKey, event);
         cmd.ok(tKey, event);
       } else {
         log.debug(event);
       }
     };
+  },
+
+  requireAgent() {
+    return Client.status().then((status) => {
+      if (!status.agent) {
+        throw new AgentNotRunning();
+      }
+    });
   },
 
   newPullProgress(cmd) {

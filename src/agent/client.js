@@ -3,14 +3,20 @@ import { Agent } from 'azk/agent';
 
 var Client = {
   status(opts) {
+    var status = {
+      agent   : false,
+      docker  : false,
+      balancer: false,
+    }
+
     return defer((resolve, _reject, notify) => {
       if (Agent.agentPid().running) {
         notify({ type: "status", status: "running" });
-        resolve(0);
+        status.agent = true;
       } else {
         notify({ type: "status", status: "not_running" });
-        resolve(1);
       }
+      resolve(status);
     });
   },
 

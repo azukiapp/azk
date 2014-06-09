@@ -5,7 +5,12 @@ class Cmd extends Command {
   action(opts) {
     var Client   = require('azk/agent/client').Client;
     var progress = Helpers.vmStartProgress(this);
-    return Client[opts.action](opts).progress(progress);
+    var promise  = Client[opts.action](opts).progress(progress);
+
+    return promise.then((result) => {
+      if (opts.action != "status") return result;
+      return (result.agent) ? 0 : 1;
+    });
   }
 }
 

@@ -138,6 +138,13 @@ export class NotBeenImplementedError extends TError {
   }
 }
 
+export class AgentNotRunning extends TError {
+  constructor() {
+    super('agent_not_runnnig');
+    this.code = AGENT_CODE_ERROR;
+  }
+}
+
 export class AgentStartError extends TError {
   constructor(error) {
     super('agent_start');

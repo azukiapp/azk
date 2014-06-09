@@ -1,7 +1,10 @@
 import { Q, config, defer, log, _ } from 'azk';
 import { Pid } from 'azk/utils/pid';
-import { Server } from 'azk/agent/server';
 import { AgentStartError } from 'azk/utils/errors';
+
+function Server() {
+  return require('azk/agent/server').Server;
+}
 
 var Agent = {
   wait: null,
@@ -49,7 +52,7 @@ var Agent = {
       if (this.wait) {
         this.change_status("stoping");
 
-        return Server.stop().progress(notify).then(() => {
+        return Server().stop().progress(notify).then(() => {
           try { pid.unlink(); } catch(e) {}
           this.change_status("stoped");
           this.wait(0);
@@ -96,7 +99,7 @@ var Agent = {
     process.title = 'azk-agent';
     return defer((resolve, reject, notify) => {
       this.processStateHandler();
-      return Server.start().then(() => {
+      return Server().start().then(() => {
         this.change_status("started");
       });
     });

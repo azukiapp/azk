@@ -5,6 +5,7 @@ module.exports = {
   errors: {
     not_vm_start: "Unable to install and configure the virtual machine",
     not_connect_docker: "Could not initialize the balancer because the Docker was not available",
+    agent_not_runnnig: "Azk agent is required but not running (try `azk agent status`)",
     agent_start: "Start azk agent error: %(error)s",
     not_bee_implemented: "This feature: `%(feature)s` has not been implemented yet",
     system_not_found: "System `%(system)s` not found in `%(manifest)s`",
@@ -18,6 +19,55 @@ module.exports = {
 
   manifest: {
     not_found: "no such '%s' in current project",
+  },
+
+  status: {
+    agent: {
+      running: "Agent is running",
+      not_running: "Agent is not running (try: azk agent start)",
+      starting: "The agent is being initialized",
+      already: "Agent is already running",
+      started: "Agent has been successfully launched",
+      stoping: "Agent is being finalized.",
+      stoped: "Agent was successfully stoped.",
+      error: "Agent starting error: %(data)s",
+    },
+
+    vm: {
+      installing: "adding virtual machine...",
+      installed : "virtual machine was successfully installed.",
+      starting  : "starting virtual machine...",
+      started   : "virtual machine was successfully started.",
+      stoping   : "stoping virtual machine...",
+      stoped    : "virtual machine was successfully stoped.",
+      removing  : "removing virtual machine...",
+      removed   : "virtual machine was successfully removed.",
+      wait      : "waiting for initialization of virtual machine",
+      initialized : "the virtual machine is ready for use",
+      progress    : "try connect vm (%(attempts)d/%(max)d) ...",
+    },
+
+    socat: {
+      progress : "try connect docker (%(attempts)d/%(max)d) ...",
+    },
+
+    balancer: {
+      starting_memcached: "starting memcached...",
+      started_memcached : "memcached started",
+      starting_hipache  : "starting hipache...",
+      started_hipache   : "hipache started",
+      starting_socat    : "starting socat",
+      started_socat     : "socat started",
+    },
+
+    unsfd: {
+      starting : "starting unsfd...",
+      started  : "unsfd started in %(port)s port with file config: %(file)s",
+      stopping : "stopping unsfd...",
+      stoped   : "unsfd has stoped",
+      mounting : "mount the share unsfd folder in virtual machine...",
+      mounted  : "unsfd shared folder has mounted",
+    },
   },
 
   commands: {
@@ -39,16 +89,6 @@ module.exports = {
     agent: {
       description: "Control azk agent",
       start_fail: "Start agent fail: %s",
-      status: {
-        running: "Agent is running",
-        not_running: "Agent is not running (try: azk agent start)",
-        starting: "The agent is being initialized",
-        already: "Agent is already running",
-        started: "Agent has been successfully launched",
-        stoping: "Agent is being finalized.",
-        stoped: "Agent was successfully stoped.",
-        error: "Agent starting error: %(data)s",
-      },
       options: {
         force_vm: "Forces the use of the virtual machine when it is not needed (linux with docker)."
       }
@@ -130,43 +170,13 @@ module.exports = {
       description: "Displays a information about the application process"
     },
     vm: {
-      status: {
-        installing: "adding virtual machine...",
-        installed : "virtual machine was successfully installed.",
-        starting  : "starting virtual machine...",
-        started   : "virtual machine was successfully started.",
-        stoping   : "stoping virtual machine...",
-        stoped    : "virtual machine was successfully stoped.",
-        removing  : "removing virtual machine...",
-        removed   : "virtual machine was successfully removed.",
-        wait      : "waiting for initialization of virtual machine",
-        initialized : "the virtual machine is ready for use",
-      },
       description  : "Control a virtual machine",
       already      : "virtual machine already installed.",
       not_installed: "virtual machine is not installed, try `azk vm install`.",
       running      : "virtual machine running",
       already_running : "virtual machine already running",
       not_runnig   : "virtual machine is not running, try `azk vm start`",
-      progress     : "try connect vm (%(attempts)d/%(max)d) ...",
       error        : "vm error: %(error)s",
-    }
-  },
-
-  socat: {
-    status: {
-      progress : "try connect docker (%(attempts)d/%(max)d) ...",
-    }
-  },
-
-  unsfd: {
-    status: {
-      starting : "starting unsfd",
-      started  : "unsfd started in %(port)s port with file config: %(file)s",
-      stopping : "stopping unsfd",
-      stoped   : "unsfd has stoped",
-      mounting : "mount the share unsfd folder in virtual machine",
-      mounted  : "unsfd shared folder has mounted",
     }
   },
 
