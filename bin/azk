@@ -13,6 +13,10 @@ case `uname -s` in
     SO="linux"
     export AZK_USE_VM=${AZK_USE_VM:-false}
     export AZK_UNFSD_PATH=${AZK_UNFSD_PATH:-`which unfsd`}
+
+    if [ "$AZK_US_VM" == "false" ]; then
+      export AZK_AGENT_VM_IP="${AZK_AGENT_VM_IP:-127.0.0.1}"
+    fi
     ;;
   Darwin)
     SO="darwin"
@@ -55,7 +59,6 @@ export NVM_DIR=$AZK_DATA_PATH/nvm
 export VM_DISK_PATH=$AZK_DATA_PATH/vm
 export AZK_AGENT_VM_NAME="${AZK_AGENT_VM_NAME:-azk-agent}"
 export AZK_AGENT_VM_IP="${AZK_AGENT_VM_IP:-`agent_ip $AZK_AGENT_VM_NAME`}"
-export AZK_AGENT_VM_IP="${AZK_AGENT_VM_IP:-127.0.0.1}"
 
 # local
 node_version="${NODE_VERSION:-v0.10.26}"
@@ -95,6 +98,22 @@ azk.escape() {
 
 azk.escape_clear() {
   echo "$@" | sed "s/%{[a-z]*}//g;"
+}
+
+azk.valid_ip() {
+  local ip=$1
+  local stat=1
+
+  if [[ $ip =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+    OIFS=$IFS
+    IFS='.'
+    ip=($ip)
+    IFS=$OIFS
+    [[ ${ip[0]} -le 255 && ${ip[1]} -le 255 \
+        && ${ip[2]} -le 255 && ${ip[3]} -le 255 ]]
+    stat=$?
+  fi
+  return $stat
 }
 
 azk=$AZK_ROOT_PATH/bin/azk
@@ -175,6 +194,13 @@ check_data_disk() {
   [ -f $VM_DISK_PATH/azk-agent.vmdk.bz ]
 }
 
+check_vm_ip() {
+  [ -n "$AZK_AGENT_VM_IP" ] && return 0;
+  [ "$AZK_USE_VM" == "false" ] && return 0;
+  [ "$1" == "version" ] && return 0;
+  return 1;
+}
+
 # Check for depedencies
 # TODO: format logs as standard
 msg_depens() {
@@ -185,10 +211,12 @@ msg_depens() {
 
 check_depedencies() {
   check_data_folders
+
+  check_vm_ip $1 || msg_depens "virtual machine ip"
   check_unfsd || msg_depens 'unfsd' "$UNFSD_INSTALL"
-  check_nvm  || msg_depens nvm
-  check_node || msg_depens node
-  check_npm  || msg_depens 'node dependencies'
+  check_nvm   || msg_depens nvm
+  check_node  || msg_depens node
+  check_npm   || msg_depens 'node dependencies'
 
   if [ "$AZK_USE_VM" != "false" ]; then
     check_data_disk || msg_depens 'initial data disk'
@@ -197,8 +225,10 @@ check_depedencies() {
 }
 
 check_install() {
-  log -n "%{yellow}azk%{reset}: Check $2: "
-  if `$1` ; then
+  check=$1; name=$2;
+  shift 2;
+  log -n "%{yellow}azk%{reset}: Check $name: "
+  if `$check ${@}` ; then
     azk.escape "[%{green}ok%{reset}]" >&2
   else
     azk.escape "[%{red}not_found%{reset}]" >&2
@@ -231,9 +261,37 @@ check_is_installed() {
   $AZK_ROOT_PATH/bin/azk --version &>/dev/null
 }
 
+vm_ip_msg() {
+  echo ""
+  azk.escape "In order to give \`azk\` access to \`azk agent\`,"
+  azk.escape "it is necessary to define an IP address to the virtual machine."
+  azk.escape "This IP address will be used to establish a private network"
+  azk.escape "between the physical machine running \`azk\` and the virtual"
+  azk.escape "machine where \`azk agent\` is in execution."
+  echo ""
+}
+
+configure_vm_ip() {
+  default_ip="192.168.50.4"
+  msg="$(azk.escape "Enter de vm ip: (default: %{yellow}${default_ip}%{reset}): ")"
+  read -p "$msg" ip
+  ip=${ip:-$default_ip}
+  if azk.valid_ip "$ip"; then
+    azk.escape "Adding %{yellow}${ip}%{reset} to /etc/hosts ...";
+    set -x
+    echo -e "\n# Azk agent vm ip\n$ip azk-agent" | sudo tee -a /etc/hosts >/dev/null
+    set +x
+    echo ""
+  else
+    azk.escape "$azk_fail: %{yellow}${ip}%{reset} is a invalid v4 ip, try again.";
+    configure_vm_ip;
+  fi
+}
+
 install() {
   log_i() { azk.escape -n "%{green}azk%{reset}: ${@}"; }
 
+  check_install "check_vm_ip" "vm ip" $1 || { vm_ip_msg; configure_vm_ip; }
   check_unfsd || msg_depens 'unfsd' "$UNFSD_INSTALL"
 
   # Update azk code base
@@ -297,7 +355,7 @@ azk_main() {
       install --update
       ;;
     check-install|configure)
-      install
+      install $1
       ;;
     nvm)
       check_depedencies
@@ -310,7 +368,7 @@ azk_main() {
       shift; exec ssh -i $id_file -o $ssh_opts $vm_url $*
       ;;
     *)
-      check_depedencies
+      check_depedencies $1
       cd $AZK_ROOT_PATH && node $NODE_DEBUG --harmony $AZK_ROOT_PATH/bin/azk.js "${@}"
   esac
 }
