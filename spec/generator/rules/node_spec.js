@@ -3,7 +3,7 @@ import h from 'spec/spec_helper';
 import { generator } from 'azk/generator';
 import { Manifest } from 'azk/manifest';
 
-describe("Azk generator node rule", function() {
+describe.only("Azk generator node rule", function() {
   var project = null;
   var name    = null;
 
@@ -35,6 +35,8 @@ describe("Azk generator node rule", function() {
       .and.to.eql({ ".": "/azk/" + name });
     h.expect(system).to.have.deep.property("options.command")
       .and.to.eql("node index.js");
+    h.expect(system).to.have.deep.property("options.provision")
+      .and.to.eql(["npm install"]);
   });
 
   it("should detect sub-system", function() {

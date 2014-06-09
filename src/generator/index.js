@@ -53,6 +53,9 @@ var generator = {
   render(data, file) {
     data = _.extend({
       bins: [],
+      azk: {
+        default_domain: config('docker:default_domain')
+      },
     }, data);
     fs.writeFileSync(file, this.tpl(data));
   }

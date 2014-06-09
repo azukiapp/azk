@@ -4,9 +4,10 @@ import { Helpers, example_system } from 'azk/generator/rules';
 // TODO: suggest an entry for test execution
 
 var suggestion = _.extend({}, example_system, {
-  image : {
-    repository: "dockerfile/nodejs", tag: "latest"
-  },
+  image : "dockerfile/nodejs",
+  provision: [
+    "npm install"
+  ],
   // TODO: extract this information package.json
   sync_files: true,
   command : "node index.js",

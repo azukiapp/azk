@@ -2,9 +2,7 @@
  * Documentation: http://docs.azk.io/Azkfile.js
  */
 
-// Global image to reuse
-//addImage('base', { repository: "cevich/empty_base_image" }); // tag: latest
-
+// Adds the systems that shape your sistem
 systems({
   {{#each systems ~}}
   {{&hash_key @key}}: {
@@ -23,18 +21,19 @@ systems({
     image: {{&json image}},
     {{/if ~}}
     {{#if provision ~}}
+    // Steps to run before run instances
     provision: [
       {{#each provision ~}}
       {{&json this}},
       {{/each ~}}
     ],
-    {{/if}}
+    {{/if ~}}
     {{#if workdir ~}}
     workdir: "{{&workdir}}",
     {{/if ~}}
     command: {{&json command}},
     {{#sync_files ~}}
-    // Enable sync in current project folder to '/app' in containers
+    // Enable sync in current project folder to '/azk' in instances
     sync_files: {
       ".": "/azk/<%= manifest.dir %>",
     },
@@ -44,12 +43,10 @@ systems({
     persistent_dir: true,
     {{/persistent_dir ~}}
     {{#balancer ~}}
-    // Enable balancer over the instances
+    // Enable http balancer over the instances
     balancer: {
-      hostname: "<%= system.name %>.<%= azk.default_domain %>",
-      alias: [
-        "front.<%= azk.default_domain %>"
-      ]
+      // {{&name}}.{{& ../../azk.default_domain}}
+      hostname: "<%= system.name %>.<%= azk.default_domain %>"
     },
     {{/balancer ~}}
     envs: {
@@ -63,6 +60,7 @@ systems({
 });
 
 {{#if default ~}}
+// Set a default system
 setDefault("{{&default}}");
 {{/if ~}}
 {{#each bins ~}}
