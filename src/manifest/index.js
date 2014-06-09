@@ -174,8 +174,9 @@ export class Manifest {
     return path.relative(this.manifestPath, this.file);
   }
 
+  // TODO: make more fast
   get namespace() {
-    var def = Utils.calculateHash(this.file).slice(0, 20);
+    var def = Utils.calculateHash(this.file).slice(0, 10);
     return this.meta.getOrSet('namespace', def);
   }
 
