@@ -299,6 +299,12 @@ azk_main() {
       check_depedencies
       shift; "${@}"
       ;;
+    ssh)
+      ssh_opts="StrictHostKeyChecking=no -o LogLevel=quiet -o UserKnownHostsFile=/dev/null"
+       id_file="$AZK_ROOT_PATH/src/share/id_rsa_insecure"
+        vm_url="docker@$AZK_AGENT_VM_IP"
+      shift; exec ssh -i $id_file -o $ssh_opts $vm_url $*
+      ;;
     *)
       check_depedencies
       cd $AZK_ROOT_PATH && node $NODE_DEBUG --harmony $AZK_ROOT_PATH/bin/azk.js "${@}"
