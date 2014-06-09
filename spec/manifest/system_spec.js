@@ -50,7 +50,7 @@ describe("Azk system class", function() {
           name: default_img,
           pull() {
             check_call = true;
-            defer((resolve) => { process.nextTick(resolve) });
+            return defer((resolve) => { process.nextTick(resolve) });
           }
         }
         return system.scale(1, null, true).then((result) => {

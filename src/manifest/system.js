@@ -85,27 +85,23 @@ export class System {
   }
 
   scale(instances, stdout, pull = false) {
-    var self = this;
-    return async(function* (notify) {
-      var depends_instances = yield self._dependencies_instances();
-      if (self._check_dependencies(depends_instances)) {
-        var containers = yield self.instances();
-        if (pull)
-          yield self.image.pull(pull);
-        else
-          yield self._check_image();
+    return async(this, function* (notify) {
+      var depends_instances = yield this._dependencies_instances();
+      if (this._check_dependencies(depends_instances)) {
+        var containers = yield this.instances();
+        yield this._check_image(pull);
 
         var from = containers.length;
         var to   = instances - from;
 
         if (to != 0)
-          notify({ type: "scale", from, to: from + to, system: self.name });
+          notify({ type: "scale", from, to: from + to, system: this.name });
 
         if (to > 0) {
-          yield self.run(true, to, depends_instances);
+          yield this.run(true, to, depends_instances);
         } else if (to < 0) {
           containers = containers.reverse().slice(0, Math.abs(to));
-          yield self._kill_or_stop(containers);
+          yield this._kill_or_stop(containers);
         }
       }
       return true;
@@ -145,17 +141,13 @@ export class System {
   }
 
   exec(command, opts) {
-    var self  = this;
     var run_options = this.make_options(false, opts);
     var image = this.image.name;
 
     run_options.env = this._more_envs(run_options.env, {});
 
-    return async(function* () {
-      if (opts.pull)
-        yield self.image.pull(opts.pull);
-      else
-        yield self._check_image();
+    return async(this, function* () {
+      yield this._check_image(opts.pull);
       var container = yield docker.run(image, command, run_options);
       var data      = yield container.inspect();
       return data.State.ExitCode
@@ -259,11 +251,20 @@ export class System {
     });
   }
 
-  _check_image() {
-    return this.image.check().then((image) => {
-      if (image == null) {
-        throw new ImageNotAvailable(this.name, this.image.name);
-      }
+  _check_image(pull = false) {
+    if (pull) {
+      var promise = this.image.pull();
+    } else {
+      var promise = this.image.check().then((image) => {
+        if (image == null) {
+          throw new ImageNotAvailable(this.name, this.image.name);
+        }
+      });
+    }
+
+    return promise.progress((event) => {
+      event.system = this;
+      return event;
     });
   }
 
