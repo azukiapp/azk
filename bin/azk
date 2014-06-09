@@ -6,6 +6,9 @@ __FILE__="${0}"
 export AZK_ROOT_PATH=`cd \`dirname $(readlink ${__FILE__} || echo ${__FILE__} )\`/..; pwd`
 export AZK_DATA_PATH=${AZK_DATA_PATH:-$AZK_ROOT_PATH/data}
 
+# No use DOCKER_HOST
+unset DOCKER_HOST
+
 # OS
 UNFSD_INSTALL="Install unfs3 packaged before continue.";
 case `uname -s` in
