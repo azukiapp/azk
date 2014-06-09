@@ -27,7 +27,7 @@ var vm_ip   = process.env.AZK_AGENT_VM_IP || dnsSync.resolve(vm_name);
 
 // Docker opts
 var docker_host =
-  process.env.AZK_DOCKER_HOST || process.env.DOCKER_HOST ||
+  process.env.AZK_DOCKER_HOST ||
   (requires_vm ? "http://azk-agent:4243" : "unix:///var/run/docker.sock");
 
 // Log level
