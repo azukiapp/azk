@@ -11,7 +11,7 @@ var touch = require('touch');
 var default_img = config('docker:image_default');
 
 // TODO: Split test in more files :P
-describe("Azk system class", function() {
+describe.only("Azk system class", function() {
   it("should return a System class", function() {
     var sys = new System({ ns: 'azk-test' }, 'sysname', default_img);
     h.expect(sys).to.have.property('manifest').and.eql({ ns: 'azk-test' });
@@ -78,6 +78,17 @@ describe("Azk system class", function() {
           h.expect(outputs.stderr).to.equal("error\n");
         });
       })
+
+      it("should support a workdir with parameter", function() {
+        var result = system.exec(
+          ["/bin/bash", "-c", "pwd" ],
+          { workdir: "/etc", stdout: mocks.stdout, stderr: mocks.stderr }
+        );
+
+        return result.then((container) => {
+          h.expect(outputs.stdout).to.equal("/etc\n");
+        });
+      });
 
       it("should support a interactive option", function() {
         var result = system.exec(

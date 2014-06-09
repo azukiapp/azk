@@ -115,7 +115,7 @@ export class System {
       ports: {},
       volumes: this.volumes,
       local_volumes: {},
-      working_dir: this.options.workdir,
+      working_dir: opts.workdir || this.options.workdir,
       env: this.options.env || {},
     }
 

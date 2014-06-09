@@ -28,10 +28,11 @@ class Cmd extends Command {
 
       var options  = {
         interactive: tty,
-        pull  : this.stdout(),
-        stdout: this.stdout(),
-        stderr: this.stderr(),
-        stdin : this.stdin(),
+        pull   : this.stdout(),
+        stdout : this.stdout(),
+        stderr : this.stderr(),
+        stdin  : this.stdin(),
+        workdir: opts.cwd || null,
       }
 
       var cmd = [opts.shell];
@@ -53,5 +54,6 @@ export function init(cli) {
     .addOption(['--image', '-i'], { type: String })
     .addOption(['--command', '-c'], { type: String })
     .addOption(['--shell'], { default: "/bin/sh", type: String })
+    .addOption(['--cwd', '-C'], { type: String })
     .addOption(['--verbose', '-v'])
 }
