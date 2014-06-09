@@ -100,9 +100,12 @@ $ azk agent stop                  # Stop azk agent
 # Create initial Azkfile.js
 $ azk init [project_path] 
 
-# Run a specific command in default system
-$ azk exec -i /bin/bash           # Run bash (interactive mode)
-$ azk exec /bin/bash --version    # Show the version bash installed in image-app
+# Run a shell in instances context
+$ azk shell                       # Run shell in default system
+$ azk shell -c "ls -l /"          # Run specific command
+
+# Run a shell in arbitrary image
+$ azk shell -i busybox            # Run a shell in arbitrary imagem
 
 # Run a background systems (Azkfie.js#systems)
 $ azk start                       # Start a default system

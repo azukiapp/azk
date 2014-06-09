@@ -38,7 +38,7 @@ class Cmd extends Command {
         console.log(event);
       }
     }
-    return system.provision().then(() => {
+    return system.provision({ pull: true }).then(() => {
       return system.scale(instances, this.stdout(), true);
     }).progress(progress);
   }

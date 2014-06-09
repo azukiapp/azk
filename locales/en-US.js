@@ -93,13 +93,15 @@ module.exports = {
         force_vm: "Forces the use of the virtual machine when it is not needed (linux with docker)."
       }
     },
-    exec: {
-      description: "Run a arbitrary command in a system conext",
-      system_not: "System `%(system)s` not found in Azkfile.js (try: %(systems)s)",
-      opts: {
-        interactive: "Run command in interactive",
-        image: "Docker image use to run command",
-        system: "A system conext to execute command",
+    shell: {
+      description: "Init a shell with instance context or run a arbitrary command",
+      options: {
+        T: "Disable pseudo-tty allocation",
+        t: "Force pseudo-tty allocation",
+        system  : "A system context to execute a shell or command",
+        command : "Run a specific command",
+        shell   : "A path to binary shell",
+        verbose : "Show message about to execute a command",
       }
     },
     help: {
@@ -158,16 +160,6 @@ module.exports = {
         system: "System(s) name(s)",
         all: "Include all instances (including terminated)",
       }
-    },
-    kill: {
-      description: "Kill a azk process by `azk pid`"
-    },
-    provision: {
-      description: "Provision app image",
-      removing: "Removing old image '%s'"
-    },
-    ps: {
-      description: "Displays a information about the application process"
     },
     vm: {
       description  : "Control a virtual machine",

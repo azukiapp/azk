@@ -3,7 +3,7 @@ import { Command, Helpers } from 'azk/cli/command';
 import { Manifest } from 'azk/manifest';
 
 class Cmd extends Command {
-  action(opts) {
+  action(opts, extras) {
     var progress = Helpers.newPullProgress(this);
 
     return async(this, function* () {
@@ -23,27 +23,35 @@ class Cmd extends Command {
         if (opts.system) system = manifest.system(opts.system, true);
       }
 
+      var tty_default = opts.t || !_.isString(opts.command)
+      var tty = (opts.T) ? (opts.t || false) : tty_default;
+
       var options  = {
-        pull: this.stdout().isTTY ? true : cmd.stdout(),
-        interactive: opts.interactive,
+        interactive: tty,
+        pull  : this.stdout(),
         stdout: this.stdout(),
         stderr: this.stderr(),
-        stdin: this.stdin(),
+        stdin : this.stdin(),
       }
 
-      if (!opts['skip-provision']) {
-        yield system.provision({ force_provision: opts.reprovision });
+      var cmd = [opts.shell];
+      if (opts.command) {
+        cmd.push("-c");
+        cmd.push(opts.command);
       }
+
       return yield system.exec(cmd, options);
     }).progress(progress);
   }
 }
 
 export function init(cli) {
-  (new Cmd('exec {*cmd}', cli))
+  (new Cmd('shell', cli))
+    .addOption(['-T'])
+    .addOption(['-t'])
     .addOption(['--system', '-s'], { type: String })
-    .addOption(['--image', '-I'], { type: String })
-    .addOption(['--interactive', '-i'])
-    .addOption(['--reprovision', '-r'], { default: false })
-    .addOption(['--skip-provision', '-S'], { default: false })
+    .addOption(['--image', '-i'], { type: String })
+    .addOption(['--command', '-c'], { type: String })
+    .addOption(['--shell'], { default: "/bin/sh", type: String })
+    .addOption(['--verbose', '-v'])
 }
