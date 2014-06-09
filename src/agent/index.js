@@ -111,6 +111,7 @@ var Agent = {
 
       log.debug("Launching agent in daemon mode");
       var child = child_process.fork(__filename, [], {
+        silent  : true,
         detached: true,
         cwd     : config('paths:azk_root'),
         env     : _.extend({
