@@ -19,7 +19,7 @@ The entire process of provisioning and configuring the environment in which the 
 ### Requirements
 
 * Linux or Mac OS X (require 64 bit platform in both cases) (Windows: planned)
-* git, curl
+* git, curl, bash
 * Internet connection (for download images)
 
 #### Linux
