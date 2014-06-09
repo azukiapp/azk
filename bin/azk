@@ -12,11 +12,16 @@ case `uname -s` in
   Linux)
     SO="linux"
     export AZK_USE_VM=${AZK_USE_VM:-false}
+    export AZK_UNFSD_PATH=${AZK_UNFSD_PATH:-`which unfsd`}
     ;;
   Darwin)
     SO="darwin"
     if [ -n `which brew` ]; then
       UNFSD_INSTALL="\`brew install unfs3\` before continue.";
+      PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin
+      export AZK_UNFSD_PATH=${AZK_UNFSD_PATH:-`which unfsd`}
+    else
+      export AZK_UNFSD_PATH=${AZK_UNFSD_PATH:-`which unfsd`}
     fi;
     export AZK_USE_VM=${AZK_USE_VM:-true}
     export AZK_DATA_PATH=${AZK_DATA_PATH:-$AZK_ROOT_PATH/data}
@@ -27,7 +32,6 @@ case `uname -s` in
 esac
 
 # Share system
-export AZK_UNFSD_PATH=${AZK_UNFSD_PATH:-`which unfsd`}
 export AZK_PING_PATH=${AZK_PING_PATH:-`which ping`}
 
 export PATH=/usr/bin:/bin:/usr/sbin
