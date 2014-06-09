@@ -1,4 +1,4 @@
-import { Q, _ } from 'azk';
+import { Q, _, defer } from 'azk';
 import { XRegExp } from 'xregexp';
 import { ProvisionNotFound, ProvisionPullError } from 'azk/utils/errors';
 
@@ -16,53 +16,51 @@ var msg_regex = {
 }
 
 function parse_status(msg) {
-  if (msg) {
-    var result = {};
-    if (_.any(msg_regex, (regex, type) => {
-      var match  = XRegExp.exec(msg, regex);
-      if (match) {
-        result['type'] = type;
-        _.each(regex.xregexp.captureNames, function(key) {
-          if (match[key]) {
-            result[key] = match[key];
-          }
-        });
-        return true;
-      }
-    })) return result;
-  }
+  var result = {};
+  _.find(msg_regex, (regex, type) => {
+    var match  = XRegExp.exec(msg, regex);
+    if (match) {
+      result['type'] = type;
+      _.each(regex.xregexp.captureNames, function(key) {
+        if (match[key]) {
+          result[key] = match[key];
+        }
+      });
+      return true;
+    }
+  });
+  return result;
 }
 
 export function pull(docker, repository, tag, stdout) {
-  var done  = Q.defer();
-  var image = `${repository}:${tag}`;
-
-  docker.createImage({
+  var image   = `${repository}:${tag}`;
+  var promise = docker.createImage({
     fromImage: repository,
     tag: tag,
-  }).then((stream) => {
-    stream.on('data', (data) => {
-      var msg  = JSON.parse(data.toString());
-      msg.type = "pull_msg";
-      if (msg.error) {
-        if (msg.error.match(/404/)) {
-          return done.reject(new ProvisionNotFound(image));
+  });
+
+  return promise.then((stream) => {
+    return defer((resolve, reject, notify) => {
+      stream.on('data', (data) => {
+        var msg  = JSON.parse(data.toString());
+        msg.type = "pull_msg";
+        if (msg.error) {
+          if (msg.error.match(/404/)) {
+            return reject(new ProvisionNotFound(image));
+          }
+          reject(new ProvisionPullError(image, msg.error));
+        } else {
+          msg.statusParsed = parse_status(msg.status);
+          if (msg.statusParsed) {
+            notify(msg);
+          }
+          if (stdout) {
+            stdout.write(msg.status + "\n");
+          }
         }
-        done.reject(new ProvisionPullError(image, msg.error));
-      } else {
-        msg.statusParsed = parse_status(msg.status);
-        if (msg.statusParsed) {
-          done.notify(msg);
-        }
-        if (stdout) {
-          stdout.write(msg.status + "\n");
-        }
-      }
+      });
+
+      stream.on('end', () => resolve(image));
     });
-
-    stream.on('end', () => done.resolve(image));
   })
-  .fail(done.reject);
-
-  return done.promise;
 }

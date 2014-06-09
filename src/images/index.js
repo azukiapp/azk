@@ -1,4 +1,4 @@
-import { async, _ } from 'azk';
+import { async, defer, _ } from 'azk';
 import { Image as DImage, default as docker} from 'azk/docker';
 
 var default_tag = "latest";
@@ -14,15 +14,18 @@ export class Image {
   }
 
   check() {
-    return docker.findImage(this.name);
+    return defer((_resolve, _reject, notify) => {
+      notify({ type: "action", context: "image", action: "check_image" });
+      return docker.findImage(this.name);
+    });
   }
 
   pull(stdout) {
-    var self = this;
-    return async(function* () {
-      var image = yield self.check();
+    return async(this, function* (notify) {
+      var image = yield this.check();
       if (image == null) {
-        yield docker.pull(self.repository, self.tag, _.isObject(stdout) ? stdout : null);
+        notify({ type: "action", context: "image", action: "pull_image", data: this });
+        yield docker.pull(this.repository, this.tag, _.isObject(stdout) ? stdout : null);
       }
       return image;
     });
