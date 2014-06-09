@@ -4,40 +4,13 @@
 
 ## Main features
 
-* Provisioning: with custom recipes and scripts
+* Images: via Docker Index or custom inline or file scripts
 * Built in load-balancer
-* Monitoring
 * Built in file sync
 * Automatic start-up (and reload) script
 * Logging
 
 Works on Linux & MacOS (require 64 bit platform in both cases)
-
-## How It Works
-
-At the high level, `azk` is a command line tool that uses a given configuration file (`azkfile.json`) to define the necessary steps to build (installation and configuration) the proper environment to executing and/or compiling a given application.
-
-Besides, it features several commands that allow for executing these tasks and controlling the execution of services related to the application, such as databases and queues. 
-
-At the low level, `azk` is a tool that leverages a container system for Linux called [Docker][docker] in order to create isolated environments for executing all the different parts of an application. 
-
-`azk` is able to perform these jobs through calls to the Docker API. That way, `azk` is capable of provisioning images as well as of controlling the execution of services based on these images. Beyond that, `azk` is also capable of broader tasks such as: balancing HTTP calls to instances of an application, storing execution and resources usage logs and other general tasks related to the lifecycle management of an application since its development.
-
-### Understanding the CLI
-
-For most tasks, the `azk` command first tries to ascertain if the current folder corresponds to an `azk app`. To do that, it verifies the presence of the `azkfile.json` file in the application's directory tree. 
-
-Once the `azk app` is deemed valid, the `azk` command searches for `azk agent`, which will be responsible for executing the `azk command` in an environment that's isolated from the main machine. 
-
-### Understanding azk-agent
-
-`azk agent` can be described as the service responsible for executing `azk` commands in an isolated environment by making use of the containers system. At its deepest level, `azk agent` is a virtual machine running [debian2docker][debian2docker] over VirtualBox (support to VMware is in the roadmap).
-
-### Understanding disk mapping
-
-Since `azk agent` runs over a virtual machine, it is necessary to share the host machine's disk with that virtual machine.
-
-That's why azk has a built-in a file server [p9fs][p9fs]. This server only runs with user permission and must only affect the communication interface with VirtualBox (and thus avoid security problems).
 
 ## Installation
 
@@ -45,23 +18,28 @@ The entire process of provisioning and configuring the environment in which the 
 
 ### Requirements
 
-* Linux or Mac OS X (require 64 bit platform in both cases) (Windows: planned) 
+* Linux or Mac OS X (require 64 bit platform in both cases) (Windows: planned)
 * git, curl
-* [VirtualBox][virtualbox_dl], version 4.3.6+ (VMware: planned)
-* Internet connection (for the provisioning process)
+* Internet connection (for download images)
 
 #### Linux
 
-For VirtualBox, too easy!
+In linux is not necessary to use VirtualBox, the `azk` running directly on the Docker:
 
-[Virtual Box Install][virtualbox_dl_linux] 
+* [Docker][docker], version 0.10.0.
 
 #### Mac OS X
+
+Only on mac installing Virtualbox and an extra tool for file synchronization is necessary:
+
+* [VirtualBox][virtualbox_dl], version 4.3.6+ (VMware: planned)
+* unfs3 (for share files between your machine and virtual machine)
 
 Use [Homebrew Cask][homebrew_cask]? For VirtualBox, too easier!
 
 ```sh
 brew cask install virtualbox --appdir=/Applications
+brew install unfs3
 ```
 
 ### Basic GitHub Checkout
@@ -71,16 +49,8 @@ brew cask install virtualbox --appdir=/Applications
   ```bash
   $ git clone -b stable https://github.com/azukiapp/azk.git ~/.azk
   ```
-
-2. Configure azk-agent IP address
-
-  In order to give `azk` access to `azk agent`, it is necessary to define an IP address to the virtual machine. This IP address will be used to establish a private network between the physical machine running `azk` and the virtual machine where `azk agent` is in execution. 
-
-  ```bash
-  $ echo '192.168.115.4 azk-agent' | sudo tee -a /etc/hosts 
-  ```
-
-3. Add `~/.azk/bin` to your $PATH for access to the ask command-line utility.
+  
+2. Add `~/.azk/bin` to your $PATH for access to the ask command-line utility.
 
   ```bash
   $ echo 'export PATH="$HOME/.azk/bin:$PATH"' >> ~/.bash_profile
@@ -92,19 +62,19 @@ brew cask install virtualbox --appdir=/Applications
 
   **Zsh note**: Modify your `~/.zshrc` file instead of `~/.bash_profile`.
 
-4. Install depedencies and configure vm (will download ~130MB):
+3. Install depedencies and configure vm (will download ~130MB):
 
 	```bash
-	$ azk configure
+	$ azk check-install
 	```
 
-5. Run `azk-agent` in a terminal (daemon mode soon):
+4. Run `azk-agent` in a terminal (daemon mode soon):
 
 	```bash
-	$ azk agent start -D
+	$ azk agent start
 	```
 
-6. Enjoy
+5. Enjoy
 
   ```bash
   $ azk help
@@ -122,23 +92,24 @@ $ azk agent start
 ## Usage/Features
 
 ```bash
-# Create initial azkfile.json
-$ azk init [--box "azukiapp/ruby-box#stable"] [project_path] 
+# Control azk agent
+$ azk agent start --daemon        # Start azk agent in background
+$ azk agent status                # Show azk agent status
+$ azk agent stop                  # Stop azk agent
 
-# Run a specific command
+# Create initial Azkfile.js
+$ azk init [project_path] 
+
+# Run a specific command in default system
 $ azk exec -i /bin/bash           # Run bash (interactive mode)
 $ azk exec /bin/bash --version    # Show the version bash installed in image-app
 
-# Run a background services (azkfile.json#services)
-$ azk service start -n 5          # Start 5 instances of default service
-$ azk service worker start -n 5   # Start 5 instances of woker service
-$ azk service worker scale -n 10  # Scale to 10 instances of woker service
-$ azk service stop azk_id         # Stop specific service process id
-$ azk service stop                # Stop all default service processes
-$ azk service restart azk_id      # Restart specific process
-$ azk service restart all         # Hard Restart all default service proccesses
-$ azk service redis restart       # Restart redis service
-$ azk ps                          # Display all processes status
+# Run a background systems (Azkfie.js#systems)
+$ azk start                       # Start a default system
+$ azk stop                        # Stop specific service
+$ azk status                      # Display all system status
+$ azk stop -s [system_name]       # Stop specific system by name
+$ azk scale -s [system_name] -n 5 # Start 5 instances of specific system
 ```
 
 ## Test (for experts only)
@@ -148,7 +119,7 @@ Note that running the tests requires you to have `azk agent` running.
 ```bash
 $ cd ~/.azk
 $ azk nvm npm install
-$ make
+$ azk nvm grunt test
 ```
 
 ## License
@@ -160,8 +131,5 @@ Azk source code is released under Apache 2 License.
 Check LEGAL and LICENSE files for more information.
 
 [docker]: http://docker.io
-[debian2docker]: https://github.com/unclejack/debian2docker
-[p9fs]: https://github.com/azukiapp/node-p9fs
 [virtualbox_dl]: http://www.vagrantup.com/downloads.html
-[virtualbox_dl_linux]: https://www.virtualbox.org/wiki/Linux_Downloads
 [homebrew_cask]: https://github.com/phinze/homebrew-cask
