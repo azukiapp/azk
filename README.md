@@ -14,46 +14,46 @@ Works on Linux & Mac OS X (requires 64 bit platform in both cases)
 
 ## Quick start
 
-### Vocabulário básico
+### Basic Vocabulary
 
 #### System of Systems
 
-O `azk` é baseado no conceito de [System of Systems][sos], onde aplicações, serviços e workers são tratados como sistemas que se comunicação entre si formando um sistema principal. Partindo deste pré-suposto é fácil gerenciar o ambiente de execução e desenvolvimento de qualquer sistema de forma conjuta e isolada.
+`azk` is based on the concept of [System of Systems][sos]. Accordingly, applications (your code), services and workers (such as databases, webservers and queue systems) are treated as systems that communicate with each other and together make the primary system. Using this paradigm, `azk` installs and manages development environments. While this may seem overkill at first, it actually makes it a lot easier to manage the development and execution environments of an application (in its parts - the "systems" - or in its entirety - the full "system of systems").
 
 #### Images
 
-Para prover o ambiente de isolamento o `azk` utiliza-se de imagens pré construidas ou customizadas. Estas imagens sequem o padrão do Docker e podem ser econtradas em: [Docker Index][docker_index] ou [Dockerfile][dockerfile]
+In order to automate the provisioning of development environments, `azk` uses pre-built custom images. These images follow the Docker standard and can be found in: [Docker Index][docker_index] or [Dockerfile][dockerfile].
 
 #### Azkfile.js
 
-O arquivo `Azkfile.js` é a espinha dorsal do `azk`, é nele que são descritos quais os sistemas forma o seu sistema, bem como as imagens que são usadas para execução de cada um dos sistema, além de parametros e opções de execução.
+`Azkfile.js` files are the cornerstone of how to use `azk`. These simple .js files describe the systems that make your system of systems as well as the images used in their exceution. They also describe parameters and execution options.
 
 [Full](#full_manifest_example) Azkfile.js example
 - [Installation](#a1)
 
-### Controlando um sistema já existente com o azk:
+### Starting a new application project:
 
-Se você já tem um sistema e quer utilizar o `azk` para controlar o ambiente de execução deste sistema, é simples:
+If you are starting a new application project, you can already use `azk` to obtain the proper runtime as well the corresponding generators for your chosen language and then generate the application's basic strutucre. An example in node.js would look like this: 
 
 ```bash
-$ cd [my_system_folder]
+$ cd ~/projects
+$ azk shell --image dockerfile/node # obtaining the runtime
+    # mkdir app-name
+    # npm init                      # building the application's basic structure
+    ...
+    # exit
+$ cd app-name
 $ azk init
 azk: 'Azkfile.js' generated
 $ azk up
 ```
 
-### Iniciando o uso do azk em um novo sistema:
+### Taming an existing application project's development environment with `azk`:
 
-Se você ainda não tem um sistema, é possível utilizar o `azk` para obter o ambiente de execução da linguagem ou framework escolhido e a partir dele gerar a estrutura básica da sua aplicação. Um exemplo em node:
+When you already have an application project going on and wants to use `azk` to streamline its development environment, all you have to do is as follows below:
 
 ```bash
-$ cd ~/projects
-$ azk shell --image dockerfile/node
-    # mkdir app-name
-    # npm init
-	...
-	# exit
-$ cd app-name
+$ cd [my_system_folder]
 $ azk init
 azk: 'Azkfile.js' generated
 $ azk up
