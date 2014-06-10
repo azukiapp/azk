@@ -30,26 +30,32 @@ describe('Azk cli command module', function() {
       .addOption(['--verbose', '-v'])
       .addOption(['--flag'   , '-f'])
       .addOption(['--number' , '-n'], { type: Number })
-      .addOption(['--size'], { options: ["small", "big"] });
+      .addOption(['--size'], { options: ["small", "big"] })
+      .addOption(['--array'], { type: String, acc: true });
 
     it("should parse args and exec", function() {
       cmd.run(['--number', '1', '-fv']);
-      h.expect(outputs).to.eql([{ number: 1, verbose: true, flag: true, __leftover: [] }]);
+      h.expect(_.clone(outputs)).to.eql([{ number: 1, verbose: true, flag: true, __leftover: [] }]);
     });
 
     it("should support --no-option and false value", function() {
       cmd.run(['--no-verbose', '--flag', 'false']);
-      h.expect(outputs).to.eql([{verbose: false, flag: false, __leftover: [] }]);
+      h.expect(_.clone(outputs)).to.eql([{verbose: false, flag: false, __leftover: [] }]);
     });
 
     it("should support --option=value", function() {
       cmd.run(['--number=20']);
-      h.expect(outputs).to.eql([{number: 20, __leftover: []}]);
+      h.expect(_.clone(outputs)).to.eql([{number: 20, __leftover: []}]);
+    });
+
+    it("should support acumulate option", function() {
+      cmd.run(['--array', 'item1', '--array', 'item2']);
+      h.expect(_.clone(outputs)).to.eql([{array: ['item1', 'item2'], __leftover: []}]);
     });
 
     it("should support valid options", function() {
       cmd.run(['--size', 'small']);
-      h.expect(outputs).to.deep.property("[0].size", "small");
+      h.expect(_.clone(outputs)).to.deep.property("[0].size", "small");
 
       var func = () => cmd.run(['--size', 'invalid_value']);
       h.expect(func).to.throw(InvalidValueError, /invalid_value.*size/);
@@ -68,14 +74,14 @@ describe('Azk cli command module', function() {
 
     it("should render a defaults values", function() {
       cmd.run();
-      h.expect(outputs).to.deep.property("[0].verbose", false);
-      h.expect(outputs).to.deep.property("[0].flag", true);
+      h.expect(_.clone(outputs)).to.deep.property("[0].verbose", false);
+      h.expect(_.clone(outputs)).to.deep.property("[0].flag", true);
     });
 
     it("should replace default values", function() {
       cmd.run(["--verbose", "--no-flag"]);
-      h.expect(outputs).to.deep.property("[0].verbose", true);
-      h.expect(outputs).to.deep.property("[0].flag", false);
+      h.expect(_.clone(outputs)).to.deep.property("[0].verbose", true);
+      h.expect(_.clone(outputs)).to.deep.property("[0].flag", false);
     });
   });
 
@@ -87,7 +93,7 @@ describe('Azk cli command module', function() {
 
     it("should be parse subcommand option", function() {
       cmd.run(['command1', 'command2', '--string', 'foo']);
-      h.expect(outputs).to.eql([{
+      h.expect(_.clone(outputs)).to.eql([{
         sub_command: "command1",
         sub_command_opt: "command2",
         string: "foo",
@@ -97,20 +103,20 @@ describe('Azk cli command module', function() {
 
     it("should support flag merged with subcommand", function() {
       cmd.run(["--flag", "command1", '--string', 'foo']);
-      h.expect(outputs).to.deep.property("[0].sub_command", "command1");
-      h.expect(outputs).to.deep.property("[0].flag", true);
+      h.expect(_.clone(outputs)).to.deep.property("[0].sub_command", "command1");
+      h.expect(_.clone(outputs)).to.deep.property("[0].flag", true);
 
       cmd.run(["--flag", "true", "command1", '--string', 'foo']);
-      h.expect(outputs).to.deep.property("[1].sub_command", "command1");
-      h.expect(outputs).to.deep.property("[1].flag", true);
+      h.expect(_.clone(outputs)).to.deep.property("[1].sub_command", "command1");
+      h.expect(_.clone(outputs)).to.deep.property("[1].flag", true);
 
       cmd.run(["--flag", "false", "command1", '--string', 'foo']);
-      h.expect(outputs).to.deep.property("[2].sub_command", "command1");
-      h.expect(outputs).to.deep.property("[2].flag", false);
+      h.expect(_.clone(outputs)).to.deep.property("[2].sub_command", "command1");
+      h.expect(_.clone(outputs)).to.deep.property("[2].flag", false);
 
       cmd.run(["--no-flag", "command1", '--string', 'foo']);
-      h.expect(outputs).to.deep.property("[3].sub_command", "command1");
-      h.expect(outputs).to.deep.property("[3].flag", false);
+      h.expect(_.clone(outputs)).to.deep.property("[3].sub_command", "command1");
+      h.expect(_.clone(outputs)).to.deep.property("[3].flag", false);
     });
 
     it("should be raise a required option", function() {
@@ -123,7 +129,7 @@ describe('Azk cli command module', function() {
 
     it("should support valid options", function() {
       cmd.run(['command2', '--string', 'foo']);
-      h.expect(outputs).to.deep.property("[0].sub_command", "command2");
+      h.expect(_.clone(outputs)).to.deep.property("[0].sub_command", "command2");
 
       var func = () => cmd.run(['invalid_value', '--string', 'foo']);
       h.expect(func).to.throw(InvalidValueError, /invalid_value.*sub_command/);
@@ -139,7 +145,7 @@ describe('Azk cli command module', function() {
 
     it("should capture any think after sub_command", function() {
       cmd.run(['--string', 'foo', 'subcommand', "--sub-options"]);
-      h.expect(outputs).to.eql([{
+      h.expect(_.clone(outputs)).to.eql([{
         sub_command: "subcommand",
         string: "foo",
         __leftover: ["--sub-options"]
@@ -148,7 +154,7 @@ describe('Azk cli command module', function() {
 
     it("should capture any think even if a flag is used", function() {
       cmd.run(['--string', 'foo', '--flag', 'subcommand', "--sub-options"]);
-      h.expect(outputs).to.eql([{
+      h.expect(_.clone(outputs)).to.eql([{
         sub_command: "subcommand",
         string: "foo",
         flag: true,
@@ -172,20 +178,20 @@ describe('Azk cli command module', function() {
         .setOptions("command", { stop: true });
 
       cmd.showUsage();
-      h.expect(outputs).to.deep.property("[00]", 'Usage: $ test_help [options] {subcommand} [*command]');
-      h.expect(outputs).to.deep.property("[02]", 'Test help description');
-      h.expect(outputs).to.deep.property("[04]", 'options:');
-      h.expect(outputs).to.deep.property("[06]", '  --verbose, -v  Verbose mode (default: true)');
-      h.expect(outputs).to.deep.property("[07]", '  --string=""    String option');
-      h.expect(outputs).to.deep.property("[09]", 'subcommand:');
-      h.expect(outputs).to.deep.property("[11]", '  start  Start service');
-      h.expect(outputs).to.deep.property("[12]", '  stop   Stop service');
+      h.expect(_.clone(outputs)).to.deep.property("[00]", 'Usage: $ test_help [options] {subcommand} [*command]');
+      h.expect(_.clone(outputs)).to.deep.property("[02]", 'Test help description');
+      h.expect(_.clone(outputs)).to.deep.property("[04]", 'options:');
+      h.expect(_.clone(outputs)).to.deep.property("[06]", '  --verbose, -v  Verbose mode (default: true)');
+      h.expect(_.clone(outputs)).to.deep.property("[07]", '  --string=""    String option');
+      h.expect(_.clone(outputs)).to.deep.property("[09]", 'subcommand:');
+      h.expect(_.clone(outputs)).to.deep.property("[11]", '  start  Start service');
+      h.expect(_.clone(outputs)).to.deep.property("[12]", '  stop   Stop service');
     });
 
     it("shund support a prefix in usage", function() {
       var cmd = new TestCmd('test_help {subcommand} [command]', UI);
       cmd.showUsage("azk %s {after}");
-      h.expect(outputs).to.deep.property(
+      h.expect(_.clone(outputs)).to.deep.property(
         "[00]", 'Usage: $ azk test_help {subcommand} [command] {after}'
       );
     });

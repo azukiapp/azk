@@ -103,6 +103,18 @@ export class Command extends UIProxy {
   parse(args) {
     var opts = {};
 
+    // Check is acc
+    var save_value = (options, value) => {
+      if (_.isEmpty(value) && options.acc) return;
+
+      if (options.acc) {
+        var actual = opts[options.name] || [];
+        actual.push(value);
+        value = actual;
+      }
+      opts[options.name] = value;
+    }
+
     // Set a default values
     _.each(this.options, (opt) => {
       if (opt.haveDefault() && !_.has(opts, opt.name)) {
@@ -130,14 +142,14 @@ export class Command extends UIProxy {
               && !previous.required
             ) {
               if (previous.type == Boolean) {
-                opts[previous.name] = true;
+                save_value(previous, true);
               }
               previous = null;
               return process();
             }
             throw err;
           }
-          opts[previous.name] = value;
+          save_value(previous, value);
           stop = previous.stop;
           previous_value = previous = null;
         } else {
@@ -153,7 +165,7 @@ export class Command extends UIProxy {
         arg = arg.replace(/^-*/, '');
         if (this.options[arg]) {
           previous = this.options[arg];
-          opts[previous.name] = (previous.type == Boolean) ? true : previous.default;
+          save_value(previous, (previous.type == Boolean) ? true : previous.default);
         } else {
           this.invalid_options(arg);
         }
