@@ -2,10 +2,12 @@ import { _, t } from 'azk';
 import { Multibar } from 'azk/cli/multi_bars';
 require('colors');
 
+var Table  = require('cli-table');
 var printf = require('printf');
 var ok     = 'azk'.green;
 var fail   = 'azk'.red;
 var mbars  = [];
+var tables = {};
 
 var UI = {
   isUI: true,
@@ -70,6 +72,19 @@ var UI = {
 
   stdin() {
     return process.stdin;
+  },
+
+  table_add(name, options) {
+    tables[name] = new Table(options);
+    return name;
+  },
+
+  table_push(name, ...args) {
+    tables[name].push(...args);
+  },
+
+  table_show(name) {
+    this.output(tables[name].toString());
   },
 }
 
