@@ -101,6 +101,7 @@ $ azk init [project_path]
 # Run a shell in instances context
 $ azk shell                       # Runs shell in default system
 $ azk shell -c "ls -l /"          # Runs specific command
+$ azk shell -m ~/:/azk/user       # Running with aditional mounting
 
 # Run a shell in arbitrary image
 $ azk shell -i busybox            # Runs a shell in arbitrary imagem
