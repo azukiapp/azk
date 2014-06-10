@@ -26,7 +26,7 @@ In order to automate the provisioning of development environments, `azk` uses pr
 
 #### Azkfile.js
 
-`Azkfile.js` files are the cornerstone of how to use `azk`. These simple .js files describe the systems that make your system of systems as well as the images used in their exceution. They also describe parameters and execution options.
+`Azkfile.js` files are the cornerstone of how to use `azk`. These simple manifest files describe the systems that make your system of systems as well as the images used in their exceution. They also describe parameters and execution options.
 
 [Full](#full_manifest_example) Azkfile.js example
 
