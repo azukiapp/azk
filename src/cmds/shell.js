@@ -1,4 +1,4 @@
-import { _, config, t, async } from 'azk';
+import { _, path, config, t, async } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
 import { Manifest } from 'azk/manifest';
 
@@ -33,6 +33,19 @@ class Cmd extends Command {
         stderr : this.stderr(),
         stdin  : this.stdin(),
         workdir: opts.cwd || null,
+        volumes: {},
+      }
+
+      for(var i = 0; i < opts.mount.length; i++) {
+        var point = opts.mount[i];
+        if (point.match(".*:.*")) {
+          point    = point.split(':')
+          point[0] = path.resolve(this.cwd, point[0]);
+          options.volumes[point[0]] = point[1];
+        } else {
+          this.fail('commands.shell.invalid_mount', { point });
+          return 1;
+        }
       }
 
       var cmd = [opts.shell];
@@ -55,5 +68,6 @@ export function init(cli) {
     .addOption(['--command', '-c'], { type: String })
     .addOption(['--shell'], { default: "/bin/sh", type: String })
     .addOption(['--cwd', '-C'], { type: String })
+    .addOption(['--mount', '-m'], { type: String, acc: true, default: [] })
     .addOption(['--verbose', '-v'])
 }

@@ -95,6 +95,7 @@ module.exports = {
     },
     shell: {
       description: "Init a shell with instance context or run a arbitrary command",
+      invalid_mount: "Invalid `%(point)s` mount parameter, use `origin:target`",
       options: {
         T: "Disable pseudo-tty allocation",
         t: "Force pseudo-tty allocation",
@@ -102,6 +103,8 @@ module.exports = {
         command : "Run a specific command",
         shell   : "A path to binary shell",
         verbose : "Show message about to execute a command",
+        mount   : "Points for additional mounting (ex:./origin:/azk/target)",
+        cwd     : "Default directory",
       }
     },
     help: {

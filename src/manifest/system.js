@@ -113,7 +113,7 @@ export class System {
     var run_options = {
       daemon: daemon,
       ports: {},
-      volumes: this.volumes,
+      volumes: _.merge({}, this.volumes, opts.volumes || {}),
       local_volumes: {},
       working_dir: opts.workdir || this.options.workdir,
       env: this.options.env || {},
