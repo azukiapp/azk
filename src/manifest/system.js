@@ -144,7 +144,8 @@ export class System {
     var run_options = this.make_options(false, opts);
     var image = this.image.name;
 
-    run_options.env = this._more_envs(run_options.env, {});
+    this.__extra_envs = opts.env || {};
+    run_options.env   = this._more_envs(run_options.env, {});
 
     return async(this, function* () {
       yield this._check_image(opts.pull);

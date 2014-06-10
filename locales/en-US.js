@@ -95,7 +95,8 @@ module.exports = {
     },
     shell: {
       description: "Init a shell with instance context or run a arbitrary command",
-      invalid_mount: "Invalid `%(point)s` mount parameter, use `origin:target`",
+      invalid_mount: "Invalid mount parameter: `%(point)s`, use `origin:target`",
+      invalid_env: "Invalid env variable: `%(variable)s`, use `VARIABLE=VALUE`",
       options: {
         T: "Disable pseudo-tty allocation",
         t: "Force pseudo-tty allocation",

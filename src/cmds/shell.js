@@ -34,6 +34,7 @@ class Cmd extends Command {
         stdin  : this.stdin(),
         workdir: opts.cwd || null,
         volumes: {},
+        env: {},
       }
 
       for(var i = 0; i < opts.mount.length; i++) {
@@ -44,6 +45,17 @@ class Cmd extends Command {
           options.volumes[point[0]] = point[1];
         } else {
           this.fail('commands.shell.invalid_mount', { point });
+          return 1;
+        }
+      }
+
+      for(var j = 0; j < opts.env.length; j++) {
+        var variable = opts.env[i];
+        if (variable.match(".*=.*")) {
+          variable = variable.split('=')
+          options.env[variable[0]] = variable[1];
+        } else {
+          this.fail('commands.shell.invalid_env', { variable });
           return 1;
         }
       }
@@ -69,5 +81,6 @@ export function init(cli) {
     .addOption(['--shell'], { default: "/bin/sh", type: String })
     .addOption(['--cwd', '-C'], { type: String })
     .addOption(['--mount', '-m'], { type: String, acc: true, default: [] })
+    .addOption(['--env', '-e'], { type: String, acc: true, default: [] })
     .addOption(['--verbose', '-v'])
 }
