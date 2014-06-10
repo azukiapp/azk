@@ -1,6 +1,6 @@
 # ![azk](https://github.com/azukiapp/azk/raw/master/src/share/pres/top-logo-wo.png)
 
-`azk` is a tool that assists web developers in the creation, maintenance and isolation of development environments. Through the installation of some components (`cli` and `agent`), you will be able to easily create isolated environments to many projects using several different stacks.
+`azk` is a tool that assists web developers in the creation, maintenance and isolation of development environments through automation. By installing some components (`cli` and `agent`), you will be able to easily and quickly create isolated environments to many projects in almost any development stack. Automation happens by the use of simple scripts and images.
 
 ## Main features
 
@@ -10,32 +10,30 @@
 * Automatic start-up (and reload) script
 * Logging
 
-Works on Linux & MacOS (require 64 bit platform in both cases)
+Works on Linux & Mac OS X (requires 64 bit platform in both cases)
 
 ## Installation
 
-The entire process of provisioning and configuring the environment in which the applications will be executed happens within a virtual machine.
-
 ### Requirements
 
-* Linux or Mac OS X (require 64 bit platform in both cases) (Windows: planned)
+* Linux or Mac OS X (requires 64 bit platform in both cases) (Windows: planned)
 * git, curl, bash
-* Internet connection (for download images)
+* Internet connection (to download images)
 
 #### Linux
 
-In linux is not necessary to use VirtualBox, the `azk` running directly on the Docker:
+On linux it's not necessary to use VirtualBox. `azk` runs directly on Docker:
 
 * [Docker][docker], version 0.10.0.
 
 #### Mac OS X
 
-Only on mac installing Virtualbox and an extra tool for file synchronization is necessary:
+Only on Mac OS X it is necessary to install Virtualbox and an extra tool for file synchronization:
 
 * [VirtualBox][virtualbox_dl], version 4.3.6+ (VMware: planned)
-* unfs3 (for share files between your machine and virtual machine)
+* unfs3 (to share files between your machine and the virtual machine)
 
-Use [Homebrew Cask][homebrew_cask]? For VirtualBox, too easier!
+Using [Homebrew Cask][homebrew_cask]? It makes installing VirtualBox super easy!
 
 ```sh
 brew cask install virtualbox --appdir=/Applications
@@ -93,31 +91,31 @@ $ azk agent start
 
 ```bash
 # Control azk agent
-$ azk agent start --daemon        # Start azk agent in background
-$ azk agent status                # Show azk agent status
-$ azk agent stop                  # Stop azk agent
+$ azk agent start --daemon        # Starts azk agent in background
+$ azk agent status                # Shows azk agent status
+$ azk agent stop                  # Stops azk agent
 
 # Create initial Azkfile.js
 $ azk init [project_path] 
 
 # Run a shell in instances context
-$ azk shell                       # Run shell in default system
-$ azk shell -c "ls -l /"          # Run specific command
+$ azk shell                       # Runs shell in default system
+$ azk shell -c "ls -l /"          # Runs specific command
 
 # Run a shell in arbitrary image
-$ azk shell -i busybox            # Run a shell in arbitrary imagem
+$ azk shell -i busybox            # Runs a shell in arbitrary imagem
 
-# Run a background systems (Azkfie.js#systems)
-$ azk start                       # Start a default system
-$ azk stop                        # Stop specific service
-$ azk status                      # Display all system status
-$ azk stop -s [system_name]       # Stop specific system by name
-$ azk scale -s [system_name] -n 5 # Start 5 instances of specific system
+# Run background systems (Azkfie.js#systems)
+$ azk start                       # Starts a default system
+$ azk stop                        # Stops specific service
+$ azk status                      # Displays all system status
+$ azk stop -s [system_name]       # Stops specific system by name
+$ azk scale -s [system_name] -n 5 # Starts 5 instances of specific system
 ```
 
 ## Test (for experts only)
 
-Note that running the tests requires you to have `azk agent` running.
+Note that running these tests requires you to have `azk agent` running.
 
 ```bash
 $ cd ~/.azk
