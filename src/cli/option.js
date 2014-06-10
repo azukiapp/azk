@@ -52,6 +52,10 @@ export class Option {
         break;
     }
 
+    if (this.acc) {
+      desc += " - multiples supported"
+    }
+
     return [names.join(', '), desc].join('\t');
   }
 

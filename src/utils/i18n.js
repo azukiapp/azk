@@ -29,7 +29,11 @@ export class i18n {
       if (!buffer) break;
     }
 
-    return buffer ? printf(buffer, ...args) : (typeof(key) == "string" ? key : key.join("."));
+    if (buffer) {
+      return typeof(buffer) == "string" ? printf(buffer, ...args) : buffer;
+    } else {
+      return (typeof(key) == "string" ? key : key.join("."));
+    }
   }
 }
 

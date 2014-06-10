@@ -104,7 +104,7 @@ brew install unfs3
   $ azk check-install
   ```
 
-4. Run `azk-agent` in a terminal (daemon mode soon):
+4. Run `azk-agent` in a terminal:
 
   ```bash
   $ azk agent start

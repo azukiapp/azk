@@ -10,7 +10,7 @@ import {
 var path   = require('path');
 var printf = require('printf');
 
-describe('Azk cli command module', function() {
+describe.only('Azk cli command module', function() {
   var outputs = [];
   var UI = h.mockUI(beforeEach, outputs);
 
@@ -175,24 +175,32 @@ describe('Azk cli command module', function() {
         .addOption(['--verbose', '-v'])
         .addOption(['--string'], { type: String })
         .setOptions("subcommand", { options: ["start", "stop"] })
-        .setOptions("command", { stop: true });
+        .setOptions("command", { stop: true })
+        .addExamples([ "this a example of the use" ]);
 
       cmd.showUsage();
-      h.expect(_.clone(outputs)).to.deep.property("[00]", 'Usage: $ test_help [options] {subcommand} [*command]');
-      h.expect(_.clone(outputs)).to.deep.property("[02]", 'Test help description');
-      h.expect(_.clone(outputs)).to.deep.property("[04]", 'options:');
-      h.expect(_.clone(outputs)).to.deep.property("[06]", '  --verbose, -v  Verbose mode (default: true)');
-      h.expect(_.clone(outputs)).to.deep.property("[07]", '  --string=""    String option');
-      h.expect(_.clone(outputs)).to.deep.property("[09]", 'subcommand:');
-      h.expect(_.clone(outputs)).to.deep.property("[11]", '  start  Start service');
-      h.expect(_.clone(outputs)).to.deep.property("[12]", '  stop   Stop service');
+      var out = _.clone(outputs)
+      h.expect(out).to.deep.property("[00]",
+        t("commands.help.usage", 'test_help [options] {subcommand} [*command]')
+      );
+      h.expect(out).to.deep.property("[02]", 'Test help description');
+      h.expect(out).to.deep.property("[04]", t('commands.help.options'));
+      h.expect(out).to.deep.property("[06]", '  --verbose, -v  Verbose mode (default: true)');
+      h.expect(out).to.deep.property("[07]", '  --string=""    String option');
+      h.expect(out).to.deep.property("[09]", 'subcommand:');
+      h.expect(out).to.deep.property("[11]", '  start  Start service');
+      h.expect(out).to.deep.property("[12]", '  stop   Stop service');
+      h.expect(out).to.deep.property("[13]", '');
+      h.expect(out).to.deep.property("[14]", t('commands.help.examples'));
+      h.expect(out).to.deep.property("[15]", '');
+      h.expect(out).to.deep.property("[16]", '  this a example of the use');
     });
 
     it("shund support a prefix in usage", function() {
       var cmd = new TestCmd('test_help {subcommand} [command]', UI);
       cmd.showUsage("azk %s {after}");
-      h.expect(_.clone(outputs)).to.deep.property(
-        "[00]", 'Usage: $ azk test_help {subcommand} [command] {after}'
+      h.expect(_.clone(outputs)).to.deep.property("[00]",
+        t("commands.help.usage", 'azk test_help {subcommand} [command] {after}')
       );
     });
   });

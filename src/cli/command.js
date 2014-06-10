@@ -14,6 +14,7 @@ export class Command extends UIProxy {
     this.options   = {};
     this.name      = this.__parse_name(name);
     this.__cwd     = null;
+    this.examples  = [];
 
     // Parent or interface
     super(user_interface);
@@ -46,6 +47,10 @@ export class Command extends UIProxy {
     });
 
     return name;
+  }
+
+  addExamples(examples) {
+    this.examples = this.examples.concat(examples);
   }
 
   addOption(alias, options = {}) {
@@ -208,6 +213,8 @@ export class Command extends UIProxy {
     this.__show_description();
     this.__show_options();
     this.__show_stackables();
+    this.__show_examples();
+    this.output();
   }
 
   usageLine(replace = null) {
@@ -228,6 +235,17 @@ export class Command extends UIProxy {
     });
 
     return usage.join(" ");
+  }
+
+  __show_examples() {
+    if (!_.isEmpty(this.examples)) {
+      this.output();
+      this.tOutput("commands.help.examples");
+      this.output();
+      _.each(this.examples, (example) => {
+        this.output(`  ${example}`);
+      });
+    }
   }
 
   __show_usage(prefix) {

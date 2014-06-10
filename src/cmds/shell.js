@@ -83,4 +83,5 @@ export function init(cli) {
     .addOption(['--mount', '-m'], { type: String, acc: true, default: [] })
     .addOption(['--env', '-e'], { type: String, acc: true, default: [] })
     .addOption(['--verbose', '-v'])
+    .addExamples(t("commands.shell.examples"))
 }

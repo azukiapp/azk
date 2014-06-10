@@ -86,12 +86,19 @@ module.exports = {
       description: "Azk short help",
       options: {
         command: {
-          name: "command"
+          name: "command".yellow
         },
         log: "Sets a log level",
         help: "Shows this help",
         version: version,
       },
+      examples: [
+        '$ azk agent start --daemon',
+        '$ azk shell --image azukiapp/busybox',
+        '$ azk shell --mount ~/Home:/azk/user -e HOME=/azk/user',
+        '$ azk status -s [system_name]',
+        '$ azk scale --instances 2',
+      ],
     },
     version: {
       description: version
@@ -100,7 +107,15 @@ module.exports = {
       description: "Controls azk agent",
       start_fail: "Agent start fail: %s",
       options: {
-        force_vm: "Forces the use of the virtual machine when it is not needed (linux with docker)."
+        action: {
+          name: "actions".magenta,
+          options: {
+            start: "Start azk agent",
+            status: "Show the azk agent status",
+            stop: "Stop the azk agent running in the background",
+          }
+        },
+        daemon: "Runs azk agent in background mode",
       }
     },
     shell: {
@@ -116,12 +131,21 @@ module.exports = {
         verbose : "Shows details about command execution",
         mount   : "Points for additional mounting (ex:./origin:/azk/target)",
         cwd     : "Default directory",
-      }
+        image   : "Defines the image in which the command will be executed",
+        env     : "Additional environment variables",
+      },
+      examples: [
+        '$ azk shell --shell /bin/bash',
+        '$ azk shell --mount /:/azk/root -e RAILS_ENV=dev',
+        '$ azk shell -c "ls -l /"',
+        '$ azk shell --image azukiapp/budybox -t -c "/bin/bash"',
+      ]
     },
     help: {
       description: "Shows help about the specific command",
-      usage: 'Usage: $ %s',
-      options: "options:",
+      usage: 'Usage:'.blue + ' $ %s',
+      options: "options:".green,
+      examples: "examples:".yellow,
     },
     helpers: {
       pull: {
@@ -135,6 +159,9 @@ module.exports = {
       already: "'%s' already exists (try: `--force`)",
       generated: "'%s' generated",
       github: "\nTip:\n  Adds the `.azk` in .gitignore\n  echo '.azk' >> .gitignore \n",
+      options: {
+        force: "Forces the overlay file Azkfile.js",
+      }
     },
     start: {
       description: "Starts an instance of the system(s)",
@@ -152,10 +179,10 @@ module.exports = {
     },
     scale: {
       description: "Scales (up or down) an instance of the system(s)",
-      check_image: "- Checking   ".green  + " for image `" + "%(image)s".yellow + "`...",
-      pull_image:  "- Downloading".cyan   + " image `" + "%(image)s".yellow + "`...",
-      scale: (     "- Scale      ".yellow + " system `" + "%(system)s".blue +
-        "` from " + "%(from)d".red + " to " + "%(to)d".green + " instances ..."
+      check_image: "- Checking......".green  + "image `" + "%(image)s".yellow + "`...",
+      pull_image:  "- Downloading...".cyan   + "image `"     + "%(image)s".yellow + "`...",
+      scale: (     "- Scale.........".yellow + "system `"    + "%(system)s".blue +
+        "` from " + "%(from)d".red + " to " + "%(to)d".green + " instances..."
       ),
       options: {
         system: systems_options,

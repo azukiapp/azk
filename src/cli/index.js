@@ -37,7 +37,8 @@ export function cli(args, cwd, ui = UI) {
     var azk_cli = new CmdCli('azk', ui, cmds_path);
     azk_cli.addOption(['--version', '-v'], { default: false, show_default: false });
     azk_cli.addOption(['--log', '-l'] , { type: String});
-    azk_cli.addOption(['--help', '-h'], { show_default: false } );
+    azk_cli.addOption(['--help', '-h'], { show_default: false } )
+    azk_cli.addExamples(t("commands.azk.examples"))
 
     azk_cli.cwd = cwd;
     var result = azk_cli.run(_.rest(args, 2));
