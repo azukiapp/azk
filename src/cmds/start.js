@@ -69,7 +69,7 @@ class Cmd extends Command {
       for (var system of systems) {
         var containers = yield system.instances();
         if (containers.length <= 0) {
-          this.fail('commands.start.not_running', system);
+          this.fail('commands.stop.not_running', system);
         } else {
           yield this._scale(system, 0);
         }
@@ -90,16 +90,48 @@ class Cmd extends Command {
   }
 
   status(manifest, systems, opts) {
+    var columns = ['System'.blue, 'Instances'.yellow, 'Hosts'.green];
+    var table_status = this.table_add('table_status', { head: columns });
+
+    // Instances columns
+    columns = ['Up Time'.green, 'Command'.cyan];
+    if (opts.all) columns.unshift('Status'.red);
+    columns.unshift('Azk id'.blue);
+
     return async(this, function* () {
-      this.output("Systems status: ")
       for (var system of systems) {
         var instances = yield system.instances(opts.all);
-        this.tOutput("commands.status.status", {
-          system: system.name,
-          instances: instances.length,
-          hosts: this._hosts(system, instances),
-        });
+
+        if (opts.instances) {
+          instances = _.sortBy(instances, function(container) {
+            return container.Created * -1;
+          });
+
+          var rows = _.map(instances, function(container) {
+            var names = container.Names[0].split('.');
+            var row   = [ container.Status, container.Command ];
+
+            if (opts.all) {
+              row.unshift(container.Status.match(/^Exit/) ? 'dead'.red : 'runnig'.green);
+            }
+            row.unshift(container.Id.slice(0, 12));
+
+            return row;
+          });
+
+          this.output(system.name + ": " + instances.length + " instances");
+          var table_name = 'table_' + system.name;
+          this.table_add(table_name, { head: columns });
+          this.table_push(table_name, ...rows);
+          this.table_show(table_name);
+        } else {
+          var line = [system.name, instances.length, this._hosts(system, instances) || "-"];
+          this.table_push(table_status, line);
+        }
       }
+
+      if (!opts.instances)
+        this.table_show(table_status);
     });
   }
 
@@ -122,10 +154,11 @@ export function init(cli) {
 
   (new Cmd('scale', cli))
     .addOption(['--system', '-s'], { type: String })
-    .addOption(['--instances', '-n'], { type: Number, default: 1 });
+    .addOption(['--instances', '-i'], { type: Number, default: 1 });
 
   (new Cmd('status', cli))
     .addOption(['--system', '-s'], { type: String, default: ":all" })
+    .addOption(['--instances', '-i'], { default: false })
     .addOption(['--all', '-a'], { default: false });
 
   (new Cmd('reload', cli))

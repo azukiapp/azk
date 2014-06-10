@@ -162,6 +162,7 @@ module.exports = {
       status_with_dead: "%(system)s: %(instances)d up and %(down)d down - %(hosts)s",
       options: {
         system: "System(s) name(s)",
+        instances: "Shows details about instances",
         all: "Include all instances (including terminated)",
       }
     },
