@@ -60,7 +60,7 @@ export function pull(docker, repository, tag, stdout) {
         }
       });
 
-      stream.on('end', () => resolve(image));
+      stream.on('end', () => resolve(docker.findImage(image)));
     });
   })
 }

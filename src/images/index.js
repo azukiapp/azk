@@ -25,7 +25,7 @@ export class Image {
       var image = yield this.check();
       if (image == null) {
         notify({ type: "action", context: "image", action: "pull_image", data: this });
-        yield docker.pull(this.repository, this.tag, _.isObject(stdout) ? stdout : null);
+        image = yield docker.pull(this.repository, this.tag, _.isObject(stdout) ? stdout : null);
       }
       return image;
     });

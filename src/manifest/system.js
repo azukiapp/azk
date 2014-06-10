@@ -93,22 +93,19 @@ export class System {
   scale(instances, stdout, pull = false) {
     return async(this, function* (notify) {
       var depends_instances = yield this._dependencies_instances();
-      if (this._check_dependencies(depends_instances)) {
-        var containers = yield this.instances();
-        yield this._check_image(pull);
+      var containers = yield this.instances();
+      yield this._check_image(pull);
 
-        var from = containers.length;
-        var to   = instances - from;
+      var from = containers.length;
+      var to   = instances - from;
 
-        if (to != 0)
-          notify({ type: "scale", from, to: from + to, system: this.name });
-
-        if (to > 0) {
-          yield this.run(true, to, depends_instances);
-        } else if (to < 0) {
-          containers = containers.reverse().slice(0, Math.abs(to));
-          yield this._kill_or_stop(containers);
-        }
+      if (to != 0)
+        notify({ type: "scale", from, to: from + to, system: this.name });
+      if (to > 0 && this._check_dependencies(depends_instances)) {
+        yield this.run(true, to, depends_instances);
+      } else if (to < 0) {
+        containers = containers.reverse().slice(0, Math.abs(to));
+        yield this._kill_or_stop(containers);
       }
       return true;
     });
@@ -154,6 +151,11 @@ export class System {
 
     return async(this, function* () {
       yield this._check_image(opts.pull);
+
+      if (!run_options.working_dir) {
+        run_options.working_dir = this.image_data.config.WorkingDir;
+      }
+
       var container = yield docker.run(image, command, run_options);
       var data      = yield container.inspect();
       return data.State.ExitCode
@@ -208,7 +210,12 @@ export class System {
   get ports() {
     var ports = this.options.ports || {};
     if (_.keys(ports).length == 0) {
-      ports.__default__ = "5000/tcp"
+      var exposed_ports = this.image_data.config.ExposedPorts;
+      if (!_.isEmpty(exposed_ports, {})) {
+        ports.__default__ = _.keys(exposed_ports)[0];
+      } else {
+        ports.__default__ = "5000/tcp"
+      }
     }
 
     return _.reduce(ports, (ports, port, name) => {
@@ -236,7 +243,11 @@ export class System {
     options.env = this._more_envs(options.env, {}, depends_instances);
 
     // Command
-    var cmd = ['/bin/sh', '-c', this.options.command];
+    if (this.options.command) {
+      var cmd = ['/bin/sh', '-c', this.options.command];
+    } else {
+      var cmd = this.image_data.config.Cmd;
+    }
 
     // Port map
     _.each(this.ports, (data, name) => {
@@ -248,6 +259,10 @@ export class System {
       options.ports[data.name] = [data.config]
     });
 
+    if (!options.working_dir) {
+      options.working_dir = this.image_data.config.WorkingDir;
+    }
+
     return async(this, function* (notify) {
       for(var i = 0; i < instances; i++) {
         notify({ type: 'run_service', system: this.name });
@@ -258,19 +273,24 @@ export class System {
   }
 
   _check_image(pull = false) {
-    if (pull) {
-      var promise = this.image.pull();
-    } else {
-      var promise = this.image.check().then((image) => {
-        if (image == null) {
-          throw new ImageNotAvailable(this.name, this.image.name);
-        }
-      });
-    }
+    return async(this, function* () {
+      if (pull) {
+        var promise = this.image.pull();
+      } else {
+        var promise = this.image.check().then((image) => {
+          if (image == null) {
+            throw new ImageNotAvailable(this.name, this.image.name);
+          }
+          return image;
+        });
+      }
 
-    return promise.progress((event) => {
-      event.system = this;
-      return event;
+      var image = yield promise.progress((event) => {
+        event.system = this;
+        return event;
+      });
+
+      this.image_data = yield image.inspect();
     });
   }
 
@@ -334,11 +354,11 @@ export class System {
 
   _remove_proxy(port, container) {
     if (!_.isEmpty(this.hosts)) {
-      var backend = printf(
-            "http://%s:%s", config('agent:vm:ip'),
-            container.Ports[0].PublicPort
-          );
-      return Balancer.removeBackend(this.hosts, backend);
+      var port = ( container.Ports[0] || {} ) .PublicPort;
+      if (port) {
+        var backend = printf("http://%s:%s", config('agent:vm:ip'), port);
+        return Balancer.removeBackend(this.hosts, backend);
+      }
     }
   }
 

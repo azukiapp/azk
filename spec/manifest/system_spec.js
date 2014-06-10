@@ -11,7 +11,7 @@ var touch = require('touch');
 var default_img = config('docker:image_default');
 
 // TODO: Split test in more files :P
-describe("Azk system class", function() {
+describe.only("Azk system class", function() {
   it("should return a System class", function() {
     var sys = new System({ ns: 'azk-test' }, 'sysname', default_img);
     h.expect(sys).to.have.property('manifest').and.eql({ ns: 'azk-test' });
@@ -50,7 +50,7 @@ describe("Azk system class", function() {
           name: default_img,
           pull() {
             check_call = true;
-            return defer((resolve) => { process.nextTick(resolve) });
+            return docker.findImage(default_img);
           }
         }
         return system.scale(1, null, true).then((result) => {
