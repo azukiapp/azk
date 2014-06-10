@@ -2,13 +2,13 @@
  * Documentation: http://docs.azk.io/Azkfile.js
  */
 
-// Adds the systems that shape your sistem
+// Adds the systems that shape your system
 systems({
   {{#each systems ~}}
   {{&hash_key @key}}: {
     // Dependent systems
     depends: {{&json depends}},
-    // More imagens http://images.azk.io
+    // More images:  http://images.azk.io
     {{#if image.build ~}}
     image: {
       build: [
@@ -21,7 +21,7 @@ systems({
     image: {{&json image}},
     {{/if ~}}
     {{#if provision ~}}
-    // Steps to run before run instances
+    // Steps to execute before running instances
     provision: [
       {{#each provision ~}}
       {{&json this}},
@@ -33,24 +33,24 @@ systems({
     {{/if ~}}
     command: {{&json command}},
     {{#sync_files ~}}
-    // Enable sync in current project folder to '/azk' in instances
+    // Mounts current system folder at '/azk/[system_name]'
     sync_files: {
       ".": "/azk/<%= manifest.dir %>",
     },
     {{/sync_files ~}}
     {{#persistent_dir ~}}
-    // Active a persistent data folder in '/azk/_data_' in containers
+    // Activates a persistent data folder in '/azk/_data_' 
     persistent_dir: true,
     {{/persistent_dir ~}}
     {{#balancer ~}}
-    // Enable http balancer over the instances
+    // Enables http balancer over instances
     balancer: {
       // {{&name}}.{{& ../../azk.default_domain}}
       hostname: "<%= system.name %>.<%= azk.default_domain %>"
     },
     {{/balancer ~}}
     envs: {
-      // Export global variables
+      // Exports global variables
       {{#each envs ~}}
       {{@key}}: "{{this}}",
       {{~/each}}
@@ -60,7 +60,7 @@ systems({
 });
 
 {{#if default ~}}
-// Set a default system
+// Sets a default system
 setDefault("{{&default}}");
 {{/if ~}}
 {{#each bins ~}}

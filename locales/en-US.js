@@ -1,19 +1,21 @@
-var version = "Show azk version";
-var systems_options = "Target systems of action";
+var version = "Shows azk version";
+var systems_options = "Targets systems of action";
 
 module.exports = {
   errors: {
-    not_vm_start: "Unable to install and configure the virtual machine",
-    not_connect_docker: "Could not initialize the balancer because the Docker was not available",
-    agent_not_runnnig: "Azk agent is required but not running (try `azk agent status`)",
-    agent_start: "Start azk agent error: %(error)s",
+    not_vm_start: "Unable to install and configure virtual machine",
+    not_connect_docker: "Could not initialize balancer because Docker was not available",
+    // TODO: agent_not_running
+    agent_not_runnnig: "Azk agent is required but is not running (try `azk agent status`)",
+    agent_start: "Azk agent start error: %(error)s",
+    // TODO: not_been_implemented
     not_bee_implemented: "This feature: `%(feature)s` has not been implemented yet",
     system_not_found: "System `%(system)s` not found in `%(manifest)s`",
-    manifest_required: "Manifest is required, but not found in `%(cwd)s`",
+    manifest_required: "Manifest is required, but was not found in `%(cwd)s`",
     manifest_error: "Manifest not valid (see http://doc.azk.io), error:\n%(err_message)s",
     required_option_error: "Option %(option)s is required",
     system_depend_error: "System `%(system)s` depends on the system `%(depend)s`",
-    image_not_available: "System `%(system)s` require image `%(image)s`, and not avaible",
+    image_not_available: "System `%(system)s` requires image `%(image)s` which is not avaible",
     run_command_error: "Run `%(command)s` error:\n`%(output)s`"
   },
 
@@ -23,50 +25,56 @@ module.exports = {
 
   status: {
     agent: {
-      running: "Agent is running",
-      not_running: "Agent is not running (try: azk agent start)",
-      starting: "The agent is being initialized",
-      already: "Agent is already running",
-      started: "Agent has been successfully launched",
-      stoping: "Agent is being finalized.",
-      stoped: "Agent was successfully stoped.",
-      error: "Agent starting error: %(data)s",
+      running: "Agent is running...",
+      not_running: "Agent is not running (try: `azk agent start`).",
+      starting: "Agent is being started...",
+      already: "Agent is already running.",
+      started: "Agent has been successfully started.",
+      // TODO: stopping
+      stoping: "Agent is being stopped...",
+      // TODO: stopped
+      stoped: "Agent has been successfully stopped.",
+      error: "Agent starting error: %(data)s.",
     },
 
     vm: {
-      installing: "adding virtual machine...",
-      installed : "virtual machine was successfully installed.",
+      installing: "installing virtual machine...",
+      installed : "virtual machine has been successfully installed.",
       starting  : "starting virtual machine...",
-      started   : "virtual machine was successfully started.",
-      stoping   : "stoping virtual machine...",
-      stoped    : "virtual machine was successfully stoped.",
+      started   : "virtual machine has been successfully started.",
+      // TODO: stopping
+      stoping   : "stopping virtual machine...",
+      // TODO: stopped
+      stoped    : "virtual machine has been successfully stopped.",
       removing  : "removing virtual machine...",
-      removed   : "virtual machine was successfully removed.",
-      wait      : "waiting for initialization of virtual machine",
-      initialized : "the virtual machine is ready for use",
-      progress    : "try connect vm (%(attempts)d/%(max)d) ...",
+      removed   : "virtual machine has been successfully removed.",
+      // TODO: waiting
+      wait      : "waiting for initialization of virtual machine...",
+      initialized : "virtual machine is ready to use.",
+      progress    : "trying connect to vm (%(attempts)d/%(max)d)...",
     },
 
     socat: {
-      progress : "try connect docker (%(attempts)d/%(max)d) ...",
+      progress : "trying to connect to docker (%(attempts)d/%(max)d)...",
     },
 
     balancer: {
       starting_memcached: "starting memcached...",
-      started_memcached : "memcached started",
+      started_memcached : "memcached started.",
       starting_hipache  : "starting hipache...",
-      started_hipache   : "hipache started",
-      starting_socat    : "starting socat",
-      started_socat     : "socat started",
+      started_hipache   : "hipache started.",
+      starting_socat    : "starting socat...",
+      started_socat     : "socat started.",
     },
 
     unsfd: {
       starting : "starting unsfd...",
-      started  : "unsfd started in %(port)s port with file config: %(file)s",
+      started  : "unsfd started in %(port)s port with file config: %(file)s.",
       stopping : "stopping unsfd...",
-      stoped   : "unsfd has stoped",
-      mounting : "mount the share unsfd folder in virtual machine...",
-      mounted  : "unsfd shared folder has mounted",
+      // TODO: stopped
+      stoped   : "unsfd has been successfully stopped.",
+      mounting : "mounting the unsfd shared folder in virtual machine...",
+      mounted  : "unsfd shared folder has been successfully mounted.",
     },
   },
 
@@ -78,8 +86,8 @@ module.exports = {
         command: {
           name: "command"
         },
-        log: "Set a log level",
-        help: "Show this help",
+        log: "Sets a log level",
+        help: "Shows this help",
         version: version,
       },
     },
@@ -87,103 +95,104 @@ module.exports = {
       description: version
     },
     agent: {
-      description: "Control azk agent",
-      start_fail: "Start agent fail: %s",
+      description: "Controls azk agent",
+      start_fail: "Agent start fail: %s",
       options: {
         force_vm: "Forces the use of the virtual machine when it is not needed (linux with docker)."
       }
     },
     shell: {
-      description: "Init a shell with instance context or run a arbitrary command",
+      description: "Initializes a shell with instance context or runs a arbitrary command",
       invalid_mount: "Invalid mount parameter: `%(point)s`, use `origin:target`",
       invalid_env: "Invalid env variable: `%(variable)s`, use `VARIABLE=VALUE`",
       options: {
-        T: "Disable pseudo-tty allocation",
-        t: "Force pseudo-tty allocation",
+        T: "Disables pseudo-tty allocation",
+        t: "Forces pseudo-tty allocation",
         system  : "A system context to execute a shell or command",
-        command : "Run a specific command",
-        shell   : "A path to binary shell",
-        verbose : "Show message about to execute a command",
+        command : "Runs a specific command",
+        shell   : "The path to shell binary",
+        verbose : "Shows details about command execution",
         mount   : "Points for additional mounting (ex:./origin:/azk/target)",
         cwd     : "Default directory",
       }
     },
     help: {
-      description: "Show help about the specific command",
+      description: "Shows help about the specific command",
       usage: 'Usage: $ %s',
       options: "options:",
     },
     helpers: {
       pull: {
-        pulling: 'Pulling repository %s',
+        pulling: 'Pulling repository %s...',
         bar_progress: '  :title [:bar] :percent :progress',
         bar_status: '  :title :msg',
       }
     },
     init: {
       description: "Initializes a project by adding the file Azkfile.js",
-      already: "'%s' already exists (try: --force)",
+      already: "'%s' already exists (try: `--force`)",
       generated: "'%s' generated",
-      github: "\nTip:\n  Add the `.azk` in .gitignore\n  echo '.azk' >> .gitignore \n",
+      github: "\nTip:\n  Adds the `.azk` in .gitignore\n  echo '.azk' >> .gitignore \n",
     },
     start: {
-      description: "Start an one instance of the system(s)",
+      description: "Starts an instance of the system(s)",
       already: "System `%(name)s` already started",
       options: {
         system: systems_options,
       }
     },
     stop: {
-      description: "Start an one instance of the system(s)",
+      description: "Starts an instance of the system(s)",
       not_running: "System `%(name)s` not running",
       options: {
         system: systems_options,
       }
     },
     scale: {
-      description: "Scale (up or down) an instances of the system(s)",
+      description: "Scales (up or down) an instance of the system(s)",
       options: {
         system: systems_options,
         instances: "Number of instances",
       }
     },
     reload: {
-      description: "Stop all system, re-provision and starts again",
+      description: "Stops all system, re-provisions and starts again",
       options: {
         system: systems_options,
       }
     },
     up: {
-      description: "Start all systems in order dependencies"
+      description: "Starts all systems following the proper sequence according to dependencies",
     },
     status: {
-      description: "Show systems(s) instances status",
+      description: "Shows systems(s) instances status(es)",
       status: "%(system)s: %(instances)d instances - %(hosts)s",
       status_with_dead: "%(system)s: %(instances)d up and %(down)d down - %(hosts)s",
       options: {
         system: "System(s) name(s)",
         instances: "Shows details about instances",
-        all: "Include all instances (including terminated)",
+        all: "Includes all instances (including those terminated)",
       }
     },
     vm: {
-      description  : "Control a virtual machine",
+      description  : "Controls a virtual machine.",
       already      : "virtual machine already installed.",
       not_installed: "virtual machine is not installed, try `azk vm install`.",
-      running      : "virtual machine running",
-      already_running : "virtual machine already running",
-      not_runnig   : "virtual machine is not running, try `azk vm start`",
-      error        : "vm error: %(error)s",
+      running      : "virtual machine running.",
+      already_running : "virtual machine already running.",
+      // TODO not_running
+      not_runnig   : "virtual machine is not running, try `azk vm start`.",
+      error        : "vm error: %(error)s.",
     }
   },
 
   docker: {
-    connect: "connecting docker: %s"
+    connect: "connecting to docker: %s..."
   },
 
   proxy: {
-    adding_backend: "adding backend:%(backend)s to hostname:%(hostname)s",
-    removing_backend: "removing backend:%(backend)s to hostname:%(hostname)s",
+    adding_backend: "adding backend:%(backend)s to hostname:%(hostname)s...",
+    removing_backend: "removing backend:%(backend)s to hostname:%(hostname)s...",
     request: "proxy request %s => %s",
     started: "proxy started in %s port",
     not_configured: "host '%s' not configured in proxy"
@@ -191,9 +200,9 @@ module.exports = {
 
   test: {
     before: "Before all tasks:",
-    remove_containers: "- Removing %s containers before run tests",
-    remove_images: "- Removing %s images before run tests",
-    check_vm: "- Check for required vm",
+    remove_containers: "- Removing %s containers before running tests...",
+    remove_images: "- Removing %s images before running tests...",
+    check_vm: "- Checking for required vm...",
     i18n_test: "test i18n module",
     commands: {
       test_help: {
