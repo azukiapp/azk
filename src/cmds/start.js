@@ -27,8 +27,10 @@ class Cmd extends Command {
 
       yield this[`${this.name}`](manifest, systems, opts);
 
-      if (_.contains(["start", "stop", "scale"], this.name))
+      if (_.contains(["start", "stop", "scale"], this.name)) {
+        this.output("");
         yield this.status(manifest, systems);
+      }
     });
   }
 

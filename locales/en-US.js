@@ -152,10 +152,9 @@ module.exports = {
     },
     scale: {
       description: "Scales (up or down) an instance of the system(s)",
-      check_image: "Checking".green + " for image `" + "%(image)s".yellow + "`",
-      scale: (
-        "Scale".yellow +
-        " system `" + "%(system)s".blue +
+      check_image: "- Checking   ".green  + " for image `" + "%(image)s".yellow + "`...",
+      pull_image:  "- Downloading".cyan   + " image `" + "%(image)s".yellow + "`...",
+      scale: (     "- Scale      ".yellow + " system `" + "%(system)s".blue +
         "` from " + "%(from)d".red + " to " + "%(to)d".green + " instances ..."
       ),
       options: {
