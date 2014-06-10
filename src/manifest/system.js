@@ -94,7 +94,6 @@ export class System {
     return async(this, function* (notify) {
       var depends_instances = yield this._dependencies_instances();
       var containers = yield this.instances();
-      yield this._check_image(pull);
 
       var from = containers.length;
       var to   = instances - from;
@@ -102,6 +101,7 @@ export class System {
       if (to != 0)
         notify({ type: "scale", from, to: from + to, system: this.name });
       if (to > 0 && this._check_dependencies(depends_instances)) {
+        yield this._check_image(pull);
         yield this.run(true, to, depends_instances);
       } else if (to < 0) {
         containers = containers.reverse().slice(0, Math.abs(to));
@@ -335,6 +335,8 @@ export class System {
           notify({ type: 'stop_service', system: self.name });
           yield container.stop();
         }
+        notify({ type: "stopped", id: container.Id });
+        container.remove();
       }
     })
   }

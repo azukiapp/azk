@@ -1,4 +1,4 @@
-import { _, async, config, t } from 'azk';
+import { log, _, async, config, t } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
 import { Manifest } from 'azk/manifest';
 import { SYSTEMS_CODE_ERROR, NotBeenImplementedError } from 'azk/utils/errors';
@@ -25,7 +25,10 @@ class Cmd extends Command {
         }
       }
 
-      return this[`${this.name}`](manifest, systems, opts);
+      yield this[`${this.name}`](manifest, systems, opts);
+
+      if (_.contains(["start", "stop", "scale"], this.name))
+        yield this.status(manifest, systems);
     });
   }
 
@@ -35,7 +38,19 @@ class Cmd extends Command {
       if (event.type == "pull_msg") {
         pull_progress(event);
       } else {
-        console.log(event);
+        var keys = ["commands", "scale"];
+        switch(event.type) {
+          case "action":
+            var data = { image: system.image.name };
+            this.tOutput([...keys, event.action], data);
+            break;
+          case "scale":
+            //keys.push((event.from > event.to) ? "starting" : "stopping");
+            this.tOutput([...keys, "scale"], event);
+            break;
+          default:
+            log.debug(event);
+        }
       }
     }
     return system.provision({ pull: true }).then(() => {
@@ -45,7 +60,8 @@ class Cmd extends Command {
 
   start(manifest, systems) {
     return async(this, function* () {
-      for (var system of systems) {
+      for (var i = 0; i < systems.length; i++) {
+        var system = systems[i];
         var containers = yield system.instances();
         if (containers.length > 0) {
           this.fail('commands.start.already', system);
@@ -58,20 +74,23 @@ class Cmd extends Command {
 
   scale(manifest, systems, opts) {
     return async(this, function* () {
-      for (var system of systems) {
+      for (var i = 0; i < systems.length; i++) {
+        var system = systems[i];
         yield this._scale(system, opts.instances);
       }
-    });
+    })
   }
 
   stop(manifest, systems, opts) {
     return async(this, function* () {
-      for (var system of systems) {
+      for (var i = 0; i < systems.length; i++) {
+        var system = systems[i];
         var containers = yield system.instances();
         if (containers.length <= 0) {
           this.fail('commands.stop.not_running', system);
         } else {
           yield this._scale(system, 0);
+
         }
       }
     });
@@ -89,7 +108,7 @@ class Cmd extends Command {
     return "";
   }
 
-  status(manifest, systems, opts) {
+  status(manifest, systems, opts = {}) {
     var columns = ['System'.blue, 'Instances'.yellow, 'Hosts'.green];
     var table_status = this.table_add('table_status', { head: columns });
 

@@ -1,3 +1,5 @@
+require('colors');
+
 var version = "Shows azk version";
 var systems_options = "Targets systems of action";
 
@@ -150,6 +152,12 @@ module.exports = {
     },
     scale: {
       description: "Scales (up or down) an instance of the system(s)",
+      check_image: "Checking".green + " for image `" + "%(image)s".yellow + "`",
+      scale: (
+        "Scale".yellow +
+        " system `" + "%(system)s".blue +
+        "` from " + "%(from)d".red + " to " + "%(to)d".green + " instances ..."
+      ),
       options: {
         system: systems_options,
         instances: "Number of instances",
