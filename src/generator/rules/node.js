@@ -9,7 +9,7 @@ var suggestion = _.extend({}, example_system, {
     "npm install"
   ],
   // TODO: extract this information package.json
-  sync_files: true,
+  mount_folders: true,
   command : "node index.js",
   envs    : {
     NODE_ENV: "dev"

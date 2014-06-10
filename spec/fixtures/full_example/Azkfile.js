@@ -15,6 +15,11 @@ systems({
   front: {
     depends: [ "api" ],
     image: "base",
+    // Run after get/build image and before any execution
+    provision: [
+      "npm install",
+      "bundle install --path vendor/bundler",
+    ],
     // Enable balancer over de instances
     balancer: {
       hostname: "myapp_<%= system.name %>",
@@ -24,12 +29,14 @@ systems({
     },
     // Run dir app
     workdir: "/azk/<%= system.name %>",
-    // Enable sync current project folder to '/app' in containers
-    sync_files: {
+    // Mounts folders to assigned paths
+    mount_folders: {
       ".": "/azk/<%= system.name %>",
     },
-    // Active a persistent data folder in '/azk/_data_' in containers
-    persistent_dir: true,
+    // Mounts a persistent data folders to assigned paths
+    persistent_folders: [
+      "/data"
+    ],
     command: "rails -s mongrel",
     envs: {
       RAILS_VERSION: "3.2.0"
@@ -139,4 +146,32 @@ $ azk exec -i # use default
   // $azk generator bins
   //
   // ./bin/rails-c
+  //
+
+$ azk exec
+
+  - zeus: azukiapp/ruby
+
+  azk exec -s zeus -i /bin/bash
+  azk exec --image azukiapp/node -i /bin/bash
+
+$ azk start
+
+  azk start zeus
+
+$ azk stop
+$ azk status
+
+$ azk upgrade
+$ azk up
+
+  - baixa todas as imagens
+  - executa o sistemas na ordem de dependencias
+
+$ azk images [provision]
+
+  - lista as imagens e o status
+  -
+
+
 */

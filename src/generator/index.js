@@ -7,7 +7,7 @@ var fs   = require('fs');
 var Handlebars = require('handlebars');
 
 var template = path.join(
-  config('paths:azk_root'), 'src', 'share', 'Azkfile.mustach.js'
+  config('paths:azk_root'), 'src', 'share', 'Azkfile.mustache.js'
 );
 
 var rules = {

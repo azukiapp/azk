@@ -25,7 +25,7 @@ describe("Azk generator tool", function() {
             depends: ['db'],
             workdir: '/azk/<%= manifest.dir %>',
             image: { repository: 'base', tag: '0.1' },
-            sync_files: true,
+            mount_folders: true,
             command: 'bundle exec rackup config.ru',
             envs: { RACK_ENV: 'dev' },
           }
@@ -44,7 +44,7 @@ describe("Azk generator tool", function() {
       h.expect(system).to.have.deep.property("image.name", "base:0.1");
       h.expect(system).to.have.deep.property("depends").and.to.eql(["db"]);
       h.expect(system).to.have.deep.property("options.workdir", "/azk/" + name);
-      h.expect(system).to.have.deep.property("options.sync_files")
+      h.expect(system).to.have.deep.property("options.mount_folders")
         .and.to.eql({ ".": "/azk/" + name});
       h.expect(system).to.have.deep.property("options.command")
         .and.to.eql("bundle exec rackup config.ru");
@@ -67,7 +67,7 @@ describe("Azk generator tool", function() {
       h.expect(system).to.have.deep.property("image.name", "[repository]:[tag]");
       h.expect(system).to.have.deep.property("depends").and.to.eql([]);
       h.expect(system).to.have.deep.property("options.workdir", "/azk/" + name);
-      h.expect(system).to.have.deep.property("options.sync_files")
+      h.expect(system).to.have.deep.property("options.mount_folders")
         .and.to.eql({ ".": "/azk/" + name});
       h.expect(system).to.have.deep.property("options.command")
         .and.to.eql("# command to run app");

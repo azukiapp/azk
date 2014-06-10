@@ -32,16 +32,20 @@ systems({
     workdir: "{{&workdir}}",
     {{/if ~}}
     command: {{&json command}},
-    {{#sync_files ~}}
-    // Mounts current system folder at '/azk/[system_name]'
-    sync_files: {
+    {{#mount_folders ~}}
+    // Mounts folders to assigned paths
+    mount_folders: {
       ".": "/azk/<%= manifest.dir %>",
     },
-    {{/sync_files ~}}
-    {{#persistent_dir ~}}
-    // Activates a persistent data folder in '/azk/_data_' 
-    persistent_dir: true,
-    {{/persistent_dir ~}}
+    {{/mount_folders ~}}
+    {{#if persistent_folders ~}}
+    // Mounts a persistent data folders to assigned paths
+    persistent_folders: [
+      {{#each persistent_folders ~}}
+      {{&json this}},
+      {{/each ~}}
+    ],
+    {{/if ~}}
     {{#balancer ~}}
     // Enables http balancer over instances
     balancer: {

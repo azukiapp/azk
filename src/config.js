@@ -51,7 +51,7 @@ var options = merge({
       data  : data_path,
       log   : path.join(data_path, 'logs', 'azk.log'),
 
-      persistent_dirs: path.join(data_path, 'persistent_dirs'),
+      persistent_folders: path.join(data_path, 'persistent_folders'),
 
       agent_pid: path.join(data_path, 'run', 'agent.pid'),
       unfsd_pid: path.join(data_path, 'run', 'unfsd.pid'),
@@ -89,7 +89,7 @@ var options = merge({
         data_disk  : path.join(data_path, "vm", "azk-agent.vmdk"),
         blank_disk : path.join(data_path, "vm", "azk-agent.vmdk.bz"),
         mount_point: '/home/docker/files',
-        persistent_dirs: '/mnt/sda1/azk/persistent_dirs',
+        persistent_folders: '/mnt/sda1/azk/persistent_folders',
       }
     }
   },

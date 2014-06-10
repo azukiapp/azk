@@ -28,7 +28,7 @@ export class System {
     return {
       depens: [],
       balancer: null,
-      persistent_dir: false,
+      persistent_folders: [],
       envs: {},
     }
   }
@@ -50,17 +50,23 @@ export class System {
     return this.options.depends || [];
   }
 
-  get persistent_dir() {
+  get persistent_folders() {
+    var folders = {};
     var key  = config('agent:requires_vm') ? 'agent:vm' : 'paths';
-    var base = config(key + ':persistent_dirs');
-    return path.join(base, this.manifest.namespace, this.name);
+    var base = config(key + ':persistent_folders');
+
+    return _.reduce(this.options.persistent_folders, (folders, folder) => {
+      var origin = path.join(base, this.manifest.namespace, this.name, folder);
+      folders[origin] = folder;
+      return folders;
+    }, {});
   }
 
   get volumes() {
     var volumes = { };
 
     // Volumes
-    _.each(this.options.sync_files, (target, point) => {
+    _.each(this.options.mount_folders, (target, point) => {
       point = path.resolve(this.manifest.manifestPath, point);
       volumes[point] = target;
     });
@@ -131,10 +137,9 @@ export class System {
     }
 
     // Persistent dir
-    if (this.options.persistent_dir) {
-      run_options.local_volumes[this.persistent_dir] = '/azk/_data_';
-      run_options.env.AZK_PERSISTENT_DIR = '/azk/_data_';
-    }
+    run_options.local_volumes = _.merge(
+      {}, run_options.local_volumes, this.persistent_folders
+    );
 
     run_options.ns = name;
     return run_options;
@@ -341,7 +346,7 @@ export class System {
     return JSON.parse(_.template(JSON.stringify(options), {
       system: {
         name: this.name,
-        persistent_dir: "/azk/_data_",
+        persistent_folders: "/data",
       },
       manifest: {
         dir: this.manifest.manifestDirName,

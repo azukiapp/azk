@@ -18,7 +18,7 @@ export function extend(h) {
             depends: ["db"],
             workdir: '/azk/<%= manifest.dir %>',
             image: default_img,
-            sync_files: true,
+            mount_folders: true,
             balancer: true,
             command, provision,
             envs: {
@@ -28,8 +28,8 @@ export function extend(h) {
           db: {
             workdir: '/azk/<%= manifest.dir %>',
             image: default_img,
-            persistent_dir: true,
-            sync_files: false,
+            persistent_folders: [ "/data" ],
+            mount_folders: false,
             balancer: false,
             command, provision,
           },

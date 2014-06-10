@@ -8,8 +8,8 @@ var example_system = {
   workdir : "/azk/<%= manifest.dir %>",
   balancer: true,
   command : "# command to run app",
-  sync_files : true,
-  persistent_dir: false,
+  mount_folders : true,
+  persistent_folders: [],
 };
 
 var Helpers = {

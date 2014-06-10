@@ -202,7 +202,7 @@ export class Manifest {
     return manifest.addSystem("__tmp__", {
       image: image,
       workdir: "/azk/<%= manifest.dir %>",
-      sync_files: {
+      mount_folders: {
         ".": "/azk/<%= manifest.dir %>",
       },
     });

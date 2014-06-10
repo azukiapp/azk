@@ -49,10 +49,10 @@ Se você ainda não tem um sistema, é possível utilizar o `azk` para obter o a
 ```bash
 $ cd ~/projects
 $ azk shell --image dockerfile/node
-    # mkdir app-name
-    # npm init
-	...
-	# exit
+  # mkdir app-name
+  # npm init
+  ...
+  # exit
 $ cd app-name
 $ azk init
 azk: 'Azkfile.js' generated
@@ -86,7 +86,7 @@ brew install unfs3
   ```bash
   $ git clone -b stable https://github.com/azukiapp/azk.git ~/.azk
   ```
-  
+
 2. Add `~/.azk/bin` to your $PATH for access to the ask command-line utility.
 
   ```bash
@@ -101,15 +101,15 @@ brew install unfs3
 
 3. Install depedencies and configure vm (will download ~130MB):
 
-	```bash
-	$ azk check-install
-	```
+  ```bash
+  $ azk check-install
+  ```
 
 4. Run `azk-agent` in a terminal (daemon mode soon):
 
-	```bash
-	$ azk agent start
-	```
+  ```bash
+  $ azk agent start
+  ```
 
 5. Enjoy
 
@@ -147,8 +147,8 @@ systems({
     ],
     workdir: "/azk/<%= manifest.dir %>",
     command: "node index.js",
-    // Mounts current system folder at '/azk/[system_name]'
-    sync_files: {
+    // Mounts folders to assigned paths
+    mount_folders: {
       ".": "/azk/<%= manifest.dir %>",
     },
     // Enables http balancer over instances
@@ -166,9 +166,9 @@ systems({
   },
   
   db: {
-  	image: "dockerfile/mariadb"
+    image: "dockerfile/mariadb"
     // Activates a persistent data folder in '/data'
-  	persistent_dir: "/data",
+    persistent_folders: ["/data"],
   }
 });
 

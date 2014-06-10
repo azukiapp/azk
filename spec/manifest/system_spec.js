@@ -30,7 +30,7 @@ describe("Azk system class", function() {
         db_system = manifest.systems.db;
 
         // Add extras
-        system.options.sync_files[__dirname] = "/spec";
+        system.options.mount_folders[__dirname] = "/spec";
       });
     });
 
@@ -216,7 +216,7 @@ describe("Azk system class", function() {
           h.expect(instance).to.have.deep.property('Config.WorkingDir', '/azk/' + dir);
         });
 
-        it("should mount a sync_files", function() {
+        it("should mount a mount_folders", function() {
           h.expect(instance).to.have.deep.property('Volumes')
             .and.have.property('/azk/' + manifest.manifestDirName)
             .and.match(RegExp(manifest.manifestPath));
@@ -231,8 +231,8 @@ describe("Azk system class", function() {
             var instances = yield db_system.instances();
             var container = yield docker.getContainer(instances[0].Id).inspect();
             h.expect(container).to.have.deep.property('Volumes')
-              .and.have.property('/azk/_data_')
-              .and.match(RegExp(manifest.namespace + '/' + db_system.name));
+              .and.have.property('/data')
+              .and.match(RegExp(manifest.namespace + '/' + db_system.name + "/data"));
           });
         });
 

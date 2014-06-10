@@ -16,7 +16,7 @@ system("front", {
     ],
   },
   // Enable sync current project folder to '/app' in containers
-  sync_files: {
+  mount_folders: {
     ".": "/app",
   },
   // Active a persistent data folder in '/data' in containers
