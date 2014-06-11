@@ -250,20 +250,24 @@ describe.only("Azk system class", function() {
           });
         });
 
-        describe("map envs variables", function() {
+        describe("which envs variables", function() {
           var envs;
           before(() => envs = instance.Config.Env);
 
-          it("shuld from the azk env", function() {
+          it("include from the manifest", function() {
+            h.expect(envs).to.include('ECHO_DATA=data');
+          });
+
+          it("include from the azk env", function() {
             h.expect(envs).to.include('PORT=5000');
             h.expect(envs).to.include('AZK_NAME=' + instance.Name.slice(1));
           });
 
-          it("shuld from the dependents systems", function() {
+          it("include from the dependents systems", function() {
             h.expect(envs).to.include('DB_HOST='  + config('agent:vm:ip'));
           });
 
-          it("shuld from the .env file", function() {
+          it("include from the .env file", function() {
             h.expect(envs).to.include('FROM_DOT_ENV=azk is beautiful');
           });
         });

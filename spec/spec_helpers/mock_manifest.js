@@ -15,6 +15,9 @@ export function extend(h) {
       data = _.merge({
         systems: {
           example: {
+            envs: {
+              ECHO_DATA: "data"
+            }
             depends: ["db"],
             workdir: '/azk/<%= manifest.dir %>',
             image: default_img,
