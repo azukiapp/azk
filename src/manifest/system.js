@@ -39,7 +39,11 @@ export class System {
 
   get hosts() {
     var balancer = this.options.balancer || {};
-    return (balancer.alias || []).concat(balancer.hostname);
+    var hosts    = balancer.alias || [];
+    if (balancer.hostname)
+      hosts.unshift(balancer.hostname);
+
+    return hosts;
   }
 
   get balanceable() {
@@ -119,7 +123,7 @@ export class System {
       volumes: _.merge({}, this.volumes, opts.volumes || {}),
       local_volumes: {},
       working_dir: opts.workdir || this.options.workdir,
-      env: this.options.env || {},
+      env: this.options.envs || {},
     }
 
     // Daemon or exec mode?
@@ -146,11 +150,13 @@ export class System {
     var run_options = this.make_options(false, opts);
     var image = this.image.name;
 
-    this.__extra_envs = opts.env || {};
-    run_options.env   = this._more_envs(run_options.env, {});
 
     return async(this, function* () {
+      var depends_instances = yield this._dependencies_instances();
       yield this._check_image(opts.pull);
+
+      this.__extra_envs = opts.env || {};
+      run_options.env   = this._more_envs(run_options.env, {}, depends_instances);
 
       if (!run_options.working_dir) {
         run_options.working_dir = this.image_data.config.WorkingDir;
@@ -389,7 +395,7 @@ export class System {
     return _.merge({},
       this._dependencies_envs(depends_instances),
       this._envs_from_file(),
-      envs,
+      envs || {},
       this.__extra_envs || {}
     )
   }
@@ -398,6 +404,14 @@ export class System {
   // TODO: fix multi port
   _dependencies_envs(depends_instances) {
     var envs = {};
+
+    // map dependencies that have balancer
+    _.each(this.depends.concat(this.name), (system) => {
+      var hosts = (this.manifest.system(system) || {}).hosts;
+      if (!_.isEmpty(hosts)) {
+        envs[system.toUpperCase() + '_URL'] = "http://" + hosts[0];
+      }
+    });
 
     _.each(depends_instances, (instances, depend) => {
       _.each(instances, (instance) => {
@@ -416,8 +430,10 @@ export class System {
     if (fs.existsSync(file)) {
       var content = fs.readFileSync(file).toString();
       _.each(content.split('\n'), (entry) => {
-        entry = entry.split('=');
-        envs[entry[0]] = entry[1];
+        if (entry.match(/.*=.*/)) {
+          entry = entry.split('=');
+          envs[entry[0]] = entry[1];
+        }
       });
     }
 

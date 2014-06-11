@@ -137,13 +137,18 @@ describe.only("Azk system class", function() {
       var progress = (event) => events.push(event);
 
       before(() => {
-        return manifest.systems.db.scale(1).then(() => {
-          events = [];
-          return system.scale(1)
+        return async(this, function* () {
+          yield manifest.systems.db.scale(1);
+          yield manifest.systems.api.scale(1);
+          yield system.scale(1);
         });
       });
       after(()  => {
-        return Q.all([system.killAll(), db_system.killAll()]);
+        return Q.all([
+          system.killAll(),
+          manifest.systems.api.killAll(),
+          db_system.killAll()
+        ]);
       });
 
       it("should return a number of instances", function() {
@@ -253,6 +258,11 @@ describe.only("Azk system class", function() {
         describe("which envs variables", function() {
           var envs;
           before(() => envs = instance.Config.Env);
+
+          it("include from the balancer and dependencies", function() {
+            h.expect(envs).to.include('EXAMPLE_URL=http://example.dev.azk.io');
+            h.expect(envs).to.include('API_URL=http://api.dev.azk.io');
+          });
 
           it("include from the manifest", function() {
             h.expect(envs).to.include('ECHO_DATA=data');
