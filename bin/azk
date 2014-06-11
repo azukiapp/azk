@@ -23,13 +23,13 @@ case `uname -s` in
     ;;
   Darwin)
     SO="darwin"
-    if [ -n `which brew` ]; then
-      UNFSD_INSTALL="\`brew install unfs3\` before continue.";
-      PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin
+    if [ -f "$(which brew)" ]; then
+      BREW_PATH=`brew --prefix`
+      UNFSD_INSTALL="\`brew install unfs3\` before continue."
+      PATH=$BREW_PATH/sbin:$BREW_PATH/bin:$PATH
       export AZK_UNFSD_PATH=${AZK_UNFSD_PATH:-`which unfsd`}
-    else
-      export AZK_UNFSD_PATH=${AZK_UNFSD_PATH:-`which unfsd`}
-    fi;
+    fi
+    export AZK_UNFSD_PATH=${AZK_UNFSD_PATH:-`which unfsd`}
     export AZK_USE_VM=${AZK_USE_VM:-true}
     export AZK_DATA_PATH=${AZK_DATA_PATH:-$AZK_ROOT_PATH/data}
     ;;
@@ -302,8 +302,8 @@ configure_vm_ip() {
 install() {
   log_i() { azk.escape -n "%{green}azk%{reset}: ${@}"; }
 
+  check_install "check_unfsd" "dependencies" || msg_depens 'unfsd' "$UNFSD_INSTALL"
   check_install "check_vm_ip" "vm ip" $1 || { vm_ip_msg; configure_vm_ip; }
-  check_unfsd || msg_depens 'unfsd' "$UNFSD_INSTALL"
 
   # Update azk code base
   [ "$1" == '--update' ] && {
@@ -382,3 +382,4 @@ azk_main() {
 
 # run main function
 azk_main "${@}"
+
