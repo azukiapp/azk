@@ -354,6 +354,11 @@ install() {
   fi
 }
 
+azk_node_run() {
+  check_depedencies $1
+  cd $AZK_ROOT_PATH && node $NODE_DEBUG --harmony $AZK_ROOT_PATH/bin/azk.js "${@}"
+}
+
 azk_main() {
   case "$1" in
     update)
@@ -367,16 +372,24 @@ azk_main() {
       shift; "${@}"
       ;;
     ssh)
-      ssh_opts="StrictHostKeyChecking=no -o LogLevel=quiet -o UserKnownHostsFile=/dev/null"
-       id_file="$AZK_ROOT_PATH/src/share/id_rsa_insecure"
-        vm_url="docker@$AZK_AGENT_VM_IP"
+      log "$azk_fail: not support ssh into systems and instances, trying \`%{yellow}azk shell%{reset}\`"
+      shift
+      azk_node_run shell "${@}"
+      ;;
+    vm)
+      if [ "$2" == "ssh" ]; then
+        ssh_opts="StrictHostKeyChecking=no -o LogLevel=quiet -o UserKnownHostsFile=/dev/null"
+         id_file="$AZK_ROOT_PATH/src/share/id_rsa_insecure"
+          vm_url="docker@$AZK_AGENT_VM_IP"
 
-      chmod og-rwx $id_file
-      shift; exec ssh -i $id_file -o $ssh_opts $vm_url $*
+        chmod og-rwx $id_file
+        shift 2; exec ssh -i $id_file -o $ssh_opts $vm_url $*
+      else
+        azk_node_run "${@}"
+      fi
       ;;
     *)
-      check_depedencies $1
-      cd $AZK_ROOT_PATH && node $NODE_DEBUG --harmony $AZK_ROOT_PATH/bin/azk.js "${@}"
+      azk_node_run "${@}"
   esac
 }
 
