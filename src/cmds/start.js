@@ -103,7 +103,7 @@ class Cmd extends Command {
       var hosts = system.hosts;
       if (hosts.length == 0) {
         var instance = instances[0];
-        hosts = ['azk-agent:' + instance.Ports[0].PublicPort];
+        hosts = ["_." + config('agent:balancer:host') + ":" + instance.Ports[0].PublicPort];
       }
       return hosts.join(', ');
     }

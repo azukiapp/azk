@@ -75,10 +75,41 @@ var Balancer = {
         yield this.start_hipache(ip, port, socket);
         change_status("started_hipache");
 
+        // Dns server
+        change_status("starting_dns");
+        yield this.start_dns(ip, port);
+        change_status("started_dns");
+
         // Socat
         change_status("starting_socat");
         yield this.start_socat(ip, port);
         change_status("started_socat");
+      }
+    });
+  },
+
+  start_dns(ip, port) {
+    return async(this, function* () {
+      var Manifest = require('azk/manifest').Manifest;
+      var manifest = new Manifest(config('paths:azk_root'), true);
+      var system   = manifest.system('dns', true);
+
+      // Wait docker
+      var address = url.parse(config("docker:host"));
+      var success = yield net.waitService(address.hostname, address.port, 5, { context: "dns" });
+      if (!success) {
+        throw new AgentStartError(t(errors.not_connect_docker));
+      }
+
+      var stdout = new MemoryStream();
+      var output = "";
+      stdout.on('data', (data) => {
+        output += data.toString();
+      });
+
+      var result = yield system.scale(1, stdout, true);
+      if (!result) {
+        throw new Error('Fail to start balancer: ' + output);
       }
     });
   },

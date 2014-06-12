@@ -14,21 +14,23 @@ var data_path =
 // Use virtual machine
 var requires_vm = (process.env.AZK_USE_VM == "true");
 
-// Balancer configuration
-var balancer = {
-  host: process.env.AZK_BALANCER_HOST || "dev.azk.io",
-  port: process.env.AZK_BALANCER_PORT || 80,
-};
-
 // Vm informations
 // TODO: Show erro if not resolve ip
 var vm_name = process.env.AZK_AGENT_VM_NAME || "azk-agent";
 var vm_ip   = process.env.AZK_AGENT_VM_IP || dnsSync.resolve(vm_name);
 
+// Balancer configuration
+var balancer = {
+    ip: process.env.AZK_BALANCER_IP   || vm_ip,
+  host: process.env.AZK_BALANCER_HOST,
+  port: process.env.AZK_BALANCER_PORT || 80,
+  file_dns: "/etc/resolver/" + process.env.AZK_BALANCER_HOST,
+};
+
 // Docker opts
 var docker_host =
   process.env.AZK_DOCKER_HOST ||
-  (requires_vm ? "http://azk-agent:4243" : "unix:///var/run/docker.sock");
+  (requires_vm ? "http://" + vm_ip + ":4243" : "unix:///var/run/docker.sock");
 
 // Log level
 var log_level = process.env.AZK_DEBUG ? 'debug' : 'warn';

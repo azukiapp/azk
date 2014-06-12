@@ -381,8 +381,9 @@ export class System {
         project_name: this.manifest.manifestDirName,
       },
       azk: {
-        default_domain: config('docker:default_domain'),
+        default_domain: config('agent:balancer:host'),
         balancer_port: config('agent:balancer:port'),
+        balancer_ip: config('agent:balancer:ip'),
       }
     }));
   }
