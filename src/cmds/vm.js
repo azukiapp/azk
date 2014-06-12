@@ -33,13 +33,13 @@ class VmCmd extends Command {
       var promise = this[`action_${action}`](vm_info);
       promise = promise.progress(Helpers.vmStartProgress(this));
 
-      return promise.fail((error) => {
+      return promise.fail(opts.fail || ((error) => {
         if (error instanceof RequiredError) {
           this.fail(error.key);
           return 1;
         }
         throw error;
-      });
+      }));
     });
   }
 
