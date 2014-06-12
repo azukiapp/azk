@@ -38,7 +38,7 @@ var net = {
       var client   = null;
       var attempts = 1, max = retry;
       var connect  = () => {
-        notify({ type: 'try_connect', attempts, max, context: opts.context });
+        notify({ type: 'try_connect', attempts, max, host, port, context: opts.context });
         var t = null;
 
         client = nativeNet.connect({ host, port}, function() {

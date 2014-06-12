@@ -53,7 +53,7 @@ module.exports = {
       // TODO: waiting
       wait      : "waiting for initialization of virtual machine...",
       initialized : "virtual machine is ready to use.",
-      progress    : "trying connect to vm (%(attempts)d/%(max)d)...",
+      progress    : "trying connect to vm (%(host)s:%(port)d) (%(attempts)d/%(max)d)...",
     },
 
     socat: {
