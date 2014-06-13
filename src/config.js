@@ -30,7 +30,7 @@ var balancer = {
 // Docker opts
 var docker_host =
   process.env.AZK_DOCKER_HOST ||
-  (requires_vm ? "http://" + vm_ip + ":4243" : "unix:///var/run/docker.sock");
+  (requires_vm ? "http://" + vm_ip + ":2375" : "unix:///var/run/docker.sock");
 
 // Log level
 var log_level = process.env.AZK_DEBUG ? 'debug' : 'warn';
@@ -86,7 +86,7 @@ var options = merge({
         ip         : vm_ip,
         name       : vm_name,
         user       : "docker",
-        password   : "live",
+        password   : "tcuser",
         boot_disk  : path.join(data_path, "vm", "debian2docker.iso"),
         data_disk  : path.join(data_path, "vm", "azk-agent.vmdk"),
         blank_disk : path.join(data_path, "vm", "azk-agent.vmdk.bz"),
