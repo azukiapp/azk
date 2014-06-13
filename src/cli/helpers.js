@@ -19,25 +19,31 @@ var Helpers = {
       var context = event.context || "agent"
       var keys    = ["status", context];
 
-      if (event.type == "status") {
-        // running, starting, not_running, already
-        switch(event.status) {
-          case "not_running":
-          case "already":
-            cmd.fail([...keys, event.status], event.data);
+      switch(event.type) {
+        case "status":
+          // running, starting, not_running, already
+          switch(event.status) {
+            case "not_running":
+            case "already":
+              cmd.fail([...keys, event.status], event.data);
+              break;
+            case "error":
+              cmd.fail([...keys, event.status], event);
+              break;
+            default:
+              cmd.ok([...keys,  event.status], event.data);
+          }
+          break;
+        case "try_connect":
+          var tKey = [...keys, "progress"];
+          log.info_t(tKey, event);
+          cmd.ok(tKey, event);
+          break;
+        case "ssh":
+          if (context == "stderr")
             break;
-          case "error":
-            cmd.fail([...keys, event.status], event);
-            break;
-          default:
-            cmd.ok([...keys,  event.status], event.data);
-        }
-      } else if (event.type == "try_connect") {
-        var tKey = [...keys, "progress"];
-        log.info_t(tKey, event);
-        cmd.ok(tKey, event);
-      } else {
-        log.debug(event);
+        default:
+          log.debug(event);
       }
     };
   },

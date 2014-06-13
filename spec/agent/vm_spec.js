@@ -109,7 +109,7 @@ describe("Azk agent vm", function() {
       var result = VM.ssh(name, "uptime");
 
       result.progress(function(event) {
-        if (event.type == "stdout") {
+        if (event.type == "ssh" && event.context == "stdout") {
           data += event.data.toString();
         }
       });
