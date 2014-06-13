@@ -159,7 +159,7 @@ export class System {
       run_options.env   = this._more_envs(run_options.env, {}, depends_instances);
 
       if (!run_options.working_dir) {
-        run_options.working_dir = this.image_data.config.WorkingDir;
+        run_options.working_dir = this.image_data.Config.WorkingDir;
       }
 
       var container = yield docker.run(image, command, run_options);
@@ -216,7 +216,7 @@ export class System {
   get ports() {
     var ports = this.options.ports || {};
     if (_.keys(ports).length == 0) {
-      var exposed_ports = this.image_data.config.ExposedPorts;
+      var exposed_ports = this.image_data.Config.ExposedPorts;
       if (!_.isEmpty(exposed_ports, {})) {
         ports.__default__ = _.keys(exposed_ports)[0];
       } else {
@@ -266,7 +266,7 @@ export class System {
     });
 
     if (!options.working_dir) {
-      options.working_dir = this.image_data.config.WorkingDir;
+      options.working_dir = this.image_data.Config.WorkingDir;
     }
 
     return async(this, function* (notify) {
@@ -381,6 +381,7 @@ export class System {
         project_name: this.manifest.manifestDirName,
       },
       azk: {
+        default_image: config('docker:image_default'),
         default_domain: config('agent:balancer:host'),
         balancer_port: config('agent:balancer:port'),
         balancer_ip: config('agent:balancer:ip'),

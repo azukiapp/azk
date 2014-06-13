@@ -18,7 +18,7 @@ describe("Azk docker client", function() {
     h.expect(image.name).to.equal(default_img);
 
     return h.expect(image.inspect())
-      .to.eventually.have.property("id")
+      .to.eventually.have.property("Id")
       .and.is.an("String");
   });
 

@@ -6,29 +6,16 @@
 //addImage('base', { repository: "cevich/empty_base_image" }); // tag: latest
 
 systems({
-  bash_test: {
-    image: "azukiapp/busybox",
-    provision: [
-      "/azk/<%= system.name %>/src/bashttpd",
-      "exit 0",
-    ],
-    command: "socat TCP4-LISTEN:$PORT,fork EXEC:/azk/<%= system.name %>/src/bashttpd",
-    persistent_dir: true,
-    workdir: "<%= system.persistent_dir %>",
-    sync_files: {
-      "./spec/fixtures/test-app": "/azk/<%= system.name %>",
-    },
-    // Enable balancer over the instances
-    balancer: {
-      hostname: "<%= system.name %>.<%= manifest.project_name %>.<%= azk.default_domain %>",
-      alias: [
-        "azk-bash.<%= azk.default_domain %>"
-      ]
-    },
+  dns: {
+    image: "<%= azk.default_image %>",
+    command: "dnsmasq --no-daemon --address=/<%= azk.default_domain %>/<%= azk.balancer_ip %>",
+    ports: {
+      dns: "53:53/udp",
+    }
   },
 
   balancer_redirect: {
-    image: "azukiapp/busybox",
+    image: "<%= azk.default_image %>",
     command: "socat TCP4-LISTEN:$HTTP_PORT,fork TCP:$BALANCER_IP:$BALANCER_PORT",
     ports: {
       http: "80:<%= azk.balancer_port %>/tcp",
