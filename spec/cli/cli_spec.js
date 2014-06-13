@@ -1,5 +1,6 @@
 var path = require('path');
 import h from 'spec/spec_helper';
+import { t }  from 'azk';
 import { Cli, Command } from 'azk/cli/cli';
 import {
   InvalidOptionError,
@@ -31,7 +32,9 @@ describe('Azk cli module', function() {
 
   it("should show a usage subcommand", function() {
     cli.showUsage("test_options");
-    h.expect(outputs).to.deep.property("[00]", 'Usage: $ azk-test test_options [options]');
+    h.expect(outputs).to.deep.property("[00]",
+      t("commands.help.usage", 'azk-test test_options [options]')
+    );
   });
 });
 

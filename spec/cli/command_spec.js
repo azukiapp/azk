@@ -10,7 +10,7 @@ import {
 var path   = require('path');
 var printf = require('printf');
 
-describe.only('Azk cli command module', function() {
+describe('Azk cli command module', function() {
   var outputs = [];
   var UI = h.mockUI(beforeEach, outputs);
 
