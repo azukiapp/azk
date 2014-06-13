@@ -12,15 +12,6 @@ unset DOCKER_HOST
 # OS
 UNFSD_INSTALL="Install unfs3 packaged before continue.";
 case `uname -s` in
-  Linux)
-    SO="linux"
-    export AZK_USE_VM=${AZK_USE_VM:-false}
-    export AZK_UNFSD_PATH=${AZK_UNFSD_PATH:-`which unfsd`}
-
-    if [ "$AZK_US_VM" == "false" ]; then
-      export AZK_AGENT_VM_IP="${AZK_AGENT_VM_IP:-127.0.0.1}"
-    fi
-    ;;
   Darwin)
     SO="darwin"
     if [ -f "$(which brew)" ]; then
@@ -392,11 +383,8 @@ azk_main() {
     vm)
       if [ "$2" == "ssh" ]; then
         ssh_opts="StrictHostKeyChecking=no -o LogLevel=quiet -o UserKnownHostsFile=/dev/null"
-         id_file="$AZK_ROOT_PATH/src/share/id_rsa_insecure"
           vm_url="docker@$AZK_AGENT_VM_IP"
-
-        chmod og-rwx $id_file
-        shift 2; exec ssh -i $id_file -o $ssh_opts $vm_url $*
+        shift 2; exec ssh -o $ssh_opts $vm_url $*
       else
         azk_node_run "${@}"
       fi
