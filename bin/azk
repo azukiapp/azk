@@ -57,8 +57,8 @@ node_version="${NODE_VERSION:-v0.10.26}"
 nvm_file=$AZK_ROOT_PATH/vendor/bin/nvm.sh
 aws_bucket=https://s3-sa-east-1.amazonaws.com/azk
 data_url=$aws_bucket/azk-agent.vmdk.gz
-boot_url=$aws_bucket/debian2docker.iso
-boot_file=$VM_DISK_PATH/debian2docker.iso
+boot_url=$aws_bucket/azk.iso
+boot_file=$VM_DISK_PATH/azk.iso
 update=""
 data_folders=(
   "$AZK_DATA_PATH"
@@ -182,7 +182,7 @@ check_unfsd() {
 check_boot_disk() {
   [ -n "$update" -a -f $boot_file ] && {
     actual_version=`shasum --portable $boot_file | awk '{ print $1 }'`
-    new_version=`curl $aws_bucket/debian2docker.sha 2>/dev/null`
+    new_version=`curl $aws_bucket/azk.iso.sha 2>/dev/null`
     [ "${actual_version}" != "${new_version}" ] && {
       rm $boot_file
     }
