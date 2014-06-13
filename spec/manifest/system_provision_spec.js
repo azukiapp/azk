@@ -14,7 +14,7 @@ describe("Azk system class, provision test", function() {
     var data = {
       systems: {
         other: {
-          image: "azukiapp/busybox",
+          image: config('docker:image_default'),
           provision: [ "ls -l src && exit 1" ]
         }
       }

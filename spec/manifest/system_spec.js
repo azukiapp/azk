@@ -11,7 +11,7 @@ var touch = require('touch');
 var default_img = config('docker:image_default');
 
 // TODO: Split test in more files :P
-describe.only("Azk system class", function() {
+describe("Azk system class", function() {
   it("should return a System class", function() {
     var sys = new System({ ns: 'azk-test' }, 'sysname', default_img);
     h.expect(sys).to.have.property('manifest').and.eql({ ns: 'azk-test' });
@@ -260,8 +260,9 @@ describe.only("Azk system class", function() {
           before(() => envs = instance.Config.Env);
 
           it("include from the balancer and dependencies", function() {
-            h.expect(envs).to.include('EXAMPLE_URL=http://example.dev.azk.io');
-            h.expect(envs).to.include('API_URL=http://api.dev.azk.io');
+            var domain = config('agent:balancer:host');
+            h.expect(envs).to.include('EXAMPLE_URL=http://example.' + domain);
+            h.expect(envs).to.include('API_URL=http://api.' + domain);
           });
 
           it("include from the manifest", function() {
