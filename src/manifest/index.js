@@ -11,6 +11,8 @@ var file_name = config('manifest');
 var check = require('syntax-error');
 
 var ManifestDsl = {
+  require: require,
+
   system(name, data) {
     this.addSystem(name, data);
   },
@@ -75,6 +77,9 @@ export class Manifest {
   constructor(cwd, file = null, required = false) {
     if (typeof file == "boolean")
       [required, file] = [file, null];
+
+    if (required && !cwd)
+      throw new Error("Manifest class require a project path");
 
     this.images  = {};
     this.systems = {};

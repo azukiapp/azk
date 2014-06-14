@@ -72,9 +72,16 @@ describe("Azk manifest class", function() {
       h.expect(manifest).to.have.property("exist").and.fail;
     });
 
+    it("should require a cwd in new manifest", function() {
+      var func = () => new Manifest(null, true);
+      h.expect(func).to.throw(Error, /require.*path/);
+    });
+
     it("should raise an error if manifest is required", function() {
       var func = () => { new Manifest(project, true) };
-      h.expect(func).to.throw(ManifestRequiredError, RegExp(h.escapeRegExp(project)));
+      h.expect(func).to.throw(
+        ManifestRequiredError, RegExp(h.escapeRegExp(project))
+      );
     });
 
     it("should be make a fake manifest", function() {
