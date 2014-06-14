@@ -16,7 +16,7 @@ var Server = {
       // Virtual machine is required?
       if (config('agent:requires_vm')) {
         yield this.installShare();
-        yield this.installVM();
+        yield this.installVM(true);
         yield this.mountShare();
       }
 
