@@ -26,11 +26,15 @@ export class System {
 
   get default_options() {
     return {
-      depens: [],
+      depends: [],
       balancer: null,
       persistent_folders: [],
       envs: {},
     }
+  }
+
+  get command() {
+    return this.options.command;
   }
 
   get namespace() {
@@ -51,7 +55,7 @@ export class System {
   }
 
   get depends() {
-    return this.options.depends || [];
+    return this.options.depends || this.default_options.depends;
   }
 
   get persistent_folders() {
@@ -252,7 +256,7 @@ export class System {
     if (this.options.command) {
       var cmd = ['/bin/sh', '-c', this.options.command];
     } else {
-      var cmd = this.image_data.config.Cmd;
+      var cmd = this.image_data.Config.Cmd;
     }
 
     // Port map
@@ -371,7 +375,7 @@ export class System {
   }
 
   _expand_template(options) {
-    return JSON.parse(_.template(JSON.stringify(options), {
+    var data = {
       system: {
         name: this.name,
         persistent_folders: "/data",
@@ -386,7 +390,8 @@ export class System {
         balancer_port: config('agent:balancer:port'),
         balancer_ip: config('agent:balancer:ip'),
       }
-    }));
+    };
+    return JSON.parse(_.template(JSON.stringify(options), data));
   }
 
   add_env(key, value) {
