@@ -258,7 +258,8 @@ update_code_base() {
     cd "$AZK_ROOT_PATH"
     check_agent_is_running
     log -n "$azk_ok: Update code..."
-    git pull . origin/stable 2>&1 | logger -t azk
+    git fetch 2>&1 | logger -t azk:update &>/dev/null
+    git merge origin/stable 2>&1 | logger -t azk:update &>/dev/null
     log "[%{green}ok%{reset}]" >&2
   fi
 }
