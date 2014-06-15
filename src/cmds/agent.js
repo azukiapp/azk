@@ -11,7 +11,7 @@ class Cmd extends Command {
     var progress = Helpers.vmStartProgress(this);
 
     return async(this, function* () {
-      if (opts['reload-vm']) {
+      if (opts['reload-vm'] && opts.action == "start") {
         var cmd_vm = this.parent.commands.vm;
         yield cmd_vm.action({ action: 'remove', fail: () => {} });
       }
@@ -30,5 +30,4 @@ export function init(cli) {
     .setOptions('action', { options: ['start', 'status', 'stop'] })
     .addOption(['--daemon', '-d'], { default: false })
     .addOption(['--reload-vm', '-d'], { default: true })
-    .addOption(['--check-install'], { default: false })
 }
