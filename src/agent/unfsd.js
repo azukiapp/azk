@@ -68,16 +68,25 @@ var Unfsd = {
         'tcp',
       ]
       var mount = `sudo mount -o ${opts.join(',')} ${ip}:/ ${point}`
+      var check = `mount | grep ${point} &>/dev/null`;
       var cmd = [
-        `[ -d "${point}" ] || mkdir -p ${point}`,
-        "[[ `mount` =~ " + point + " ]] || " + mount,
-        "[[ `mount` =~ " + point + " ]]",
+        `[ -d "${point}" ] || { mkdir -p ${point}; }`,
+        "{ " + check + " || " + mount + "; }",
+        "{ " + check + "; }",
       ].join("; ");
 
+      var stderr = "";
+      var progress = (event) => {
+        if (event.type == "ssh" && event.context == "stderr") {
+          stderr += event.data.toString();
+        }
+        return event;
+      }
+
       change_status("mounting");
-      return VM.ssh(vm_name, cmd).then((code) => {
+      return VM.ssh(vm_name, cmd).progress(progress).then((code) => {
         if (code != 0)
-          throw new Error('not mount share files');
+          throw new Error('not mount share files, error:\n' + stderr);
         change_status("mounted");
       });
     });

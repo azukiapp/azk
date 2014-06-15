@@ -35,12 +35,16 @@ describe('Azk cli command module', function() {
 
     it("should parse args and exec", function() {
       cmd.run(['--number', '1', '-fv']);
-      h.expect(_.clone(outputs)).to.eql([{ number: 1, verbose: true, flag: true, __leftover: [] }]);
+      h.expect(_.clone(outputs)).to.eql([{
+        number: 1, verbose: true, flag: true, __leftover: []
+      }]);
     });
 
     it("should support --no-option and false value", function() {
       cmd.run(['--no-verbose', '--flag', 'false']);
-      h.expect(_.clone(outputs)).to.eql([{verbose: false, flag: false, __leftover: [] }]);
+      h.expect(_.clone(outputs)).to.eql([{
+        verbose: false, flag: false, __leftover: []
+      }]);
     });
 
     it("should support --option=value", function() {
@@ -50,7 +54,9 @@ describe('Azk cli command module', function() {
 
     it("should support acumulate option", function() {
       cmd.run(['--array', 'item1', '--array', 'item2']);
-      h.expect(_.clone(outputs)).to.eql([{array: ['item1', 'item2'], __leftover: []}]);
+      h.expect(_.clone(outputs)).to.eql([{
+        array: ['item1', 'item2'], __leftover: []
+      }]);
     });
 
     it("should support valid options", function() {

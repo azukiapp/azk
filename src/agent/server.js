@@ -17,6 +17,7 @@ var Server = {
       if (config('agent:requires_vm')) {
         yield this.installShare();
         yield this.installVM(true);
+        yield this.mountShare();
       }
 
       // Load balancer
@@ -50,7 +51,11 @@ var Server = {
     return Unfsd.stop();
   },
 
-  installVM(start = false, mount = true) {
+  mountShare() {
+    return Unfsd.mount(config("agent:vm:name"));
+  },
+
+  installVM(start = false) {
     var vm_name = config("agent:vm:name");
     return async(this, function* (notify) {
       var installed = yield VM.isInstalled(vm_name);
@@ -78,10 +83,6 @@ var Server = {
           throw new AgentStartError(t("errors.not_vm_start"));
         }
         n("initialized");
-
-        // Mount share fs
-        if (mount)
-          yield Unfsd.mount(vm_name)
       };
     });
   },

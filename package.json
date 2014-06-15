@@ -56,7 +56,9 @@
     "mkdirp": "^0.5.0",
     "memorystream": "^0.2.0",
     "syntax-error": "^1.1.0",
-    "cli-table": "^0.3.0"
+    "cli-table": "^0.3.0",
+    "esprima": "^1.2.2",
+    "prettyjson": "^1.0.0"
   },
   "devDependencies": {
     "grunt": "^0.4.4",

@@ -12,15 +12,6 @@ unset DOCKER_HOST
 # OS
 UNFSD_INSTALL="Install unfs3 packaged before continue.";
 case `uname -s` in
-  Linux)
-    SO="linux"
-    export AZK_USE_VM=${AZK_USE_VM:-false}
-    export AZK_UNFSD_PATH=${AZK_UNFSD_PATH:-`which unfsd`}
-
-    if [ "$AZK_US_VM" == "false" ]; then
-      export AZK_AGENT_VM_IP="${AZK_AGENT_VM_IP:-127.0.0.1}"
-    fi
-    ;;
   Darwin)
     SO="darwin"
     if [ -f "$(which brew)" ]; then
@@ -66,8 +57,8 @@ node_version="${NODE_VERSION:-v0.10.26}"
 nvm_file=$AZK_ROOT_PATH/vendor/bin/nvm.sh
 aws_bucket=https://s3-sa-east-1.amazonaws.com/azk
 data_url=$aws_bucket/azk-agent.vmdk.gz
-boot_url=$aws_bucket/debian2docker.iso
-boot_file=$VM_DISK_PATH/debian2docker.iso
+boot_url=$aws_bucket/azk.iso
+boot_file=$VM_DISK_PATH/azk.iso
 update=""
 data_folders=(
   "$AZK_DATA_PATH"
@@ -191,7 +182,7 @@ check_unfsd() {
 check_boot_disk() {
   [ -n "$update" -a -f $boot_file ] && {
     actual_version=`shasum --portable $boot_file | awk '{ print $1 }'`
-    new_version=`curl $aws_bucket/debian2docker.sha 2>/dev/null`
+    new_version=`curl $aws_bucket/azk.iso.sha 2>/dev/null`
     [ "${actual_version}" != "${new_version}" ] && {
       rm $boot_file
     }
@@ -392,11 +383,8 @@ azk_main() {
     vm)
       if [ "$2" == "ssh" ]; then
         ssh_opts="StrictHostKeyChecking=no -o LogLevel=quiet -o UserKnownHostsFile=/dev/null"
-         id_file="$AZK_ROOT_PATH/src/share/id_rsa_insecure"
           vm_url="docker@$AZK_AGENT_VM_IP"
-
-        chmod og-rwx $id_file
-        shift 2; exec ssh -i $id_file -o $ssh_opts $vm_url $*
+        shift 2; exec ssh -o $ssh_opts $vm_url $*
       else
         azk_node_run "${@}"
       fi

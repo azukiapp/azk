@@ -317,10 +317,12 @@ function ssh_run(host, port, cmd, wait = false) {
         log.debug("agent vm ssh connected");
         log.debug("agent vm ssh cmd: %s", cmd);
 
+        done.notify({ type: "ssh", context: "running", cmd: cmd});
         client.exec(cmd, (err, stream) => {
           if (err) return done.reject(err);
           stream.on('data', (data, extended) => {
-            done.notify({ type: extended ? extended : 'stdout', data: data });
+            var context = extended ? extended : 'stdout';
+            done.notify({ type: "ssh", context, data });
           });
 
           stream.on('exit', (code) => {
