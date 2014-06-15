@@ -87,7 +87,7 @@ var options = merge({
         name       : vm_name,
         user       : "docker",
         password   : "tcuser",
-        boot_disk  : path.join(data_path, "vm", "debian2docker.iso"),
+        boot_disk  : process.env.AZK_BOOT_FILE,
         data_disk  : path.join(data_path, "vm", "azk-agent.vmdk"),
         blank_disk : path.join(data_path, "vm", "azk-agent.vmdk.bz"),
         mount_point: '/home/docker/files',

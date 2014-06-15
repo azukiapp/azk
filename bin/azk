@@ -51,6 +51,7 @@ export NVM_DIR=$AZK_DATA_PATH/nvm
 export VM_DISK_PATH=$AZK_DATA_PATH/vm
 export AZK_AGENT_VM_NAME="${AZK_AGENT_VM_NAME:-azk-agent}"
 export AZK_AGENT_VM_IP="${AZK_AGENT_VM_IP:-`agent_ip $AZK_AGENT_VM_NAME`}"
+export AZK_BOOT_FILE=$VM_DISK_PATH/azk.iso
 
 # local
 node_version="${NODE_VERSION:-v0.10.26}"
@@ -58,7 +59,6 @@ nvm_file=$AZK_ROOT_PATH/vendor/bin/nvm.sh
 aws_bucket=https://s3-sa-east-1.amazonaws.com/azk
 data_url=$aws_bucket/azk-agent.vmdk.gz
 boot_url=$aws_bucket/azk.iso
-boot_file=$VM_DISK_PATH/azk.iso
 update=""
 data_folders=(
   "$AZK_DATA_PATH"
@@ -179,15 +179,25 @@ check_unfsd() {
   [ -n "$AZK_UNFSD_PATH" ]
 }
 
-check_boot_disk() {
-  [ -n "$update" -a -f $boot_file ] && {
-    actual_version=`shasum --portable $boot_file | awk '{ print $1 }'`
-    new_version=`curl $aws_bucket/azk.iso.sha 2>/dev/null`
-    [ "${actual_version}" != "${new_version}" ] && {
-      rm $boot_file
-    }
+check_integrity() {
+  [ -f $1 ] && {
+    actual_version=`shasum --portable $1 | awk '{ print $1 }'`
+    new_version=`curl $aws_bucket/$2 2>/dev/null`
+    if [ "${actual_version}" != "${new_version}" ]; then
+      [ "$3" == "remove" ] && { rm $1; }
+      return 1;
+    else
+      return 0;
+    fi
   }
-  [ -f $boot_file ]
+  return 1;
+}
+
+check_boot_disk() {
+  [ -n "$update" -a -f $AZK_BOOT_FILE ] && {
+    check_integrity $AZK_BOOT_FILE "azk.iso.sha" remove
+  }
+  [ -f $AZK_BOOT_FILE ]
 }
 
 check_data_disk() {
@@ -340,12 +350,15 @@ install() {
     mkdir -p $VM_DISK_PATH
 
     check_install "check_boot_disk" "iso to boot vm" || {
-      log_i "Download iso"
-      download $boot_url $boot_file
+      download $boot_url $AZK_BOOT_FILE
+      check_boot_disk force
+      check_integrity $AZK_BOOT_FILE "azk.iso.sha" remove || {
+        log "$azk_fail: Fail download iso boot, try again";
+        exit 1;
+      }
     }
 
     check_install "check_data_disk" "initial data disk" || {
-      log_i "Download initial data disk"
       download $data_url $VM_DISK_PATH/azk-agent.vmdk.bz
     }
   fi
