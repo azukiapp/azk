@@ -21,6 +21,7 @@ export function run(docker, Container, image, cmd, opts = { }) {
   opts.stderr = opts.stderr || opts.stdout;
   var daemon  = opts.daemon || false;
   var interactive = opts.stdin ? true : false;
+  var nameservers = opts.dns || null;
 
   //// Force daemon mode
   if (daemon) {
@@ -118,7 +119,7 @@ export function run(docker, Container, image, cmd, opts = { }) {
     }
 
     // Start container
-    yield container.start({ "Binds": v_binds, PortBindings: p_binds });
+    yield container.start({ "Binds": v_binds, PortBindings: p_binds, Dns: nameservers });
     notify({type: "started", id: container.id});
 
     if (!daemon) {

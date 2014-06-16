@@ -5,7 +5,7 @@ import h from 'spec/spec_helper';
 var default_img = config('docker:image_default');
 var namespace = config('docker:namespace');
 
-describe("Azk docker module, run method", function() {
+describe.only("Azk docker module, run method", function() {
   this.timeout(20000);
 
   var stdin, outputs = { };
@@ -59,6 +59,20 @@ describe("Azk docker module, run method", function() {
       h.expect(outputs.stdout).to.match(/AZK_NAME=.*run.*/);
       h.expect(outputs.stdout).to.match(/FOO=bar/);
       h.expect(outputs.stdout).to.match(/BAZ=qux/);
+    });
+  });
+
+  it("should support custom dns servers", function() {
+    var result = docker.run(default_img,
+      ["/bin/bash", "-c", "cat /etc/resolv.conf"],
+      {
+        stdout: mocks.stdout, rm: true, dns: [ "127.0.0.1", "8.8.8.8" ]
+      }
+    );
+
+    return result.then(() => {
+      h.expect(outputs.stdout).to.match(/nameserver 127.0.0.1/);
+      h.expect(outputs.stdout).to.match(/nameserver 8.8.8.8/);
     });
   });
 
