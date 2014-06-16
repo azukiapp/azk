@@ -1,4 +1,5 @@
 import { _, path, fs, config, async, defer } from 'azk';
+import { net } from 'azk/utils';
 import { Image } from 'azk/images';
 import { Balancer } from 'azk/agent/balancer';
 import { XRegExp } from 'xregexp';
@@ -128,6 +129,7 @@ export class System {
       local_volumes: {},
       working_dir: opts.workdir || this.options.workdir,
       env: this.options.envs || {},
+      dns: net.nameServers(),
     }
 
     // Daemon or exec mode?
@@ -232,12 +234,13 @@ export class System {
       port = XRegExp.exec(port, regex_port);
       port.protocol = port.protocol || "tcp";
 
-      var config = { HostIp: "0.0.0.0" };
+      // TODO: Add support a bind ip
+      var conf = { HostIp: config("agent:dns:ip") };
       if (port.public)
-        config.HostPort = port.public;
+        conf.HostPort = port.public;
 
       ports[name] = {
-        config : config,
+        config : conf,
         name   : port.private + "/" + port.protocol,
         private: port.private
       };

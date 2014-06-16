@@ -211,7 +211,7 @@ describe("Azk system class", function() {
         it("should bind port", function() {
           h.expect(instances).to.have.deep.property('[0].Ports[0]');
           var port = instances[0].Ports[0];
-          h.expect(port).to.have.property('IP', '0.0.0.0');
+          h.expect(port).to.have.property('IP', config('agent:vm:ip'));
           h.expect(port).to.have.property('PublicPort');
           h.expect(port).to.have.property('Type', 'tcp');
         });
