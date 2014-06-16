@@ -259,7 +259,7 @@ update_code_base() {
     check_agent_is_running
     log -n "$azk_ok: Update code..."
     git fetch 2>&1 | logger -t azk:update &>/dev/null
-    git merge origin/stable 2>&1 | logger -t azk:update &>/dev/null
+    git merge origin/`git branch | awk '/^\*/{print $2}'` 2>&1 | logger -t azk:update &>/dev/null
     log "[%{green}ok%{reset}]" >&2
   fi
 }
