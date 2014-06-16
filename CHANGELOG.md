@@ -1,6 +1,12 @@
 # Changelog
 
-## v0.3.0-dev
+## v0.4.0-dev
+
+* Enhancements
+
+* Bug
+
+## v0.3.0
 
 * Enhancements
   * [Dns] Add dns server
@@ -24,3 +30,6 @@
   * [Kernel] Introducing SoS
   * [Manifest] Remaking the manifest to use dsl js instead of json
   * [Code] Now using js ES6 (via traceour)
+
+* Deprecations
+  * [Kernel] Box and services is no longer supported
