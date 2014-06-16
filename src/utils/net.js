@@ -1,8 +1,8 @@
-import { Q, _, defer, config } from 'azk';
+import { Q, _, fs, defer, config } from 'azk';
 
-var nativeNet = require('net');
-var dns       = require('dns');
-var portrange = config("agent:portrange_start");
+var nativeNet   = require('net');
+var portrange   = config("agent:portrange_start");
+var nameservers = [];
 
 var net = {
   getPort() {
@@ -29,6 +29,19 @@ var net = {
 
   calculateGatewayIp(ip) {
     return ip.replace(/^(.*)\..*$/, "$1.1");
+  },
+
+  nameServers() {
+    if (_.isEmpty(nameservers)) {
+      var lines = fs.readFileSync("/etc/resolv.conf").toString().split("\n");
+      _.each(lines, (line) => {
+        if (line.match(/^nameserver.*$/)) {
+          nameservers.push(line.replace(/^nameserver\s{1,}(.*)/, "$1"));
+        }
+      });
+      nameservers.unshift(config("agent:dns:ip"));
+    }
+    return nameservers;
   },
 
   waitService(host, port, retry = 15, opts = {}) {
