@@ -11,6 +11,7 @@
 
 * Bug
   * [Kernel] Now using azukiapp/azktcl in place of azukiapp/busybox
+  * [Install] Now use git fetch and git merge to update code
 
 * Deprecations
   * [Config] Removing configuration of the /etc/hosts
