@@ -2,6 +2,7 @@ import { _, t } from 'azk';
 import { Multibar } from 'azk/cli/multi_bars';
 require('colors');
 
+var execSh = require('exec-sh');
 var Table  = require('cli-table');
 var printf = require('printf');
 var ok     = 'azk'.green;
@@ -86,6 +87,10 @@ var UI = {
   table_show(name) {
     this.output(tables[name].toString());
   },
+
+  execSh(...args) {
+    execSh(...args);
+  }
 }
 
 export { UI };

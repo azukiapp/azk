@@ -12,6 +12,15 @@ export function extend(h) {
       }
     }};
 
+    UI.execSh = (cmd, options, callback) => {
+      if (_.isFunction(options)) {
+        [callback, options] = [options, {}];
+      }
+
+      UI.dir(cmd, options);
+      callback();
+    };
+
     func(() => {
       while(outputs.length > 0) {
         outputs.pop();
