@@ -169,6 +169,8 @@ var Balancer = {
   },
 
   start_memcached(socket) {
+    // Remove socket
+    if (fs.existsSync(socket)) fs.unlinkSync(socket);
     var pid = config("paths:memcached_pid");
     var cmd = [ 'nvm', 'memcachedjs', '--socket', socket ];
 
