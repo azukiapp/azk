@@ -1,8 +1,8 @@
-var uuid = require('node-uuid');
-
-import { Q, pp, config, _, log } from 'azk';
+import { Q, pp, config, path, _, log } from 'azk';
 import Utils from 'azk/utils';
 import { parseRepositoryTag } from 'dockerode/lib/util';
+
+var uuid = require('node-uuid');
 
 // Composer
 import { pull } from 'azk/docker/pull';
@@ -60,5 +60,15 @@ export class Docker extends Utils.qify('dockerode') {
 
   run(...args) {
     return run(this, Container, ...args);
+  }
+
+  // TODO: Add test
+  resolvePath(target) {
+    target = Utils.resolve(target);
+    if (config('agent:requires_vm')) {
+      target = path.join(config('agent:vm:mount_point'), target);
+    }
+
+    return target;
   }
 }

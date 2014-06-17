@@ -112,8 +112,8 @@ export function run(docker, Container, image, cmd, opts = { }) {
     // Make start options
     for(var i = 0; i < v_binds.length; i++) {
       var target = v_binds[i][0];
-      if (v_binds[i][2] == "remote" && config('agent:requires_vm')) {
-        target = path.join(config('agent:vm:mount_point'), target);
+      if (v_binds[i][2] == "remote") {
+        target = docker.resolvePath(target);
       }
       v_binds[i] = target + ':' + v_binds[i][1];
     }
