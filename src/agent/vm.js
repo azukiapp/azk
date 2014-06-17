@@ -1,19 +1,17 @@
 import { _, Q, config, defer, async, t, log } from 'azk';
 import Utils from 'azk/utils';
 import { Tools } from 'azk/agent/tools';
+import { SSH } from 'azk/agent/ssh';
 
 var vbm  = require('vboxmanage');
 var qfs  = require('q-io/fs');
 var os   = require('os');
-var ssh2 = require('ssh2');
-
-var ssh_timeout = 10000;
 
 var machine  = Utils.qifyModule(vbm.machine );
 var instance = Utils.qifyModule(vbm.instance);
 var hostonly = Utils.qifyModule(vbm.hostonly);
 var dhcp     = Utils.qifyModule(vbm.dhcp    );
-var _exec = Q.nbind(vbm.command.exec, vbm.command);
+var _exec    = Q.nbind(vbm.command.exec, vbm.command);
 
 function exec(...args) {
   return _exec(...args).then((result) => {
@@ -292,9 +290,7 @@ var vm = {
     return async(this, function* () {
       var info = yield this.info(vm_name);
       if (info.running) {
-        return (...args) => {
-          return ssh_run('127.0.0.1', info.ssh_port, ...args);
-        }
+        return new SSH('127.0.0.1', info.ssh_port);
       } else {
         throw new Error("vm is not running");
       }
@@ -302,59 +298,11 @@ var vm = {
   },
 
   ssh(name, cmd, wait = false) {
-    return this.make_ssh(name).then((ssh) => { return ssh(cmd, wait) });
+    return this.make_ssh(name).then((ssh) => { return ssh.exec(cmd, wait) });
   },
-}
 
-function ssh_run(host, port, cmd, wait = false) {
-  var execute = () => {
-    return defer((done) => {
-      var client    = new ssh2();
-      var exit_code = 0;
-
-      client.on("ready", () => {
-        done.notify({ type: 'connected' });
-        log.debug("agent vm ssh connected");
-        log.debug("agent vm ssh cmd: %s", cmd);
-
-        done.notify({ type: "ssh", context: "running", cmd: cmd});
-        client.exec(cmd, (err, stream) => {
-          if (err) return done.reject(err);
-          stream.on('data', (data, extended) => {
-            var context = extended ? extended : 'stdout';
-            done.notify({ type: "ssh", context, data });
-          });
-
-          stream.on('exit', (code) => {
-            exit_code = code;
-            log.debug("agent vm ssh result: %s", code);
-            process.nextTick(() => client.end());
-          });
-        });
-      });
-
-      client.on('end', () => {
-        done.resolve(exit_code);
-      });
-
-      client.on('error', (err) => done.reject(err));
-
-      client.connect({
-        host, port,
-        username: config("agent:vm:user"),
-        readyTimeout: ssh_timeout,
-        password: config("agent:vm:password"),
-      });
-    });
-  }
-
-  // TODO: change timeout and attempts for a logic value
-  if (wait) {
-    return Utils.net.waitForwardingService(host, port, 15).then(() => {
-      return execute();
-    });
-  } else {
-    return execute();
+  copyFile(name, origin, target) {
+    return this.make_ssh(name).then((ssh) => { return ssh.putFile(origin, target) });
   }
 }
 

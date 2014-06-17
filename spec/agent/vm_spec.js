@@ -1,5 +1,5 @@
 import h from 'spec/spec_helper';
-import { _, Q, config } from 'azk';
+import { _, async, Q, config } from 'azk';
 import { VM } from 'azk/agent/vm';
 import { net } from 'azk/utils';
 
@@ -98,6 +98,11 @@ describe("Azk agent vm", function() {
     this.timeout(10000);
     var name = config("agent:vm:name");
     var data = "";
+    var progress = (event) => {
+      if (event.type == "ssh" && event.context == "stdout") {
+        data += event.data.toString();
+      }
+    }
 
     beforeEach(() => data = "");
 
@@ -106,14 +111,7 @@ describe("Azk agent vm", function() {
     });
 
     it("should execute a ssh command", function() {
-      var result = VM.ssh(name, "uptime");
-
-      result.progress(function(event) {
-        if (event.type == "ssh" && event.context == "stdout") {
-          data += event.data.toString();
-        }
-      });
-
+      var result = VM.ssh(name, "uptime").progress(progress);
       return result.then(function(code) {
         h.expect(code).to.equal(0);
         h.expect(data).to.match(/load average/);
@@ -122,6 +120,19 @@ describe("Azk agent vm", function() {
 
     it("should return code to execute ssh command", function() {
       return h.expect(VM.ssh(name, "exit 127")).to.eventually.equal(127);
+    });
+
+    it("should copy file to vm", function() {
+      return async(this, function* () {
+        var code;
+
+        code = yield VM.copyFile(name, __filename, "/tmp/azk/file").progress(progress);
+        h.expect(code).to.equal(0);
+
+        code = yield VM.ssh(name, "cat /tmp/azk/file").progress(progress);
+        h.expect(code).to.equal(0);
+        h.expect(data).to.match(/should\scopy\sfile\sto\svm/);
+      });
     });
   });
 });
