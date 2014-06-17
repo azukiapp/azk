@@ -3,6 +3,8 @@
 ## v0.4.0-dev
 
 * Enhancements
+  * [Docker] Add command `azk docker`
+  * [Vm] Adding ssh keys generator, and uploads the key to start vm.
 
 * Bug
 
