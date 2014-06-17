@@ -49,9 +49,10 @@ agent_ip() {
 export AZK_BALANCER_HOST="${AZK_BALANCER_HOST:-azk.dev}"
 export NVM_DIR=$AZK_DATA_PATH/nvm
 export VM_DISK_PATH=$AZK_DATA_PATH/vm
+export AZK_BOOT_FILE=$VM_DISK_PATH/azk.iso
 export AZK_AGENT_VM_NAME="${AZK_AGENT_VM_NAME:-azk-agent}"
 export AZK_AGENT_VM_IP="${AZK_AGENT_VM_IP:-`agent_ip $AZK_AGENT_VM_NAME`}"
-export AZK_BOOT_FILE=$VM_DISK_PATH/azk.iso
+export AZK_AGENT_VM_KEY="${VM_DISK_PATH}/azkvm_rsa"
 
 # local
 node_version="${NODE_VERSION:-v0.10.26}"
@@ -65,6 +66,7 @@ data_folders=(
   "$NVM_DIR"
   "$VM_DISK_PATH"
   "$AZK_DATA_PATH/run"
+  "$AZK_DATA_PATH/vm"
   "$AZK_DATA_PATH/logs"
 )
 
@@ -211,6 +213,10 @@ check_vm_ip() {
   return 1;
 }
 
+check_vm_key() {
+  [ -f $AZK_AGENT_VM_KEY ]
+}
+
 # Check for depedencies
 # TODO: format logs as standard
 msg_depens() {
@@ -223,9 +229,10 @@ check_depedencies() {
   check_data_folders
 
   check_vm_ip $1 || msg_depens "virtual machine ip"
-  check_unfsd || msg_depens 'unfsd' "$UNFSD_INSTALL"
-  check_node  || msg_depens node
-  check_npm   || msg_depens 'node dependencies'
+  check_vm_key   || msg_depens "virtual machine ssh key"
+  check_unfsd    || msg_depens 'unfsd' "$UNFSD_INSTALL"
+  check_node     || msg_depens node
+  check_npm      || msg_depens 'node dependencies'
 
   if [ "$AZK_USE_VM" != "false" ]; then
     check_data_disk || msg_depens 'initial data disk'
@@ -320,6 +327,11 @@ install() {
     check_install "check_vm_ip" "vm ip" $1 || { vm_ip_msg; configure_vm_ip; }
   }
 
+  # Vm key
+  check_install "vm_key" "vm ssh key" || {
+    ssh-keygen -t rsa -f $AZK_AGENT_VM_KEY -N ''
+  }
+
   # Update azk code base
   [ "$1" == '--update' ] && {
     check_is_installed || {
@@ -398,7 +410,7 @@ azk_main() {
       if [ "$2" == "ssh" ]; then
         ssh_opts="StrictHostKeyChecking=no -o LogLevel=quiet -o UserKnownHostsFile=/dev/null"
           vm_url="docker@$AZK_AGENT_VM_IP"
-        shift 2; exec ssh -o $ssh_opts $vm_url $*
+        shift 2; exec ssh -i $AZK_AGENT_VM_KEY -o $ssh_opts $vm_url $*
       else
         azk_node_run "${@}"
       fi

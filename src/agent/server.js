@@ -83,6 +83,12 @@ var Server = {
           throw new AgentStartError(t("errors.not_vm_start"));
         }
         n("initialized");
+
+        // Upload key
+        n("upkey");
+        var key = config('agent:vm:ssh_key') + '.pub';
+        var authoried = config('agent:vm:authorized_key');
+        yield VM.copyFile(vm_name, key, authoried);
       };
     });
   },
