@@ -328,7 +328,7 @@ install() {
   }
 
   # Vm key
-  check_install "vm_key" "vm ssh key" || {
+  check_install "check_vm_key" "vm ssh key" || {
     ssh-keygen -t rsa -f $AZK_AGENT_VM_KEY -N ''
   }
 
