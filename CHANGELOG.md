@@ -7,8 +7,9 @@
   * [Vm] Adding ssh keys generator, and uploads the key to start vm.
 
 * Bug
+  * [Cli] Fix generate manifest in blank project dir.
 
-## v0.3.0
+## v0.3.0 (2014-06-16)
 
 * Enhancements
   * [Dns] Add dns server

@@ -159,6 +159,7 @@ module.exports = {
       already: "'%s' already exists (try: `--force`)",
       generated: "'%s' generated",
       github: "\nTip:\n  Adds the `.azk` in .gitignore\n  echo '.azk' >> .gitignore \n",
+      not_found: "Not found a system(s), generating with example system.",
       options: {
         force: "Forces the overlay file Azkfile.js",
       }

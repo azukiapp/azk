@@ -17,8 +17,6 @@ describe("Azk generator tool", function() {
       var manifest = path.join(project, config('manifest'));
 
       // Genereate manifest file
-      var front = {
-      };
       generator.render({
         systems: {
           front: {
@@ -48,29 +46,6 @@ describe("Azk generator tool", function() {
         .and.to.eql({ ".": "/azk/" + name});
       h.expect(system).to.have.deep.property("options.command")
         .and.to.eql("bundle exec rackup config.ru");
-    });
-  })
-
-  it("should render a example if not have any systems", function() {
-    return h.tmp_dir({ prefix: "azk-" }).then((project) => {
-      var manifest = path.join(project, config('manifest'));
-      generator.render({
-        systems: { 'example-system': generator.example_system },
-        default: 'example-system'
-      }, manifest);
-
-      var manifest = new Manifest(project);
-      var system   = manifest.systemDefault;
-      var name     = path.basename(project);
-
-      h.expect(system).to.have.deep.property("name", "example-system");
-      h.expect(system).to.have.deep.property("image.name", "[repository]:[tag]");
-      h.expect(system).to.have.deep.property("depends").and.to.eql([]);
-      h.expect(system).to.have.deep.property("options.workdir", "/azk/" + name);
-      h.expect(system).to.have.deep.property("options.mount_folders")
-        .and.to.eql({ ".": "/azk/" + name});
-      h.expect(system).to.have.deep.property("options.command")
-        .and.to.eql("# command to run app");
     });
   });
 });

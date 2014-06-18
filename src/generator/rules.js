@@ -10,6 +10,9 @@ var example_system = {
   command : "# command to run app",
   mount_folders : true,
   persistent_folders: [],
+  envs: {
+    EXAMPLE: "value"
+  }
 };
 
 var Helpers = {
