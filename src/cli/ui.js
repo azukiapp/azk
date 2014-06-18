@@ -40,11 +40,11 @@ var UI = {
   },
 
   ok(...args) {
-    console.log(ok + ": " + t(...args));
+    this.output(ok + ": " + t(...args));
   },
 
   fail(...args) {
-    console.log(fail + ": " + t(...args));
+    this.output(fail + ": " + t(...args));
   },
 
   // TOOD: Flush log (https://github.com/flatiron/winston/issues/228)
