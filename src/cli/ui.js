@@ -104,6 +104,10 @@ export class UIProxy {
     }
   }
 
+  set userInterface(ui) {
+    this.__user_interface = ui;
+  }
+
   // Outputs and debugs
   get userInterface() {
     return this.parent ? this.parent.userInterface : this.__user_interface;

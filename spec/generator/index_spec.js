@@ -1,19 +1,23 @@
 import { config, path, fs, _ } from 'azk';
 import h from 'spec/spec_helper';
-import { generator } from 'azk/generator';
+import { Generator } from 'azk/generator';
 import { Manifest } from 'azk/manifest';
 import { example_system as node_example }  from 'azk/generator/rules/node';
 
 var touch = require('touch');
 
 describe("Azk generator tool", function() {
+  var outputs = [];
+  var UI = h.mockUI(beforeEach, outputs);
+  var generator = new Generator(UI);
+
   it("should load default rules", function() {
     var node = generator.rule("node");
     h.expect(node).to.have.property("type", "runtime");
   });
 
   it("should format template", function() {
-    return h.tmp_dir({ prefix: "azk-" }).then((project) => {
+    return h.tmp_dir().then((project) => {
       var manifest = path.join(project, config('manifest'));
 
       // Genereate manifest file

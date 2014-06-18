@@ -80,6 +80,10 @@ module.exports = {
     },
   },
 
+  generator: {
+    found: "A system of the %(__type)s type found in '%(dir)s'",
+  },
+
   commands: {
     not_found: "Command '%s' not found",
     azk: {

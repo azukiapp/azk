@@ -1,7 +1,9 @@
 import { path, _ } from 'azk';
+import { UIProxy } from 'azk/cli/ui';
 var glob = require('glob');
 
 var example_system = {
+  __type  : "example",
   name    : "example",
   depends : [],
   image   : { repository: "[repository]", tag: "[tag]" },
@@ -15,12 +17,12 @@ var example_system = {
   }
 };
 
-var Helpers = {
-  example_system,
+export class BaseRule extends UIProxy {
+  constructor(...args) { super(...args) }
 
   nameByDir(dir) {
     return path.basename(dir);
-  },
+  }
 
   makeSystemByDirs(dirs, suggestion, options = {}) {
     return _.reduce(dirs, (systems, dir) => {
@@ -35,9 +37,10 @@ var Helpers = {
       }
 
       systems[system.name] = _.extend({}, suggestion, system);
+      this.ok('generator.found', systems[system.name]);
       return systems;
     }, {});
-  },
+  }
 
   searchSystemsByFile(dir, file_name) {
     var patterns = [
@@ -50,7 +53,7 @@ var Helpers = {
     }, []);
 
     return _.map(files, (file) => { return path.dirname(file) });
-  },
+  }
 }
 
-export { Helpers, example_system };
+export { example_system };

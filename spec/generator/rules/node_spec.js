@@ -1,14 +1,17 @@
 import { config, path, fs } from 'azk';
 import h from 'spec/spec_helper';
-import { generator } from 'azk/generator';
+import { Generator } from 'azk/generator';
 import { Manifest } from 'azk/manifest';
 
 describe("Azk generator node rule", function() {
   var project = null;
   var name    = null;
+  var outputs = [];
+  var UI  = h.mockUI(beforeEach, outputs);
+  var generator = new Generator(UI);
 
   before(function() {
-    return h.tmp_dir({ prefix: "azk-" }).then((dir) => {
+    return h.tmp_dir().then((dir) => {
       project = dir;
       name    = path.basename(dir);
     });

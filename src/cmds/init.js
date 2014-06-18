@@ -1,6 +1,6 @@
 import { _, config, fs, path, async } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
-import { generator, example_system } from 'azk/generator';
+import { Generator, example_system } from 'azk/generator';
 
 class Cmd extends Command {
   action(opts) {
@@ -8,6 +8,7 @@ class Cmd extends Command {
       var manifest = config("manifest");
       var cwd  = opts.path || this.cwd;
       var file = path.join(cwd, manifest);
+      var generator = new Generator(this);
 
       if (fs.existsSync(file) && !opts.force) {
         this.fail(this.tKeyPath("already"), manifest);

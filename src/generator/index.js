@@ -1,5 +1,6 @@
-import { _, config } from 'azk';
+import { _, config, log } from 'azk';
 import { Helpers, example_system } from 'azk/generator/rules';
+import { UIProxy } from 'azk/cli/ui';
 
 var glob = require('glob');
 var path = require('path');
@@ -10,45 +11,52 @@ var template = path.join(
   config('paths:azk_root'), 'src', 'share', 'Azkfile.mustache.js'
 );
 
-var rules = {
-  runtime  : [],
-  database : [],
-  tasks    : [],
-};
+export class Generator extends UIProxy {
+  constructor(ui) {
+    super(ui);
 
-var generator = {
-  example_system,
-  __rules: rules,
+    this.__rules = {
+      runtime  : [],
+      database : [],
+      tasks    : [],
+    }
 
-  load(dir) {
-    _.each(glob.sync(path.join(dir, '**/*.js')), (file) => {
-      var rule  = require(file).default || {};
-      if (_.isArray(this.__rules[rule.type])) {
-        rule.name = path.basename(file, ".js");
-        this.__rules[rule.type].push(rule);
-      }
-    });
-  },
-
-  rule(name) {
-    return _.find(this.rules, (rule) => { return rule.name == name });
-  },
+    // Load default rules
+    this.load(path.join(__dirname, "rules"));
+  }
 
   get rules() {
     return [...this.__rules.runtime, ...this.__rules.database, ...this.__rules.tasks];
-  },
-
-  findSystems(dir) {
-    return _.reduce(this.rules, (systems, rule) => {
-      return _.merge(systems, rule.findSystems(dir, systems) || {});
-    }, {});
-  },
+  }
 
   get tpl() {
     if (!this._tpl)
       this._tpl = Handlebars.compile(fs.readFileSync(template).toString());
     return this._tpl;
-  },
+  }
+
+  load(dir) {
+    _.each(glob.sync(path.join(dir, '**/*.js')), (file) => {
+      var Rule = require(file).Rule;
+      if (Rule) {
+        var rule = new Rule(this);
+        if (_.isArray(this.__rules[rule.type])) {
+          rule.name = path.basename(file, ".js");
+          this.__rules[rule.type].push(rule);
+        }
+      }
+    });
+  }
+
+  rule(name) {
+    return _.find(this.rules, (rule) => { return rule.name == name });
+  }
+
+  findSystems(dir) {
+    return _.reduce(this.rules, (systems, rule) => {
+      return _.merge(systems, rule.run(dir, systems) || {});
+    }, {});
+  }
 
   render(data, file) {
     data = _.extend({
@@ -68,14 +76,11 @@ function json(data) {
 }
 
 function hash_key(data) {
-  return data.match(/-/) ? `'${data}'` : data;
+  return (data || "").match(/-/) ? `'${data}'` : data;
 }
 
 Handlebars.registerHelper('json', json);
 Handlebars.registerHelper('hash_key', hash_key);
 
-// Load default rules
-generator.load(path.join(__dirname, "rules"));
-
-export { generator, example_system, rules };
+export { example_system };
 

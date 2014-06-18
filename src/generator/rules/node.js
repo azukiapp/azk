@@ -1,9 +1,10 @@
 import { path, fs, _ } from 'azk';
-import { Helpers, example_system } from 'azk/generator/rules';
+import { BaseRule, example_system } from 'azk/generator/rules';
 
 // TODO: suggest an entry for test execution
 
 var suggestion = _.extend({}, example_system, {
+  __type: "node",
   image : "dockerfile/nodejs",
   provision: [
     "npm install"
@@ -16,15 +17,16 @@ var suggestion = _.extend({}, example_system, {
   }
 });
 
-var rule = {
-  suggestion,
-  type: "runtime",
-  findSystems: function(dir) {
-    var dirs = Helpers.searchSystemsByFile(dir, "package.json");
-    return Helpers.makeSystemByDirs(dirs, suggestion, {
+export class Rule extends BaseRule {
+  constructor(ui) {
+    super(ui);
+    this.type = "runtime";
+  }
+
+  run(dir, _systems) {
+    var dirs = this.searchSystemsByFile(dir, "package.json");
+    return this.makeSystemByDirs(dirs, suggestion, {
       root: dir
     });
   }
 }
-
-export default rule;
