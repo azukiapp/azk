@@ -6,7 +6,7 @@ import { ProvisionNotFound, ProvisionPullError } from 'azk/utils/errors';
 
 var image_empty = config('docker:image_empty');
 
-describe("Azk docker module, image pull", function() {
+describe("Azk docker module, image pull @slow", function() {
   this.timeout(20000);
   before(() => h.remove_images());
 

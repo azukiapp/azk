@@ -54,7 +54,7 @@ describe("Azk image class", function() {
       return h.expect(img.check()).to.eventually.equal(null);
     });
 
-    it.skip("pull a image", function() {
+    it("pull a image @slow", function() {
       var events = [];
       return img.pull().progress((event) => events.push(event))
         .then(() => {

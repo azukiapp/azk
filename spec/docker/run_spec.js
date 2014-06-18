@@ -5,7 +5,7 @@ import h from 'spec/spec_helper';
 var default_img = config('docker:image_default');
 var namespace = config('docker:namespace');
 
-describe("Azk docker module, run method", function() {
+describe("Azk docker module, run method @slow", function() {
   this.timeout(20000);
 
   var stdin, outputs = { };

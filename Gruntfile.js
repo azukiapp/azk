@@ -23,6 +23,8 @@ function key_watch(grunt) {
   process.stdin.resume();
 }
 
+var test_task = process.env.TEST_TASK || "test";
+
 module.exports = function(grunt) {
 
   // Project configuration.
@@ -70,7 +72,17 @@ module.exports = function(grunt) {
       test: {
         options: {
           reporter: 'spec',
-          timeout: 5000
+          timeout: 5000,
+          grep: "@slow",
+          invert: true,
+        },
+        src: ['lib/spec/**/*_spec.js']
+      },
+
+      slow_test: {
+        options: {
+          reporter: 'spec',
+          timeout: 50000,
         },
         src: ['lib/spec/**/*_spec.js']
       }
@@ -84,7 +96,7 @@ module.exports = function(grunt) {
           '!src/share/*.js',
           'spec/**/*.js',
         ],
-        tasks: ['test']
+        tasks: [test_task]
       },
 
       traceur: {
@@ -106,10 +118,11 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-mocha-test');
   grunt.loadNpmTasks('grunt-contrib-watch');
 
-  grunt.registerTask('test', ['env:test', 'exec:clear', 'newer:traceur', 'mochaTest']);
+  grunt.registerTask('test', ['env:test', 'exec:clear', 'newer:traceur', 'mochaTest:test']);
+  grunt.registerTask('slow_test', ['env:test', 'exec:clear', 'newer:traceur', 'mochaTest:slow_test']);
   grunt.registerTask('compile', ['exec:clear', 'newer:traceur', 'watch:traceur']);
   grunt.registerTask('default', function() {
     key_watch(grunt);
-    return grunt.task.run(['test', 'watch:spec']);
+    return grunt.task.run([test_task, 'watch:spec']);
   });
 };
