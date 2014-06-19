@@ -21,10 +21,6 @@ module.exports = {
     run_command_error: "Run `%(command)s` error:\n`%(output)s`"
   },
 
-  manifest: {
-    not_found: "no such '%s' in current project",
-  },
-
   status: {
     agent: {
       running: "Agent is running...",
@@ -82,6 +78,14 @@ module.exports = {
 
   generator: {
     found: "A system of the %(__type)s type found in '%(dir)s'",
+  },
+
+  manifest: {
+    not_found: "no such '%s' in current project",
+  },
+
+  system: {
+    cmd_not_set: "Command not set in system \\`%(system)s\\`",
   },
 
   commands: {
