@@ -59,10 +59,27 @@ describe("Azk manifest class", function() {
     });
 
     describe("with a tree of the requireds systems", function() {
-      it("should require a systems in required order", function() {
-        h.expect(manifest.systemOrder()).to.eql(
+      it("should return a systems in required order", function() {
+        h.expect(manifest.systemsInOrder()).to.eql(
           ["empty", "db", "api", "example"]
         )
+      });
+
+      it("should return a systems in required order to a system", function() {
+        h.expect(manifest.systemsInOrder("example")).to.eql(
+          ["db", "api", "example"]
+        )
+        h.expect(manifest.systemsInOrder(["example", "api"])).to.eql(
+          ["db", "api", "example"]
+        )
+        h.expect(manifest.systemsInOrder(["example", "empty"])).to.eql(
+          ["db", "api", "example", "empty"]
+        )
+      });
+
+      it("should raise if get order an unset system", function() {
+        var func = () => manifest.systemsInOrder("not_found_system");
+        h.expect(func).to.throw(SystemNotFoundError, /not_found_system/);
       });
     });
   });

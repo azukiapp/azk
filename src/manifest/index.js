@@ -111,7 +111,7 @@ export class Manifest {
         throw e;
       }
     }
-    this.systemOrder();
+    this.systemsInOrder();
   }
 
   static createDslContext(target, source, file) {
@@ -152,7 +152,7 @@ export class Manifest {
     return this;
   }
 
-  systemOrder() {
+  systemsInOrder(requireds = []) {
     var edges = [];
     _.each(this.systems, (system, name) => {
       if (_.isEmpty(system.depends)) {
@@ -181,7 +181,30 @@ export class Manifest {
       throw new ManifestError(this.file, msg);
     }
 
-    return result.path.slice(1);
+    var path = _.isEmpty(requireds) ? result.path : [];
+    if (_.isEmpty(path)) {
+      requireds = _.isArray(requireds) ? requireds : [requireds];
+      path = _.reduce(requireds, (path, node) => {
+        return this.__putNodesInPath(result.graph, path, node);
+      }, path);
+    }
+
+    return path.slice(1);
+  }
+
+  __putNodesInPath(graph, path, node_id) {
+    var node = _.find(graph, (node) => { return node.id == node_id });
+    if (!_.isEmpty(node)) {
+      path = _.reduce(node.parents, (path, parent) => {
+        return this.__putNodesInPath(graph, path, parent);
+      }, path);
+      if (!_.contains(path, node_id)) {
+        path.push(node_id);
+      }
+    } else {
+      throw new SystemNotFoundError(this.file, node_id);
+    }
+    return path;
   }
 
   getMeta(...args) {
