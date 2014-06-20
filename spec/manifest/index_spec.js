@@ -1,4 +1,4 @@
-import { fs, config } from 'azk';
+import { t, fs, config } from 'azk';
 import { Manifest, System, file_name } from 'azk/manifest';
 import { createSync as createCache } from 'fscache';
 import { ManifestError, ManifestRequiredError, SystemNotFoundError } from 'azk/utils/errors';
@@ -57,6 +57,14 @@ describe("Azk manifest class", function() {
       var func = () => manifest.system("not_found_system", true);
       h.expect(func).to.throw(SystemNotFoundError, /not_found_system/);
     });
+
+    describe("with a tree of the requireds systems", function() {
+      it("should require a systems in required order", function() {
+        h.expect(manifest.systemOrder()).to.eql(
+          ["empty", "db", "api", "example"]
+        )
+      });
+    });
   });
 
   describe("in a directory", function() {
@@ -108,16 +116,48 @@ describe("Azk manifest class", function() {
       return h.tmp_dir({ prefix: "azk-test-" }).then((dir) => project = dir);
     });
 
+    var mock_manifest = (data) => {
+      fs.writeFileSync(path.join(project, file_name), data);
+      return () => {
+        new Manifest(project);
+      }
+    }
+
     it("should raise a sytax error", function() {
-      fs.writeFileSync(path.join(project, file_name), "var a; \n var = ;");
-      var func = () => { var manifest = new Manifest(project); };
+      var func = mock_manifest("var a; \n var = ;");
       h.expect(func).to.throw(ManifestError).and.match(/Unexpected token =/);
     });
 
+    it("should raise error if an image has not been configured", function() {
+      var func = mock_manifest('system("system1", { });');
+      var msgs = t("manifest.image_required", { system: "system1" });
+      h.expect(func).to.throw(ManifestError).and.match(RegExp(msgs));
+    });
+
+    it("should raise an exception if the dependency is circular systems", function() {
+      var data = "";
+      data += 'system("system1", { image: "foo", depends: ["system2"] });';
+      data += 'system("system2", { image: "foo", depends: ["system1"] });';
+
+      var func = mock_manifest(data);
+      var msgs = t("manifest.circular_depends", {system1: "system1", system2: "system2"});
+      h.expect(func).to.throw(ManifestError).and.match(RegExp(msgs));
+    });
+
+    it("should raise an exception if the dependency it's not declared", function() {
+      var data = "";
+      data += 'system("system1", { image: "foo", depends: ["system2"] });';
+
+      var func = mock_manifest(data);
+      var msgs = t("manifest.depends_not_declared", {system: "system1", depend: "system2"});
+      h.expect(func).to.throw(ManifestError).and.match(RegExp(msgs));
+    });
+
     it("should raise invalid function error", function() {
-      fs.writeFileSync(path.join(project, file_name), "__not_exist()");
-      var func = () => { var manifest = new Manifest(project); };
-      h.expect(func).to.throw(ManifestError).and.match(/ReferenceError: __not_exist is not defined/);
+      var func = mock_manifest("__not_exist()");
+      h.expect(func).to.throw(ManifestError).and.match(
+        /ReferenceError: __not_exist is not defined/
+      );
     });
   });
 });

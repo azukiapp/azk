@@ -8,7 +8,8 @@ import { ManifestError, ManifestRequiredError, SystemNotFoundError } from 'azk/u
 import Utils from 'azk/utils';
 
 var file_name = config('manifest');
-var check = require('syntax-error');
+var check     = require('syntax-error');
+var tsort     = require('gaia-tsort');
 
 var ManifestDsl = {
   require: require,
@@ -102,11 +103,15 @@ export class Manifest {
       try {
         runInNewContext(content, Manifest.createDslContext(this), this.file);
       } catch (e) {
-        var stack = e.stack.split('\n');
-        var msg   = stack[0] + "\n" + stack[1];
-        throw new ManifestError(this.file, msg);
+        if (!(e instanceof ManifestError)) {
+          var stack = e.stack.split('\n');
+          var msg   = stack[0] + "\n" + stack[1];
+          e = new ManifestError(this.file, msg);
+        }
+        throw e;
       }
     }
+    this.systemOrder();
   }
 
   static createDslContext(target, source, file) {
@@ -118,6 +123,10 @@ export class Manifest {
 
   addSystem(name, data) {
     if (!(data instanceof System)) {
+      if (_.isEmpty(data.image)) {
+        var msg = t("manifest.image_required", { system: name });
+        throw new ManifestError(this.file, msg);
+      }
       var image = data.image;
       delete data.image;
       data  = new System(this, name, image, data);
@@ -141,6 +150,38 @@ export class Manifest {
   setMeta(...args) {
     this.meta.set(...args);
     return this;
+  }
+
+  systemOrder() {
+    var edges = [];
+    _.each(this.systems, (system, name) => {
+      if (_.isEmpty(system.depends)) {
+        edges.push(["__", name]);
+      } else {
+        _.each(system.depends, (depend) => {
+          if (this.system(depend)) {
+            edges.push([depend, name]);
+          } else {
+            var msg = t("manifest.depends_not_declared", {
+              system: name,
+              depend: depend,
+            })
+            throw new ManifestError(this.file, msg);
+          }
+        });
+      }
+    });
+
+    var result = tsort(edges);
+    if (result.error) {
+      var data = result.error.message.match(/^(.*?)\s.*\s(.*)$/);
+      var msg  = t("manifest.circular_depends", {
+        system1: data[1], system2: data[2]
+      });
+      throw new ManifestError(this.file, msg);
+    }
+
+    return result.path.slice(1);
   }
 
   getMeta(...args) {
