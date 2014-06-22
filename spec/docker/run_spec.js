@@ -158,7 +158,7 @@ describe("Azk docker module, run method @slow", function() {
       var cont = yield docker.run(default_img, cmd, opts);
       var data = yield cont.inspect();
 
-      var name = RegExp(namespace + ".run.[0-9a-f]+");
+      var name = RegExp(namespace + "-type.run-id.[0-9a-f]+");
       h.expect(data).to.have.property('Name').and.match(name);
     })();
   });

@@ -49,7 +49,7 @@ export function run(docker, Container, image, cmd, opts = { }) {
   });
 
   // Container name and envs
-  var name = opts.name || Container.generateName(opts.ns || "run");
+  var name = opts.name || Container.generateName(opts.ns || "type.run");
   opts.env = opts.env  || {};
   opts.env['AZK_NAME'] = name;
   var env  = _.reduce(opts.env, function(sum, value, key) {
