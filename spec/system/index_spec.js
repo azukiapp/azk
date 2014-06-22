@@ -2,7 +2,7 @@ import h from 'spec/spec_helper';
 import { config } from 'azk';
 import { System } from 'azk/system';
 
-describe.only("system class", function() {
+describe("system class", function() {
   var system;
   var name = "mysystem", image = config('docker:image_default');
 
@@ -49,4 +49,23 @@ describe.only("system class", function() {
       "azk_balancer_ip": config('agent:balancer:ip'),
     })
   });
+
+  it("should return a instancer container filter", function() {
+    var manifest = { namespace: "mid.namespace" };
+    var system   = new System(manifest, name, image);
+
+    var instances = system.filter([
+      { Names: [ "azk-mid.namespace-sys." + name ] },
+      { Names: [ "azk-mid.namespace-sys." + name ] },
+      { Names: [ "azk-mid.namespace-sys." + name + "-type.daemon" ] },
+      { Names: [ "azk-mid.namespace-sys._not_set" ]}
+    ]);
+
+    h.expect(instances).to.include.something.eql(
+      { Names: [ "azk-mid.namespace-sys." + name ] }
+    );
+    h.expect(instances).to.include.something.eql(
+      { Names: [ "azk-mid.namespace-sys." + name + "-type.daemon" ] }
+    );
+  })
 })
