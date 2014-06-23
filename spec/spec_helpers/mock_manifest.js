@@ -1,5 +1,6 @@
 import { fs, path, _, config, async } from 'azk';
 import { Generator } from 'azk/generator';
+import { Manifest } from  'azk/manifest';
 
 export function extend(h) {
   h.mockManifest = function(data) {
@@ -60,7 +61,7 @@ export function extend(h) {
       generator.render(data, path.join(tmp, config('manifest')));
 
       // Return a new project dir
-      return tmp;
+      return new Manifest(tmp);
     });
   }
 }

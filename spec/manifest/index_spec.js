@@ -1,5 +1,6 @@
 import { t, fs, config } from 'azk';
-import { Manifest, System, file_name } from 'azk/manifest';
+import { Manifest, file_name } from 'azk/manifest';
+import { System } from 'azk/system';
 import { createSync as createCache } from 'fscache';
 import { ManifestError, ManifestRequiredError, SystemNotFoundError } from 'azk/utils/errors';
 import h from 'spec/spec_helper';
@@ -12,9 +13,9 @@ describe("Azk manifest class", function() {
     var project, manifest;
 
     before(function() {
-      return h.mockManifest({}).then((dir) => {
-        project  = dir;
-        manifest = new Manifest(dir);
+      return h.mockManifest({}).then((mf) => {
+        manifest = mf;
+        project  = mf.manifestPath;
       });
     });
 

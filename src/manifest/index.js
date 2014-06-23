@@ -1,7 +1,7 @@
 import { sync as parent } from 'parentpath';
 import { path, fs, config, _, t } from 'azk';
 import { runInNewContext, createScript } from 'vm';
-import { System } from 'azk/manifest/system';
+import { System } from 'azk/system';
 import { createSync as createCache } from 'fscache';
 import { sync as mkdir } from 'mkdirp';
 import { ManifestError, ManifestRequiredError, SystemNotFoundError } from 'azk/utils/errors';
