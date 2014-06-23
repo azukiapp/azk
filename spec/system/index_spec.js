@@ -1,6 +1,7 @@
 import h from 'spec/spec_helper';
-import { config } from 'azk';
+import { config, _ } from 'azk';
 import { System } from 'azk/system';
+import { Manifest } from 'azk/manifest';
 
 describe("system class", function() {
   var system;
@@ -67,5 +68,23 @@ describe("system class", function() {
     h.expect(instances).to.include.something.eql(
       { Names: [ "azk-mid.namespace-sys." + name + "-type.daemon" ] }
     );
-  })
+  });
+
+  describe("with valid manifest", function() {
+    var manifest, system;
+
+    before(() => {
+      var data = { };
+      return h.mockManifest(data).then((mf) => {
+        manifest = mf;
+        system   = manifest.systemDefault;
+      });
+    });
+
+    it("should return a depends systems", function() {
+      var depends = system.dependsInstances;
+      var names = _.map(depends, (system) => { return system.name });
+      h.expect(names).to.eql(["db", "api"]);
+    });
+  });
 })

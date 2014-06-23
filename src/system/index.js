@@ -20,11 +20,18 @@ export class System {
 
   // Get options
   get command() { return this.options.command };
-  get depends() { return this.options.depends };
   get row_mount_folders() { return this.options.mount_folders };
   get namespace() {
     return this.manifest.namespace + '-sys.' + this.name;
   }
+
+  // Get depends info
+  get depends() { return this.options.depends };
+  get dependsInstances() {
+    return _.map(this.depends, (depend) => {
+      return this.manifest.system(depend, true);
+    });
+  };
 
   // Containers filter
   filter(containers) {
