@@ -24,6 +24,12 @@ function key_watch(grunt) {
 }
 
 var test_task = process.env.TEST_TASK || "test";
+var test_grep = null;
+
+if (process.env.MOCHA_GREP) {
+  test_grep = process.env.MOCHA_GREP;
+  test_task = "slow_test";
+}
 
 module.exports = function(grunt) {
 
@@ -83,6 +89,7 @@ module.exports = function(grunt) {
         options: {
           reporter: 'spec',
           timeout: 50000,
+          grep: test_grep,
         },
         src: ['lib/spec/**/*_spec.js']
       }
