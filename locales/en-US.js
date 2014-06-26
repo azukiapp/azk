@@ -7,18 +7,21 @@ module.exports = {
   errors: {
     not_vm_start: "Unable to install and configure virtual machine",
     not_connect_docker: "Could not initialize balancer because Docker was not available",
-    // TODO: agent_not_running
-    agent_not_runnnig: "Azk agent is required but is not running (try `azk agent status`)",
+    agent_not_running: "Azk agent is required but is not running (try `azk agent status`)",
     agent_start: "Azk agent start error: %(error)s",
-    // TODO: not_been_implemented
-    not_bee_implemented: "This feature: `%(feature)s` has not been implemented yet",
+    not_been_implemented: "This feature: `%(feature)s` has not been implemented yet",
     system_not_found: "System `%(system)s` not found in `%(manifest)s`",
     manifest_required: "Manifest is required, but was not found in `%(cwd)s`",
     manifest_error: "Manifest not valid (see http://doc.azk.io), error:\n%(err_message)s",
     required_option_error: "Option %(option)s is required",
     system_depend_error: "System `%(system)s` depends on the system `%(depend)s`",
     image_not_available: "System `%(system)s` requires image `%(image)s` which is not avaible",
-    run_command_error: "Run `%(command)s` error:\n`%(output)s`"
+    run_command_error: "Run `%(command)s` error:\n`%(output)s`",
+    provision_pull_error: "Error downloading/pulling docker image `%(image)s`, message: %(msg)s.",
+    invalid_option_error: "Invalid argument option: %(option)s",
+    invalid_value_error: "Invalid value: %(value)s in option %(option)s",
+    image_not_exist: "Image from '%(image)s' not found",
+    provision_not_found: "Not found '%(image)s' image",
   },
 
   manifest: {
