@@ -298,7 +298,7 @@ configure_vm_ip() {
   [ "$1" != "retry" ] && check_agent_is_running
 
   default_ip="${AZK_AGENT_VM_IP:-192.168.50.4}"
-  msg="$(azk.escape "Enter de vm ip: (default: %{yellow}${default_ip}%{reset}): ")"
+  msg="$(azk.escape "Enter the vm ip: (default: %{yellow}${default_ip}%{reset}): ")"
   read -p "$msg" ip
 
   ip=${ip:-$default_ip}
