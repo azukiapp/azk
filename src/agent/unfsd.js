@@ -58,7 +58,8 @@ var Unfsd = {
   mount(vm_name) {
     return Tools.defer_status("unsfd", (_resolve, _reject, change_status) => {
       var point = config('agent:vm:mount_point');
-      var ip    = net.calculateGatewayIp(config("agent:vm:ip"))
+      var point_nfs = point + ".nfs";
+      var ip    = net.calculateGatewayIp(config("agent:vm:ip"));
       var opts  = [
         `port=${this.port}`,
         `mountport=${this.port}`,
@@ -67,12 +68,16 @@ var Unfsd = {
         'nolock',
         'tcp',
       ]
-      var mount = `sudo mount -o ${opts.join(',')} ${ip}:/ ${point}`
-      var check = `mount | grep ${point} &>/dev/null`;
+      var mount  = `sudo mount -o ${opts.join(',')} ${ip}:/ ${point_nfs}`;
+      var bindfs = `sudo bindfs --chown-ignore --chgrp-ignore ${point_nfs} ${point}`;
+      var check  = `mount | grep "${point}\\s" &>/dev/null`;
+      var check_nfs = `mount | grep "${point_nfs}\\s" &>/dev/null`;
       var cmd = [
+        `[ -d "${point_nfs}" ] || { mkdir -p ${point_nfs}; }`,
+        "{ " + check_nfs + " || " + mount + "; }",
         `[ -d "${point}" ] || { mkdir -p ${point}; }`,
-        "{ " + check + " || " + mount + "; }",
-        "{ " + check + "; }",
+        "{ " + check + " || " + bindfs + "; }",
+        "{ " + check_nfs + " && " + check + "; }",
       ].join("; ");
 
       var stderr = "";

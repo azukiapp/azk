@@ -12,6 +12,7 @@
 
 * Bug
   * [Cli] Fix generate manifest in blank project dir.
+  * [Vm] Adding bindfs to fix a bug of the changing owner or group in sync files.
 
 ## v0.3.0 (2014-06-16)
 

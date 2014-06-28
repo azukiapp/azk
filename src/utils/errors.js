@@ -17,41 +17,6 @@ export {
 }
 
 export class AzkError extends Error {
-}
-
-export class ImageNotExistError extends AzkError {
-  constructor(image) {
-    this.message = `Image from '${image}' not found`;
-  }
-}
-
-export class ProvisionNotFound extends AzkError {
-  constructor(image) {
-    this.message = `Not found '${image}' docker image`;
-  }
-}
-
-export class ProvisionPullError extends AzkError {
-  constructor(image, msg) {
-    this.message = `Error in pull docker imagem: ${image}, msg: ${msg}`;
-  }
-}
-
-export class InvalidOptionError extends AzkError {
-  constructor(option) {
-    this.message = `Invalid argument option: ${option}`;
-  }
-}
-
-export class InvalidValueError extends InvalidOptionError {
-  constructor(option, value) {
-    this.option  = option;
-    this.value   = value;
-    this.message = `Invalid value: ${value} in option ${option}`;
-  }
-}
-
-export class TError extends AzkError {
   constructor(translation_key) {
     this.translation_key = translation_key;
   }
@@ -65,14 +30,50 @@ export class TError extends AzkError {
   }
 }
 
-export class RequiredOptionError extends TError {
+export class ImageNotExistError extends AzkError {
+  constructor(image) {
+    super('image_not_exist');
+    this.image = image;
+  }
+}
+
+export class ProvisionNotFound extends AzkError {
+  constructor(image) {
+    super('provision_not_found');
+    this.image = image;
+  }
+}
+
+export class InvalidOptionError extends AzkError {
+  constructor(option, key = 'invalid_option_error') {
+    super(key);
+    this.option = option;
+  }
+}
+
+export class InvalidValueError extends InvalidOptionError {
+  constructor(option, value) {
+    super(option, "invalid_value_error");
+    this.value   = value;
+  }
+}
+
+export class ProvisionPullError extends AzkError {
+  constructor(image, msg) {
+    super('provision_pull_error')
+    this.image = image;
+    this.msg   = msg;
+  }
+}
+
+export class RequiredOptionError extends AzkError {
   constructor(option) {
     super('required_option_error');
     this.option  = option;
   }
 }
 
-export class SystemDependError extends TError {
+export class SystemDependError extends AzkError {
   constructor(system, depend) {
     super('system_depend_error');
     this.system = system;
@@ -81,7 +82,7 @@ export class SystemDependError extends TError {
   }
 }
 
-export class ImageNotAvailable extends TError {
+export class ImageNotAvailable extends AzkError {
   constructor(system, image) {
     super('image_not_available');
     this.system = system;
@@ -90,7 +91,7 @@ export class ImageNotAvailable extends TError {
   }
 }
 
-export class RunCommandError extends TError {
+export class RunCommandError extends AzkError {
   constructor(command, output) {
     super('run_command_error');
 
@@ -100,7 +101,7 @@ export class RunCommandError extends TError {
   }
 }
 
-export class ManifestRequiredError extends TError {
+export class ManifestRequiredError extends AzkError {
   constructor(cwd) {
     super('manifest_required');
 
@@ -109,7 +110,7 @@ export class ManifestRequiredError extends TError {
   }
 }
 
-export class ManifestError extends TError {
+export class ManifestError extends AzkError {
   constructor(file, err_message) {
     super('manifest_error');
 
@@ -119,7 +120,7 @@ export class ManifestError extends TError {
   }
 }
 
-export class SystemNotFoundError extends TError {
+export class SystemNotFoundError extends AzkError {
   constructor(manifest, system) {
     super('system_not_found');
 
@@ -129,23 +130,23 @@ export class SystemNotFoundError extends TError {
   }
 }
 
-export class NotBeenImplementedError extends TError {
+export class NotBeenImplementedError extends AzkError {
   constructor(feature) {
-    super('not_bee_implemented');
+    super('not_been_implemented');
 
     this.feature = feature;
     this.code    = BASE_CODE_ERROR;
   }
 }
 
-export class AgentNotRunning extends TError {
+export class AgentNotRunning extends AzkError {
   constructor() {
-    super('agent_not_runnnig');
+    super('agent_not_running');
     this.code = AGENT_CODE_ERROR;
   }
 }
 
-export class AgentStartError extends TError {
+export class AgentStartError extends AzkError {
   constructor(error) {
     super('agent_start');
 
