@@ -9,6 +9,7 @@
   * [Manifest] Validate: image is required.
   * [Manifest] Validate: declared dependencies are required.
   * [Manifest] Validate: circular dependencies are checked.
+  * [Generators] Adding base initializar for ruby projects.
 
 * Bug
   * [Cli] Fix generate manifest in blank project dir.

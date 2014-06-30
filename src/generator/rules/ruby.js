@@ -1,21 +1,32 @@
-var path = require('path');
-var fs   = require('fs');
+import { path, fs, _ } from 'azk';
+import { BaseRule, example_system } from 'azk/generator/rules';
 
-var node = {}
-var box  = {
-  box: "azukiapp/ruby-box#stable",
-  cmd: "bundle exec rackup -p $PORT config.ru",
-  envs: [
-    { key: "RUBY_ENV", value: "dev" }
-  ]
-}
+// TODO: suggest an entry for test execution
 
-module.exports = {
-  detect: function(dir) {
-    var file = path.join(dir, "Gemfile")
-    if (fs.existsSync(file)) {
-      return box;
-    }
+var suggestion = _.extend({}, example_system, {
+  __type: "ruby",
+  image : "dockerfile/ruby",
+  provision: [
+    "bundle install --path vendor/bundler"
+  ],
+  mount_folders: true,
+  command : "rackup -c config.ru --port $PORT",
+  envs    : {
+    RUBY_ENV: "dev"
+  }
+});
+
+export class Rule extends BaseRule {
+  constructor(ui) {
+    super(ui);
+    this.type = "runtime";
+  }
+
+  run(dir, _systems) {
+    var dirs = this.searchSystemsByFile(dir, "Gemfile");
+    return this.makeSystemByDirs(dirs, suggestion, {
+      root: dir
+    });
   }
 }
 
