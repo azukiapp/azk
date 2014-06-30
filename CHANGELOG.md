@@ -6,6 +6,7 @@
   * [Docker] Add command `azk docker`
   * [Vm] Adding ssh keys generator, and uploads the key to start vm.
   * [Generators] Now Generators and rules is a extension of the UI.
+  * [Generators] Adding base initializar for ruby projects.
 
 * Bug
   * [Cli] Fix generate manifest in blank project dir.
