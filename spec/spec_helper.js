@@ -52,8 +52,8 @@ var Helpers = {
     return new MemoryStream(...args);
   },
 
-  escapeRegExp(value) {
-    return (value || "").replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&");
+  escapeRegExp(...args) {
+    return Utils.escapeRegExp(...args);
   }
 }
 

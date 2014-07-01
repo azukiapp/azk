@@ -20,6 +20,13 @@ describe("azk utils module", function() {
     h.expect(result).to.equal(join(process.cwd(), '..'));
   });
 
+  it("should escape string with special regex characters", function() {
+    var string = "-\\[]{}()*+?.,^$|#";
+    var func = () => string.match(RegExp(string));
+    h.expect(func).to.throw(SyntaxError);
+    h.expect(string).to.match(RegExp(utils.escapeRegExp(string)));
+  });
+
   describe("in a class with async method", function() {
     class FooBar {
       constructor(name) { this.name = name };

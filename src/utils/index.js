@@ -128,6 +128,10 @@ var Utils = {
     shasum.update(string);
     return shasum.digest('hex');
   },
+
+  escapeRegExp(value) {
+    return (value || "").replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&");
+  },
 };
 
 module.exports = Utils;
