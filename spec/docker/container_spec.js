@@ -1,5 +1,6 @@
 import { Q, _, config, defer, async } from 'azk';
 import docker from 'azk/docker';
+import { Container } from 'azk/docker';
 import h from 'spec/spec_helper';
 
 var default_img = config('docker:image_default');
@@ -14,6 +15,19 @@ describe("Azk docker containers class", function() {
     stdin.setRawMode = function() { };
   });
 
+  it("should parse status text", function() {
+    var parse = Container.parseStatus;
+    h.expect(parse('Up 5 hours')).to.have.eql(
+      { ExitCode: 0, Paused: false, Running: true }
+    );
+    h.expect(parse('Up 10 minutes (Paused)')).to.have.eql(
+      { ExitCode: 0, Paused: true, Running: true }
+    );
+    h.expect(parse('Exited (1) 15 minutes ago')).to.have.eql(
+      { ExitCode: 1, Paused: false, Running: false }
+    );
+  });
+
   describe("with a cotainer", function() {
     var container;
 
@@ -22,7 +36,15 @@ describe("Azk docker containers class", function() {
         ["/bin/bash", "-c", "echo 'error' >&2; echo 'out';" ],
         { stdout: mocks.stdout, stderr: mocks.stderr }
       ).then((c) => container = c);
-    })
+    });
+
+    it("should parse status and set state", function() {
+      return docker.azkListContainers({ all: true }).then((instances) => {
+        container = _.find(instances, (c) => { return c.Id == container.Id });
+        h.expect(container).to.have.deep.property("State.Running", false);
+      });
+
+    });
 
     it("should parse container name to annotations in get container list", function() {
       return docker.azkListContainers({ all: true }).then((instances) => {

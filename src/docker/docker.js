@@ -31,6 +31,23 @@ export class Container extends Utils.qify('dockerode/lib/container') {
     });
   }
 
+  static parseStatus(status) {
+    var state = {
+      ExitCode: 0,
+      Paused:  (status.match(/^Up.*\(Paused\)$/)) ? true : false,
+      Running: (status.match(/^Up/)) ? true : false
+    }
+
+    // Exited? Get return code
+    if (status.match(/Exited/)) {
+      state.ExitCode = parseInt(
+        status.replace(/Exited \((.*)\).*/, "$1")
+      );
+    }
+
+    return state;
+  }
+
   static convertNameToAnnotations(name) {
     name = name.replace(/\/(.*)/, "$1");
     var data = name.split('-');
@@ -75,6 +92,7 @@ export class Docker extends Utils.qify('dockerode') {
         if (container.Names[0].match(this.c_regex)) {
           container.Name = container.Names[0];
           container.Annotations = Container.convertNameToAnnotations(container.Name);
+          container.State = Container.parseStatus(container.Status);
           result.push(container);
         }
         return result;
