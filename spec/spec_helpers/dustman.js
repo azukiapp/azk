@@ -2,12 +2,6 @@ import docker from 'azk/docker';
 import { Q, Azk, pp, _, config, t, defer } from 'azk';
 
 export function extend(Helpers) {
-  // Filters
-  var c_regex = RegExp(`\/${Helpers.escapeRegExp(config('docker:namespace'))}`);
-  var filter_containers = (container) => {
-    return container.Names[0].match(c_regex);
-  }
-
   var t_regexs = [
     RegExp(`${Helpers.escapeRegExp(config('docker:image_empty'))}`),
     RegExp(`${Helpers.escapeRegExp(config('docker:repository'))}`),
@@ -18,8 +12,7 @@ export function extend(Helpers) {
 
   Helpers.remove_containers = function() {
     return defer((done) => {
-      return docker.listContainers({ all: true }).then((containers) => {
-        containers = _.filter(containers, filter_containers);
+      return docker.azkListContainers({ all: true }).then((containers) => {
         done.notify(t('test.remove_containers', containers.length));
         return Q.all(_.map(containers, (container) => {
           var c = docker.getContainer(container.Id);

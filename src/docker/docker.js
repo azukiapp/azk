@@ -19,12 +19,35 @@ export class Container extends Utils.qify('dockerode/lib/container') {
     var id = uuid.v1().replace(/-/g, "").slice(0, 10);
     return `${config('docker:namespace')}-${ns}-id.${id}`;
   }
+
+  get Id() {
+    return this.id;
+  }
+
+  inspect(...args) {
+    return super(...args).then((data) => {
+      data.Annotations = Container.convertNameToAnnotations(data.Name);
+      return data;
+    });
+  }
+
+  static convertNameToAnnotations(name) {
+    name = name.replace(/\/(.*)/, "$1");
+    var data = name.split('-');
+    return _.reduce(data, (annotations, values) => {
+      var key_value = values.split(".");
+      annotations.azk[key_value[0]] = key_value[1];
+      return annotations;
+    }, { azk: {} });
+  }
 }
 
 export class Docker extends Utils.qify('dockerode') {
   constructor(opts) {
     log.info("Connect %s:%s", opts.host, opts.port);
     super(opts);
+
+    this.c_regex = RegExp(`\/${Utils.escapeRegExp(config('docker:namespace'))}`);
   }
 
   getImage(name) {
@@ -44,6 +67,19 @@ export class Docker extends Utils.qify('dockerode') {
         throw err;
       }
     );
+  }
+
+  azkListContainers(...args) {
+    return this.listContainers(...args).then((containers) => {
+      return _.reduce(containers, (result, container) => {
+        if (container.Names[0].match(this.c_regex)) {
+          container.Name = container.Names[0];
+          container.Annotations = Container.convertNameToAnnotations(container.Name);
+          result.push(container);
+        }
+        return result;
+      }, []);
+    });
   }
 
   findImage(name) {
