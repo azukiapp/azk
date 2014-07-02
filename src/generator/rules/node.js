@@ -4,13 +4,12 @@ import { BaseRule, example_system } from 'azk/generator/rules';
 // TODO: suggest an entry for test execution
 
 var suggestion = _.extend({}, example_system, {
-  __type: "node",
+  __type: "node.js",
   image : "dockerfile/nodejs",
   provision: [
     "npm install"
   ],
   // TODO: extract this information package.json
-  mount_folders: true,
   command : "node index.js",
   envs    : {
     NODE_ENV: "dev"

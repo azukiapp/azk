@@ -11,6 +11,9 @@ export function extend(h) {
 
       var command   = "socat TCP4-LISTEN:$PORT EXEC:`pwd`/src/bashttpd";
       var provision = ["ls -l ./src", "./src/bashttpd", "exit 0"];
+      var mount     = {
+        ".": '/azk/<%= manifest.dir %>'
+      };
 
       // Data merge
       data = _.merge({
@@ -19,7 +22,7 @@ export function extend(h) {
             depends: ["db", "api"],
             workdir: '/azk/<%= manifest.dir %>',
             image: default_img,
-            mount_folders: true,
+            mount_folders: mount,
             balancer: true,
             command, provision,
             envs: {
@@ -30,7 +33,7 @@ export function extend(h) {
             depends: ["db"],
             workdir: '/azk/<%= manifest.dir %>',
             image: default_img,
-            mount_folders: true,
+            mount_folders: mount,
             balancer: true,
             command, provision,
             envs: {
@@ -41,13 +44,14 @@ export function extend(h) {
             workdir: '/azk/<%= manifest.dir %>',
             image: default_img,
             persistent_folders: [ "/data" ],
-            mount_folders: false,
+            mount_folders: mount,
             balancer: false,
             command, provision,
           },
           empty: {
+            up: false,
             image: config('docker:image_empty'),
-            command: "/bin/false"
+            command: "/bin/false",
           },
         },
         default: 'example',

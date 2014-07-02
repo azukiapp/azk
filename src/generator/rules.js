@@ -10,7 +10,9 @@ var example_system = {
   workdir : "/azk/<%= manifest.dir %>",
   balancer: true,
   command : "# command to run app",
-  mount_folders : true,
+  mount_folders : {
+    ".": "/azk/<%= manifest.dir %>",
+  },
   persistent_folders: [],
   envs: {
     EXAMPLE: "value"

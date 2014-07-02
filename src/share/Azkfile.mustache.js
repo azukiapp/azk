@@ -14,7 +14,7 @@ systems({
       build: [
         {{#each image.build ~}}
         {{&json this}},
-        {{/each ~}}
+        {{~/each}}
       ]
     },
     {{else ~}}
@@ -25,25 +25,27 @@ systems({
     provision: [
       {{#each provision ~}}
       {{&json this}},
-      {{/each ~}}
+      {{~/each}}
     ],
     {{/if ~}}
     {{#if workdir ~}}
     workdir: "{{&workdir}}",
     {{/if ~}}
     command: {{&json command}},
-    {{#mount_folders ~}}
+    {{#if mount_folders ~}}
     // Mounts folders to assigned paths
     mount_folders: {
-      ".": "/azk/<%= manifest.dir %>",
+      {{#each mount_folders ~}}
+      {{&hash_key @key}}: {{&json this}},
+      {{~/each}}
     },
-    {{/mount_folders ~}}
+    {{/if ~}}
     {{#if persistent_folders ~}}
     // Mounts a persistent data folders to assigned paths
     persistent_folders: [
       {{#each persistent_folders ~}}
       {{&json this}},
-      {{/each ~}}
+      {{~/each}}
     ],
     {{/if ~}}
     {{#balancer ~}}

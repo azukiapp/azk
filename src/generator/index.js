@@ -76,7 +76,7 @@ function json(data) {
 }
 
 function hash_key(data) {
-  return (data || "").match(/-/) ? `'${data}'` : data;
+  return (data || "").match(/^[\w|_]*$/) ? data : `'${data}'`;
 }
 
 Handlebars.registerHelper('json', json);

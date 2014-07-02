@@ -27,9 +27,14 @@ describe("Azk generator tool", function() {
             depends: ['db'],
             workdir: '/azk/<%= manifest.dir %>',
             image: { repository: 'base', tag: '0.1' },
-            mount_folders: true,
+            mount_folders: {
+              ".": "/azk/<%= manifest.dir %>",
+            },
             command: 'bundle exec rackup config.ru',
             envs: { RACK_ENV: 'dev' },
+          },
+          db: {
+            image: "base"
           }
         },
         default: 'front',

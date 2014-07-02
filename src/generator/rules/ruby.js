@@ -7,9 +7,9 @@ var suggestion = _.extend({}, example_system, {
   __type: "ruby",
   image : "dockerfile/ruby",
   provision: [
-    "bundle install --path vendor/bundler"
+    "bundle install --path /azk/bundler"
   ],
-  mount_folders: true,
+  persistent_folders: [ "/azk/bundler" ],
   command : "rackup -c config.ru --port $PORT",
   envs    : {
     RUBY_ENV: "dev"

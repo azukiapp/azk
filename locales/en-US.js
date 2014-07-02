@@ -80,7 +80,7 @@ module.exports = {
   },
 
   generator: {
-    found: "A system of the %(__type)s type found in '%(dir)s'",
+    found: "A system of the `%(__type)s` type found in '%(dir)s'",
   },
 
   manifest: {
