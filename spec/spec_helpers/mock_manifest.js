@@ -53,6 +53,19 @@ export function extend(h) {
             image: config('docker:image_empty'),
             command: "/bin/false",
           },
+          expand_test: {
+            up: false,
+            image: default_img,
+            mount_folders: {
+              "system_name": "<%= system.name %>",
+              "persistent_folder": "<%= system.persistent_folders %>",
+              "manifest_dir": "<%= manifest.dir %>",
+              "manifest_project_name": "<%= manifest.project_name %>",
+              "azk_default_domain": "<%= azk.default_domain %>",
+              "azk_balancer_port": "<%= azk.balancer_port %>",
+              "azk_balancer_ip": "<%= azk.balancer_ip %>",
+            }
+          },
         },
         default: 'example',
         bins: [

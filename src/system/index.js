@@ -20,7 +20,7 @@ export class System {
 
   // Get options
   get command() { return this.options.command };
-  get row_mount_folders() { return this.options.mount_folders };
+  get raw_mount_folders() { return this.options.mount_folders };
   get namespace() {
     return this.manifest.namespace + '-sys.' + this.name;
   }
@@ -32,14 +32,6 @@ export class System {
       return this.manifest.system(depend, true);
     });
   };
-
-  // Containers filter
-  filter(containers) {
-    var regex = RegExp(`${this.namespace}`);
-    return _.filter(containers, (container) => {
-      return container.Names[0].match(regex)
-    })
-  }
 
   _expand_template(options) {
     var data = {
