@@ -1,7 +1,8 @@
 import h from 'spec/spec_helper';
-import { config, _ } from 'azk';
+import { config, _, path } from 'azk';
 import { System } from 'azk/system';
 import { Manifest } from 'azk/manifest';
+import { net } from 'azk/utils';
 
 describe("system class", function() {
   var system;
@@ -20,7 +21,9 @@ describe("system class", function() {
     var regex = RegExp(`echo ".*${name}.*"; exit 1`);
     h.expect(system).to.have.property("command").and.match(regex);
     h.expect(system).to.have.property("depends").eql([]);
-    h.expect(system).to.have.property("shell").eql("/bin/sh");
+    h.expect(system).to.have.property("envs").eql({});
+    h.expect(system).to.have.property("shell", "/bin/sh");
+    h.expect(system).to.have.property("workdir", "/");
   });
 
   describe("with valid manifest", function() {
@@ -34,24 +37,56 @@ describe("system class", function() {
       });
     });
 
-    it("should expand options with template", function() {
-      var system = manifest.system('expand_test');
-      var mount_folders = system.raw_mount_folders;
-      h.expect(mount_folders).to.eql({
-        "system_name": system.name,
-        "persistent_folder": "/data",
-        "manifest_dir": manifest.manifestDirName,
-        "manifest_project_name": manifest.manifestDirName,
-        "azk_default_domain": config('agent:balancer:host'),
-        "azk_balancer_port": config('agent:balancer:port').toString(),
-        "azk_balancer_ip": config('agent:balancer:ip'),
-      })
+    describe("in a system with volumes to be mounted", function() {
+      it("should expand options with template", function() {
+        var system = manifest.system('expand_test');
+        var mount_folders = system.raw_mount_folders;
+        h.expect(mount_folders).to.eql({
+          "system_name": system.name,
+          "persistent_folder": "/data",
+          "manifest_dir": manifest.manifestDirName,
+          "manifest_project_name": manifest.manifestDirName,
+          "azk_default_domain": config('agent:balancer:host'),
+          "azk_balancer_port": config('agent:balancer:port').toString(),
+          "azk_balancer_ip": config('agent:balancer:ip'),
+        })
+      });
+
+      it("should return a volumes property", function() {
+        var system  = manifest.system('mount_test');
+        var volumes = system.volumes;
+        h.expect(volumes).to.have.property(manifest.manifestPath, "/azk/" + system.name);
+        h.expect(volumes).to.have.property(path.resolve(manifest.manifestPath, ".."), "/azk/root");
+      });
     });
 
     it("should return a depends systems", function() {
       var depends = system.dependsInstances;
       var names = _.map(depends, (system) => { return system.name });
       h.expect(names).to.eql(["db", "api"]);
+    });
+
+    it("should make a daemon docker run options", function() {
+      var options = system.daemonOptions();
+      h.expect(options).to.have.property("daemon", true);
+      h.expect(options).to.have.property("ports").and.empty;
+      h.expect(options).to.have.property("volumes").and.eql(system.volumes);
+      h.expect(options).to.have.property("working_dir").and.eql(system.workdir);
+      h.expect(options).to.have.property("env").and.eql({ ECHO_DATA: "data"});
+      h.expect(options).to.have.property("dns").and.eql(net.nameServers());
+
+      // Customized options
+      options = system.daemonOptions({
+        volumes : { "./": "/azk" },
+        workdir : "/azk",
+        envs    : { FOO: "BAR" }
+      });
+
+      h.expect(options).to.have.property("working_dir", "/azk");
+      h.expect(options).to.have.property("volumes")
+        .and.have.property("./").and.eql("/azk");
+      h.expect(options).to.have.property("env")
+        .and.eql({ ECHO_DATA: "data", FOO: "BAR"});
     });
   });
 })
