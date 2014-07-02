@@ -13,13 +13,15 @@ export class System {
   get default_options() {
     var msg = t("system.cmd_not_set", {system: this.name});
     return {
-      command: `echo "${msg}"; exit 1`,
-      depends: [],
+      command : `echo "${msg}"; exit 1`,
+      shell   : "/bin/sh",
+      depends : [],
     }
   }
 
   // Get options
-  get command() { return this.options.command };
+  get command()           { return this.options.command };
+  get shell()             { return this.options.shell };
   get raw_mount_folders() { return this.options.mount_folders };
   get namespace() {
     return this.manifest.namespace + '-sys.' + this.name;

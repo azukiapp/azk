@@ -20,6 +20,7 @@ describe("system class", function() {
     var regex = RegExp(`echo ".*${name}.*"; exit 1`);
     h.expect(system).to.have.property("command").and.match(regex);
     h.expect(system).to.have.property("depends").eql([]);
+    h.expect(system).to.have.property("shell").eql("/bin/sh");
   });
 
   describe("with valid manifest", function() {
