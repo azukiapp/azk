@@ -15,18 +15,13 @@ export class Image extends Utils.qify('dockerode/lib/image') {
 }
 
 export class Container extends Utils.qify('dockerode/lib/container') {
-  static generateName(ns) {
-    var id = uuid.v1().replace(/-/g, "").slice(0, 10);
-    return `${config('docker:namespace')}-${ns}-id.${id}`;
-  }
-
   get Id() {
     return this.id;
   }
 
   inspect(...args) {
     return super(...args).then((data) => {
-      data.Annotations = Container.convertNameToAnnotations(data.Name);
+      data.Annotations = Container.unserializeAnnotations(data.Name);
       return data;
     });
   }
@@ -48,7 +43,23 @@ export class Container extends Utils.qify('dockerode/lib/container') {
     return state;
   }
 
-  static convertNameToAnnotations(name) {
+  // Serialize annotations to a container name format
+  static serializeAnnotations(annotations = { azk: {} }) {
+    var azk = annotations.azk;
+
+    // Unique id generator
+    if (!azk.uid) {
+      azk.uid = uuid.v1().replace(/-/g, "").slice(0, 10);
+    }
+
+    // Mount string
+    return [config('docker:namespace'), ...(_.map(azk, (value, key) => {
+      return key + "." + value;
+    }))].join("-");
+  }
+
+  // Unserialize annotations from a container name
+  static unserializeAnnotations(name) {
     name = name.replace(/\/(.*)/, "$1");
     var data = name.split('-');
     return _.reduce(data, (annotations, values) => {
@@ -91,7 +102,7 @@ export class Docker extends Utils.qify('dockerode') {
       return _.reduce(containers, (result, container) => {
         if (container.Names[0].match(this.c_regex)) {
           container.Name = container.Names[0];
-          container.Annotations = Container.convertNameToAnnotations(container.Name);
+          container.Annotations = Container.unserializeAnnotations(container.Name);
           container.State = Container.parseStatus(container.Status);
           result.push(container);
         }

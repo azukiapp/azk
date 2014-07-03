@@ -1,4 +1,4 @@
-import { Q, _, config, defer } from 'azk';
+import { Q, _, config, defer, async } from 'azk';
 import docker from 'azk/docker';
 import h from 'spec/spec_helper';
 
@@ -96,7 +96,7 @@ describe("Azk docker module, run method @slow", function() {
     var opts = { daemon: true, ports: {} };
     opts.ports["1500/tcp"] = [{ HostIp: "0.0.0.0" }];
 
-    return Q.async(function* () {
+    return async(function* () {
       // Run http server
       var container = yield docker.run(default_img, cmd, opts);
       var data = yield container.inspect();
@@ -115,11 +115,11 @@ describe("Azk docker module, run method @slow", function() {
       h.expect(outputs.stdout).to.match(/HTTP\/1\.1/);
 
       return container.kill();
-    })();
+    });
   });
 
   it("should support run daemon mode", function() {
-    return Q.async(function* () {
+    return async(function* () {
       var dir  = yield h.tmp_dir();
       var cmd  = ["/bin/bash", "-c", "while true; do env; sleep 1; done"];
       var opts = { daemon: true };
@@ -136,11 +136,11 @@ describe("Azk docker module, run method @slow", function() {
       h.expect(outputs.stdout).to.match(/AZK_NAME=azk/);
 
       return container.kill();
-    })();
+    });
   });
 
   it("should support create with a name", function() {
-    return Q.async(function* () {
+    return async(function* () {
       var name = `/${namespace}.azk-test-cont-name`;
       var cmd  = ["/bin/true"];
       var opts = { name: name, rm: false, stdout: mocks.stdout };
@@ -148,18 +148,41 @@ describe("Azk docker module, run method @slow", function() {
       var data = yield cont.inspect();
 
       h.expect(data).to.have.property('Name', name);
-    })();
+    });
   });
 
-  it("should generate a azk namespace name", function() {
-    return Q.async(function* () {
+  it("should composer name by annotations", function() {
+    return async(function* () {
+      var annotations = { azk: {
+        key1: "v1",
+        key2: "v2",
+        type: "daemon",
+      }};
+      var cmd  = ["/bin/true"];
+      var opts = { rm: false, stdout: mocks.stdout, annotations };
+      var cont = yield docker.run(default_img, cmd, opts);
+      var data = yield cont.inspect();
+
+      h.expect(data).to.have.deep.property("Annotations.azk.azk" , "test");
+      h.expect(data).to.have.deep.property("Annotations.azk.uid").and.match(/^[0-9a-f]+$/);
+      h.expect(data).to.have.deep.property("Annotations.azk.key1", "v1");
+      h.expect(data).to.have.deep.property("Annotations.azk.key2", "v2");
+    });
+  });
+
+  it("should composer name by default annotations", function() {
+    return async(function* () {
       var cmd  = ["/bin/true"];
       var opts = { rm: false, stdout: mocks.stdout };
       var cont = yield docker.run(default_img, cmd, opts);
       var data = yield cont.inspect();
 
-      var name = RegExp(namespace + "-type.run-id.[0-9a-f]+");
+      h.expect(data).to.have.deep.property("Annotations.azk.azk" , "test");
+      h.expect(data).to.have.deep.property("Annotations.azk.type", "run");
+      h.expect(data).to.have.deep.property("Annotations.azk.uid").and.match(/^[0-9a-f]+$/);
+
+      var name = RegExp(namespace + "-type.run-uid.[0-9a-f]+");
       h.expect(data).to.have.property('Name').and.match(name);
-    })();
+    });
   });
 });

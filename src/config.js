@@ -73,7 +73,7 @@ var options = merge({
     },
     docker  : {
       host          : docker_host,
-      namespace     : 'azk',
+      namespace     : 'azk.dev',
       repository    : 'azk',
       default_domain: 'azk',
       image_default : 'azukiapp/azktcl:0.0.1',

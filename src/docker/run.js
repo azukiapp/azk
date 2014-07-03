@@ -48,8 +48,12 @@ export function run(docker, Container, image, cmd, opts = { }) {
     p_binds[port] = bind;
   });
 
+  // Annotations
+  var Annotations = opts.annotations || { azk : {} };
+  Annotations.azk.type = Annotations.azk.type || "run";
+
   // Container name and envs
-  var name = opts.name || Container.generateName(opts.ns || "type.run");
+  var name = opts.name || Container.serializeAnnotations(Annotations);
   opts.env = opts.env  || {};
   opts.env['AZK_NAME'] = name;
   var env  = _.reduce(opts.env, function(sum, value, key) {
