@@ -55,8 +55,12 @@ describe("system class", function() {
       it("should return a volumes property", function() {
         var system  = manifest.system('mount_test');
         var volumes = system.volumes;
-        h.expect(volumes).to.have.property(manifest.manifestPath, "/azk/" + system.name);
-        h.expect(volumes).to.have.property(path.resolve(manifest.manifestPath, ".."), "/azk/root");
+        h.expect(volumes).to.have.property(
+          manifest.manifestPath, "/azk/" + system.name
+        );
+        h.expect(volumes).to.have.property(
+          path.resolve(manifest.manifestPath, ".."), "/azk/root"
+        );
       });
     });
 
@@ -66,27 +70,42 @@ describe("system class", function() {
       h.expect(names).to.eql(["db", "api"]);
     });
 
-    it("should make a daemon docker run options", function() {
-      var options = system.daemonOptions();
-      h.expect(options).to.have.property("daemon", true);
-      h.expect(options).to.have.property("ports").and.empty;
-      h.expect(options).to.have.property("volumes").and.eql(system.volumes);
-      h.expect(options).to.have.property("working_dir").and.eql(system.workdir);
-      h.expect(options).to.have.property("env").and.eql({ ECHO_DATA: "data"});
-      h.expect(options).to.have.property("dns").and.eql(net.nameServers());
+    describe("call to daemonOptions", function() {
+      var options;
 
-      // Customized options
-      options = system.daemonOptions({
-        volumes : { "./": "/azk" },
-        workdir : "/azk",
-        envs    : { FOO: "BAR" }
+      before(() => options = system.daemonOptions());
+
+      it("should return default docker options", function() {
+        h.expect(options).to.have.property("daemon", true);
+        h.expect(options).to.have.property("ports").and.empty;
+        h.expect(options).to.have.property("volumes").and.eql(system.volumes);
+        h.expect(options).to.have.property("working_dir").and.eql(system.workdir);
+        h.expect(options).to.have.property("env").and.eql({ ECHO_DATA: "data"});
+        h.expect(options).to.have.property("dns").and.eql(net.nameServers());
       });
 
-      h.expect(options).to.have.property("working_dir", "/azk");
-      h.expect(options).to.have.property("volumes")
-        .and.have.property("./").and.eql("/azk");
-      h.expect(options).to.have.property("env")
-        .and.eql({ ECHO_DATA: "data", FOO: "BAR"});
+      it("should return options with annotations", function() {
+        h.expect(options).to.have.deep.property("annotations.type", "daemon");
+        h.expect(options).to.have.deep.property("annotations.sys", system.name);
+        h.expect(options).to.have.deep.property("annotations.seq", 1);
+      });
+
+      it("should support custom options", function() {
+        // Customized options
+        var options = system.daemonOptions({
+          volumes : { "./": "/azk" },
+          workdir : "/azk",
+          envs    : { FOO: "BAR" },
+          sequencies: { daemon: 2 }
+        });
+
+        h.expect(options).to.have.property("working_dir", "/azk");
+        h.expect(options).to.have.property("volumes")
+          .and.have.property("./").and.eql("/azk");
+        h.expect(options).to.have.property("env")
+          .and.eql({ ECHO_DATA: "data", FOO: "BAR"});
+        h.expect(options).to.have.deep.property("annotations.seq", 3);
+      });
     });
   });
 })

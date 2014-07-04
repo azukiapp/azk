@@ -70,9 +70,10 @@ export class System {
       workdir: this.options.workdir,
       volumes: {},
       evns: {},
+      sequencies: {},
     });
 
-    //var name = this.namespace + (daemon ? 'type.daemon' : 'type.exec');
+    var type = daemon ? "daemon" : "shell";
     var run_options = {
       daemon: daemon,
       ports: {},
@@ -80,6 +81,11 @@ export class System {
       working_dir: options.workdir || this.workdir,
       env: _.merge({}, this.envs, options.envs),
       dns: net.nameServers(),
+      annotations: {
+        type : type,
+        sys  : this.name,
+        seq  : (options.sequencies[type] || 0) + 1,
+      }
     }
 
     // Daemon or exec mode?
