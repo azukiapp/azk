@@ -47,6 +47,18 @@ export class System {
     return volumes;
   }
 
+  get persistent_volumes() {
+    var folders = {};
+    var key  = config('agent:requires_vm') ? 'agent:vm' : 'paths';
+    var base = config(key + ':persistent_folders');
+
+    return _.reduce(this.options.persistent_folders, (folders, folder) => {
+      var origin = path.join(base, this.manifest.namespace, this.name, folder);
+      folders[origin] = folder;
+      return folders;
+    }, {});
+  }
+
   // Get depends info
   get depends() { return this.options.depends };
   get dependsInstances() {
@@ -55,29 +67,46 @@ export class System {
     });
   };
 
-  // Docker run options
+  // Docker run options generator
   daemonOptions(options = {}) {
     return this._make_options(true, options);
   }
 
   shellOptions(options = {}) {
-    return this._make_options(false, options);
+    options = _.defaults(options, {
+      interactive: false,
+    })
+    var opts = this._make_options(false, options);
+
+    // Shell extra options
+    opts.annotations.shell = options.interactive ? 'interactive' : 'script';
+    _.merge(opts, {
+      tty   : options.interactive ? options.stdout.isTTY : false,
+      stdout: options.stdout,
+      stderr: options.stderr || options.stdout,
+      stdin : options.interactive ? (options.stdin) : null,
+    });
+
+    return opts;
   }
 
+  // Private methods
   _make_options(daemon, options = {}) {
     // Default values
     options = _.defaults(options, {
       workdir: this.options.workdir,
       volumes: {},
+      local_volumes: {},
       evns: {},
       sequencies: {},
     });
 
     var type = daemon ? "daemon" : "shell";
-    var run_options = {
+    return {
       daemon: daemon,
       ports: {},
       volumes: _.merge({}, this.volumes, options.volumes),
+      local_volumes: _.merge({}, this.persistent_volumes, options.local_volumes),
       working_dir: options.workdir || this.workdir,
       env: _.merge({}, this.envs, options.envs),
       dns: net.nameServers(),
@@ -87,25 +116,6 @@ export class System {
         seq  : (options.sequencies[type] || 0) + 1,
       }
     }
-
-    // Daemon or exec mode?
-    //if (!daemon) {
-      //name += opts.interactive ? '.interactive' : '.raw';
-      //_.merge(run_options, {
-        //tty: opts.interactive ? opts.stdout.isTTY : false,
-        //stdout: opts.stdout,
-        //stderr: opts.stderr || opts.stdout,
-        //stdin: opts.interactive ? (opts.stdin) : null,
-      //});
-    //}
-
-    // Persistent dir
-    //run_options.local_volumes = _.merge(
-      //{}, run_options.local_volumes, this.persistent_folders
-    //);
-
-    //run_options.ns = name;
-    return run_options;
   }
 
   _expand_template(options) {

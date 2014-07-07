@@ -23,6 +23,7 @@ export function extend(h) {
             workdir: '/azk/<%= manifest.dir %>',
             image: default_img,
             mount_folders: mount,
+            persistent_folders: [ "/data" ],
             balancer: true,
             command, provision,
             envs: {
@@ -53,6 +54,14 @@ export function extend(h) {
             image: config('docker:image_empty'),
             command: "/bin/false",
           },
+          mount_test: {
+            up: false,
+            image: default_img,
+            mount_folders: {
+              ".": "/azk/<%= system.name %>",
+              "..": "/azk/root",
+            },
+          },
           expand_test: {
             up: false,
             image: default_img,
@@ -64,7 +73,7 @@ export function extend(h) {
               "azk_default_domain": "<%= azk.default_domain %>",
               "azk_balancer_port": "<%= azk.balancer_port %>",
               "azk_balancer_ip": "<%= azk.balancer_ip %>",
-            }
+            },
           },
         },
         default: 'example',
