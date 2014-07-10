@@ -50,6 +50,9 @@ class Cmd extends Command {
             //keys.push((event.from > event.to) ? "starting" : "stopping");
             this.tOutput([...keys, "scale"], event);
             break;
+          case "provision":
+            this.tOutput([...keys, "provision"], event);
+            break;
           default:
             log.debug(event);
         }
