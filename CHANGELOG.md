@@ -10,6 +10,11 @@
   * [Manifest] Validate: image is required.
   * [Manifest] Validate: declared dependencies are required.
   * [Manifest] Validate: circular dependencies are checked.
+
+## v0.3.1 (2014-07-11)
+
+* Enhancements
+  * [Manifest] Support `env` to use environment variables in DSL.
   * [Generators] Adding base initializar for ruby projects.
 
 * Bug

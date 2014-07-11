@@ -13,6 +13,7 @@ var tsort     = require('gaia-tsort');
 
 var ManifestDsl = {
   require: require,
+  env: process.env,
 
   system(name, data) {
     this.addSystem(name, data);
@@ -116,7 +117,10 @@ export class Manifest {
 
   static createDslContext(target, source, file) {
     return _.reduce(ManifestDsl, (context, func, name) => {
-      context[name] = func.bind(target);
+      if (_.isFunction(func))
+        context[name] = func.bind(target);
+      else
+        context[name] = func;
       return context;
     }, { });
   }
