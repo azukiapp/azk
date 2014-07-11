@@ -129,7 +129,7 @@ export class Manifest {
       }
       var image = data.image;
       delete data.image;
-      data  = new System(this, name, image, data);
+      data = new System(this, name, image, data);
     }
 
     this.systems[name] = data;

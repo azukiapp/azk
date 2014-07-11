@@ -2,6 +2,8 @@ import { _, t, config, path } from 'azk';
 import { Image } from 'azk/images';
 import { net } from 'azk/utils';
 
+import { Run } from 'azk/system/run';
+
 export class System {
   constructor(manifest, name, image, options = {}) {
     this.manifest = manifest;
@@ -20,6 +22,11 @@ export class System {
       workdir : "/",
       envs    : {},
     }
+  }
+
+  // System operations
+  runShell(command, options = { }) {
+    return Run.run(this, command, this.shellOptions(options));
   }
 
   // Get options
@@ -110,11 +117,11 @@ export class System {
       working_dir: options.workdir || this.workdir,
       env: _.merge({}, this.envs, options.envs),
       dns: net.nameServers(),
-      annotations: {
+      annotations: { azk: {
         type : type,
         sys  : this.name,
         seq  : (options.sequencies[type] || 0) + 1,
-      }
+      }}
     }
   }
 

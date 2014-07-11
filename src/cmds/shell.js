@@ -60,13 +60,13 @@ class Cmd extends Command {
         }
       }
 
-      var cmd = [opts.shell];
+      var cmd = [opts.shell || system.shell];
       if (opts.command) {
         cmd.push("-c");
         cmd.push(opts.command);
       }
 
-      return yield system.exec(cmd, options);
+      return yield system.runShell(cmd, options);
     }).progress(progress);
   }
 }
@@ -78,7 +78,7 @@ export function init(cli) {
     .addOption(['--system', '-s'], { type: String })
     .addOption(['--image', '-i'], { type: String })
     .addOption(['--command', '-c'], { type: String })
-    .addOption(['--shell'], { default: "/bin/sh", type: String })
+    .addOption(['--shell'], { type: String })
     .addOption(['--cwd', '-C'], { type: String })
     .addOption(['--mount', '-m'], { type: String, acc: true, default: [] })
     .addOption(['--env', '-e'], { type: String, acc: true, default: [] })
