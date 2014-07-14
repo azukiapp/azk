@@ -48,12 +48,21 @@ export function extend(h) {
             image: default_img,
             persistent_folders: [ "/data" ],
             mount_folders: mount,
+            scalable: false,
             command, provision,
           },
           empty: {
             up: false,
             image: config('docker:image_empty'),
             command: "/bin/false",
+          },
+          ports_test: {
+            image: config("docker:image_empty"),
+            ports: {
+              test_tcp: "80/tcp",
+              test_udp: "53/udp",
+              test_public: "443:443/tcp",
+            },
           },
           mount_test: {
             up: false,

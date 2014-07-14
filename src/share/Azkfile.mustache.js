@@ -53,6 +53,13 @@ systems({
       hostname: "<%= system.name %>.<%= azk.default_domain %>"
     },
     {{~/if}}
+    {{~#if ports}}
+    ports: {
+      // exports global variables
+      {{~#each ports}}
+      {{&hash_key @key}}: "{{this}}",{{/each}}
+    },
+    {{~/if}}
     {{~#if envs}}
     envs: {
       // exports global variables

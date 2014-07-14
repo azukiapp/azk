@@ -1,26 +1,33 @@
-import { _, t, config, path } from 'azk';
+import { _, t, config, path, async, Q } from 'azk';
 import { Image } from 'azk/images';
 import { net } from 'azk/utils';
+import { XRegExp } from 'xregexp';
 
 import { Run } from 'azk/system/run';
 
+var regex_port = new XRegExp(
+  "(?<private>[0-9]{1,})(:(?<public>[0-9]{1,})){0,1}(/(?<protocol>tcp|udp)){0,1}", "x"
+);
+
 export class System {
   constructor(manifest, name, image, options = {}) {
-    this.manifest = manifest;
-    this.name     = name;
-    this.image    = new Image(image);
-    this.options  = _.merge({}, this.default_options, options);
-    this.options  = this._expand_template(this.options);
+    this.manifest  = manifest;
+    this.name      = name;
+    this.image     = new Image(image);
+    this.__options = options;
+    this.options   = _.merge({}, this.default_options, options);
+    this.options   = this._expand_template(this.options);
   }
 
   get default_options() {
     var msg = t("system.cmd_not_set", {system: this.name});
     return {
-      command : `echo "${msg}"; exit 1`,
-      shell   : "/bin/sh",
-      depends : [],
-      workdir : "/",
-      envs    : {},
+      command  : `echo "${msg}"; exit 1`,
+      shell    : "/bin/sh",
+      depends  : [],
+      workdir  : "/",
+      envs     : {},
+      scalable : false,
     }
   }
 
@@ -34,8 +41,21 @@ export class System {
   get workdir()           { return this.options.workdir };
   get shell()             { return this.options.shell };
   get raw_mount_folders() { return this.options.mount_folders };
+  get scalable()          { return this.options.scalable };
   get namespace() {
     return this.manifest.namespace + '-sys.' + this.name;
+  }
+
+  // Ports
+  get ports() {
+    var ports = this.options.ports || {};
+
+    // Add http port
+    if (_.isEmpty(ports.http) && this.options.http) {
+      ports.http = "5000/tcp";
+    }
+
+    return ports;
   }
 
   // Envs
@@ -74,19 +94,44 @@ export class System {
     });
   };
 
+  // Check and pull image
+  checkImage(pull = true) {
+    return async(this, function* () {
+      if (pull) {
+        var promise = this.image.pull();
+      } else {
+        var promise = this.image.check().then((image) => {
+          if (image == null) {
+            throw new ImageNotAvailable(this.name, this.image.name);
+          }
+          return image;
+        });
+      }
+
+      var image = yield promise.progress((event) => {
+        event.system = this;
+        return event;
+      });
+
+      return image.inspect();
+    });
+  }
+
   // Docker run options generator
   daemonOptions(options = {}) {
+    options.ports = _.merge({}, this.ports, options.ports);
     return this._make_options(true, options);
   }
 
   shellOptions(options = {}) {
     options = _.defaults(options, {
       interactive: false,
-    })
+    });
+
     var opts = this._make_options(false, options);
 
     // Shell extra options
-    opts.annotations.shell = options.interactive ? 'interactive' : 'script';
+    opts.annotations.azk.shell = options.interactive ? 'interactive' : 'script';
     _.merge(opts, {
       tty   : options.interactive ? options.stdout.isTTY : false,
       stdout: options.stdout,
@@ -104,25 +149,57 @@ export class System {
       workdir: this.options.workdir,
       volumes: {},
       local_volumes: {},
-      evns: {},
+      envs: {},
+      ports: {},
       sequencies: {},
+    });
+
+    // Map ports to docker configs: ports and envs
+    var envs  = _.merge({}, this.envs, options.envs);
+    var ports = {};
+    _.each(this._parse_ports(options.ports), (data, name) => {
+      if (!name.match(/\//)) {
+        var env_key = `${name.toUpperCase()}_PORT`;
+        if (!envs[env_key]) envs[env_key] = data.private;
+      }
+      ports[data.name] = [data.config];
     });
 
     var type = daemon ? "daemon" : "shell";
     return {
       daemon: daemon,
-      ports: {},
+      ports: ports,
       volumes: _.merge({}, this.volumes, options.volumes),
       local_volumes: _.merge({}, this.persistent_volumes, options.local_volumes),
       working_dir: options.workdir || this.workdir,
-      env: _.merge({}, this.envs, options.envs),
+      env: envs,
       dns: net.nameServers(),
       annotations: { azk: {
         type : type,
         sys  : this.name,
         seq  : (options.sequencies[type] || 0) + 1,
       }}
-    }
+    };
+  }
+
+  // Parse azk ports configs
+  _parse_ports(ports) {
+    return _.reduce(ports, (ports, port, name) => {
+      port = XRegExp.exec(port, regex_port);
+      port.protocol = port.protocol || "tcp";
+
+      // TODO: Add support a bind ip
+      var conf = { HostIp: config("agent:dns:ip") };
+      if (port.public)
+        conf.HostPort = port.public;
+
+      ports[name] = {
+        config : conf,
+        name   : port.private + "/" + port.protocol,
+        private: port.private
+      };
+      return ports;
+    }, {});
   }
 
   _expand_template(options) {

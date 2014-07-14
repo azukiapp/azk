@@ -1,8 +1,9 @@
 import h from 'spec/spec_helper';
-import { config, _, path } from 'azk';
+import { config, _, path, Q, async, defer } from 'azk';
 import { System } from 'azk/system';
 import { Manifest } from 'azk/manifest';
 import { net } from 'azk/utils';
+import { ImageNotAvailable } from 'azk/utils/errors';
 
 describe("system class", function() {
   var system;
@@ -24,6 +25,7 @@ describe("system class", function() {
     h.expect(system).to.have.property("envs").eql({});
     h.expect(system).to.have.property("shell", "/bin/sh");
     h.expect(system).to.have.property("workdir", "/");
+    h.expect(system).to.have.property("scalable").to.fail;
   });
 
   describe("with valid manifest", function() {
@@ -66,9 +68,16 @@ describe("system class", function() {
       it("should return a persistent volumes", function() {
         var system  = manifest.system("db");
         var volumes = system.persistent_volumes;
-        var folder  = path.join(config("agent:vm:persistent_folders"), manifest.namespace, system.name, "data");
+        var folder  = path.join(
+          config("agent:vm:persistent_folders"),
+          manifest.namespace, system.name, "data"
+        );
         h.expect(volumes).to.have.property(folder, "/data");
-      })
+      });
+
+      it("should return default ports", function() {
+        h.expect(system).to.have.deep.property("ports.http");
+      });
     });
 
     it("should return a depends systems", function() {
@@ -77,39 +86,121 @@ describe("system class", function() {
       h.expect(names).to.eql(["db", "api"]);
     });
 
+    describe("call checkImage", function() {
+      var system, image = {
+        pull() {
+          return defer((resolve, reject, notify) => {
+            process.nextTick(() => {
+              notify({ type: "event" });
+              resolve(this);
+            });
+          });
+        },
+
+        check() {
+          return Q(null);
+        },
+
+        inspect() {
+          return "image_data";
+        }
+      }
+
+      before(() => {
+        system = manifest.system("empty");
+        image.name = system.image.name;
+        system.image = image;
+      });
+
+      it("should raise error if image not found", function() {
+        h.expect(system.checkImage(false)).to.rejectedWith(ImageNotAvailable);
+      });
+
+      it("should add system to event object", function() {
+        return async(function* () {
+          var events   = [];
+          var progress = (event) => {
+            events.push(event);
+            return event;
+          };
+
+          var info = yield system.checkImage().progress(progress);
+          h.expect(events).to.have.deep.property("[0]").and.eql(
+              { type: "event", system: system}
+            );
+        });
+      });
+    });
+
     describe("call to daemonOptions", function() {
       var options;
-
-      before(() => options = system.daemonOptions());
+      before(() => { options = system.daemonOptions() });
 
       it("should return default docker options", function() {
         h.expect(options).to.have.property("daemon", true);
-        h.expect(options).to.have.property("ports").and.empty;
         h.expect(options).to.have.property("working_dir").and.eql(system.workdir);
-        h.expect(options).to.have.property("env").and.eql({ ECHO_DATA: "data"});
+        h.expect(options).to.have.property("env").and.eql({ HTTP_PORT: "5000", ECHO_DATA: "data"});
         h.expect(options).to.have.property("dns").and.eql(net.nameServers());
       });
 
       it("should return options with annotations", function() {
-        h.expect(options).to.have.deep.property("annotations.type", "daemon");
-        h.expect(options).to.have.deep.property("annotations.sys", system.name);
-        h.expect(options).to.have.deep.property("annotations.seq", 1);
+        h.expect(options).to.have.deep.property("annotations.azk.type", "daemon");
+        h.expect(options).to.have.deep.property("annotations.azk.sys", system.name);
+        h.expect(options).to.have.deep.property("annotations.azk.seq", 1);
       });
 
-      it("should return ma folder in volumes and data folders in local_volumes", function() {
+      it("should return mount folder in volumes and data folders in local_volumes", function() {
         h.expect(options).to.have.property("volumes").and.eql(system.volumes);
         h.expect(options).to.have.property("local_volumes").and.eql(system.persistent_volumes);
       });
 
+      it("should map system ports to docker ports", function() {
+        var system  = manifest.system('ports_test');
+        var options = system.daemonOptions();
+
+        h.expect(options).to.deep.have.property("ports.80/tcp").and.eql([{
+          HostIp: config('agent:dns:ip')
+        }]);
+        h.expect(options).to.deep.have.property("ports.53/udp").and.eql([{
+          HostIp: config('agent:dns:ip')
+        }]);
+        h.expect(options).to.deep.have.property("ports.443/tcp").and.eql([{
+          HostIp: config('agent:dns:ip'), HostPort: "443"
+        }]);
+      });
+
+      it("should support custom ports", function() {
+        var custom = {
+          ports: {
+            "http": "8080/tcp",
+            "6379/tcp": "6379/tcp",
+          }
+        };
+        var system  = manifest.system('ports_test');
+        var options = system.daemonOptions(custom);
+
+        h.expect(options).to.deep.have.property("ports.8080/tcp").and.eql([{
+          HostIp: config('agent:dns:ip')
+        }]);
+        h.expect(options).to.deep.have.property("ports.6379/tcp").and.eql([{
+          HostIp: config('agent:dns:ip')
+        }]);
+
+        h.expect(options).to.deep.have.property("env.HTTP_PORT", "8080");
+        h.expect(options).to.not.deep.have.property("env.6379_PORT");
+        h.expect(options).to.not.deep.have.property("env.6379/TCP_PORT");
+      });
+
       it("should support custom options", function() {
         // Customized options
-        var options = system.daemonOptions({
+        var custom  = {
           volumes : { "./": "/azk" },
           local_volumes : { "./data": "/data" },
           workdir : "/azk",
           envs    : { FOO: "BAR" },
           sequencies: { daemon: 2 }
-        });
+        };
+        var options = system.daemonOptions(custom);
 
         h.expect(options).to.have.property("working_dir", "/azk");
         h.expect(options).to.have.property("volumes")
@@ -117,17 +208,17 @@ describe("system class", function() {
         h.expect(options).to.have.property("local_volumes")
           .and.have.property("./data").and.eql("/data");
         h.expect(options).to.have.property("env")
-          .and.eql({ ECHO_DATA: "data", FOO: "BAR"});
-        h.expect(options).to.have.deep.property("annotations.seq", 3);
+          .and.eql({ ECHO_DATA: "data", HTTP_PORT: "5000", FOO: "BAR"});
+        h.expect(options).to.have.deep.property("annotations.azk.seq", 3);
       });
     });
 
     describe("call to shellOptions", function() {
-      var options = {};
-
-      before(() => options = system.shellOptions({
-        stdout: {}
-      }));
+      var options;
+      before(() => {
+        var custom = { stdout: {} }
+        options = system.shellOptions(custom);
+      });
 
       it("should return default docker options", function() {
         h.expect(options).to.have.property("daemon", false);
@@ -138,35 +229,35 @@ describe("system class", function() {
       });
 
       it("should return options with annotations", function() {
-        h.expect(options).to.have.deep.property("annotations.type", "shell");
-        h.expect(options).to.have.deep.property("annotations.sys", system.name);
-        h.expect(options).to.have.deep.property("annotations.seq", 1);
-        h.expect(options).to.have.deep.property("annotations.shell", "script");
+        h.expect(options).to.have.deep.property("annotations.azk.type", "shell");
+        h.expect(options).to.have.deep.property("annotations.azk.sys", system.name);
+        h.expect(options).to.have.deep.property("annotations.azk.seq", 1);
+        h.expect(options).to.have.deep.property("annotations.azk.shell", "script");
       });
 
       it("should return option with stdio maped", function() {
         // Customized options
-        var options = system.shellOptions({
+        var custom = {
           interactive: true,
           stdout: { stdout: true, isTTY : true },
           stderr: { stderr: true },
           stdin : { stdin : true },
-        });
-
+        };
+        var options = system.shellOptions(custom);
         h.expect(options).to.have.property("tty").and.ok;
         h.expect(options).to.have.deep.property("stdout.stdout").and.ok;
         h.expect(options).to.have.deep.property("stderr.stderr").and.ok;
         h.expect(options).to.have.deep.property("stdin.stdin").and.ok;
-      })
+      });
 
       it("should support custom options", function() {
         // Customized options
-        var options = system.shellOptions({
+        var custom = {
           interactive: true,
           stdout: {},
-        });
-
-        h.expect(options).to.have.deep.property("annotations.shell", "interactive");
+        };
+        var options = system.shellOptions(custom);
+        h.expect(options).to.have.deep.property("annotations.azk.shell", "interactive");
       });
     })
   });
