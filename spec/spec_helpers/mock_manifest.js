@@ -24,7 +24,8 @@ export function extend(h) {
             image: default_img,
             mount_folders: mount,
             persistent_folders: [ "/data" ],
-            balancer: true,
+            scalable: true,
+            http: true,
             command, provision,
             envs: {
               ECHO_DATA: "data"
@@ -35,7 +36,8 @@ export function extend(h) {
             workdir: '/azk/<%= manifest.dir %>',
             image: default_img,
             mount_folders: mount,
-            balancer: true,
+            scalable: true,
+            http: true,
             command, provision,
             envs: {
               ECHO_DATA: "data"
@@ -46,7 +48,6 @@ export function extend(h) {
             image: default_img,
             persistent_folders: [ "/data" ],
             mount_folders: mount,
-            balancer: false,
             command, provision,
           },
           empty: {

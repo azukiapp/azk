@@ -4,71 +4,68 @@
 
 // Adds the systems that shape your system
 systems({
-  {{#each systems ~}}
+  {{~#each systems}}
   {{&hash_key @key}}: {
     // Dependent systems
     depends: {{&json depends}},
     // More images:  http://images.azk.io
-    {{#if image.build ~}}
+    {{~#if image.build}}
     image: {
       build: [
-        {{#each image.build ~}}
-        {{&json this}},
-        {{~/each}}
+        {{~#each image.build}}
+        {{&json this}},{{/each}}
       ]
     },
-    {{else ~}}
+    {{~else}}
     image: {{&json image}},
-    {{/if ~}}
-    {{#if provision ~}}
+    {{~/if}}
+    {{~#if provision}}
     // Steps to execute before running instances
     provision: [
-      {{#each provision ~}}
-      {{&json this}},
-      {{~/each}}
+      {{~#each provision}}
+      {{&json this}},{{/each}}
     ],
-    {{/if ~}}
-    {{#if workdir ~}}
+    {{~/if}}
+    {{~#if workdir}}
     workdir: "{{&workdir}}",
-    {{/if ~}}
+    {{~/if}}
     command: {{&json command}},
-    {{#if mount_folders ~}}
+    {{~#if mount_folders}}
     // Mounts folders to assigned paths
     mount_folders: {
-      {{#each mount_folders ~}}
-      {{&hash_key @key}}: {{&json this}},
-      {{~/each}}
+      {{~#each mount_folders}}
+      {{&hash_key @key}}: {{&json this}},{{/each}}
     },
-    {{/if ~}}
-    {{#if persistent_folders ~}}
+    {{~/if}}
+    {{~#if persistent_folders}}
     // Mounts a persistent data folders to assigned paths
     persistent_folders: [
-      {{#each persistent_folders ~}}
-      {{&json this}},
-      {{~/each}}
+      {{~#each persistent_folders}}
+      {{&json this}},{{/each}}
     ],
-    {{/if ~}}
-    {{#balancer ~}}
-    // Enables http balancer over instances
-    balancer: {
-      // {{&name}}.{{& ../../azk.default_domain}}
+    {{~/if}}
+    {{~#if scalable}}
+    scalable: {{&json scalable}},
+    {{~/if}}
+    {{~#if http}}
+    http: {
+      // {{&@key}}.{{& ../../azk.default_domain}}
       hostname: "<%= system.name %>.<%= azk.default_domain %>"
     },
-    {{/balancer ~}}
+    {{~/if}}
+    {{~#if envs}}
     envs: {
-      // Exports global variables
-      {{#each envs ~}}
-      {{@key}}: "{{this}}",
-      {{~/each}}
-    }
-  },
-  {{~/each}}
+      // exports global variables
+      {{~#each envs}}
+      {{&hash_key @key}}: "{{this}}",{{/each}}
+    },
+    {{~/if}}
+  },{{/each}}
 });
 
-{{#if default ~}}
+{{#if defaultSystem}}
 // Sets a default system
-setDefault("{{&default}}");
-{{/if ~}}
-{{#each bins ~}}
-registerBin("{{&this.name}}", {{&json this.command}});
-{{/each}}
+setDefault("{{&defaultSystem}}");
+{{~/if}}
+{{#each bins}}
+registerBin("{{&this.name}}", {{&json this.command}});{{/each}}

@@ -16,45 +16,105 @@ describe("Azk generator tool", function() {
     h.expect(node).to.have.property("type", "runtime");
   });
 
-  it("should format template", function() {
-    return h.tmp_dir().then((project) => {
-      var manifest = path.join(project, config('manifest'));
+  describe("run in a directory", function() {
+    var dir;
 
-      // Genereate manifest file
-      generator.render({
-        systems: {
-          front: {
-            depends: ['db'],
-            workdir: '/azk/<%= manifest.dir %>',
-            image: { repository: 'base', tag: '0.1' },
-            mount_folders: {
-              ".": "/azk/<%= manifest.dir %>",
-            },
-            command: 'bundle exec rackup config.ru',
-            envs: { RACK_ENV: 'dev' },
+    before(() => {
+      return h.tmp_dir().then((tmp) => {
+        dir = tmp;
+      });
+    });
+
+    // Genereate manifest file
+    var generate_manifest = (dir, data) => {
+      generator.render(data, path.join(dir, config('manifest')));
+      return new Manifest(dir);
+    };
+
+    var default_data = {
+      systems: {
+        front: {
+          depends: ['db'],
+          workdir: '/azk/<%= manifest.dir %>',
+          image: { repository: 'base', tag: '0.1' },
+          scalable: true,
+          http: true,
+          mount_folders: {
+            ".": "/azk/<%= manifest.dir %>",
           },
-          db: {
-            image: "base"
-          }
+          command: 'bundle exec rackup config.ru',
+          envs: { RACK_ENV: 'dev' },
         },
-        default: 'front',
-        bins: [
-          { name: "console", command: ["bundler", "exec"] }
-        ]
-      }, manifest);
+        db: {
+          image: "base"
+        }
+      },
+      defaultSystem: 'front',
+      bins: [
+        { name: "console", command: ["bundler", "exec"] }
+      ]
+    };
 
-      var manifest = new Manifest(project);
+    it("should generate with a valid format", function() {
+      var extra = _.merge({}, default_data, {
+        systems: {
+           front: { envs: { "F-O_O": "BAR"}, scalable: { default: 3}}
+        }
+      });
+
+      var manifest = generate_manifest(dir, extra);
+      var data = fs.readFileSync(manifest.file).toString();
+
+      h.expect(data).to.match(/^\s{2}db: {$/m);
+      h.expect(data).to.match(/^\s{6}RACK_ENV: "dev",$/m);
+      h.expect(data).to.match(/^\s{6}'F-O_O': "BAR",$/m);
+    });
+
+    it("should expand image build steps", function() {
+      var extra = _.merge({}, default_data, {
+        systems: {
+           front: { image: { build: [
+             "run step 1",
+             ["run", "step 2"],
+           ] } }
+        }
+      });
+
+      var manifest = generate_manifest(dir, extra);
+      var data = fs.readFileSync(manifest.file).toString();
+
+      h.expect(data).to.match(/^\s{2}db: {$/m);
+      h.expect(data).to.match(/^\s{6}build: \[$/m);
+      h.expect(data).to.match(/^\s{8}"run step 1",$/m);
+      h.expect(data).to.match(/^\s{8}\["run"\, "step 2"\],$/m);
+    });
+
+    it("should generete a valid manifest file", function() {
+      var manifest = generate_manifest(dir, default_data);
       var system   = manifest.systemDefault;
-      var name     = path.basename(project);
+      var name     = path.basename(dir);
 
       h.expect(system).to.have.deep.property("name", "front");
       h.expect(system).to.have.deep.property("image.name", "base:0.1");
       h.expect(system).to.have.deep.property("depends").and.to.eql(["db"]);
       h.expect(system).to.have.deep.property("options.workdir", "/azk/" + name);
+      h.expect(system).to.have.deep.property("options.scalable").and.ok;
       h.expect(system).to.have.deep.property("options.mount_folders")
         .and.to.eql({ ".": "/azk/" + name});
       h.expect(system).to.have.deep.property("options.command")
         .and.to.eql("bundle exec rackup config.ru");
+    });
+
+    it("should support instances in scalable", function() {
+      var data = _.merge({}, default_data, { systems: {
+        front: {
+          scalable: { default: 5 }
+        }
+      }});
+      var manifest = generate_manifest(dir, data);
+      var system   = manifest.systemDefault;
+
+      h.expect(system).to.have.deep.property("options.scalable").and.eql({ default: 5});
     });
   });
 });
