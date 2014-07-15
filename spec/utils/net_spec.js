@@ -1,5 +1,5 @@
 import h from 'spec/spec_helper';
-import { async, config } from 'azk';
+import { async, config, Q } from 'azk';
 import { net as net_utils } from 'azk/utils';
 var net = require('net');
 
@@ -23,14 +23,17 @@ describe("azk utils.net module", function() {
         socket.end("goodbye\n");
       })
       server.listen(port);
+      return server;
     }
 
     it("should wait for server", function() {
       var events = [];
+      var server = null;
       var progress = (event) => {
         // Connect before 2 attempts
-        if (event.type == "try_connect" && event.attempts == 2)
-          runServer();
+        if (event.type == "try_connect" && event.attempts == 2) {
+          server = runServer();
+        }
         events.push(event);
       }
 
@@ -39,8 +42,23 @@ describe("azk utils.net module", function() {
       }
 
       return async(function* () {
-        yield h.expect(connect()).to.eventually.fail;
-        yield h.expect(connect().progress(progress)).to.eventually.ok;
+        yield h.expect(connect()).to.eventually.equal(false);
+        yield h.expect(connect().progress(progress)).to.eventually.equal(true);
+        server.close();
+      });
+    });
+
+    it("should stop retry", function() {
+      var retry   = 0;
+      var options = { timeout: 100, retry_if: () => {
+        retry++;
+        return Q(false);
+      }};
+
+      return async(function* () {
+        var result = net_utils.waitService("localhost", port, 2, options);
+        yield h.expect(result).to.eventually.equal(false);
+        h.expect(retry).to.eql(1);
       });
     });
   });

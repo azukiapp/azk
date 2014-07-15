@@ -45,7 +45,10 @@ var net = {
   },
 
   waitService(host, port, retry = 15, opts = {}) {
-    opts = _.merge({ timeout: 10000 }, opts);
+    opts = _.defaults(opts, {
+      timeout: 10000,
+      retry_if: () => { return Q(true); }
+    });
 
     return defer((resolve, reject, notify) => {
       var client   = null;
@@ -62,18 +65,16 @@ var net = {
 
         t = setTimeout(() => {
           client.end();
-          if (attempts > max) return resolve(false);
 
-          attempts += 1;
-          connect();
+          opts.retry_if().then((result) => {
+            if (attempts > max || !result) return resolve(false);
+            attempts += 1;
+            connect();
+          }, () => resolve(false));
         }, opts.timeout);
 
-        client.on('error', (error) => {
-          //if(error.code != 'ECONNREFUSED') {
-            //clearTimeout(t);
-            //reject(error)
-          //}
-        });
+        // Ignore connect error
+        client.on('error', (error) => { return false; });
       }
       connect();
     });
