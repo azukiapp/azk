@@ -22,8 +22,22 @@ export class Container extends Utils.qify('dockerode/lib/container') {
   inspect(...args) {
     return super(...args).then((data) => {
       data.Annotations = Container.unserializeAnnotations(data.Name);
+      data.NetworkSettings = Container.parsePorts(data.NetworkSettings);
       return data;
     });
+  }
+
+  static parsePorts(network) {
+    network.Access = {};
+    _.each(network.Ports, (port, name) => {
+      if (port) {
+        network.Access[name] = {
+          gateway: network.Gateway,
+          port: port[0].HostPort,
+        };
+      }
+    });
+    return network;
   }
 
   static parseStatus(status) {
