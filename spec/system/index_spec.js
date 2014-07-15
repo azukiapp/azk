@@ -86,52 +86,6 @@ describe("system class", function() {
       h.expect(names).to.eql(["db", "api"]);
     });
 
-    describe("call checkImage", function() {
-      var system, image = {
-        pull() {
-          return defer((resolve, reject, notify) => {
-            process.nextTick(() => {
-              notify({ type: "event" });
-              resolve(this);
-            });
-          });
-        },
-
-        check() {
-          return Q(null);
-        },
-
-        inspect() {
-          return "image_data";
-        }
-      }
-
-      before(() => {
-        system = manifest.system("empty");
-        image.name = system.image.name;
-        system.image = image;
-      });
-
-      it("should raise error if image not found", function() {
-        h.expect(system.checkImage(false)).to.rejectedWith(ImageNotAvailable);
-      });
-
-      it("should add system to event object", function() {
-        return async(function* () {
-          var events   = [];
-          var progress = (event) => {
-            events.push(event);
-            return event;
-          };
-
-          var info = yield system.checkImage().progress(progress);
-          h.expect(events).to.have.deep.property("[0]").and.eql(
-              { type: "event", system: system}
-            );
-        });
-      });
-    });
-
     describe("call to daemonOptions", function() {
       var options;
       before(() => { options = system.daemonOptions() });
@@ -210,6 +164,23 @@ describe("system class", function() {
         h.expect(options).to.have.property("env")
           .and.eql({ ECHO_DATA: "data", HTTP_PORT: "5000", FOO: "BAR"});
         h.expect(options).to.have.deep.property("annotations.azk.seq", 3);
+      });
+
+      it("should extract options from image_data", function() {
+        var system = manifest.system("test_image_opts");
+        return system.image.check().then((image) => {
+          return image.inspect().then((image_data) => {
+            var options = system.daemonOptions({ image_data });
+            h.expect(options).to.have.property("working_dir", "/data");
+            h.expect(options).to.have.property("command").and.eql(image_data.Config.Cmd);
+            h.expect(options).to.have.deep.property("ports.80/tcp").and.eql([{
+              HostIp: config('agent:dns:ip')
+            }]);
+            h.expect(options).to.have.deep.property("ports.53/udp").and.eql([{
+              HostIp: config('agent:dns:ip')
+            }]);
+          });
+        });
       });
     });
 

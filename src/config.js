@@ -76,7 +76,7 @@ var options = merge({
       namespace     : 'azk.dev',
       repository    : 'azk',
       default_domain: 'azk',
-      image_default : 'azukiapp/azktcl:0.0.1',
+      image_default : 'azukiapp/azktcl:0.0.2',
     },
     agent: {
       requires_vm: requires_vm,

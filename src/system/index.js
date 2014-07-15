@@ -20,25 +20,34 @@ export class System {
   }
 
   get default_options() {
-    var msg = t("system.cmd_not_set", {system: this.name});
     return {
-      command  : `echo "${msg}"; exit 1`,
       shell    : "/bin/sh",
       depends  : [],
-      workdir  : "/",
       envs     : {},
       scalable : false,
     }
   }
 
-  // System operations
-  runShell(command, options = { }) {
-    return Run.run(this, command, this.shellOptions(options));
+  // System run operations
+  runShell(...args) { return Run.runShell(this, ...args); }
+  runDaemon(...args) { return Run.runDaemon(this, ...args); }
+
+  // Options with default
+  get command() {
+    var command = this.options.command;
+    if (_.isEmpty(command)) {
+      var msg = t("system.cmd_not_set", {system: this.name});
+      var command = `echo "${msg}"; exit 1`;
+    }
+
+    return command;
+  }
+
+  get workdir() {
+    return this.options.workdir || "/";
   }
 
   // Get options
-  get command()           { return this.options.command };
-  get workdir()           { return this.options.workdir };
   get shell()             { return this.options.shell };
   get raw_mount_folders() { return this.options.mount_folders };
   get scalable()          { return this.options.scalable };
@@ -94,31 +103,31 @@ export class System {
     });
   };
 
-  // Check and pull image
-  checkImage(pull = true) {
-    return async(this, function* () {
-      if (pull) {
-        var promise = this.image.pull();
-      } else {
-        var promise = this.image.check().then((image) => {
-          if (image == null) {
-            throw new ImageNotAvailable(this.name, this.image.name);
-          }
-          return image;
-        });
-      }
-
-      var image = yield promise.progress((event) => {
-        event.system = this;
-        return event;
-      });
-
-      return image.inspect();
-    });
-  }
-
   // Docker run options generator
   daemonOptions(options = {}) {
+    // Load configs from image
+    if (options.image_data) {
+      var config = options.image_data.Config;
+
+      // Cmd
+      if(_.isEmpty(this.options.command) && _.isEmpty(options.command)) {
+        options.command = config.Cmd;
+      }
+
+      // WorkingDir
+      if(_.isEmpty(this.options.workdir) && _.isEmpty(options.workdir)) {
+        options.workdir = config.WorkingDir;
+      }
+
+      // ExposedPorts
+      if(_.isEmpty(this.options.ports) && _.isEmpty(options.ports)) {
+        options.ports = _.reduce(config.ExposedPorts, (ports, config, port) => {
+          ports[port] = port;
+          return ports;
+        }, {});
+      }
+    }
+
     options.ports = _.merge({}, this.ports, options.ports);
     return this._make_options(true, options);
   }
@@ -169,6 +178,7 @@ export class System {
     return {
       daemon: daemon,
       ports: ports,
+      command: options.command || this.command,
       volumes: _.merge({}, this.volumes, options.volumes),
       local_volumes: _.merge({}, this.persistent_volumes, options.local_volumes),
       working_dir: options.workdir || this.workdir,
