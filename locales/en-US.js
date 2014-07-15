@@ -15,6 +15,7 @@ module.exports = {
     manifest_error: "Manifest not valid (see http://doc.azk.io), error:\n%(err_message)s",
     required_option_error: "Option %(option)s is required",
     system_depend_error: "System `%(system)s` depends on the system `%(depend)s`",
+    system_run_error: "Run system `%(system)s` return: (%(exitCode)d), for command: %(command)s:\n%(log)s",
     image_not_available: "System `%(system)s` requires image `%(image)s` which is not avaible",
     run_command_error: "Run `%(command)s` error:\n`%(output)s`",
     provision_pull_error: "Error downloading/pulling docker image `%(image)s`, message: %(msg)s.",

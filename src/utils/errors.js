@@ -73,12 +73,28 @@ export class RequiredOptionError extends AzkError {
   }
 }
 
-export class SystemDependError extends AzkError {
-  constructor(system, depend) {
-    super('system_depend_error');
+export class SystemError extends AzkError {
+  constructor(key, system) {
+    super(key);
     this.system = system;
+    this.code = SYSTEMS_CODE_ERROR;
+  }
+}
+
+export class SystemDependError extends SystemError {
+  constructor(system, depend) {
+    super('system_depend_error', system);
     this.depend = depend;
-    this.code   = SYSTEMS_CODE_ERROR;
+  }
+}
+
+export class SystemRunError extends SystemError {
+  constructor(system, container, command, exitCode, log) {
+    super('system_run_error', system);
+    this.container = container;
+    this.command = command;
+    this.exitCode = exitCode;
+    this.log = log;
   }
 }
 
