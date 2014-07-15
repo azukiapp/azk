@@ -4,6 +4,7 @@ import { net } from 'azk/utils';
 import { XRegExp } from 'xregexp';
 
 import { Run } from 'azk/system/run';
+import { Scale } from 'azk/system/scale';
 
 var regex_port = new XRegExp(
   "(?<private>[0-9]{1,})(:(?<public>[0-9]{1,})){0,1}(/(?<protocol>tcp|udp)){0,1}", "x"
@@ -31,13 +32,20 @@ export class System {
   // System run operations
   runShell(...args) { return Run.runShell(this, ...args); }
   runDaemon(...args) { return Run.runDaemon(this, ...args); }
+  stop(...args) { return Run.stop(this, ...args); }
+
+  // Scale operations
+  scale(...args) { return Scale.scale(this, ...args); }
+  instances(...args) { return Scale.instances(this, ...args); }
 
   // Options with default
   get command() {
     var command = this.options.command;
     if (_.isEmpty(command)) {
       var msg = t("system.cmd_not_set", {system: this.name});
-      var command = `echo "${msg}"; exit 1`;
+      command = [this.shell, "-c", `echo "${msg}"; exit 1`];
+    } else {
+      command = [this.shell, "-c", command];
     }
 
     return command;

@@ -71,12 +71,16 @@ var options = merge({
       console: (process.env.AZK_DEBUG ? 'debug' : 'warn'),
       file: process.env.AZK_LOG_LEVEL || 'info',
     },
-    docker  : {
+    docker: {
       host          : docker_host,
       namespace     : 'azk.dev',
       repository    : 'azk',
       default_domain: 'azk',
       image_default : 'azukiapp/azktcl:0.0.2',
+      run: {
+        timeout: 1000,
+        retry: 10,
+      }
     },
     agent: {
       requires_vm: requires_vm,
@@ -110,6 +114,7 @@ var options = merge({
       image_empty : 'cevich/empty_base_image',
     },
     agent: {
+      portrange_start: 12000,
       vm: {
         data_disk : path.join(data_path, "vm", "azk-agent-spec.vmdk"),
       }
