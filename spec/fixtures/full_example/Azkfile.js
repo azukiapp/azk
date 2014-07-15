@@ -2,6 +2,9 @@
  * http://azk.io file
  */
 
+// Set a manifest namespace
+var namespace = "full_example";
+
 // Global image to reuse
 addImage('base', { repository: "cevich/empty_base_image" }); // tag: latest
 addImage('base:0.0.1', "cevich/empty_base_image:latest");    // Alias
@@ -20,18 +23,19 @@ systems({
       "npm install",
       "bundle install --path vendor/bundler",
     ],
-    // Enable balancer over de instances
-    balancer: {
-      hostname: "myapp_<%= system.name %>",
+    http: {
+      hostname: url("::system::", namespace),
       alias: [
-        "front.<%= azk.default_domain %>"
-      ],
+        url("front", default_domain)
+      ]
     },
+    // Enable multiple instances
+    scalable: { default: 10 },
     // Run dir app
-    workdir: "/azk/<%= system.name %>",
+    workdir: "/azk/::system::",
     // Mounts folders to assigned paths
     mount_folders: {
-      ".": "/azk/<%= system.name %>",
+      ".": "/azk/::system::",
     },
     // Mounts a persistent data folders to assigned paths
     persistent_folders: [
@@ -50,8 +54,9 @@ systems({
       // Don't use direct docker image, build one from a Dockerfile
       Dockerfile: "./api"
     },
-    balancer: {
-      hostname: "myapp_<%= system.name %>",
+    scalable: true,
+    http: {
+      hostname: "myapp_::system::"
     },
     volumes: {
       ".": "/app"

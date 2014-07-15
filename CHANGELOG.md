@@ -10,6 +10,12 @@
   * [Manifest] Validate: image is required.
   * [Manifest] Validate: declared dependencies are required.
   * [Manifest] Validate: circular dependencies are checked.
+  * [Manifest] Support `shell` option to specify the shell to be used from `azk shell` (default: /bin/sh)
+  * [Manifest] Adding scalable option.
+  * [Manifest] Adding http option.
+
+* Deprecations
+  * [Manifest] Removing "balancer" option (use http).
 
 ## v0.3.1 (2014-07-11)
 
