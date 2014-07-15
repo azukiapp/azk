@@ -74,6 +74,10 @@ module.exports = function(grunt) {
       }
     },
 
+    'node-inspector': {
+      dev: {}
+    },
+
     mochaTest: {
       test: {
         options: {
@@ -100,7 +104,6 @@ module.exports = function(grunt) {
         files: [
           'Gruntfile.js',
           'src/**/*.js',
-          '!src/share/*.js',
           'spec/**/*.js',
         ],
         tasks: [test_task]
@@ -110,7 +113,6 @@ module.exports = function(grunt) {
         files: [
           'Gruntfile.js',
           'src/**/*.js',
-          '!src/share/*.js',
           'spec/**/*.js',
         ],
         tasks: ['exec:clear', 'newer:traceur']
@@ -124,10 +126,12 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-traceur');
   grunt.loadNpmTasks('grunt-mocha-test');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-node-inspector');
 
   grunt.registerTask('test', ['env:test', 'exec:clear', 'newer:traceur', 'mochaTest:test']);
   grunt.registerTask('slow_test', ['env:test', 'exec:clear', 'newer:traceur', 'mochaTest:slow_test']);
   grunt.registerTask('compile', ['exec:clear', 'newer:traceur', 'watch:traceur']);
+  grunt.registerTask('inspector', ["node-inspector"]);
   grunt.registerTask('default', function() {
     key_watch(grunt);
     return grunt.task.run([test_task, 'watch:spec']);

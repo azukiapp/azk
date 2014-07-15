@@ -80,6 +80,7 @@
     "tmp": "0.0.23",
     "node-inspector": "~0.7.2",
     "fixture-stdout": "^0.2.1",
-    "grunt-env": "^0.4.1"
+    "grunt-env": "^0.4.1",
+    "grunt-node-inspector": "^0.1.5"
   }
 }
