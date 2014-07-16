@@ -80,7 +80,7 @@ brew install unfs3
 
 ### Basic GitHub Checkout
 
-1. Check out ask into `~/.azk`.
+1. Check out `azk` into `~/.azk`.
 
   ```bash
   $ git clone -b stable https://github.com/azukiapp/azk.git ~/.azk
