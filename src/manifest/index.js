@@ -47,6 +47,10 @@ class Meta {
     this.__cache = value;
   }
 
+  clean() {
+    return fs.removeSync(this.manifest.cache_dir);
+  }
+
   get cache() {
     if (!this.__cache) {
       var cache_dir = this.manifest.cache_dir;
@@ -151,11 +155,6 @@ export class Manifest {
     return sys;
   }
 
-  setMeta(...args) {
-    this.meta.set(...args);
-    return this;
-  }
-
   systemsInOrder(requireds = []) {
     var edges = [];
     _.each(this.systems, (system, name) => {
@@ -211,10 +210,21 @@ export class Manifest {
     return path;
   }
 
+  // Meta forwarding
   getMeta(...args) {
     return this.meta.getOrSet(...args);
   }
 
+  setMeta(...args) {
+    this.meta.set(...args);
+    return this;
+  }
+
+  cleanMeta(...args) {
+    return this.meta.clean(...args);
+  }
+
+  // Getters
   get systemDefault() {
     return this.system(this.default);
   }
@@ -287,6 +297,9 @@ class Fake extends Manifest {
     super(...args);
     this.meta.cache = {
       values: {},
+      clean: function() {
+        this.values = {};
+      },
       keyCalc: function(key) {
         return Utils.calculateHash(JSON.stringify(key));
       },

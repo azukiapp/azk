@@ -52,6 +52,8 @@ describe("Azk manifest class", function() {
     it("should support meta data", function() {
       manifest.setMeta('anykey', 'anyvalue');
       h.expect(manifest.getMeta('anykey')).to.equal('anyvalue');
+      manifest.cleanMeta();
+      h.expect(manifest.getMeta('anykey')).to.empty;
     });
 
     it("should raise an error if not found a required system", function() {
@@ -62,7 +64,7 @@ describe("Azk manifest class", function() {
     describe("with a tree of the requireds systems", function() {
       it("should return a systems in required order", function() {
         h.expect(manifest.systemsInOrder()).to.eql(
-          ["empty", "db", "api", "example"]
+          ["expand_test", "mount_test", "ports_test", "test_image_opts", "empty", "db", "api", "example"]
         )
       });
 
