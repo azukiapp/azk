@@ -41,6 +41,7 @@ var ManifestDsl = {
 class Meta {
   constructor(manifest, cache = null) {
     this.manifest = manifest;
+    this.cache = cache;
   }
 
   set cache(value) {
@@ -48,7 +49,11 @@ class Meta {
   }
 
   clean() {
-    return fs.removeSync(this.manifest.cache_dir);
+    var path = this.manifest.cache_dir;
+    if (fs.existsSync(path)) {
+      this.__cache = null;
+      return fs.removeSync(path);
+    }
   }
 
   get cache() {

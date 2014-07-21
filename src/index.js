@@ -28,7 +28,7 @@ module.exports = {
   get defer()  { return defer; },
   get async()  { return async; },
   get path()   { return require('path'); },
-  get fs()     { return require('fs'); },
+  get fs()     { return require('fs-extra'); },
 
   get log() {
     if (!_log) {
