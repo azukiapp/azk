@@ -9,8 +9,8 @@ export function extend(h) {
       var tmp = yield h.copyToTmp(h.fixture_path('test-app'));
       var default_img = config('docker:image_default');
 
-      var command   = "socat TCP4-LISTEN:$HTTP_PORT EXEC:`pwd`/src/bashttpd";
-      var provision = ["ls -l ./src", "./src/bashttpd", "exit 0"];
+      var command   = "socat TCP4-LISTEN:$HTTP_PORT,fork EXEC:`pwd`/src/bashttpd";
+      var provision = ["ls -l ./src", "./src/bashttpd", "touch provisioned", "exit 0"];
       var mount     = {
         ".": '/azk/<%= manifest.dir %>'
       };
@@ -49,6 +49,9 @@ export function extend(h) {
             persistent_folders: [ "/data" ],
             mount_folders: mount,
             scalable: false,
+            ports: {
+              http: "5000/tcp",
+            },
             command, provision,
           },
           empty: {

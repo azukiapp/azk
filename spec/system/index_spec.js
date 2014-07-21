@@ -86,6 +86,14 @@ describe("system class", function() {
       h.expect(names).to.eql(["db", "api"]);
     });
 
+    it("should be marked as supporting provisioned", function() {
+      h.expect(system).to.have.property("provisioned").and.null;
+
+      var date = new Date();
+      system.provisioned = date;
+      h.expect(system).to.have.property("provisioned").and.eql(date);
+    });
+
     describe("call to daemonOptions", function() {
       var options;
       before(() => { options = system.daemonOptions() });
@@ -98,6 +106,7 @@ describe("system class", function() {
       });
 
       it("should return options with annotations", function() {
+        h.expect(options).to.have.deep.property("annotations.azk.mid", manifest.namespace);
         h.expect(options).to.have.deep.property("annotations.azk.type", "daemon");
         h.expect(options).to.have.deep.property("annotations.azk.sys", system.name);
         h.expect(options).to.have.deep.property("annotations.azk.seq", 1);
@@ -230,6 +239,6 @@ describe("system class", function() {
         var options = system.shellOptions(custom);
         h.expect(options).to.have.deep.property("annotations.azk.shell", "interactive");
       });
-    })
+    });
   });
 })

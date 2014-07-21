@@ -1,8 +1,9 @@
 import h from 'spec/spec_helper';
-import { config, async, defer, Q } from 'azk';
+import { config, async, defer, Q, fs } from 'azk';
 import { System } from 'azk/system';
 import { Run } from 'azk/system/run';
 import { ImageNotAvailable } from 'azk/utils/errors';
+import docker from 'azk/docker';
 
 describe("systems, run", function() {
   var manifest, system;
@@ -21,23 +22,42 @@ describe("systems, run", function() {
   });
 
   describe("run a system", function() {
+    afterEach(() => {
+      manifest.cleanMeta();
+    });
+
     it("should run a command in a shell for a system", function() {
       return async(function* () {
-        var container = yield system.runShell(
+        var exitResult = yield system.runShell(
           ["/bin/sh", "-c", "ls -ls; exit"],
           { stdout: mocks.stdout, stderr: mocks.stderr }
         );
+        h.expect(exitResult).to.have.property("code", 0);
         h.expect(outputs).to.have.property("stdout").match(/root.*src/);
       });
     });
 
     it("should run with envs", function() {
       return async(function* () {
-        yield system.runShell(
-          ["/bin/sh", "-c", "env; exit"],
+        var exitResult = yield system.runShell(
+          ["/bin/sh", "-c", "env; exit 1"],
           { envs: { FOO: "BAR" }, stdout: mocks.stdout, stderr: mocks.stderr }
         );
+        h.expect(exitResult).to.have.property("code", 1);
         h.expect(outputs).to.have.property("stdout").match(/FOO=BAR/);
+      });
+    });
+
+    it("should support remove container after ended run", function() {
+      return async(function* () {
+        var exitResult = yield system.runShell(
+          ["/bin/sh", "-c", "exit"],
+          { remove: true, stdout: mocks.stdout, stderr: mocks.stderr }
+        );
+
+        h.expect(exitResult).to.have.property("code", 0);
+        var container = docker.findContainer(exitResult.containerId);
+        return h.expect(container).to.eventually.null;
       });
     });
 
@@ -60,7 +80,7 @@ describe("systems, run", function() {
 
     it("should run and wait for port", function() {
       return async(function* () {
-        var command   = ["/bin/bash", "-c", "sleep 2; socat TCP4-LISTEN:$HTTP_PORT EXEC:`pwd`/src/bashttpd"];
+        var command   = ["/bin/bash", "-c", "sleep 2; " + system.raw_command];
         var container = yield system.runDaemon({ command: command });
         var data      = yield container.inspect();
         h.expect(data).to.have.deep.property('Annotations.azk.sys', system.name);
@@ -75,6 +95,21 @@ describe("systems, run", function() {
         var data = yield container.inspect();
         yield system.stop([data]);
         return h.expect(container.inspect()).to.reject;
+      });
+    });
+
+    it("run provision before run daemon", function() {
+      h.expect(system).to.have.property("provisioned").and.null;
+      return async(function* () {
+        var command = ["/bin/sh", "-c"];
+        var options = { stdout: mocks.stdout, stderr: mocks.stderr };
+
+        var exitResult = yield system.runShell([...command, "rm provisioned; ls -l"], options);
+        h.expect(exitResult).to.have.property("code", 0);
+        yield system.runDaemon();
+
+        yield system.runShell([...command, "ls -l"], options);
+        h.expect(outputs).to.have.property("stdout").match(/provisioned/);
       });
     });
 

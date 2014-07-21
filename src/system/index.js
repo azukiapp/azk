@@ -32,13 +32,34 @@ export class System {
   // System run operations
   runShell(...args) { return Run.runShell(this, ...args); }
   runDaemon(...args) { return Run.runDaemon(this, ...args); }
+  runProvision(...args) { return Run.runProvision(this, ...args); }
   stop(...args) { return Run.stop(this, ...args); }
 
   // Scale operations
   scale(...args) { return Scale.scale(this, ...args); }
   instances(...args) { return Scale.instances(this, ...args); }
+  killAll(...args) { return Scale.killAll(this, ...args); }
+
+  // Save provision info
+  get provision_steps() {
+    var steps = this.options.provision || [];
+    if (!_.isArray(steps)) steps = [];
+    return steps;
+  }
+
+  get provisioned() {
+    var key  = this.name + ":provisioned";
+    var date = this.manifest.getMeta(key);
+    return date ? new Date(date) : null;
+  }
+
+  set provisioned(value) {
+    var key  = this.name + ":provisioned";
+    return this.manifest.setMeta(key, value);
+  }
 
   // Options with default
+  get raw_command() { return this.options.command; }
   get command() {
     var command = this.options.command;
     if (_.isEmpty(command)) {
@@ -194,6 +215,7 @@ export class System {
       dns: net.nameServers(),
       annotations: { azk: {
         type : type,
+        mid  : this.manifest.namespace,
         sys  : this.name,
         seq  : (options.sequencies[type] || 0) + 1,
       }}
