@@ -79,6 +79,11 @@ export function run(docker, Container, image, cmd, opts = { }) {
 
   return async(docker, function* (notify) {
     container = yield this.createContainer(optsc);
+
+    var c_notify = (type) => {
+      return notify({ type, context: "container_run", id: container.id });
+    }
+    c_notify("created");
     notify({type: "created", id: container.id});
 
     // Resize tty
@@ -93,7 +98,7 @@ export function run(docker, Container, image, cmd, opts = { }) {
         log: true, stream: true,
         stdin: interactive, stdout: true, stderr: true
       });
-      notify({type: "attached", id: container.id});
+      c_notify("attached");
 
       if (interactive) {
         stream.pipe(opts.stdout);
@@ -124,7 +129,7 @@ export function run(docker, Container, image, cmd, opts = { }) {
 
     // Start container
     yield container.start({ "Binds": v_binds, PortBindings: p_binds, Dns: nameservers });
-    notify({type: "started", id: container.id});
+    c_notify("started");
 
     if (!daemon) {
       if (interactive && opts.tty) {
@@ -133,7 +138,7 @@ export function run(docker, Container, image, cmd, opts = { }) {
       }
 
       // Wait container
-      notify({type: "wait", id: container.id});
+      c_notify("wait");
       yield container.wait();
       if (interactive) {
         opts.stdout.removeListener('resize', resize);

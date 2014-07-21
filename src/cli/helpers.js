@@ -61,7 +61,7 @@ var Helpers = {
     var bars  = {};
 
     return (event) => {
-      if (event.type != "pull_msg" || !event.id) return;
+      if (event.type != "pull_msg" || !event.id) return event;
 
       var status = event.statusParsed;
       var title  = `${event.id}:`;
@@ -79,6 +79,8 @@ var Helpers = {
       }
 
       bars[event.id] = bar;
+
+      return false;
     }
   }
 }

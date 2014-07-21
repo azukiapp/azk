@@ -1,6 +1,7 @@
 import { _, path, config, t, async } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
 import { Manifest } from 'azk/manifest';
+import docker from 'azk/docker';
 
 class Cmd extends Command {
   action(opts, extras) {
@@ -33,32 +34,12 @@ class Cmd extends Command {
         stderr : this.stderr(),
         stdin  : this.stdin(),
         workdir: opts.cwd || null,
-        volumes: {},
-        env: {},
       }
 
-      for(var i = 0; i < opts.mount.length; i++) {
-        var point = opts.mount[i];
-        if (point.match(".*:.*")) {
-          point    = point.split(':')
-          point[0] = path.resolve(this.cwd, point[0]);
-          options.volumes[point[0]] = point[1];
-        } else {
-          this.fail('commands.shell.invalid_mount', { point });
-          return 1;
-        }
-      }
-
-      for(var j = 0; j < opts.env.length; j++) {
-        var variable = opts.env[i];
-        if (variable.match(".*=.*")) {
-          variable = variable.split('=')
-          options.env[variable[0]] = variable[1];
-        } else {
-          this.fail('commands.shell.invalid_env', { variable });
-          return 1;
-        }
-      }
+      // Support extra envs, ports and mount volumes
+      options.envs    = this._parse_option(opts.env  , /.*=.*/, '=', 'invalid_env');
+      options.ports   = this._parse_option(opts.port , /.*=.*/, '=', 'invalid_port');
+      options.volumes = this._parse_option(opts.mount, /.*=.*/, '=', 'invalid_mount');
 
       var cmd = [opts.shell || system.shell];
       if (opts.command) {
@@ -66,8 +47,25 @@ class Cmd extends Command {
         cmd.push(opts.command);
       }
 
+      // Remove container before run
+      options.remove == opts.remove;
       return yield system.runShell(cmd, options);
     }).progress(progress);
+  }
+
+  _parse_option(option, regex, split, fail) {
+    var result = {};
+    for(var j = 0; j < option.length; j++) {
+      var opt = option[j];
+      if (opt.match(regex)) {
+        opt = opt.split('=');
+        result[opt[0]] = opt[1];
+      } else {
+        this.fail('commands.shell.' + fail, { opt });
+        return 1;
+      }
+    }
+    return result;
   }
 }
 
@@ -75,6 +73,7 @@ export function init(cli) {
   (new Cmd('shell', cli))
     .addOption(['-T'])
     .addOption(['-t'])
+    .addOption(['--rm', '-r'], { default: true })
     .addOption(['--system', '-s'], { type: String })
     .addOption(['--image', '-i'], { type: String })
     .addOption(['--command', '-c'], { type: String })
@@ -82,6 +81,7 @@ export function init(cli) {
     .addOption(['--cwd', '-C'], { type: String })
     .addOption(['--mount', '-m'], { type: String, acc: true, default: [] })
     .addOption(['--env', '-e'], { type: String, acc: true, default: [] })
+    .addOption(['--port', '-p'], { type: String, acc: true, default: [] })
     .addOption(['--verbose', '-v'])
     .addExamples(t("commands.shell.examples"))
 }
