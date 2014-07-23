@@ -10,7 +10,7 @@ var suggestion = _.extend({}, example_system, {
     "bundle install --path vendor/bundler"
   ],
   mount_folders: true,
-  command : "rackup -c config.ru --port $PORT",
+  command : "bundle exec rackup config.ru --port $PORT",
   envs    : {
     RUBY_ENV: "dev"
   }

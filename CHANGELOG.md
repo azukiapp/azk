@@ -7,6 +7,11 @@
   * [Vm] Adding ssh keys generator, and uploads the key to start vm.
   * [Generators] Now Generators and rules is a extension of the UI.
 
+## v0.3.2 (2014-07-23)
+
+* Bug
+  * [Generators] Fixing command to use bundler in ruby generator rule.
+
 ## v0.3.1 (2014-07-11)
 
 * Enhancements
