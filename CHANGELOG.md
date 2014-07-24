@@ -7,6 +7,11 @@
   * [Vm] Adding ssh keys generator, and uploads the key to start vm.
   * [Generators] Now Generators and rules is a extension of the UI.
 
+## v0.3.3 (2014-07-24)
+
+* Bug
+  * [Commands] Fixing a bug in `azk status` with run a invalid instances state.
+
 ## v0.3.2 (2014-07-23)
 
 * Bug
