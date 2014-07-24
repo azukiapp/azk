@@ -104,7 +104,7 @@ class Cmd extends Command {
   _hosts(system, instances) {
     if (instances.length >= 1) {
       var hosts = system.hosts;
-      if (hosts.length == 0) {
+      if (hosts.length == 0 && _.isObject(instances[0].Ports[0])) {
         var instance = instances[0];
         var port     = instance.Ports[0].PublicPort;
         hosts = [config('agent:balancer:host') + (port == 80 ? '' : `:${port}`) ];
