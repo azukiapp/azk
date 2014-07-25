@@ -7,10 +7,10 @@ var suggestion = _.extend({}, example_system, {
   __type: "ruby",
   image : "dockerfile/ruby",
   provision: [
-    "bundle install --path /azk/bundler"
+    "bundle install --path vendor/bundler"
   ],
-  persistent_folders: [ "/azk/bundler" ],
-  command : "rackup -c config.ru --port $PORT",
+  command : "bundle exec rackup config.ru --port $PORT",
+  mount_folders: true,
   envs    : {
     RUBY_ENV: "dev"
   }

@@ -17,6 +17,16 @@
 * Deprecations
   * [Manifest] Removing "balancer" option (use http).
 
+## v0.3.3 (2014-07-24)
+
+* Bug
+  * [Commands] Fixing a bug in `azk status` with run a invalid instances state.
+
+## v0.3.2 (2014-07-23)
+
+* Bug
+  * [Generators] Fixing command to use bundler in ruby generator rule.
+
 ## v0.3.1 (2014-07-11)
 
 * Enhancements

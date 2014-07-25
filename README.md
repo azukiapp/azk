@@ -26,7 +26,7 @@ In order to automate the provisioning of development environments, `azk` uses pr
 
 #### Azkfile.js
 
-`Azkfile.js` files are the cornerstone of how to use `azk`. These simple manifest files describe the systems that make your system of systems as well as the images used in their exceution. They also describe parameters and execution options.
+`Azkfile.js` files are the cornerstone of how to use `azk`. These simple manifest files describe the systems that make your system of systems as well as the images used in their execution. They also describe parameters and execution options.
 
 [Full](#full_manifest_example) Azkfile.js example
 
@@ -80,13 +80,13 @@ brew install unfs3
 
 ### Basic GitHub Checkout
 
-1. Check out ask into `~/.azk`.
+1. Check out `azk` into `~/.azk`.
 
   ```bash
   $ git clone -b stable https://github.com/azukiapp/azk.git ~/.azk
   ```
 
-2. Add `~/.azk/bin` to your $PATH for access to the ask command-line utility.
+2. Add `~/.azk/bin` to your $PATH for access to the `azk` command-line utility.
 
   ```bash
   $ echo 'export PATH="$HOME/.azk/bin:$PATH"' >> ~/.bash_profile
