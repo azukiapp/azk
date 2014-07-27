@@ -37,7 +37,7 @@ describe("Azk generator ruby rule", function() {
     h.expect(system).to.have.deep.property("options.mount_folders")
       .and.to.eql({ ".": "/azk/" + name });
     h.expect(system).to.have.deep.property("options.command")
-      .and.to.eql("rackup -c config.ru --port $PORT");
+      .and.to.eql("bundle exec rackup config.ru --port $PORT");
     h.expect(system).to.have.deep.property("options.provision")
       .and.to.eql(["bundle install --path vendor/bundler"]);
   });
