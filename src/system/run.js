@@ -64,6 +64,7 @@ var Run = {
   runDaemon(system, options = {}) {
     return async(this, function* (notify) {
       // TODO: add instances and dependencies options
+      // TODO: support to wait udp protocol
       // Prepare options
       var image = yield this._check_image(system, options);
       options.image_data = image;
@@ -76,7 +77,9 @@ var Run = {
       var container  = yield docker.run(system.image.name, command, docker_opt);
 
       var data = yield container.inspect();
-      var port_data = _.find(data.NetworkSettings.Access);
+      var port_data = _.find(data.NetworkSettings.Access, (port) => {
+        return port.protocol == 'tcp'
+      });
 
       if (port_data) {
         var retry   = options.timeout || config('docker:run:retry');

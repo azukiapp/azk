@@ -101,8 +101,13 @@ describe("Azk docker module, run method @slow", function() {
       var container = yield docker.run(default_img, cmd, opts);
       var data = yield container.inspect();
 
-      var host = data.NetworkSettings.Access["1500/tcp"].gateway;
-      var port = data.NetworkSettings.Access["1500/tcp"].port;
+      var name = data.NetworkSettings.Access["1500"].name;
+      var host = data.NetworkSettings.Access["1500"].gateway;
+      var port = data.NetworkSettings.Access["1500"].port;
+      var protocol = data.NetworkSettings.Access["1500"].protocol;
+
+      h.expect(name).to.equal("1500");
+      h.expect(protocol).to.equal("tcp");
 
       // Request
       var _cmd = ["/bin/bash", "-c", `exec 3<>/dev/tcp/${host}/${port}; echo -e "" >&3; cat <&3`];

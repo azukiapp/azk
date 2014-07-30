@@ -30,10 +30,13 @@ export class Container extends Utils.qify('dockerode/lib/container') {
   static parsePorts(network) {
     network.Access = {};
     _.each(network.Ports, (port, name) => {
+      name = name.match(/(\d*)\/(.*)/);
       if (port) {
-        network.Access[name] = {
-          gateway: network.Gateway,
-          port: port[0].HostPort,
+        network.Access[name[1]] = {
+          name    : name[1],
+          protocol: name[2],
+          gateway : network.Gateway,
+          port    : port[0].HostPort,
         };
       }
     });
