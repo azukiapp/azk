@@ -98,6 +98,12 @@ export class SystemRunError extends SystemError {
   }
 }
 
+export class SystemNotScalable extends SystemError {
+  constructor(system) {
+    super('system_not_scalable', system);
+  }
+}
+
 export class ImageNotAvailable extends AzkError {
   constructor(system, image) {
     super('image_not_available');

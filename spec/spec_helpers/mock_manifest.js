@@ -2,6 +2,10 @@ import { fs, path, _, config, async } from 'azk';
 import { Generator } from 'azk/generator';
 import { Manifest } from  'azk/manifest';
 
+function socat(port) {
+  return "socat TCP4-LISTEN:" + port + ",fork EXEC:`pwd`/src/bashttpd";
+}
+
 export function extend(h) {
   h.mockManifest = function(data) {
     return async(function* () {
@@ -9,7 +13,7 @@ export function extend(h) {
       var tmp = yield h.copyToTmp(h.fixture_path('test-app'));
       var default_img = config('docker:image_default');
 
-      var command   = "socat TCP4-LISTEN:$HTTP_PORT,fork EXEC:`pwd`/src/bashttpd";
+      var command   = `${socat('80')} &0>/dev/null ; ${socat('$HTTP_PORT')}`;
       var provision = ["ls -l ./src", "./src/bashttpd", "touch provisioned", "exit 0"];
       var mount     = {
         ".": '/azk/<%= manifest.dir %>'
@@ -49,8 +53,15 @@ export function extend(h) {
             persistent_folders: [ "/data" ],
             mount_folders: mount,
             scalable: false,
+            envs: {
+              USER: "username",
+              PASSWORD: "password",
+            },
             ports: {
               http: "5000/tcp",
+            },
+            export_envs: {
+              "<%= system.name %>_URL": "<%= envs.USER %>:<%= envs.PASSWORD %>@<%= net.host %>:<%= net.port.http %>"
             },
             command, provision,
           },
