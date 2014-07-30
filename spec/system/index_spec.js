@@ -21,8 +21,8 @@ describe("system class", function() {
   it("should merge options with default_options", function() {
     var regex = RegExp(`echo ".*${name}.*"; exit 1`);
     h.expect(system).to.have.property("command").and.match(regex);
-    h.expect(system).to.have.property("depends").eql([]);
-    h.expect(system).to.have.property("envs").eql({});
+    h.expect(system).to.have.property("depends").and.eql([]);
+    h.expect(system).to.have.property("envs").and.eql({});
     h.expect(system).to.have.property("shell", "/bin/sh");
     h.expect(system).to.have.property("workdir", "/");
     h.expect(system).to.have.property("scalable").to.fail;
@@ -35,8 +35,27 @@ describe("system class", function() {
       var data = { };
       return h.mockManifest(data).then((mf) => {
         manifest = mf;
-        system   = manifest.systemDefault;
+        system   = manifest.system('example');
       });
+    });
+
+    it("should expand and return exports envs", function() {
+      var envs;
+      var db   = manifest.system('db', true);
+      var api  = manifest.system('api', true);
+
+      envs = db.expandExportEnvs({
+        envs: { USER: "username", PASSWORD: "key" },
+        net: { host: "host.example", port: { 5000: 1234 }, }
+      });
+      h.expect(envs).to.have.property("DB_URL", "username:key@host.example:1234");
+      h.expect(envs).to.have.property("DB_HTTP_PORT", 1234);
+      h.expect(envs).to.have.property("DB_5000_PORT", 1234);
+      h.expect(envs).to.have.property("DB_HTTP_HOST", "host.example");
+      h.expect(envs).to.have.property("DB_5000_HOST", "host.example");
+
+      envs = api.expandExportEnvs({ net: { port: { 5000: 1234 }}});
+      h.expect(envs).to.have.property("API_URL", `http://${api.hostname}`);
     });
 
     describe("in a system with volumes to be mounted", function() {

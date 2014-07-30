@@ -84,7 +84,10 @@ export class System {
     return this.manifest.namespace + '-sys.' + this.name;
   }
 
-  // Ports
+  // Ports and host
+  get hostname() {
+    return (this.options.http || {}).hostname || config('agent:balancer:host');
+  }
   get ports() {
     var ports = this.options.ports || {};
 
@@ -98,6 +101,53 @@ export class System {
 
   // Envs
   get envs() { return this.options.envs; }
+  expandExportEnvs(data) {
+    var ports, envs = {};
+
+    // Defaults options
+    data = _.defaults(data, { envs: {}, net: {}, });
+    data.net = _.defaults(data.net, { host: this.hostname, port: {}, });
+
+    // ports from instances
+    _.each(data.net.port, (port_public, port_private) => {
+      var key_port = (`${this.name}_${port_private}_PORT`).toUpperCase();
+      var key_host = (`${this.name}_${port_private}_HOST`).toUpperCase();
+      envs[key_port] = port_public;
+      envs[key_host] = data.net.host;
+    });
+
+    // ports from system ports options
+    ports = this._parse_ports(this.ports);
+    _.each(ports, (config, name) => {
+      var port     = data.net.port[config.private];
+      var key_port = (`${this.name}_${name}_PORT`).toUpperCase();
+      var key_host = (`${this.name}_${name}_HOST`).toUpperCase();
+      data.net.port[name] = port;
+      if (port && _.isEmpty(data.envs[key_port])) {
+        envs[key_port] = port;
+      }
+      if (_.isEmpty(data.envs[key_host])) {
+        envs[key_host] = data.net.host;
+      }
+    });
+
+    // http ports
+    var key = this.env_key('URL');
+    if (ports.http && _.isEmpty(envs[key])) {
+      envs[key] = `http://${data.net.host}`;
+    }
+
+    envs = _.reduce(this.options.export_envs || {}, (envs, value, key) => {
+      envs[key.toUpperCase()] = value;
+      return envs;
+    }, envs);
+
+    return JSON.parse(_.template(JSON.stringify(envs), data));
+  }
+
+  env_key(...args) {
+    return (`${this.name}_${[...args].join("_")}`).toUpperCase();
+  }
 
   // Volumes options
   get volumes() {
@@ -244,6 +294,9 @@ export class System {
 
   _expand_template(options) {
     var data = {
+      _keep_key(key) {
+        return "<%= " + key + " %>";
+      },
       system: {
         name: this.name,
         persistent_folders: "/data",
@@ -258,6 +311,13 @@ export class System {
         balancer_ip: config('agent:balancer:ip'),
       }
     };
-    return JSON.parse(_.template(JSON.stringify(options), data));
+
+    var template = this._replace_keep_keys(JSON.stringify(options));
+    return JSON.parse(_.template(template, data));
+  }
+
+  _replace_keep_keys(template) {
+    var regex = /<%=?\s*((envs|net)\.[\S]+?)\s*%>/g;
+    return template.replace(regex, "<%= _keep_key('$1') %>");
   }
 }
