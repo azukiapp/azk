@@ -2,9 +2,6 @@
  * http://azk.io file
  */
 
-// Set a manifest namespace
-var namespace = "full_example";
-
 // Global image to reuse
 addImage('base', { repository: "cevich/empty_base_image" }); // tag: latest
 addImage('base:0.0.1', "cevich/empty_base_image:latest");    // Alias
@@ -23,19 +20,18 @@ systems({
       "npm install",
       "bundle install --path vendor/bundler",
     ],
-    http: {
-      hostname: url("::system::", namespace),
+    // Enable balancer over de instances
+    balancer: {
+      hostname: "myapp_<%= system.name %>",
       alias: [
-        url("front", default_domain)
-      ]
+        "front.<%= azk.default_domain %>"
+      ],
     },
-    // Enable multiple instances
-    scalable: { default: 10 },
     // Run dir app
-    workdir: "/azk/::system::",
+    workdir: "/azk/<%= system.name %>",
     // Mounts folders to assigned paths
     mount_folders: {
-      ".": "/azk/::system::",
+      ".": "/azk/{system}",
     },
     // Mounts a persistent data folders to assigned paths
     persistent_folders: [
@@ -54,15 +50,18 @@ systems({
       // Don't use direct docker image, build one from a Dockerfile
       Dockerfile: "./api"
     },
-    scalable: true,
-    http: {
-      hostname: "myapp_::system::"
+    balancer: {
+      hostname: "myapp_<%= system.name %>",
     },
     volumes: {
       ".": "/app"
     },
     command: "rackup -S thin -G /app/config.ru",
     envs: {},
+
+    /// DB_SLAVE_PORT
+    /// DB_SLAVE_HOST
+    //  DB_SLAVE_URL : user:password@host:port
   },
 
   worker: {
@@ -82,8 +81,37 @@ systems({
 
   db_slave: {
     image: "orchardup/postgresql",
-    depends: [ "db_master" ]
-  }
+    depends: [ "db_master" ],
+    env: {
+      USER: "usuario",
+      PASSWORD: "password",
+    },
+    export_envs: {
+      "<%= system.name %>_URL": "<%= env.USER %>:<%= env.PASSWORD %>@<%= env.HOST %>:<%= env.PORT %>",
+    },
+  },
+
+  pg_sql: {
+    image: "orchardup/postgresql",
+    ports: {
+      data: '5432/tcp',
+    },
+    env: {
+      POSTGRESQL_USER: "user",
+      POSTGRESQL_PASS: "password",
+      POSTGRESQL_DB: "database",
+    },
+    export_envs: {
+      "#{sys.name}_URL": url({
+        scheme: "pgsql",
+        user: "<%=  env.POSTGRESQL_USER %>",
+        password: "<%=  env.POSTGRESQL_PASS %>",
+        host: "<%=  env.HOST %>",
+        port: "<%=  env.DATA_PORT %>",
+        path: "<%=  env.POSTGRESQL_DB %>",
+      }),
+    },
+  },
 });
 
 system("db", {

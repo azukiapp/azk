@@ -46,7 +46,8 @@ describe("Azk generator tool", function() {
           envs: { RACK_ENV: 'dev' },
         },
         db: {
-          image: "base"
+          image: "base",
+          export_envs: { DB_URL: "user:password@<%= env.HOST %>:PORT" }
         }
       },
       defaultSystem: 'front',
@@ -103,6 +104,13 @@ describe("Azk generator tool", function() {
         .and.to.eql({ ".": "/azk/" + name});
       h.expect(system).to.have.deep.property("options.command")
         .and.to.eql("bundle exec rackup config.ru");
+    });
+
+    it("should generate export envs", function() {
+      var manifest = generate_manifest(dir, default_data);
+      var system   = manifest.system('db');
+      h.expect(system).to.have.deep.property("options.export_envs")
+        .and.to.eql({ DB_URL: "user:password@#{env.HOST}:PORT" });
     });
 
     it("should support instances in scalable", function() {

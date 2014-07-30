@@ -62,9 +62,16 @@ systems({
     {{~/if}}
     {{~#if envs}}
     envs: {
-      // exports global variables
+      // set instances variables
       {{~#each envs}}
       {{&hash_key @key}}: "{{this}}",{{/each}}
+    },
+    {{~/if}}
+    {{~#if export_envs}}
+    export_envs: {
+      // exports variables for dependent systems
+      {{~#each export_envs}}
+      {{&hash_key @key}}: "{{&this}}",{{/each}}
     },
     {{~/if}}
   },{{/each}}
