@@ -38,7 +38,6 @@ class Cmd extends Command {
 
       // Support extra envs, ports and mount volumes
       options.envs    = this._parse_option(opts.env  , /.*=.*/, '=', 'invalid_env');
-      options.ports   = this._parse_option(opts.port , /.*=.*/, '=', 'invalid_port');
       options.volumes = this._parse_option(opts.mount, /.*=.*/, '=', 'invalid_mount');
 
       var cmd = [opts.shell || system.shell];
@@ -70,18 +69,16 @@ class Cmd extends Command {
 }
 
 export function init(cli) {
-  (new Cmd('shell', cli))
+  (new Cmd('shell [system]', cli))
     .addOption(['-T'])
     .addOption(['-t'])
     .addOption(['--rm', '-r'], { default: true })
-    .addOption(['--system', '-s'], { type: String })
     .addOption(['--image', '-i'], { type: String })
     .addOption(['--command', '-c'], { type: String })
     .addOption(['--shell'], { type: String })
     .addOption(['--cwd', '-C'], { type: String })
     .addOption(['--mount', '-m'], { type: String, acc: true, default: [] })
     .addOption(['--env', '-e'], { type: String, acc: true, default: [] })
-    .addOption(['--port', '-p'], { type: String, acc: true, default: [] })
     .addOption(['--verbose', '-v'])
     .addExamples(t("commands.shell.examples"))
 }
