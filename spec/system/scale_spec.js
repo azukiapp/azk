@@ -22,7 +22,7 @@ describe("systems, scale", function() {
     });
 
     it("should not run system if its dependencies are not met", function() {
-      var result = system.scale(1);
+      var result = system.scale(1, { dependencies: false });
       return h.expect(result).to.eventually.rejectedWith(SystemDependError);
     });
 
@@ -49,12 +49,12 @@ describe("systems, scale", function() {
     });
 
     describe("with dependencies is run", function() {
-      before(() => {
-        return async(this, function* () {
-          yield manifest.system('db').scale(1);
-          yield manifest.system('api').scale(1);
-        });
-      });
+      //before(() => {
+        //return async(this, function* () {
+          //yield manifest.system('db').scale(1);
+          //yield manifest.system('api').scale(1);
+        //});
+      //});
 
       it("should scale a system with dependencies", function() {
         return async(this, function* () {
