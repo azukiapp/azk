@@ -101,6 +101,11 @@ var Run = {
     return async(function* (notify) {
       var container = null;
 
+      // Default stop all
+      if (_.isEmpty(instances)) {
+        instances = yield system.instances();
+      }
+
       while (container = instances.pop()) {
         container = docker.getContainer(container.Id);
         if (options.kill) {

@@ -36,6 +36,7 @@ export class System {
   stop(...args) { return Run.stop(this, ...args); }
 
   // Scale operations
+  start(...args) { return Scale.start(this, ...args); }
   scale(...args) { return Scale.scale(this, ...args); }
   instances(...args) { return Scale.instances(this, ...args); }
   killAll(...args) { return Scale.killAll(this, ...args); }
@@ -79,10 +80,17 @@ export class System {
   // Get options
   get shell()             { return this.options.shell };
   get raw_mount_folders() { return this.options.mount_folders };
-  get scalable()          { return this.options.scalable };
   get namespace() {
     return this.manifest.namespace + '-sys.' + this.name;
   }
+
+  // Scale options
+  get default_instances() {
+    return (this.options.scalable || {}).default || 1;
+  }
+  get scalable() {
+    return this.options.scalable ? true : false;
+  };
 
   // Ports and host
   get hostname() {

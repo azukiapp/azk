@@ -28,7 +28,7 @@ export function extend(h) {
             image: default_img,
             mount_folders: mount,
             persistent_folders: [ "/data" ],
-            scalable: true,
+            scalable: { default: 3 },
             http: true,
             command, provision,
             envs: {

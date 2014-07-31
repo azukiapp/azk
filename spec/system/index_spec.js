@@ -26,6 +26,7 @@ describe("system class", function() {
     h.expect(system).to.have.property("shell", "/bin/sh");
     h.expect(system).to.have.property("workdir", "/");
     h.expect(system).to.have.property("scalable").to.fail;
+    h.expect(system).to.have.property("default_options", 1);
   });
 
   describe("with valid manifest", function() {

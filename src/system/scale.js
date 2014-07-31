@@ -3,6 +3,10 @@ import { SystemDependError, SystemNotScalable } from 'azk/utils/errors';
 import docker from 'azk/docker';
 
 var Scale = {
+  start(system, options = {}) {
+    return this.scale(system, system.default_instances, options);
+  },
+
   scale(system, instances, options = {}) {
     // Protect not scalable systems
     if (!system.scalable && instances > 1) {
@@ -32,10 +36,10 @@ var Scale = {
         }
       } else if (icc < 0) {
         containers = containers.reverse().slice(0, Math.abs(icc));
-        yield this._kill_or_stop(containers);
+        yield system.stop(containers, { rm: true });
       }
 
-      return true;
+      return icc;
     });
   },
 
