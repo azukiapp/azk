@@ -9,21 +9,7 @@ class Cmd extends Command {
       yield Helpers.requireAgent();
 
       var manifest = new Manifest(this.cwd, true);
-      var systems  = [manifest.systemDefault];
-
-      if (opts.system) {
-        if (opts.system == ":all") {
-          systems = _.map(manifest.systems, (system) => {
-            return system;
-          });
-        } else {
-          var systems_name = opts.system.split(',');
-          systems = _.reduce(systems_name, (systems, name) => {
-            systems.push(manifest.system(name, true));
-            return systems;
-          }, []);
-        }
-      }
+      var systems  = Helpers.getSystemsByName(manifest, opts.system);
 
       yield this[`${this.name}`](manifest, systems, opts);
 
@@ -34,7 +20,7 @@ class Cmd extends Command {
     });
   }
 
-  _scale(system, instances) {
+  _scale(system, instances = {}) {
     var progress = (event) => {
       var pull_progress = Helpers.newPullProgress(this);
       if (event.type == "pull_msg") {
@@ -49,6 +35,7 @@ class Cmd extends Command {
           case "scale":
             //keys.push((event.from > event.to) ? "starting" : "stopping");
             this.tOutput([...keys, "scale"], event);
+            //console.log([...keys, "scale"], event);
             break;
           case "provision":
             this.tOutput([...keys, "provision"], event);
@@ -58,21 +45,20 @@ class Cmd extends Command {
         }
       }
     }
-    return system.provision({ pull: true }).then(() => {
-      return system.scale(instances, this.stdout(), true);
-    }).progress(progress);
+
+    return system.scale(instances).progress(progress);
   }
 
   start(manifest, systems) {
     return async(this, function* () {
       for (var i = 0; i < systems.length; i++) {
         var system = systems[i];
-        var containers = yield system.instances();
-        if (containers.length > 0) {
+        var icc = yield this._scale(system);
+        if (icc == 0) {
           this.fail('commands.start.already', system);
           return SYSTEMS_CODE_ERROR;
         }
-        yield this._scale(system, 1);
+        return 0;
       }
     });
   }
@@ -90,26 +76,25 @@ class Cmd extends Command {
     return async(this, function* () {
       for (var i = 0; i < systems.length; i++) {
         var system = systems[i];
-        var containers = yield system.instances();
-        if (containers.length <= 0) {
+        var icc    = yield this._scale(system, 0);
+        if (icc == 0) {
           this.fail('commands.stop.not_running', system);
-        } else {
-          yield this._scale(system, 0);
-
+          return SYSTEMS_CODE_ERROR;
         }
+        return 0;
       }
     });
   }
 
   _hosts(system, instances) {
     if (instances.length >= 1) {
-      var hosts = system.hosts;
-      if (hosts.length == 0 && _.isObject(instances[0].Ports[0])) {
+      var host = system.hostname;
+      if (_.isObject(instances[0].Ports[0])) {
         var instance = instances[0];
         var port     = instance.Ports[0].PublicPort;
-        hosts = [config('agent:balancer:host') + (port == 80 ? '' : `:${port}`) ];
+        host = config('agent:balancer:host') + (port == 80 ? '' : `:${port}`);
       }
-      return hosts.join(', ');
+      return host;
     }
     return "";
   }
@@ -170,24 +155,17 @@ class Cmd extends Command {
 }
 
 export function init(cli) {
-  (new Cmd('start', cli))
-    .addOption(['--system', '-s'], { type: String });
+  (new Cmd('start [system]', cli));
 
   // TODO: Add kill
-  (new Cmd('stop', cli))
-    .addOption(['--system', '-s'], { type: String });
+  (new Cmd('stop [system]', cli));
 
-  (new Cmd('scale', cli))
-    .addOption(['--system', '-s'], { type: String })
+  (new Cmd('scale [system]', cli))
     .addOption(['--instances', '-i'], { type: Number, default: 1 });
 
-  (new Cmd('status', cli))
-    .addOption(['--system', '-s'], { type: String, default: ":all" })
+  (new Cmd('status [system]', cli))
     .addOption(['--instances', '-i'], { default: false })
     .addOption(['--all', '-a'], { default: false });
 
-  (new Cmd('reload', cli))
-    .addOption(['--system', '-s'], { type: String });
-
-  (new Cmd('up', cli));
+  (new Cmd('reload [system]', cli));
 }
