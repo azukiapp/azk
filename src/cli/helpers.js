@@ -1,4 +1,4 @@
-import { t, log } from 'azk';
+import { _, t, log } from 'azk';
 import { Client } from 'azk/agent/client';
 import { AgentNotRunning } from 'azk/utils/errors';
 
@@ -82,6 +82,24 @@ var Helpers = {
 
       return false;
     }
+  },
+
+  getSystemsByName(manifest, names) {
+    var systems = [];
+
+    if (_.isEmpty(names)) {
+      systems = _.map(manifest.systems, (system) => {
+        return system;
+      });
+    } else {
+      var systems_name = _.isArray(names) ? names : names.split(',');
+      systems = _.reduce(systems_name, (systems, name) => {
+        systems.push(manifest.system(name, true));
+        return systems;
+      }, []);
+    }
+
+    return systems;
   }
 }
 
