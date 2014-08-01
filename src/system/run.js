@@ -8,12 +8,12 @@ var MemoryStream = require('memorystream');
 var Run = {
 
   runProvision(system, options = {}) {
-    options = _.defaults(options, {
-      provision_force: false,
-    });
-
     return async(this, function* (notify) {
       var steps = system.provision_steps;
+
+      options = _.defaults(options, {
+        provision_force: false,
+      });
 
       if (_.isEmpty(steps)) return null;
       if ((!options.provision_force) && system.provisioned) return null;
@@ -24,6 +24,7 @@ var Run = {
       // Capture outputs
       var output = "";
       options = _.clone(options);
+      options.shell_type = "provision";
       options.stdout = new MemoryStream();
       options.stdout.on('data', (data) => {
         output += data.toString();
@@ -35,7 +36,7 @@ var Run = {
         throw new RunCommandError(cmd.join(' '), output);
       }
       // save the date provisioning
-      this.provisioned = new Date();
+      system.provisioned = new Date();
     });
   },
 

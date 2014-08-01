@@ -227,7 +227,10 @@ export class System {
     var opts = this._make_options(false, options);
 
     // Shell extra options
-    opts.annotations.azk.shell = options.interactive ? 'interactive' : 'script';
+    opts.annotations.azk.shell = (
+        options.shell_type ||
+        (options.interactive ? 'interactive' : 'script')
+    )
     _.merge(opts, {
       tty   : options.interactive ? options.stdout.isTTY : false,
       stdout: options.stdout,

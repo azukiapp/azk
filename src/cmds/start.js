@@ -105,7 +105,10 @@ class Cmd extends Command {
 
     // Instances columns
     columns = ['Up Time'.green, 'Command'.cyan];
-    if (opts.all) columns.unshift('Status'.red);
+    if (opts.all) {
+      columns.unshift('Status'.red);
+      columns.unshift('Type'.magenta);
+    };
     columns.unshift('Azk id'.blue);
 
     return async(this, function* () {
@@ -122,8 +125,24 @@ class Cmd extends Command {
             var row   = [ container.Status, container.Command ];
 
             if (opts.all) {
-              row.unshift(container.Status.match(/^Exit/) ? 'dead'.red : 'runnig'.green);
+              // Status
+              if (container.State.Running) {
+                var status = container.State.Paused ? 'paused'.blue : 'runnig'.green;
+              } else {
+                var status =  container.State.ExitCode > 0 ? "dead".red : "ended".cyan;
+              }
+
+              // Type
+              var type = container.Annotations.azk.type;
+              if (type == "shell") {
+                type = `${type}: ${container.Annotations.azk.shell.white}`;
+              }
+
+              // Add rows
+              row.unshift(status);
+              row.unshift(type.magenta);
             }
+
             row.unshift(container.Id.slice(0, 12));
 
             return row;
