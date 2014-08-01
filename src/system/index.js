@@ -5,6 +5,7 @@ import { XRegExp } from 'xregexp';
 
 import { Run } from 'azk/system/run';
 import { Scale } from 'azk/system/scale';
+import { Balancer } from 'azk/system/balancer';
 
 var regex_port = new XRegExp(
   "(?<private>[0-9]{1,})(:(?<public>[0-9]{1,})){0,1}(/(?<protocol>tcp|udp)){0,1}", "x"
@@ -90,12 +91,44 @@ export class System {
   }
   get scalable() {
     return this.options.scalable ? true : false;
-  };
+  }
 
   // Ports and host
   get hostname() {
     return (this.options.http || {}).hostname || config('agent:balancer:host');
   }
+  get balanceable() {
+    var ports = this.ports;
+    return ports.http && !_.isEmpty(this.options.http || {}).hostname;
+  }
+
+  get url() {
+    var host = this.hostname;
+    var port = parseInt(config('agent:balancer:port'));
+    return `http://${host}${ port == 80 ? '' : port }`;
+  }
+
+  get hosts() { return [this.hostname]; }
+  backends() { return Balancer.list(this); }
+
+  get http_port() {
+    var ports = this._parse_ports(this.ports);
+    return ports.http.private;
+  }
+
+  portName(sought) {
+    var ports = this._parse_ports(this.ports);
+    var name  = sought;
+
+    _.each(ports, (port, port_name) => {
+      if (parseInt(sought) == parseInt(port.private)) {
+        name = port_name;
+      }
+    });
+
+    return name;
+  }
+
   get ports() {
     var ports = this.options.ports || {};
 

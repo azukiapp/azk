@@ -2,6 +2,7 @@ import { _, async, config} from 'azk';
 import docker from 'azk/docker';
 import { ImageNotAvailable, SystemRunError, RunCommandError } from 'azk/utils/errors';
 import net from 'azk/utils/net';
+import { Balancer } from 'azk/system/balancer';
 
 var MemoryStream = require('memorystream');
 
@@ -99,6 +100,9 @@ var Run = {
 
           yield this._wait_available(system, port_data, container, retry, timeout);
         }
+
+        // Adding to balancer
+        yield Balancer.add(system, container);
       }
 
       return container;
@@ -121,6 +125,10 @@ var Run = {
 
       while (container = instances.pop()) {
         container = docker.getContainer(container.Id);
+
+        // Remove from balancer
+        yield Balancer.remove(system, container);
+
         if (options.kill) {
           notify({ type: 'kill_service', system: system.name });
           yield container.kill();

@@ -86,21 +86,8 @@ class Cmd extends Command {
     });
   }
 
-  _hosts(system, instances) {
-    if (instances.length >= 1) {
-      var host = system.hostname;
-      if (_.isObject(instances[0].Ports[0])) {
-        var instance = instances[0];
-        var port     = instance.Ports[0].PublicPort;
-        host = config('agent:balancer:host') + (port == 80 ? '' : `:${port}`);
-      }
-      return host;
-    }
-    return "";
-  }
-
   status(manifest, systems, opts = {}) {
-    var columns = ['System'.blue, 'Instances'.yellow, 'Hosts'.green];
+    var columns = ['System'.blue, 'Instances'.yellow, 'Hostname'.green, 'Ports'.magenta];
     var table_status = this.table_add('table_status', { head: columns });
 
     // Instances columns
@@ -154,13 +141,35 @@ class Cmd extends Command {
           this.table_push(table_name, ...rows);
           this.table_show(table_name);
         } else {
-          var line = [system.name, instances.length, this._hosts(system, instances) || "-"];
+          if (system.balanceable && instances.length > 0) {
+            var hostname = system.url;
+          } else {
+            var hostname = system.hostname;
+          }
+          var ports = yield this._ports_map(system, instances);
+          var line  = [system.name, instances.length, hostname, ports.join(', ')];
           this.table_push(table_status, line);
         }
       }
 
       if (!opts.instances)
         this.table_show(table_status);
+    });
+  }
+
+  _ports_map(system, instances) {
+    return async(this, function* () {
+      var instance, ports = [];
+
+      instances = _.clone(instances);
+      while(instance = instances.pop()) {
+        _.each(instance.NetworkSettings.Access, (port) => {
+          var name = system.portName(port.name);
+          ports.push(`${name}:${port.port || "n/m".red}`);
+        });
+      }
+
+      return _.isEmpty(ports) ? ["-"] : ports;
     });
   }
 
