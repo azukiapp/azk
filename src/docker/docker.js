@@ -22,12 +22,24 @@ export class Container extends Utils.qify('dockerode/lib/container') {
   inspect(...args) {
     return super(...args).then((data) => {
       data.Annotations = Container.unserializeAnnotations(data.Name);
-      data.NetworkSettings = Container.parsePorts(data.NetworkSettings);
+      data.NetworkSettings = Container.parsePortsFromNetwork(data.NetworkSettings);
       return data;
     });
   }
 
-  static parsePorts(network) {
+  static parsePorts(ports) {
+    return _.reduce(ports, (ports, port) => {
+      ports[port.PrivatePort] = {
+        name: port.PrivatePort,
+        protocol: port.Type,
+        gateway: port.IP,
+        port: port.PublicPort,
+      }
+      return ports;
+    }, {});
+  }
+
+  static parsePortsFromNetwork(network) {
     network.Access = {};
     _.each(network.Ports, (port, name) => {
       name = name.match(/(\d*)\/(.*)/);
@@ -121,6 +133,7 @@ export class Docker extends Utils.qify('dockerode') {
           container.Name = container.Names[0];
           container.Annotations = Container.unserializeAnnotations(container.Name);
           container.State = Container.parseStatus(container.Status);
+          container.NetworkSettings = { Access: Container.parsePorts(container.Ports) };
           result.push(container);
         }
         return result;
