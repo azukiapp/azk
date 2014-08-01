@@ -40,13 +40,15 @@ var Run = {
   },
 
   runShell(system, command, options = {}) {
-    options = _.defaults(options, {
-      remove: false,
-    });
-
     return async(this, function* () {
+      options = _.defaults(options, {
+        remove: false,
+        sequencies: yield this._getSequencies(system)
+      });
+
       yield this._check_image(system, options);
       var docker_opt = system.shellOptions(options);
+
       var container  = yield docker.run(system.image.name, command, docker_opt);
       var data       = yield container.inspect();
 
@@ -71,6 +73,10 @@ var Run = {
 
       // Check provision
       yield system.runProvision(options);
+
+      options = _.defaults(options, {
+        sequencies: yield this._getSequencies(system),
+      });
 
       var docker_opt = system.daemonOptions(options);
       var command    = docker_opt.command;
@@ -138,7 +144,6 @@ var Run = {
         timeout: timeout,
         retry_if: () => {
           return container.inspect().then((data) => {
-            //console.log(data);
             return data.State.Running;
           });
         },
@@ -149,6 +154,7 @@ var Run = {
       if (!running) {
         var data = yield container.inspect();
         var log  = yield container.logs({stdout: true, stderr: true});
+        yield this.stop(system, [container], { kill: true, remove: true });
         throw new SystemRunError(
           system.name,
           container,
@@ -186,6 +192,47 @@ var Run = {
       });
 
       return image.inspect();
+    });
+  },
+
+  _getSequencies(system, type = "*") {
+    return async(this, function*() {
+      var instances = yield system.instances({ type: type });
+
+      return _.reduce(instances, (sequencies, instance) => {
+        var type = instance.Annotations.azk.type;
+        var seq  = parseInt(instance.Annotations.azk.seq);
+        if (seq === sequencies[type]) {
+          sequencies[type] = sequencies[type] + 1;
+        }
+        return sequencies;
+      }, { shell: 1, daemon: 1 });
+    });
+  },
+
+  instances(system, options = {}) {
+    // Default options
+    options = _.defaults(options, {
+      include_dead: false,
+      include_exec: false,
+      type: "*",
+    });
+
+    // Include dead containers
+    var query_options = {};
+    if (options.include_dead) query_options.all = true ;
+
+    return docker.azkListContainers(query_options).then((containers) => {
+      var instances = _.filter(containers, (container) => {
+        var azk = container.Annotations.azk;
+        return (
+          azk.mid == system.manifest.namespace &&
+          azk.sys == system.name &&
+          ( options.type == "*" || azk.type == options.type )
+        )
+      });
+
+      return _.sortBy(instances, (instance) => { return instance.Annotations.azk.seq });
     });
   },
 }

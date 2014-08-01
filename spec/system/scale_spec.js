@@ -49,13 +49,6 @@ describe("systems, scale", function() {
     });
 
     describe("with dependencies is run", function() {
-      //before(() => {
-        //return async(this, function* () {
-          //yield manifest.system('db').scale(1);
-          //yield manifest.system('api').scale(1);
-        //});
-      //});
-
       it("should scale a system with dependencies", function() {
         return async(this, function* () {
           var result = yield system.scale(3);

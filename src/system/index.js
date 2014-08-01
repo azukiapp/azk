@@ -34,11 +34,11 @@ export class System {
   runDaemon(...args) { return Run.runDaemon(this, ...args); }
   runProvision(...args) { return Run.runProvision(this, ...args); }
   stop(...args) { return Run.stop(this, ...args); }
+  instances(...args) { return Run.instances(this, ...args); }
 
   // Scale operations
   start(...args) { return Scale.start(this, ...args); }
   scale(...args) { return Scale.scale(this, ...args); }
-  instances(...args) { return Scale.instances(this, ...args); }
   killAll(...args) { return Scale.killAll(this, ...args); }
 
   // Save provision info
@@ -275,7 +275,7 @@ export class System {
         type : type,
         mid  : this.manifest.namespace,
         sys  : this.name,
-        seq  : (options.sequencies[type] || 0) + 1,
+        seq  : (options.sequencies[type] || 1),
       }}
     };
   }

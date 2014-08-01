@@ -26,7 +26,7 @@ describe("system class", function() {
     h.expect(system).to.have.property("shell", "/bin/sh");
     h.expect(system).to.have.property("workdir", "/");
     h.expect(system).to.have.property("scalable").to.fail;
-    h.expect(system).to.have.property("default_options", 1);
+    h.expect(system).to.have.property("default_options").to.fail;
   });
 
   describe("with valid manifest", function() {
@@ -192,7 +192,7 @@ describe("system class", function() {
           .and.have.property("./data").and.eql("/data");
         h.expect(options).to.have.property("env")
           .and.eql({ ECHO_DATA: "data", HTTP_PORT: "5000", FOO: "BAR"});
-        h.expect(options).to.have.deep.property("annotations.azk.seq", 3);
+        h.expect(options).to.have.deep.property("annotations.azk.seq", 2);
       });
 
       it("should extract options from image_data", function() {

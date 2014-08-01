@@ -110,7 +110,7 @@ class Cmd extends Command {
 
     return async(this, function* () {
       for (var system of systems) {
-        var instances = yield system.instances(opts.all);
+        var instances = yield system.instances({ include_dead: opts.all });
 
         if (opts.instances) {
           instances = _.sortBy(instances, function(container) {

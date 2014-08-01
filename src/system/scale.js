@@ -30,7 +30,6 @@ var Scale = {
       options.envs  = _.merge(deps_envs, options.envs || {});
 
       var containers = yield this.instances(system);
-
       var from = containers.length;
       var icc  = instances - from;
 
@@ -119,22 +118,9 @@ var Scale = {
   },
 
   instances(system, options = {}) {
-    // Default options
-    options = _.defaults(options, {
-      include_dead: false,
-      include_exec: false,
-    })
-
-    // Include dead containers
-    var query_options = {};
-    if (options.include_dead) query_options.all = true ;
-
-    return docker.azkListContainers(query_options).then((containers) => {
-      return _.filter(containers, (container) => {
-        var azk = container.Annotations.azk;
-        return azk.mid == system.manifest.namespace && azk.sys == system.name;
-      });
-    });
+    return system.instances(_.defaults(options, {
+      type: "daemon",
+    }));
   },
 }
 

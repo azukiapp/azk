@@ -65,7 +65,14 @@ describe("systems, run", function() {
       var command = ["/bin/bash", "-c", "echo 'error_msg' >&2; sleep 1; echo 'output'; exit 2"];
       var regex   = /.*\(2\).*bash.*(.|[\r\n])*error_msg(.|[\r\n])*output/m;
       var result  = system.runDaemon({ retry: 2, timeout: 1000, command: command });
-      return h.expect(result).to.rejectedWith(Error, regex);
+
+      return async(this, function*() {
+        var err = yield result.fail((err) => { return err });
+        h.expect(err).to.instanceOf(Error).and.match(regex);
+
+        var data = yield docker.findContainer(err.container.Id);
+        h.expect(data).to.null;
+      });
     });
 
     it("should run a daemon with system options", function() {
@@ -110,6 +117,24 @@ describe("systems, run", function() {
 
         yield system.runShell([...command, "ls -l"], options);
         h.expect(outputs).to.have.property("stdout").match(/provisioned/);
+      });
+    });
+
+    describe("run mutiple same system and type", function() {
+      beforeEach(() => {
+        return system.killAll();
+      });
+
+      it("should use a sequencial number in name", function() {
+        return async(this, function* () {
+          for(var i = 0; i < 3; i++) { yield system.runDaemon(); }
+          var instances = yield system.instances({ type: "daemon" });
+
+          h.expect(instances).to.length(3);
+          h.expect(instances).to.have.deep.property("[0].Annotations.azk.seq", "1");
+          h.expect(instances).to.have.deep.property("[1].Annotations.azk.seq", "2");
+          h.expect(instances).to.have.deep.property("[2].Annotations.azk.seq", "3");
+        });
       });
     });
 
