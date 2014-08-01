@@ -67,7 +67,7 @@ class Cmd extends Command {
     return async(this, function* () {
       for (var i = 0; i < systems.length; i++) {
         var system = systems[i];
-        yield this._scale(system, opts.instances);
+        yield this._scale(system, parseInt(opts.to || 1));
       }
     })
   }
@@ -87,73 +87,27 @@ class Cmd extends Command {
   }
 
   status(manifest, systems, opts = {}) {
-    var columns = ['System'.blue, 'Instances'.yellow, 'Hostname'.green, 'Ports'.magenta];
+    var columns = ['System'.blue, 'Status'.green, 'Instances'.yellow, 'Hostname'.green, 'Instances-Ports'.magenta];
     var table_status = this.table_add('table_status', { head: columns });
-
-    // Instances columns
-    columns = ['Up Time'.green, 'Command'.cyan];
-    if (opts.all) {
-      columns.unshift('Status'.red);
-      columns.unshift('Type'.magenta);
-    };
-    columns.unshift('Azk id'.blue);
 
     return async(this, function* () {
       for (var system of systems) {
-        var instances = yield system.instances({ include_dead: opts.all });
+        var instances = yield system.instances();
 
-        if (opts.instances) {
-          instances = _.sortBy(instances, function(container) {
-            return container.Created * -1;
-          });
-
-          var rows = _.map(instances, function(container) {
-            var names = container.Names[0].split('.');
-            var row   = [ container.Status, container.Command ];
-
-            if (opts.all) {
-              // Status
-              if (container.State.Running) {
-                var status = container.State.Paused ? 'paused'.blue : 'runnig'.green;
-              } else {
-                var status =  container.State.ExitCode > 0 ? "dead".red : "ended".cyan;
-              }
-
-              // Type
-              var type = container.Annotations.azk.type;
-              if (type == "shell") {
-                type = `${type}: ${container.Annotations.azk.shell.white}`;
-              }
-
-              // Add rows
-              row.unshift(status);
-              row.unshift(type.magenta);
-            }
-
-            row.unshift(container.Id.slice(0, 12));
-
-            return row;
-          });
-
-          this.output(system.name + ": " + instances.length + " instances");
-          var table_name = 'table_' + system.name;
-          this.table_add(table_name, { head: columns });
-          this.table_push(table_name, ...rows);
-          this.table_show(table_name);
+        if (system.balanceable && instances.length > 0) {
+          var hostname = system.url;
         } else {
-          if (system.balanceable && instances.length > 0) {
-            var hostname = system.url;
-          } else {
-            var hostname = system.hostname;
-          }
-          var ports = yield this._ports_map(system, instances);
-          var line  = [system.name, instances.length, hostname, ports.join(', ')];
-          this.table_push(table_status, line);
+          var hostname = system.hostname;
         }
+        var ports   = yield this._ports_map(system, instances);
+        var status  = instances.length > 0 ? 'UP'.green : 'DOWN'.red;
+        var counter = system.scalable ? instances.length : '-';
+
+        var line   = [system.name, status, counter, hostname, ports.join(', ')];
+        this.table_push(table_status, line);
       }
 
-      if (!opts.instances)
-        this.table_show(table_status);
+      this.table_show(table_status);
     });
   }
 
@@ -165,7 +119,7 @@ class Cmd extends Command {
       while(instance = instances.pop()) {
         _.each(instance.NetworkSettings.Access, (port) => {
           var name = system.portName(port.name);
-          ports.push(`${name}:${port.port || "n/m".red}`);
+          ports.push(`${instance.Annotations.azk.seq}-${name}:${port.port || "n/m".red}`);
         });
       }
 
@@ -176,24 +130,13 @@ class Cmd extends Command {
   reload(manifest, systems, opts) {
     throw new NotBeenImplementedError('reload');
   }
-
-  up(manifest, systems, opts) {
-    throw new NotBeenImplementedError('up');
-  }
 }
 
 export function init(cli) {
   (new Cmd('start [system]', cli));
-
-  // TODO: Add kill
   (new Cmd('stop [system]', cli));
-
-  (new Cmd('scale [system]', cli))
-    .addOption(['--instances', '-i'], { type: Number, default: 1 });
-
-  (new Cmd('status [system]', cli))
-    .addOption(['--instances', '-i'], { default: false })
-    .addOption(['--all', '-a'], { default: false });
+  (new Cmd('scale [system] [to]', cli));
+  (new Cmd('status [system]', cli));
 
   (new Cmd('reload [system]', cli));
 }
