@@ -268,6 +268,7 @@ export class System {
     return {
       daemon: daemon,
       ports: ports,
+      stdout: options.stdout,
       command: options.command || this.command,
       volumes: _.merge({}, this.volumes, options.volumes),
       local_volumes: _.merge({}, this.persistent_volumes, options.local_volumes),

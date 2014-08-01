@@ -107,6 +107,7 @@ describe("systems, run", function() {
 
     it("run provision before run daemon", function() {
       h.expect(system).to.have.property("provisioned").and.null;
+
       return async(function* () {
         var command = ["/bin/sh", "-c"];
         var options = { stdout: mocks.stdout, stderr: mocks.stderr };
@@ -117,6 +118,8 @@ describe("systems, run", function() {
 
         yield system.runShell([...command, "ls -l"], options);
         h.expect(outputs).to.have.property("stdout").match(/provisioned/);
+
+        h.expect(system).to.have.property("provisioned").and.not.null;
       });
     });
 

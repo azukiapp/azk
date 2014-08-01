@@ -54,10 +54,6 @@ var Balancer = {
     });
   },
 
-  _removeEntry(entries, backend) {
-    return _.filter(entries, (entry) => { return entry != backend });
-  },
-
   start() {
     return Tools.async_status("balancer", this, function* (change_status) {
       if (!this.isRunnig()) {
@@ -89,55 +85,17 @@ var Balancer = {
   },
 
   start_dns(ip, port) {
-    return async(this, function* () {
-      var Manifest = require('azk/manifest').Manifest;
-      var manifest = new Manifest(config('paths:azk_root'), true);
-      var system   = manifest.system('dns', true);
-
-      // Wait docker
-      var address = url.parse(config("docker:host"));
-      var success = yield net.waitService(address.hostname, address.port, 5, { context: "dns" });
-      if (!success) {
-        throw new AgentStartError(t(errors.not_connect_docker));
-      }
-
-      var stdout = new MemoryStream();
-      var output = "";
-      stdout.on('data', (data) => {
-        output += data.toString();
-      });
-
-      var result = yield system.scale(1, stdout, true);
-      if (!result) {
-        throw new Error('Fail to start balancer: ' + output);
-      }
+    return this._runSystem('dns', {
+      wait: false,
     });
   },
 
   start_socat(ip, port) {
-    return async(this, function* () {
-      var Manifest = require('azk/manifest').Manifest;
-      var manifest = new Manifest(config('paths:azk_root'), true);
-      var system   = manifest.system('balancer_redirect', true);
-      system.add_env('BALANCER_IP', ip);
-      system.add_env('BALANCER_PORT', port);
-
-      // Wait docker
-      var address = url.parse(config("docker:host"));
-      var success = yield net.waitService(address.hostname, address.port, 5, { context: "socat" });
-      if (!success) {
-        throw new AgentStartError(t(errors.not_connect_docker));
-      }
-
-      var stdout = new MemoryStream();
-      var output = "";
-      stdout.on('data', (data) => {
-        output += data.toString();
-      });
-
-      var result = yield system.scale(1, stdout, true);
-      if (!result) {
-        throw new Error('Fail to start balancer: ' + output);
+    return this._runSystem('balancer_redirect', {
+      wait: true,
+      envs: {
+        BALANCER_IP: ip,
+        BALANCER_PORT: port,
       }
     });
   },
@@ -234,6 +192,48 @@ var Balancer = {
       (this.hipache && this.hipache.running) ||
       (this.memcached && this.memcached.running)
     );
+  },
+
+  _removeEntry(entries, backend) {
+    return _.filter(entries, (entry) => { return entry != backend });
+  },
+
+  _getSystem(system) {
+    var Manifest = require('azk/manifest').Manifest;
+    var manifest = new Manifest(config('paths:azk_root'), true);
+    return manifest.system(system, true);
+  },
+
+  _waitDocker() {
+    var address = url.parse(config("docker:host"));
+    var promise = net.waitService(address.hostname, address.port, 5, { context: "dns" });
+    return promise.then((success) => {
+      if (!success) {
+        throw new AgentStartError(t(errors.not_connect_docker));
+      }
+      return true;
+    });
+  },
+
+  _runSystem(system_name, options = {}) {
+    return async(this, function* () {
+      var system  = this._getSystem(system_name);
+
+      // Wait docker
+      yield this._waitDocker();
+
+      // Save outputs to use in error
+      var output = "";
+      options.stdout = new MemoryStream();
+      options.stdout.on('data', (data) => {
+        output += data.toString();
+      });
+
+      var result = yield system.scale(1, options);
+      if (!result) {
+        throw new Error('Fail to start balancer: ' + output);
+      }
+    });
   },
 
   _start_service(cmd, pid) {
