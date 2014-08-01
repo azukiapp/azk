@@ -18,17 +18,17 @@ describe("Azk command info, run in an", function() {
   });
 
   describe("valid SoS dir", function() {
-    var SoS;
+    var manifest;
 
     before(() => {
       var data = { };
-      return h.mockManifest(data).then((dir) => {
-        SoS = dir;
+      return h.mockManifest(data).then((mf) => {
+        manifest = mf;
       });
     });
 
     it("should show systems information", function() {
-      cmd.cwd = SoS;
+      cmd.cwd = manifest.manifestPath;
       return cmd.run().then(() => {
         h.expect(outputs[0]).to.match(/example:/);
         h.expect(outputs[0]).to.match(RegExp(config('docker:image_default')));

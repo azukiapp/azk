@@ -17,9 +17,9 @@ class Cmd extends Command {
       _.each(manifest.systems, (system) => {
         var data = {
           [system.name]: {
-            depends: system.depends,
+            depends: system.options.depends,
             image: system.image.name,
-            command: system.command,
+            command: this._format_command(system.command),
           }
         }
         this.output(prettyjson.render(data, options));
@@ -28,6 +28,13 @@ class Cmd extends Command {
 
       return 0;
     });
+  }
+
+  _format_command(commands) {
+    commands = _.map(commands, (cmd) => {
+      return (cmd.match(/\s/)) ? `"${cmd.replace(/\"/g, '\\"')}"` : cmd;
+    });
+    return commands.join(" ");
   }
 }
 
