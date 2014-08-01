@@ -30,16 +30,20 @@ describe("Azk generator ruby rule", function() {
     var manifest = generateAndReturnManifest(project);
     var system   = manifest.systemDefault;
 
+    var command  = new RegExp(h.escapeRegExp("bundle exec rackup config.ru --port $HTTP_PORT"));
+
     h.expect(system).to.have.deep.property("name", name);
     h.expect(system).to.have.deep.property("image.name", "dockerfile/ruby:latest");
     h.expect(system).to.have.deep.property("depends").and.to.eql([]);
     h.expect(system).to.have.deep.property("options.workdir", "/azk/" + name);
+    h.expect(system).to.have.deep.property("command").and.match(command);
     h.expect(system).to.have.deep.property("raw_mount_folders")
       .and.to.eql({ ".": "/azk/" + name });
-    h.expect(system).to.have.deep.property("command")
-      .and.to.eql("rackup -c config.ru --port $PORT");
     h.expect(system).to.have.deep.property("options.provision")
-      .and.to.eql(["bundle install --path /azk/bundler"]);
+      .and.to.eql(["bundle install --path vendor/bundler"]);
+
+    h.expect(system).to.have.property("scalable").and.ok;
+    h.expect(system).to.have.property("hostname").and.match(new RegExp(name));
   });
 
   it("should detect sub-system", function() {

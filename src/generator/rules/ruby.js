@@ -9,8 +9,9 @@ var suggestion = _.extend({}, example_system, {
   provision: [
     "bundle install --path vendor/bundler"
   ],
-  command : "bundle exec rackup config.ru --port $PORT",
-  mount_folders: true,
+  http: true,
+  scalable: { default: 2 },
+  command : "bundle exec rackup config.ru --port $HTTP_PORT",
   envs    : {
     RUBY_ENV: "dev"
   }

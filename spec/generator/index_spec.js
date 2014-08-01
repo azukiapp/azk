@@ -27,7 +27,8 @@ describe("Azk generator tool", function() {
 
     // Genereate manifest file
     var generate_manifest = (dir, data) => {
-      generator.render(data, path.join(dir, config('manifest')));
+      var file = path.join(dir, config('manifest'));
+      generator.render(data, file);
       return new Manifest(dir);
     };
 
@@ -47,7 +48,7 @@ describe("Azk generator tool", function() {
         },
         db: {
           image: "base",
-          export_envs: { DB_URL: "user:password@<%= env.HOST %>:PORT" }
+          export_envs: { DB_URL: "<%= envs.USER %>:<%= envs.PASSWORD %>@<%= net.host %>:<%= net.port.3666 %>" }
         }
       },
       defaultSystem: 'front',
@@ -110,7 +111,7 @@ describe("Azk generator tool", function() {
       var manifest = generate_manifest(dir, default_data);
       var system   = manifest.system('db');
       h.expect(system).to.have.deep.property("options.export_envs")
-        .and.to.eql({ DB_URL: "user:password@#{env.HOST}:PORT" });
+        .and.to.eql({ DB_URL: "<%= envs.USER %>:<%= envs.PASSWORD %>@<%= net.host %>:<%= net.port.3666 %>" });
     });
 
     it("should support instances in scalable", function() {

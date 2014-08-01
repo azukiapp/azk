@@ -9,6 +9,8 @@ var suggestion = _.extend({}, example_system, {
   provision: [
     "npm install"
   ],
+  http: true,
+  scalable: { default: 2 },
   // TODO: extract this information package.json
   command : "node index.js",
   envs    : {
