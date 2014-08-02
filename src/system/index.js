@@ -1,4 +1,4 @@
-import { _, t, config, path, async, Q, utils } from 'azk';
+import { _, t, config, path, async, Q, fs, utils } from 'azk';
 import { Image } from 'azk/images';
 import { net } from 'azk/utils';
 import { XRegExp } from 'xregexp';
@@ -288,7 +288,7 @@ export class System {
     });
 
     // Map ports to docker configs: ports and envs
-    var envs  = _.merge({}, this.envs, options.envs);
+    var envs  = _.merge({}, this.envs, this._envs_from_file(), options.envs);
     var ports = {};
     _.each(this._parse_ports(options.ports), (data, name) => {
       if (!name.match(/\//)) {
@@ -316,6 +316,23 @@ export class System {
         seq  : (options.sequencies[type] || 1),
       }}
     };
+  }
+
+  _envs_from_file() {
+    var envs = {};
+    var file = path.join(this.manifest.manifestPath, '.env');
+
+    if (fs.existsSync(file)) {
+      var content = fs.readFileSync(file).toString();
+      _.each(content.split('\n'), (entry) => {
+        if (entry.match(/.*=.*/)) {
+          entry = entry.split('=');
+          envs[entry[0]] = entry[1];
+        }
+      });
+    }
+
+    return envs;
   }
 
   // Parse azk ports configs

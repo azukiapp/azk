@@ -121,7 +121,7 @@ describe("Azk system class, main set", function() {
       it("should return default docker options", function() {
         h.expect(options).to.have.property("daemon", true);
         h.expect(options).to.have.property("working_dir").and.eql(system.workdir);
-        h.expect(options).to.have.property("env").and.eql({ HTTP_PORT: "5000", ECHO_DATA: "data"});
+        h.expect(options).to.have.property("env").and.eql({ HTTP_PORT: "5000", ECHO_DATA: "data", FROM_DOT_ENV: "azk is beautiful" });
         h.expect(options).to.have.property("dns").and.eql(net.nameServers());
       });
 
@@ -191,7 +191,7 @@ describe("Azk system class, main set", function() {
         h.expect(options).to.have.property("local_volumes")
           .and.have.property("./data").and.eql("/data");
         h.expect(options).to.have.property("env")
-          .and.eql({ ECHO_DATA: "data", HTTP_PORT: "5000", FOO: "BAR"});
+          .and.eql({ ECHO_DATA: "data", FROM_DOT_ENV: "azk is beautiful", HTTP_PORT: "5000", FOO: "BAR"});
         h.expect(options).to.have.deep.property("annotations.azk.seq", 2);
       });
 
@@ -224,7 +224,7 @@ describe("Azk system class, main set", function() {
         h.expect(options).to.have.property("daemon", false);
         h.expect(options).to.have.property("ports").and.empty;
         h.expect(options).to.have.property("working_dir").and.eql(system.workdir);
-        h.expect(options).to.have.property("env").and.eql({ ECHO_DATA: "data"});
+        h.expect(options).to.have.property("env").and.eql({ ECHO_DATA: "data", FROM_DOT_ENV: "azk is beautiful" });
         h.expect(options).to.have.property("dns").and.eql(net.nameServers());
       });
 

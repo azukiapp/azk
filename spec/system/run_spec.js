@@ -1,5 +1,5 @@
 import h from 'spec/spec_helper';
-import { config, async, defer, Q, fs } from 'azk';
+import { _, config, async, defer, Q, fs } from 'azk';
 import { System } from 'azk/system';
 import { Run } from 'azk/system/run';
 import { ImageNotAvailable } from 'azk/utils/errors';
@@ -21,7 +21,7 @@ describe("Azk system class, run set", function() {
     stdin.setRawMode = function() { };
   });
 
-  describe("run a system", function() {
+  describe("in valid azk project", function() {
     afterEach(() => {
       manifest.cleanMeta();
     });
@@ -34,17 +34,6 @@ describe("Azk system class, run set", function() {
         );
         h.expect(exitResult).to.have.property("code", 0);
         h.expect(outputs).to.have.property("stdout").match(/root.*src/);
-      });
-    });
-
-    it("should run with envs", function() {
-      return async(function* () {
-        var exitResult = yield system.runShell(
-          ["/bin/sh", "-c", "env; exit 1"],
-          { envs: { FOO: "BAR" }, stdout: mocks.stdout, stderr: mocks.stderr }
-        );
-        h.expect(exitResult).to.have.property("code", 1);
-        h.expect(outputs).to.have.property("stdout").match(/FOO=BAR/);
       });
     });
 
@@ -85,21 +74,6 @@ describe("Azk system class, run set", function() {
       });
     });
 
-    it("should map daemon instances variables in shell", function() {
-      return async(function* () {
-        yield manifest.system('api').runDaemon();
-        var exitResult = yield system.runShell(
-          ["/bin/sh", "-c", "exit"],
-          { remove: false, stdout: mocks.stdout, stderr: mocks.stderr }
-        );
-
-        var data = yield exitResult.container.inspect();
-        h.expect(data).to.have.deep.property("Config.Env").and.include.something.that.match(
-          /API_URL=http/
-        );
-      });
-    });
-
     it("should run and wait for port", function() {
       return async(function* () {
         var command   = ["/bin/bash", "-c", "sleep 2; " + system.raw_command];
@@ -135,6 +109,47 @@ describe("Azk system class, run set", function() {
         h.expect(outputs).to.have.property("stdout").match(/provisioned/);
 
         h.expect(system).to.have.property("provisioned").and.not.null;
+      });
+    });
+
+    describe("with env variables", function() {
+      var envs;
+
+      before(function() {
+        return async(this, function* () {
+          var cmd = ["/bin/sh", "-c", "exit"];
+          var options = {
+            envs: { FOO: "BAR" },
+            remove: false, stdout: mocks.stdout, stderr: mocks.stderr
+          };
+
+          var api = manifest.system('api');
+
+          yield api.runDaemon();
+          var exitResult = yield system.runShell(cmd, options);
+          var data = yield exitResult.container.inspect();
+
+          envs = data.Config.Env;
+
+          yield exitResult.container.remove();
+          yield api.stop();
+        });
+      });
+
+      it("loaded from dependencies system in a shell", function() {
+        h.expect(envs).to.include.something.that.match(/API_URL=http/);
+      });
+
+      it("loaded from parameters", function() {
+        h.expect(envs).to.include.something.that.match(/FOO=BAR/);
+      });
+
+      it("load from manifest", function() {
+        h.expect(envs).to.include.something.that.match(/ECHO_DATA=data/);
+      });
+
+      it("load from .env file", function() {
+        h.expect(envs).to.include.something.that.match(/FROM_DOT_ENV=azk is beautiful/);
       });
     });
 
