@@ -132,6 +132,11 @@ var Utils = {
   escapeRegExp(value) {
     return (value || "").replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&");
   },
+
+  template(template, data) {
+    var options = { interpolate: /(?:(?:[#|$]{|<%)[=|-]?)([\s\S]+?)(?:}|%>)/g };
+    return _.template(template, data, options);
+  },
 };
 
 module.exports = Utils;

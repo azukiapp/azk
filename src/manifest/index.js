@@ -293,9 +293,9 @@ export class Manifest {
 
     return manifest.addSystem("--tmp--", {
       image: image,
-      workdir: "/azk/<%= manifest.dir %>",
+      workdir: "/azk/#{manifest.dir}",
       mount_folders: {
-        ".": "/azk/<%= manifest.dir %>",
+        ".": "/azk/#{manifest.dir}",
       },
     });
   }

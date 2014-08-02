@@ -50,7 +50,7 @@ systems({
     {{~#if http}}
     http: {
       // {{&@key}}.{{& ../../azk.default_domain}}
-      hostname: "<%= system.name %>.<%= azk.default_domain %>"
+      hostname: "#{system.name}.#{azk.default_domain}"
     },
     {{~/if}}
     {{~#if ports}}

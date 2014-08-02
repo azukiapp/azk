@@ -7,11 +7,11 @@ var example_system = {
   name    : "example",
   depends : [],
   image   : { repository: "[repository]", tag: "[tag]" },
-  workdir : "/azk/<%= manifest.dir %>",
+  workdir : "/azk/#{manifest.dir}",
   balancer: true,
   command : "# command to run app",
   mount_folders : {
-    ".": "/azk/<%= manifest.dir %>",
+    ".": "/azk/#{manifest.dir}",
   },
   persistent_folders: [],
   envs: {

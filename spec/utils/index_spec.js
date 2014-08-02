@@ -3,7 +3,7 @@ import h from 'spec/spec_helper';
 import utils from 'azk/utils';
 import { Q } from 'azk/utils';
 
-describe("azk utils module", function() {
+describe("Azk utils module", function() {
   it("should run function in cwd", function() {
     var current = process.cwd();
     var other = null;
@@ -25,6 +25,12 @@ describe("azk utils module", function() {
     var func = () => string.match(RegExp(string));
     h.expect(func).to.throw(SyntaxError);
     h.expect(string).to.match(RegExp(utils.escapeRegExp(string)));
+  });
+
+  it("should expand templae", function() {
+    var result, data = { value: "foo", hash: { key: "bar" } };
+    result = utils.template("<%= value %> - #{hash.key}", data);
+    h.expect(result).to.equal("foo - bar");
   });
 
   describe("in a class with async method", function() {

@@ -29,6 +29,7 @@ module.exports = {
   get async()  { return async; },
   get path()   { return require('path'); },
   get fs()     { return require('fs-extra'); },
+  get utils()  { return require('azk/utils'); },
 
   get log() {
     if (!_log) {

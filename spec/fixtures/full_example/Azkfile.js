@@ -22,13 +22,13 @@ systems({
     ],
     // Enable balancer over de instances
     balancer: {
-      hostname: "myapp_<%= system.name %>",
+      hostname: "myapp_#{system.name}",
       alias: [
-        "front.<%= azk.default_domain %>"
+        "front.#{azk.default_domain}"
       ],
     },
     // Run dir app
-    workdir: "/azk/<%= system.name %>",
+    workdir: "/azk/#{system.name}",
     // Mounts folders to assigned paths
     mount_folders: {
       ".": "/azk/{system}",
@@ -51,7 +51,7 @@ systems({
       Dockerfile: "./api"
     },
     balancer: {
-      hostname: "myapp_<%= system.name %>",
+      hostname: "myapp_#{system.name}",
     },
     volumes: {
       ".": "/app"
@@ -87,7 +87,7 @@ systems({
       PASSWORD: "password",
     },
     export_envs: {
-      "<%= system.name %>_URL": "<%= env.USER %>:<%= env.PASSWORD %>@<%= env.HOST %>:<%= env.PORT %>",
+      "#{system.name}_URL": "#{env.USER}:#{env.PASSWORD}@#{env.HOST}:#{env.PORT}",
     },
   },
 
@@ -104,11 +104,11 @@ systems({
     export_envs: {
       "#{sys.name}_URL": url({
         scheme: "pgsql",
-        user: "<%=  env.POSTGRESQL_USER %>",
-        password: "<%=  env.POSTGRESQL_PASS %>",
-        host: "<%=  env.HOST %>",
-        port: "<%=  env.DATA_PORT %>",
-        path: "<%=  env.POSTGRESQL_DB %>",
+        user: "#{env.POSTGRESQL_USER}",
+        password: "#{env.POSTGRESQL_PASS}",
+        host: "#{env.HOST}",
+        port: "#{env.DATA_PORT}",
+        path: "#{env.POSTGRESQL_DB}",
       }),
     },
   },

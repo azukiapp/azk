@@ -16,7 +16,7 @@ export function extend(h) {
       var command   = `${socat('80')} &0>/dev/null ; ${socat('$HTTP_PORT')}`;
       var provision = ["ls -l ./src", "./src/bashttpd", "touch provisioned", "exit 0"];
       var mount     = {
-        ".": '/azk/<%= manifest.dir %>'
+        ".": '/azk/#{manifest.dir}'
       };
 
       // Data merge
@@ -24,7 +24,7 @@ export function extend(h) {
         systems: {
           example: {
             depends: ["db", "api"],
-            workdir: '/azk/<%= manifest.dir %>',
+            workdir: '/azk/#{manifest.dir}',
             image: default_img,
             mount_folders: mount,
             persistent_folders: [ "/data" ],
@@ -37,7 +37,7 @@ export function extend(h) {
           },
           api: {
             depends: ["db"],
-            workdir: '/azk/<%= manifest.dir %>',
+            workdir: '/azk/#{manifest.dir}',
             image: default_img,
             mount_folders: mount,
             scalable: true,
@@ -48,7 +48,7 @@ export function extend(h) {
             }
           },
           db: {
-            workdir: '/azk/<%= manifest.dir %>',
+            workdir: '/azk/#{manifest.dir}',
             image: default_img,
             persistent_folders: [ "/data" ],
             mount_folders: mount,
@@ -61,7 +61,7 @@ export function extend(h) {
               http: "5000/tcp",
             },
             export_envs: {
-              "<%= system.name %>_URL": "<%= envs.USER %>:<%= envs.PASSWORD %>@<%= net.host %>:<%= net.port.http %>"
+              "#{system.name}_URL": "#{envs.USER}:#{envs.PASSWORD}@#{net.host}:#{net.port.http}"
             },
             command, provision,
           },
@@ -85,7 +85,7 @@ export function extend(h) {
             up: false,
             image: default_img,
             mount_folders: {
-              ".": "/azk/<%= system.name %>",
+              ".": "/azk/#{system.name}",
               "..": "/azk/root",
             },
           },
@@ -93,13 +93,13 @@ export function extend(h) {
             up: false,
             image: default_img,
             mount_folders: {
-              "system_name": "<%= system.name %>",
-              "persistent_folder": "<%= system.persistent_folders %>",
-              "manifest_dir": "<%= manifest.dir %>",
-              "manifest_project_name": "<%= manifest.project_name %>",
-              "azk_default_domain": "<%= azk.default_domain %>",
-              "azk_balancer_port": "<%= azk.balancer_port %>",
-              "azk_balancer_ip": "<%= azk.balancer_ip %>",
+              "system_name": "#{system.name}",
+              "persistent_folder": "#{system.persistent_folders}",
+              "manifest_dir": "#{manifest.dir}",
+              "manifest_project_name": "#{manifest.project_name}",
+              "azk_default_domain": "#{azk.default_domain}",
+              "azk_balancer_port": "#{azk.balancer_port}",
+              "azk_balancer_ip": "#{azk.balancer_ip}",
             },
           },
         },

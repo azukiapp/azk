@@ -144,19 +144,18 @@ systems({
     provision: [
       "npm install",
     ],
-    workdir: "/azk/<%= manifest.dir %>",
+    workdir: "/azk/#{manifest.dir}",
     command: "node index.js",
     // Mounts folders to assigned paths
     mount_folders: {
-      ".": "/azk/<%= manifest.dir %>",
+      ".": "/azk/#{manifest.dir}",
     },
-    // Enables http balancer over instances
-    balancer: {
+    // Start with 2 instances
+    scalable: { default: 2} 
+    // Set hostname to use in http balancer
+    http: {
       // node-example.dev.azk.io
-      hostname: "<%= system.name %>.<%= azk.default_domain %>",
-      alias: [
-        "othername.<%= azk.default_domain %>"
-      ]
+      hostname: "#{system.name}.#{azk.default_domain}",
     },
     envs: {
       // Exports global variables

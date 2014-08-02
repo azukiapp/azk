@@ -1,4 +1,4 @@
-import { _, t, config, path, async, Q } from 'azk';
+import { _, t, config, path, async, Q, utils } from 'azk';
 import { Image } from 'azk/images';
 import { net } from 'azk/utils';
 import { XRegExp } from 'xregexp';
@@ -184,7 +184,7 @@ export class System {
       return envs;
     }, envs);
 
-    return JSON.parse(_.template(JSON.stringify(envs), data));
+    return JSON.parse(utils.template(JSON.stringify(envs), data));
   }
 
   env_key(...args) {
@@ -341,7 +341,7 @@ export class System {
   _expand_template(options) {
     var data = {
       _keep_key(key) {
-        return "<%= " + key + " %>";
+        return "#{" + key + "}";
       },
       system: {
         name: this.name,
@@ -359,11 +359,11 @@ export class System {
     };
 
     var template = this._replace_keep_keys(JSON.stringify(options));
-    return JSON.parse(_.template(template, data));
+    return JSON.parse(utils.template(template, data));
   }
 
   _replace_keep_keys(template) {
-    var regex = /<%=?\s*((envs|net)\.[\S]+?)\s*%>/g;
-    return template.replace(regex, "<%= _keep_key('$1') %>");
+    var regex = /(?:(?:[#|$]{|<%)[=|-]?)\s*((?:envs|net)\.[\S]+?)\s*(?:}|%>)/g;
+    return template.replace(regex, "#{_keep_key('$1')}");
   }
 }

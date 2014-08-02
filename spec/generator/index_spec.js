@@ -36,19 +36,19 @@ describe("Azk generator tool", function() {
       systems: {
         front: {
           depends: ['db'],
-          workdir: '/azk/<%= manifest.dir %>',
+          workdir: '/azk/#{manifest.dir}',
           image: { repository: 'base', tag: '0.1' },
           scalable: true,
           http: true,
           mount_folders: {
-            ".": "/azk/<%= manifest.dir %>",
+            ".": "/azk/#{manifest.dir}",
           },
           command: 'bundle exec rackup config.ru',
           envs: { RACK_ENV: 'dev' },
         },
         db: {
           image: "base",
-          export_envs: { DB_URL: "<%= envs.USER %>:<%= envs.PASSWORD %>@<%= net.host %>:<%= net.port.3666 %>" }
+          export_envs: { DB_URL: "#{envs.USER}:#{envs.PASSWORD}@#{net.host}:#{net.port.3666}" }
         }
       },
       defaultSystem: 'front',
@@ -111,7 +111,7 @@ describe("Azk generator tool", function() {
       var manifest = generate_manifest(dir, default_data);
       var system   = manifest.system('db');
       h.expect(system).to.have.deep.property("options.export_envs")
-        .and.to.eql({ DB_URL: "<%= envs.USER %>:<%= envs.PASSWORD %>@<%= net.host %>:<%= net.port.3666 %>" });
+        .and.to.eql({ DB_URL: "#{envs.USER}:#{envs.PASSWORD}@#{net.host}:#{net.port.3666}" });
     });
 
     it("should support instances in scalable", function() {
