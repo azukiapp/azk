@@ -94,7 +94,7 @@ var Balancer = {
   },
 
   start_socat(ip, port) {
-    return this._runSystem('balancer_redirect', {
+    return this._runSystem('balancer-redirect', {
       wait: true,
       envs: {
         BALANCER_IP: ip,

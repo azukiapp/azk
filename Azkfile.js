@@ -44,7 +44,7 @@ systems({
     }
   },
 
-  balancer_redirect: {
+  'balancer-redirect': {
     image: config("docker:image_default"),
     command: "socat TCP4-LISTEN:$HTTP_PORT,fork TCP:$BALANCER_IP:$BALANCER_PORT",
     ports: {
