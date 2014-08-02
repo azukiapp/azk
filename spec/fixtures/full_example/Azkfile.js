@@ -21,11 +21,8 @@ systems({
       "bundle install --path vendor/bundler",
     ],
     // Enable balancer over de instances
-    balancer: {
+    http: {
       hostname: "myapp_#{system.name}",
-      alias: [
-        "front.#{azk.default_domain}"
-      ],
     },
     // Run dir app
     workdir: "/azk/#{system.name}",
@@ -50,7 +47,7 @@ systems({
       // Don't use direct docker image, build one from a Dockerfile
       Dockerfile: "./api"
     },
-    balancer: {
+    http: {
       hostname: "myapp_#{system.name}",
     },
     volumes: {

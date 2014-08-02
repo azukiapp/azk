@@ -154,6 +154,12 @@ describe("Azk manifest class", function() {
       h.expect(func).to.throw(ManifestError).and.match(/Unexpected token =/);
     });
 
+    it("should raise a if use balancer option", function() {
+      var func = mock_manifest('system("system", { image: "foo", balancer: { key: "value" } });');
+      var msgs = t("manifest.balancer_depreciation", { system: "system" });
+      h.expect(func).to.throw(ManifestError).and.match(RegExp(msgs));
+    });
+
     it("should raise error if an image has not been configured", function() {
       var func = mock_manifest('system("system1", { });');
       var msgs = t("manifest.image_required", { system: "system1" });

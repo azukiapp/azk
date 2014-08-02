@@ -91,6 +91,7 @@ module.exports = {
     image_required: "Not image set for the `%(system)s' system",
     system_name_invalid: "The system name `%(system)s` is not valid.",
     depends_not_declared: "The `%(system)s` system depends on the `%(depend)s` system, which was not stated.",
+    balancer_depreciation: "The `balancer` option used in the `%(system)s` is deprecated, use `http` and `scalable` to replace",
   },
 
   system: {

@@ -136,14 +136,7 @@ export class Manifest {
 
   addSystem(name, data) {
     if (!(data instanceof System)) {
-      if (!name.match(/^[a-zA-Z0-9-]+$/)) {
-        var msg = t("manifest.system_name_invalid", { system: name });
-        throw new ManifestError(this.file, msg);
-      }
-      if (_.isEmpty(data.image)) {
-        var msg = t("manifest.image_required", { system: name });
-        throw new ManifestError(this.file, msg);
-      }
+      this._system_validate(name, data);
       var image = data.image;
       delete data.image;
       data = new System(this, name, image, data);
@@ -153,6 +146,21 @@ export class Manifest {
     if (!this.default) this.default = name;
 
     return this;
+  }
+
+  _system_validate(name, data) {
+    if (!name.match(/^[a-zA-Z0-9-]+$/)) {
+      var msg = t("manifest.system_name_invalid", { system: name });
+      throw new ManifestError(this.file, msg);
+    }
+    if (_.isEmpty(data.image)) {
+      var msg = t("manifest.image_required", { system: name });
+      throw new ManifestError(this.file, msg);
+    }
+    if (!_.isEmpty(data.balancer)) {
+      var msg = t("manifest.balancer_depreciation", { system: name });
+      throw new ManifestError(this.file, msg);
+    }
   }
 
   system(name, isRequired = false) {
