@@ -61,7 +61,7 @@ describe("Azk system class, main set", function() {
 
     describe("in a system with volumes to be mounted", function() {
       it("should expand options with template", function() {
-        var system = manifest.system('expand_test');
+        var system = manifest.system('expand-test');
         var mount_folders = system.raw_mount_folders;
         h.expect(mount_folders).to.eql({
           "system_name": system.name,
@@ -75,7 +75,7 @@ describe("Azk system class, main set", function() {
       });
 
       it("should return a volumes property", function() {
-        var system  = manifest.system('mount_test');
+        var system  = manifest.system('mount-test');
         var volumes = system.volumes;
         h.expect(volumes).to.have.property(
           manifest.manifestPath, "/azk/" + system.name
@@ -138,7 +138,7 @@ describe("Azk system class, main set", function() {
       });
 
       it("should map system ports to docker ports", function() {
-        var system  = manifest.system('ports_test');
+        var system  = manifest.system('ports-test');
         var options = system.daemonOptions();
 
         h.expect(options).to.deep.have.property("ports.80/tcp").and.eql([{
@@ -159,7 +159,7 @@ describe("Azk system class, main set", function() {
             "6379/tcp": "6379/tcp",
           }
         };
-        var system  = manifest.system('ports_test');
+        var system  = manifest.system('ports-test');
         var options = system.daemonOptions(custom);
 
         h.expect(options).to.deep.have.property("ports.8080/tcp").and.eql([{
@@ -196,7 +196,7 @@ describe("Azk system class, main set", function() {
       });
 
       it("should extract options from image_data", function() {
-        var system = manifest.system("test_image_opts");
+        var system = manifest.system("test-image-opts");
         return system.image.check().then((image) => {
           return image.inspect().then((image_data) => {
             var options = system.daemonOptions({ image_data });

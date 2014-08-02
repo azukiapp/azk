@@ -89,6 +89,7 @@ module.exports = {
     not_found: "no such '%s' in current project",
     circular_depends: "Circular dependency between %(system1)s and %(system2)s",
     image_required: "Not image set for the `%(system)s' system",
+    system_name_invalid: "The system name `%(system)s` is not valid.",
     depends_not_declared: "The `%(system)s` system depends on the `%(depend)s` system, which was not stated.",
   },
 

@@ -136,6 +136,10 @@ export class Manifest {
 
   addSystem(name, data) {
     if (!(data instanceof System)) {
+      if (!name.match(/^[a-zA-Z0-9-]+$/)) {
+        var msg = t("manifest.system_name_invalid", { system: name });
+        throw new ManifestError(this.file, msg);
+      }
       if (_.isEmpty(data.image)) {
         var msg = t("manifest.image_required", { system: name });
         throw new ManifestError(this.file, msg);
@@ -287,7 +291,7 @@ export class Manifest {
     var file = path.join(cwd, file_name);
     var manifest = new Fake(null, file);
 
-    return manifest.addSystem("__tmp__", {
+    return manifest.addSystem("--tmp--", {
       image: image,
       workdir: "/azk/<%= manifest.dir %>",
       mount_folders: {

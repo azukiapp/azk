@@ -23,7 +23,7 @@ export class BaseRule extends UIProxy {
   constructor(...args) { super(...args) }
 
   nameByDir(dir) {
-    return path.basename(dir);
+    return path.basename(dir).replace(/_/g, "-").replace(/[^a-zA-Z0-9-]/g, "");
   }
 
   makeSystemByDirs(dirs, suggestion, options = {}) {

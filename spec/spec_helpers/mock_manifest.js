@@ -70,10 +70,10 @@ export function extend(h) {
             image: config('docker:image_empty'),
             command: "/bin/false",
           },
-          test_image_opts: {
+          'test-image-opts': {
             image: default_img,
           },
-          ports_test: {
+          'ports-test': {
             image: config("docker:image_empty"),
             ports: {
               test_tcp: "80/tcp",
@@ -81,7 +81,7 @@ export function extend(h) {
               test_public: "443:443/tcp",
             },
           },
-          mount_test: {
+          'mount-test': {
             up: false,
             image: default_img,
             mount_folders: {
@@ -89,7 +89,7 @@ export function extend(h) {
               "..": "/azk/root",
             },
           },
-          expand_test: {
+          'expand-test': {
             up: false,
             image: default_img,
             mount_folders: {

@@ -64,7 +64,7 @@ describe("Azk manifest class", function() {
     describe("with a tree of the requireds systems", function() {
       it("should return a systems in required order", function() {
         h.expect(manifest.systemsInOrder()).to.eql(
-          ["expand_test", "mount_test", "ports_test", "test_image_opts", "empty", "db", "api", "example"]
+          ["expand-test", "mount-test", "ports-test", "test-image-opts", "empty", "db", "api", "example"]
         )
       });
 
@@ -118,7 +118,7 @@ describe("Azk manifest class", function() {
       h.expect(manifest).to.instanceof(Manifest);
       h.expect(manifest).to.have.property("cwd" , project);
       h.expect(manifest).to.have.property("file", path.join(project, config("manifest")));
-      h.expect(system).to.have.property("name", "__tmp__");
+      h.expect(system).to.have.property("name", "--tmp--");
       h.expect(system).to.have.deep.property("image.name", default_img);
     });
 
@@ -142,6 +142,12 @@ describe("Azk manifest class", function() {
         new Manifest(project);
       }
     }
+
+    it("should raise a invalid system name", function() {
+      var func = mock_manifest('system("system.1", { image: "foo" });');
+      var msgs = t("manifest.system_name_invalid", { system: "system.1" });
+      h.expect(func).to.throw(ManifestError).and.match(RegExp(msgs));
+    });
 
     it("should raise a sytax error", function() {
       var func = mock_manifest("var a; \n var = ;");
