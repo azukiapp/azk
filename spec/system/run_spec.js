@@ -5,7 +5,7 @@ import { Run } from 'azk/system/run';
 import { ImageNotAvailable } from 'azk/utils/errors';
 import docker from 'azk/docker';
 
-describe("systems, run", function() {
+describe("Azk system class, run set", function() {
   var manifest, system;
 
   before(function() {

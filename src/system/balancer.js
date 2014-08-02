@@ -2,6 +2,15 @@ import { async, config } from 'azk';
 import { Balancer } from 'azk/agent/balancer';
 
 var SystemBalancer = {
+  clear(system) {
+    return async(this, function*() {
+      if (system.balanceable) {
+        return Balancer.removeAll(system.hostname);
+      }
+      return false;
+    });
+  },
+
   add(system, container) {
     return this._addOrRemove(system, container, 'addBackend');
   },

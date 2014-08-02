@@ -3,7 +3,7 @@ import { config, async, Q } from 'azk';
 import { System } from 'azk/system';
 import docker from 'azk/docker';
 
-describe("systems, balancer", function() {
+describe("Azk system class, balancer set", function() {
   var manifest, system;
 
   before(function() {
@@ -13,9 +13,9 @@ describe("systems, balancer", function() {
     });
   });
 
-  afterEach(function() {
-    return system.killAll();
-  })
+  var clean = () => { return system.killAll(); }
+  afterEach(clean);
+  beforeEach(clean);
 
   it("should add daemon instances in balancer", function() {
     return async(this, function* () {

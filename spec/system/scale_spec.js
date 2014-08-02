@@ -5,7 +5,7 @@ import { Scale } from 'azk/system/scale';
 import { SystemDependError, SystemNotScalable } from 'azk/utils/errors';
 import docker from 'azk/docker';
 
-describe("systems, scale", function() {
+describe("Azk system class, scale set", function() {
   var manifest, system, system_db;
 
   before(function() {

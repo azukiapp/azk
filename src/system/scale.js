@@ -1,5 +1,6 @@
 import { Q, async, _ } from 'azk';
 import { SystemDependError, SystemNotScalable } from 'azk/utils/errors';
+import { Balancer } from 'azk/system/balancer';
 import docker from 'azk/docker';
 
 var Scale = {
@@ -50,11 +51,15 @@ var Scale = {
   },
 
   killAll(system, options = {}) {
-    options = _.defaults(options, {
-      kill: true,
-    });
+    return async(this, function* () {
+      options = _.defaults(options, {
+        kill: true,
+      });
 
-    return this.instances(system).then((instances) => {
+      // Clear balancer
+      yield Balancer.clear(system);
+
+      var instances = yield this.instances(system);
       return system.stop(instances, options.kill);
     });
   },

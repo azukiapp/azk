@@ -22,6 +22,11 @@ var Balancer = {
     return this.mem_client;
   },
 
+  removeAll(host) {
+    var key = 'frontend:' + host;
+    return Q.ninvoke(this.memCached, 'delete', key);
+  },
+
   getBackends(host) {
     var key = 'frontend:' + host;
     return Q.ninvoke(this.memCached, 'get', key).then((entries) => {
@@ -30,26 +35,24 @@ var Balancer = {
   },
 
   addBackend(hosts, backend) {
-    var self = this;
-    return async(function* () {
+    return async(this, function* () {
       for(var host of (_.isArray(hosts) ? hosts : [hosts])) {
         var key = 'frontend:' + host
-        var entries = yield self.getBackends(host);
-        entries = self._removeEntry(entries, backend);
+        var entries = yield this.getBackends(host);
+        entries = this._removeEntry(entries, backend);
         entries.push(backend);
-        yield Q.ninvoke(self.memCached, 'set', key, entries, 0);
+        yield Q.ninvoke(this.memCached, 'set', key, entries, 0);
       }
     });
   },
 
   removeBackend(hosts, backend) {
-    var self = this;
-    return async(function* () {
+    return async(this, function* () {
       for(var host of (_.isArray(hosts) ? hosts : [hosts])) {
         var key = 'frontend:' + host;
-        var entries = yield self.getBackends(host);
-        entries = self._removeEntry(entries, backend);
-        yield Q.ninvoke(self.memCached, 'set', key, entries, 0);
+        var entries = yield this.getBackends(host);
+        entries = this._removeEntry(entries, backend);
+        yield Q.ninvoke(this.memCached, 'set', key, entries, 0);
       }
     });
   },

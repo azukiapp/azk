@@ -5,7 +5,7 @@ import { Manifest } from 'azk/manifest';
 import { net } from 'azk/utils';
 import { ImageNotAvailable } from 'azk/utils/errors';
 
-describe("system class", function() {
+describe("Azk system class, main set", function() {
   var system;
   var name = "mysystem", image = config('docker:image_default');
 
