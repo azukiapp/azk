@@ -7,12 +7,19 @@
   * [Docker] Support container annotations.
   * [Vm] Adding ssh keys generator, and uploads the key to start vm.
   * [Generators] Now Generators and rules is a extension of the UI.
-  * [Manifest] Validate: image is required.
-  * [Manifest] Validate: declared dependencies are required.
-  * [Manifest] Validate: circular dependencies are checked.
-  * [Manifest] Support `shell` option to specify the shell to be used from `azk shell` (default: /bin/sh)
-  * [Manifest] Adding scalable option.
-  * [Manifest] Adding http option.
+  * [Cmds] Removing `-s` and `--system` from `start,stop,scale,shell` commands, now use `[command] [system_name,...]`.
+  * [Cmds] Removing `-i` and `--instances` in scale command, now use `scale [system_name,...] [number_of_instances].
+  * [Cmds] Print startup error in `start` and `scale` commands.
+
+* Enhancements Manifest
+  * Validate: system name format (/^[a-zA-Z0-9-]+$/).
+  * Validate: image is required.
+  * Validate: declared dependencies are required.
+  * Validate: circular dependencies are checked.
+  * Support `shell` option to specify the shell to be used from `azk shell` (default: /bin/sh)
+  * Support `#{}` in replace `<%=%>`.
+  * Adding scalable option.
+  * Adding http option.
 
 * Deprecations
   * [Manifest] Removing "balancer" option (use http).

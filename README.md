@@ -194,13 +194,12 @@ $ azk shell -m ~/:/azk/user       # Running with aditional mounting
 $ azk shell -i busybox            # Runs a shell in arbitrary imagem
 
 # Run background systems (Azkfie.js#systems)
-$ azk start                       # Starts a default system
+$ azk start                       # Starts all systems
+$ azk start [system_name,...]     # Starts specific systems
 $ azk stop                        # Stops specific service
 $ azk status                      # Displays all systems statuses
-$ azk status --all                # Displays systems statuses including dead instances
-$ azk status --instances          # Displays systems statuses including instances details
-$ azk stop -s [system_name]       # Stops specific system by name
-$ azk scale -s [system_name] -n 5 # Starts 5 instances of specific system
+$ azk stop [system_name,...]      # Stops specific systems by names
+$ azk scale [system_name,...] 5   # Starts 5 instances of specific systems
 ```
 
 ## Test (for experts only)
