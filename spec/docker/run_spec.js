@@ -128,12 +128,9 @@ describe("Azk docker module, run method @slow", function() {
       var data = yield container.inspect();
       h.expect(data).to.have.deep.property("State.Running", true);
 
-      var stream = yield container.attach({
-        log: true, stream: true, stdout: true, stderr: true
-      });
-      container.modem.demuxStream(stream, mocks.stdout, mocks.stderr);
+      var log = yield container.logs({stdout: true, stderr: true});
       yield Q.delay(500);
-      h.expect(outputs.stdout).to.match(/AZK_NAME=azk/);
+      h.expect(log).to.match(new RegExp(h.escapeRegExp(`AZK_NAME=${data.Name.slice(1)}`), 'm'));
 
       return container.kill();
     });
@@ -181,7 +178,7 @@ describe("Azk docker module, run method @slow", function() {
       h.expect(data).to.have.deep.property("Annotations.azk.type", "run");
       h.expect(data).to.have.deep.property("Annotations.azk.uid").and.match(/^[0-9a-f]+$/);
 
-      var name = RegExp(namespace + "-type.run-uid.[0-9a-f]+");
+      var name = RegExp(namespace + "_type.run_uid.[0-9a-f]+");
       h.expect(data).to.have.property('Name').and.match(name);
     });
   });

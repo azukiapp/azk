@@ -84,13 +84,13 @@ export class Container extends Utils.qify('dockerode/lib/container') {
     // Mount string
     return [config('docker:namespace'), ...(_.map(azk, (value, key) => {
       return key + "." + value;
-    }))].join("-");
+    }))].join("_");
   }
 
   // Unserialize annotations from a container name
   static unserializeAnnotations(name) {
     name = name.replace(/\/(.*)/, "$1");
-    var data = name.split('-');
+    var data = name.split('_');
     return _.reduce(data, (annotations, values) => {
       var key_value = values.split(".");
       annotations.azk[key_value[0]] = key_value[1];
