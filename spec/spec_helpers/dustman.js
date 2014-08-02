@@ -16,8 +16,9 @@ export function extend(Helpers) {
         done.notify(t('test.remove_containers', containers.length));
         return Q.all(_.map(containers, (container) => {
           var c = docker.getContainer(container.Id);
-          c.kill();
-          return c.remove({ force: true });
+          return c.kill().then(() => {
+            return c.remove({ force: true });
+          });
         }));
       });
     });
