@@ -41,6 +41,7 @@ export class System {
   start(...args) { return Scale.start(this, ...args); }
   scale(...args) { return Scale.scale(this, ...args); }
   killAll(...args) { return Scale.killAll(this, ...args); }
+  checkDependsAndReturnEnvs(...args) { return Scale.checkDependsAndReturnEnvs(this, ...args); }
 
   // Save provision info
   get provision_steps() {

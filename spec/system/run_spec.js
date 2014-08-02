@@ -85,6 +85,21 @@ describe("Azk system class, run set", function() {
       });
     });
 
+    it("should map daemon instances variables in shell", function() {
+      return async(function* () {
+        yield manifest.system('api').runDaemon();
+        var exitResult = yield system.runShell(
+          ["/bin/sh", "-c", "exit"],
+          { remove: false, stdout: mocks.stdout, stderr: mocks.stderr }
+        );
+
+        var data = yield exitResult.container.inspect();
+        h.expect(data).to.have.deep.property("Config.Env").and.include.something.that.match(
+          /API_URL=http/
+        );
+      });
+    });
+
     it("should run and wait for port", function() {
       return async(function* () {
         var command   = ["/bin/bash", "-c", "sleep 2; " + system.raw_command];

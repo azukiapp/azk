@@ -71,7 +71,7 @@ var Scale = {
     };
   },
 
-  checkDependsAndReturnEnvs(system, options) {
+  checkDependsAndReturnEnvs(system, options, required = true) {
     var depends = system.dependsInstances;
     return async(this, function* () {
       var instances, depend, envs = {};
@@ -79,7 +79,7 @@ var Scale = {
       for (var d = 0; d < depends.length; d++) {
         depend    = depends[d];
         instances = yield this.instances(depend);
-        if (_.isEmpty(instances)) {
+        if (_.isEmpty(instances) && required) {
           // Run dependencies
           if (options.dependencies) {
             yield depend.start(this._dependencies_options(options));
@@ -88,7 +88,10 @@ var Scale = {
             throw new SystemDependError(system.name, depend.name);
           }
         }
-        envs = _.merge(envs, yield this.getEnvs(depend, instances));
+
+        if (!_.isEmpty(instances)) {
+          envs = _.merge(envs, yield this.getEnvs(depend, instances));
+        }
       }
 
       return envs;

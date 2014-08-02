@@ -48,6 +48,10 @@ var Run = {
         sequencies: yield this._getSequencies(system)
       });
 
+      // Envs
+      var deps_envs = yield system.checkDependsAndReturnEnvs(options, false);
+      options.envs  = _.merge(deps_envs, options.envs || {});
+
       yield this._check_image(system, options);
       var docker_opt = system.shellOptions(options);
 
@@ -59,6 +63,7 @@ var Run = {
 
       return {
         code: data.State.ExitCode,
+        container: container,
         containerId: container.Id,
         removed: options.remove,
       }
