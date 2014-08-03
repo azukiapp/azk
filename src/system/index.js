@@ -100,7 +100,7 @@ export class System {
   }
   get balanceable() {
     var ports = this.ports;
-    return ports.http && !_.isEmpty(this.options.http || {}).hostname;
+    return ports.http && (this.options.http || {}).hostname;
   }
 
   get url() {
@@ -226,6 +226,9 @@ export class System {
 
   // Docker run options generator
   daemonOptions(options = {}) {
+    // Merge ports
+    options.ports = _.merge({}, this.ports, options.ports);
+
     // Load configs from image
     if (options.image_data) {
       var config = options.image_data.Config;
@@ -241,15 +244,15 @@ export class System {
       }
 
       // ExposedPorts
-      if(_.isEmpty(this.options.ports) && _.isEmpty(options.ports)) {
-        options.ports = _.reduce(config.ExposedPorts, (ports, config, port) => {
-          ports[port] = port;
-          return ports;
-        }, {});
-      }
+      _.each(config.ExposedPorts, (config, port) => {
+        var have = _.find(options.ports, (value, key) => {
+          return value.match(new RegExp(`${parseInt(port)}\/(tcp|udp)$`));
+        });
+
+        if (!have) { options.ports[port] = port; }
+      });
     }
 
-    options.ports = _.merge({}, this.ports, options.ports);
     return this._make_options(true, options);
   }
 

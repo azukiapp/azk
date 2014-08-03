@@ -13,7 +13,7 @@ export function extend(h) {
       var tmp = yield h.copyToTmp(h.fixture_path('test-app'));
       var default_img = config('docker:image_default');
 
-      var command   = `${socat('80')} &0>/dev/null ; ${socat('$HTTP_PORT')}`;
+      var command   = `${socat('80')} &0>/dev/null ; ${socat('53')} &0>/dev/null ; ${socat('$HTTP_PORT')}`;
       var provision = ["ls -l ./src", "./src/bashttpd", "touch provisioned", "exit 0"];
       var mount     = {
         ".": '/azk/#{manifest.dir}'
@@ -59,6 +59,7 @@ export function extend(h) {
             },
             ports: {
               http: "5000/tcp",
+              dns: "53/tcp",
             },
             export_envs: {
               "#{system.name}_URL": "#{envs.USER}:#{envs.PASSWORD}@#{net.host}:#{net.port.http}"

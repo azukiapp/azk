@@ -152,6 +152,25 @@ describe("Azk system class, main set", function() {
         }]);
       });
 
+      it("should merge system ports with image ports", function() {
+        var system  = manifest.system('db');
+        return system.image.check().then((image) => {
+          return image.inspect().then((image_data) => {
+            var options = system.daemonOptions({ image_data });
+
+            h.expect(options).to.deep.have.property("ports.5000/tcp").and.eql([{
+              HostIp: config('agent:dns:ip')
+            }]);
+            h.expect(options).to.deep.have.property("ports.80/tcp").and.eql([{
+              HostIp: config('agent:dns:ip')
+            }]);
+            h.expect(options).to.deep.have.property("ports.53/tcp").and.eql([{
+              HostIp: config('agent:dns:ip')
+            }]);
+          });
+        });
+      });
+
       it("should support custom ports", function() {
         var custom = {
           ports: {

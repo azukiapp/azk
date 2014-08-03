@@ -151,7 +151,7 @@ var Run = {
 
   // Wait for container/system available
   _wait_available(system, port_data, container, retry, timeout) {
-    return async(this, function* () {
+    return async(this, function* (notify) {
       if (config('agent:requires_vm')) {
         var host = config('agent:vm:ip');
       } else {
@@ -168,6 +168,7 @@ var Run = {
         },
       };
 
+      notify({ type: "wait", system: system.name, port: port_data });
       var running = yield net.waitService(host, port_data.port, retry, wait_opts);
 
       if (!running) {
