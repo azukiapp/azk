@@ -21,7 +21,7 @@ class Cmd extends Command {
       var table_status = this.table_add('table_status', { head: columns });
 
       for (var system of systems) {
-        var instances = yield system.instances();
+        var instances = yield system.instances({ type: "daemon" });
 
         if (system.balanceable && instances.length > 0) {
           var hostname = system.url;
