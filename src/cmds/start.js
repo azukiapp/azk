@@ -43,15 +43,20 @@ class Cmd extends ScaleCmd {
   }
 
   reload(manifest, systems, opts) {
-    throw new NotBeenImplementedError('reload');
+    return async(this, function* () {
+      yield this.stop(manifest, systems, opts);
+      yield this.start(manifest, systems, opts);
+    });
   }
 }
 
 export function init(cli) {
   var cmds = [
-    (new Cmd('start [system]' , cli)),
+    (new Cmd('start [system]' , cli))
+      .addOption(['--reprovision', '-R'], { default: true }),
     (new Cmd('stop [system]'  , cli)),
-    (new Cmd('reload [system]', cli)),
+    (new Cmd('reload [system]', cli))
+      .addOption(['--reprovision', '-R'], { default: true }),
   ];
 
   _.each(cmds, (cmd) => {

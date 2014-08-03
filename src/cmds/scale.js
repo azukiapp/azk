@@ -39,7 +39,7 @@ class Cmd extends Command {
     this.tOutput([...keys, event.action], data);
   }
 
-  _scale(system, instances = {}) {
+  _scale(system, instances = {}, opts) {
     var progress = (event) => {
       var pull_progress = Helpers.newPullProgress(this);
       if (event.type == "pull_msg") {
@@ -60,14 +60,14 @@ class Cmd extends Command {
       }
     }
 
-    return system.scale(instances, {}).progress(progress);
+    return system.scale(instances, { provision_force: opts.reprovision || false }).progress(progress);
   }
 
   scale(manifest, systems, opts) {
     return async(this, function* () {
       for (var i = 0; i < systems.length; i++) {
         var system = systems[i];
-        yield this._scale(system, parseInt(opts.to || 1));
+        yield this._scale(system, parseInt(opts.to || 1), opts);
       }
     })
   }

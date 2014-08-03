@@ -11,7 +11,7 @@ var Scale = {
   scale(system, instances = {}, options = {}) {
     // Default instances
     if (_.isObject(instances)) {
-      options   = instances;
+      options   = _.merge(instances, options);
       instances = system.default_instances;
     }
 
@@ -39,7 +39,8 @@ var Scale = {
 
       if (icc > 0) {
         for(var i = 0; i < icc; i++) {
-          yield system.runDaemon(options);
+          yield system.runDaemon(_.clone(options));
+          options.provision_force = false;
         }
       } else if (icc < 0) {
         containers = containers.reverse().slice(0, Math.abs(icc));
