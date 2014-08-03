@@ -85,21 +85,19 @@ var Helpers = {
   },
 
   getSystemsByName(manifest, names) {
-    var systems = [];
+    var systems_name = manifest.systemsInOrder();
 
-    if (_.isEmpty(names)) {
-      systems = _.map(manifest.systems, (system) => {
-        return system;
-      });
-    } else {
-      var systems_name = _.isArray(names) ? names : names.split(',');
-      systems = _.reduce(systems_name, (systems, name) => {
-        systems.push(manifest.system(name, true));
-        return systems;
-      }, []);
+    if (_.isString(names) && !_.isEmpty(names)) {
+      systems_name = _.intersection(
+        systems_name,
+        _.isArray(names) ? names : names.split(',')
+      );
     }
 
-    return systems;
+    return _.reduce(systems_name, (systems, name) => {
+      systems.push(manifest.system(name, true));
+      return systems;
+    }, []);
   }
 }
 
