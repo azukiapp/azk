@@ -3,6 +3,8 @@ import { Command, Helpers } from 'azk/cli/command';
 import { Manifest } from 'azk/manifest';
 import { SYSTEMS_CODE_ERROR, NotBeenImplementedError } from 'azk/utils/errors';
 
+var moment = require('moment');
+
 class Cmd extends Command {
   action(opts) {
     return async(this, function* () {
@@ -17,22 +19,27 @@ class Cmd extends Command {
 
   static status(cli, manifest, systems) {
     return async(cli, function* () {
-      var columns = ['System'.blue, 'Status'.green, 'Instances'.yellow, 'Hostname'.green, 'Instances-Ports'.magenta];
+      var columns = ['', 'System'.blue, 'Instancies'.green, 'Hostname'.yellow, 'Instances-Ports'.magenta, "Provisioned".cyan];
       var table_status = this.table_add('table_status', { head: columns });
 
       for (var system of systems) {
         var instances = yield system.instances({ type: "daemon" });
 
         if (system.balanceable && instances.length > 0) {
-          var hostname = system.url;
+          var hostname = system.url.underline;
         } else {
           var hostname = system.hostname;
         }
         var ports   = yield Cmd._ports_map(system, instances);
-        var status  = instances.length > 0 ? 'UP'.green : 'DOWN'.red;
-        var counter = system.scalable ? instances.length : '-';
+        var name    = instances.length > 0 ? `${system.name}`.green : `${system.name}`.red;
+        var status  = instances.length > 0 ? `↑`.green : `↓`.red;
+        var counter = system.scalable ? instances.length.toString().blue : 'n/s'.red;
 
-        var line   = [system.name, status, counter, hostname, ports.join(', ')];
+        // Provisioned
+        var provisioned = system.provisioned;
+        provisioned = provisioned ? moment(provisioned).fromNow() : "-";
+
+        var line   = [status, name, counter, hostname, ports.join(', '), provisioned];
         this.table_push(table_status, line);
       }
 
