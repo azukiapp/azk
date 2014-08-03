@@ -7,7 +7,6 @@ import { Balancer } from 'azk/system/balancer';
 var MemoryStream = require('memorystream');
 
 var Run = {
-
   runProvision(system, options = {}) {
     return async(this, function* (notify) {
       var steps = system.provision_steps;

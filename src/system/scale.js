@@ -11,7 +11,7 @@ var Scale = {
   scale(system, instances = {}, options = {}) {
     // Default instances
     if (_.isObject(instances)) {
-      options = instances;
+      options   = instances;
       instances = system.default_instances;
     }
 

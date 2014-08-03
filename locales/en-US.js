@@ -190,7 +190,7 @@ module.exports = {
       }
     },
     stop: {
-      description: "Starts an instance of the system(s)",
+      description: "Stops an instance of the system(s)",
       not_running: "System `%(name)s` not running",
       options: {
         system: systems_options,
@@ -198,8 +198,8 @@ module.exports = {
     },
     scale: {
       description: "Scales (up or down) an instance of the system(s)",
-      check_image: "- Checking......".green  + "image `"  + "%(image)s".yellow + "`...",
-      pull_image:  "- Downloading...".cyan   + "image `"  + "%(image)s".yellow + "`...",
+      check_image: "- Checking......".green  + "image  `" + "%(image)s".yellow + "`...",
+      pull_image:  "- Downloading...".cyan   + "image  `" + "%(image)s".yellow + "`...",
       provision:   "- Provisioning..".blue   + "system `" + "%(system)s".blue  + "`...",
       scale: (     "- Scale.........".yellow + "system `" + "%(system)s".blue +
         "` from " + "%(from)d".red + " to " + "%(to)d".green + " instances..."
