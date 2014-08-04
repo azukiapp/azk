@@ -53,7 +53,7 @@ class Cmd extends ScaleCmd {
 export function init(cli) {
   var cmds = [
     (new Cmd('start [system]' , cli))
-      .addOption(['--reprovision', '-R'], { default: true }),
+      .addOption(['--reprovision', '-R'], { default: false }),
     (new Cmd('stop [system]'  , cli)),
     (new Cmd('reload [system]', cli))
       .addOption(['--reprovision', '-R'], { default: true }),
