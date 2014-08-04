@@ -36,6 +36,7 @@ export class System {
   runProvision(...args) { return Run.runProvision(this, ...args); }
   stop(...args) { return Run.stop(this, ...args); }
   instances(...args) { return Run.instances(this, ...args); }
+  throwRunError(...args) { return Run.throwRunError(this, ...args); }
 
   // Scale operations
   start(...args) { return Scale.start(this, ...args); }

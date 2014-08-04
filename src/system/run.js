@@ -1,4 +1,4 @@
-import { _, async, config} from 'azk';
+import { _, Q, async, defer, config} from 'azk';
 import docker from 'azk/docker';
 import { ImageNotAvailable, SystemRunError, RunCommandError } from 'azk/utils/errors';
 import net from 'azk/utils/net';
@@ -172,19 +172,47 @@ var Run = {
       var running = yield net.waitService(host, port_data.port, retry, wait_opts);
 
       if (!running) {
-        var data = yield container.inspect();
-        var log  = yield container.logs({stdout: true, stderr: true});
-        yield this.stop(system, [container], { kill: true, remove: true });
-        throw new SystemRunError(
-          system.name,
-          container,
-          data.Config.Cmd.join(' '),
-          data.State.ExitCode,
-          log
-        );
+        yield this.throwRunError(system, container, null, true);
       }
 
       return true;
+    });
+  },
+
+  throwRunError(system, container, data = null, stop = false) {
+    data = data ? Q(data) : container.inspect();
+    return data.then((data) => {
+      // Get container log
+      var promise = container.logs({stdout: true, stderr: true}).then((stream) => {
+        return defer((resolve, reject) => {
+          var acc = '';
+          var stdout = {
+            write(data) { acc += data.toString(); }
+          }
+          container.modem.demuxStream(stream, stdout, stdout);
+          stream.on('end', () => { resolve(acc) });
+          setTimeout(() => { reject(new Error("timeout")) }, 4000);
+        });
+      });
+
+      return promise.then((log) => {
+        var raise = () => {
+          throw new SystemRunError(
+            system.name,
+            container,
+            data.Config.Cmd.join(' '),
+            data.State.ExitCode,
+            log
+          );
+        };
+
+        // Stop and remove container
+        if (stop) {
+          return this.stop(system, [container], { kill: true, remove: true }).then(raise);
+        } else {
+          raise();
+        }
+      });
     });
   },
 
