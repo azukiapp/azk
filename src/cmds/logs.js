@@ -64,6 +64,14 @@ class Cmd extends Command {
     return Q.all(_.map(systems, (system) => {
       return system.instances({ type: "daemon" }).then((instances) => {
         color++;
+
+        if (opts.instances) {
+          opts.instances = opts.instances.split(',');
+          instances = _.filter(instances, (instance) => {
+            return _.contains(opts.instances, instance.Annotations.azk.seq);
+          });
+        }
+
         return Q.all(this.connect(system, colors[color % colors.length], instances, options));
       });
     }));
@@ -72,7 +80,7 @@ class Cmd extends Command {
 
 export { Cmd };
 export function init(cli) {
-  (new Cmd('logs [system]', cli))
+  (new Cmd('logs [system] [instances]', cli))
     .addOption(['--follow', '--tail', '-f'], { default: false })
     .addOption(['--lines', '-n'], { type: Number, default: "all" })
     .addOption(['--timestamps'], { default: true });
