@@ -63,7 +63,8 @@
     "exec-sh": "^0.1.3",
     "gaia-tsort": "^0.1.0",
     "fs-extra": "^0.10.0",
-    "moment": "^2.8.1"
+    "moment": "^2.8.1",
+    "memory-streams": "0.0.3"
   },
   "devDependencies": {
     "grunt": "^0.4.4",
