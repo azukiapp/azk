@@ -1,0 +1,64 @@
+import { _, async, config } from 'azk';
+import { Command } from 'azk/cli/command';
+import { Client } from 'azk/agent/client';
+import Azk from 'azk';
+import docker from 'azk/docker';
+
+class Cmd extends Command {
+  action(opts) {
+    return async(this, function* () {
+      // Get agent status
+      var agent = yield Client.status();
+      var require_vm = config("agent:requires_vm");
+
+      // Mount data to render
+      var data = {
+        version: Azk.version,
+        docker: require_vm && !agent.agent ? { Version: "down".red } : yield docker.version(),
+        use_vm: require_vm ? "yes".green : "no".yellow,
+        agent_running: agent.agent ? "up".green : "down".red,
+      };
+
+      var render = opts.logo ? this.render_with_logo : this.render_normal;
+      this.output(render.apply(this, [data]));
+    });
+  }
+
+  render_with_logo(data) {
+    var data_string = this.render_normal(data);
+    data_string = data_string.split("\n");
+
+    return `
+               ${"##########".blue}
+           ${"##################".blue}
+         ${"######################".blue}
+        ${"########################".blue}      ${data_string[1]}
+       ${"#################  #######".blue}     ${data_string[2]}
+      ${"##################  ########".blue}    ${data_string[3]}
+     ${"####     ##       #  ###  ####".blue}   ${data_string[4]}
+     ${"########  ####   ##  #  ######".blue}
+     ${"###  ###  ##   ####  ##  #####".blue}
+      ${"##    #  #       #  ###  ###".blue}
+       ${"##########################".blue}
+        ${"########################".blue}
+         ${"######################".blue}
+            ${"################".blue}
+               ${"##########".blue}
+    `;
+  }
+
+  render_normal(data) {
+    return `
+      ${"Azk".cyan}   : ${data.version.blue}
+      ${"Agent".cyan} : ${data.agent_running}
+      ${"Docker".cyan}: ${data.docker.Version}
+      ${"Use vm".cyan}: ${data.use_vm}
+    `;
+  }
+}
+
+export function init(cli) {
+  (new Cmd('doctor', cli))
+    .addOption(['--logo'], { default: false });
+}
+
