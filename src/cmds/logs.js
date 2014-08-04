@@ -20,9 +20,14 @@ class Cmd extends Command {
 
   make_out(output, name) {
     return {
-      write(data) {
-        data = data.toString().match(/^\[(.*?)\](.*\n)$/m);
-        output.write(`${data[1].magenta} ${name}:${data[2]}`);
+      write(buffer) {
+        var data = buffer.toString().match(/^\[(.*?)\](.*\n)$/m);
+        if (data) {
+          output.write(`${data[1].magenta} ${name}:${data[2]}`);
+        } else {
+          output.write(`${name} `);
+          output.write(buffer);
+        }
       }
     }
   }
@@ -37,7 +42,7 @@ class Cmd extends Command {
       return container.logs(options).then((stream) => {
         return defer((resolve, reject) => {
           if (_.isString(stream)) {
-            stream = new ReadableStream(stream);
+            stream = new ReadableStream(new Buffer(stream));
           }
           container.modem.demuxStream(stream, stdout, stderr);
           stream.on('end', resolve);
