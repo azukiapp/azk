@@ -30,9 +30,13 @@ var SystemBalancer = {
   _addOrRemove(system, container, method) {
     return async(this, function* () {
       if (system.balanceable) {
-        container   = yield container.inspect();
-        var backend = this._formatBackend(system, container);
-        return Balancer[method](system.hosts, backend);
+        var data = yield container.inspect();
+        if (data.State.Running) {
+          var backend = this._formatBackend(system, data);
+          if (backend) {
+            return Balancer[method](system.hosts, backend);
+          }
+        }
       }
 
       return null;
@@ -40,8 +44,10 @@ var SystemBalancer = {
   },
 
   _formatBackend(system, container) {
-    var port = container.NetworkSettings.Access[system.http_port];
-    return `http://${config('agent:vm:ip')}:${port.port}`;
+    var port = container.NetworkSettings.Access[system.http_port] || {};
+    if (port.port) {
+      return `http://${config('agent:vm:ip')}:${port.port}`;
+    }
   },
 }
 

@@ -1,6 +1,9 @@
 # Changelog
 
-## v0.4.0-dev
+## v0.4.1-dev
+
+* Bug
+  * [Systems] Fixed a bug that could cause the command "start" failed and a wrong error message would be displayed..
 
 ## v0.4.0 (2014-04-08)
 
