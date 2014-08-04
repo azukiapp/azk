@@ -41,9 +41,9 @@ class Cmd extends Command {
 
       return container.logs(options).then((stream) => {
         return defer((resolve, reject) => {
-          if (_.isString(stream)) {
-            stream = new ReadableStream(new Buffer(stream));
-          }
+          //if (_.isString(stream)) {
+            //stream = new ReadableStream(new Buffer(stream));
+          //}
           container.modem.demuxStream(stream, stdout, stderr);
           stream.on('end', resolve);
         });
