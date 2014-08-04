@@ -2,6 +2,8 @@
 
 ## v0.4.0-dev
 
+## v0.4.0 (2014-04-08)
+
 * Enhancements
   * [Docker] Add command `azk docker`
   * [Docker] Support container annotations.
@@ -10,6 +12,8 @@
   * [Cmds] Removing `-s` and `--system` from `start,stop,scale,shell` commands, now use `[command] [system_name,...]`.
   * [Cmds] Removing `-i` and `--instances` in scale command, now use `scale [system_name,...] [number_of_instances].
   * [Cmds] Print startup error in `start` and `scale` commands.
+  * [Cmds] Implementing the command `logs`, including support `--follow` and `--lines` options.
+  * [Cmds] Implementing the command `doctor`, including support `--logo` option.
 
 * Enhancements Manifest
   * Validate: system name format (/^[a-zA-Z0-9-]+$/).
