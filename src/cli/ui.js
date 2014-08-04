@@ -2,13 +2,14 @@ import { _, t } from 'azk';
 import { Multibar } from 'azk/cli/multi_bars';
 require('colors');
 
-var execSh = require('exec-sh');
-var Table  = require('cli-table');
-var printf = require('printf');
-var ok     = 'azk'.green;
-var fail   = 'azk'.red;
-var mbars  = [];
-var tables = {};
+var execSh  = require('exec-sh');
+var Table   = require('cli-table');
+var printf  = require('printf');
+var ok      = 'azk'.green;
+var fail    = 'azk'.red;
+var warning = 'azk'.yellow;
+var mbars   = [];
+var tables  = {};
 
 var UI = {
   isUI: true,
@@ -45,6 +46,10 @@ var UI = {
 
   fail(...args) {
     this.output(fail + ": " + t(...args));
+  },
+
+  warning(...args) {
+    this.output(warning + ": " + t(...args));
   },
 
   // TOOD: Flush log (https://github.com/flatiron/winston/issues/228)

@@ -38,6 +38,7 @@ module.exports = {
       // TODO: stopped
       stoped: "Agent has been successfully stopped.",
       error: "Agent starting error: %(data)s.",
+      wait: "Wait, this process may take several minutes",
     },
 
     vm: {
