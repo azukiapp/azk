@@ -10,12 +10,16 @@ function key_watch(grunt) {
 
   // listen for the "keypress" event
   process.stdin.on('keypress', function (ch, key) {
-    if (key && key.ctrl && key.name == 'c') {
-      process.stdin.pause();
-      return process.exit();
-    } else if(key && key.name == "r") {
-      // Reload
-      touch(__filename);
+    if (key) {
+      if (key.ctrl && key.name == 'c') {
+        process.stdin.pause();
+        return process.exit();
+      } else if(key.name == "c") {
+        process.stdout.write('\u001B[2J\u001B[0;0f');
+      } else if(key.name == "r") {
+        // Reload
+        touch(__filename);
+      }
     }
   });
 
@@ -23,15 +27,13 @@ function key_watch(grunt) {
   process.stdin.resume();
 }
 
-var test_task = process.env.TEST_TASK || "test";
-var test_grep = null;
-
-if (process.env.MOCHA_GREP) {
-  test_grep = process.env.MOCHA_GREP;
-  test_task = "slow_test";
-}
-
 module.exports = function(grunt) {
+  // Test options
+  var test_task = grunt.option('test') || "test";
+  var test_grep = grunt.option('grep') || null;
+  if (test_grep != null) {
+    test_task = "slow_test";
+  }
 
   // Project configuration.
   grunt.initConfig({
@@ -65,12 +67,6 @@ module.exports = function(grunt) {
           dest: 'lib/spec/',
           ext: '.js'
         }]
-      }
-    },
-
-    exec: {
-      clear: {
-        cmd: 'clear'
       }
     },
 
@@ -115,22 +111,22 @@ module.exports = function(grunt) {
           'src/**/*.js',
           'spec/**/*.js',
         ],
-        tasks: ['exec:clear', 'newer:traceur']
+        tasks: ['clear', 'newer:traceur']
       }
     },
   });
 
-  grunt.loadNpmTasks('grunt-exec');
-  grunt.loadNpmTasks('grunt-env');
-  grunt.loadNpmTasks('grunt-newer');
-  grunt.loadNpmTasks('grunt-traceur');
-  grunt.loadNpmTasks('grunt-mocha-test');
-  grunt.loadNpmTasks('grunt-contrib-watch');
-  grunt.loadNpmTasks('grunt-node-inspector');
+  // load all grunt tasks matching the `grunt-*` pattern
+  require('load-grunt-tasks')(grunt);
 
-  grunt.registerTask('test', ['env:test', 'exec:clear', 'newer:traceur', 'mochaTest:test']);
-  grunt.registerTask('slow_test', ['env:test', 'exec:clear', 'newer:traceur', 'mochaTest:slow_test']);
-  grunt.registerTask('compile', ['exec:clear', 'newer:traceur', 'watch:traceur']);
+  // Clear task
+  grunt.registerTask('clear', function() {
+    process.stdout.write('\u001B[2J\u001B[0;0f');
+  });
+
+  grunt.registerTask('test', ['env:test', 'clear', 'newer:traceur', 'mochaTest:test']);
+  grunt.registerTask('slow_test', ['env:test', 'clear', 'newer:traceur', 'mochaTest:slow_test']);
+  grunt.registerTask('compile', ['lear', 'newer:traceur', 'watch:traceur']);
   grunt.registerTask('inspector', ["node-inspector"]);
   grunt.registerTask('default', function() {
     key_watch(grunt);
