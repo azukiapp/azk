@@ -104,22 +104,21 @@ export class SystemNotScalable extends SystemError {
   }
 }
 
+export class RunCommandError extends SystemError {
+  constructor(system, command, output) {
+    super('run_command_error', system);
+
+    this.command = command;
+    this.output  = output;
+  }
+}
+
 export class ImageNotAvailable extends AzkError {
   constructor(system, image) {
     super('image_not_available');
     this.system = system;
     this.image  = image;
     this.code   = IMAGES_CODE_ERROR;
-  }
-}
-
-export class RunCommandError extends AzkError {
-  constructor(command, output) {
-    super('run_command_error');
-
-    this.command = command;
-    this.output  = output;
-    this.code    = SYSTEMS_CODE_ERROR;
   }
 }
 

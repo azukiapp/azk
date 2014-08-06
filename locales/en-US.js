@@ -18,7 +18,7 @@ module.exports = {
     system_run_error: "Run system `%(system)s` return: (%(exitCode)d), for command: %(command)s:\n%(log)s",
     system_not_scalable: "System `%(system)s is not scalable only one instance is allowed.",
     image_not_available: "System `%(system)s` requires image `%(image)s` which is not avaible",
-    run_command_error: "Run `%(command)s` error:\n`%(output)s`",
+    run_command_error: "Run `%(command)s` in system `%(system)s` error:\n`%(output)s`",
     provision_pull_error: "Error downloading/pulling docker image `%(image)s`, message: %(msg)s.",
     invalid_option_error: "Invalid argument option: %(option)s",
     invalid_value_error: "Invalid value: %(value)s in option %(option)s",
@@ -97,6 +97,7 @@ module.exports = {
 
   system: {
     cmd_not_set: "Command not set in system \\`%(system)s\\`",
+    seelog: "See the back log",
   },
 
   commands: {

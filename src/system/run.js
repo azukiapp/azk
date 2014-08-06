@@ -1,4 +1,4 @@
-import { _, Q, async, defer, config} from 'azk';
+import { _, t, Q, async, defer, config} from 'azk';
 import docker from 'azk/docker';
 import { ImageNotAvailable, SystemRunError, RunCommandError } from 'azk/utils/errors';
 import net from 'azk/utils/net';
@@ -13,6 +13,7 @@ var Run = {
 
       options = _.defaults(options, {
         provision_force: false,
+        provision_verbose: false,
       });
 
       if (_.isEmpty(steps)) return null;
@@ -23,17 +24,22 @@ var Run = {
 
       // Capture outputs
       var output = "";
-      options = _.clone(options);
-      options.shell_type = "provision";
-      options.stdout = new MemoryStream();
-      options.stdout.on('data', (data) => {
-        output += data.toString();
-      });
+      if (!options.provision_verbose) {
+        options = _.clone(options);
+        options.shell_type = "provision";
+        options.stdout = new MemoryStream();
+        options.stderr = options.stdout;
+        options.stdout.on('data', (data) => {
+          output += data.toString();
+        });
+      } else {
+        output = t("system.seelog");
+      }
 
       notify({ type: "provision", system: system.name });
       var exitResult = yield system.runShell(cmd, options);
       if (exitResult.code != 0) {
-        throw new RunCommandError(cmd.join(' '), output);
+        throw new RunCommandError(system.name, cmd.join(' '), output);
       }
       // save the date provisioning
       system.provisioned = new Date();
