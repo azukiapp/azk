@@ -126,7 +126,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask('test', ['env:test', 'clear', 'newer:traceur', 'mochaTest:test']);
   grunt.registerTask('slow_test', ['env:test', 'clear', 'newer:traceur', 'mochaTest:slow_test']);
-  grunt.registerTask('compile', ['lear', 'newer:traceur', 'watch:traceur']);
+  grunt.registerTask('compile', ['clear', 'newer:traceur', 'watch:traceur']);
   grunt.registerTask('inspector', ["node-inspector"]);
   grunt.registerTask('default', function() {
     key_watch(grunt);
