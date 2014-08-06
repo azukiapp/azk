@@ -16,9 +16,13 @@ export class VerboseCmd extends Command {
     return null;
   }
 
-  verbose_msg(nivel, ...args) {
+  verbose_msg(nivel, func, ...args) {
     if (nivel <= this._verbose_nivel) {
-      return this.verbose(...args);
+      if (typeof(func) == "function") {
+        return func(...args);
+      } else {
+        return this.verbose(func, ...args);
+      }
     }
   }
 }

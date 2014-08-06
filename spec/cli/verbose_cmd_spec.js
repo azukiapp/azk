@@ -11,7 +11,9 @@ describe('Azk cli verbose class', function() {
     action(opts) {
       this.verbose_msg(1, 'nivel-1');
       this.verbose_msg(2, 'nivel-2');
-      this.verbose_msg(3, 'nivel-3');
+      this.verbose_msg(3, () => {
+        this.dir('nivel-3');
+      });
       this.dir(opts);
     }
 
