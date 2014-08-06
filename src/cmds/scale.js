@@ -62,7 +62,7 @@ class Cmd extends VerboseCmd {
 
             this.ok([...keys, type], event);
             break;
-          case "wait":
+          case "wait_port":
           case "provision":
             this.ok([...keys, event.type], event);
             break;

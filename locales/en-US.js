@@ -201,7 +201,7 @@ module.exports = {
     scale: {
       instances   : "from " + "%(from)d".red + " to " + "%(to)d".green + " instances",
       description : "Scales (up or down) an instance of the system(s)",
-      wait        : "◴".magenta + " waiting start `"+ "%(system)s".blue  + "` system, try connect port %(name)s/%(protocol)s...",
+      wait_port   : "◴".magenta + " waiting start `"+ "%(system)s".blue  + "` system, try connect port %(name)s/%(protocol)s...",
       check_image : "✓".cyan    + " checking `"     + "%(image)s".yellow + "` image...",
       pull_image  : "⇲".blue    + " downloading `"  + "%(image)s".yellow + "` image...",
       provision   : "↻".yellow  + " provisioning `" + "%(system)s".blue  + "` system...",
