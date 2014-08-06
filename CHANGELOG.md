@@ -1,9 +1,16 @@
 # Changelog
 
-## v0.4.1-dev
+## v0.4.2-dev
+
+* Enhancements
+  * [Cli] Adding support accumulate boolean options.
+  * [Cmds] Adding support verbose mode for provision action.
+  * [Cmds] Refactoring `start`, `stop`, `scale` and `reload` to show more powerfull mensagens..
+
+## v0.4.1 (2014-04-08)
 
 * Bug
-  * [Systems] Fixed a bug that could cause the command "start" failed and a wrong error message would be displayed..
+  * [Systems] Fixed a bug that could cause the command "start" failed and a wrong error message would be displayed.
 
 ## v0.4.0 (2014-04-08)
 
