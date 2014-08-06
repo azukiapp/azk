@@ -199,13 +199,16 @@ module.exports = {
       }
     },
     scale: {
-      description: "Scales (up or down) an instance of the system(s)",
-      check_image: "- Checking......".green  + "image  `" + "%(image)s".yellow + "`...",
-      pull_image:  "- Downloading...".cyan   + "image  `" + "%(image)s".yellow + "`...",
-      provision:   "- Provisioning..".blue   + "system `" + "%(system)s".blue  + "`...",
-      scale: (     "- Scale.........".yellow + "system `" + "%(system)s".blue +
-        "` from " + "%(from)d".red + " to " + "%(to)d".green + " instances..."
-      ),
+      instances   : "from " + "%(from)d".red + " to " + "%(to)d".green + " instances",
+      description : "Scales (up or down) an instance of the system(s)",
+      wait        : "◴".magenta + " waiting start `"+ "%(system)s".blue  + "` system, try connect port %(name)s/%(protocol)s...",
+      check_image : "✓".cyan    + " checking `"     + "%(image)s".yellow + "` image...",
+      pull_image  : "⇲".blue    + " downloading `"  + "%(image)s".yellow + "` image...",
+      provision   : "↻".yellow  + " provisioning `" + "%(system)s".blue  + "` system...",
+      starting    : "↑".green   + " starting `"     + "%(system)s".blue  + "` system, " + "%(to)d".green + " new instances...",
+      stopping    : "↓".red     + " stopping `"     + "%(system)s".blue  + "` system, " + "%(from)d".red + " instances...",
+      scaling_up  : "↑".green   + " scaling `"      + "%(system)s".blue  + "` system %(instances)s...",
+      scaling_down: "↓".red     + " scaling `"      + "%(system)s".blue  + "` system %(instances)s...",
       options: {
         system: systems_options,
         instances: "Number of instances",

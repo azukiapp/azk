@@ -174,7 +174,7 @@ var Run = {
         },
       };
 
-      notify({ type: "wait", system: system.name, port: port_data });
+      notify(_.merge(port_data, { type: "wait", system: system.name, name: system.portName(port_data.name)}));
       var running = yield net.waitService(host, port_data.port, retry, wait_opts);
 
       if (!running) {

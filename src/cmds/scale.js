@@ -1,4 +1,4 @@
-import { log, _, async, config, t } from 'azk';
+import { log, t, _, async, config, t } from 'azk';
 import { Manifest } from 'azk/manifest';
 import { Command, Helpers } from 'azk/cli/command';
 import { VerboseCmd } from 'azk/cli/verbose_cmd';
@@ -38,7 +38,7 @@ class Cmd extends VerboseCmd {
       this.images_checked[data.image] = true;
     }
 
-    this.tOutput([...keys, event.action], data);
+    this.ok([...keys, event.action], data);
   }
 
   _scale(system, instances = {}, opts) {
@@ -53,8 +53,18 @@ class Cmd extends VerboseCmd {
             this._formatAction(keys, event, system);
             break;
           case "scale":
+            event.instances = t([...keys, "instances"], event);
+            if (this.name != "scale") {
+              var type = event.from > event.to ? "stopping" : "starting";
+            } else {
+              var type = event.from > event.to ? "scaling_down" : "scaling_up";
+            }
+
+            this.ok([...keys, type], event);
+            break;
+          case "wait":
           case "provision":
-            this.tOutput([...keys, event.type], event);
+            this.ok([...keys, event.type], event);
             break;
           default:
             log.debug(event);
