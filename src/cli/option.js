@@ -14,8 +14,15 @@ export class Option {
   }
 
   get default() {
-    return _.has(this, '_default') ? this._default : (
-      this.type == Boolean ? true : null
+    var value = this._default;
+
+    // Boolean with acc
+    if (this.type == Boolean && this.acc) {
+      value = value ? 1 : 0;
+    }
+
+    return _.has(this, '_default') ? value : (
+      this.type == Boolean ? false : null
     )
   }
 
@@ -39,7 +46,8 @@ export class Option {
     var help = [];
     // Names
     var names = _.map(this.alias, (alias) => {
-      return ((alias.length > 1) ? '--' : '-') + alias;
+      var simple = '-' + (this.acc ? alias : '');
+      return ((alias.length > 1) ? '--' : simple) + alias;
     });
 
     switch(this.type) {
@@ -48,7 +56,10 @@ export class Option {
         break;
       case Boolean:
         if (this.show_default)
-          desc += ` (default: ${this.default})`;
+          var value = this.default;
+          if (value != null) {
+            desc += ` (default: ${value ? true : false})`;
+          }
         break;
     }
 

@@ -110,12 +110,17 @@ export class Command extends UIProxy {
 
     // Check is acc
     var save_value = (options, value) => {
-      if (_.isEmpty(value) && options.acc) return;
+      if (options.type == Boolean && options.acc) {
+        value = opts[options.name] || 0;
+        value = (value === true ? 1 : value) + 1;
+      } else {
+        if (_.isEmpty(value) && options.acc) return;
 
-      if (options.acc) {
-        var actual = opts[options.name] || [];
-        actual.push(value);
-        value = actual;
+        if (options.acc) {
+          var actual = opts[options.name] || [];
+          actual.push(value);
+          value = actual;
+        }
       }
       opts[options.name] = value;
     }
@@ -131,8 +136,10 @@ export class Command extends UIProxy {
     var stackable = _.clone(this.stackable);
     var stop = false;
 
+    // Process values and save in opts
     var process = () => {
       if (previous_value) {
+        // Not have a previos options then it is a stackable option
         if (!previous) {
           previous = stackable.shift();
         }
@@ -196,8 +203,12 @@ export class Command extends UIProxy {
     })
   }
 
+  before_action(...args) {
+    return this.action(...args);
+  }
+
   run(args = [], opts = null) {
-    return this.action(this.parse(args), opts);
+    return this.before_action(this.parse(args), opts);
   }
 
   action() {

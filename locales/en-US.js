@@ -265,6 +265,8 @@ module.exports = {
         options: {
           verbose: "Verbose mode",
           string: "String option",
+          flag: "Boolean flag",
+          'flag-default': "Flag with default",
           subcommand: {
             name: "subcommand",
             options: {
