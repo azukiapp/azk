@@ -1,10 +1,10 @@
 import { log, _, async, config, t } from 'azk';
-import { Command, Helpers } from 'azk/cli/command';
 import { Manifest } from 'azk/manifest';
-import { SYSTEMS_CODE_ERROR, NotBeenImplementedError } from 'azk/utils/errors';
+import { Command, Helpers } from 'azk/cli/command';
+import { VerboseCmd } from 'azk/cli/verbose_cmd';
 import { Cmd as StatusCmd } from 'azk/cmds/status';
 
-class Cmd extends Command {
+class Cmd extends VerboseCmd {
   action(opts) {
     return async(this, function* () {
       yield Helpers.requireAgent();
@@ -12,7 +12,6 @@ class Cmd extends Command {
       var manifest = new Manifest(this.cwd, true);
       var systems  = Helpers.getSystemsByName(manifest, opts.system);
 
-      this.verbose_active = opts.verbose;
       yield this[`${this.name}`](manifest, systems, opts);
 
       this.output("");
@@ -20,10 +19,13 @@ class Cmd extends Command {
     });
   }
 
-  verbose(...args) {
-    if (this.verbose_active) {
-      this.tOutput(...args);
-    }
+  scale(manifest, systems, opts) {
+    return async(this, function* () {
+      for (var i = 0; i < systems.length; i++) {
+        var system = systems[i];
+        yield this._scale(system, parseInt(opts.to || 1), opts);
+      }
+    })
   }
 
   _formatAction(keys, event, system) {
@@ -60,22 +62,24 @@ class Cmd extends Command {
       }
     }
 
-    return system.scale(instances, { provision_force: opts.reprovision || false }).progress(progress);
-  }
+    var options = {
+      provision_force: opts.reprovision || false,
+    };
 
-  scale(manifest, systems, opts) {
-    return async(this, function* () {
-      for (var i = 0; i < systems.length; i++) {
-        var system = systems[i];
-        yield this._scale(system, parseInt(opts.to || 1), opts);
-      }
-    })
+    this.verbose_msg(1, () => {
+      options = _.merge(options, {
+        provision_verbose: true,
+        stdout: this.stdout(),
+        stderr: this.stderr(),
+      });
+    });
+
+    return system.scale(instances, options).progress(progress);
   }
 }
 
 export { Cmd };
 export function init(cli) {
-  (new Cmd('scale [system] [to]', cli))
-    .addOption(['--verbose', '-v'], { defaut: false })
+  (new Cmd('scale [system] [to]', cli));
 }
 

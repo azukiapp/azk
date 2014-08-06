@@ -58,8 +58,4 @@ export function init(cli) {
     (new Cmd('reload [system]', cli))
       .addOption(['--reprovision', '-R'], { default: true }),
   ];
-
-  _.each(cmds, (cmd) => {
-    cmd.addOption(['--verbose', '-v'], { default: false })
-  });
 }
