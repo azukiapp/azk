@@ -45,10 +45,15 @@ export class Option {
   help(desc) {
     var help = [];
     // Names
-    var names = _.map(this.alias, (alias) => {
-      var simple = '-' + (this.acc ? alias : '');
-      return ((alias.length > 1) ? '--' : simple) + alias;
-    });
+    var names = _.reduce(this.alias, (names, alias) => {
+      if (alias.length == 1) {
+        names.push('-' + alias);
+        if (this.acc) names.push('-' + alias + alias);
+      } else {
+        names.push('--' + alias);
+      }
+      return names;
+    }, []);
 
     switch(this.type) {
       case String:

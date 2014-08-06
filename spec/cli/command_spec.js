@@ -213,7 +213,7 @@ describe('Azk cli command class', function() {
       );
       h.expect(out).to.deep.property("[02]", 'Test help description');
       h.expect(out).to.deep.property("[04]", t('commands.help.options'));
-      h.expect(out).to.deep.property("[06]", '  --verbose, -vv      Verbose mode (default: false) - multiples supported');
+      h.expect(out).to.deep.property("[06]", '  --verbose, -v, -vv  Verbose mode (default: false) - multiples supported');
       h.expect(out).to.deep.property("[07]", '  --flag-default, -F  Flag with default (default: true)');
       h.expect(out).to.deep.property("[08]", '  --flag, -f          Boolean flag (default: false)');
       h.expect(out).to.deep.property("[09]", '  --string=""         String option');
