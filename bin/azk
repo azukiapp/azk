@@ -12,6 +12,15 @@ unset DOCKER_HOST
 # OS
 UNFSD_INSTALL="Install unfs3 packaged before continue.";
 case `uname -s` in
+  Linux)
+    SO="linux"
+    export AZK_USE_VM=${AZK_USE_VM:-false}
+    export AZK_UNFSD_PATH=${AZK_UNFSD_PATH:-`which unfsd`}
+
+    if [ "$AZK_US_VM" == "false" ]; then
+      export AZK_AGENT_VM_IP="${AZK_AGENT_VM_IP:-127.0.0.1}"
+    fi
+    ;;
   Darwin)
     SO="darwin"
     if [ -f "$(which brew)" ]; then
@@ -22,7 +31,6 @@ case `uname -s` in
     fi
     export AZK_UNFSD_PATH=${AZK_UNFSD_PATH:-`which unfsd`}
     export AZK_USE_VM=${AZK_USE_VM:-true}
-    export AZK_DATA_PATH=${AZK_DATA_PATH:-$AZK_ROOT_PATH/data}
     ;;
   *)
     echo "azk: System not supported (see http://azk.io)";
@@ -46,6 +54,7 @@ agent_ip() {
 }
 
 # Configure NVM and VM
+export AZK_DATA_PATH=${AZK_DATA_PATH:-$AZK_ROOT_PATH/data}
 export AZK_BALANCER_HOST="${AZK_BALANCER_HOST:-azk.dev}"
 export NVM_DIR=$AZK_DATA_PATH/nvm
 export VM_DISK_PATH=$AZK_DATA_PATH/vm
