@@ -17,7 +17,7 @@ case `uname -s` in
     export AZK_USE_VM=${AZK_USE_VM:-false}
     export AZK_UNFSD_PATH=${AZK_UNFSD_PATH:-`which unfsd`}
 
-    if [ "$AZK_US_VM" == "false" ]; then
+    if [ "$AZK_USE_VM" == "false" ]; then
       export AZK_AGENT_VM_IP="${AZK_AGENT_VM_IP:-127.0.0.1}"
     fi
     ;;
