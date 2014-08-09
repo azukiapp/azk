@@ -11,7 +11,7 @@ class Cmd extends Command {
       yield Helpers.requireAgent();
 
       var manifest = new Manifest(this.cwd, true);
-      var systems  = Helpers.getSystemsByName(manifest, opts.system);
+      var systems  = manifest.getSystemsByName(opts.system);
 
       yield Cmd.status(this, manifest, systems);
     });

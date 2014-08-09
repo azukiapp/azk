@@ -172,6 +172,21 @@ export class Manifest {
     return sys;
   }
 
+  getSystemsByName(names) {
+    var systems_name = this.systemsInOrder();
+
+    if (_.isString(names) && !_.isEmpty(names)) {
+      names = _.isArray(names) ? names : names.split(',');
+      _.each(names, (name) => this.system(name, true));
+      systems_name = _.intersection(systems_name, names);
+    }
+
+    return _.reduce(systems_name, (systems, name) => {
+      systems.push(this.system(name, true));
+      return systems;
+    }, []);
+  }
+
   systemsInOrder(requireds = []) {
     var edges = [];
     _.each(this.systems, (system, name) => {
