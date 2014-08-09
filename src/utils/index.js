@@ -1,4 +1,4 @@
-import { join } from 'path';
+import { join, basename, dirname } from 'path';
 import { i18n } from 'azk/utils/i18n';
 
 var crypto = require('crypto');
@@ -25,8 +25,18 @@ var Utils = {
   },
 
   resolve(...path) {
-    return Utils.cd(join(...path), function() {
-      return process.cwd();
+    path = join(...path);
+
+    // Remove file from path
+    var file = "";
+    var stat = fs.statSync(path);
+    if (stat.isFile()) {
+      file = basename(path);
+      path = dirname(path);
+    }
+
+    return Utils.cd(path, function() {
+      return join(process.cwd(), file);
     });
   },
 

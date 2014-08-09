@@ -30,6 +30,12 @@ var Helpers = {
     });
   },
 
+  tmpFile(opts = { prefix: "azk-test-"}) {
+    return Q.nfcall(tmp.file, opts).spread((file) => {
+      return Utils.resolve(file);
+    });
+  },
+
   touchSync(path) {
     return touch.sync(path);
   },

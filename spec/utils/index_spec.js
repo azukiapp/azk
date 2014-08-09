@@ -15,9 +15,14 @@ describe("Azk utils module", function() {
     h.expect(other).to.equal(__dirname);
   });
 
-  it("should real resolve a path", function() {
+  it("should resolve a directory path", function() {
     var result = utils.resolve('./', '../');
     h.expect(result).to.equal(join(process.cwd(), '..'));
+  });
+
+  it("should resolve a file path", function() {
+    var result = utils.resolve('./', 'bin', 'azk');
+    h.expect(result).to.equal(join(process.cwd(), 'bin', 'azk'));
   });
 
   it("should escape string with special regex characters", function() {
