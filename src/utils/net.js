@@ -1,5 +1,6 @@
 import { Q, _, fs, defer, config } from 'azk';
 
+var url         = require('url');
 var nativeNet   = require('net');
 var portrange   = config("agent:portrange_start");
 var nameservers = [];
@@ -44,20 +45,30 @@ var net = {
     return nameservers;
   },
 
-  waitService(host, port, retry = 15, opts = {}) {
+  waitService(address, retry = 15, opts = {}) {
     opts = _.defaults(opts, {
       timeout: 10000,
       retry_if: () => { return Q(true); }
     });
 
+    // Parse options to try connect
+    address = url.parse(address);
+    address = {
+      host: address.hostname,
+      port: address.port,
+      path: address.protocol == "unix:" ? address.path : null
+    };
+
     return defer((resolve, reject, notify) => {
       var client   = null;
       var attempts = 1, max = retry;
       var connect  = () => {
-        notify({ type: 'try_connect', attempts, max, host, port, context: opts.context });
         var t = null;
+        notify(_.merge({
+          type: 'try_connect', attempts, max, context: opts.context
+        }, address));
 
-        client = nativeNet.connect({ host, port}, function() {
+        client = nativeNet.connect(address, function() {
           client.end();
           clearTimeout(t);
           resolve(true);

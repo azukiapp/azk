@@ -208,8 +208,7 @@ var Balancer = {
   },
 
   _waitDocker() {
-    var address = url.parse(config("docker:host"));
-    var promise = net.waitService(address.hostname, address.port, 5, { context: "dns" });
+    var promise = net.waitService(config("docker:host"), 5, { context: "dns" });
     return promise.then((success) => {
       if (!success) {
         throw new AgentStartError(t(errors.not_connect_docker));

@@ -78,7 +78,8 @@ var Server = {
         // Wait for vm start
         var n = (status) => notify({ type: "status", context: "vm", status });
         n("wait");
-        var success = yield net_utils.waitService(config("agent:vm:ip"), 22, 10, { context: "vm" });
+        var address = `tcp://${config("agent:vm:ip")}:22`;
+        var success = yield net_utils.waitService(address, 10, { context: "vm" });
         if (!success) {
           throw new AgentStartError(t("errors.not_vm_start"));
         }

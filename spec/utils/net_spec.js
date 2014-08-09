@@ -1,9 +1,10 @@
 import h from 'spec/spec_helper';
 import { async, config, Q } from 'azk';
+import { path } from 'azk';
 import { net as net_utils } from 'azk/utils';
 var net = require('net');
 
-describe("azk utils.net module", function() {
+describe("Azk utils.net module", function() {
   it("should get a free port", function() {
     var portrange = config("agent:portrange_start");
     return h.expect(net_utils.getPort()).to.eventually.above(portrange - 1);
@@ -15,36 +16,68 @@ describe("azk utils.net module", function() {
   });
 
   describe("wait for service", function() {
-    var port;
-    before(() => { net_utils.getPort().then((p) => port = p) });
+    var server, port, unix;
+    before(() => {
+      return async(this, function* () {
+        port = yield net_utils.getPort();
+        unix = path.join(yield h.tmp_dir(), "unix.socket");
+      });
+    });
 
-    var runServer = () => {
-      var server = net.createServer((socket) => {
+    afterEach((done) => {
+      if (server) {
+        server.close(done);
+        server = null;
+      } else {
+        done();
+      }
+    });
+
+    var runServer = (port_or_path) => {
+      server = net.createServer((socket) => {
         socket.end("goodbye\n");
       })
-      server.listen(port);
+      server.listen(port_or_path);
       return server;
     }
 
     it("should wait for server", function() {
       var events = [];
-      var server = null;
       var progress = (event) => {
         // Connect before 2 attempts
         if (event.type == "try_connect" && event.attempts == 2) {
-          server = runServer();
+          server = runServer(port);
         }
         events.push(event);
       }
 
       var connect = () => {
-        return net_utils.waitService("localhost", port, 2, { timeout: 100 });
+        return net_utils.waitService("tcp://localhost:" + port, 2, { timeout: 100 });
       }
 
       return async(function* () {
         yield h.expect(connect()).to.eventually.equal(false);
         yield h.expect(connect().progress(progress)).to.eventually.equal(true);
-        server.close();
+      });
+    });
+
+    it("should wait for server runing in a unix socket", function() {
+      var events = [];
+      var progress = (event) => {
+        // Connect before 2 attempts
+        if (event.type == "try_connect" && event.attempts == 2) {
+          server = runServer(unix);
+        }
+        events.push(event);
+      }
+
+      var connect = () => {
+        return net_utils.waitService("unix://" + unix, 2, { timeout: 100 });
+      }
+
+      return async(function* () {
+        yield h.expect(connect()).to.eventually.equal(false);
+        yield h.expect(connect().progress(progress)).to.eventually.equal(true);
       });
     });
 
@@ -56,7 +89,7 @@ describe("azk utils.net module", function() {
       }};
 
       return async(function* () {
-        var result = net_utils.waitService("localhost", port, 2, options);
+        var result = net_utils.waitService("tcp://localhost:" + port, 2, options);
         yield h.expect(result).to.eventually.equal(false);
         h.expect(retry).to.eql(1);
       });
