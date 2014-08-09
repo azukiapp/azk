@@ -1,4 +1,4 @@
-import { t, fs, config } from 'azk';
+import { t, _, fs, config } from 'azk';
 import { Manifest, file_name } from 'azk/manifest';
 import { System } from 'azk/system';
 import { createSync as createCache } from 'fscache';
@@ -59,6 +59,40 @@ describe("Azk manifest class", function() {
     it("should raise an error if not found a required system", function() {
       var func = () => manifest.system("not_found_system", true);
       h.expect(func).to.throw(SystemNotFoundError, /not_found_system/);
+    });
+
+    describe("implement getSystemsByName", function() {
+      it("should return all systems", function() {
+        var systems = manifest.getSystemsByName();
+        h.expect(systems).to.length(_.keys(manifest.systems).length);
+        h.expect(systems).to.has.deep.property("[0]").to.equal(
+          manifest.system("expand-test")
+        )
+        h.expect(systems).to.has.deep.property("[7]").to.equal(
+          manifest.system("example")
+        )
+      });
+
+      it("should raise error if get a not set system", function() {
+        var func = () => manifest.getSystemsByName("example,not_found_system");
+        h.expect(func).to.throw(SystemNotFoundError, /not_found_system/);
+      });
+
+      it("should return one system", function() {
+        var systems = manifest.getSystemsByName("example");
+        h.expect(systems).to.length(1);
+        h.expect(systems[0]).to.instanceOf(System);
+        h.expect(systems[0]).to.have.property("name", "example");
+      });
+
+      it("should return one or more systems", function() {
+        var systems = manifest.getSystemsByName("example,db");
+        h.expect(systems).to.length(2);
+        h.expect(systems).to.have.deep.property("[0]").and.instanceOf(System);
+        h.expect(systems).to.have.deep.property("[0].name", "db");
+        h.expect(systems).to.have.deep.property("[1]").and.instanceOf(System);
+        h.expect(systems).to.have.deep.property("[1].name", "example");
+      });
     });
 
     describe("with a tree of the requireds systems", function() {
