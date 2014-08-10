@@ -233,7 +233,7 @@ var Balancer = {
 
       var result = yield system.scale(1, options);
       if (!result) {
-        throw new Error('Fail to start balancer: ' + output);
+        throw new Error(`Fail to start balancer (${system_name}): ${output}`);
       }
     });
   },
