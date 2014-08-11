@@ -1,13 +1,16 @@
-resolver-nss
-==========
+# resolver-nss
 
 A libnss plugin for add support `/etc/resolver/*` to set extra nameservers like a Mac OS X.
 
 This is still a work in progress!
 
-Installing
-==========
+## Installing
 
+### From package
+
+Coming soon...
+
+### From source
 ```bash
 $ git clone https://github.com/azukiapp-samples/resolver-nss
 $ cd resolver-nss
@@ -17,30 +20,27 @@ $ sudo sed -i -re 's/^(hosts: .*$)/\1 resolver/' /etc/nsswitch.conf
 
 or edit `/etc/nsswitch.conf`:
 
-```bash
+```config
 # Normally
-hosts:      files dns resolver
-                      ^
-# If you have avahi installed
-files mdns4_minimal [NOTFOUND=return] dns mdns4 resolver
-                                                ^
+hosts: files dns resolver
+#                ^
+# If you have avahi (Zeroconf) installed
+hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4 resolver
+#                                                      ^
 ```
 
-Inspiration
-===========
+## Inspiration
 
 This project is inspiration in similar [feature][mac_resolver] that is present in Mac OS X.
 
 The code was based on another project code: [docker nss][docker_nss].
 
-Todo
-====
+## More references
 
-  * Add support `/etc/resolver/*` files
-  * Refactor tests
+Simple c-ares example: https://gist.github.com/mopemope/992777
+Use a dns server in c-ares: https://github.com/bagder/c-ares/blob/master/adig.c
 
-License
-=======
+## License
 
 "Azuki", "Azk" and the Azuki logo are copyright (c) 2013-2014 Azuki Serviços de Internet LTDA.
 
