@@ -1,0 +1,5 @@
+.sconsign.dblite
+.azk
+build
+src/*.o
+src/*.os
