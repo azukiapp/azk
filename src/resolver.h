@@ -1,4 +1,5 @@
 #include <ares.h>
 #include <glib.h>
 
-gboolean resolver(const gchar *name, const gchar *nameserver);
+struct hostent * resolver_by_servers(gchar *name,
+                             gchar *nameserver);

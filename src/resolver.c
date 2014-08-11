@@ -28,56 +28,172 @@ static void wait_ares(ares_channel channel) {
     }
 }
 
+/*
+static void add_host(struct hostent *hostent, struct hostent **host)
+{
+  char **p;
+  char **h_addr_list = NULL;
+  struct hostent *hostptr = *host;
+  int count = 0;
+  int index = 0;
+
+  if (hostptr == NULL)
+  {
+      *host = hostent;
+      return;
+  }
+
+  for (p = hostptr->h_addr_list; *p; p++)
+  {
+     count++;
+  }
+
+  for (p = hostent->h_addr_list; *p; p++)
+  {
+     count++;
+  }
+
+  h_addr_list = malloc((count+1) * sizeof(char *));
+  if (!h_addr_list)
+  {
+      ares_free_hostent(hostent);
+      return;
+  }
+
+  for (p = hostptr->h_addr_list; *p; p++)
+  {
+      h_addr_list[index] = malloc(sizeof(struct in_addr));
+      if (h_addr_list[index])
+      {
+	      memcpy(h_addr_list[index], *p, sizeof(struct in_addr));
+      }
+      else
+      {
+	      ares_free_hostent(hostent);
+          free(h_addr_list);
+	      return;
+      }
+      index++;
+  }
+
+  for(p = hostent->h_addr_list; *p; p++)
+  {
+      h_addr_list[index] = malloc(sizeof(struct in_addr));
+      if (h_addr_list[index])
+      {
+         memcpy(h_addr_list[index], *p, sizeof(struct in_addr));
+      }
+	  else
+	  {
+	     ares_free_hostent(hostent);
+	     free(h_addr_list);
+	     return;
+	  }
+	  index++;
+  }
+
+  h_addr_list[index] = NULL;
+
+  for (p = hostptr->h_addr_list; *p; p++)
+  {
+      free(*p);
+  }
+  free(hostptr->h_addr_list);
+  hostptr->h_addr_list = h_addr_list;
+
+  ares_free_hostent(hostent);
+}
+*/
+
 static void callback(void *arg, int status, int timeouts, struct hostent *host) {
+    struct hostent *result = (struct hostent *)arg;
+    char **p;
+    char **h_addr_list = NULL, **h_aliases = NULL;
+    int count = 0;
+    int index = 0;
+
     if(!host || status != ARES_SUCCESS){
         printf("Failed to lookup %s\n", ares_strerror(status));
         return;
     }
 
-    printf("Found address name %s\n", host->h_name);
-    char ip[INET6_ADDRSTRLEN];
-    int i = 0;
+    // Save return
+    result->h_name = g_strdup(host->h_name);
+    result->h_addrtype = host->h_addrtype;
+    result->h_length   = host->h_length;
 
-    for (i = 0; host->h_addr_list[i]; ++i) {
-        inet_ntop(host->h_addrtype, host->h_addr_list[i], ip, sizeof(ip));
-        printf("%s\n", ip);
+    // Alias
+    for (p = host->h_aliases; *p; p++) {
+        count++;
     }
+    h_aliases = malloc((count+1) * sizeof(char *));
+    for (p = host->h_aliases; *p; p++) {
+        h_aliases[index] = malloc(sizeof(struct in_addr));
+        if (h_aliases[index]) {
+          memcpy(h_aliases[index], *p, sizeof(struct in_addr));
+        }
+        index++;
+    }
+    h_aliases[index] = NULL;
+    result->h_aliases = h_aliases;
+
+    // Address list
+    count = index = 0;
+    for (p = host->h_addr_list; *p; p++) {
+        count++;
+    }
+    h_addr_list = malloc((count+1) * sizeof(char *));
+    for (p = host->h_addr_list; *p; p++) {
+        h_addr_list[index] = malloc(sizeof(struct in_addr));
+        if (h_addr_list[index]) {
+          memcpy(h_addr_list[index], *p, sizeof(struct in_addr));
+        }
+        index++;
+    }
+    h_addr_list[index] = NULL;
+    result->h_addr_list = h_addr_list;
 }
 
-gboolean resolver(const gchar *name, const gchar *nameserver) {
+struct hostent *resolver_by_servers(gchar *name, gchar *nameserver) {
     ares_channel channel;
     int status, optmask = 0;
     struct ares_options options;
+    struct hostent *results;
 
     status = ares_library_init(ARES_LIB_INIT_ALL);
-    if (status != ARES_SUCCESS){
+    if (status != ARES_SUCCESS) {
         printf("ares_library_init: %s\n", ares_strerror(status));
-        return FALSE;
+        return NULL;
     }
 
     optmask = ARES_OPT_SERVERS | ARES_OPT_UDP_PORT;
     options.servers  = NULL;
     options.nservers = 0;
-    options.udp_port = (unsigned short)strtol("49155", NULL, 0);
-    options.flags = ARES_FLAG_NOCHECKRESP;
+    options.flags    = ARES_FLAG_NOCHECKRESP;
 
     status = ares_init_options(&channel, &options, optmask);
     if(status != ARES_SUCCESS) {
         printf("ares_init_options: %s\n", ares_strerror(status));
-        return FALSE;
+        return NULL;
     }
 
-    status = ares_set_servers_csv(channel, nameserver);
+    status = ares_set_servers_csv(channel, "192.168.50.4:49155");
     if (status != ARES_SUCCESS) {
-      fprintf(stderr, "ares_init_options: %s\n", ares_strerror(status));
-      return 1;
+      fprintf(stderr, "ares_set_servers_csv: %s\n", ares_strerror(status));
+      return NULL;
     }
 
-    ares_gethostbyname(channel, name, AF_INET, &callback, NULL);
+    // Wait resolver
+    results = malloc(sizeof(struct hostent));
+    ares_gethostbyname(channel, name, AF_INET, &callback, results);
     wait_ares(channel);
     ares_destroy(channel);
     ares_library_cleanup();
 
-    return TRUE;
-}
+    if (results->h_name != NULL) {
+      return results;
+    }
 
+    ares_free_hostent(results);
+    return NULL;
+}
