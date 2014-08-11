@@ -9,6 +9,8 @@ export AZK_DATA_PATH=${AZK_DATA_PATH:-$AZK_ROOT_PATH/data}
 # No use DOCKER_HOST
 unset DOCKER_HOST
 
+VERBOSE_ENABLED=0
+
 # OS
 UNFSD_INSTALL="Install unfs3 packaged before continue.";
 case `uname -s` in
@@ -360,11 +362,22 @@ install() {
     nvm install $node_version
   }
 
-  nvm use $node_version &>/dev/null
+  if [[ $VERBOSE_ENABLED -eq 1 ]]; then
+    log_i "nvm use $node_version"; echo
+    nvm use $node_version
+  else
+    nvm use $node_version &>/dev/null
+  fi
   check_install "check_npm" "azk node dependencies" || {
     log_i "Install node depedencies..."
     cd $AZK_ROOT_PATH
-    npm install --production &>/dev/null
+    if [[ $VERBOSE_ENABLED -eq 1 ]]; then
+      echo; log_i 'npm install --production'; echo
+      npm install --production
+    else
+      npm install --production &>/dev/null
+      echo
+    fi
   }
 
   # Vm disks
@@ -404,6 +417,9 @@ azk_main() {
       install --update
       ;;
     check-install|configure)
+      if [[ "$2" == "--verbose" ]]; then
+        VERBOSE_ENABLED=1
+      fi
       install "${@}"
       ;;
     nvm)
