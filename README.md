@@ -39,7 +39,7 @@ $ sudo sed -i -re 's/^(hosts: .*$)/\1 resolver/' /etc/nsswitch.conf
 
 or edit `/etc/nsswitch.conf`:
 
-```config
+```bash
 # Normally       ↓
 hosts: files dns resolver
 # But, if you have avahi (Zeroconf) installed          ↓
