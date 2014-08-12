@@ -5,6 +5,7 @@
 var envs = {
   DNS_DOMAIN: "resolver.dev",
   DNS_IP: "127.0.0.2",
+  TERM: env.TERM,
 }
 
 // Adds the systems that shape your system
@@ -13,7 +14,7 @@ systems({
     // Dependent systems
     depends: ["dns"],
     // More images:  http://images.azk.io
-    image: "azukiapp/gcc",
+    image: "azukiapp/resolver-nss",
     workdir: "/azk/#{manifest.dir}",
     command: "# command to run app",
     shell: "/bin/bash",
