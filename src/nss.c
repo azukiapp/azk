@@ -10,10 +10,9 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <glib.h>
-#include <ares.h>
 
 /* define a suffix that containers have */
-#define SUFFIX "resolver.dev"
+#define SUFFIX "tmp.dev"
 
 #define ALIGN(a) (((a+sizeof(void*)-1)/sizeof(void*))*sizeof(void*))
 
@@ -62,7 +61,7 @@ pack_hostent(struct hostent *result,
 }
 
 static int lookup_resolver_ip (const char *name, struct in_addr *addr) {
-    return inet_aton ("127.0.0.1", addr);
+    return inet_aton ("192.168.50.4", addr);
 }
 
 enum nss_status

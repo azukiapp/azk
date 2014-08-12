@@ -9,7 +9,11 @@
 
 #define BADGER_DOCKER_IP "172.11.22.33"
 
+#include <ares.h>
 #include "resolver.h"
+
+// Block test define
+typedef void (^test_block)();
 
 // Util to get envs
 gchar* get_env(const gchar *key) {
@@ -46,17 +50,6 @@ gchar* get_env(const gchar *key) {
 //     g_assert_cmpstr(buffer, ==, BADGER_DOCKER_IP);
 // }
 
-static void test_gethostbyname_unknown_name (void) {
-    struct hostent *results;
-    gchar *host = get_env("DNS_DOMAIN") ;
-
-    results = gethostbyname(host);
-    g_free(host);
-
-    g_assert(results == NULL);
-    g_assert_cmpint(h_errno, ==, HOST_NOT_FOUND);
-}
-
 /*static void*/
 /*test_gethostbyname2 (void)*/
 /*{*/
@@ -89,30 +82,6 @@ static void test_gethostbyname_unknown_name (void) {
     /*g_assert_cmpint(errno, ==, EAFNOSUPPORT);*/
     /*g_assert_cmpint(h_errno, ==, NO_DATA);*/
 /*}*/
-
-static void test_resolver_by_server(void) {
-    struct hostent *results = NULL;
-    gchar *host    = get_env("DNS_DNS_HOST");
-    gchar *port    = get_env("DNS_DNS_PORT");
-    gchar *domain  = get_env("DNS_DOMAIN");
-    gchar *servers = g_strdup_printf("%s:%s", host, port);
-
-    results = resolver_by_servers(domain, servers);
-
-    g_assert(results != NULL);
-    g_assert_cmpstr(results->h_name, ==, domain);
-    g_assert(results->h_aliases[0] == NULL);
-    g_assert_cmpint(results->h_addrtype, ==, AF_INET);
-    g_assert_cmpint(results->h_length, ==, 4);
-    g_assert(results->h_addr_list[0] != NULL);
-    g_assert(results->h_addr_list[1] == NULL);
-
-    /*g_free(host);*/
-    g_free(port);
-    g_free(domain);
-    g_free(servers);
-    ares_free_hostent(results);
-}
 
 static gboolean clean_resolver(const gchar *dirname) {
     GDir *dir;
@@ -164,13 +133,57 @@ static gboolean mock_resolver() {
     return success;
 }
 
+
+void run_block(gconstpointer test) {
+    ((test_block)test)();
+}
+
+void test(const char *testpath, test_block block) {
+    g_test_add_data_func(testpath, block, run_block);
+}
+
 int main (int argc, char **argv) {
+    gchar *host    = get_env("DNS_DNS_HOST");
+    gchar *port    = get_env("DNS_DNS_PORT");
+    gchar *domain  = get_env("DNS_DOMAIN");
+
     g_test_init (&argc, &argv, NULL);
 
-    g_test_add_func("/test/gethostbyname_unknown_name", test_gethostbyname_unknown_name);
-    g_test_add_func("/test/resolver_by_server", test_resolver_by_server);
+    test("/test/resolver_by_server", ^() {
+        struct hostent *results = NULL;
+        gchar *servers = g_strdup_printf("%s:%s", host, port);
 
-    return g_test_run ();
+        results = resolver_by_servers(domain, servers);
+
+        g_assert(results != NULL);
+        g_assert_cmpstr(results->h_name, ==, domain);
+        g_assert(results->h_aliases[0] == NULL);
+        g_assert_cmpint(results->h_addrtype, ==, AF_INET);
+        g_assert_cmpint(results->h_length, ==, 4);
+        g_assert(results->h_addr_list[0] != NULL);
+        g_assert(results->h_addr_list[1] == NULL);
+
+        g_free(servers);
+        ares_free_hostent(results);
+    });
+
+    test("/test/gethostbyname_unknown_name", ^() {
+        struct hostent *results;
+        gchar *host = get_env("DNS_DOMAIN") ;
+
+        results = gethostbyname(host);
+        g_free(host);
+
+        g_assert(results == NULL);
+        g_assert_cmpint(h_errno, ==, HOST_NOT_FOUND);
+    });
+
+    int result = g_test_run ();
+    g_free(host);
+    g_free(port);
+    g_free(domain);
+
+    return result;
 
     clean_resolver("/etc/resolver");
     mock_resolver();

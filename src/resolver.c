@@ -1,14 +1,11 @@
 #include <stdio.h>
-#include <ares.h>
 #include <stdlib.h>
 #include <string.h>
 #include <netdb.h>
 #include <arpa/inet.h>
 
+#include <ares.h>
 #include "resolver.h"
-
-static void wait_ares(ares_channel channel);
-static void callback(void *arg, int status, int timeouts, struct hostent *host);
 
 static void wait_ares(ares_channel channel) {
     for(;;){
@@ -19,7 +16,7 @@ static void wait_ares(ares_channel channel) {
         FD_ZERO(&read_fds);
         FD_ZERO(&write_fds);
         nfds = ares_fds(channel, &read_fds, &write_fds);
-        if(nfds == 0){
+        if(nfds == 0) {
             break;
         }
         tvp = ares_timeout(channel, NULL, &tv);
@@ -27,83 +24,6 @@ static void wait_ares(ares_channel channel) {
         ares_process(channel, &read_fds, &write_fds);
     }
 }
-
-/*
-static void add_host(struct hostent *hostent, struct hostent **host)
-{
-  char **p;
-  char **h_addr_list = NULL;
-  struct hostent *hostptr = *host;
-  int count = 0;
-  int index = 0;
-
-  if (hostptr == NULL)
-  {
-      *host = hostent;
-      return;
-  }
-
-  for (p = hostptr->h_addr_list; *p; p++)
-  {
-     count++;
-  }
-
-  for (p = hostent->h_addr_list; *p; p++)
-  {
-     count++;
-  }
-
-  h_addr_list = malloc((count+1) * sizeof(char *));
-  if (!h_addr_list)
-  {
-      ares_free_hostent(hostent);
-      return;
-  }
-
-  for (p = hostptr->h_addr_list; *p; p++)
-  {
-      h_addr_list[index] = malloc(sizeof(struct in_addr));
-      if (h_addr_list[index])
-      {
-	      memcpy(h_addr_list[index], *p, sizeof(struct in_addr));
-      }
-      else
-      {
-	      ares_free_hostent(hostent);
-          free(h_addr_list);
-	      return;
-      }
-      index++;
-  }
-
-  for(p = hostent->h_addr_list; *p; p++)
-  {
-      h_addr_list[index] = malloc(sizeof(struct in_addr));
-      if (h_addr_list[index])
-      {
-         memcpy(h_addr_list[index], *p, sizeof(struct in_addr));
-      }
-	  else
-	  {
-	     ares_free_hostent(hostent);
-	     free(h_addr_list);
-	     return;
-	  }
-	  index++;
-  }
-
-  h_addr_list[index] = NULL;
-
-  for (p = hostptr->h_addr_list; *p; p++)
-  {
-      free(*p);
-  }
-  free(hostptr->h_addr_list);
-  hostptr->h_addr_list = h_addr_list;
-
-  ares_free_hostent(hostent);
-}
-*/
 
 static void callback(void *arg, int status, int timeouts, struct hostent *host) {
     struct hostent *result = (struct hostent *)arg;
@@ -153,6 +73,7 @@ static void callback(void *arg, int status, int timeouts, struct hostent *host) 
     h_addr_list[index] = NULL;
     result->h_addr_list = h_addr_list;
 }
+
 
 struct hostent *resolver_by_servers(gchar *name, gchar *nameserver) {
     ares_channel channel;
