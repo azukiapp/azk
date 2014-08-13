@@ -40,9 +40,8 @@ env.InstallAs('/azk/lib/libnss_resolver.so.2', so)
 # Test
 env.Program("build/test", ["src/resolver.c", "src/test.c"],
         LIBS      = [ares],
-        #CPPPATH   = ["src", folder],
         CFLAGS    = ("-fblocks -I%s" % folder[0]),
-        LINKFLAGS = "-lBlocksRuntime -lglib-2.0")
+        LINKFLAGS = "-lBlocksRuntime -lcmocka")
 
 # Alias
 env.Alias('install', '/azk/lib')

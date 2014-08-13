@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include <ares.h>
 #include <netdb.h>
 #include <arpa/inet.h>
 
-#include <ares.h>
 #include "resolver.h"
 
 static void wait_ares(ares_channel channel) {
@@ -38,7 +39,8 @@ static void callback(void *arg, int status, int timeouts, struct hostent *host) 
     }
 
     // Save return
-    result->h_name = g_strdup(host->h_name);
+    result->h_name = malloc(sizeof(char *) * strlen(host->h_name));
+    sprintf(result->h_name, "%s", host->h_name);
     result->h_addrtype = host->h_addrtype;
     result->h_length   = host->h_length;
 
