@@ -15,6 +15,13 @@
 // Block test define
 typedef void (^test_block)();
 
+void mylog(const char *fmt, ...) {
+    va_list argp;
+    va_start(argp, fmt);
+    fprintf(stderr, fmt, argp);
+    va_end(argp);
+}
+
 // Util to get envs
 gchar* get_env(const gchar *key) {
     gchar *value;
@@ -146,16 +153,31 @@ int main (int argc, char **argv) {
     gchar *host    = get_env("DNS_DNS_HOST");
     gchar *port    = get_env("DNS_DNS_PORT");
     gchar *domain  = get_env("DNS_DOMAIN");
+    __block gchar *servers = NULL;
 
+    // Initi glib test
     g_test_init (&argc, &argv, NULL);
+
+    test("/test/get_nameserver", ^() {
+        struct hostent *results = gethostbyname(host);
+        g_assert(results != NULL);
+
+        int i = 0;
+        char ip[INET6_ADDRSTRLEN];
+
+        // Get a first ip
+        for (i = 0; results->h_addr_list[i]; ++i) {
+            inet_ntop(results->h_addrtype, results->h_addr_list[i], ip, sizeof(ip));
+            servers = g_strdup_printf("%s:%s", ip, port);
+        }
+    });
 
     test("/test/resolver_by_server", ^() {
         struct hostent *results = NULL;
-        gchar *servers = g_strdup_printf("%s:%s", host, port);
 
         results = resolver_by_servers(domain, servers);
-
         g_assert(results != NULL);
+
         g_assert_cmpstr(results->h_name, ==, domain);
         g_assert(results->h_aliases[0] == NULL);
         g_assert_cmpint(results->h_addrtype, ==, AF_INET);
@@ -163,7 +185,6 @@ int main (int argc, char **argv) {
         g_assert(results->h_addr_list[0] != NULL);
         g_assert(results->h_addr_list[1] == NULL);
 
-        g_free(servers);
         ares_free_hostent(results);
     });
 
@@ -179,6 +200,7 @@ int main (int argc, char **argv) {
     });
 
     int result = g_test_run ();
+    g_free(servers);
     g_free(host);
     g_free(port);
     g_free(domain);

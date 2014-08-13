@@ -98,7 +98,7 @@ struct hostent *resolver_by_servers(gchar *name, gchar *nameserver) {
         return NULL;
     }
 
-    status = ares_set_servers_csv(channel, "192.168.50.4:49155");
+    status = ares_set_servers_csv(channel, nameserver);
     if (status != ARES_SUCCESS) {
       fprintf(stderr, "ares_set_servers_csv: %s\n", ares_strerror(status));
       return NULL;
