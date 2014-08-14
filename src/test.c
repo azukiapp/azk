@@ -98,6 +98,45 @@ static void resolver_by_nameserver_test(void **state) {
     ares_free_hostent(results);
 }
 
+static void getfile_by_sufix_test(void **state) {
+    state_type *_state = *state;
+    char *fixtures = "/azk/resolver-nss/mocker/fixtures/";
+    char *data, *file, *sub;
+
+    // Simple
+    data = getfile_by_sufix(fixtures, _state->domain);
+    file = path_join('/', fixtures, "resolver.dev");
+    assert_string_equal(data, file);
+    free(data);
+    free(file);
+
+    // sub
+    sub  = path_join('.', "zsub", _state->domain);
+    data = getfile_by_sufix(fixtures, sub);
+    file = path_join('/', fixtures, sub);
+    assert_string_equal(data, file);
+    free(data);
+    free(file);
+    free(sub);
+
+    // before
+    sub  = path_join('.', "asub", _state->domain);
+    data = getfile_by_sufix(fixtures, sub);
+    file = path_join('/', fixtures, sub);
+    assert_string_equal(data, file);
+    free(data);
+    free(file);
+    free(sub);
+
+    sub  = path_join('.', "ub", _state->domain);
+    data = getfile_by_sufix(fixtures, sub);
+    file = path_join('/', fixtures, "resolver.dev");
+    assert_string_equal(data, file);
+    free(data);
+    free(file);
+    free(sub);
+}
+
 int main(void) {
     printf("\nRun testes...\n\n");
     const UnitTest tests[] = {
@@ -107,6 +146,7 @@ int main(void) {
         // cases
         unit_test(gethostbyname_unknown_name_test),
         unit_test(resolver_by_nameserver_test    ),
+        unit_test(getfile_by_sufix_test          ),
 
         // teardown
         group_test_teardown(group_teardown),
