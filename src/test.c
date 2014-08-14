@@ -12,6 +12,7 @@
 #include <ares.h>
 
 #include "resolver.h"
+#include "files.h"
 
 // State to test
 typedef struct {
@@ -30,7 +31,7 @@ void debug(const char *fmt, ...) {
 }
 
 // Tests initializes
-static void setup(void **state) {
+static void group_setup(void **state) {
     const char *port = getenv("DNS_DNS_PORT");
     const char *host = getenv("DNS_DNS_HOST");
 
@@ -60,7 +61,7 @@ static void setup(void **state) {
     *state = _state;
 }
 
-static void teardown(void **state) {
+static void group_teardown(void **state) {
     state_type *_state = *state;
 
     free(_state->servers);
@@ -100,9 +101,16 @@ static void resolver_by_nameserver_test(void **state) {
 int main(void) {
     printf("\nRun testes...\n\n");
     const UnitTest tests[] = {
-        unit_test_setup_teardown(gethostbyname_unknown_name_test, setup, teardown),
-        unit_test_setup_teardown(resolver_by_nameserver_test    , setup, teardown),
+        // setup
+        group_test_setup(group_setup),
+
+        // cases
+        unit_test(gethostbyname_unknown_name_test),
+        unit_test(resolver_by_nameserver_test    ),
+
+        // teardown
+        group_test_teardown(group_teardown),
     };
-    return run_tests(tests);
+    return run_group_tests(tests);
 }
 
