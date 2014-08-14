@@ -35,6 +35,9 @@ static void group_setup(void **state) {
     const char *port = getenv("DNS_DNS_PORT");
     const char *host = getenv("DNS_DNS_HOST");
 
+    assert_non_null(port);
+    assert_non_null(host);
+
     // Alloc test stat
     state_type *_state = malloc(sizeof(state_type));
     assert_non_null(_state);
@@ -58,6 +61,8 @@ static void group_setup(void **state) {
 
     // Save in state
     _state->domain  = getenv("DNS_DOMAIN");
+    assert_non_null(_state->domain);
+
     *state = _state;
 }
 

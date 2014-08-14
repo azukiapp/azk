@@ -56,10 +56,18 @@ env.InstallAs('/usr/lib/libnss_resolver.so.2', so)
 env.InstallAs('/azk/lib/libnss_resolver.so.2', so)
 
 # Test
-env.Program("build/test", ["src/resolver.c", "src/files.c", "src/test.c"],
-        LIBS      = [cmocka, ares],
-        CFLAGS    = ("-fblocks -I/usr/local/include -I%s" % folder[0]),
-        LINKFLAGS = "-lBlocksRuntime -lcmocka")
+env['ENV']['DNS_DNS_PORT']  = os.environ['DNS_DNS_PORT']
+env['ENV']['DNS_DNS_HOST']  = os.environ['DNS_DNS_HOST']
+env['ENV']['DNS_DOMAIN']    = os.environ['DNS_DOMAIN']
+env['ENV']['VALGRIND_OPTS'] = ARGUMENTS.get('valgrind', '')
+
+program = env.Program("build/test", ["src/resolver.c", "src/files.c", "src/test.c"],
+                      LIBS      = [cmocka, ares],
+                      CFLAGS    = ("-g -fblocks -I/usr/local/include -I%s" % folder[0]),
+                      LINKFLAGS = "-lBlocksRuntime -lcmocka")
+
+test_run = env.Alias("run-test", [program], Action("valgrind --suppressions=./valgrind.supp ${VALGRIND_OPTS} ./build/test"))
+AlwaysBuild(test_run)
 
 # Alias
 env.Alias('install', '/azk/lib')
