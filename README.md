@@ -35,7 +35,7 @@ Now you can add the resolver-nss in resolution pipe:
 
 ```bash
 $ sudo sed -i -re 's/^(hosts: .*$)/\1 resolver/' /etc/nsswitch.conf
-``
+```
 
 or edit `/etc/nsswitch.conf`:
 
