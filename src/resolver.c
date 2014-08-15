@@ -77,7 +77,7 @@ static void callback(void *arg, int status, int timeouts, struct hostent *host) 
 }
 
 
-struct hostent *resolver_by_servers(gchar *name, gchar *nameserver) {
+struct hostent *nssrs_resolver_by_servers(gchar *name, gchar *nameserver) {
     ares_channel channel = NULL;
     int status, optmask = 0;
     struct ares_options options;

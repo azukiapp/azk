@@ -13,7 +13,7 @@
 
 #include "files.h"
 
-char *path_join(char sep, char *folder, char *file) {
+char *nssrs_str_join(char sep, char *folder, char *file) {
     char *path;
     size_t size = sizeof(char *) * (strlen(folder) + strlen(file) + 2);
 
@@ -55,7 +55,7 @@ const int match_sufix(char *path, char *file, char *name) {
     return 0;
 }
 
-char *getfile_by_sufix(char *folder, char *name) {
+char *nssrs_getfile_by_sufix(char *folder, char *name) {
     struct dirent **namelist;
     char *path, *file, *finded = NULL;
 
@@ -64,7 +64,7 @@ char *getfile_by_sufix(char *folder, char *name) {
         while(n--) {
             // File path
             file = namelist[n]->d_name;
-            path = path_join('/', folder, file);
+            path = nssrs_str_join('/', folder, file);
             if (match_sufix(path, file, name)) {
                 if (!finded || (strlen(file) > strlen(finded))) {
                     if (finded) free(finded);
@@ -79,7 +79,7 @@ char *getfile_by_sufix(char *folder, char *name) {
 
     path = NULL;
     if (finded) {
-        path = path_join('/', folder, finded);
+        path = nssrs_str_join('/', folder, finded);
         free(finded);
     }
 
@@ -114,7 +114,7 @@ static char *extract_nameserver(char *line) {
     return address;
 }
 
-struct resolver_file *parse_resolver_file(char *file) {
+struct resolver_file *nssrs_parse_resolver_file(char *file) {
     struct resolver_file *rf = NULL;
     FILE *fp    = fopen(file, "r");
     char *line  = NULL;
@@ -129,7 +129,7 @@ struct resolver_file *parse_resolver_file(char *file) {
             if (cline) {
               if (nss) {
                   old = nss;
-                  nss = path_join(',', nss, cline);
+                  nss = nssrs_str_join(',', nss, cline);
                   free(old);
                   free(cline);
               } else {

@@ -13,16 +13,11 @@
 #include <arpa/inet.h>
 #include <ares.h>
 
-#include "../src/resolver.h"
 #include "../src/files.h"
+#include "../src/resolver.h"
 #include "../src/debug.h"
 
-// State to test
-typedef struct {
-    char *servers;
-    char *domain;
-    char *fixtures;
-} state_type;
+#include "helpers.h"
 
 // Tests setup and teardown
 static void group_setup(void **state) {
@@ -89,7 +84,7 @@ static void resolver_by_nameserver_test(void **state) {
 
     // equal: dig @$DNS_DNS_HOST -p$DNS_53_PORT $DNS_DOMAIN
     debug("Query %s in %s", _state->servers, _state->domain);
-    results = resolver_by_servers(_state->domain, _state->servers);
+    results = nssrs_resolver_by_servers(_state->domain, _state->servers);
 
     assert_non_null(results);
     assert_string_equal(results->h_name, _state->domain);
@@ -102,38 +97,39 @@ static void resolver_by_nameserver_test(void **state) {
     ares_free_hostent(results);
 }
 
-static void getfile_by_sufix_test(void **state) {
+static void nssrs_getfile_by_sufix_test(void **state) {
     state_type *_state = *state;
     char *data, *file, *sub;
 
     // Simple
-    data = getfile_by_sufix(_state->fixtures, _state->domain);
-    file = path_join('/', _state->fixtures, "resolver.dev");
+    char *resolve_dev = "resolver.dev";
+    data = nssrs_getfile_by_sufix(_state->fixtures, _state->domain);
+    file = nssrs_str_join('/', _state->fixtures, resolve_dev);
     assert_string_equal(data, file);
     free(data);
     free(file);
 
     // sub
-    sub  = path_join('.', "zsub", _state->domain);
-    data = getfile_by_sufix(_state->fixtures, sub);
-    file = path_join('/', _state->fixtures, sub);
+    sub  = nssrs_str_join('.', "zsub", _state->domain);
+    data = nssrs_getfile_by_sufix(_state->fixtures, sub);
+    file = nssrs_str_join('/', _state->fixtures, sub);
     assert_string_equal(data, file);
     free(data);
     free(file);
     free(sub);
 
     // before
-    sub  = path_join('.', "asub", _state->domain);
-    data = getfile_by_sufix(_state->fixtures, sub);
-    file = path_join('/', _state->fixtures, sub);
+    sub  = nssrs_str_join('.', "asub", _state->domain);
+    data = nssrs_getfile_by_sufix(_state->fixtures, sub);
+    file = nssrs_str_join('/', _state->fixtures, sub);
     assert_string_equal(data, file);
     free(data);
     free(file);
     free(sub);
 
-    sub  = path_join('.', "ub", _state->domain);
-    data = getfile_by_sufix(_state->fixtures, sub);
-    file = path_join('/', _state->fixtures, "resolver.dev");
+    sub  = nssrs_str_join('.', "ub", _state->domain);
+    data = nssrs_getfile_by_sufix(_state->fixtures, sub);
+    file = nssrs_str_join('/', _state->fixtures, "resolver.dev");
     assert_string_equal(data, file);
     free(data);
     free(file);
@@ -142,15 +138,15 @@ static void getfile_by_sufix_test(void **state) {
 
 static void notfound_sufix_test(void **state) {
     state_type *_state = *state;
-    char *data = getfile_by_sufix(_state->fixtures, "foo.not");
+    char *data = nssrs_getfile_by_sufix(_state->fixtures, "foo.not");
     assert_null(data);
 }
 
 static void parse_nameservers_test(void **state) {
     state_type *_state = *state;
     char *servers = "127.0.0.1,127.0.0.1:5353,[fE80::1]:5354";
-    char *file = path_join('/', _state->fixtures, "resolver.dev");
-    struct resolver_file *rf= parse_resolver_file(file);
+    char *file = nssrs_str_join('/', _state->fixtures, "resolver.dev");
+    struct resolver_file *rf= nssrs_parse_resolver_file(file);
     free(file);
 
     assert_non_null(rf);
@@ -162,8 +158,8 @@ static void parse_nameservers_test(void **state) {
 
 static void parse_blank_file_test(void **state) {
     state_type *_state = *state;
-    char *file = path_join('/', _state->fixtures, "other.foo");
-    struct resolver_file *rf= parse_resolver_file(file);
+    char *file = nssrs_str_join('/', _state->fixtures, "other.foo");
+    struct resolver_file *rf= nssrs_parse_resolver_file(file);
     free(file);
 
     assert_null(rf);
@@ -179,7 +175,7 @@ int main(void) {
         unit_test(gethostbyname_unknown_name_test),
         unit_test(resolver_by_nameserver_test    ),
         unit_test(notfound_sufix_test            ),
-        unit_test(getfile_by_sufix_test          ),
+        unit_test(nssrs_getfile_by_sufix_test    ),
         unit_test(parse_blank_file_test          ),
         unit_test(parse_nameservers_test         ),
 

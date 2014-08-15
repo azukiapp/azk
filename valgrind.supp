@@ -1,8 +1,8 @@
 {
-    <resolver_by_servers>
+    <nssrs_resolver_by_servers>
     Memcheck:Cond
     ...
-    fun:resolver_by_servers
+    fun:nssrs_resolver_by_servers
 }
 
 {
