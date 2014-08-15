@@ -13,8 +13,9 @@
 #include <arpa/inet.h>
 #include <ares.h>
 
-#include "resolver.h"
-#include "files.h"
+#include "../src/resolver.h"
+#include "../src/files.h"
+#include "../src/debug.h"
 
 // State to test
 typedef struct {
@@ -23,17 +24,7 @@ typedef struct {
     char *fixtures;
 } state_type;
 
-void debug(const char *fmt, ...) {
-    const char *deb = getenv("TEST_DEBUG");
-    if (deb != NULL) {
-        va_list args;
-        va_start(args, fmt);
-        vprintf(fmt, args);
-        va_end(args);
-    }
-}
-
-// Tests initializes
+// Tests setup and teardown
 static void group_setup(void **state) {
     const char *port = getenv("TEST_DNS_PORT");
     const char *host = getenv("TEST_DNS_HOST");

@@ -55,14 +55,21 @@ so = env.SharedLibrary("build/libnss_resolver", ["src/nss.c"],
 env.InstallAs('/usr/lib/libnss_resolver.so.2', so)
 env.InstallAs('/azk/lib/libnss_resolver.so.2', so)
 
+# cdefines
+cppdefines = []
+for key, value in ARGLIST:
+    if key == 'define':
+        cppdefines.append(value)
+env.Append(CPPDEFINES = cppdefines)
+
 # Test
 env['ENV']['TEST_DNS_PORT'] = os.environ['DNS_DNS_PORT']
 env['ENV']['TEST_DNS_HOST'] = os.environ['DNS_DNS_HOST']
 env['ENV']['TEST_DOMAIN']   = os.environ['DNS_DOMAIN']
-env['ENV']['TEST_FIXTURES'] = os.getcwd() + '/mocker/fixtures/'
+env['ENV']['TEST_FIXTURES'] = os.getcwd() + '/test/fixtures/'
 env['ENV']['VALGRIND_OPTS'] = ARGUMENTS.get('valgrind', '')
 
-program = env.Program("build/test", ["src/resolver.c", "src/files.c", "src/test.c"],
+program = env.Program("build/test", ["src/resolver.c", "src/files.c", "test/run.c"],
                       LIBS      = [cmocka, ares],
                       CFLAGS    = ("-g -fblocks -I/usr/local/include -I%s" % folder[0]),
                       LINKFLAGS = "-lBlocksRuntime -lcmocka")
