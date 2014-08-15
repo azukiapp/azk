@@ -13,7 +13,7 @@ Coming soon...
 
 ### From the source
 
-First: install https://azk.io.
+First: install [https://azk.io][azk].
 
 And after that:
 
@@ -50,7 +50,7 @@ hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4 resolver
 
 This project uses clang to compile, scons as mounting and valgrind tool to analyze code and running.
 
-But all these tools are available behind the AZK, just the commands below to get a development environment:
+But all these tools are available behind the [azk][azk], just the commands below to get a development environment:
 
 ```bash
 $ azk start dns
@@ -84,3 +84,5 @@ $ ping resolver.dev
 Azk source code is released under Apache 2 License.
 
 Check LEGAL and LICENSE files for more information.
+
+[azk]: http://azk.io
