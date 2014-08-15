@@ -61,21 +61,21 @@ After that, the following scons targets are available:
 
 ```bash
 # To build and run testes
-$ scons run-test -Q [define=DEBUG] [valgrind="valgrind options]
+$ scons run-test -Q [define=DEBUG] [valgrind="valgrind options"]
 # To install in azk instance
 $ scons local-install
 # And test with:
-# ping resolver.dev
+$ ping resolver.dev
 ```
 
 ## References
 
-Inspiration code: https://github.com/danni/docker-nss
-Mac OS X resolver feature: [https://developer.apple.com/library/...](https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man5/resolver.5.html)
-Simple c-ares example: https://gist.github.com/mopemope/992777
-Use a dns server in c-ares: https://github.com/bagder/c-ares/blob/master/adig.c
-Ip and port format: https://sourceware.org/bugzilla/show_bug.cgi?id=14242
-Use blocks in linux: http://mackyle.github.io/blocksruntime/
+* Inspiration code: https://github.com/danni/docker-nss
+* Mac OS X resolver feature: [https://developer.apple.com/library/...](https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man5/resolver.5.html)
+* Simple c-ares example: https://gist.github.com/mopemope/992777
+* Use a dns server in c-ares: https://github.com/bagder/c-ares/blob/master/adig.c
+* Ip and port format: https://sourceware.org/bugzilla/show_bug.cgi?id=14242
+* Use blocks in linux: http://mackyle.github.io/blocksruntime/
 
 ## License
 
