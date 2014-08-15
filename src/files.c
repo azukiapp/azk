@@ -1,11 +1,17 @@
+#define _GNU_SOURCE
+
 #include <stddef.h>
 #include <dirent.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <regex.h>
+
+#include "files.h"
 
 char *path_join(char sep, char *folder, char *file) {
     char *path;
@@ -78,4 +84,67 @@ char *getfile_by_sufix(char *folder, char *name) {
     }
 
     return path;
+}
+
+static char *trim(char * s) {
+    int l = strlen(s);
+
+    if (l > 1) {
+        while(isspace(s[l - 1])) --l;
+        while(* s && isspace(* s)) ++s, --l;
+    }
+
+    return strndup(s, l);
+}
+
+static char *extract_nameserver(char *line) {
+    char *cline   = trim(line);
+    char *address = NULL;
+
+    if (cline[0] != '\n' && cline[0] != '#') {
+        address = malloc(sizeof(char *) * (strlen(cline) + 1));
+        sscanf(cline, "nameserver %[^#\n ]", address);
+        if (strlen(address) == 0) {
+            free(address);
+            address = NULL;
+        }
+    }
+
+    free(cline);
+    return address;
+}
+
+struct resolver_file *parse_resolver_file(char *file) {
+    struct resolver_file *rf = NULL;
+    FILE *fp    = fopen(file, "r");
+    char *line  = NULL;
+    char *cline = NULL;
+    char *nss = NULL, *old = NULL;
+    size_t len  = 0;
+    ssize_t read;
+
+    if (fp != NULL) {
+        while ((read = getline(&line, &len, fp)) != -1) {
+            cline = extract_nameserver(line);
+            if (cline) {
+              if (nss) {
+                  old = nss;
+                  nss = path_join(',', nss, cline);
+                  free(old);
+                  free(cline);
+              } else {
+                  nss = cline;
+              }
+            }
+        }
+        fclose(fp);
+    }
+
+    if (line) free(line);
+    if (nss) {
+        rf = malloc(sizeof(struct resolver_file *));
+        rf->servers = nss;
+    }
+
+    return rf;
 }

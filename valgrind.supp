@@ -4,3 +4,10 @@
     ...
     fun:resolver_by_servers
 }
+
+{
+    <extract_nameserver>
+    Memcheck:Cond
+    ...
+    fun:extract_nameserver
+}

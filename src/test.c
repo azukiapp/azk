@@ -1,3 +1,5 @@
+#define _GNU_SOURCE
+
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
@@ -16,8 +18,9 @@
 
 // State to test
 typedef struct {
-    char *domain;
     char *servers;
+    char *domain;
+    char *fixtures;
 } state_type;
 
 void debug(const char *fmt, ...) {
@@ -32,8 +35,8 @@ void debug(const char *fmt, ...) {
 
 // Tests initializes
 static void group_setup(void **state) {
-    const char *port = getenv("DNS_DNS_PORT");
-    const char *host = getenv("DNS_DNS_HOST");
+    const char *port = getenv("TEST_DNS_PORT");
+    const char *host = getenv("TEST_DNS_HOST");
 
     assert_non_null(port);
     assert_non_null(host);
@@ -41,6 +44,14 @@ static void group_setup(void **state) {
     // Alloc test stat
     state_type *_state = malloc(sizeof(state_type));
     assert_non_null(_state);
+
+    // Get fixtures
+    _state->fixtures = getenv("TEST_FIXTURES");
+    assert_non_null(_state->fixtures);
+
+    // Default domain
+    _state->domain  = getenv("TEST_DOMAIN");
+    assert_non_null(_state->domain);
 
     // Get host ip
     struct hostent *results = gethostbyname(host);
@@ -60,9 +71,6 @@ static void group_setup(void **state) {
     snprintf(_state->servers, size - 1, "%s:%s", ip, port);
 
     // Save in state
-    _state->domain  = getenv("DNS_DOMAIN");
-    assert_non_null(_state->domain);
-
     *state = _state;
 }
 
@@ -105,20 +113,19 @@ static void resolver_by_nameserver_test(void **state) {
 
 static void getfile_by_sufix_test(void **state) {
     state_type *_state = *state;
-    char *fixtures = "/azk/resolver-nss/mocker/fixtures/";
     char *data, *file, *sub;
 
     // Simple
-    data = getfile_by_sufix(fixtures, _state->domain);
-    file = path_join('/', fixtures, "resolver.dev");
+    data = getfile_by_sufix(_state->fixtures, _state->domain);
+    file = path_join('/', _state->fixtures, "resolver.dev");
     assert_string_equal(data, file);
     free(data);
     free(file);
 
     // sub
     sub  = path_join('.', "zsub", _state->domain);
-    data = getfile_by_sufix(fixtures, sub);
-    file = path_join('/', fixtures, sub);
+    data = getfile_by_sufix(_state->fixtures, sub);
+    file = path_join('/', _state->fixtures, sub);
     assert_string_equal(data, file);
     free(data);
     free(file);
@@ -126,24 +133,53 @@ static void getfile_by_sufix_test(void **state) {
 
     // before
     sub  = path_join('.', "asub", _state->domain);
-    data = getfile_by_sufix(fixtures, sub);
-    file = path_join('/', fixtures, sub);
+    data = getfile_by_sufix(_state->fixtures, sub);
+    file = path_join('/', _state->fixtures, sub);
     assert_string_equal(data, file);
     free(data);
     free(file);
     free(sub);
 
     sub  = path_join('.', "ub", _state->domain);
-    data = getfile_by_sufix(fixtures, sub);
-    file = path_join('/', fixtures, "resolver.dev");
+    data = getfile_by_sufix(_state->fixtures, sub);
+    file = path_join('/', _state->fixtures, "resolver.dev");
     assert_string_equal(data, file);
     free(data);
     free(file);
     free(sub);
 }
 
+static void notfound_sufix_test(void **state) {
+    state_type *_state = *state;
+    char *data = getfile_by_sufix(_state->fixtures, "foo.not");
+    assert_null(data);
+}
+
+static void parse_nameservers_test(void **state) {
+    state_type *_state = *state;
+    char *servers = "127.0.0.1,127.0.0.1:5353,[fE80::1]:5354";
+    char *file = path_join('/', _state->fixtures, "resolver.dev");
+    struct resolver_file *rf= parse_resolver_file(file);
+    free(file);
+
+    assert_non_null(rf);
+    assert_string_equal(rf->servers, servers);
+
+    free(rf->servers);
+    free(rf);
+}
+
+static void parse_blank_file_test(void **state) {
+    state_type *_state = *state;
+    char *file = path_join('/', _state->fixtures, "other.foo");
+    struct resolver_file *rf= parse_resolver_file(file);
+    free(file);
+
+    assert_null(rf);
+}
+
 int main(void) {
-    printf("\nRun testes...\n\n");
+    printf("\nRunning the testes...\n\n");
     const UnitTest tests[] = {
         // setup
         group_test_setup(group_setup),
@@ -151,7 +187,10 @@ int main(void) {
         // cases
         unit_test(gethostbyname_unknown_name_test),
         unit_test(resolver_by_nameserver_test    ),
+        unit_test(notfound_sufix_test            ),
         unit_test(getfile_by_sufix_test          ),
+        unit_test(parse_blank_file_test          ),
+        unit_test(parse_nameservers_test         ),
 
         // teardown
         group_test_teardown(group_teardown),

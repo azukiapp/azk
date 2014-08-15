@@ -56,9 +56,10 @@ env.InstallAs('/usr/lib/libnss_resolver.so.2', so)
 env.InstallAs('/azk/lib/libnss_resolver.so.2', so)
 
 # Test
-env['ENV']['DNS_DNS_PORT']  = os.environ['DNS_DNS_PORT']
-env['ENV']['DNS_DNS_HOST']  = os.environ['DNS_DNS_HOST']
-env['ENV']['DNS_DOMAIN']    = os.environ['DNS_DOMAIN']
+env['ENV']['TEST_DNS_PORT'] = os.environ['DNS_DNS_PORT']
+env['ENV']['TEST_DNS_HOST'] = os.environ['DNS_DNS_HOST']
+env['ENV']['TEST_DOMAIN']   = os.environ['DNS_DOMAIN']
+env['ENV']['TEST_FIXTURES'] = os.getcwd() + '/mocker/fixtures/'
 env['ENV']['VALGRIND_OPTS'] = ARGUMENTS.get('valgrind', '')
 
 program = env.Program("build/test", ["src/resolver.c", "src/files.c", "src/test.c"],
