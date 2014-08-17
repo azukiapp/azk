@@ -7,6 +7,7 @@
 #include <arpa/inet.h>
 
 #include "resolver.h"
+#include "files.h"
 
 static void wait_ares(ares_channel channel) {
     for(;;){
@@ -119,4 +120,20 @@ struct hostent *nssrs_resolver_by_servers(gchar *name, gchar *nameserver) {
 
     ares_free_hostent(results);
     return NULL;
+}
+
+struct hostent *nssrs_resolve(char *folder, char *domain) {
+    struct hostent *results = NULL;
+    char *file = nssrs_getfile_by_sufix(folder, domain);
+
+    if (file) {
+        struct resolver_file *rf= nssrs_parse_routes(file);
+        if (rf) {
+            results = nssrs_resolver_by_servers(domain, rf->servers);
+        }
+        nssrs_free(file);
+        nssrs_free(rf);
+    }
+
+    return results;
 }

@@ -6,7 +6,7 @@
 #include <string.h>
 
 #ifdef DEBUG
-#define debug(M, ...) fprintf(stderr, "DEBUG %s:%d: " M "\n", __FILE__, __LINE__, ##__VA_ARGS__)
+#define debug(M, ...) fprintf(stderr, "[  \x1b[31mDEBUG\x1b[0m   ] %s:%d: " M "\n", __FILE__, __LINE__, ##__VA_ARGS__)
 #else
 #define debug(M, ...)
 #endif

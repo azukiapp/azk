@@ -142,11 +142,11 @@ static void notfound_sufix_test(void **state) {
     assert_null(data);
 }
 
-static void parse_nameservers_test(void **state) {
+static void nssrs_parse_routes_test(void **state) {
     state_type *_state = *state;
     char *servers = "127.0.0.1,127.0.0.1:5353,[fE80::1]:5354";
     char *file = nssrs_str_join('/', _state->fixtures, "resolver.dev");
-    struct resolver_file *rf= nssrs_parse_resolver_file(file);
+    struct resolver_file *rf= nssrs_parse_routes(file);
     free(file);
 
     assert_non_null(rf);
@@ -156,13 +156,55 @@ static void parse_nameservers_test(void **state) {
     free(rf);
 }
 
-static void parse_blank_file_test(void **state) {
+static void nssrs_parse_blank_routes_test(void **state) {
     state_type *_state = *state;
     char *file = nssrs_str_join('/', _state->fixtures, "other.foo");
-    struct resolver_file *rf= nssrs_parse_resolver_file(file);
+    struct resolver_file *rf= nssrs_parse_routes(file);
     free(file);
 
     assert_null(rf);
+}
+
+static void nssrs_resolve_with_blank_test(void **state) {
+    // Temp dir
+    char tmpl[]  = "/tmp/nss.XXXXXX";
+    char *tmpdir = mkdtemp(tmpl);
+    assert_non_null(tmpdir);
+
+    struct hostent *results;
+    state_type *_state = *state;
+    results = nssrs_resolve(tmpdir, _state->domain);
+    assert_null(results);
+}
+
+static void nssrs_resolve_test(void **state) {
+    // Temp dir
+    char tmpl[]  = "/tmp/nss.XXXXXX";
+    char *tmpdir = mkdtemp(tmpl);
+    assert_non_null(tmpdir);
+
+    state_type *_state = *state;
+    int rs = mock_resolver(tmpdir, _state->domain, _state->servers);
+    assert_true(rs);
+
+    struct hostent *results;
+    results = nssrs_resolve(tmpdir, _state->domain);
+
+    assert_non_null(results);
+    assert_string_equal(results->h_name, _state->domain);
+    assert_null(results->h_aliases[0]);
+    assert_int_equal(results->h_addrtype, AF_INET);
+    assert_int_equal(results->h_length, 4);
+    assert_non_null(results->h_addr_list[0]);
+    assert_null(results->h_addr_list[1]);
+
+    // Ip
+    char ip[INET6_ADDRSTRLEN];
+    const char *dns_ip = getenv("TEST_DNS_IP");
+    inet_ntop(results->h_addrtype, results->h_addr_list[0], ip, sizeof(ip));
+    assert_string_equal(ip, dns_ip);
+
+    ares_free_hostent(results);
 }
 
 int main(void) {
@@ -176,8 +218,10 @@ int main(void) {
         unit_test(resolver_by_nameserver_test    ),
         unit_test(notfound_sufix_test            ),
         unit_test(nssrs_getfile_by_sufix_test    ),
-        unit_test(parse_blank_file_test          ),
-        unit_test(parse_nameservers_test         ),
+        unit_test(nssrs_parse_blank_routes_test  ),
+        unit_test(nssrs_parse_routes_test        ),
+        unit_test(nssrs_resolve_with_blank_test  ),
+        unit_test(nssrs_resolve_test             ),
 
         // teardown
         group_test_teardown(group_teardown),

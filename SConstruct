@@ -65,16 +65,17 @@ env.Append(CPPDEFINES = cppdefines)
 # Test
 env['ENV']['TEST_DNS_PORT'] = os.environ['DNS_DNS_PORT']
 env['ENV']['TEST_DNS_HOST'] = os.environ['DNS_DNS_HOST']
+env['ENV']['TEST_DNS_IP']   = os.environ['DNS_IP']
 env['ENV']['TEST_DOMAIN']   = os.environ['DNS_DOMAIN']
 env['ENV']['TEST_FIXTURES'] = os.getcwd() + '/test/fixtures/'
 env['ENV']['VALGRIND_OPTS'] = ARGUMENTS.get('valgrind', '')
 
-program = env.Program("build/test", ["src/resolver.c", "src/files.c", "test/run.c"],
+program = env.Program("build/test", ["src/resolver.c", "src/files.c", Glob("test/*.c")],
                       LIBS      = [cmocka, ares],
                       CFLAGS    = ("-g -fblocks -I/usr/local/include -I%s" % folder[0]),
                       LINKFLAGS = "-lBlocksRuntime -lcmocka")
 
-test_run = env.Alias("run-test", [program], Action("valgrind --suppressions=./valgrind.supp ${VALGRIND_OPTS} ./build/test"))
+test_run = env.Alias("run-test", [program], Action("echo '\x1b[2J\x1b[0;0f'; valgrind --suppressions=./valgrind.supp ${VALGRIND_OPTS} ./build/test"))
 AlwaysBuild(test_run)
 
 # Alias

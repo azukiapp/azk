@@ -57,7 +57,7 @@ const int match_sufix(char *path, char *file, char *name) {
 
 char *nssrs_getfile_by_sufix(char *folder, char *name) {
     struct dirent **namelist;
-    char *path, *file, *finded = NULL;
+    char *file, *path = NULL, *finded = NULL;
 
     int n = scandir(folder, &namelist, file_select, alphasort);
     if (n >= 0) {
@@ -71,13 +71,12 @@ char *nssrs_getfile_by_sufix(char *folder, char *name) {
                     finded = strdup(file);
                 }
             }
-            free(path);
+            nssrs_free(path);
             free(namelist[n]);
         }
         free(namelist);
     }
 
-    path = NULL;
     if (finded) {
         path = nssrs_str_join('/', folder, finded);
         free(finded);
@@ -114,33 +113,32 @@ static char *extract_nameserver(char *line) {
     return address;
 }
 
-struct resolver_file *nssrs_parse_resolver_file(char *file) {
+struct resolver_file *nssrs_parse_routes(char *file) {
     struct resolver_file *rf = NULL;
     FILE *fp    = fopen(file, "r");
     char *line  = NULL;
     char *cline = NULL;
-    char *nss = NULL, *old = NULL;
+    char *nss   = NULL, *old = NULL;
     size_t len  = 0;
     ssize_t read;
 
     if (fp != NULL) {
         while ((read = getline(&line, &len, fp)) != -1) {
             cline = extract_nameserver(line);
-            if (cline) {
-              if (nss) {
-                  old = nss;
-                  nss = nssrs_str_join(',', nss, cline);
-                  free(old);
-                  free(cline);
-              } else {
-                  nss = cline;
-              }
+            if (cline && nss) {
+                old = nss;
+                nss = nssrs_str_join(',', nss, cline);
+                free(old);
+                free(cline);
+            } else if (cline) {
+                nss = cline;
             }
         }
         fclose(fp);
     }
 
-    if (line) free(line);
+    nssrs_free(line);
+
     if (nss) {
         rf = malloc(sizeof(struct resolver_file *));
         rf->servers = nss;
