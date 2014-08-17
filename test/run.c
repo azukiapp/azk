@@ -144,7 +144,7 @@ static void notfound_sufix_test(void **state) {
 
 static void nssrs_parse_routes_test(void **state) {
     state_type *_state = *state;
-    char *servers = "127.0.0.1,127.0.0.1:5353,[fE80::1]:5354";
+    char *servers = "127.0.0.1,[fE80::1]:5354,192.168.100.1001:49154";
     char *file = nssrs_str_join('/', _state->fixtures, "resolver.dev");
     struct resolver_file *rf= nssrs_parse_routes(file);
     free(file);

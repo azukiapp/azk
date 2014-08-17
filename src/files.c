@@ -12,6 +12,7 @@
 #include <regex.h>
 
 #include "files.h"
+#include "debug.h"
 
 char *nssrs_str_join(char sep, char *folder, char *file) {
     char *path;
@@ -101,11 +102,11 @@ static char *extract_nameserver(char *line) {
     char *address = NULL;
 
     if (cline[0] != '\n' && cline[0] != '#') {
-        address = malloc(sizeof(char *) * (strlen(cline) + 1));
+        debug("cline: %s - size: %d", cline, (int)strlen(cline));
+        address = malloc(sizeof(char *) * (strlen(cline) + 2));
         sscanf(cline, "nameserver %[^#\n ]", address);
         if (strlen(address) == 0) {
-            free(address);
-            address = NULL;
+            nssrs_free(address);
         }
     }
 

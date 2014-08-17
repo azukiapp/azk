@@ -1,7 +1,7 @@
 # Comment line
   # Comments
 nameserver  127.0.0.1
-  nameserver 127.0.0.1:5353
 
 nameserver [fE80::1]:5354 # only comment
 search resolver.dev # ignored
+  nameserver  192.168.100.1001:49154

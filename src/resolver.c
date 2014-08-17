@@ -75,7 +75,7 @@ static void callback(void *arg, int status, int timeouts, struct hostent *from) 
     nssrs_copy_hostent(from, to);
 }
 
-struct hostent *nssrs_resolver_by_servers(gchar *name, gchar *nameserver) {
+struct hostent *nssrs_resolver_by_servers(char *name, char *nameserver) {
     ares_channel channel = NULL;
     int status, optmask = 0;
     struct ares_options options;
@@ -127,9 +127,10 @@ struct hostent *nssrs_resolve(char *folder, char *domain) {
         struct resolver_file *rf= nssrs_parse_routes(file);
         if (rf) {
             results = nssrs_resolver_by_servers(domain, rf->servers);
+            nssrs_free(rf->servers);
+            nssrs_free(rf);
         }
         nssrs_free(file);
-        nssrs_free(rf);
     }
 
     return results;
