@@ -27,56 +27,53 @@ static void wait_ares(ares_channel channel) {
     }
 }
 
-static void callback(void *arg, int status, int timeouts, struct hostent *host) {
-    struct hostent *result = (struct hostent *)arg;
+static char **copy_list(char **list) {
     char **p;
-    char **h_addr_list = NULL, **h_aliases = NULL;
+    char **new_list = NULL;
     int count = 0;
     int index = 0;
 
-    if(!host || status != ARES_SUCCESS){
+    // Alias
+    for (p = list; *p; p++) {
+        count++;
+    }
+
+    new_list = malloc((count+1) * sizeof(char *));
+    for (p = list; *p; p++) {
+        new_list[index] = malloc(sizeof(struct in_addr));
+        if (new_list[index]) {
+          memcpy(new_list[index], *p, sizeof(struct in_addr));
+        }
+        index++;
+    }
+    new_list[index] = NULL;
+
+    return new_list;
+}
+
+void nssrs_copy_hostent(struct hostent *from, struct hostent *to) {
+    to->h_name = malloc(sizeof(char *) * strlen(from->h_name));
+
+    if (to->h_name != NULL) {
+        sprintf(to->h_name, "%s", from->h_name);
+        to->h_addrtype  = from->h_addrtype;
+        to->h_length    = from->h_length;
+        to->h_aliases   = copy_list(from->h_aliases);
+        to->h_addr_list = copy_list(from->h_addr_list);
+    }
+}
+
+static void callback(void *arg, int status, int timeouts, struct hostent *from) {
+    struct hostent *to = (struct hostent *)arg;
+
+    if(!from || status != ARES_SUCCESS){
         printf("Failed to lookup %s\n", ares_strerror(status));
         return;
     }
 
     // Save return
-    result->h_name = malloc(sizeof(char *) * strlen(host->h_name));
-    sprintf(result->h_name, "%s", host->h_name);
-    result->h_addrtype = host->h_addrtype;
-    result->h_length   = host->h_length;
-
-    // Alias
-    for (p = host->h_aliases; *p; p++) {
-        count++;
-    }
-    h_aliases = malloc((count+1) * sizeof(char *));
-    for (p = host->h_aliases; *p; p++) {
-        h_aliases[index] = malloc(sizeof(struct in_addr));
-        if (h_aliases[index]) {
-          memcpy(h_aliases[index], *p, sizeof(struct in_addr));
-        }
-        index++;
-    }
-    h_aliases[index] = NULL;
-    result->h_aliases = h_aliases;
-
-    // Address list
-    count = index = 0;
-    for (p = host->h_addr_list; *p; p++) {
-        count++;
-    }
-    h_addr_list = malloc((count+1) * sizeof(char *));
-    for (p = host->h_addr_list; *p; p++) {
-        h_addr_list[index] = malloc(sizeof(struct in_addr));
-        if (h_addr_list[index]) {
-          memcpy(h_addr_list[index], *p, sizeof(struct in_addr));
-        }
-        index++;
-    }
-    h_addr_list[index] = NULL;
-    result->h_addr_list = h_addr_list;
+    nssrs_copy_hostent(from, to);
 }
-
 
 struct hostent *nssrs_resolver_by_servers(gchar *name, gchar *nameserver) {
     ares_channel channel = NULL;
@@ -137,3 +134,4 @@ struct hostent *nssrs_resolve(char *folder, char *domain) {
 
     return results;
 }
+

@@ -3,3 +3,4 @@
 build
 src/*.o
 src/*.os
+test/*.o
