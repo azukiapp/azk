@@ -47,9 +47,9 @@ folder = env.Command(ares_folder, None, Action(ares_download));
 ares   = env.Command("./build/libcares.a", folder, Action(ares_script));
 
 # Library
-so = env.SharedLibrary("build/libnss_resolver", ["src/nss.c"],
-        LINKFLAGS = "-lglib-2.0",
-        LIBS=[ares])
+so = env.SharedLibrary("build/libnss_resolver", Glob("src/*c"),
+    LIBS      = [ares],
+    CFLAGS    = ("-I%s" % folder[0]))
 
 # Install options
 env.InstallAs('/usr/lib/libnss_resolver.so.2', so)
@@ -72,8 +72,8 @@ env['ENV']['VALGRIND_OPTS'] = ARGUMENTS.get('valgrind', '')
 
 program = env.Program("build/test", ["src/resolver.c", "src/files.c", Glob("test/*.c")],
                       LIBS      = [cmocka, ares],
-                      CFLAGS    = ("-g -fblocks -I/usr/local/include -I%s" % folder[0]),
-                      LINKFLAGS = "-lBlocksRuntime -lcmocka")
+                      CFLAGS    = ("-g -I/usr/local/include -I%s" % folder[0]),
+                      LINKFLAGS = "-lcmocka")
 
 test_run = env.Alias("run-test", [program], Action("echo '\x1b[2J\x1b[0;0f'; valgrind --suppressions=./valgrind.supp ${VALGRIND_OPTS} ./build/test"))
 AlwaysBuild(test_run)

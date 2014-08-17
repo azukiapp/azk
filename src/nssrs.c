@@ -9,60 +9,15 @@
 #include <stdio.h>
 #include <string.h>
 #include <arpa/inet.h>
-#include <glib.h>
 
 /* define a suffix that containers have */
-#define SUFFIX "tmp.dev"
+/*#define SUFFIX "tmp.dev"*/
+#define NSSRS_DEFAULT_FOLDER "/etc/resolver/"
 
-#define ALIGN(a) (((a+sizeof(void*)-1)/sizeof(void*))*sizeof(void*))
+#include <ares.h>
 
-static void
-pack_hostent(struct hostent *result,
-        char *buffer,
-        size_t buflen,
-        const char *name,
-        const void *addr)
-{
-    char *aliases, *r_addr, *addrlist;
-    size_t l, idx;
-
-    /* we can't allocate any memory, the buffer is where we need to
-     * return things we want to use
-     *
-     * 1st, the hostname */
-    l = strlen(name);
-    result->h_name = buffer;
-    memcpy (result->h_name, name, l);
-    buffer[l] = '\0';
-
-    idx = ALIGN (l+1);
-
-    /* 2nd, the empty aliases array */
-    aliases = buffer + idx;
-    *(char **) aliases = NULL;
-    idx += sizeof (char*);
-
-    result->h_aliases = (char **) aliases;
-
-    result->h_addrtype = AF_INET;
-    result->h_length = sizeof (struct in_addr);
-
-    /* 3rd, address */
-    r_addr = buffer + idx;
-    memcpy(r_addr, addr, result->h_length);
-    idx += ALIGN (result->h_length);
-
-    /* 4th, the addresses ptr array */
-    addrlist = buffer + idx;
-    ((char **) addrlist)[0] = r_addr;
-    ((char **) addrlist)[1] = NULL;
-
-    result->h_addr_list = (char **) addrlist;
-}
-
-static int lookup_resolver_ip (const char *name, struct in_addr *addr) {
-    return inet_aton ("192.168.50.4", addr);
-}
+#include "resolver.h"
+#include "debug.h"
 
 enum nss_status
 _nss_resolver_gethostbyname2_r (const char *name,
@@ -73,27 +28,33 @@ _nss_resolver_gethostbyname2_r (const char *name,
         int *errnop,
         int *h_errnop)
 {
-    struct in_addr addr;
-
     if (af != AF_INET) {
         *errnop = EAFNOSUPPORT;
         *h_errnop = NO_DATA;
         return NSS_STATUS_UNAVAIL;
     }
 
-    if (!g_str_has_suffix(name, SUFFIX)) {
+    debug("resolve: %s", name);
+    struct hostent *hosts = nssrs_resolve(NSSRS_DEFAULT_FOLDER, (char *)name);
+
+    if (!hosts || hosts->h_name == NULL) {
         *errnop = ENOENT;
         *h_errnop = HOST_NOT_FOUND;
         return NSS_STATUS_NOTFOUND;
     }
 
-    if (!lookup_resolver_ip (name, &addr)) {
-        *errnop = ENOENT;
-        *h_errnop = HOST_NOT_FOUND;
-        return NSS_STATUS_NOTFOUND;
+    char ip[INET6_ADDRSTRLEN];
+    int i = 0;
+
+    for (i = 0; hosts->h_addr_list[i]; ++i) {
+        inet_ntop(hosts->h_addrtype, hosts->h_addr_list[i], ip, sizeof(ip));
+        debug("ip: %s\n", ip);
     }
 
-    pack_hostent(result, buffer, buflen, name, &addr);
+    nssrs_copy_hostent(hosts, result);
+    ares_free_hostent(hosts);
+
+    /*pack_hostent(result, buffer, buflen, name, &addr);*/
 
     return NSS_STATUS_SUCCESS;
 }

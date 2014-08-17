@@ -8,6 +8,7 @@
 
 #include "resolver.h"
 #include "files.h"
+#include "debug.h"
 
 static void wait_ares(ares_channel channel) {
     for(;;){
@@ -124,11 +125,21 @@ struct hostent *nssrs_resolve(char *folder, char *domain) {
     char *file = nssrs_getfile_by_sufix(folder, domain);
 
     if (file) {
+        debug("resolver file: %s", file);
         struct resolver_file *rf= nssrs_parse_routes(file);
         if (rf) {
+            debug("resolver servers: %s", rf->servers);
             results = nssrs_resolver_by_servers(domain, rf->servers);
             nssrs_free(rf->servers);
             nssrs_free(rf);
+
+            char ip[INET6_ADDRSTRLEN];
+            int i = 0;
+
+            for (i = 0; results->h_addr_list[i]; ++i) {
+                inet_ntop(results->h_addrtype, results->h_addr_list[i], ip, sizeof(ip));
+                debug("ip: %s\n", ip);
+            }
         }
         nssrs_free(file);
     }
