@@ -56,6 +56,10 @@ static void group_setup(void **state) {
     _state->servers = malloc(size);
     snprintf(_state->servers, size - 1, "%s:%s", ip, port);
 
+
+    // Remove mock
+    mock_resolver_clean(NSSRS_DEFAULT_FOLDER, _state->domain);
+
     // Save in state
     *state = _state;
 }
@@ -68,16 +72,6 @@ static void group_teardown(void **state) {
 }
 
 // Testes cases
-static void gethostbyname_unknown_name_test(void **state) {
-    struct hostent *results;
-    state_type *_state = *state;
-
-    results = gethostbyname(_state->domain);
-
-    assert_null(results);
-    assert_int_equal(h_errno, HOST_NOT_FOUND);
-}
-
 static void resolver_by_nameserver_test(void **state) {
     struct hostent *results;
     state_type *_state = *state;
@@ -207,6 +201,38 @@ static void nssrs_resolve_test(void **state) {
     ares_free_hostent(results);
 }
 
+static void gethostbyname_unknown_name_test(void **state) {
+    struct hostent *results;
+    state_type *_state = *state;
+
+    results = gethostbyname(_state->domain);
+
+    assert_null(results);
+    assert_int_equal(h_errno, HOST_NOT_FOUND);
+}
+
+static void gethostbyname_name_test(void **state) {
+    struct hostent *results;
+    state_type *_state = *state;
+
+    mock_resolver(NSSRS_DEFAULT_FOLDER, _state->domain, _state->servers);
+    results = gethostbyname(_state->domain);
+
+    assert_non_null(results);
+    assert_string_equal(results->h_name, _state->domain);
+    assert_null(results->h_aliases[0]);
+    assert_int_equal(results->h_addrtype, AF_INET);
+    assert_int_equal(results->h_length, 4);
+    assert_non_null(results->h_addr_list[0]);
+    assert_null(results->h_addr_list[1]);
+
+    // Ip
+    char ip[INET6_ADDRSTRLEN];
+    const char *dns_ip = getenv("TEST_DNS_IP");
+    inet_ntop(results->h_addrtype, results->h_addr_list[0], ip, sizeof(ip));
+    assert_string_equal(ip, dns_ip);
+}
+
 int main(void) {
     printf("\nRunning the testes...\n\n");
     const UnitTest tests[] = {
@@ -214,7 +240,6 @@ int main(void) {
         group_test_setup(group_setup),
 
         // cases
-        unit_test(gethostbyname_unknown_name_test),
         unit_test(resolver_by_nameserver_test    ),
         unit_test(notfound_sufix_test            ),
         unit_test(nssrs_getfile_by_sufix_test    ),
@@ -222,6 +247,8 @@ int main(void) {
         unit_test(nssrs_parse_routes_test        ),
         unit_test(nssrs_resolve_with_blank_test  ),
         unit_test(nssrs_resolve_test             ),
+        unit_test(gethostbyname_unknown_name_test),
+        unit_test(gethostbyname_name_test        ),
 
         // teardown
         group_test_teardown(group_teardown),

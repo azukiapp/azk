@@ -39,6 +39,7 @@ static char **copy_list(char **list) {
         count++;
     }
 
+    debug("list size: %d\n", count);
     new_list = malloc((count+1) * sizeof(char *));
     for (p = list; *p; p++) {
         new_list[index] = malloc(sizeof(struct in_addr));

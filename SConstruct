@@ -49,11 +49,11 @@ ares   = env.Command("./build/libcares.a", folder, Action(ares_script));
 # Library
 so = env.SharedLibrary("build/libnss_resolver", Glob("src/*c"),
     LIBS      = [ares],
-    CFLAGS    = ("-I%s" % folder[0]))
+    CFLAGS    = ("-g -I%s" % folder[0]))
 
 # Install options
-env.InstallAs('/usr/lib/libnss_resolver.so.2', so)
-env.InstallAs('/azk/lib/libnss_resolver.so.2', so)
+so_local = env.InstallAs('/usr/lib/libnss_resolver.so.2', so)
+so_azk   = env.InstallAs('/azk/lib/libnss_resolver.so.2', so)
 
 # cdefines
 cppdefines = []
@@ -70,7 +70,7 @@ env['ENV']['TEST_DOMAIN']   = os.environ['DNS_DOMAIN']
 env['ENV']['TEST_FIXTURES'] = os.getcwd() + '/test/fixtures/'
 env['ENV']['VALGRIND_OPTS'] = ARGUMENTS.get('valgrind', '')
 
-program = env.Program("build/test", ["src/resolver.c", "src/files.c", Glob("test/*.c")],
+program = env.Program("build/test", ["src/resolver.c", "src/files.c", Glob("test/*.c")] + so_local,
                       LIBS      = [cmocka, ares],
                       CFLAGS    = ("-g -I/usr/local/include -I%s" % folder[0]),
                       LINKFLAGS = "-lcmocka")

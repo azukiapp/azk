@@ -8,3 +8,4 @@ typedef struct {
 } state_type;
 
 int mock_resolver(char *tmpdir, char *domain, char *ns);
+int mock_resolver_clean(char *tmpdir, char *domain);
