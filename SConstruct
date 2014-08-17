@@ -2,7 +2,6 @@ import os
 
 # Set clang options by env
 env = Environment(CC = "clang", CFLAGS = "-Wall -Werror")
-env.ParseConfig("pkg-config --cflags --libs glib-2.0")
 
 # Output color
 env['ENV']['TERM'] = os.environ['TERM']
@@ -63,12 +62,13 @@ for key, value in ARGLIST:
 env.Append(CPPDEFINES = cppdefines)
 
 # Test
-env['ENV']['TEST_DNS_PORT'] = os.environ['DNS_DNS_PORT']
-env['ENV']['TEST_DNS_HOST'] = os.environ['DNS_DNS_HOST']
-env['ENV']['TEST_DNS_IP']   = os.environ['DNS_IP']
-env['ENV']['TEST_DOMAIN']   = os.environ['DNS_DOMAIN']
-env['ENV']['TEST_FIXTURES'] = os.getcwd() + '/test/fixtures/'
-env['ENV']['VALGRIND_OPTS'] = ARGUMENTS.get('valgrind', '')
+env['ENV']['TEST_DNS_PORT']   = os.environ['DNS_DNS_PORT']
+env['ENV']['TEST_DNS_HOST']   = os.environ['DNS_DNS_HOST']
+env['ENV']['TEST_DNS_IP']     = os.environ['DNS_IP']
+env['ENV']['TEST_DOMAIN']     = os.environ['DNS_DOMAIN']
+env['ENV']['TEST_FIXTURES']   = os.getcwd() + '/test/fixtures/'
+env['ENV']['VALGRIND_OPTS']   = ARGUMENTS.get('valgrind', '')
+env['ENV']['LD_LIBRARY_PATH'] = '/usr/local/lib'
 
 program = env.Program("build/test", ["src/resolver.c", "src/files.c", Glob("test/*.c")] + so_local,
                       LIBS      = [cmocka, ares],

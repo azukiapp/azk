@@ -22,6 +22,7 @@ systems({
     mount_folders: {
       '.': "/azk/#{manifest.dir}",
       './mocker/nsswitch.conf': "/etc/nsswitch.conf",
+      './mocker/resolver': "/etc/resolver",
     },
     envs: envs,
   },
