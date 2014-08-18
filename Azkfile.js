@@ -14,7 +14,7 @@ systems({
     // Dependent systems
     depends: ["dns"],
     // More images:  http://images.azk.io
-    image: "azukiapp/resolver-nss",
+    image: "azukiapp/libnss-resolver",
     workdir: "/azk/#{manifest.dir}",
     command: "# command to run app",
     shell: "/bin/bash",
