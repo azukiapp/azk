@@ -69,7 +69,7 @@ static void callback(void *arg, int status, int timeouts, struct hostent *from) 
     struct hostent *to = (struct hostent *)arg;
 
     if(!from || status != ARES_SUCCESS){
-        printf("Failed to lookup %s\n", ares_strerror(status));
+        debug("Failed to lookup: %s\n", ares_strerror(status));
         return;
     }
 
@@ -85,7 +85,7 @@ struct hostent *nssrs_resolver_by_servers(char *name, char *nameserver) {
 
     status = ares_library_init(ARES_LIB_INIT_ALL);
     if (status != ARES_SUCCESS) {
-        printf("ares_library_init: %s\n", ares_strerror(status));
+        debug("ares_library_init: %s\n", ares_strerror(status));
         return NULL;
     }
 
@@ -96,13 +96,15 @@ struct hostent *nssrs_resolver_by_servers(char *name, char *nameserver) {
 
     status = ares_init_options(&channel, &options, optmask);
     if(status != ARES_SUCCESS) {
-        printf("ares_init_options: %s\n", ares_strerror(status));
+        debug("ares_init_options: %s\n", ares_strerror(status));
         return NULL;
     }
 
     status = ares_set_servers_csv(channel, nameserver);
     if (status != ARES_SUCCESS) {
-      fprintf(stderr, "ares_set_servers_csv: %s\n", ares_strerror(status));
+      debug("ares_set_servers_csv: %s\n", ares_strerror(status));
+      ares_destroy(channel);
+      ares_library_cleanup();
       return NULL;
     }
 
@@ -114,10 +116,10 @@ struct hostent *nssrs_resolver_by_servers(char *name, char *nameserver) {
     ares_library_cleanup();
 
     if (results->h_name != NULL) {
-      return results;
+        return results;
     }
 
-    ares_free_hostent(results);
+    free(results);
     return NULL;
 }
 
@@ -134,13 +136,17 @@ struct hostent *nssrs_resolve(char *folder, char *domain) {
             nssrs_free(rf->servers);
             nssrs_free(rf);
 
-            char ip[INET6_ADDRSTRLEN];
-            int i = 0;
+#ifdef DEBUG
+            if (results) {
+                char ip[INET6_ADDRSTRLEN];
+                int i = 0;
 
-            for (i = 0; results->h_addr_list[i]; ++i) {
-                inet_ntop(results->h_addrtype, results->h_addr_list[i], ip, sizeof(ip));
-                debug("ip: %s\n", ip);
+                for (i = 0; results->h_addr_list[i]; ++i) {
+                    inet_ntop(results->h_addrtype, results->h_addr_list[i], ip, sizeof(ip));
+                    debug("ip: %s\n", ip);
+                }
             }
+#endif
         }
         nssrs_free(file);
     }

@@ -76,6 +76,7 @@ _nss_resolver_gethostbyname2_r (const char *name,
         return NSS_STATUS_UNAVAIL;
     }
 
+    debug("Query libnss-resolver: %s - %s", NSSRS_DEFAULT_FOLDER, (char *)name);
     struct hostent *hosts = nssrs_resolve(NSSRS_DEFAULT_FOLDER, (char *)name);
 
     if (!hosts || hosts->h_name == NULL) {

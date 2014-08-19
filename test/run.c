@@ -211,6 +211,21 @@ static void gethostbyname_unknown_name_test(void **state) {
     assert_int_equal(h_errno, HOST_NOT_FOUND);
 }
 
+static void gethostbyname_unknown_server_test(void **state) {
+    struct hostent *results;
+    state_type *_state = *state;
+
+    mock_resolver(NSSRS_DEFAULT_FOLDER, _state->domain, "nameserver 127.0.0.1:45689");
+    results = gethostbyname(_state->domain);
+    assert_null(results);
+    assert_int_equal(h_errno, HOST_NOT_FOUND);
+
+    mock_resolver(NSSRS_DEFAULT_FOLDER, _state->domain, "127.0.0.1:45689");
+    results = gethostbyname(_state->domain);
+    assert_null(results);
+    assert_int_equal(h_errno, HOST_NOT_FOUND);
+}
+
 static void gethostbyname_name_test(void **state) {
     struct hostent *results;
     state_type *_state = *state;
@@ -240,15 +255,16 @@ int main(void) {
         group_test_setup(group_setup),
 
         // cases
-        unit_test(resolver_by_nameserver_test    ),
-        unit_test(notfound_sufix_test            ),
-        unit_test(nssrs_getfile_by_sufix_test    ),
-        unit_test(nssrs_parse_blank_routes_test  ),
-        unit_test(nssrs_parse_routes_test        ),
-        unit_test(nssrs_resolve_with_blank_test  ),
-        unit_test(nssrs_resolve_test             ),
-        unit_test(gethostbyname_unknown_name_test),
-        unit_test(gethostbyname_name_test        ),
+        unit_test(resolver_by_nameserver_test      ),
+        unit_test(notfound_sufix_test              ),
+        unit_test(nssrs_getfile_by_sufix_test      ),
+        unit_test(nssrs_parse_blank_routes_test    ),
+        unit_test(nssrs_parse_routes_test          ),
+        unit_test(nssrs_resolve_with_blank_test    ),
+        unit_test(nssrs_resolve_test               ),
+        unit_test(gethostbyname_unknown_name_test  ),
+        unit_test(gethostbyname_unknown_server_test),
+        unit_test(gethostbyname_name_test          ),
 
         // teardown
         group_test_teardown(group_teardown),
