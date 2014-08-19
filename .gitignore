@@ -1,6 +1,9 @@
 .sconsign.dblite
 .azk
+.env
 build
 src/*.o
 src/*.os
 test/*.o
+*.rpm
+*.deb

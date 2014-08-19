@@ -27,6 +27,17 @@ systems({
     envs: envs,
   },
 
+  package: {
+    depends: ["dns"],
+    image: "azukiapp/fpm",
+    workdir: "/azk/#{manifest.dir}",
+    shell: "/bin/bash",
+    mount_folders: {
+      '.': '/azk/#{manifest.dir}',
+    },
+    envs: envs,
+  },
+
   dns: {
     image: "azukiapp/azktcl:0.0.2",
     command: "dnsmasq --no-daemon --address=/$DNS_DOMAIN/$DNS_IP",

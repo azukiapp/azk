@@ -1,0 +1,3 @@
+# Set nameservers to *.default.dev
+# nameserver 127.0.0.1
+# nameserver 192.168.50.1:5353
