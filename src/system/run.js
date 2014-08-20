@@ -87,7 +87,7 @@ var Run = {
 
       options = _.defaults(options, {
         sequencies: yield this._getSequencies(system),
-        wait: true,
+        wait: system.wait_scale,
       });
 
       var docker_opt = system.daemonOptions(options);
@@ -110,10 +110,10 @@ var Run = {
 
           yield this._wait_available(system, port_data, container, retry, timeout);
         }
-
-        // Adding to balancer
-        yield Balancer.add(system, container);
       }
+
+      // Adding to balancer
+      yield Balancer.add(system, container);
 
       return container;
     });
