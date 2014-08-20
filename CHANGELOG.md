@@ -1,6 +1,8 @@
 # Changelog
 
-## v0.4.2-dev
+## v0.5.0 - dev
+
+## v0.4.2 (2014-20-08)
 
 * Bug
   * [Cmds] Fixing a `cd` bug in `docker` command.
