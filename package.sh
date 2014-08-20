@@ -11,7 +11,7 @@ MAINTAINER="Everton Ribeiro <everton@azukiapp.com>"
 
 usage() {
   echo
-  echo "$0 [ubuntu|fedora]"
+  echo "$0 [ubuntu|ubuntu12|fedora]"
   echo
   echo "    Uses fpm to build a package"
   echo
@@ -39,7 +39,7 @@ azk_shell() {
         --rpm-user root --rpm-group root \
       "
       ;;
-    ubuntu)
+    ubuntu|ubuntu12)
       prefix=usr/lib
       pkg_type=deb
       fpm_extra_options=" \
@@ -58,7 +58,7 @@ azk_shell() {
   destdir="build/${system}"
   ( cd Dockerfiles/${system}; adocker build -t azukiapp/libnss-resolver:${system} . )
   azk_shell $system "scons pack -Q pack_prefix=$destdir/$prefix"
-  cp -Rf src/samples/* $destdir
+  cp -Rf src/samples/* $destdir/
 
 # package!
 

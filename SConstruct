@@ -57,7 +57,7 @@ cares_file     = "%s/c-ares-%s.tar.gz" % (build_dir, cares_version)
 cares_folder   = "%s/c-ares-%s" % (build_dir, cares_version)
 
 cares_script = """
-  cd $SOURCE; ./configure --disable-shared --enable-static --disable-dependency-tracking;
+  cd $SOURCE; if [ ! -f Makefile ]; then ./configure --disable-shared --enable-static --disable-dependency-tracking; fi
   cd $SOURCE; make;
   cp $SOURCE/.libs/libcares.a $TARGET;
 """
@@ -96,7 +96,7 @@ test_bin = "%s/test" % build_dir
 test_app = env.Program(test_bin, ["src/resolver.c", "src/files.c", Glob("test/*.c")] + so_local + cmocka,
                       LIBS      = [cmocka, cares],
                       CFLAGS    = ("%s -I/usr/local/include -I%s -I%s/include" % (DEBUG, cares_folder, cmocka_folder[0])),
-                      LINKFLAGS = "-lcmocka")
+                      LINKFLAGS = "-Wl,--no-as-needed -lrt -lcmocka")
 
 test_run = env.Alias("run-test", cares + cmocka + test_app,
     Action("echo '\x1b[2J\x1b[0;0f'; valgrind --suppressions=./valgrind.supp ${VALGRIND_OPTS} %s" % test_bin)

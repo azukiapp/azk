@@ -9,40 +9,30 @@ var envs = {
   BUILD_FOLDER: "/azk/build",
 }
 
+var build_system = function(image) {
+  return {
+    depends: ["dns"],
+    image: image,
+    workdir: "/azk/#{manifest.dir}",
+    command: "# command to run app",
+    shell: "/bin/bash",
+    mount_folders: {
+      '.': "/azk/#{manifest.dir}",
+      './mocker/nsswitch.conf': "/etc/nsswitch.conf",
+      './mocker/resolver': "/etc/resolver",
+    },
+    persistent_folders: ["/azk/build"],
+    envs: envs,
+  };
+}
+
 // Adds the systems that shape your system
 systems({
-  ubuntu: {
-    depends: ["dns"],
-    image: "azukiapp/libnss-resolver:ubuntu",
-    workdir: "/azk/#{manifest.dir}",
-    command: "# command to run app",
-    shell: "/bin/bash",
-    mount_folders: {
-      '.': "/azk/#{manifest.dir}",
-      './mocker/nsswitch.conf': "/etc/nsswitch.conf",
-      './mocker/resolver': "/etc/resolver",
-    },
-    persistent_folders: ["/azk/build"],
-    envs: envs,
-  },
-
-  fedora: {
-    depends: ["dns"],
-    image: "azukiapp/libnss-resolver:fedora",
-    workdir: "/azk/#{manifest.dir}",
-    command: "# command to run app",
-    shell: "/bin/bash",
-    mount_folders: {
-      '.': "/azk/#{manifest.dir}",
-      './mocker/nsswitch.conf': "/etc/nsswitch.conf",
-      './mocker/resolver': "/etc/resolver",
-    },
-    persistent_folders: ["/azk/build"],
-    envs: envs,
-  },
+  ubuntu:   build_system("azukiapp/libnss-resolver:ubuntu"),
+  ubuntu12: build_system("azukiapp/libnss-resolver:ubuntu12"),
+  fedora:   build_system("azukiapp/libnss-resolver:fedora"),
 
   package: {
-    depends: ["dns"],
     image: "azukiapp/fpm",
     workdir: "/azk/#{manifest.dir}",
     shell: "/bin/bash",
