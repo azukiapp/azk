@@ -6,24 +6,38 @@ var envs = {
   DNS_DOMAIN: "resolver.dev",
   DNS_IP: "127.0.0.2",
   TERM: env.TERM,
+  BUILD_FOLDER: "/azk/build",
 }
 
 // Adds the systems that shape your system
 systems({
-  build: {
-    // Dependent systems
+  ubuntu: {
     depends: ["dns"],
-    // More images:  http://images.azk.io
-    image: "azukiapp/libnss-resolver",
+    image: "azukiapp/libnss-resolver:ubuntu",
     workdir: "/azk/#{manifest.dir}",
     command: "# command to run app",
     shell: "/bin/bash",
-    // Mounts folders to assigned paths
     mount_folders: {
       '.': "/azk/#{manifest.dir}",
       './mocker/nsswitch.conf': "/etc/nsswitch.conf",
       './mocker/resolver': "/etc/resolver",
     },
+    persistent_folders: ["/azk/build"],
+    envs: envs,
+  },
+
+  fedora: {
+    depends: ["dns"],
+    image: "azukiapp/libnss-resolver:fedora",
+    workdir: "/azk/#{manifest.dir}",
+    command: "# command to run app",
+    shell: "/bin/bash",
+    mount_folders: {
+      '.': "/azk/#{manifest.dir}",
+      './mocker/nsswitch.conf': "/etc/nsswitch.conf",
+      './mocker/resolver': "/etc/resolver",
+    },
+    persistent_folders: ["/azk/build"],
     envs: envs,
   },
 
