@@ -2,10 +2,14 @@
 
 ## v0.4.2-dev
 
+* Bug
+  * [Cmds] Fixing a `cd` bug in `docker` command.
+
 * Enhancements
   * [Cli] Adding support accumulate boolean options.
   * [Cmds] Adding support verbose mode for provision action.
   * [Cmds] Refactoring `start`, `stop`, `scale` and `reload` to show more powerfull mensagens..
+  * [Cmds] Adding alias `adocker` to `azk docker`.
 
 ## v0.4.1 (2014-04-08)
 

@@ -49,13 +49,17 @@ export function run(docker, Container, image, cmd, opts = { }) {
   });
 
   // Annotations
-  var Annotations = opts.annotations || { azk : {} };
-  Annotations.azk.type = Annotations.azk.type || "run";
+  var annotations = opts.annotations || { azk : {} };
+  annotations.azk.type = annotations.azk.type || "run";
 
   // Container name and envs
-  var name = opts.name || Container.serializeAnnotations(Annotations);
-  opts.env = opts.env  || {};
-  opts.env['AZK_NAME'] = name;
+  var name = opts.name || Container.serializeAnnotations(annotations);
+  var envs = _.merge(Container.envsFromAnnotations(annotations), {
+    AZK_NAME: name,
+     AZK_ENV: config('docker:namespace').split('.')[1],
+  })
+  opts.env = _.merge(envs, opts.env || {});
+
   var env  = _.reduce(opts.env, function(sum, value, key) {
     sum.push(key + "=" + value)
     return sum
