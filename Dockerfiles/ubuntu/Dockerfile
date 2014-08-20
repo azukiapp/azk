@@ -1,5 +1,5 @@
 FROM dockerfile/python
-MAINTAINER Everton Ribeiro <nuxlli@gmail.com>
+MAINTAINER Everton Ribeiro <everton@azukiapp.com>
 
 RUN apt-get update -y
 RUN apt-get install -y \
