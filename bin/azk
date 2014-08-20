@@ -12,7 +12,7 @@ unset DOCKER_HOST
 VERBOSE_ENABLED=0
 
 # OS
-UNFSD_INSTALL="Install unfs3 packaged before continue.";
+UNFSD_INSTALL="Install unfs3 package before continuing.";
 case `uname -s` in
   Linux)
     SO="linux"
@@ -27,7 +27,7 @@ case `uname -s` in
     SO="darwin"
     if [ -f "$(which brew)" ]; then
       BREW_PATH=`brew --prefix`
-      UNFSD_INSTALL="\`brew install unfs3\` before continue."
+      UNFSD_INSTALL="\`brew install unfs3\` before continuing."
       PATH=$BREW_PATH/sbin:$BREW_PATH/bin:$PATH
       export AZK_UNFSD_PATH=${AZK_UNFSD_PATH:-`which unfsd`}
     fi

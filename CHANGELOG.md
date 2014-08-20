@@ -1,11 +1,19 @@
 # Changelog
 
-## v0.4.2-dev
+## v0.5.0 - dev
+
+## v0.4.2 (2014-20-08)
+
+* Bug
+  * [Cmds] Fixing a `cd` bug in `docker` command.
 
 * Enhancements
   * [Cli] Adding support accumulate boolean options.
   * [Cmds] Adding support verbose mode for provision action.
   * [Cmds] Refactoring `start`, `stop`, `scale` and `reload` to show more powerfull mensagens..
+  * [Cmds] Adding alias `adocker` to `azk docker`.
+  * [Systems] Adding a variables `AZK_*` to expose azk environment informations.
+  * [Manifest] Adding support `wait` directive in system declaration.
 
 ## v0.4.1 (2014-04-08)
 

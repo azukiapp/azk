@@ -94,6 +94,10 @@ export class System {
   get scalable() {
     return this.options.scalable ? true : false;
   }
+  get wait_scale() {
+    var wait = this.options.wait;
+    return _.isEmpty(wait) && wait != false ? true : wait;
+  }
 
   // Ports and host
   get hostname() {

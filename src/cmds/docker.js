@@ -9,7 +9,8 @@ class Cmd extends Command {
 
   run_docker(opts) {
     return defer((resolve, reject) => {
-      var _path = this.docker.resolvePath(this.cwd);
+      var point = config('agent:vm:mount_point') + '.nfs';
+      var _path = this.docker.resolvePath(this.cwd, point);
       var args  = _.reduce(opts.__leftover, (args, arg) => {
         args.push(`\\"${arg}\\"`);
         return args;

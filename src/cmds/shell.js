@@ -60,7 +60,7 @@ class Cmd extends Command {
         opt = opt.split('=');
         result[opt[0]] = opt[1];
       } else {
-        this.fail('commands.shell.' + fail, { opt });
+        this.fail('commands.shell.' + fail, { value: opt });
         return 1;
       }
     }
