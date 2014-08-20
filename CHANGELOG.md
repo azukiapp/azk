@@ -10,6 +10,7 @@
   * [Cmds] Adding support verbose mode for provision action.
   * [Cmds] Refactoring `start`, `stop`, `scale` and `reload` to show more powerfull mensagens..
   * [Cmds] Adding alias `adocker` to `azk docker`.
+  * [Systems] Adding a variables `AZK_*` to expose azk environment informations.
 
 ## v0.4.1 (2014-04-08)
 

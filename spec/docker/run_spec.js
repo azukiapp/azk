@@ -128,7 +128,15 @@ describe("Azk docker module, run method @slow", function() {
       var data = yield container.inspect();
       h.expect(data).to.have.deep.property("State.Running", true);
 
-      var log = yield container.logs({stdout: true, stderr: true});
+      var log = "";
+      yield container.logs({stdout: true, stderr: true}).then((stream) => {
+        var stdout = {
+          write(data) { log += data.toString(); }
+        }
+        container.modem.demuxStream(stream, stdout, stdout);
+        return true;
+      });
+
       yield Q.delay(500);
       h.expect(log).to.match(new RegExp(h.escapeRegExp(`AZK_NAME=${data.Name.slice(1)}`), 'm'));
 
@@ -164,6 +172,26 @@ describe("Azk docker module, run method @slow", function() {
       h.expect(data).to.have.deep.property("Annotations.azk.uid").and.match(/^[0-9a-f]+$/);
       h.expect(data).to.have.deep.property("Annotations.azk.key1", "v1");
       h.expect(data).to.have.deep.property("Annotations.azk.key2", "v2");
+    });
+  });
+
+  it("should export annotations to env", function() {
+    return async(function* () {
+      var annotations = { azk: {
+        key1: "v1",
+        key2: "v2",
+        type: "daemon",
+      }};
+      var cmd  = ["/bin/true"];
+      var opts = { rm: false, stdout: mocks.stdout, annotations };
+      var cont = yield docker.run(default_img, cmd, opts);
+      var data = yield cont.inspect();
+
+      var envs = data.Config.Env;
+      h.expect(envs).to.include.something.that.match(/AZK_ENV=test/);
+      h.expect(envs).to.include.something.that.match(/AZK_UID=[0-9a-f]+/);
+      h.expect(envs).to.include.something.that.match(/AZK_KEY1=v1/);
+      h.expect(envs).to.include.something.that.match(/AZK_KEY2=v2/);
     });
   });
 

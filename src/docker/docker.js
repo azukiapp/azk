@@ -97,6 +97,14 @@ export class Container extends Utils.qify('dockerode/lib/container') {
       return annotations;
     }, { azk: {} });
   }
+
+  static envsFromAnnotations(annotations = { azk: {}}) {
+    return _.reduce(annotations.azk, (envs, value, key) => {
+      if (key == 'azk') key = "env";
+      envs[`AZK_${key.toUpperCase()}`] = value;
+      return envs;
+    }, {});
+  }
 }
 
 export class Docker extends Utils.qify('dockerode') {
