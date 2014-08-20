@@ -32,7 +32,7 @@ In order to automate the provisioning of development environments, `azk` uses pr
 
 ### Starting a new application project:
 
-If you are starting a new application project, you can already use `azk` to obtain the proper runtime as well the corresponding generators for your chosen language and then generate the application's basic strutucre. An example in node.js would look like this: 
+If you are starting a new application project, you can already use `azk` to obtain the proper runtime as well the corresponding generators for your chosen language and then generate the application's basic structure. An example in node.js would look like this: 
 
 ```bash
 $ cd ~/projects
@@ -49,7 +49,7 @@ $ azk up
 
 ### Taming an existing application project's development environment with `azk`:
 
-When you already have an application project going on and wants to use `azk` to streamline its development environment, all you have to do is as follows below:
+When you already have an application project going on and want to use `azk` to streamline its development environment, all you have to do is as follows:
 
 ```bash
 $ cd [my_application_folder]
