@@ -11,7 +11,7 @@ MAINTAINER="Everton Ribeiro <everton@azukiapp.com>"
 
 usage() {
   echo
-  echo "$0 [rpm|deb]"
+  echo "$0 [ubuntu|fedora]"
   echo
   echo "    Uses fpm to build a package"
   echo
@@ -27,19 +27,21 @@ azk_shell() {
 
 # options
 
-  pkg_type=$1
   fpm_extra_options=""
+  system="$1"
 
-  case $pkg_type in
-    rpm)
+  case $system in
+    fedora)
       prefix=usr/lib64
+      pkg_type=rpm
       fpm_extra_options=" \
         --rpm-use-file-permissions \
         --rpm-user root --rpm-group root \
       "
       ;;
-    deb)
+    ubuntu)
       prefix=usr/lib
+      pkg_type=deb
       fpm_extra_options=" \
         --deb-user root --deb-group root \
       "
@@ -53,12 +55,9 @@ azk_shell() {
 
 # build!
 
-  destdir=build/packages/$(echo "$pkg_type" | tr ' ' '_')
-
-  if [ "$destdir/$prefix" != "/" -a -d "$destdir/$prefix" ] ; then
-    rm -rf "$destdir/$prefix"
-  fi
-  azk_shell build "scons pack -Q pack_prefix=$destdir/$prefix"
+  destdir="build/${system}"
+  ( cd Dockerfiles/${system}; adocker build -t azukiapp/libnss-resolver:${system} . )
+  azk_shell $system "scons pack -Q pack_prefix=$destdir/$prefix"
   cp -Rf src/samples/* $destdir
 
 # package!
@@ -78,5 +77,5 @@ azk_shell() {
       ${fpm_extra_options} \
       --after-install scripts/after-install.sh \
       --after-remove scripts/after-remove.sh \
-      -f -C ${destdir} ${prefix} etc \
+      -f -p ${destdir} -C ${destdir} ${prefix} etc \
   "
