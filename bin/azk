@@ -17,10 +17,11 @@ case `uname -s` in
   Linux)
     SO="linux"
     export AZK_USE_VM=${AZK_USE_VM:-false}
-    export AZK_UNFSD_PATH=${AZK_UNFSD_PATH:-`which unfsd`}
 
     if [ "$AZK_USE_VM" == "false" ]; then
       export AZK_AGENT_VM_IP="${AZK_AGENT_VM_IP:-127.0.0.1}"
+    else
+      export AZK_UNFSD_PATH=${AZK_UNFSD_PATH:-`which unfsd 2>/dev/null`}
     fi
     ;;
   Darwin)
@@ -225,6 +226,7 @@ check_vm_ip() {
 }
 
 check_vm_key() {
+  [ "$AZK_USE_VM" == "false" ] && return 0;
   [ -f $AZK_AGENT_VM_KEY ]
 }
 
@@ -331,17 +333,19 @@ configure_vm_ip() {
 install() {
   log_i() { azk.escape -n "%{green}azk%{reset}: ${@}"; }
 
-  check_install "check_unfsd" "dependencies" || msg_depens 'unfsd' "$UNFSD_INSTALL"
+  if [ "$AZK_USE_VM" != "false" ]; then
+    check_install "check_unfsd" "dependencies" || msg_depens 'unfsd' "$UNFSD_INSTALL"
 
-  # Not configure or force configure
-  [[ "${@}" =~ --configure-ip ]] && { configure_vm_ip; } || {
-    check_install "check_vm_ip" "vm ip" $1 || { vm_ip_msg; configure_vm_ip; }
-  }
+    # Not configure or force configure
+    [[ "${@}" =~ --configure-ip ]] && { configure_vm_ip; } || {
+      check_install "check_vm_ip" "vm ip" $1 || { vm_ip_msg; configure_vm_ip; }
+    }
 
-  # Vm key
-  check_install "check_vm_key" "vm ssh key" || {
-    ssh-keygen -t rsa -f $AZK_AGENT_VM_KEY -N ''
-  }
+    # Vm key
+    check_install "check_vm_key" "vm ssh key" || {
+      ssh-keygen -t rsa -f $AZK_AGENT_VM_KEY -N ''
+    }
+  fi
 
   # Update azk code base
   [ "$1" == '--update' ] && {
@@ -355,6 +359,7 @@ install() {
   }
 
   # Load nvm
+  mkdir -p $NVM_DIR 2>/dev/null
   . $nvm_file
 
   check_install "check_node" "node" || {
