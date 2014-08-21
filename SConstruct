@@ -57,7 +57,7 @@ cares_file     = "%s/c-ares-%s.tar.gz" % (build_dir, cares_version)
 cares_folder   = "%s/c-ares-%s" % (build_dir, cares_version)
 
 cares_script = """
-  cd $SOURCE; if [ ! -f Makefile ]; then ./configure --disable-shared --enable-static --disable-dependency-tracking; fi
+  cd $SOURCE; if [ ! -f Makefile ]; then ./configure --disable-shared --enable-static --enable-symbol-hiding; fi
   cd $SOURCE; make;
   cp $SOURCE/.libs/libcares.a $TARGET;
 """
@@ -69,7 +69,8 @@ cares = env.Command("%s/libcares.a" % build_dir, cares_folder, Action(cares_scri
 # Library
 so = env.SharedLibrary("%s/libnss_resolver" % build_dir, Glob("src/*c"),
     LIBS      = [cares],
-    CFLAGS    = ("%s -I%s" % (DEBUG, cares_folder))
+    CFLAGS    = ("%s -I%s" % (DEBUG, cares_folder)),
+    LINKFLAGS = "-Wl,--no-as-needed -lrt",
 )
 
 install_dirs = {

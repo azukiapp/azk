@@ -28,9 +28,9 @@ var build_system = function(image) {
 
 // Adds the systems that shape your system
 systems({
-  ubuntu:   build_system("azukiapp/libnss-resolver:ubuntu"),
+  ubuntu14: build_system("azukiapp/libnss-resolver:ubuntu14"),
   ubuntu12: build_system("azukiapp/libnss-resolver:ubuntu12"),
-  fedora:   build_system("azukiapp/libnss-resolver:fedora"),
+  fedora20: build_system("azukiapp/libnss-resolver:fedora20"),
 
   package: {
     image: "azukiapp/fpm",

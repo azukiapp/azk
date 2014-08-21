@@ -11,7 +11,7 @@ MAINTAINER="Everton Ribeiro <everton@azukiapp.com>"
 
 usage() {
   echo
-  echo "$0 [ubuntu|ubuntu12|fedora]"
+  echo "$0 [ubuntu14|ubuntu12|fedora20]"
   echo
   echo "    Uses fpm to build a package"
   echo
@@ -29,9 +29,11 @@ azk_shell() {
 
   fpm_extra_options=""
   system="$1"
+  PKG="${system}-${PKG}"
 
   case $system in
-    fedora)
+    fedora20|centos7)
+      system="fedora20"
       prefix=usr/lib64
       pkg_type=rpm
       fpm_extra_options=" \
@@ -39,7 +41,7 @@ azk_shell() {
         --rpm-user root --rpm-group root \
       "
       ;;
-    ubuntu|ubuntu12)
+    ubuntu12|ubuntu14)
       prefix=usr/lib
       pkg_type=deb
       fpm_extra_options=" \
@@ -77,5 +79,5 @@ azk_shell() {
       ${fpm_extra_options} \
       --after-install scripts/after-install.sh \
       --after-remove scripts/after-remove.sh \
-      -f -p ${destdir} -C ${destdir} ${prefix} etc \
+      -f -p build -C ${destdir} ${prefix} etc \
   "
