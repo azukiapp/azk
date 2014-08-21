@@ -68,7 +68,7 @@ $ dnsmaqs -p 5353 --no-daemon --address=/test.dev/127.0.0.1
 Now you can try this:
 
 ```bash
-$ ping sufix
+# ping sufix
 $ ping test.dev 
 # or any "subdomain"
 $ ping any.test.dev
