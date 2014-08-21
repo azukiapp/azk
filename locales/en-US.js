@@ -242,6 +242,7 @@ module.exports = {
       // TODO not_running
       not_runnig   : "virtual machine is not running, try `azk vm start`.",
       error        : "vm error: %(error)s.",
+      not_requires : "this system not requires virtual machine, to try force this behavior set `AZK_USE_VM=true`",
     }
   },
 

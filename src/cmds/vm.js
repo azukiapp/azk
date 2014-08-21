@@ -1,4 +1,4 @@
-import { Q, _, config, async } from 'azk';
+import { Q, _, config, async, t } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
 import { Server } from 'azk/agent/server';
 import { VM } from 'azk/agent/vm';
@@ -25,6 +25,11 @@ class VmCmd extends Command {
   }
 
   action(opts) {
+    if (!config('agent:requires_vm')) {
+      this.fail('commands.vm.not_requires');
+      return 1;
+    }
+
     return async(this, function* () {
       var action  = opts.action;
       var vm_name = config("agent:vm:name");
@@ -110,7 +115,9 @@ class VmCmd extends Command {
 }
 
 export function init(cli) {
-  (new VmCmd('vm {action}', cli))
-    .setOptions('action', { options: ['install', 'installed', 'start', 'status', 'stop', 'remove', 'reload'] });
+  if (config('agent:requires_vm')) {
+    (new VmCmd('vm {action}', cli))
+      .setOptions('action', { options: ['install', 'installed', 'start', 'status', 'stop', 'remove', 'reload'] });
+  }
 }
 
