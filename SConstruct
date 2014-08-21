@@ -85,10 +85,10 @@ for k,v in install_dirs.items():
     globals()['so_' + k] = build
 
 # Test
-env['ENV']['TEST_DNS_PORT']   = os.environ['DNS_DNS_PORT']
-env['ENV']['TEST_DNS_HOST']   = os.environ['DNS_DNS_HOST']
-env['ENV']['TEST_DNS_IP']     = os.environ['DNS_IP']
-env['ENV']['TEST_DOMAIN']     = os.environ['DNS_DOMAIN']
+env['ENV']['TEST_DNS_PORT']   = os.environ.get('DNS_DNS_PORT', None)
+env['ENV']['TEST_DNS_HOST']   = os.environ.get('DNS_DNS_HOST', None)
+env['ENV']['TEST_DNS_IP']     = os.environ.get('DNS_IP', None)
+env['ENV']['TEST_DOMAIN']     = os.environ.get('DNS_DOMAIN', None)
 env['ENV']['TEST_FIXTURES']   = os.getcwd() + '/test/fixtures/'
 env['ENV']['VALGRIND_OPTS']   = ARGUMENTS.get('valgrind', '')
 env['ENV']['LD_LIBRARY_PATH'] = '/usr/local/lib'
