@@ -30,8 +30,10 @@ var Server = {
   stop() {
     return async(this, function* () {
       yield this.removeBalancer();
-      yield this.stopVM();
-      yield this.removeShare();
+      if (config('agent:requires_vm')) {
+        yield this.stopVM();
+        yield this.removeShare();
+      }
     });
   },
 
