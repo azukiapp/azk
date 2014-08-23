@@ -293,6 +293,7 @@ export class System {
       envs: {},
       ports: {},
       sequencies: {},
+      docker: null,
     });
 
     // Map ports to docker configs: ports and envs
@@ -317,6 +318,7 @@ export class System {
       working_dir: options.workdir || this.workdir,
       env: envs,
       dns: net.nameServers(),
+      docker: options.docker || this.options.docker_extra || null,
       annotations: { azk: {
         type : type,
         mid  : this.manifest.namespace,

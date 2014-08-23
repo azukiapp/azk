@@ -48,6 +48,36 @@ describe("Azk system class, scale set", function() {
       });
     });
 
+    it("should by default remove the instance after stopping the same", function() {
+      var db = manifest.system('db');
+      return async(this, function* () {
+        var result    = yield db.scale(1);
+        var instances = yield db.instances();
+
+        h.expect(instances).to.length(1);
+        var id = instances[0].Id;
+
+        yield db.scale(0);
+        result = yield docker.findContainer(id);
+        h.expect(result).to.null;
+      });
+    });
+
+    it("should skip remove the instance", function() {
+      var db = manifest.system('db');
+      return async(this, function* () {
+        var result    = yield db.scale(1);
+        var instances = yield db.instances();
+
+        h.expect(instances).to.length(1);
+        var id = instances[0].Id;
+
+        yield db.scale(0, { remove: false });
+        result = yield docker.findContainer(id);
+        h.expect(result).to.not.null;
+      });
+    });
+
     describe("with dependencies is run", function() {
       it("should scale a system with dependencies", function() {
         return async(this, function* () {

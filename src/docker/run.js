@@ -15,7 +15,8 @@ function new_resize(container) {
 }
 
 export function run(docker, Container, image, cmd, opts = { }) {
-  var container = null;
+  var container   = null;
+  var docker_opts = opts.docker || { start: {}, create: {} };
 
   opts.stdout = opts.stdout || process.stdout;
   opts.stderr = opts.stderr || opts.stdout;
@@ -82,7 +83,7 @@ export function run(docker, Container, image, cmd, opts = { }) {
   }
 
   return async(docker, function* (notify) {
-    container = yield this.createContainer(optsc);
+    container = yield this.createContainer(_.merge(optsc, docker_opts.create || {}));
 
     var c_notify = (type) => {
       return notify({ type, context: "container_run", id: container.id });
@@ -132,7 +133,13 @@ export function run(docker, Container, image, cmd, opts = { }) {
     }
 
     // Start container
-    yield container.start({ "Binds": v_binds, PortBindings: p_binds, Dns: nameservers });
+    var start_opts = {
+      Dns: nameservers,
+      Binds: v_binds,
+      PortBindings: p_binds,
+    };
+
+    yield container.start(_.merge(start_opts, docker_opts.start || {}));
     c_notify("started");
 
     if (!daemon) {

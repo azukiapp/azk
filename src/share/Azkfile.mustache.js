@@ -74,6 +74,23 @@ systems({
       {{&hash_key @key}}: "{{&this}}",{{/each}}
     },
     {{~/if}}
+    {{~#if docker_extra}}
+    docker_extra: {
+      // extra docker options
+      {{~#if docker_extra.create }}
+      create: {
+        {{~#each docker_extra.create }}
+        {{&hash_key @key}}: "{{&json this}}",{{/each}}
+      },
+      {{~/if}}
+      {{~#if docker_extra.start }}
+      start: {
+        {{~#each docker_extra.start }}
+        {{&hash_key @key}}: "{{&json this}}",{{/each}}
+      },
+      {{~/if}}
+    },
+    {{~/if}}
   },{{/each}}
 });
 

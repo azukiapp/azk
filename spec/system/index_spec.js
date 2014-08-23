@@ -215,7 +215,13 @@ describe("Azk system class, main set", function() {
       });
 
       it("should extract options from image_data", function() {
-        var system = manifest.system("test-image-opts");
+        var system  = manifest.system("mount-test");
+        var options = system.daemonOptions();
+        h.expect(options).to.have.deep.property("docker.start.Privileged", 'true');
+      });
+
+      it("should extract extra docker parameters", function() {
+        var system = manifest.system('mount-test');
         return system.image.check().then((image) => {
           return image.inspect().then((image_data) => {
             var options = system.daemonOptions({ image_data });

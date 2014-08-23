@@ -89,6 +89,9 @@ export function extend(h) {
               ".": "/azk/#{system.name}",
               "..": "/azk/root",
             },
+            docker_extra: {
+              start: { Privileged: true }
+            }
           },
           'expand-test': {
             up: false,
