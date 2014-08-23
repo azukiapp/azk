@@ -2,6 +2,12 @@
 
 ## v0.5.0 - dev
 
+* Bug
+  * [Cmds] Fixing the passing of parameters to the docker in `adocker`.
+
+* Enhancements
+  * [Manifest] Adding support `docker_extra`
+
 ## v0.4.2 (2014-20-08)
 
 * Bug
