@@ -74,6 +74,7 @@ class Cmd extends VerboseCmd {
 
     var options = {
       provision_force: opts.reprovision || false,
+      remove: opts.remove,
     };
 
     this.verbose_msg(1, () => {
@@ -90,6 +91,7 @@ class Cmd extends VerboseCmd {
 
 export { Cmd };
 export function init(cli) {
-  (new Cmd('scale [system] [to]', cli));
+  (new Cmd('scale [system] [to]', cli))
+    .addOption(['--remove', '-r'], { default: true });
 }
 

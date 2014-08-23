@@ -44,7 +44,7 @@ var Scale = {
         }
       } else if (icc < 0) {
         containers = containers.reverse().slice(0, Math.abs(icc));
-        yield system.stop(containers, { rm: true });
+        yield system.stop(containers, options);
       }
 
       return icc;

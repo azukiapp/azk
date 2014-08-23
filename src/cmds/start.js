@@ -54,7 +54,8 @@ export function init(cli) {
   var cmds = [
     (new Cmd('start [system]' , cli))
       .addOption(['--reprovision', '-R'], { default: false }),
-    (new Cmd('stop [system]'  , cli)),
+    (new Cmd('stop [system]'  , cli))
+      .addOption(['--remove', '-r'], { default: true }),
     (new Cmd('reload [system]', cli))
       .addOption(['--reprovision', '-R'], { default: true }),
   ];
