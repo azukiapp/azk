@@ -9,14 +9,46 @@ var config = require('azk').config;
 
 systems({
 
-  grunt: {
-    image: "dockerfile/nodejs",
-    workdir: "/azk/<%= manifest.dir %>",
+  agent: {
+    image: "azukiapp/dind",
+    provision: [
+      "azk check-install",
+    ],
+    scale: false,
+    workdir: "/azk/#{manifest.dir}",
+    shell: "/usr/local/bin/wrapdocker",
     mount_folders: {
-      ".": "/azk/<%= manifest.dir %>",
+      ".": "/azk/#{manifest.dir}",
+    },
+    persistent_folders: [
+      "/azk/#{manifest.dir}/node_modules",
+      "/azk/data",
+      "/var/lib/docker",
+    ],
+    ports: {
+      azk_balancer: "8080/tcp",
     },
     envs: {
-      PATH: "/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/azk/<%= manifest.dir %>/node_modules/.bin"
+      PATH: "/azk/#{manifest.dir}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+      AZK_DATA_PATH: "/azk/data",
+      AZK_DOCKER_NS    : "azk.linux",
+      AZK_BALANCER_IP  : '127.0.0.1',
+      AZK_BALANCER_PORT: 8080,
+      LOG: "file",
+    },
+    docker_extra: {
+      start: { Privileged: true },
+    }
+  },
+
+  grunt: {
+    image: "dockerfile/nodejs",
+    workdir: "/azk/#{manifest.dir}",
+    mount_folders: {
+      ".": "/azk/#{manifest.dir}",
+    },
+    envs: {
+      PATH: "/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/azk/#{manifest.dir}/node_modules/.bin"
     }
   },
 
@@ -38,7 +70,8 @@ systems({
 
   dns: {
     image: config("docker:image_default"),
-    command: "dnsmasq --no-daemon --address=/<%= azk.default_domain %>/<%= azk.balancer_ip %>",
+    command: "dnsmasq -p $DNS_PORT --no-daemon --address=/#{azk.default_domain}/#{azk.balancer_ip}",
+    wait: false,
     ports: {
       dns: "53:53/udp",
     }
@@ -48,7 +81,7 @@ systems({
     image: config("docker:image_default"),
     command: "socat TCP4-LISTEN:$HTTP_PORT,fork TCP:$BALANCER_IP:$BALANCER_PORT",
     ports: {
-      http: "80:<%= azk.balancer_port %>/tcp",
+      http: "80:#{azk.balancer_port}/tcp",
     }
   },
 });
