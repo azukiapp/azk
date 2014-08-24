@@ -66,19 +66,23 @@ var Helpers = {
 // In specs the virtual machine is required
 before(() => {
   console.log(t('test.before'));
-  console.log(`  ${t('test.check_vm')}`);
 
-  var vm_name = config("agent:vm:name");
-  return Q.async(function* () {
-    var installed = yield VM.isInstalled(vm_name);
-    var running   = (installed) ? yield VM.isRunnig(vm_name) : false;
+  // Skip if not require vm
+  if (config('agent:requires_vm')) {
+    console.log(`  ${t('test.check_vm')}`);
 
-    if (!installed) {
-      throw new Error(t("commands.vm.not_installed"));
-    } else if (!running) {
-      throw new Error(t("commands.vm.not_runnig"));
-    }
-  })();
+    var vm_name = config("agent:vm:name");
+    return Q.async(function* () {
+      var installed = yield VM.isInstalled(vm_name);
+      var running   = (installed) ? yield VM.isRunnig(vm_name) : false;
+
+      if (!installed) {
+        throw new Error(t("commands.vm.not_installed"));
+      } else if (!running) {
+        throw new Error(t("commands.vm.not_runnig"));
+      }
+    })();
+  }
 });
 
 // Helpers
