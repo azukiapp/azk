@@ -413,7 +413,8 @@ install() {
 
 azk_node_run() {
   check_depedencies $1
-  cd $AZK_ROOT_PATH && node $NODE_DEBUG --harmony $AZK_ROOT_PATH/bin/azk.js "${@}"
+  cd $AZK_ROOT_PATH
+  exec node $NODE_DEBUG --harmony $AZK_ROOT_PATH/bin/azk.js "${@}"
 }
 
 azk_main() {
