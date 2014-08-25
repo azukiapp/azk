@@ -249,14 +249,28 @@ export class System {
       }
 
       // ExposedPorts
-      _.each(config.ExposedPorts, (config, port) => {
-        var have = _.find(options.ports, (value, key) => {
+      var ports = _.reduce(options.ports, (ports, value, key) => {
+        if (value == null) { value = `${key}/tcp`; }
+        ports[key] = value;
+        return ports;
+      }, {});
+
+      _.each(config.ExposedPorts, (_config, port) => {
+        var have = _.find(ports, (value, key) => {
           return value.match(new RegExp(`${parseInt(port)}\/(tcp|udp)$`));
         });
 
         if (!have) { options.ports[port] = port; }
       });
     }
+
+    // Clear null ports
+    options.ports = _.reduce(options.ports, (ports, value, key) => {
+      if (value != null) {
+        ports[key] = value;
+      }
+      return ports;
+    }, {});
 
     return this._make_options(true, options);
   }
@@ -348,6 +362,9 @@ export class System {
   // Parse azk ports configs
   _parse_ports(ports) {
     return _.reduce(ports, (ports, port, name) => {
+      // skip disable
+      if (port == null) return ports;
+
       port = XRegExp.exec(port, regex_port);
       port.protocol = port.protocol || "tcp";
 

@@ -20,6 +20,7 @@ class Cmd extends Command {
             depends: system.options.depends,
             image: system.image.name,
             command: this._format_command(system.command),
+            ports: system.ports,
           }
         }
         this.output(prettyjson.render(data, options));

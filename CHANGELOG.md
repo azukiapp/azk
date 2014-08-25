@@ -7,6 +7,7 @@
 
 * Enhancements
   * [Manifest] Adding support `docker_extra`
+  * [Manifest] Adding support to 'disable' value in ports.
 
 ## v0.4.2 (2014-20-08)
 

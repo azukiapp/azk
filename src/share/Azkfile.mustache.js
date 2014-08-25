@@ -57,7 +57,7 @@ systems({
     ports: {
       // exports global variables
       {{~#each ports}}
-      {{&hash_key @key}}: "{{this}}",{{/each}}
+      {{&hash_key @key}}: {{&json this}},{{/each}}
     },
     {{~/if}}
     {{~#if envs}}

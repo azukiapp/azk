@@ -171,6 +171,20 @@ describe("Azk system class, main set", function() {
         });
       });
 
+      it("should disable image ports with option `disable'", function() {
+        var system = manifest.system('ports-disable');
+        return system.image.check().then((image) => {
+          return image.inspect().then((image_data) => {
+            var options = system.daemonOptions({ image_data });
+
+            h.expect(options).to.deep.have.property("ports.80/tcp").and.eql([{
+              HostIp: config('agent:dns:ip')
+            }]);
+            h.expect(options).to.have.property("ports").and.not.have.property("53/udp");
+          });
+        });
+      });
+
       it("should support custom ports", function() {
         var custom = {
           ports: {

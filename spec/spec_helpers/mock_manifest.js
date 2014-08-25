@@ -82,6 +82,13 @@ export function extend(h) {
               test_public: "443:443/tcp",
             },
           },
+          'ports-disable': {
+            image: default_img,
+            ports: {
+              test_tcp: "80/tcp",
+              53: null,
+            },
+          },
           'mount-test': {
             up: false,
             image: default_img,

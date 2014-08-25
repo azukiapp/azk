@@ -14,6 +14,7 @@ var tsort     = require('gaia-tsort');
 var ManifestDsl = {
   require: require,
   env: process.env,
+  disable: null,
 
   system(name, data) {
     this.addSystem(name, data);
