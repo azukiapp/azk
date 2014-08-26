@@ -43,6 +43,10 @@ function merge(options) {
   return options;
 }
 
+var persistent_folders = requires_vm ?
+  '/mnt/sda1/azk/persistent_folders' :
+  path.join(data_path, 'persistent_folders');
+
 var options = merge({
   '*': {
     manifest: "Azkfile.js",
@@ -53,7 +57,7 @@ var options = merge({
       data  : data_path,
       log   : path.join(data_path, 'logs', 'azk.log'),
 
-      persistent_folders: path.join(data_path, 'persistent_folders'),
+      persistent_folders: persistent_folders,
 
       agent_pid: path.join(data_path, 'run', 'agent.pid'),
       unfsd_pid: path.join(data_path, 'run', 'unfsd.pid'),
@@ -100,7 +104,6 @@ var options = merge({
         blank_disk : path.join(data_path, "vm", "azk-agent.vmdk.bz"),
         mount_point: '/home/docker/files',
         authorized_key: '/home/docker/.ssh/authorized_keys',
-        persistent_folders: '/mnt/sda1/azk/persistent_folders',
       }
     }
   },

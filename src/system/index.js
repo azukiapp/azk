@@ -211,8 +211,7 @@ export class System {
 
   get persistent_volumes() {
     var folders = {};
-    var key  = config('agent:requires_vm') ? 'agent:vm' : 'paths';
-    var base = config(key + ':persistent_folders');
+    var base = config('paths:persistent_folders');
 
     return _.reduce(this.options.persistent_folders, (folders, folder) => {
       var origin = path.join(base, this.manifest.namespace, this.name, folder);
