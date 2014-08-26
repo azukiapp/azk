@@ -25,15 +25,13 @@ systems({
       "/azk/data",
       "/var/lib/docker",
     ],
-    ports: {
-      azk_balancer: "8080/tcp",
-    },
     envs: {
       PATH: "/azk/#{manifest.dir}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
       AZK_DATA_PATH: "/azk/data",
+      AZK_BALANCER_HOST: "azk.linux",
       AZK_DOCKER_NS    : "azk.linux",
-      AZK_BALANCER_IP  : '127.0.0.1',
       AZK_BALANCER_PORT: 8080,
+      //EXTRA_ARGS       : "-H tcp://0.0.0.0:2375 -H unix://",
       LOG: "file",
     },
     docker_extra: {
@@ -74,14 +72,16 @@ systems({
     wait: false,
     ports: {
       dns: "53:53/udp",
+      80: disable,
     }
   },
 
   'balancer-redirect': {
     image: config("docker:image_default"),
-    command: "socat TCP4-LISTEN:$HTTP_PORT,fork TCP:$BALANCER_IP:$BALANCER_PORT",
+    command: "env; socat TCP4-LISTEN:$HTTP_PORT,fork TCP:$BALANCER_IP:$BALANCER_PORT",
     ports: {
-      http: "80:#{azk.balancer_port}/tcp",
+      http: "#{azk.balancer_port}:#{azk.balancer_port}/tcp",
+      53: disable,
     }
   },
 });

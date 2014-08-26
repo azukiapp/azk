@@ -16,16 +16,26 @@ UNFSD_INSTALL="Install unfs3 package before continuing.";
 case `uname -s` in
   Linux)
     SO="linux"
+    DNS_SEPARATOR=":"
+
+    # Force vm use?
     export AZK_USE_VM=${AZK_USE_VM:-false}
 
+    LIBNSS_INSTALL="Install libnss-resolver before continue, instructions: http://git.io/-r08fg"
     if [ "$AZK_USE_VM" == "false" ]; then
-      export AZK_AGENT_VM_IP="${AZK_AGENT_VM_IP:-127.0.0.1}"
+      DOCKER_INSTALL="\`install docker\` before continuing."
+      export AZK_DOCKER_PATH=${AZK_DOCKER_PATH:-`which docker 2>/dev/null`}
     else
       export AZK_UNFSD_PATH=${AZK_UNFSD_PATH:-`which unfsd 2>/dev/null`}
     fi
     ;;
   Darwin)
     SO="darwin"
+    DNS_SEPARATOR="."
+
+    # Default use vm
+    export AZK_USE_VM=${AZK_USE_VM:-true}
+
     if [ -f "$(which brew)" ]; then
       BREW_PATH=`brew --prefix`
       UNFSD_INSTALL="\`brew install unfs3\` before continuing."
@@ -33,13 +43,13 @@ case `uname -s` in
       export AZK_UNFSD_PATH=${AZK_UNFSD_PATH:-`which unfsd`}
     fi
     export AZK_UNFSD_PATH=${AZK_UNFSD_PATH:-`which unfsd`}
-    export AZK_USE_VM=${AZK_USE_VM:-true}
     ;;
   *)
     echo "azk: System not supported (see http://azk.io)";
     exit 1;
 esac
 
+# Set a internals paths
 export PATH=/usr/bin:/bin:/usr/sbin
 export PATH=$AZK_ROOT_PATH/bin:$PATH
 export PATH=$AZK_ROOT_PATH/node_modules/.bin:$PATH
@@ -48,17 +58,20 @@ export PATH=$AZK_ROOT_PATH/node_modules/.bin:$PATH
 export AZK_CURRENT_SYSTEM="${AZK_CURRENT_SYSTEM:-`pwd`}"
 [ -n "$NODE_DEBUG" ] && { export NODE_DEBUG="--debug-brk"; }
 
+# Node load paths
 export NODE_PATH=$AZK_ROOT_PATH
 export NODE_PATH=$AZK_ROOT_PATH/node_modules:$NODE_PATH
 export NODE_PATH=$AZK_ROOT_PATH/lib:$NODE_PATH
 
 agent_ip() {
-  cat /etc/resolver/$AZK_BALANCER_HOST 2>/dev/null | awk '{ print $2 }'
+  cat /etc/resolver/$AZK_BALANCER_HOST 2>/dev/null | grep -Eo '([0-9]{1,3}\.){3}[0-9]{1,3}'
 }
 
 # Configure NVM and VM
 export AZK_DATA_PATH=${AZK_DATA_PATH:-$AZK_ROOT_PATH/data}
 export AZK_BALANCER_HOST="${AZK_BALANCER_HOST:-azk.dev}"
+export AZK_DOCKER_NS="${AZK_DOCKER_NS:-azk.dev}"
+export AZK_DNS_PORT="${AZK_DNS_PORT:-53}"
 export NVM_DIR=$AZK_DATA_PATH/nvm
 export VM_DISK_PATH=$AZK_DATA_PATH/vm
 export AZK_BOOT_FILE=$VM_DISK_PATH/azk.iso
@@ -103,22 +116,6 @@ azk.escape() {
 
 azk.escape_clear() {
   echo "$@" | sed "s/%{[a-z]*}//g;"
-}
-
-azk.valid_ip() {
-  local ip=$1
-  local stat=1
-
-  if [[ $ip =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
-    OIFS=$IFS
-    IFS='.'
-    ip=($ip)
-    IFS=$OIFS
-    [[ ${ip[0]} -le 255 && ${ip[1]} -le 255 \
-        && ${ip[2]} -le 255 && ${ip[3]} -le 255 ]]
-    stat=$?
-  fi
-  return $stat
 }
 
 azk=$AZK_ROOT_PATH/bin/azk
@@ -193,6 +190,11 @@ check_unfsd() {
   [ -n "$AZK_UNFSD_PATH" ]
 }
 
+check_docker() {
+  [ "$AZK_USE_VM" == "true" ] && return 0;
+  [ -n "$AZK_DOCKER_PATH" ]
+}
+
 check_integrity() {
   [ -f $1 ] && {
     actual_version=`shasum --portable $1 | awk '{ print $1 }'`
@@ -220,7 +222,6 @@ check_data_disk() {
 
 check_vm_ip() {
   [ -n "$AZK_AGENT_VM_IP" ] && return 0;
-  [ "$AZK_USE_VM" == "false" ] && return 0;
   [ "$1" == "version" ] && return 0;
   return 1;
 }
@@ -228,6 +229,10 @@ check_vm_ip() {
 check_vm_key() {
   [ "$AZK_USE_VM" == "false" ] && return 0;
   [ -f $AZK_AGENT_VM_KEY ]
+}
+
+check_libnss() {
+  grep -qe "^hosts:.*\sresolver$" -e "^hosts:.*\sresolver\s" /etc/nsswitch.conf
 }
 
 # Check for depedencies
@@ -241,11 +246,19 @@ msg_depens() {
 check_depedencies() {
   check_data_folders
 
-  check_vm_ip $1 || msg_depens "virtual machine ip"
-  check_vm_key   || msg_depens "virtual machine ssh key"
-  check_unfsd    || msg_depens 'unfsd' "$UNFSD_INSTALL"
-  check_node     || msg_depens node
-  check_npm      || msg_depens 'node dependencies'
+  if [ "$AZK_USE_VM" != "false" ]; then
+    check_vm_ip $1 || msg_depens "virtual machine ip"
+    check_vm_key   || msg_depens "virtual machine ssh key"
+    check_unfsd    || msg_depens 'unfsd' "$UNFSD_INSTALL"
+  else
+    check_docker   || msg_depens 'docker' "$DOCKER_INSTALL"
+    check_libnss   || msg_depens 'libnss-resolver' "$LIBNSS_INSTALL"
+    check_vm_ip $1 || msg_depens "local domain (${AZK_BALANCER_HOST})"
+  fi
+
+  # Node checks
+  check_node || msg_depens node
+  check_npm  || msg_depens 'node dependencies'
 
   if [ "$AZK_USE_VM" != "false" ]; then
     check_data_disk || msg_depens 'initial data disk'
@@ -307,16 +320,28 @@ vm_ip_msg() {
   echo ""
 }
 
+azk_domain_msg() {
+  echo ""
+  azk.escape "Sobre a configuração de um domínio"
+  echo ""
+}
+
 configure_vm_ip() {
   [ "$1" != "retry" ] && check_agent_is_running
 
-  default_ip="${AZK_AGENT_VM_IP:-192.168.50.4}"
-  msg="$(azk.escape "Enter the vm ip: (default: %{yellow}${default_ip}%{reset}): ")"
-  read -p "$msg" ip
+  if [ "$AZK_USE_VM" != "false" ]; then
+    default_ip="${AZK_AGENT_VM_IP:-192.168.50.4}"
+    msg="$(azk.escape "Enter the vm ip: (default: %{yellow}${default_ip}%{reset}): ")"
+    read -p "$msg" ip
+  else
+    default_ip=`/sbin/ifconfig docker0 | grep "inet addr" | awk -F: '{print $2}' | awk '{print $1}'`
+  fi
 
   ip=${ip:-$default_ip}
   if [[ $ip =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
     file=/etc/resolver/$AZK_BALANCER_HOST
+    ip="${default_ip}${DNS_SEPARATOR}${AZK_DNS_PORT}"
+
     azk.escape "Adding %{yellow}${ip}%{reset} to $file ...";
     set -x
     sudo mkdir -p /etc/resolver 2>/dev/null
@@ -325,7 +350,7 @@ configure_vm_ip() {
     set +x
     echo ""
   else
-    azk.escape "$azk_fail: %{yellow}${ip}%{reset} is a invalid v4 ip, try again.";
+    [ "$AZK_USE_VM" != "false" ] && azk.escape "$azk_fail: %{yellow}${ip}%{reset} is a invalid v4 ip, try again.";
     configure_vm_ip retry;
   fi
 }
@@ -344,6 +369,17 @@ install() {
     # Vm key
     check_install "check_vm_key" "vm ssh key" || {
       ssh-keygen -t rsa -f $AZK_AGENT_VM_KEY -N ''
+    }
+  else
+    # Without vm
+    check_install "check_docker" "docker" || msg_depens 'docker' "$DOCKER_INSTALL"
+
+    # Require libnnss-resolver
+    check_install "check_libnss" "dependencies" || msg_depens 'libnss-resolver' "$LIBNSS_INSTALL"
+
+    # Not configure or force configure
+    [[ "${@}" =~ --configure-ip ]] && { configure_vm_ip; } || {
+      check_install "check_vm_ip" "local domain (${AZK_BALANCER_HOST})" $1 || { azk_domain_msg; configure_vm_ip; }
     }
   fi
 
@@ -442,6 +478,14 @@ azk_main() {
         ssh_opts="StrictHostKeyChecking=no -o LogLevel=quiet -o UserKnownHostsFile=/dev/null"
           vm_url="docker@$AZK_AGENT_VM_IP"
         shift 2; exec ssh -i $AZK_AGENT_VM_KEY -o $ssh_opts $vm_url $*
+      else
+        azk_node_run "${@}"
+      fi
+      ;;
+    docker)
+      if [ "$AZK_USE_VM" == "false" ]; then
+        shift;
+        exec docker "${@}"
       else
         azk_node_run "${@}"
       fi
