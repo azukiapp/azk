@@ -33,12 +33,12 @@ describe("Azk docker module, image pull @slow", function() {
   });
 
   it("should raise error to not found image", function() {
-    return h.expect(docker.pull('not_found', 'not_exist'))
-      .to.be.rejectedWith(ProvisionNotFound);
+    var result = docker.pull('not_found', 'not_exist');
+    return h.expect(result).to.be.rejectedWith(ProvisionNotFound);
   });
 
   it("should raise error to internal error", function() {
-    return h.expect(docker.pull('http://127.0.0.1/invalid', 'not_exist'))
-      .to.be.rejectedWith(Error, /500/);
+    var result = docker.pull('http://127.0.0.1/invalid', 'not_exist');
+    return h.expect(result).to.be.rejectedWith(Error, /500/);
   });
 });
