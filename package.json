@@ -67,23 +67,22 @@
     "memory-streams": "0.0.3"
   },
   "devDependencies": {
+    "chai": "^1.9.1",
+    "chai-as-promised": "^4.1.1",
+    "chai-things": "^0.2.0",
+    "fixture-stdout": "^0.2.1",
     "grunt": "^0.4.4",
     "grunt-cli": "^0.1.13",
     "grunt-contrib-watch": "^0.6.1",
-    "grunt-mocha-test": "^0.10.0",
-    "grunt-traceur": "git+https://github.com/nuxlli/grunt-traceur",
-    "grunt-newer": "^0.7.0",
     "grunt-env": "^0.4.1",
+    "grunt-mocha-test": "^0.10.0",
+    "grunt-newer": "^0.7.0",
     "grunt-node-inspector": "^0.1.5",
-    "load-grunt-tasks": "^0.6.0",
+    "grunt-traceur": "git+https://github.com/nuxlli/grunt-traceur",
     "keypress": "~0.2.1",
-    "chai": "~1.9.0",
-    "mocha": "~1.17.1",
-    "mocha-as-promised": "~2.0.0",
-    "chai-as-promised": "~4.1.0",
-    "chai-things": "^0.2.0",
-    "tmp": "0.0.23",
+    "load-grunt-tasks": "^0.6.0",
+    "mocha": "^1.21.4",
     "node-inspector": "~0.7.2",
-    "fixture-stdout": "^0.2.1"
+    "tmp": "0.0.23"
   }
 }

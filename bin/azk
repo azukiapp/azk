@@ -80,7 +80,7 @@ export AZK_AGENT_VM_IP="${AZK_AGENT_VM_IP:-`agent_ip $AZK_AGENT_VM_NAME`}"
 export AZK_AGENT_VM_KEY="${VM_DISK_PATH}/azkvm_rsa"
 
 # local
-node_version="${NODE_VERSION:-v0.10.26}"
+node_version="${NODE_VERSION:-v0.10.31}"
 nvm_file=$AZK_ROOT_PATH/vendor/bin/nvm.sh
 aws_bucket=https://s3-sa-east-1.amazonaws.com/azk
 data_url=$aws_bucket/azk-agent.vmdk.gz

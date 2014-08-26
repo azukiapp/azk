@@ -12,9 +12,9 @@ var qfs   = require('q-io/fs');
 var touch = require('touch');
 
 // Chai extensions
-require("mocha-as-promised")();
 chai.use(require('chai-as-promised'));
 chai.use(require('chai-things'));
+chai.config.includeStack = true
 
 import capture_io from 'azk/utils/capture_io'
 var MemoryStream  = require('memorystream');
