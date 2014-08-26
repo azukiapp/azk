@@ -1,0 +1,7 @@
+#!/bin/bash
+
+echo "Configure azk in this machine"
+azk check-install
+
+echo "Starting azk agent"
+azk agent start
