@@ -89,7 +89,7 @@ describe("Azk system class, main set", function() {
         var system  = manifest.system("db");
         var volumes = system.persistent_volumes;
         var folder  = path.join(
-          config("agent:vm:persistent_folders"),
+          config("paths:persistent_folders"),
           manifest.namespace, system.name, "data"
         );
         h.expect(volumes).to.have.property(folder, "/data");

@@ -3,7 +3,9 @@ require('source-map-support').install();
 import { Q, Azk, pp, _, config, t, async } from 'azk';
 import Utils from 'azk/utils';
 import { set as configSet } from 'azk/config';
-import { VM } from 'azk/agent/vm';
+//import { VM } from 'azk/agent/vm';
+import { Client } from 'azk/agent/client';
+import { AgentNotRunning } from 'azk/utils/errors';
 
 var chai  = require('chai');
 var tmp   = require('tmp');
@@ -60,6 +62,10 @@ var Helpers = {
 
   escapeRegExp(...args) {
     return Utils.escapeRegExp(...args);
+  },
+
+  describeSkipVm(...args) {
+    return config('agent:requires_vm') ? describe(...args) : describe.skip(...args);
   }
 }
 
@@ -67,22 +73,11 @@ var Helpers = {
 before(() => {
   console.log(t('test.before'));
 
-  // Skip if not require vm
-  if (config('agent:requires_vm')) {
-    console.log(`  ${t('test.check_vm')}`);
-
-    var vm_name = config("agent:vm:name");
-    return Q.async(function* () {
-      var installed = yield VM.isInstalled(vm_name);
-      var running   = (installed) ? yield VM.isRunnig(vm_name) : false;
-
-      if (!installed) {
-        throw new Error(t("commands.vm.not_installed"));
-      } else if (!running) {
-        throw new Error(t("commands.vm.not_runnig"));
-      }
-    })();
-  }
+  return Client.status().then((status) => {
+    if (!status.agent) {
+      throw new AgentNotRunning();
+    }
+  });
 });
 
 // Helpers

@@ -10,7 +10,7 @@ var vbm  = require('vboxmanage');
 var qfs  = require('q-io/fs');
 var exec = Q.nbind(vbm.command.exec, vbm.command);
 
-describe("Azk agent vm", function() {
+h.describeSkipVm("Azk agent vm", function() {
   var data_path = config("agent:vm:data_disk");
   var data_test = path.join(path.dirname(data_path), "test-" + path.basename(data_path));
 
