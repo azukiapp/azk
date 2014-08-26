@@ -9,6 +9,9 @@
   * [Manifest] Adding support `docker_extra`
   * [Manifest] Adding support to 'disable' value in ports.
 
+* Deprecations
+  * [Agent] Daemon option now is default.
+
 ## v0.4.2 (2014-20-08)
 
 * Bug

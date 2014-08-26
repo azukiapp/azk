@@ -28,7 +28,7 @@ class Cmd extends Command {
 export function init(cli) {
   var cli = (new Cmd('agent {action}', cli))
     .setOptions('action', { options: ['start', 'status', 'stop'] })
-    .addOption(['--daemon', '-d'], { default: false });
+    .addOption(['--daemon', '-d'], { default: true });
 
   if (config('agent:requires_vm')) {
     cli.addOption(['--reload-vm', '-d'], { default: true });

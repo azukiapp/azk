@@ -81,9 +81,13 @@ var Agent = {
 
   processStateHandler() {
     var pid = this.agentPid();
+    var stoping = false;
     var gracefullExit = () => {
-      log.info('Azk agent has been killed by signal');
-      return this.stop({}, true);
+      if (!stoping) {
+        stoping = true;
+        log.info('Azk agent has been killed by signal');
+        return this.stop({}, true);
+      }
     }
 
     try {
