@@ -214,7 +214,7 @@ var Balancer = {
         output += data.toString();
       });
 
-      yield system.scale(0);
+      yield system.stop();
       var result = yield system.scale(1, options);
 
       if (!result) {
@@ -232,7 +232,7 @@ var Balancer = {
 
       // Stop
       change_status("stoping_" + system_name);
-      yield system.scale(0);
+      yield system.stop();
       change_status("stoped_" + system_name);
     });
   },
