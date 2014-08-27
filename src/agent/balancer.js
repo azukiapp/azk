@@ -271,11 +271,13 @@ var Balancer = {
   },
 
   _check_config(ip, port, memcached_socket) {
-    var file   = config('paths:balancer_file');
+    var file = config('paths:balancer_file');
+    var log  = path.join(config('paths:logs'), "hipache_access.log");
 
     var data = {
+      user: process.getuid(),
       server: {
-        accessLog: "./data/logs/hipache_access.log",
+        accessLog: log,
         workers: 3,
         maxSockets: 100,
         deadBackendTTL: 30

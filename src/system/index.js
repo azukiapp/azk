@@ -111,7 +111,7 @@ export class System {
   get url() {
     var host = this.hostname;
     var port = parseInt(config('agent:balancer:port'));
-    return `http://${host}${ port == 80 ? '' : port }`;
+    return `http://${host}${ port == 80 ? '' : ':' + port }`;
   }
 
   get hosts() { return [this.hostname]; }
