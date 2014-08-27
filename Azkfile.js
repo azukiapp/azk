@@ -7,10 +7,9 @@
 
 var config = require('azk').config;
 
-systems({
-
-  agent: {
-    image: "azukiapp/dind",
+var agent_system = function(image) {
+  return {
+    image: image,
     provision: [
       "azk check-install",
     ],
@@ -19,16 +18,17 @@ systems({
     shell: "/usr/local/bin/wrapdocker",
     mount_folders: {
       ".": "/azk/#{manifest.dir}",
+      "../demos": "/azk/demos",
     },
     persistent_folders: [
       "/azk/#{manifest.dir}/node_modules",
       "/azk/#{manifest.dir}/lib",
-      "/azk/data",
+      "/azk/#{manifest.dir}/data",
       "/var/lib/docker",
     ],
     envs: {
       PATH: "/azk/#{manifest.dir}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
-      AZK_DATA_PATH: "/azk/data",
+      AZK_DATA_PATH: "/azk/#{manifest.dir}/data",
       AZK_BALANCER_HOST: "azk.linux",
       AZK_DOCKER_NS    : "azk.linux",
       AZK_BALANCER_PORT: 8080,
@@ -40,7 +40,13 @@ systems({
     docker_extra: {
       start: { Privileged: true },
     }
-  },
+  };
+}
+
+systems({
+
+  'dind-ubuntu': agent_system('azukiapp/dind'),
+  'dind-fedora': agent_system('azukiapp/dind:fedora'),
 
   grunt: {
     image: "dockerfile/nodejs",

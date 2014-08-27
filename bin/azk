@@ -162,7 +162,7 @@ cmd_exists() {
     exit 1
   fi
 }
-cmd_exists git nc curl grep head tr bash
+cmd_exists git curl grep head tr bash
 
 # Roles
 check_data_folders() {
@@ -192,7 +192,8 @@ check_unfsd() {
 
 check_docker() {
   [ "$AZK_USE_VM" == "true" ] && return 0;
-  [ -n "$AZK_DOCKER_PATH" ]
+  version=`docker --version 2>/dev/null`
+  [ -n "$version" ]
 }
 
 check_integrity() {
@@ -334,7 +335,8 @@ configure_vm_ip() {
     msg="$(azk.escape "Enter the vm ip: (default: %{yellow}${default_ip}%{reset}): ")"
     read -p "$msg" ip
   else
-    default_ip=`/sbin/ifconfig docker0 | grep "inet addr" | awk -F: '{print $2}' | awk '{print $1}'`
+    default_ip=`/sbin/ifconfig docker0 | sed '/inet /!d;s/.*[addr:|inet]\(.*\) [netmask|Bcast].*$/\1/' | awk '{print $1}'`
+    [ -z "$default_ip" ] && msg_depens 'docker' "$DOCKER_INSTALL"
   fi
 
   ip=${ip:-$default_ip}
