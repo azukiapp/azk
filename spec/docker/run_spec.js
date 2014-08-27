@@ -146,17 +146,17 @@ describe("Azk docker module, run method @slow", function() {
 
   it("should support extra docker options in start", function() {
     return async(function* () {
-      var cmd  = ["/bin/true"];
-      var opts = { rm: false, stdout: mocks.stdout, docker: {
+      var memory = 10 * 1024 * 1024;
+      var cmd    = ["/bin/true"];
+      var opts   = { rm: false, stdout: mocks.stdout, docker: {
         start : { Privileged: true },
-        create: { Memory: 512 * 1024 },
+        create: { Memory: memory },
       }};
       var cont = yield docker.run(default_img, cmd, opts);
       var data = yield cont.inspect();
 
       h.expect(data).to.have.deep.property('HostConfig.Privileged').and.to.ok;
-      h.expect(data).to.have.deep.property('Config.Memory', 512 * 1024);
-
+      h.expect(data).to.have.deep.property('Config.Memory', memory);
     });
   });
 

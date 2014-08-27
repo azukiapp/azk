@@ -5,7 +5,16 @@
 // Global image to reuse
 //addImage('base', { repository: "cevich/empty_base_image" }); // tag: latest
 
+var fs     = require('fs');
 var config = require('azk').config;
+
+var mount = {
+  ".": "/azk/#{manifest.dir}",
+};
+
+if (fs.existsSync("../demos")) {
+  mount["../demos"] = "/azk/demos";
+}
 
 var agent_system = function(image) {
   return {
@@ -16,10 +25,7 @@ var agent_system = function(image) {
     scale: false,
     workdir: "/azk/#{manifest.dir}",
     shell: "/usr/local/bin/wrapdocker",
-    mount_folders: {
-      ".": "/azk/#{manifest.dir}",
-      "../demos": "/azk/demos",
-    },
+    mount_folders: mount,
     persistent_folders: [
       "/azk/#{manifest.dir}/node_modules",
       "/azk/#{manifest.dir}/lib",
@@ -45,8 +51,8 @@ var agent_system = function(image) {
 
 systems({
 
-  'dind-ubuntu': agent_system('azukiapp/dind'),
-  'dind-fedora': agent_system('azukiapp/dind:fedora'),
+  'dind-ubuntu': agent_system('azukiapp/dind:ubuntu14'),
+  'dind-fedora': agent_system('azukiapp/dind:fedora20'),
 
   grunt: {
     image: "dockerfile/nodejs",
