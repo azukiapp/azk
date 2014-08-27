@@ -43,7 +43,7 @@
     "dockerode": "^2.0.1",
     "vboxmanage": "git+https://github.com/nuxlli/node-vboxmanage",
     "ssh2": "^0.2.22",
-    "handlebars": "^2.0.0-alpha.2",
+    "handlebars": "2.0.0-alpha.4",
     "progress": "git+https://github.com/nuxlli/node-progress",
     "winston": "^0.7.3",
     "express": "^4.3.1",
