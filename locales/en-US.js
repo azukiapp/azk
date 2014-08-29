@@ -1,7 +1,9 @@
 require('colors');
 
 var version = "Shows azk version";
+var verbose = "Sets the level of detail";
 var systems_options = "Targets systems of action";
+var reprovision = "Force the provisioning actions before starting an instance";
 
 module.exports = {
   errors: {
@@ -135,8 +137,35 @@ module.exports = {
             stop: "Stop the azk agent running in the background",
           }
         },
+        'reload-vm': "Reloads the virtual machine settings",
         daemon: "Runs azk agent in background mode",
       }
+    },
+    configs: {
+      description: "Shows the azk configs values",
+    },
+    docker: {
+      description: "Alias for calling the docker in 'azk' scope configurations",
+    },
+    doctor: {
+      description: "Shows an analysis of the health of `azk`",
+      options: {
+        logo: "Shows the `azk` logo before show health informations",
+      },
+    },
+    info: {
+      description: "Shows systems informactions for the current `Azkfile.js`",
+      options: {
+        colored: "Outputs with colors",
+      },
+    },
+    logs: {
+      description: "Shows logs for the systems",
+      options: {
+        follow: "Follow log output",
+        lines: "Output the specified number of lines at the end of logs",
+        timestamps: "Show timestamps",
+      },
     },
     shell: {
       description: "Initializes a shell with instance context or runs a arbitrary command",
@@ -188,14 +217,16 @@ module.exports = {
       description: "Starts an instance of the system(s)",
       already: "System `%(name)s` already started",
       options: {
-        system: systems_options,
+        verbose: verbose,
+        reprovision: reprovision,
       }
     },
     stop: {
       description: "Stops an instance of the system(s)",
       not_running: "System `%(name)s` not running",
       options: {
-        system: systems_options,
+        verbose: verbose,
+        remove: "Removes the instances before stop",
       }
     },
     scale: {
@@ -210,14 +241,15 @@ module.exports = {
       scaling_up  : "↑".green   + " scaling `"      + "%(system)s".blue  + "` system %(instances)s...",
       scaling_down: "↓".red     + " scaling `"      + "%(system)s".blue  + "` system %(instances)s...",
       options: {
-        system: systems_options,
-        instances: "Number of instances",
+        remove: "Removes the instances before stop",
+        verbose: verbose,
       }
     },
     reload: {
       description: "Stops all system, re-provisions and starts again",
       options: {
-        system: systems_options,
+        verbose: verbose,
+        reprovision: reprovision,
       }
     },
     up: {
