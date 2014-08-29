@@ -11,7 +11,7 @@ describe("Azk system class, run set", function() {
   before(function() {
     return h.mockManifest({}).then((mf) => {
       manifest = mf;
-      system = manifest.systemDefault;
+      system = manifest.system('example');
     });
   });
 

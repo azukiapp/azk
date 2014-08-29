@@ -93,11 +93,11 @@ export class Manifest {
     if (required && !cwd)
       throw new Error("Manifest class require a project path");
 
-    this.images  = {};
-    this.systems = {};
-    this.bins    = {};
-    this.default = null;
-    this.file    = file || Manifest.find_manifest(cwd);
+    this.images   = {};
+    this.systems  = {};
+    this.bins     = {};
+    this._default = null;
+    this.file     = file || Manifest.find_manifest(cwd);
 
     if (required && !this.exist)
       throw new ManifestRequiredError(cwd);
@@ -144,7 +144,7 @@ export class Manifest {
     }
 
     this.systems[name] = data;
-    if (!this.default) this.default = name;
+    if (!this._default) this._default = name;
 
     return this;
   }
@@ -257,11 +257,25 @@ export class Manifest {
     return this.meta.clean(...args);
   }
 
-  // Getters
-  get systemDefault() {
-    return this.system(this.default);
+  // Default system
+  set default(nameOrSystem) {
+    if (nameOrSystem instanceof System) {
+      nameOrSystem = nameOrSystem.name;
+    }
+
+    if (!(this.systems[nameOrSystem] instanceof System)) {
+      var msg = t('manifest.invalid_default', { system: nameOrSystem });
+      throw new ManifestError(this.file, msg);
+    }
+
+    this._default = nameOrSystem;
   }
 
+  get systemDefault() {
+    return this.system(this._default);
+  }
+
+  // Getters
   get manifestPath() {
     return this.cwd;
   }

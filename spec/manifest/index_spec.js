@@ -42,7 +42,7 @@ describe("Azk manifest class", function() {
 
     it("should set a default system", function() {
       h.expect(manifest).to.have.property('systemDefault')
-        .and.eql(manifest.system('example'));
+        .and.eql(manifest.system('api'));
     });
 
     it("should parse systems to System class", function() {
@@ -223,6 +223,14 @@ describe("Azk manifest class", function() {
       var func = mock_manifest("__not_exist()");
       h.expect(func).to.throw(ManifestError).and.match(
         /ReferenceError: __not_exist is not defined/
+      );
+    });
+
+    it("should raise invalid default system", function() {
+      var func = mock_manifest("setDefault('not_exist')");
+      var msg  = t('manifest.invalid_default', { system: "not_exist" });
+      h.expect(func).to.throw(ManifestError).and.match(
+        RegExp(h.escapeRegExp(msg))
       );
     });
   });

@@ -114,7 +114,7 @@ export function extend(h) {
             },
           },
         },
-        default: 'example',
+        defaultSystem: 'api',
         bins: [
           { name: "console", command: ["bundler", "exec"] }
         ]
