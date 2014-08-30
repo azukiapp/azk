@@ -11,6 +11,7 @@
 
 * Deprecations
   * [Agent] Daemon option now is default.
+  * [Cmds] The command `reload` is deprecated and will be removed in the future. Use `restart` in place.
 
 ## v0.4.2 (2014-20-08)
 

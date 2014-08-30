@@ -246,8 +246,16 @@ module.exports = {
         verbose: verbose,
       }
     },
+    restart: {
+      description: "Stops all system and starts again",
+      options: {
+        verbose: verbose,
+        reprovision: reprovision,
+      }
+    },
     reload: {
       description: "Stops all system, re-provisions and starts again",
+      deprecation: "`reload` this deprecated, use restart",
       options: {
         verbose: verbose,
         reprovision: reprovision,

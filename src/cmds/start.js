@@ -43,6 +43,11 @@ class Cmd extends ScaleCmd {
   }
 
   reload(manifest, systems, opts) {
+    this.fail('commands.reload.deprecation');
+    return this.restart(manifest, systems, opts);
+  }
+
+  restart(manifest, systems, opts) {
     return async(this, function* () {
       yield this.stop(manifest, systems, opts);
       yield this.start(manifest, systems, opts);
@@ -56,6 +61,8 @@ export function init(cli) {
       .addOption(['--reprovision', '-R'], { default: false }),
     (new Cmd('stop [system]'  , cli))
       .addOption(['--remove', '-r'], { default: true }),
+    (new Cmd('restart [system]', cli))
+      .addOption(['--reprovision', '-R'], { default: false }),
     (new Cmd('reload [system]', cli))
       .addOption(['--reprovision', '-R'], { default: true }),
   ];
