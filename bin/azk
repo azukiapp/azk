@@ -50,7 +50,8 @@ case `uname -s` in
 esac
 
 # Set a internals paths
-export PATH=/usr/bin:/bin:/usr/sbin
+export PATH=/usr/local/bin:/usr/local/sbin
+export PATH=/usr/bin:/bin:/usr/sbin:$PATH
 export PATH=$AZK_ROOT_PATH/bin:$PATH
 export PATH=$AZK_ROOT_PATH/node_modules/.bin:$PATH
 
