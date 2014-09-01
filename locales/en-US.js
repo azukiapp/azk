@@ -119,8 +119,8 @@ module.exports = {
         '$ azk agent start --daemon',
         '$ azk shell --image azukiapp/busybox',
         '$ azk shell --mount ~/Home:/azk/user -e HOME=/azk/user',
-        '$ azk status -s [system_name]',
-        '$ azk scale --instances 2',
+        '$ azk status [system_name]',
+        '$ azk scale [system_name] 2',
       ],
     },
     version: {
@@ -176,6 +176,7 @@ module.exports = {
         T: "Disables pseudo-tty allocation",
         t: "Forces pseudo-tty allocation",
         system  : "A system context to execute a shell or command",
+        remove  : "Removes shell instances after exit shell or command",
         command : "Runs a specific command",
         shell   : "The path to shell binary",
         verbose : "Shows details about command execution",
@@ -186,8 +187,8 @@ module.exports = {
       },
       examples: [
         '$ azk shell --shell /bin/bash',
-        '$ azk shell --mount /:/azk/root -e RAILS_ENV=dev',
-        '$ azk shell -c "ls -l /"',
+        '$ azk shell [system_name] --mount /=/azk/root -e RAILS_ENV=dev',
+        '$ azk shell [system_name] -c "ls -l /"',
         '$ azk shell --image azukiapp/budybox -t -c "/bin/bash"',
       ]
     },

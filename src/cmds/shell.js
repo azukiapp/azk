@@ -1,4 +1,4 @@
-import { _, path, config, t, async } from 'azk';
+import { _, path, config, t, async, defer } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
 import { Manifest } from 'azk/manifest';
 import docker from 'azk/docker';
@@ -47,8 +47,10 @@ class Cmd extends Command {
       }
 
       // Remove container before run
-      options.remove == opts.remove;
-      return yield system.runShell(cmd, options);
+      options.remove = opts.remove;
+      var result = yield system.runShell(cmd, options);
+
+      return result.code;
     }).progress(progress);
   }
 
@@ -72,7 +74,7 @@ export function init(cli) {
   (new Cmd('shell [system]', cli))
     .addOption(['-T'])
     .addOption(['-t'])
-    .addOption(['--rm', '-r'], { default: true })
+    .addOption(['--remove', '--rm', '-r'], { default: true })
     .addOption(['--image', '-i'], { type: String })
     .addOption(['--command', '-c'], { type: String })
     .addOption(['--shell'], { type: String })
