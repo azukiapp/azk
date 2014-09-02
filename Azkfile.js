@@ -5,15 +5,25 @@
 // Global image to reuse
 //addImage('base', { repository: "cevich/empty_base_image" }); // tag: latest
 
+var path   = require('path');
 var fs     = require('fs');
+var glob   = require('glob');
 var config = require('azk').config;
+var _      = require('lodash');
 
-var mount = {
-  ".": "/azk/#{manifest.dir}",
-};
+var itens = glob.sync("./!(lib|data|node_modules|npm-debug.log)");
+var mount = _.reduce(itens, function(mount, item) {
+  mount[item] = path.join("/azk", "#{manifest.dir}", item);
+  return mount;
+}, {});
 
 if (fs.existsSync("../demos")) {
   mount["../demos"] = "/azk/demos";
+}
+
+var tmuxrc = path.join(env.HOME, ".tmux.conf");
+if (fs.existsSync(tmuxrc)) {
+  mount[tmuxrc] = "/.tmux.conf";
 }
 
 var agent_system = function(image) {
@@ -27,14 +37,15 @@ var agent_system = function(image) {
     shell: "/usr/local/bin/wrapdocker",
     mount_folders: mount,
     persistent_folders: [
+      "/azk/lib",
       "/azk/#{manifest.dir}/node_modules",
-      "/azk/#{manifest.dir}/lib",
-      "/azk/#{manifest.dir}/data",
+      "/azk/data",
       "/var/lib/docker",
     ],
     envs: {
       PATH: "/azk/#{manifest.dir}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
-      AZK_DATA_PATH: "/azk/#{manifest.dir}/data",
+      AZK_DATA_PATH: "/azk/data",
+      AZK_LIB_PATH : "/azk/lib",
       AZK_BALANCER_HOST: "azk.linux",
       AZK_DOCKER_NS    : "azk.linux",
       AZK_BALANCER_PORT: 8080,

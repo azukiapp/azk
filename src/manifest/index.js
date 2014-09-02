@@ -12,6 +12,7 @@ var check     = require('syntax-error');
 var tsort     = require('gaia-tsort');
 
 var ManifestDsl = {
+  console: console,
   require: require,
   env: process.env,
   disable: null,

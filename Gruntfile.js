@@ -35,6 +35,9 @@ module.exports = function(grunt) {
     test_task = "slow_test";
   }
 
+  // Lib path
+  var lib = process.env.AZK_LIB_PATH || "lib";
+
   // Project configuration.
   grunt.initConfig({
     // ENV's
@@ -55,7 +58,7 @@ module.exports = function(grunt) {
           expand: true,
           cwd: 'src/',
           src: ['**/*.js', '!share/*.js'],
-          dest: 'lib/azk/',
+          dest: lib + '/azk/',
           ext: '.js'
         }]
       },
@@ -64,7 +67,7 @@ module.exports = function(grunt) {
           expand: true,
           cwd: 'spec/',
           src: '**/*.js',
-          dest: 'lib/spec/',
+          dest: lib + '/spec/',
           ext: '.js'
         }]
       }
@@ -82,7 +85,7 @@ module.exports = function(grunt) {
           grep: "@slow",
           invert: true,
         },
-        src: ['lib/spec/**/*_spec.js']
+        src: [lib + '/spec/**/*_spec.js']
       },
 
       slow_test: {
@@ -91,7 +94,7 @@ module.exports = function(grunt) {
           timeout: 50000,
           grep: test_grep,
         },
-        src: ['lib/spec/**/*_spec.js']
+        src: [lib + 'spec/**/*_spec.js']
       }
     },
 

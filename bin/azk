@@ -49,11 +49,15 @@ case `uname -s` in
     exit 1;
 esac
 
+# Npm folder
+AZK_NPM_PATH=${AZK_NPM_PATH:-$AZK_ROOT_PATH};
+export AZK_LIB_PATH=${AZK_LIB_PATH:-$AZK_ROOT_PATH/lib};
+
 # Set a internals paths
 export PATH=/usr/local/bin:/usr/local/sbin
 export PATH=/usr/bin:/bin:/usr/sbin:$PATH
 export PATH=$AZK_ROOT_PATH/bin:$PATH
-export PATH=$AZK_ROOT_PATH/node_modules/.bin:$PATH
+export PATH=$AZK_NPM_PATH/node_modules/.bin:$PATH
 
 # Azk opts
 export AZK_CURRENT_SYSTEM="${AZK_CURRENT_SYSTEM:-`pwd`}"
@@ -61,8 +65,8 @@ export AZK_CURRENT_SYSTEM="${AZK_CURRENT_SYSTEM:-`pwd`}"
 
 # Node load paths
 export NODE_PATH=$AZK_ROOT_PATH
-export NODE_PATH=$AZK_ROOT_PATH/node_modules:$NODE_PATH
-export NODE_PATH=$AZK_ROOT_PATH/lib:$NODE_PATH
+export NODE_PATH=$AZK_NPM_PATH/node_modules:$NODE_PATH
+export NODE_PATH=$AZK_LIB_PATH:$NODE_PATH
 
 agent_ip() {
   cat /etc/resolver/$AZK_BALANCER_HOST 2>/dev/null | grep -Eo '([0-9]{1,3}\.){3}[0-9]{1,3}'
