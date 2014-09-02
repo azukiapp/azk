@@ -149,6 +149,10 @@ function config_disks(name, boot, data) {
   });
 }
 
+function acpipowerbutton(name) {
+  return exec('controlvm', name, 'acpipowerbutton');
+}
+
 var vm = {
   info(vm_name) {
     return machine.info(vm_name).then((info) => {
@@ -247,7 +251,11 @@ var vm = {
       var info = yield vm.info(vm_name);
       if (info.running) {
         status_change("stoping");
-        yield instance.stop(vm_name);
+        yield acpipowerbutton(vm_name);
+        while(true) {
+          info = yield this.info(vm_name);
+          if (!info.running) break;
+        }
         status_change("stoped");
         return true;
       }
