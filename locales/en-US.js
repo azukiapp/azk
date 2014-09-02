@@ -185,6 +185,11 @@ module.exports = {
         image   : "Defines the image in which the command will be executed",
         env     : "Additional environment variables",
       },
+      ended: {
+        removed: "finished, because the container was removed",
+        docker_end: "finished, because the docker was finalized",
+        docker_notfound: "finished, because docker not found",
+      },
       examples: [
         '$ azk shell --shell /bin/bash',
         '$ azk shell [system_name] --mount /=/azk/root -e RAILS_ENV=dev',

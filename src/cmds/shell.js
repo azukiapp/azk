@@ -48,10 +48,34 @@ class Cmd extends Command {
 
       // Remove container before run
       options.remove = opts.remove;
-      var result = yield system.runShell(cmd, options);
+
+      var result = defer((resolver, reject) => {
+        system.runShell(cmd, options).
+          then(resolver, reject);
+      });
+
+      result = yield result.fail((error) => {
+        return this.parseError(error);
+      });
 
       return result.code;
     }).progress(progress);
+  }
+
+  parseError(error) {
+    if (error.statusCode) {
+      if (error.statusCode === 404 && error.reason === "no such container") {
+        this.fail("commands.shell.ended.removed");
+        return { code: 127 }
+      }
+    } else if (error.code === 'ECONNRESET') {
+      this.fail("commands.shell.ended.docker_end");
+      return { code: 127 }
+    } else if (error.code === 'ECONNREFUSED') {
+      this.fail("commands.shell.ended.docker_notfound");
+      return { code: 127 }
+    }
+    throw error;
   }
 
   _parse_option(option, regex, split, fail) {
