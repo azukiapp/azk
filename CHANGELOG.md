@@ -4,10 +4,14 @@
 
 * Bug
   * [Cmds] Fixing the passing of parameters to the docker in `adocker`.
+  * [Cmds] Now when the docker or agent is finalized the `shell` is no longer blocked.
+  * [Vm] In place of the forced shutdown `poweroff` now seek to use the safe shutdown with `acpipoweroff`.
 
 * Enhancements
   * [Manifest] Adding support `docker_extra`
   * [Manifest] Adding support to 'disable' value in ports.
+  * [Kernel] Now `azk` supports Linux \o/
+  * [Kenrel] You can now use the AZK to test and develop the AZK for Linux (see Azkfile.js).
 
 * Deprecations
   * [Agent] Daemon option now is default.
