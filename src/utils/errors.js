@@ -171,7 +171,7 @@ export class AgentStartError extends AzkError {
   constructor(error) {
     super('agent_start');
 
-    this.__error = __error;
+    this.__error = error;
     this.code    = AGENT_CODE_ERROR;
   }
 
