@@ -78,7 +78,7 @@ var net = {
           client.end();
 
           opts.retry_if().then((result) => {
-            if (attempts > max || !result) return resolve(false);
+            if (attempts >= max || !result) return resolve(false);
             attempts += 1;
             connect();
           }, () => resolve(false));
