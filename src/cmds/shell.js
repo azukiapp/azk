@@ -27,12 +27,15 @@ class Cmd extends Command {
       var tty_default = opts.t || !_.isString(opts.command)
       var tty = (opts.T) ? (opts.t || false) : tty_default;
 
+      var stdin = this.stdin();
+      stdin.custom_pipe = () => { };
+
       var options  = {
         interactive: tty,
         pull   : this.stdout(),
         stdout : this.stdout(),
         stderr : this.stderr(),
-        stdin  : this.stdin(),
+        stdin  : stdin,
         workdir: opts.cwd || null,
       }
 
@@ -50,7 +53,18 @@ class Cmd extends Command {
       options.remove = opts.remove;
 
       var result = defer((resolver, reject) => {
+        var escape = (key, container) => {
+          if (key === ".") {
+            process.nextTick(() => {
+              docker.getContainer(container).stop({ t: 5000 }).fail(reject);
+            });
+            return true;
+          }
+          return false;
+        };
+
         system.runShell(cmd, options).
+          progress(Helpers.escapeCapture(escape)).
           then(resolver, reject);
       });
 

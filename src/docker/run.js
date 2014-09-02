@@ -85,8 +85,8 @@ export function run(docker, Container, image, cmd, opts = { }) {
   return async(docker, function* (notify) {
     container = yield this.createContainer(_.merge(optsc, docker_opts.create || {}));
 
-    var c_notify = (type) => {
-      return notify({ type, context: "container_run", id: container.id });
+    var c_notify = (type, ...data) => {
+      return notify({ type, context: "container_run", id: container.id, data: data });
     }
     c_notify("created");
     notify({type: "created", id: container.id});
@@ -119,7 +119,14 @@ export function run(docker, Container, image, cmd, opts = { }) {
             opts.stdin.setRawMode(true)
           } catch(err) {};
         }
-        opts.stdin.pipe(stream);
+
+        if (opts.stdin.custom_pipe) {
+          opts.stdin.custom_pipe(stream);
+        } else {
+          opts.stdin.pipe(stream);
+        }
+
+        c_notify("stdin_pipe", { stdin: opts.stdin, stream });
       }
     }
 

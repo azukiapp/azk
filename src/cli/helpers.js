@@ -85,6 +85,44 @@ var Helpers = {
 
       return false;
     }
+  },
+
+  escapeCapture(callback) {
+    // Escape sequence
+    var escapeBuffer = false;
+    var escape = false;
+
+    return (event) => {
+      if (event.type == "stdin_pipe") {
+        var stdin  = event.data[0].stdin;
+        var stream = event.data[0].stream;
+        var container = event.id;
+        var stopped = false;
+
+        stdin.on('data', function (key) {
+          if (stopped) return false;
+
+          var ch = key.toString(stdin.encoding || 'utf-8');
+
+          if (escapeBuffer && ch === '~') {
+            escapeBuffer = false;
+            escape = true;
+          } else if(ch === '\r') {
+            escapeBuffer = true;
+            stream.write(key);
+          } else {
+            if (escape) {
+              stopped = callback(ch, container);
+              escape = false;
+            } else {
+              stream.write(key);
+            }
+            escapeBuffer = false;
+          }
+        });
+      }
+      return true;
+    }
   }
 }
 

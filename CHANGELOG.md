@@ -12,6 +12,7 @@
   * [Manifest] Adding support to 'disable' value in ports.
   * [Kernel] Now `azk` supports Linux \o/
   * [Kenrel] You can now use the AZK to test and develop the AZK for Linux (see Azkfile.js).
+  * [Cmds] Now supports the `ssh escape sequence` in `shell` command.
 
 * Deprecations
   * [Agent] Daemon option now is default.
