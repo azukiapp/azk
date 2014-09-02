@@ -87,7 +87,7 @@ h.describeSkipVm("Azk agent vm", function() {
         h.expect(yield VM.start(opts.name)).to.ok
         h.expect(yield VM.start(opts.name)).to.fail
         h.expect(yield VM.isRunnig(opts.name)).to.ok
-        h.expect(yield VM.stop(opts.name)).to.ok
+        h.expect(yield VM.stop(opts.name, true)).to.ok
         h.expect(yield VM.isRunnig(opts.name)).to.fail
         h.expect(yield VM.stop(opts.name)).to.fail
       })();

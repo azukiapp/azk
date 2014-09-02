@@ -245,17 +245,26 @@ var vm = {
     });
   },
 
-  stop(vm_name) {
+  stop(vm_name, force = false) {
     log.debug("call to stop vm %s", vm_name);
+
     return Tools.async_status("vm", this, function* (status_change) {
       var info = yield vm.info(vm_name);
       if (info.running) {
         status_change("stoping");
-        yield acpipowerbutton(vm_name);
+
+        if (force) {
+          yield instance.stop(vm_name);
+        } else {
+          yield acpipowerbutton(vm_name);
+        }
+
+        // Wait for shutdown
         while(true) {
           info = yield this.info(vm_name);
           if (!info.running) break;
         }
+
         status_change("stoped");
         return true;
       }
