@@ -6,6 +6,7 @@
   * [Cmds] Fixing the passing of parameters to the docker in `adocker`.
   * [Cmds] Now when the docker or agent is finalized the `shell` is no longer blocked.
   * [Vm] In place of the forced shutdown `poweroff` now seek to use the safe shutdown with `acpipoweroff`.
+  * [Cmds] Fixing bug that prevented `azk` be used offline.
 
 * Enhancements
   * [Manifest] Adding support `docker_extra`

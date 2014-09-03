@@ -4,7 +4,7 @@
 
 ## Main features
 
-* Images: via Docker Index or custom inline or file scripts
+* Images: via [Docker][docker] Index or custom inline or file scripts
 * Built in load-balancer
 * Built in file sync
 * Automatic start-up (and reload) script
@@ -22,7 +22,7 @@ Works on Linux & Mac OS X (requires 64 bit platform in both cases)
 
 #### Images
 
-In order to automate the provisioning of development environments, `azk` uses pre-built custom images. These images follow the Docker standard and can be found in: [Docker Index][docker_index] or [Dockerfile][dockerfile].
+In order to automate the provisioning of development environments, `azk` uses pre-built custom images. These images follow the [Docker][docker] standard and can be found in: [Docker Index][docker_index] or [Dockerfile][dockerfile].
 
 #### Azkfile.js
 
@@ -44,7 +44,7 @@ $ azk shell --image dockerfile/node # obtaining the runtime
 $ cd app-name
 $ azk init
 azk: 'Azkfile.js' generated
-$ azk up
+$ azk start
 ```
 
 ### Taming an existing application project's development environment with `azk`:
@@ -55,16 +55,23 @@ When you already have an application project going on and want to use `azk` to s
 $ cd [my_application_folder]
 $ azk init
 azk: 'Azkfile.js' generated
-$ azk up
+...
+$ azk start
 ```
 
-## Installation
+## Installation from package
+
+Coming soon...
+
+## Installation from source
 
 ### Requirements
 
-* Mac OS X (requires 64 bit platform) (Linux and Windows: planned)
+* Mac OS X or Linux (requires 64 bit platform) (Windows: planned)
 * git, curl, bash
-* Internet connection (to download images)
+* Internet connection
+
+#### Mac OS X requirements 
 
 It is necessary to install Virtualbox and an extra tool for file synchronization:
 
@@ -77,6 +84,15 @@ Using [Homebrew Cask][homebrew_cask]? It makes installing VirtualBox super easy!
 brew cask install virtualbox --appdir=/Applications
 brew install unfs3
 ```
+
+#### Linux requirements
+
+* Distribution (tested): Ubuntu 12.04/14.04 and Fedora20
+* [Docker][docker]
+* [libnss-resolver][libnss-resolver]
+* Not running any service in `80` and `53` ports
+
+If you are running a service on port `80` or `53` you can customize the configuration by setting the environment variable `AZK_BALANCER_PORT` and `AZK_DNS_PORT` respectively before run `azk agent start`.
 
 ### Basic GitHub Checkout
 
@@ -200,6 +216,8 @@ $ azk stop                        # Stops specific service
 $ azk status                      # Displays all systems statuses
 $ azk stop [system_name,...]      # Stops specific systems by names
 $ azk scale [system_name,...] 5   # Starts 5 instances of specific systems
+$ azk restart [system_name,...]   # Restarts a systems
+$ azk restart --reprovision       # Restarts a systems and reload provision
 ```
 
 ## Test (for experts only)
@@ -226,3 +244,4 @@ Check LEGAL and LICENSE files for more information.
 [dockerfile]: http://dockerfile.github.io
 [virtualbox_dl]: http://www.vagrantup.com/downloads.html
 [homebrew_cask]: https://github.com/phinze/homebrew-cask
+[libnss-resolver]: https://github.com/azukiapp/libnss-resolver
