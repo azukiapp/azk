@@ -3,7 +3,7 @@ import { Q, _, fs, defer, config } from 'azk';
 var url         = require('url');
 var nativeNet   = require('net');
 var portrange   = config("agent:portrange_start");
-var nameservers = [];
+var nameservers = null;
 
 var net = {
   getPort() {
@@ -33,14 +33,18 @@ var net = {
   },
 
   nameServers() {
-    if (_.isEmpty(nameservers)) {
-      var lines = fs.readFileSync("/etc/resolv.conf").toString().split("\n");
-      _.each(lines, (line) => {
-        if (line.match(/^nameserver.*$/)) {
-          nameservers.push(line.replace(/^nameserver\s{1,}(.*)/, "$1"));
-        }
-      });
-      nameservers.unshift(config("agent:dns:ip"));
+    if (nameservers == null) {
+      nameservers = [config("agent:dns:ip")];
+
+      var file = "/etc/resolv.conf";
+      if (fs.existsSync(file)) {
+        var lines = fs.readFileSync(file).toString().split("\n");
+        _.each(lines, (line) => {
+          if (line.match(/^nameserver.*$/)) {
+            nameservers.push(line.replace(/^nameserver\s{1,}(.*)/, "$1"));
+          }
+        });
+      }
     }
     return nameservers;
   },
