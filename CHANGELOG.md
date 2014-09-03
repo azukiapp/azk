@@ -1,6 +1,8 @@
 # Changelog
 
-## v0.5.0 - dev
+## v0.5.1 - dev
+
+## v0.5.0 - (2014-03-09)
 
 * Bug
   * [Cmds] Fixing the passing of parameters to the docker in `adocker`.
