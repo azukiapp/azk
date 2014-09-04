@@ -88,7 +88,7 @@ brew install unfs3
 #### Linux requirements
 
 * Distribution (tested): Ubuntu 12.04/14.04 and Fedora20
-* [Docker][docker]
+* [Docker][docker] 1.1.0 or greater
 * [libnss-resolver][libnss-resolver]
 * Not running any service in `80` and `53` ports
 
