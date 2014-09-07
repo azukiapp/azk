@@ -17,6 +17,11 @@ var ManifestDsl = {
   env: process.env,
   disable: null,
 
+  // Volumes
+  mount(dir) {
+    return dir;
+  },
+
   system(name, data) {
     this.addSystem(name, data);
   },

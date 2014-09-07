@@ -2,7 +2,7 @@ import { config, path, fs, _ } from 'azk';
 import h from 'spec/spec_helper';
 import { Generator } from 'azk/generator';
 import { Manifest } from 'azk/manifest';
-import { example_system as node_example }  from 'azk/generator/rules/node';
+import { example_system as node_example } from 'azk/generator/rules/node';
 
 var touch = require('touch');
 
@@ -32,6 +32,8 @@ describe("Azk generator tool", function() {
       return new Manifest(dir);
     };
 
+    var export_db = "#{envs.USER}:#{envs.PASSWORD}@#{net.host}:#{net.port.3666}";
+
     var default_data = {
       systems: {
         front: {
@@ -40,6 +42,9 @@ describe("Azk generator tool", function() {
           image: { repository: 'base', tag: '0.1' },
           scalable: true,
           http: true,
+          volumes: {
+            "/azk/#{manifest.dir}": { type: 'mount', value: '.' },
+          },
           mount_folders: {
             ".": "/azk/#{manifest.dir}",
           },
@@ -48,7 +53,7 @@ describe("Azk generator tool", function() {
         },
         db: {
           image: "base",
-          export_envs: { DB_URL: "#{envs.USER}:#{envs.PASSWORD}@#{net.host}:#{net.port.3666}" }
+          export_envs: { DB_URL: export_db }
         }
       },
       defaultSystem: 'front',
@@ -111,7 +116,9 @@ describe("Azk generator tool", function() {
       var manifest = generate_manifest(dir, default_data);
       var system   = manifest.system('db');
       h.expect(system).to.have.deep.property("options.export_envs")
-        .and.to.eql({ DB_URL: "#{envs.USER}:#{envs.PASSWORD}@#{net.host}:#{net.port.3666}" });
+        .and.to.eql({
+          DB_URL: "#{envs.USER}:#{envs.PASSWORD}@#{net.host}:#{net.port.3666}"
+        });
     });
 
     it("should support instances in scalable", function() {
@@ -123,7 +130,8 @@ describe("Azk generator tool", function() {
       var manifest = generate_manifest(dir, data);
       var system   = manifest.systemDefault;
 
-      h.expect(system).to.have.deep.property("options.scalable").and.eql({ default: 5});
+      h.expect(system).to.have.deep.property("options.scalable")
+        .and.eql({ default: 5});
     });
   });
 });

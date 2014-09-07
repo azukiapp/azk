@@ -30,6 +30,12 @@ systems({
     workdir: "{{&workdir}}",
     {{~/if}}
     command: {{&json command}},
+    {{~#if volumes }}
+    volumes: {
+      {{~#each volumes}}
+      '{{&@key}}': {{&volume this}},{{/each}}
+    },
+    {{~/if}}
     {{~#if mount_folders}}
     // Mounts folders to assigned paths
     mount_folders: {
