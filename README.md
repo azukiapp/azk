@@ -18,7 +18,7 @@ First: install [https://azk.io][azk].
 And after that:
 
 ```bash
-$ git clone https://github.com/azukiapp-samples/libnss-resolver
+$ git clone git@github.com:azukiapp/libnss-resolver.git
 $ cd libnss-resolver
 
 # build
