@@ -94,7 +94,7 @@ module.exports = function(grunt) {
           timeout: 50000,
           grep: test_grep,
         },
-        src: [lib + 'spec/**/*_spec.js']
+        src: [lib + '/spec/**/*_spec.js']
       }
     },
 
