@@ -22,6 +22,10 @@ var ManifestDsl = {
     return dir;
   },
 
+  persistent(name) {
+    return name;
+  },
+
   system(name, data) {
     this.addSystem(name, data);
   },

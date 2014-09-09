@@ -81,8 +81,8 @@ function hash_key(data) {
 
 function volume(data) {
   switch(data.type) {
-    case 'mount':
-      return `mount(${json(data.value)})`;
+    default:
+      return `${data.type}(${json(data.value)})`;
   }
 }
 

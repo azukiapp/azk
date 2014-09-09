@@ -44,6 +44,7 @@ describe("Azk generator tool", function() {
           http: true,
           volumes: {
             "/azk/#{manifest.dir}": { type: 'mount', value: '.' },
+            "/azk/data": { type: 'persistent', value: 'data' },
           },
           mount_folders: {
             ".": "/azk/#{manifest.dir}",
