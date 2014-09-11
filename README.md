@@ -66,6 +66,21 @@ $ cd libnss-resolver
 $ scons install
 ```
 
+Now you can add the resolver-nss in a resolution pipe:
+
+```bash
+$ sudo sed -i -re 's/^(hosts: .*$)/\1 resolver/' /etc/nsswitch.conf
+```
+
+or edit `/etc/nsswitch.conf`:
+
+```bash
+# normally       ↓
+hosts: files dns resolver
+# but, if you have avahi (Zeroconf) installed          ↓
+hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4 resolver
+```
+
 ## Configuring
 
 After installing you can create many `suffix` zones in `/etc/resolver/`, like:
