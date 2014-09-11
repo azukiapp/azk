@@ -11,13 +11,15 @@ This is still a work in progress!
 
 Download and install the appropriate package for your Linux distribution [here](https://github.com/azukiapp/libnss-resolver/releases).
 
-### From the source
+### From the source (with azk)
 
 First: install [https://azk.io][azk].
 
 And after that:
 
 ```bash
+$ git clone git@github.com:azukiapp/libnss-resolver.git
+# or
 $ git clone https://github.com/azukiapp-samples/libnss-resolver
 $ cd libnss-resolver
 
@@ -50,6 +52,20 @@ hosts: files dns resolver
 hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4 resolver
 ```
 
+### From the source (without azk)
+
+Dependencies: scons and clang
+
+```bash
+$ git clone git@github.com:azukiapp/libnss-resolver.git
+# or
+$ git clone https://github.com/azukiapp-samples/libnss-resolver
+$ cd libnss-resolver
+
+# build
+$ scons install
+```
+
 ## Configuring
 
 After install you can create a `sufix` zones in `/etc/resolver/`, like this:
@@ -74,7 +90,7 @@ $ ping test.dev
 $ ping any.test.dev
 ```
 
-## Test and build
+## Test and build (azk only)
 
 This project uses clang to compile, scons as mounting and valgrind tool to analyze code and running.
 
