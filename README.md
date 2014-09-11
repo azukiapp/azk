@@ -1,7 +1,7 @@
 # libnss-resolver
 
-A Linux extension that adds support the `/etc/resolver/*`, a means to support different "nameserver"
-to specific suffixes, in a similar fashion to that which is supported on Mac OS X.
+A Linux extension that adds support to the `/etc/resolver/[suffix]`. It supports different "nameservers"
+to specific suffixes. It emulates the corresponding native functionality from Mac OS X.
 
 This is still a work in progress!
 
@@ -28,7 +28,7 @@ $ cd libnss-resolver
 $ azk shell [so]
 
 # run tests
-$ azk start dns # Run a mock dns server to test
+$ azk start dns # Run a mock dns server for testing
 $ azk shell [so] -t -c "scons run-test"
 # or debug
 $ azk shell [so] -t -c "scons run-test -Q define=DEBUG"
@@ -37,7 +37,7 @@ $ azk shell [so] -t -c "scons run-test -Q define=DEBUG"
 $ azk shell [so] --mount /usr/lib:/azk/lib -c "scons install"
 ```
 
-Now you can add the resolver-nss in resolution pipe:
+Now you can add the resolver-nss in a resolution pipe:
 
 ```bash
 $ sudo sed -i -re 's/^(hosts: .*$)/\1 resolver/' /etc/nsswitch.conf
@@ -68,13 +68,13 @@ $ scons install
 
 ## Configuring
 
-After install you can create a `sufix` zones in `/etc/resolver/`, like this:
+After installing you can create many `suffix` zones in `/etc/resolver/`, like:
 
 ```bash
 $ echo "nameserver 127.0.0.1:5353" | sudo tee -a /etc/resolver/test.dev
 ```
 
-A good way to test is to install dnsmasq:
+Installing dnsmasq is a good way to test it:
 
 ```bash
 $ sudo yum install dnsmasq
@@ -92,9 +92,9 @@ $ ping any.test.dev
 
 ## Test and build (azk only)
 
-This project uses clang to compile, scons as mounting and valgrind tool to analyze code and running.
+This project uses clang for compiling, scons for mounting and valgrind for analyzing code runtime.
 
-But all these tools are available behind the [azk][azk], just the commands below to get a development environment:
+All of these tools are actually available behind the [azk][azk]. So just use the commands below to get a development environment:
 
 ```bash
 $ azk start dns
@@ -118,9 +118,9 @@ $ ping resolver.dev
 * Inspiration code: https://github.com/danni/docker-nss
 * Mac OS X resolver feature: [https://developer.apple.com/library/...](https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man5/resolver.5.html)
 * Simple c-ares example: https://gist.github.com/mopemope/992777
-* Use a dns server in c-ares: https://github.com/bagder/c-ares/blob/master/adig.c
-* Ip and port format: https://sourceware.org/bugzilla/show_bug.cgi?id=14242
-* Use blocks in linux: http://mackyle.github.io/blocksruntime/
+* Using a dns server in c-ares: https://github.com/bagder/c-ares/blob/master/adig.c
+* Ip and port formats: https://sourceware.org/bugzilla/show_bug.cgi?id=14242
+* Using blocks in linux: http://mackyle.github.io/blocksruntime/
 
 ## License
 
