@@ -1,39 +1,36 @@
-import { _ } from 'azk/utils';
+import { _, envs } from 'azk/utils';
 var path    = require('path');
 var dnsSync = require('dns-sync');
+var os      = require('os');
 
 // Root path
-var azk_root =
-  process.env.AZK_ROOT_PATH ||
-  path.join('..', '..');
-
-var data_path =
-  process.env.AZK_DATA_PATH ||
-  path.join(process.env.HOME, '.azk', 'data');
+var azk_root  = envs('AZK_ROOT_PATH', path.join('..', '..'));
+var data_path = envs('AZK_DATA_PATH', path.join(envs('HOME'), '.azk', 'data'));
 
 // Use virtual machine
-var requires_vm = (process.env.AZK_USE_VM == "true");
+var requires_vm = (envs('AZK_USE_VM') == "true");
 
 // Vm informations
 // TODO: Show erro if not resolve ip
-var vm_name = process.env.AZK_AGENT_VM_NAME || "azk-agent";
-var vm_ip   = process.env.AZK_AGENT_VM_IP || dnsSync.resolve(vm_name);
+var vm_name = envs('AZK_AGENT_VM_NAME', "azk-agent");
+var vm_ip   = envs('AZK_AGENT_VM_IP', dnsSync.resolve(vm_name));
 
 // Balancer configuration
 var balancer = {
-    ip: process.env.AZK_BALANCER_IP   || vm_ip,
-  host: process.env.AZK_BALANCER_HOST,
-  port: process.env.AZK_BALANCER_PORT || 80,
-  file_dns: "/etc/resolver/" + process.env.AZK_BALANCER_HOST,
+    ip: envs('AZK_BALANCER_IP', vm_ip),
+  host: envs('AZK_BALANCER_HOST'),
+  port: envs('AZK_BALANCER_PORT', 80),
+  file_dns: "/etc/resolver/" + envs('AZK_BALANCER_HOST'),
 };
 
 // Docker opts
-var docker_host =
-  process.env.AZK_DOCKER_HOST ||
-  (requires_vm ? "http://" + vm_ip + ":2375" : "unix:///var/run/docker.sock");
+var docker_host = envs(
+  'AZK_DOCKER_HOST',
+  (requires_vm ? "http://" + vm_ip + ":2375" : "unix:///var/run/docker.sock")
+);
 
 // Log level
-var log_level = process.env.AZK_DEBUG ? 'debug' : 'warn';
+var log_level = envs('AZK_DEBUG') ? 'debug' : 'warn';
 
 function merge(options) {
   _.each(options, (values, key) => {
@@ -70,15 +67,15 @@ var options = merge({
       unfsd_file   : path.join(data_path, 'run', 'exports'),
       balancer_file: path.join(data_path, 'run', 'hipache.json'),
 
-      unfsd: process.env.AZK_UNFSD_PATH,
+      unfsd: envs('AZK_UNFSD_PATH'),
     },
     logs_level: {
-      console: (process.env.AZK_DEBUG ? 'debug' : 'warn'),
-      file: process.env.AZK_LOG_LEVEL || 'info',
+      console: (envs('AZK_DEBUG') ? 'debug' : 'warn'),
+      file: envs('AZK_LOG_LEVEL', 'info'),
     },
     docker: {
       host          : docker_host,
-      namespace     : process.env.AZK_DOCKER_NS,
+      namespace     : envs('AZK_DOCKER_NS'),
       repository    : 'azk',
       default_domain: 'azk',
       image_default : 'azukiapp/azktcl:0.0.2',
@@ -99,8 +96,10 @@ var options = merge({
         name       : vm_name,
         user       : "docker",
         password   : "tcuser",
-        ssh_key    : process.env.AZK_AGENT_VM_KEY,
-        boot_disk  : process.env.AZK_BOOT_FILE,
+        cpus       : envs('AZK_VM_CPUS', os.cpus().length),
+        memory     : envs('AZK_VM_MEMORY', Math.floor(os.totalmem()/1024/1024/4)),
+        ssh_key    : envs('AZK_AGENT_VM_KEY'),
+        boot_disk  : envs('AZK_BOOT_FILE'),
         data_disk  : path.join(data_path, "vm", "azk-agent.vmdk"),
         blank_disk : path.join(data_path, "vm", "azk-agent.vmdk.bz"),
         mount_point: '/home/docker/files',
@@ -127,7 +126,7 @@ var options = merge({
 });
 
 function env() {
-  return process.env.NODE_ENV || 'production';
+  return envs('NODE_ENV', 'production');
 }
 
 export function get(key) {
@@ -161,3 +160,4 @@ export function set(key, value) {
   }
   return value;
 }
+

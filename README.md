@@ -89,6 +89,7 @@ brew install unfs3
 
 * Distribution (tested): Ubuntu 12.04/14.04 and Fedora20
 * [Docker][docker] 1.1.0 or greater
+* Docker non-root access: ability to run containers with your user
 * [libnss-resolver][libnss-resolver]
 * Not running any service in `80` and `53` ports
 

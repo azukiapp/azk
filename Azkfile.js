@@ -94,6 +94,7 @@ systems({
 
   dns: {
     image: config("docker:image_default"),
+    shell: '/bin/bash',
     command: "dnsmasq -p $DNS_PORT --no-daemon --address=/#{azk.default_domain}/#{azk.balancer_ip}",
     wait: false,
     ports: {
@@ -104,6 +105,7 @@ systems({
 
   'balancer-redirect': {
     image: config("docker:image_default"),
+    shell: '/bin/bash',
     command: "env; socat TCP4-LISTEN:$HTTP_PORT,fork TCP:$BALANCER_IP:$BALANCER_PORT",
     ports: {
       http: "#{azk.balancer_port}:#{azk.balancer_port}/tcp",

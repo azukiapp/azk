@@ -181,8 +181,8 @@ var vm = {
 
       var cmd = [
         "--ostype", "Linux26_64",
-        "--cpus", os.cpus().length,
-        "--memory", Math.floor(os.totalmem()/1024/1024/4),
+        "--cpus", config("agent:vm:cpus"),
+        "--memory", config("agent:vm:memory"),
         "--vram", "9",
         "--rtcuseutc", "on",
         "--acpi", "on",

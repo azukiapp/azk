@@ -14,6 +14,10 @@ var Utils = {
   get _()       { return _; },
   get net()     { return require('azk/utils/net').default },
 
+  envs(key, defaultValue = null) {
+    return process.env[key] || defaultValue;
+  },
+
   cd(target, func) {
     var result, old = process.cwd();
 
