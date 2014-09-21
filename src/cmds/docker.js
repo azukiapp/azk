@@ -1,4 +1,4 @@
-import { _, path, async, defer, log, config } from 'azk';
+import { _, path, async, defer, log, config, utils } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
 import { Manifest } from 'azk/manifest';
 
@@ -17,7 +17,7 @@ class Cmd extends Command {
         var cmd   = `/bin/sh -c "docker ${args.join(" ")}"`;
       } else {
         var point = config('agent:vm:mount_point') + '.nfs';
-        var _path = this.docker.resolvePath(this.cwd, point);
+        var _path = utils.docker.resolvePath(this.cwd, point);
         var cmd   = `azk vm ssh -t "cd ${_path}; docker ${args.join(" ")}"`;
       }
 

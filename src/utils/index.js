@@ -13,6 +13,7 @@ var Utils = {
   get Q()       { return Q; },
   get _()       { return _; },
   get net()     { return require('azk/utils/net').default },
+  get docker()  { return require('azk/utils/docker').default },
 
   envs(key, defaultValue = null) {
     return process.env[key] || defaultValue;

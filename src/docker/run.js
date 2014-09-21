@@ -1,4 +1,4 @@
-import { _, async, config } from 'azk';
+import { _, async, config, utils } from 'azk';
 var path = require('path');
 
 function new_resize(container) {
@@ -134,7 +134,7 @@ export function run(docker, Container, image, cmd, opts = { }) {
     for(var i = 0; i < v_binds.length; i++) {
       var target = v_binds[i][0];
       if (v_binds[i][2] == "remote") {
-        target = docker.resolvePath(target);
+        target = utils.docker.resolvePath(target);
       }
       v_binds[i] = target + ':' + v_binds[i][1];
     }

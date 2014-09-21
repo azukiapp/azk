@@ -164,14 +164,4 @@ export class Docker extends Utils.qify('dockerode') {
   run(...args) {
     return run(this, Container, ...args);
   }
-
-  // TODO: Add test
-  resolvePath(target, point = config('agent:vm:mount_point')) {
-    target = Utils.resolve(target);
-    if (config('agent:requires_vm')) {
-      target = path.join(point, target);
-    }
-
-    return target;
-  }
 }

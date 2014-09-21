@@ -16,9 +16,19 @@ export class System {
     this.manifest  = manifest;
     this.name      = name;
     this.image     = new Image(image);
-    this.__options = options;
+
+    // Options
+    this.__options = {}
     this.options   = _.merge({}, this.default_options, options);
     this.options   = this._expand_template(this.options);
+  }
+
+  set options(values) {
+    this.__options = values;
+  }
+
+  get options() {
+    return this.__options;
   }
 
   get default_options() {
@@ -218,6 +228,49 @@ export class System {
       folders[origin] = folder;
       return folders;
     }, {});
+  }
+
+  get mounts() {
+    var volumes = {};
+    var mounts  = this.options.mounts;
+
+    // support mount_folders
+    mounts = _.reduce(this.raw_mount_folders, (mounts, point, target) => {
+      mounts[point] = { type: 'path', value: target };
+      return mounts;
+    }, mounts);
+
+    // support persistent_folders
+    mounts = _.reduce(this.options.persistent_folders, (mounts, point) => {
+      mounts[point] = { type: 'persistent', value: path.join(this.name, point) };
+      return mounts;
+    }, mounts);
+
+    // persistent folder
+    var persist_base = config('paths:persistent_folders');
+    persist_base = path.join(persist_base, this.manifest.namespace);
+
+    return _.reduce(mounts, (volumes, mount, point) => {
+      if (_.isString(mount)) {
+        mount = { type: 'path', value: mount }
+      }
+
+      var target = null;
+      switch(mount.type) {
+        case 'path':
+          target = utils.docker.resolvePath(mount.value);
+          break;
+        case 'persistent':
+          target = path.join(persist_base, mount.value);
+          break;
+      }
+
+      if (!_.isEmpty(target)) {
+        volumes[point] = target;
+      }
+
+      return volumes;
+    }, volumes);
   }
 
   // Get depends info
