@@ -79,7 +79,8 @@ function hash_key(data) {
   return (data || "").match(/^[\w|_]*$/) ? data : `'${data}'`;
 }
 
-function volume(data) {
+function mount(data) {
+  if (_.isString(data)) { return json(data); }
   switch(data.type) {
     default:
       return `${data.type}(${json(data.value)})`;
@@ -88,7 +89,7 @@ function volume(data) {
 
 Handlebars.registerHelper('json', json);
 Handlebars.registerHelper('hash_key', hash_key);
-Handlebars.registerHelper('volume', volume);
+Handlebars.registerHelper('mount', mount);
 
 export { example_system };
 

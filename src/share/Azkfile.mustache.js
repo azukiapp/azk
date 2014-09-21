@@ -30,10 +30,10 @@ systems({
     workdir: "{{&workdir}}",
     {{~/if}}
     command: {{&json command}},
-    {{~#if volumes }}
-    volumes: {
-      {{~#each volumes}}
-      '{{&@key}}': {{&volume this}},{{/each}}
+    {{~#if mounts }}
+    mounts: {
+      {{~#each mounts}}
+      '{{&@key}}': {{&mount this}},{{/each}}
     },
     {{~/if}}
     {{~#if mount_folders}}

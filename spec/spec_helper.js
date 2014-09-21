@@ -50,9 +50,9 @@ var Helpers = {
     });
   },
 
-  fixture_path(fixture) {
+  fixture_path(...fixture) {
     return Utils.resolve(
-      '.', 'spec', 'fixtures', fixture
+      '.', 'spec', 'fixtures', ...fixture
     );
   },
 
