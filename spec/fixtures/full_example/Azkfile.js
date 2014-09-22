@@ -26,14 +26,12 @@ systems({
     },
     // Run dir app
     workdir: "/azk/#{system.name}",
-    // Mounts folders to assigned paths
-    mount_folders: {
-      ".": "/azk/{system}",
+    mounts: {
+      // Mounts folders to assigned paths
+      "/azk/{system}": '.',
+      // Mounts a persistent data folders to assigned paths
+      "/data": persistent('data'),
     },
-    // Mounts a persistent data folders to assigned paths
-    persistent_folders: [
-      "/data"
-    ],
     command: "rails -s mongrel",
     envs: {
       RAILS_VERSION: "3.2.0"
@@ -66,8 +64,8 @@ systems({
     auto_start: false,
     depends: [ "db_slave", "api" ],
     build: { "path": "../worker" }, // Find ../worker/Dockerfile to build
-    volumes: {
-      "../worker": "/worker"
+    mounts: {
+      "/worker": "../worker"
     },
     command: "python worker.py",
   },

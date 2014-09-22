@@ -68,8 +68,8 @@ systems({
   grunt: {
     image: "dockerfile/nodejs",
     workdir: "/azk/#{manifest.dir}",
-    mount_folders: {
-      ".": "/azk/#{manifest.dir}",
+    mounts: {
+      "/azk/#{manifest.dir}": ".",
     },
     envs: {
       PATH: "/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/azk/#{manifest.dir}/node_modules/.bin"
@@ -82,9 +82,9 @@ systems({
       //'export INSTALL_DIR=/azk/<%= manifest.dir %>/vendor/python',
       //'pip install --target=$INSTALL_DIR --install-option="--install-scripts=$INSTALL_DIR/bin" sphinx',
     //],
-    workdir: "/azk/<%= manifest.dir %>",
-    mount_folders: {
-      ".": "/azk/<%= manifest.dir %>",
+    workdir: "/azk/#{manifest.dir}",
+    mounts: {
+      "/azk/#{manifest.dir}": ".",
     },
     //envs: {
       //PYTHONPATH: "/azk/<%= manifest.dir %>/vendor/python",

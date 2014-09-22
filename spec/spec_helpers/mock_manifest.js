@@ -119,6 +119,7 @@ export function extend(h) {
             "system_name": "#{system.name}",
             "persistent_folder": "#{system.persistent_folders}",
             "manifest_dir": "#{manifest.dir}",
+            "manifest_path": "#{manifest.path}",
             "manifest_project_name": "#{manifest.project_name}",
             "azk_default_domain": "#{azk.default_domain}",
             "azk_balancer_port": "#{azk.balancer_port}",

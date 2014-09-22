@@ -350,9 +350,9 @@ export class Manifest {
     return manifest.addSystem("--tmp--", {
       image: image,
       workdir: "/azk/#{manifest.dir}",
-      mount_folders: {
-        ".": "/azk/#{manifest.dir}",
-      },
+      mounts: {
+        "/azk/#{manifest.dir}": "#{manifest.path}"
+      }
     });
   }
 }
