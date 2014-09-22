@@ -107,6 +107,7 @@ export function extend(h) {
           mounts: {
             "/azk/#{system.name}": '.',
             "/azk/root": '/',
+            "/azk/not-exists": { type: 'path', value: '../not-exists', required: false },
           },
           docker_extra: {
             start: { Privileged: true }

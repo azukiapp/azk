@@ -11,20 +11,21 @@ var glob   = require('glob');
 var config = require('azk').config;
 var _      = require('lodash');
 
+var mounts = {
+  "/.tmux.conf" : path.join(env.HOME, ".tmux.conf"),
+  "/azk/demos"  : "../demos",
+  "/azk/lib"    : persistent('lib'),
+  "/azk/#{manifest.dir}/node_modules": persistent('node_modules'),
+  "/azk/data"      : persistent('data'),
+  "/var/lib/docker": persistent('docker_files'),
+}
+
 var itens = glob.sync("./!(lib|data|node_modules|npm-debug.log)");
-var mount = _.reduce(itens, function(mount, item) {
-  mount[item] = path.join("/azk", "#{manifest.dir}", item);
+mounts = _.reduce(itens, function(mount, item) {
+  var key = path.join("/azk", "#{manifest.dir}", item);
+  mount[key] = item;
   return mount;
-}, {});
-
-if (fs.existsSync("../demos")) {
-  mount["../demos"] = "/azk/demos";
-}
-
-var tmuxrc = path.join(env.HOME, ".tmux.conf");
-if (fs.existsSync(tmuxrc)) {
-  mount[tmuxrc] = "/.tmux.conf";
-}
+}, mounts);
 
 var agent_system = function(image) {
   return {
@@ -35,13 +36,7 @@ var agent_system = function(image) {
     scale: false,
     workdir: "/azk/#{manifest.dir}",
     shell: "/usr/local/bin/wrapdocker",
-    mount_folders: mount,
-    persistent_folders: [
-      "/azk/lib",
-      "/azk/#{manifest.dir}/node_modules",
-      "/azk/data",
-      "/var/lib/docker",
-    ],
+    mounts: mounts,
     envs: {
       PATH: "/azk/#{manifest.dir}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
       AZK_DATA_PATH: "/azk/data",

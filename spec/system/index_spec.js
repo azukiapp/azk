@@ -84,6 +84,7 @@ describe("Azk system class, main set", function() {
         h.expect(mounts).to.have.property(
           "/azk/root", utils.docker.resolvePath(path.resolve(manifest.manifestPath, "/"))
         );
+        h.expect(mounts).to.not.have.property('/azk/not-exists');
       });
 
       it("should return a persistent volumes", function() {

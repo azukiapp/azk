@@ -436,7 +436,8 @@ export class System {
           if (!target.match(/^\//)) {
             target = path.resolve(this.manifest.manifestPath, target);
           }
-          target = utils.docker.resolvePath(target);
+          target = (fs.existsSync(target)) ?
+            utils.docker.resolvePath(target) : null;
           break;
         case 'persistent':
           target = path.join(persist_base, mount.value);
