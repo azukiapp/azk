@@ -61,18 +61,16 @@ describe("Azk system class, main set", function() {
 
     describe("in a system with volumes to be mounted", function() {
       it("should expand options with template", function() {
-        var system = manifest.system('expand-test');
-        var mount_folders = system.raw_mount_folders;
-        h.expect(mount_folders).to.eql({
-          "system_name": system.name,
-          "persistent_folder": "/data",
-          "manifest_dir": manifest.manifestDirName,
-          "manifest_path": manifest.manifestPath,
-          "manifest_project_name": manifest.manifestDirName,
-          "azk_default_domain": config('agent:balancer:host'),
-          "azk_balancer_port": config('agent:balancer:port').toString(),
-          "azk_balancer_ip": config('agent:balancer:ip'),
-        })
+        var system    = manifest.system('expand-test');
+        var provision = system.options.provision;
+        h.expect(provision).to.include(`system.name: ${system.name}`);
+        h.expect(provision).to.include(`system.persistent_folders: /data`);
+        h.expect(provision).to.include(`manifest.dir: ${manifest.manifestDirName}`);
+        h.expect(provision).to.include(`manifest.path: ${manifest.manifestPath}`);
+        h.expect(provision).to.include(`manifest.project_name: ${manifest.manifestDirName}`);
+        h.expect(provision).to.include(`azk.default_domain: ${config('agent:balancer:host')}`);
+        h.expect(provision).to.include(`azk.balancer_port: ${config('agent:balancer:port').toString()}`);
+        h.expect(provision).to.include(`azk.balancer_ip: ${config('agent:balancer:ip')}`);
       });
 
       it("should return a mounts property", function() {

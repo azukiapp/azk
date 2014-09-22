@@ -35,9 +35,9 @@ describe("Azk generator node rule", function() {
     h.expect(system).to.have.deep.property("image.name", "dockerfile/nodejs:latest");
     h.expect(system).to.have.deep.property("depends").and.to.eql([]);
     h.expect(system).to.have.deep.property("command").and.to.match(command);
-    h.expect(system).to.have.deep.property("options.workdir", "/azk/" + name);
-    h.expect(system).to.have.deep.property("options.mounts")
+    h.expect(system).to.have.deep.property("mounts")
       .and.to.eql({ ["/azk/" + name]: utils.docker.resolvePath(manifest.manifestPath) });
+    h.expect(system).to.have.deep.property("options.workdir", "/azk/" + name);
     h.expect(system).to.have.deep.property("options.provision")
       .and.to.eql(["npm install"]);
 
