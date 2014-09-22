@@ -122,8 +122,8 @@ describe("Azk generator tool", function() {
       var mounts = system.mounts;
       h.expect(system).to.have.property('mounts');
       h.expect(mounts).to.have.property('/azk/root', config('agent:vm:mount_point') + '/');
-      h.expect(mounts).to.have.property('/azk/' + name, utils.docker.resolvePath(process.cwd()));
-      h.expect(mounts).to.have.property('/azk/old', utils.docker.resolvePath(process.cwd()));
+      h.expect(mounts).to.have.property('/azk/' + name, utils.docker.resolvePath(manifest.manifestPath));
+      h.expect(mounts).to.have.property('/azk/old', utils.docker.resolvePath(manifest.manifestPath));
       h.expect(mounts).to.have.property('/azk/data', path.join(persist_base, 'data'));
       h.expect(mounts).to.have.property('/data', path.join(persist_base, system.name, 'data'));
     });
