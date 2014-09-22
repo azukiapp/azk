@@ -81,9 +81,23 @@ function hash_key(data) {
 
 function mount(data) {
   if (_.isString(data)) { return json(data); }
+  var type    = data.type;
+  var options = _.reduce(data, (opts, value, key) => {
+    if (key != 'value' && key != 'type') {
+      opts[key] = value;
+    }
+    return opts;
+  }, {});
+
+  // args
+  var args  = [];
+  if (!_.isUndefined(data.value)) { args.push(data.value) };
+  if (!_.isEmpty(options)) args.push(options);
+  args = _.map(args, (arg) => { return json(arg); });
+
   switch(data.type) {
     default:
-      return `${data.type}(${json(data.value)})`;
+      return `${data.type}(${args.join(', ')})`;
   }
 }
 
