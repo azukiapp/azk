@@ -1,4 +1,4 @@
-import { Q, _, config, defer, async } from 'azk';
+import { Q, _, config, defer, async, utils } from 'azk';
 import docker from 'azk/docker';
 import h from 'spec/spec_helper';
 
@@ -76,17 +76,17 @@ describe("Azk docker module, run method @slow", function() {
     });
   });
 
-  it("should support bind local and remote volumes", function() {
-    var cmd = ["/bin/bash", "-c", "ls -l /azk /app"];
+  it("should support bind volumes", function() {
+    var cmd = ["/bin/bash", "-c", "ls -l /azk"];
     var options = {
       stdout: mocks.stdout, rm: true,
-      volumes: { [__dirname]: "/app" },
-      local_volumes: { '/etc/': "/azk" },
+      volumes: {
+        "/azk": utils.docker.resolvePath(__dirname),
+      },
     }
 
     return docker.run(default_img, cmd, options).then(() => {
       h.expect(outputs.stdout).to.match(/run_spec.js/);
-      h.expect(outputs.stdout).to.match(/hosts/);
     })
   });
 

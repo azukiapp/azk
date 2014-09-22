@@ -33,13 +33,9 @@ export function run(docker, Container, image, cmd, opts = { }) {
 
   // Volumes
   var volumes = {}, v_binds = [];
-  _.each(opts.volumes || {}, (point, target) => {
+  _.each(opts.volumes || {}, (target, point) => {
     volumes[point] = {};
-    v_binds.push([target, point, 'remote']);
-  });
-  _.each(opts.local_volumes || {}, (point, target) => {
-    volumes[point] = {};
-    v_binds.push([target, point, 'local']);
+    v_binds.push( `${target}:${point}` );
   });
 
   // Ports
@@ -128,15 +124,6 @@ export function run(docker, Container, image, cmd, opts = { }) {
 
         c_notify("stdin_pipe", { stdin: opts.stdin, stream });
       }
-    }
-
-    // Make start options
-    for(var i = 0; i < v_binds.length; i++) {
-      var target = v_binds[i][0];
-      if (v_binds[i][2] == "remote") {
-        target = utils.docker.resolvePath(target);
-      }
-      v_binds[i] = target + ':' + v_binds[i][1];
     }
 
     // Start container
