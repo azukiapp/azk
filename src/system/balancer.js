@@ -1,11 +1,14 @@
 import { async, config } from 'azk';
-import { Balancer } from 'azk/agent/balancer';
 
 var SystemBalancer = {
+  get balancer() {
+    return require('azk/agent/balancer').Balancer;
+  },
+
   clear(system) {
     return async(this, function*() {
       if (system.balanceable) {
-        return Balancer.removeAll(system.hostname);
+        return this.balancer.removeAll(system.hostname);
       }
       return false;
     });
@@ -21,7 +24,7 @@ var SystemBalancer = {
 
   list(system) {
     if (system.balanceable) {
-      return Balancer.getBackends(system.hostname);
+      return this.balancer.getBackends(system.hostname);
     } else {
       return Q([]);
     }
@@ -34,7 +37,7 @@ var SystemBalancer = {
         if (data.State.Running) {
           var backend = this._formatBackend(system, data);
           if (backend) {
-            return Balancer[method](system.hosts, backend);
+            return this.balancer[method](system.hosts, backend);
           }
         }
       }

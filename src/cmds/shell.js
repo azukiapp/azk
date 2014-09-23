@@ -1,7 +1,15 @@
-import { _, path, config, t, async, defer } from 'azk';
+import { _, path, config, t, async, defer, dynamic } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
-import { Manifest } from 'azk/manifest';
-import docker from 'azk/docker';
+
+dynamic(this, {
+  Manifest() {
+    return require('azk/manifest').Manifest;
+  },
+
+  docker() {
+    return require('azk/docker').default;
+  }
+});
 
 class Cmd extends Command {
   action(opts, extras) {

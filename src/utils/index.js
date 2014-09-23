@@ -16,7 +16,7 @@ var Utils = {
   get docker()  { return require('azk/utils/docker').default },
 
   envs(key, defaultValue = null) {
-    return process.env[key] || defaultValue;
+    return process.env[key] || (_.isFunction(defaultValue) ? defaultValue() : defaultValue);
   },
 
   cd(target, func) {

@@ -1,13 +1,14 @@
-import { _, path, async, defer, log, config, utils } from 'azk';
+import { _, path, async, defer, log, config, utils, dynamic } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
-import { Manifest } from 'azk/manifest';
+
+dynamic(this, {
+  Manifest() {
+    return require('azk/manifest').Manifest;
+  },
+});
 
 class Cmd extends Command {
-  get docker() {
-    return require('azk/docker').default;
-  }
-
-  run_docker(opts) {
+    run_docker(opts) {
     return defer((resolve, reject) => {
       var args = _.map(process.argv.slice(3), (arg) => {
         return arg.match(/^.* .*$/) ? `\\"${arg}\\"` : arg;

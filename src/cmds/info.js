@@ -1,8 +1,14 @@
-import { _, async, config } from 'azk';
+import { _, async, config, dynamic } from 'azk';
 import { Command } from 'azk/cli/command';
-import { Manifest } from 'azk/manifest';
 
-var prettyjson = require('prettyjson');
+dynamic(this, {
+  Manifest() {
+    return require('azk/manifest').Manifest;
+  },
+  prettyjson() {
+    return require('prettyjson');
+  }
+});
 
 class Cmd extends Command {
   action(opts) {

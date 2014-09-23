@@ -31,6 +31,14 @@ module.exports = {
   get fs()     { return require('fs-extra'); },
   get utils()  { return require('azk/utils'); },
 
+  get dynamic() {
+    return (obj, loads) => {
+      this._.each(loads, (func, getter) => {
+        obj.__defineGetter__(getter, func);
+      });
+    }
+  },
+
   get log() {
     if (!_log) {
       _log = require('azk/utils/log').log;

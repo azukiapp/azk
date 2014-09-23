@@ -1,9 +1,13 @@
-import { log, _, async, config, t } from 'azk';
+import { log, _, async, config, t, dynamic } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
-import { Manifest } from 'azk/manifest';
 import { SYSTEMS_CODE_ERROR, NotBeenImplementedError } from 'azk/utils/errors';
 import { Cmd as ScaleCmd } from 'azk/cmds/scale';
 
+dynamic(this, {
+  Manifest() {
+    return require('azk/manifest').Manifest;
+  },
+});
 
 class Cmd extends ScaleCmd {
   _scale(systems, action, opts) {

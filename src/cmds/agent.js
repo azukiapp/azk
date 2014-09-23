@@ -1,7 +1,6 @@
 import { _, fs, config, async, set_config } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
 import { AGENT_CODE_ERROR } from 'azk/utils/errors';
-import { VM  }   from 'azk/agent/vm';
 
 var net = require('net');
 

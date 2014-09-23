@@ -1,6 +1,5 @@
 import { _, envs } from 'azk/utils';
 var path    = require('path');
-var dnsSync = require('dns-sync');
 var os      = require('os');
 
 // Root path
@@ -13,7 +12,10 @@ var requires_vm = (envs('AZK_USE_VM') == "true");
 // Vm informations
 // TODO: Show erro if not resolve ip
 var vm_name = envs('AZK_AGENT_VM_NAME', "azk-agent");
-var vm_ip   = envs('AZK_AGENT_VM_IP', dnsSync.resolve(vm_name));
+var vm_ip   = envs('AZK_AGENT_VM_IP', function() {
+  var dnsSync = require('dns-sync');
+  dnsSync.resolve(vm_name)
+});
 
 // Balancer configuration
 var balancer = {

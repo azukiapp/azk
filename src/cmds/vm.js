@@ -1,8 +1,16 @@
-import { Q, _, config, async, t } from 'azk';
+import { Q, _, config, async, t, dynamic } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
-import { Server } from 'azk/agent/server';
-import { VM } from 'azk/agent/vm';
 import { net } from 'azk/utils';
+
+dynamic(this, {
+  VM() {
+    return require('azk/agent/vm').VM;
+  },
+
+  Server() {
+    return require('azk/agent/server').Server;
+  }
+});
 
 class RequiredError extends Error {
   constructor(key) {
