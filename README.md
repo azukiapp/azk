@@ -93,7 +93,7 @@ Installing dnsmasq is a good way to test it:
 
 ```bash
 $ sudo yum install dnsmasq
-$ dnsmaqs -p 5353 --no-daemon --address=/test.dev/127.0.0.1
+$ dnsmasq -p 5353 --no-daemon --address=/test.dev/127.0.0.1
 ```
 
 Now you can try this:
