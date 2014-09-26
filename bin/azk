@@ -2,7 +2,7 @@
 
 set -e
 
-__FILE__="$BASH_SOURCE"
+__FILE__=${BASH_SOURCE:-$0}
 export AZK_ROOT_PATH=`cd \`dirname $(readlink ${__FILE__} || echo ${__FILE__} )\`/..; pwd`
 
 # Npm folder
