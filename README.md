@@ -40,16 +40,17 @@ $ azk shell [so] --mount /usr/lib:/azk/lib -c "scons install"
 Now you can add the resolver-nss in a resolution pipe:
 
 ```bash
-$ sudo sed -i -re 's/^(hosts: .*$)/\1 resolver/' /etc/nsswitch.conf
+$ sudo sed -i -re 's/^(hosts: .*files)(.*)$/\1 resolver\2/' /etc/nsswitch.conf
 ```
 
 or edit `/etc/nsswitch.conf`:
 
 ```bash
-# normally       ↓
-hosts: files dns resolver
-# but, if you have avahi (Zeroconf) installed          ↓
-hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4 resolver
+# normally   ↓
+hosts: files resolver dns
+# but, if you have avahi (Zeroconf) installed
+#            ↓
+hosts: files resolver mdns4_minimal [NOTFOUND=return] dns mdns4 resolver
 ```
 
 ### From the source (without azk)
@@ -59,7 +60,7 @@ Dependencies: scons and clang
 ```bash
 $ git clone git@github.com:azukiapp/libnss-resolver.git
 # or
-$ git clone https://github.com/azukiapp-samples/libnss-resolver
+$ git clone https://github.com/azukiapp/libnss-resolver.git
 $ cd libnss-resolver
 
 # build
@@ -75,10 +76,11 @@ $ sudo sed -i -re 's/^(hosts: .*$)/\1 resolver/' /etc/nsswitch.conf
 or edit `/etc/nsswitch.conf`:
 
 ```bash
-# normally       ↓
-hosts: files dns resolver
-# but, if you have avahi (Zeroconf) installed          ↓
-hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4 resolver
+# normally   ↓
+hosts: files resolver dns
+# but, if you have avahi (Zeroconf) installed
+#            ↓
+hosts: files resolver mdns4_minimal [NOTFOUND=return] dns mdns4 resolver
 ```
 
 ## Configuring
