@@ -93,14 +93,14 @@ Installing dnsmasq is a good way to test it:
 
 ```bash
 $ sudo yum install dnsmasq
-$ dnsmaqs -p 5353 --no-daemon --address=/test.dev/127.0.0.1
+$ dnsmasq --bind-interfaces -p 5353 --no-daemon --address=/test.dev/127.0.0.1
 ```
 
 Now you can try this:
 
 ```bash
 # ping sufix
-$ ping test.dev 
+$ ping test.dev
 # or any "subdomain"
 $ ping any.test.dev
 ```
