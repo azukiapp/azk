@@ -3,7 +3,7 @@
 PKG="libnss-resolver"
 URL="https://github.com/azukiapp/libnss-resolver"
 DESCRIPTION="Adds Linux support to specify nameservers in a specific domain suffix context"
-VERSION=`git describe --abbrev=0 --tags | awk '{ print $gsub(/^v/, "") }'`
+VERSION=${PKG_VERSION:-`git describe --abbrev=0 --tags | awk '{ print $gsub(/^v/, "") }'`}
 
 LICENSE="Apache 2.0"
 VENDOR="Azuki (http://azukiapp.com)"
@@ -29,7 +29,7 @@ azk_shell() {
 
   fpm_extra_options=""
   system="$1"
-  PKG="${system}-${PKG}"
+  PKG="${PKG}"
 
   case $system in
     fedora20|centos7)
@@ -68,6 +68,7 @@ azk_shell() {
       -s dir -t ${pkg_type} \
       -n ${PKG} -v ${VERSION} \
       --provides ${PKG}\
+      --provides ${system}-${PKG}\
       --url \"${URL}\" \
       --description \"${DESCRIPTION}\" \
       --vendor \"${VENDOR}\" \
@@ -79,5 +80,5 @@ azk_shell() {
       ${fpm_extra_options} \
       --after-install scripts/after-install.sh \
       --after-remove scripts/after-remove.sh \
-      -f -p build -C ${destdir} ${prefix} etc \
+      -f -p ${destdir} -C ${destdir} ${prefix} etc \
   "
