@@ -35,10 +35,6 @@ azk_node_run() {
 azk_main() {
   azk_load_nvm &>/dev/null
   case "$1" in
-    bootstrap)
-      echo "installing node"
-      nvm install $node_version
-      ;;
     nvm)
       shift; "${@}"
       ;;
