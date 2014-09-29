@@ -16,7 +16,7 @@ install_resolver() {
 
     log "Adding resolver from $file"
     if ! grep -qe "hosts:.*\sresolver$" -e "hosts:.*\sresolver\s" $file ; then
-      sed -i -re 's/^(hosts: .*)$/\1 resolver/' $file
+      sed -i -re 's/^(hosts: .*files)(.*)$/\1 resolver\2/' $file
     fi;
 }
 
