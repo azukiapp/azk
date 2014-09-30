@@ -3,5 +3,7 @@
 /node_modules
 /data
 /lib/spec
+/lib/nvm
+/lib/vm
 .vimrc
 .azk

@@ -4,28 +4,47 @@ set -e
 
 __FILE__=${BASH_SOURCE:-$0}
 export AZK_ROOT_PATH=`cd \`dirname $(readlink ${__FILE__} || echo ${__FILE__} )\`/..; pwd`
+export AZK_DATA_PATH=${AZK_DATA_PATH:-$AZK_ROOT_PATH/data}
 
 # Npm folder
 AZK_NPM_PATH=${AZK_NPM_PATH:-$AZK_ROOT_PATH};
 export AZK_LIB_PATH=${AZK_LIB_PATH:-$AZK_ROOT_PATH/lib};
 export NVM_DIR=$AZK_LIB_PATH/nvm
+node_version=`cat $AZK_ROOT_PATH/.nvmrc`
 
 # Node load paths
-export NODE_PATH=$AZK_ROOT_PATH
+export NODE_PATH=$NVM_DIR/$node_version/node_modules
+export NODE_PATH=$AZK_ROOT_PATH:$NODE_PATH
 export NODE_PATH=$AZK_NPM_PATH/node_modules:$NODE_PATH
 export NODE_PATH=$AZK_LIB_PATH:$NODE_PATH
 
 # Extra path
+export PATH=$NVM_DIR/$node_version/bin:$PATH
 export PATH=$AZK_NPM_PATH/node_modules/.bin:$PATH
 
-# Configs
-node_version=`cat $AZK_ROOT_PATH/.nvmrc`
-nvm_file=$AZK_ROOT_PATH/vendor/bin/nvm.sh
+# No use DOCKER_HOST
+unset DOCKER_HOST
+
+make_data_folders() {
+  data_folders=(
+    "$NVM_DIR"
+    "$AZK_DATA_PATH"
+    "$AZK_DATA_PATH/run"
+    "$AZK_DATA_PATH/vm"
+    "$AZK_DATA_PATH/logs"
+  )
+
+  for dir in "${data_folders[@]}"; do
+    [ -d "$dir" ] || mkdir -p $dir
+  done
+}
 
 azk_load_nvm() {
-  mkdir -p $NVM_DIR
-  . $nvm_file
-  nvm use $node_version || { echo "node not installed"; }
+  if ! node --version &>/dev/null ; then
+    echo "node not installed";
+    echo "run: make bootstrap";
+    exit 1;
+  fi
 }
 
 azk_node_run() {
@@ -33,12 +52,13 @@ azk_node_run() {
 }
 
 azk_main() {
-  azk_load_nvm &>/dev/null
+  make_data_folders
   case "$1" in
     nvm)
       shift; "${@}"
       ;;
     *)
+      azk_load_nvm
       azk_node_run "${@}"
   esac
 }

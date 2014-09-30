@@ -1,13 +1,13 @@
 import { _, envs } from 'azk/utils';
-var path    = require('path');
-var os      = require('os');
+var path = require('path');
+var os   = require('os');
 
 // Root path
 var azk_root  = envs('AZK_ROOT_PATH', path.join('..', '..'));
 var data_path = envs('AZK_DATA_PATH', path.join(envs('HOME'), '.azk', 'data'));
 
 // Use virtual machine
-var requires_vm = (envs('AZK_USE_VM') == "true");
+var requires_vm = (envs('AZK_USE_VM', 'true') == "true");
 
 // Vm informations
 // TODO: Show erro if not resolve ip

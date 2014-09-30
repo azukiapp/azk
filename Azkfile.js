@@ -14,13 +14,16 @@ var _      = require('lodash');
 var mounts = {
   "/.tmux.conf" : path.join(env.HOME, ".tmux.conf"),
   "/azk/demos"  : "../demos",
-  "/azk/lib"    : persistent('lib'),
-  "/azk/#{manifest.dir}/node_modules": persistent('node_modules'),
-  "/azk/data"      : persistent('data'),
-  "/var/lib/docker": persistent('docker_files'),
+  "/azk/lib"    : persistent('lib-#{system.name}'),
+  "/azk/#{manifest.dir}/node_modules": persistent('node_modules-#{system.name}'),
+  "/azk/#{manifest.dir}/.nvmrc": ".nvmrc",
+  "/azk/#{manifest.dir}/bin/azk": "./bin/azk.new",
+  "/azk/#{manifest.dir}/bin/azk.js": "./bin/azk.js",
+  "/azk/data"      : persistent('data-#{system.name}'),
+  "/var/lib/docker": persistent('docker_files-#{system.name}'),
 }
 
-var itens = glob.sync("./!(lib|data|node_modules|npm-debug.log)");
+var itens = glob.sync("./!(bin|lib|data|node_modules|npm-debug.log)");
 mounts = _.reduce(itens, function(mount, item) {
   var key = path.join("/azk", "#{manifest.dir}", item);
   mount[key] = item;
