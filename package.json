@@ -74,6 +74,7 @@
     "grunt": "^0.4.4",
     "grunt-cli": "^0.1.13",
     "grunt-contrib-watch": "^0.6.1",
+    "grunt-curl": "^2.0.3",
     "grunt-env": "^0.4.1",
     "grunt-mocha-test": "^0.10.0",
     "grunt-newer": "^0.7.0",

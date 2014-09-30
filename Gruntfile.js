@@ -47,6 +47,14 @@ module.exports = function(grunt) {
       }
     },
 
+    // Downloads
+    'curl-dir': {
+      'brace-expansion': {
+        src: [ "https://s3-sa-east-1.amazonaws.com/azk/azk{.iso,-agent.vmdk.gz}" ],
+        dest: lib + '/vm',
+      },
+    },
+
     // Configuration to be run (and then tested).
     traceur: {
       options: {
@@ -127,6 +135,7 @@ module.exports = function(grunt) {
     process.stdout.write('\u001B[2J\u001B[0;0f');
   });
 
+  grunt.registerTask('vm-download', [ 'curl-dir:brace-expansion' ]);
   grunt.registerTask('test', ['env:test', 'clear', 'newer:traceur', 'mochaTest:test']);
   grunt.registerTask('slow_test', ['env:test', 'clear', 'newer:traceur', 'mochaTest:slow_test']);
   grunt.registerTask('compile', ['clear', 'newer:traceur', 'watch:traceur']);
