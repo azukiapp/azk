@@ -5,30 +5,34 @@
 // Global image to reuse
 //addImage('base', { repository: "cevich/empty_base_image" }); // tag: latest
 
-var path   = require('path');
-var fs     = require('fs');
-var glob   = require('glob');
+
 var config = require('azk').config;
-var _      = require('lodash');
+var mounts = (function() {
+  var _    = require('lodash');
+  var join = require('path').join;
+  var glob = require('glob');
 
-var mounts = {
-  "/.tmux.conf" : path.join(env.HOME, ".tmux.conf"),
-  "/azk/demos"  : "../demos",
-  "/azk/lib"    : persistent('lib-#{system.name}'),
-  "/azk/#{manifest.dir}/node_modules": persistent('node_modules-#{system.name}'),
-  "/azk/#{manifest.dir}/.nvmrc": ".nvmrc",
-  "/azk/#{manifest.dir}/bin/azk": "./bin/azk.new",
-  "/azk/#{manifest.dir}/bin/azk.js": "./bin/azk.js",
-  "/azk/data"      : persistent('data-#{system.name}'),
-  "/var/lib/docker": persistent('docker_files-#{system.name}'),
-}
+  var mounts = {
+    "/.tmux.conf"    : join(env.HOME, ".tmux.conf"),
+    "/azk/demos"     : "../demos",
+    "/azk/lib"       : persistent('lib-#{system.name}'),
+    "/azk/data"      : persistent('data-#{system.name}'),
+    "/var/lib/docker": persistent('docker_files-#{system.name}'),
+    "/azk/#{manifest.dir}/.npmrc"    : ".npmrc",
+    "/azk/#{manifest.dir}/.nvmrc"    : ".nvmrc",
+    "/azk/#{manifest.dir}/bin/azk"   : "./bin/azk.new",
+    "/azk/#{manifest.dir}/bin/azk.js": "./bin/azk.js",
+  }
 
-var itens = glob.sync("./!(bin|lib|data|node_modules|npm-debug.log)");
-mounts = _.reduce(itens, function(mount, item) {
-  var key = path.join("/azk", "#{manifest.dir}", item);
-  mount[key] = item;
-  return mount;
-}, mounts);
+  var itens = glob.sync("./!(bin|lib|data|node_modules|npm-debug.log)");
+  mounts = _.reduce(itens, function(mount, item) {
+    var key = join("/azk", "#{manifest.dir}", item);
+    mount[key] = item;
+    return mount;
+  }, mounts);
+
+  return mounts;
+})();
 
 var agent_system = function(image) {
   return {

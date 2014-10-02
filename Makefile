@@ -1,23 +1,27 @@
 
 AZK_ROOT_PATH:=$(shell pwd)
-AZK_NPM_PATH:=${AZK_ROOT_PATH}
 AZK_LIB_PATH:=${AZK_ROOT_PATH}/lib
+AZK_NPM_PATH:=${AZK_LIB_PATH}/node_modules
+SO:=$(shell uname -s | awk '{print tolower($$0)}')
 
 NVM_DIR := ${AZK_LIB_PATH}/nvm
 NODE_VERSION := $(shell cat ./.nvmrc)
 
 NODE = ${NVM_DIR}/${NODE_VERSION}/bin/node
-NODE_MODULES = ${AZK_NPM_PATH}/node_modules
 
 ${NODE}: .nvmrc
-	@echo "installing node"
-	@azk nvm bash -c '. ./vendor/bin/nvm.sh; nvm install ${NODE_VERSION}'
+	@echo "installing node" && \
+		export NVM_DIR=${NVM_DIR} && \
+		mkdir -p ${NVM_DIR} && \
+		. ./vendor/bin/nvm.sh && \
+		nvm install $(NODE_VERSION)
 
-${NODE_MODULES}/touch: ${NODE} package.json
+$AZK_NPM_PATH: package.json
 	@azk nvm npm install
-	@azk nvm touch ${NODE_MODULES}/touch
+
+$AZK_LIB_PATH/azk: ${AZK_ROOT_PATH}/src ${AZK_NPM_PATH}
 	@azk nvm grunt traceur
 
-bootstrap: ${NODE_MODULES}/touch
+bootstrap: ${NODE} ${AZK_LIB_PATH}/azk
 
 .PHONY: bootstrap
