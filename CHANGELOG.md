@@ -2,6 +2,10 @@
 
 ## v0.5.1 - dev
 
+* Enhancements
+  * Adding support `retry` and `timeout` in wait option;
+  * Adding support to configure `memory` and `cpus` with envs `AZK_VM_MEMORY` and `AZK_VM_CPUS`;
+
 ## v0.5.0 - (2014-03-09)
 
 * Bug
