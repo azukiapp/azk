@@ -105,8 +105,8 @@ var Run = {
           .value();
 
         if (!_.isEmpty(port_data)) {
-          var retry   = options.timeout || config('docker:run:retry');
-          var timeout = options.retry   || config('docker:run:timeout');
+          var retry   = options.wait.timeout || config('docker:run:retry');
+          var timeout = options.wait.retry   || config('docker:run:timeout');
 
           yield this._wait_available(system, port_data, container, retry, timeout);
         }
