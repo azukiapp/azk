@@ -7,20 +7,20 @@ export AZK_ROOT_PATH=`cd \`dirname $(readlink ${__FILE__} || echo ${__FILE__} )\
 export AZK_DATA_PATH=${AZK_DATA_PATH:-$AZK_ROOT_PATH/data}
 
 # Npm folder
-AZK_NPM_PATH=${AZK_NPM_PATH:-$AZK_ROOT_PATH};
 export AZK_LIB_PATH=${AZK_LIB_PATH:-$AZK_ROOT_PATH/lib};
+export AZK_NPM_PATH=${AZK_NPM_PATH:-$AZK_LIB_PATH/node_modules};
 export NVM_DIR=$AZK_LIB_PATH/nvm
 node_version=`cat $AZK_ROOT_PATH/.nvmrc`
 
 # Node load paths
 export NODE_PATH=$NVM_DIR/$node_version/node_modules
 export NODE_PATH=$AZK_ROOT_PATH:$NODE_PATH
-export NODE_PATH=$AZK_NPM_PATH/node_modules:$NODE_PATH
+export NODE_PATH=$AZK_NPM_PATH:$NODE_PATH
 export NODE_PATH=$AZK_LIB_PATH:$NODE_PATH
 
 # Extra path
 export PATH=$NVM_DIR/$node_version/bin:$PATH
-export PATH=$AZK_NPM_PATH/node_modules/.bin:$PATH
+export PATH=$AZK_NPM_PATH/.bin:$PATH
 
 # No use DOCKER_HOST
 unset DOCKER_HOST
