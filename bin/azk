@@ -1,14 +1,18 @@
-#!/bin/sh
+#!/bin/bash
+
+abs_dir() {
+  cd `dirname $1`; link=`readlink ${1}`
+  if [ -z "$link" ]; then pwd; else abs_dir $link; fi
+}
 
 set -e
 
-__FILE__=${BASH_SOURCE:-$0}
-export AZK_ROOT_PATH=`cd \`dirname $(readlink ${__FILE__} || echo ${__FILE__} )\`/..; pwd`
+export AZK_ROOT_PATH=`cd \`abs_dir ${BASH_SOURCE:-$0}\`/..; pwd`
 export AZK_DATA_PATH=${AZK_DATA_PATH:-$AZK_ROOT_PATH/data}
 
 # Npm folder
 export AZK_LIB_PATH=${AZK_LIB_PATH:-$AZK_ROOT_PATH/lib};
-export AZK_NPM_PATH=${AZK_NPM_PATH:-$AZK_LIB_PATH/node_modules};
+export AZK_NPM_PATH=${AZK_NPM_PATH:-$AZK_ROOT_PATH/node_modules};
 export NVM_DIR=$AZK_LIB_PATH/nvm
 node_version=`cat $AZK_ROOT_PATH/.nvmrc`
 
@@ -42,13 +46,17 @@ make_data_folders() {
 azk_load_nvm() {
   if ! node --version &>/dev/null ; then
     echo "node not installed";
-    echo "run: make bootstrap";
+    echo "run: make -e bootstrap";
     exit 1;
   fi
 }
 
 azk_node_run() {
   exec node --harmony $AZK_ROOT_PATH/bin/azk.js "${@}"
+}
+
+npm() {
+  exec npm --cache=${AZK_DATA_PATH}/nvm/cache ${@}
 }
 
 azk_main() {

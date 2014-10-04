@@ -13,12 +13,12 @@ var mounts = (function() {
   var glob = require('glob');
 
   var mounts = {
-    "/.tmux.conf"    : join(env.HOME, ".tmux.conf"),
-    "/azk/demos"     : "../demos",
-    "/azk/lib"       : persistent('lib-#{system.name}'),
-    "/azk/data"      : persistent('data-#{system.name}'),
-    "/var/lib/docker": persistent('docker_files-#{system.name}'),
-    "/azk/#{manifest.dir}/.npmrc"    : ".npmrc",
+    "/.tmux.conf"      : join(env.HOME, ".tmux.conf"),
+    "/azk/demos"       : "../demos",
+    "/azk/lib"         : persistent('lib-#{system.name}'),
+    "/azk/node_modules": persistent('node_modules-#{system.name}'),
+    "/azk/data"        : persistent('data-#{system.name}'),
+    "/var/lib/docker"  : persistent('docker_files-#{system.name}'),
     "/azk/#{manifest.dir}/.nvmrc"    : ".nvmrc",
     "/azk/#{manifest.dir}/bin/azk"   : "./bin/azk.new",
     "/azk/#{manifest.dir}/bin/azk.js": "./bin/azk.js",
