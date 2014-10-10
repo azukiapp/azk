@@ -31,9 +31,6 @@ var Helpers = {
               cmd.fail([...keys, event.status], event);
               break;
             default:
-              if (event.status == "starting") {
-                cmd.warning([...keys, "wait"], event.data);
-              }
               cmd.ok([...keys,  event.status], event.data);
           }
           break;

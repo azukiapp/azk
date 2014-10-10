@@ -26,6 +26,13 @@ module.exports = {
     invalid_value_error: "Invalid value: %(value)s in option %(option)s",
     image_not_exist: "Image from '%(image)s' not found",
     provision_not_found: "Not found '%(image)s' image",
+
+    dependencies: {
+      darwin: {
+        VBoxManages : 'VirtualBox not installed. Install before continue.',
+        unfsd: 'unfs3 not installed. Reinstall `azk` or \`brew install unfs3\` before continuing.'
+      }
+    }
   },
 
   status: {
@@ -101,6 +108,11 @@ module.exports = {
   system: {
     cmd_not_set: "Command not set in system \\`%(system)s\\`",
     seelog: "See the back log",
+  },
+
+  configure: {
+    loaded: "Settings loaded successfully.",
+    loading_checking: "Loading settings and checking dependencies.",
   },
 
   commands: {

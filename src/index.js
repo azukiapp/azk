@@ -27,6 +27,7 @@ module.exports = {
   get set_config() { return set_config; },
   get defer()  { return defer; },
   get async()  { return async; },
+  get os()     { return require('os'); },
   get path()   { return require('path'); },
   get fs()     { return require('fs-extra'); },
   get utils()  { return require('azk/utils'); },

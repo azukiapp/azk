@@ -1,6 +1,4 @@
-var printf = require('printf');
-var path   = require('path');
-import { t } from 'azk';
+import { t, path, os } from 'azk';
 
 var BASE_CODE_ERROR     = 1;
 var MANIFEST_CODE_ERROR = 2;
@@ -163,6 +161,21 @@ export class NotBeenImplementedError extends AzkError {
 export class AgentNotRunning extends AzkError {
   constructor() {
     super('agent_not_running');
+    this.code = AGENT_CODE_ERROR;
+  }
+}
+
+export class OSNotSupported extends AzkError {
+  constructor(os) {
+    super('os_not_supported');
+    this.os = os;
+    this.code = AGENT_CODE_ERROR;
+  }
+}
+
+export class DependencieError extends AzkError {
+  constructor(dependencie) {
+    super(`dependencies.${os.platform()}.${dependencie}`);
     this.code = AGENT_CODE_ERROR;
   }
 }
