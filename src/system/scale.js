@@ -27,9 +27,6 @@ var Scale = {
     });
 
     return async(this, function* (notify) {
-      var deps_envs = yield this.checkDependsAndReturnEnvs(system, options);
-      options.envs  = _.merge(deps_envs, options.envs || {});
-
       var containers = yield this.instances(system);
       var from = containers.length;
       var icc  = instances - from;
@@ -38,6 +35,9 @@ var Scale = {
         notify({ type: "scale", from, to: from + icc, system: system.name });
 
       if (icc > 0) {
+        var deps_envs = yield this.checkDependsAndReturnEnvs(system, options);
+        options.envs  = _.merge(deps_envs, options.envs || {});
+
         for(var i = 0; i < icc; i++) {
           yield system.runDaemon(_.clone(options));
           options.provision_force = false;
