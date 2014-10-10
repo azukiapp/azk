@@ -37,4 +37,4 @@ clean:
 
 bootstrap: ${AZK_LIB_PATH}/azk
 
-.PHONY: bootstrap
+.PHONY: bootstrap clean

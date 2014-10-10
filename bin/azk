@@ -1,18 +1,26 @@
 #!/bin/bash
 
+# Show and exit on errors
+set -e
+
+# Get azk root path
 abs_dir() {
   cd `dirname $1`; link=`readlink ${1}`
   if [ -z "$link" ]; then pwd; else abs_dir $link; fi
 }
 
-set -e
-
 export AZK_ROOT_PATH=`cd \`abs_dir ${BASH_SOURCE:-$0}\`/..; pwd`
-export AZK_DATA_PATH=${AZK_DATA_PATH:-$AZK_ROOT_PATH/data}
 
-# Npm folder
-export AZK_LIB_PATH=${AZK_LIB_PATH:-$AZK_ROOT_PATH/lib};
-export AZK_NPM_PATH=${AZK_NPM_PATH:-$AZK_ROOT_PATH/node_modules};
+# Namespace and domain
+export AZK_NAMESPACE=${AZK_NAMESPACE:-azk.dev}
+export AZK_BALANCER_HOST=${AZK_BALANCER_HOST:-$AZK_NAMESPACE}
+
+# Base folders
+export AZK_DATA_PATH=${AZK_DATA_PATH:-$AZK_ROOT_PATH/data/$AZK_NAMESPACE} # sockets, data disks and logs
+export AZK_LIB_PATH=${AZK_LIB_PATH:-$AZK_ROOT_PATH/lib};                  # transpiled files from src and node runtime
+export AZK_NPM_PATH=${AZK_NPM_PATH:-$AZK_ROOT_PATH/node_modules};         # package dependencies
+
+# Nvm paths and configs
 export NVM_DIR=$AZK_LIB_PATH/nvm
 node_version=`cat $AZK_ROOT_PATH/.nvmrc`
 

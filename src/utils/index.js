@@ -19,6 +19,14 @@ var Utils = {
     return process.env[key] || (_.isFunction(defaultValue) ? defaultValue() : defaultValue);
   },
 
+  mergeConfig(options) {
+    _.each(options, (values, key) => {
+      if (key != '*')
+        options[key] = _.merge({}, options['*'], values);
+    });
+    return options;
+  },
+
   cd(target, func) {
     var result, old = process.cwd();
 
