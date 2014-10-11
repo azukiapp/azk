@@ -1,6 +1,9 @@
 # Changelog
 
-## v0.5.1 - dev
+## v0.5.1
+
+* Bug
+  * [Cmds] Fixing stop all systems, if a dependencie system is down;
 
 * Enhancements
   * Adding support `retry` and `timeout` in wait option;
