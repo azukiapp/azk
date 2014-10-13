@@ -173,7 +173,7 @@ export class OSNotSupported extends AzkError {
   }
 }
 
-export class DependencieError extends AzkError {
+export class DependencyError extends AzkError {
   constructor(dependencie) {
     super(`dependencies.${os.platform()}.${dependencie}`);
     this.code = AGENT_CODE_ERROR;

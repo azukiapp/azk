@@ -36,7 +36,7 @@ class Cmd extends Command {
         this.ok('configure.loaded');
       }
 
-      // Run command
+      // Call action in agent
       var promise = Client[opts.action](opts).progress(progress);
       return promise.then((result) => {
         if (opts.action != "status") return result;

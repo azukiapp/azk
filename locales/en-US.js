@@ -29,8 +29,9 @@ module.exports = {
 
     dependencies: {
       darwin: {
-        VBoxManages : 'VirtualBox not installed. Install before continue.',
-        unfsd: 'unfs3 not installed. Reinstall `azk` or \`brew install unfs3\` before continuing.'
+        VBoxManage : 'VirtualBox not installed. Install before continue.',
+        unfsd: 'unfs3 not installed. Reinstall `azk` or \`brew install unfs3\` before continuing.',
+        network: 'networking error',
       }
     }
   },
@@ -113,6 +114,19 @@ module.exports = {
   configure: {
     loaded: "Settings loaded successfully.",
     loading_checking: "Loading settings and checking dependencies.",
+    ip_question: "Enter the vm ip",
+    ip_invalid: "`%(ip)s`".yellow + " is an invalid v4 ip, try again.",
+    ip_of_range: "`%(ip)s`".yellow + " is an invalid ip range, try again.",
+    adding_ip: "Adding %(ip)s to %(file)s ...",
+    vm_ip_msg: ([
+      "",
+      "In order to give `azk` access to `azk agent`,",
+      "it is necessary to define an IP address to the virtual machine.",
+      "This IP address will be used to establish a private network",
+      "between the physical machine running `azk` and the virtual",
+      "machine where `azk agent` is in execution.",
+      "",
+    ]).join('\n'),
   },
 
   commands: {
