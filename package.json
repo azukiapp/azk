@@ -41,6 +41,7 @@
     "glob": "^3.2.9",
     "handlebars": "2.0.0-alpha.4",
     "hipache": "git+https://github.com/azukiapp/hipache#memcache_unix_socket",
+    "inquirer": "^0.8.0",
     "lodash": "^2.4.1",
     "memcached": "^0.2.8",
     "memcachedjs": "0.0.1",

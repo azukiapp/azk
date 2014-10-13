@@ -1,18 +1,24 @@
-import { _, t } from 'azk';
+import { _, Q, t, defer } from 'azk';
 import { Multibar } from 'azk/cli/multi_bars';
+
 require('colors');
 
-var execSh  = require('exec-sh');
-var Table   = require('cli-table');
-var printf  = require('printf');
-var ok      = 'azk'.green;
-var fail    = 'azk'.red;
-var warning = 'azk'.yellow;
-var mbars   = [];
-var tables  = {};
+var execSh   = require('exec-sh');
+var Table    = require('cli-table');
+var printf   = require('printf');
+var inquirer = require('inquirer');
+var mbars    = [];
+var tables   = {};
+
+// Status labels
+var ok       = 'azk'.green;
+var fail     = 'azk'.red;
+var warning  = 'azk'.yellow;
+var info     = 'azk'.blue;
 
 var UI = {
   isUI: true,
+  t: t,
 
   dir(...args) {
     console.dir(...args);
@@ -40,16 +46,13 @@ var UI = {
     });
   },
 
-  ok(...args) {
-    this.output(ok + ": " + t(...args));
-  },
-
-  fail(...args) {
-    this.output(fail + ": " + t(...args));
-  },
-
-  warning(...args) {
-    this.output(warning + ": " + t(...args));
+  // Helpers to print status
+  ok(...args)      { this._status(ok, ...args);      },
+  info(...args)    { this._status(info, ...args);    },
+  fail(...args)    { this._status(fail, ...args);    },
+  warning(...args) { this._status(warning, ...args); },
+  _status(tag, ...args) {
+    this.output(t(...args).replace(/^(.+)/gm, `${tag}: $1`));
   },
 
   // TOOD: Flush log (https://github.com/flatiron/winston/issues/228)
@@ -93,8 +96,25 @@ var UI = {
     this.output(tables[name].toString());
   },
 
+  // User interactions methods
   execSh(...args) {
-    execSh(...args);
+    return Q.nfcall(execSh, ...args);
+  },
+
+  prompt(questions) {
+    // Object or array support
+    if (_.isObject(questions)) questions = [questions];
+
+    questions = _.map(questions, (q) => {
+      if (!_.isEmpty(q.message)) {
+        q.message = t(q.message);
+      }
+      return q;
+    });
+
+    return defer((resolve) => {
+      inquirer.prompt(questions, (answers) => resolve(answers));
+    });
   }
 }
 
