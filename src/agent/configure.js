@@ -31,6 +31,7 @@ export class Configure extends UIProxy {
       this._which('VBoxManage'),
       this._which('unfsd'),
       this._checkAndConfigureNetwork(),
+      //this._checkAndGenerateSSHKeys(),
     ]);
   }
 
@@ -46,37 +47,67 @@ export class Configure extends UIProxy {
       });
   }
 
+  // Check vm ip is configurat
   _checkAndConfigureNetwork() {
     return async(this, function* () {
       var file  = config('agent:balancer:file_dns');
       var exist = yield qfs.exists(file);
-      if (!exist) {
-        this.warning('configure.vm_ip_msg');
-        var ip   = yield this._getNetworkIp();
-        var port = config('agent:dns:port');
+      var ip    = null;
 
-        // Creating resolver file and adding ip (with sudo)
-        this.info('configure.adding_ip', { ip, file });
-        ip = `${ip}${this.dns_separator}${port}`;
-        var cmd = `
-          echo "";
-          set -x;
-          sudo mkdir -p /etc/resolver 2>/dev/null;
-          echo "# azk agent configure" | sudo tee ${file};
-          echo "nameserver ${ip}" | sudo tee -a ${file};
-          sudo chown \$(id -u):\$(id -g) ${file};
-          set +x;
-          echo "";
-        `;
-
-        // Call interactive shell (to support sudo)
-        yield this.execSh(cmd).fail((err) => {
-          throw new DependencyError('network');
-        });
-
-        return ip;
+      // File exist? Get content
+      if (exist) {
+        var content = yield qfs.read(file);
+        ip = this._parseNameserver(content);
       }
+
+      // Not exist or invalid content
+      if (_.isEmpty(ip)) {
+        this.warning('configure.vm_ip_msg');
+        ip = yield this._getNetworkIp();
+        yield this._generateResolverFile(ip, file);
+      }
+
+      // Save configuration
+      set_config('agent:vm:ip', ip);
+      set_config('agent:dns:ip', ip);
+      set_config('agent:balancer:ip', ip);
     });
+  }
+
+  // Generate file /etc/resolver/*
+  _generateResolverFile(ip, file) {
+    var port = config('agent:dns:port');
+
+    // Creating resolver file and adding ip (with sudo)
+    this.info('configure.adding_ip', { ip, file });
+    ip = `${ip}${this.dns_separator}${port}`;
+    var script = `
+      echo "";
+      set -x;
+      sudo mkdir -p /etc/resolver 2>/dev/null;
+      echo "# azk agent configure" | sudo tee ${file};
+      echo "nameserver ${ip}" | sudo tee -a ${file};
+      sudo chown \$(id -u):\$(id -g) ${file};
+      set +x;
+      echo "";
+    `;
+
+    // Call interactive shell (to support sudo)
+    return this.execSh(script)
+      .fail((err) => { throw new DependencyError('network'); } );
+  }
+
+  _parseNameserver(content) {
+    var lines   = content.split('\n');
+    var regex   = /nameserver ((?:[0-9]{1,3}\.){3}[0-9]{1,3})/;
+    var capture = null;
+    return _.reduce(lines, (nameservers, line) => {
+      if (capture = line.match(regex)) {
+        var ip = capture[1];
+        if (isIPv4(ip)) nameservers.push(ip);
+      }
+      return nameservers;
+    }, []);
   }
 
   // TODO: improve to get a free network ip ranges
