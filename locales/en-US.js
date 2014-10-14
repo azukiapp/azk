@@ -118,6 +118,7 @@ module.exports = {
     ip_invalid: "`%(ip)s`".yellow + " is an invalid v4 ip, try again.",
     ip_of_range: "`%(ip)s`".yellow + " is an invalid ip range, try again.",
     adding_ip: "Adding %(ip)s to %(file)s ...",
+    generating_key: "Generating public/private rsa key pair to connect vm.\n",
     vm_ip_msg: ([
       "",
       "In order to give `azk` access to `azk agent`,",

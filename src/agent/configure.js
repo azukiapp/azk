@@ -31,7 +31,7 @@ export class Configure extends UIProxy {
       this._which('VBoxManage'),
       this._which('unfsd'),
       this._checkAndConfigureNetwork(),
-      //this._checkAndGenerateSSHKeys(),
+      this._checkAndGenerateSSHKeys(),
     ]);
   }
 
@@ -45,6 +45,25 @@ export class Configure extends UIProxy {
       .fail(() => {
         throw new DependencyError(command);
       });
+  }
+
+  // Check for ssh keys, used for connection vm
+  _checkAndGenerateSSHKeys() {
+    var file = config('agent:vm:ssh_key');
+    return qfs.exists(file).then((exist) => {
+      if (!exist) {
+        this.info('configure.generating_key');
+        var script = `
+          set -x;
+          ssh-keygen -t rsa -f ${file} -N ''; result=$?;
+          set +x;
+          echo "";
+          exit $result;
+        `;
+        return this.execSh(script)
+          .fail((err) => { throw new DependencyError('ssh_keygen'); } );
+      }
+    });
   }
 
   // Check vm ip is configurat
