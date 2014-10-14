@@ -53,7 +53,7 @@ var options = mergeConfig({
       file: envs('AZK_LOG_LEVEL', 'info'),
     },
     docker: {
-      //host          : docker_host,
+      host          : "from agent configure",
       namespace     : envs('AZK_NAMESPACE'),
       repository    : 'azk',
       default_domain: 'azk',
@@ -85,11 +85,14 @@ var options = mergeConfig({
         memory     : envs('AZK_VM_MEMORY', Math.floor(os.totalmem()/1024/1024/4)),
         ssh_key    : envs('AZK_AGENT_VM_KEY', path.join(paths.vm, "azkvm_rsa")),
         data_disk  : path.join(paths.vm, "azk-agent.vmdk"),
-        boot_disk  : path.join(env('AZK_LIB_PATH'), "vm", "azk.iso"),
-        blank_disk : path.join(env('AZK_LIB_PATH'), "vm", "azk-agent.vmdk.bz"),
+        boot_disk  : path.join(envs('AZK_LIB_PATH'), "vm", "azk.iso"),
+        blank_disk : path.join(envs('AZK_LIB_PATH'), "vm", "azk-agent.vmdk.gz"),
         mount_point: '/home/docker/files',
         authorized_key: '/home/docker/.ssh/authorized_keys',
-      }
+      },
+
+      // Used to carry global configuration switches the agent
+      config_keys: [],
     }
   },
   test: {

@@ -21,7 +21,7 @@ var Unfsd = {
         "-n", port,
         "-m", port,
         "-e", file
-      ]
+      ];
 
       return defer((resolve, reject) => {
         change_status("starting");

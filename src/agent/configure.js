@@ -17,7 +17,15 @@ export class Configure extends UIProxy {
   run() {
     var method = this[os.platform()];
     if (method) {
-      return method.apply(this);
+      return method.apply(this)
+        .then((confgs) => {
+          return _.reduce(confgs, (acc, lines) => {
+            if (!_.isEmpty(lines)) {
+              _.each(lines, (line, key) => acc[key] = line);
+            }
+            return acc;
+          }, {});
+        });
     } else {
       throw new OSNotSupported(os.platform());
     }
@@ -29,7 +37,7 @@ export class Configure extends UIProxy {
     this.dns_separator = '.';
     return Q.all([
       this._which('VBoxManage'),
-      this._which('unfsd'),
+      this._which('unfsd', 'paths:unfsd'),
       this._checkAndConfigureNetwork(),
       this._checkAndGenerateSSHKeys(),
     ]);
@@ -39,9 +47,11 @@ export class Configure extends UIProxy {
   //linux() {
   //}
 
-  _which(command) {
-    return Q
-      .nfcall(which, command)
+  _which(command, save_key = null) {
+    return Q.nfcall(which, command)
+      .then((path) => {
+        if (save_key) return { [save_key]: path };
+      })
       .fail(() => {
         throw new DependencyError(command);
       });
@@ -76,7 +86,7 @@ export class Configure extends UIProxy {
       // File exist? Get content
       if (exist) {
         var content = yield qfs.read(file);
-        ip = this._parseNameserver(content);
+        ip = this._parseNameserver(content)[0];
       }
 
       // Not exist or invalid content
@@ -87,9 +97,12 @@ export class Configure extends UIProxy {
       }
 
       // Save configuration
-      set_config('agent:vm:ip', ip);
-      set_config('agent:dns:ip', ip);
-      set_config('agent:balancer:ip', ip);
+      return {
+        ['agent:vm:ip']      : ip,
+        ['agent:dns:ip']     : ip,
+        ['agent:balancer:ip']: ip,
+        ['docker:host']      : `http://${ip}:2375`,
+      };
     });
   }
 

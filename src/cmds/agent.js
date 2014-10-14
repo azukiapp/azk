@@ -17,23 +17,20 @@ class Cmd extends Command {
     var progress = Helpers.vmStartProgress(this);
 
     return async(this, function* () {
-      // Skip if not use a vm
-      if (config('agent:requires_vm')) {
-        // Remove and adding vm (to refresh vm configs)
-        if (opts['reload-vm'] && opts.action == "start") {
-          var cmd_vm = this.parent.commands.vm;
-          yield cmd_vm.action({ action: 'remove', fail: () => {} });
-        }
-      }
+      // Only in start
+      if (opts.action === 'start') {
+        // And no running
+        var status = yield Client.status();
+        if (!status.agent) {
+          // Check and load configures
+          opts.configs = yield this.configure();
 
-      // Check and load configures
-      var status = yield Client.status();
-      if (opts.action == 'start' && !status.agent) {
-        this.warning('status.agent.wait');
-        var conf = new Configure(this);
-        this.ok('configure.loading_checking');
-        conf = yield conf.run();
-        this.ok('configure.loaded');
+          // Remove and adding vm (to refresh vm configs)
+          if (config('agent:requires_vm') && opts['reload-vm']) {
+            var cmd_vm = this.parent.commands.vm;
+            yield cmd_vm.action({ action: 'remove', fail: () => {} });
+          }
+        }
       }
 
       // Call action in agent
@@ -42,6 +39,16 @@ class Cmd extends Command {
         if (opts.action != "status") return result;
         return (result.agent) ? 0 : 1;
       });
+    });
+  }
+
+  configure() {
+    this.warning('status.agent.wait');
+    var conf = new Configure(this);
+    this.ok('configure.loading_checking');
+    return conf.run().then((configs) => {
+      this.ok('configure.loaded');
+      return configs;
     });
   }
 }
