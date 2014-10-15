@@ -7,3 +7,5 @@
 /lib/vm
 .vimrc
 .azk
+/package
+/build
