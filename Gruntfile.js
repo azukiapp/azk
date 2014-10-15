@@ -108,6 +108,9 @@ module.exports = function(grunt) {
 
     watch: {
       spec: {
+        options: {
+          atBegin: true,
+        },
         files: [
           'Gruntfile.js',
           'src/**/*.js',
@@ -117,12 +120,23 @@ module.exports = function(grunt) {
       },
 
       traceur: {
+        options: {
+          atBegin: true,
+        },
         files: [
           'Gruntfile.js',
           'src/**/*.js',
           'spec/**/*.js',
         ],
         tasks: ['clear', 'newer:traceur']
+      }
+    },
+
+    exec: {
+      'build': {
+        'cmd': function(system) {
+          return 'azk shell ' + system + ' -c "azk nvm grunt newer:traceur"'
+        },
       }
     },
   });
@@ -138,10 +152,10 @@ module.exports = function(grunt) {
   grunt.registerTask('vm-download', [ 'curl-dir:brace-expansion' ]);
   grunt.registerTask('test', ['env:test', 'clear', 'newer:traceur', 'mochaTest:test']);
   grunt.registerTask('slow_test', ['env:test', 'clear', 'newer:traceur', 'mochaTest:slow_test']);
-  grunt.registerTask('compile', ['clear', 'newer:traceur', 'watch:traceur']);
+  grunt.registerTask('compile', ['watch:traceur']);
   grunt.registerTask('inspector', ["node-inspector"]);
   grunt.registerTask('default', function() {
     key_watch(grunt);
-    return grunt.task.run([test_task, 'watch:spec']);
+    return grunt.task.run(['watch:spec']);
   });
 };
