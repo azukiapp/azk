@@ -70,8 +70,13 @@ export class Configure extends UIProxy {
           echo "";
           exit $result;
         `;
-        return this.execSh(script)
-          .fail((err) => { throw new DependencyError('ssh_keygen'); } );
+        return this.execSh(script).then((code) => {
+          if (code != 0) {
+            throw new DependencyError('ssh_keygen');
+          } else {
+            return code;
+          }
+        });
       }
     });
   }
@@ -125,8 +130,13 @@ export class Configure extends UIProxy {
     `;
 
     // Call interactive shell (to support sudo)
-    return this.execSh(script)
-      .fail((err) => { throw new DependencyError('network'); } );
+    return this.execSh(script).then((code) => {
+      if (code != 0) {
+        throw new DependencyError('network');
+      } else {
+        return code;
+      }
+    });
   }
 
   _parseNameserver(content) {

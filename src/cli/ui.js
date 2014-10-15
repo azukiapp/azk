@@ -52,7 +52,8 @@ var UI = {
   fail(...args)    { this._status(fail, ...args);    },
   warning(...args) { this._status(warning, ...args); },
   _status(tag, ...args) {
-    this.output(t(...args).replace(/^(.+)/gm, `${tag}: $1`));
+    var string = t(...args).replace(/^(.+)/gm, `${tag}: $1`);
+    this.stderr().write(string + "\n");
   },
 
   // TOOD: Flush log (https://github.com/flatiron/winston/issues/228)
@@ -98,7 +99,8 @@ var UI = {
 
   // User interactions methods
   execSh(...args) {
-    return Q.nfcall(execSh, ...args);
+    var result = (err) => { return (err) ? err.code : 0; }
+    return Q.nfcall(execSh, ...args).spread(result, result);
   },
 
   prompt(questions) {
