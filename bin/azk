@@ -15,8 +15,14 @@ export AZK_ROOT_PATH=`cd \`abs_dir ${BASH_SOURCE:-$0}\`/..; pwd`
 export AZK_NAMESPACE=${AZK_NAMESPACE:-azk.dev}
 export AZK_BALANCER_HOST=${AZK_BALANCER_HOST:-$AZK_NAMESPACE}
 
+# Default namespace use a data root path
+data_namespace="/ns/${AZK_NAMESPACE}";
+if [ "${AZK_NAMESPACE}" == "azk.dev" ]; then
+  data_namespace="";
+fi
+
 # Base folders
-export AZK_DATA_PATH=${AZK_DATA_PATH:-$AZK_ROOT_PATH/data/$AZK_NAMESPACE} # sockets, data disks and logs
+export AZK_DATA_PATH=${AZK_DATA_PATH:-$AZK_ROOT_PATH/data$data_namespace} # sockets, data disks and logs
 export AZK_LIB_PATH=${AZK_LIB_PATH:-$AZK_ROOT_PATH/lib};                  # transpiled files from src and node runtime
 export AZK_NPM_PATH=${AZK_NPM_PATH:-$AZK_ROOT_PATH/node_modules};         # package dependencies
 
@@ -41,14 +47,22 @@ make_data_folders() {
   data_folders=(
     "$NVM_DIR"
     "$AZK_DATA_PATH"
+    "$AZK_DATA_PATH/ns"
     "$AZK_DATA_PATH/run"
     "$AZK_DATA_PATH/vm"
+    "$AZK_DATA_PATH/nvm"
     "$AZK_DATA_PATH/logs"
   )
 
   for dir in "${data_folders[@]}"; do
     [ -d "$dir" ] || mkdir -p $dir
   done
+
+  # Clean old install azk versions files (<0.6.0)
+  (
+    cd $AZK_DATA_PATH;
+    rm -Rf vm/*.tmp vm/*.iso vm/*.bz vm/*.sha
+  )
 }
 
 azk_load_nvm() {
