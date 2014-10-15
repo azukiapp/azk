@@ -3,7 +3,6 @@ import { _, config, async, defer, Q, fs } from 'azk';
 import { System } from 'azk/system';
 import { Run } from 'azk/system/run';
 import { ImageNotAvailable } from 'azk/utils/errors';
-import docker from 'azk/docker';
 
 describe("Azk system class, run set", function() {
   var manifest, system;
@@ -45,7 +44,7 @@ describe("Azk system class, run set", function() {
         );
 
         h.expect(exitResult).to.have.property("code", 0);
-        var container = docker.findContainer(exitResult.containerId);
+        var container = h.docker.findContainer(exitResult.containerId);
         return h.expect(container).to.eventually.null;
       });
     });
@@ -59,7 +58,7 @@ describe("Azk system class, run set", function() {
         var err = yield result.fail((err) => { return err });
         h.expect(err).to.instanceOf(Error).and.match(regex);
 
-        var data = yield docker.findContainer(err.container.Id);
+        var data = yield h.docker.findContainer(err.container.Id);
         h.expect(data).to.null;
       });
     });

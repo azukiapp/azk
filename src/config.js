@@ -98,7 +98,7 @@ var options = mergeConfig({
   },
   test: {
     paths: {
-      log: path.join(data_path, 'logs', 'azk_test.log'),
+      log : path.join(paths.logs, 'azk_test.log'),
     },
     docker: {
       namespace   : 'azk.test',
@@ -108,14 +108,15 @@ var options = mergeConfig({
     agent: {
       portrange_start: 12000,
       vm: {
-        data_disk : path.join(data_path, "vm", "azk-agent-spec.vmdk"),
+        data_disk : path.join(paths.vm, "azk-agent-spec.vmdk"),
       }
     }
   }
 });
 
 function env() {
-  return envs('NODE_ENV', 'production');
+  var env = envs('NODE_ENV', 'production');
+  return env;
 }
 
 export function get(key) {

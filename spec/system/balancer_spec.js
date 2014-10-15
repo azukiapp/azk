@@ -1,7 +1,6 @@
 import h from 'spec/spec_helper';
 import { config, async, Q } from 'azk';
 import { System } from 'azk/system';
-import docker from 'azk/docker';
 
 describe("Azk system class, balancer set", function() {
   var manifest, system;
