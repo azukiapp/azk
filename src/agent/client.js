@@ -1,6 +1,7 @@
 import { _, Q, defer, log } from 'azk';
 import { config, set_config } from 'azk';
 import { Agent } from 'azk/agent';
+import { AgentNotRunning } from 'azk/utils/errors';
 
 var request = require('request');
 
