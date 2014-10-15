@@ -34,17 +34,8 @@ var net = {
 
   nameServers() {
     if (nameservers == null) {
-      nameservers = [config("agent:dns:ip")];
-
-      var file = "/etc/resolv.conf";
-      if (fs.existsSync(file)) {
-        var lines = fs.readFileSync(file).toString().split("\n");
-        _.each(lines, (line) => {
-          if (line.match(/^nameserver.*$/)) {
-            nameservers.push(line.replace(/^nameserver\s{1,}(.*)/, "$1"));
-          }
-        });
-      }
+      nameservers = config('agent:dns:nameservers');
+      nameservers.unshift(config("agent:dns:ip"));
     }
     return nameservers;
   },

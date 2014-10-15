@@ -25,6 +25,11 @@ var paths = {
   vm  : path.join(data_path, 'vm'),
 };
 
+var dns_nameservers = function(key, defaultValue) {
+  var value = envs(key);
+  return _.isEmpty(value) ? defaultValue : _.invoke(value.split(','), 'trim');
+}
+
 var options = mergeConfig({
   '*': {
     namespace: namespace,
@@ -76,6 +81,8 @@ var options = mergeConfig({
       dns: {
         ip  : "from agent configure",
         port: envs('AZK_DNS_PORT', '53'),
+        nameservers  : dns_nameservers('AZK_DNS_SERVERS', []),
+        defaultserver: dns_nameservers('AZK_DNS_SERVERS_DEFAULTS', ['8.8.8.8', '8.8.4.4']),
       },
       vm: {
         ip         : envs('AZK_AGENT_VM_IP'  , '192.168.50.4'),
@@ -130,7 +137,7 @@ export function get(key) {
     if (!buffer) break;
   }
 
-  return buffer;
+  return _.clone(buffer);
 };
 
 export function set(key, value) {

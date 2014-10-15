@@ -40,6 +40,7 @@ export class Configure extends UIProxy {
       this._which('unfsd', 'paths:unfsd'),
       this._checkAndConfigureNetwork(),
       this._checkAndGenerateSSHKeys(),
+      this._loadDnsServers(),
     ]);
   }
 
@@ -141,7 +142,7 @@ export class Configure extends UIProxy {
 
   _parseNameserver(content) {
     var lines   = content.split('\n');
-    var regex   = /nameserver ((?:[0-9]{1,3}\.){3}[0-9]{1,3})/;
+    var regex   = /^\s*nameserver\s{1,}((?:[0-9]{1,3}\.){3}[0-9]{1,3})/;
     var capture = null;
     return _.reduce(lines, (nameservers, line) => {
       if (capture = line.match(regex)) {
@@ -177,5 +178,31 @@ export class Configure extends UIProxy {
       .then((answers) => {
         return answers.ip;
       });
+  }
+
+  _loadDnsServers() {
+    return async(this, function* () {
+      var cf_key = 'agent:dns:nameservers';
+      var nameservers = this._filderDnsServers(config(cf_key));
+
+      if (_.isEmpty(nameservers)) {
+        nameservers = this._filderDnsServers(yield this._readResolverFile());
+      }
+
+      if (_.isEmpty(nameservers)) {
+        nameservers = config('agent:dns:defaultserver');
+      }
+
+      return { [cf_key]: nameservers };
+    });
+  }
+
+  _filderDnsServers(nameservers) {
+    return _.filter(nameservers, (server) => { return !server.match(/^127\./) });
+  }
+
+  _readResolverFile() {
+    var file = "/etc/resolv.conf";
+    return qfs.read(file).then(this._parseNameserver);
   }
 }
