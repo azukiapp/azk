@@ -15,16 +15,15 @@ var mounts = (function() {
   var mounts = {
     "/.tmux.conf"      : join(env.HOME, ".tmux.conf"),
     "/azk/demos"       : "../demos",
+    "/azk/build"       : persistent('build-#{system.name}'),
     "/azk/lib"         : persistent('lib-#{system.name}'),
     "/azk/node_modules": persistent('node_modules-#{system.name}'),
     "/azk/data"        : persistent('data-#{system.name}'),
     "/var/lib/docker"  : persistent('docker_files-#{system.name}'),
     "/azk/#{manifest.dir}/.nvmrc"    : ".nvmrc",
-    "/azk/#{manifest.dir}/bin/azk"   : "./bin/azk.new",
-    "/azk/#{manifest.dir}/bin/azk.js": "./bin/azk.js",
   }
 
-  var itens = glob.sync("./!(bin|lib|data|node_modules|npm-debug.log)");
+  var itens = glob.sync("./!(lib|data|node_modules|npm-debug.log)");
   mounts = _.reduce(itens, function(mount, item) {
     var key = join("/azk", "#{manifest.dir}", item);
     mount[key] = item;
@@ -48,6 +47,7 @@ var agent_system = function(image) {
       PATH: "/azk/#{manifest.dir}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
       AZK_DATA_PATH: "/azk/data",
       AZK_LIB_PATH : "/azk/lib",
+      AZK_BUILD_PATH: "/azk/build",
       AZK_BALANCER_HOST: "azk.linux",
       AZK_DOCKER_NS    : "azk.linux",
       AZK_BALANCER_PORT: 8080,
@@ -62,10 +62,30 @@ var agent_system = function(image) {
   };
 }
 
+var test_package_system = function(image){
+  return {
+    image: image,
+    workdir: "/azk/#{manifest.dir}",
+    shell: "/usr/local/bin/wrapdocker",
+    mounts: {
+      "/azk/#{manifest.dir}": ".",
+      "/var/lib/docker"     : persistent('docker_files-#{system.name}'),
+    },
+    docker_extra: {
+      start: { Privileged: true },
+    }
+  }
+}
+
 systems({
 
   'dind-ubuntu': agent_system('azukiapp/dind:ubuntu14'),
   'dind-fedora': agent_system('azukiapp/dind:fedora20'),
+
+  package: agent_system('azukiapp/fpm'),
+  'pkg-ubuntu12-test': test_package_system('azukiapp/dind:ubuntu12'),
+  'pkg-ubuntu14-test': test_package_system('azukiapp/dind:ubuntu14'),
+  'pkg-fedora-test': test_package_system('azukiapp/dind:fedora20'),
 
   grunt: {
     image: "dockerfile/nodejs",
