@@ -9,7 +9,7 @@ dynamic(this, {
 
   moment() {
     return require('moment');
-  }
+  },
 });
 
 class Cmd extends Command {

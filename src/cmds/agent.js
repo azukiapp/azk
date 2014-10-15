@@ -14,6 +14,7 @@ dynamic(this, {
 
 class Cmd extends Command {
   action(opts) {
+    // Create a progress output
     var progress = Helpers.vmStartProgress(this);
 
     return async(this, function* () {
@@ -23,7 +24,8 @@ class Cmd extends Command {
         var status = yield Client.status();
         if (!status.agent) {
           // Check and load configures
-          opts.configs = yield this.configure();
+          this.warning('status.agent.wait');
+          opts.configs = yield Helpers.configure(this);
 
           // Remove and adding vm (to refresh vm configs)
           if (config('agent:requires_vm') && opts['reload-vm']) {
@@ -39,16 +41,6 @@ class Cmd extends Command {
         if (opts.action != "status") return result;
         return (result.agent) ? 0 : 1;
       });
-    });
-  }
-
-  configure() {
-    this.warning('status.agent.wait');
-    var conf = new Configure(this);
-    this.ok('configure.loading_checking');
-    return conf.run().then((configs) => {
-      this.ok('configure.loaded');
-      return configs;
     });
   }
 }
