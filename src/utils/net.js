@@ -6,13 +6,13 @@ var portrange   = config("agent:portrange_start");
 var nameservers = null;
 
 var net = {
-  getPort() {
+  getPort(host = 'localhost') {
     var port   = portrange;
     portrange += 1;
     var server = nativeNet.createServer();
 
     return defer((done) => {
-      server.listen(port, (err) => {
+      server.listen(port, host, (err) => {
         server.once('close', () => {
           done.resolve(port);
         });

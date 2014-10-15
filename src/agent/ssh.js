@@ -60,6 +60,13 @@ export class SSH {
       return defer((done) => {
         var client    = new ssh2();
         var exit_code = 0;
+        var options   = {
+          host: this.host,
+          port: this.port,
+          username: config("agent:vm:user"),
+          readyTimeout: ssh_timeout,
+          password: config("agent:vm:password"),
+        };
 
         client.on("ready", () => {
           done.notify({ type: 'connected' });
@@ -68,15 +75,9 @@ export class SSH {
         });
 
         client.on('end', () => { done.resolve(); });
-        client.on('error', (err) => done.reject(err));
+        client.on('error', (err) => { done.reject(err); });
 
-        client.connect({
-          host: this.host,
-          port: this.port,
-          username: config("agent:vm:user"),
-          readyTimeout: ssh_timeout,
-          password: config("agent:vm:password"),
-        });
+        client.connect(options);
       });
     }
 
