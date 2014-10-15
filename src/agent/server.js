@@ -4,6 +4,7 @@ import { Unfsd } from 'azk/agent/unfsd';
 import { Balancer } from 'azk/agent/balancer';
 import { net as net_utils } from 'azk/utils';
 import { AgentStartError } from 'azk/utils/errors';
+import { Api } from 'azk/agent/api';
 
 var Server = {
   server: null,
@@ -12,6 +13,9 @@ var Server = {
   start() {
     return async(this, function* () {
       log.info_t("commands.agent.starting");
+
+      // Start api
+      yield Api.start();
 
       // Virtual machine is required?
       if (config('agent:requires_vm')) {
@@ -29,6 +33,7 @@ var Server = {
 
   stop() {
     return async(this, function* () {
+      yield Api.stop();
       yield this.removeBalancer();
       if (config('agent:requires_vm')) {
         yield this.stopVM();

@@ -46,6 +46,7 @@ var options = mergeConfig({
       unfsd_file        : path.join(paths.run, 'exports'),
       balancer_file     : path.join(paths.run, 'hipache.json'),
       memcached_socket  : path.join(paths.run, 'memcachedjs.socket'),
+      api_socket        : path.join(paths.run, 'api.socket'),
       persistent_folders: persistent_folders,
     },
     logs_level: {
