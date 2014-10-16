@@ -1,4 +1,4 @@
-import { _, os, Q, async } from 'azk';
+import { _, os, Q, async, dynamic } from 'azk';
 import { config, set_config } from 'azk';
 import { UIProxy } from 'azk/cli/ui';
 import { OSNotSupported, DependencyError } from 'azk/utils/errors';
@@ -7,10 +7,24 @@ import { isIPv4 } from 'net';
 var which = require('which');   // Search for command in path
 var qfs   = require('q-io/fs');
 
+dynamic(this, {
+  docker() {
+    return require('azk/docker').default;
+  },
+  exec() {
+    return require('child_process').exec;
+  },
+});
+
+var ports_tabs = {
+  linux : ":",
+  darwin: ".",
+};
+
 export class Configure extends UIProxy {
   constructor(user_interface) {
     super(user_interface);
-    this.dns_separator = ':';
+    this.dns_tab = ports_tabs[os.platform()];
   }
 
   // Run configures and checks by operational system
@@ -34,7 +48,28 @@ export class Configure extends UIProxy {
   // Mac OS X configure and checks
   // TODO: Check dependencies versions
   darwin() {
-    this.dns_separator = '.';
+    return this._checksForRequiresVm();
+  }
+
+  // Linux configure and checks
+  linux() {
+    if (config('agent:requires_vm')) {
+      return this._checksForRequiresVm();
+    } else {
+      var socket = config('docker:socket');
+      return Q
+        .all([
+          this._checkDockerSocket(socket),
+          this._checkAndConfigureNetwork(false),
+          //this._loadDnsServers(),
+        ])
+        .fail((err) => {
+          throw new DependencyError('docker_access', { socket });
+        });
+    }
+  }
+
+  _checksForRequiresVm() {
     return Q.all([
       this._which('VBoxManage'),
       this._which('unfsd', 'paths:unfsd'),
@@ -44,9 +79,15 @@ export class Configure extends UIProxy {
     ]);
   }
 
-  // Linux configure and checks
-  //linux() {
-  //}
+  _checkDockerSocket(socket) {
+    var host   = `unix://${socket}`;
+    set_config('docker:host', host);
+
+    return docker.info()
+      .then((info) => {
+        return { 'docker:host': host };
+      });
+  }
 
   _which(command, save_key = null) {
     return Q.nfcall(which, command)
@@ -83,11 +124,12 @@ export class Configure extends UIProxy {
   }
 
   // Check vm ip is configurat
-  _checkAndConfigureNetwork() {
+  _checkAndConfigureNetwork(use_vm = true) {
     return async(this, function* () {
-      var file  = config('agent:balancer:file_dns');
-      var exist = yield qfs.exists(file);
-      var ip    = null;
+      var file   = config('agent:balancer:file_dns');
+      var exist  = yield qfs.exists(file);
+      var ip     = null;
+      var result = {};
 
       // File exist? Get content
       if (exist) {
@@ -97,18 +139,22 @@ export class Configure extends UIProxy {
 
       // Not exist or invalid content
       if (_.isEmpty(ip)) {
-        this.warning('configure.vm_ip_msg');
-        ip = yield this._getNetworkIp();
+        if (use_vm) {
+          this.warning('configure.vm_ip_msg');
+          ip = yield this._getNetworkIp();
+          result['docker:host'] = `http://${ip}:2375`;
+        } else {
+          ip = yield this._getDockerIp();
+        }
         yield this._generateResolverFile(ip, file);
       }
 
       // Save configuration
-      return {
+      return _.merge({
         ['agent:vm:ip']      : ip,
         ['agent:dns:ip']     : ip,
         ['agent:balancer:ip']: ip,
-        ['docker:host']      : `http://${ip}:2375`,
-      };
+      }, result);
     });
   }
 
@@ -118,7 +164,7 @@ export class Configure extends UIProxy {
 
     // Creating resolver file and adding ip (with sudo)
     this.info('configure.adding_ip', { ip, file });
-    ip = `${ip}${this.dns_separator}${port}`;
+    ip = `${ip}${this.dns_tab}${port}`;
     var script = `
       echo "";
       set -x;
@@ -177,6 +223,18 @@ export class Configure extends UIProxy {
     return this.prompt(question)
       .then((answers) => {
         return answers.ip;
+      });
+  }
+
+  _getDockerIp() {
+    var cmd   = "/sbin/ifconfig docker0";
+    var regex = /inet\s(?:addr:){0,1}(.*?)\s.*(?:Mask|netmask)/m;
+
+    return Q.nfcall(exec, cmd)
+      .spread((stdout) => {
+        var match = stdout.match(regex);
+        if (match) { return match[1]; }
+        throw new Error('Get ip from docker0 interface');
       });
   }
 

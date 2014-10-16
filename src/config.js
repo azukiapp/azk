@@ -59,6 +59,7 @@ var options = mergeConfig({
       file: envs('AZK_LOG_LEVEL', 'info'),
     },
     docker: {
+      socket        : envs('AZK_DOCKER_SOCKER', "/var/run/docker.sock"),
       host          : "from agent configure",
       namespace     : envs('AZK_NAMESPACE'),
       repository    : 'azk',

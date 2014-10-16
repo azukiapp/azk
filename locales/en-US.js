@@ -26,12 +26,20 @@ module.exports = {
     invalid_value_error: "Invalid value: %(value)s in option %(option)s",
     image_not_exist: "Image from '%(image)s' not found",
     provision_not_found: "Not found '%(image)s' image",
+    os_not_supported: "System not supported (see http://azk.io)",
 
     dependencies: {
       darwin: {
         VBoxManage : 'VirtualBox not installed. Install before continue.',
         unfsd: 'unfs3 not installed. Reinstall `azk` or \`brew install unfs3\` before continuing.',
         network: 'networking error',
+      },
+      linux: {
+        docker_access: [
+          "Could not connect to the docker service.",
+          "Check if docker service is running.",
+          "And check if you have write permission to socket: '%(socket)s'",
+        ].join('\n'),
       }
     }
   },

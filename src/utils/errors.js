@@ -1,4 +1,4 @@
-import { t, path, os } from 'azk';
+import { _, t, path, os } from 'azk';
 
 var BASE_CODE_ERROR     = 1;
 var MANIFEST_CODE_ERROR = 2;
@@ -174,9 +174,10 @@ export class OSNotSupported extends AzkError {
 }
 
 export class DependencyError extends AzkError {
-  constructor(dependencie) {
+  constructor(dependencie, data = {}) {
     super(`dependencies.${os.platform()}.${dependencie}`);
     this.code = AGENT_CODE_ERROR;
+    _.merge(this, data);
   }
 }
 
