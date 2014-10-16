@@ -79,6 +79,7 @@ module.exports = {
       wait      : "waiting for initialization of virtual machine...",
       initialized : "virtual machine is ready to use.",
       progress    : "trying connect to vm (%(host)s:%(port)d) (%(attempts)d/%(max)d)...",
+      error     : "Error in vm process: %(data)s",
     },
 
     socat: {

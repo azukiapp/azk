@@ -284,7 +284,7 @@ var vm = {
         status_change("removing");
 
         // Removing disk
-        if (typeof(info['SATA-1-0']) != 'undefined') {
+        if (!_.isEmpty(info['SATA-1-0'])) {
           yield exec("storagectl", vm_name, "--name", "SATA", "--remove").fail(fail);
           yield exec("closemedium", "disk", info['SATA-1-0']).fail(fail);
         }
