@@ -23,11 +23,8 @@ export class SSH {
           done.notify({ type: "ssh", context, data });
         });
 
-        stream.on('exit', (code) => {
-          log.debug("agent vm ssh result: %s", code);
-          done.resolve(code);
-          process.nextTick(() => client.end());
-        });
+        stream.on('end', () => { client.end(); });
+        stream.on('exit', (code) => { client.exitcode = code });
       });
     });
   }
@@ -74,7 +71,7 @@ export class SSH {
           callback(client, done);
         });
 
-        client.on('end', () => { done.resolve(); });
+        client.on('end', () => { done.resolve(client.exitcode); });
         client.on('error', (err) => { done.reject(err); });
 
         client.connect(options);

@@ -99,7 +99,7 @@ h.describeSkipVm("Azk agent vm", function() {
     var name = config("agent:vm:name");
     var data = "";
     var progress = (event) => {
-      if (event.type == "ssh" && event.context == "stdout") {
+      if (event.type == "ssh" && (event.context == "stdout" || event.context == "stderr")) {
         data += event.data.toString();
       }
     }
