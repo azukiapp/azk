@@ -30,6 +30,10 @@ var dns_nameservers = function(key, defaultValue) {
   return _.isEmpty(value) ? defaultValue : _.invoke(value.split(','), 'trim');
 }
 
+class Dynamic {
+  constructor(key) { this.key = key };
+}
+
 var options = mergeConfig({
   '*': {
     namespace: namespace,
@@ -60,7 +64,7 @@ var options = mergeConfig({
     },
     docker: {
       socket        : envs('AZK_DOCKER_SOCKER', "/var/run/docker.sock"),
-      host          : "from agent configure",
+      host          : new Dynamic("docker:host"),
       namespace     : envs('AZK_NAMESPACE'),
       repository    : 'azk',
       default_domain: 'azk',
@@ -74,13 +78,13 @@ var options = mergeConfig({
       requires_vm: requires_vm,
       portrange_start: 11000,
       balancer: {
-        ip  : "from agent configure",
+        ip  : new Dynamic("agent:balancer:ip"),
         host: envs('AZK_BALANCER_HOST'),
         port: envs('AZK_BALANCER_PORT', 80),
         file_dns: "/etc/resolver/" + envs('AZK_BALANCER_HOST'),
       },
       dns: {
-        ip  : "from agent configure",
+        ip  : new Dynamic("agent:dns:ip"),
         port: envs('AZK_DNS_PORT', '53'),
         nameservers  : dns_nameservers('AZK_DNS_SERVERS', []),
         defaultserver: dns_nameservers('AZK_DNS_SERVERS_DEFAULTS', ['8.8.8.8', '8.8.4.4']),
@@ -136,6 +140,10 @@ export function get(key) {
   for(var i = 0; i < keys.length; i++) {
     buffer = buffer[keys[i]];
     if (!buffer) break;
+  }
+
+  if (buffer instanceof Dynamic) {
+    throw new Error(`Config ${buffer.key} to be set by configure`);
   }
 
   return _.clone(buffer);

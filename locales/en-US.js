@@ -35,6 +35,11 @@ module.exports = {
         network: 'networking error',
       },
       linux: {
+        port_error: [
+          "The %(port)s port configured for the `%(service)s` service is not available.",
+          "Try configure a different port setting %(env)s environment variable.",
+          "Check http://docs.azk.io for more information.",
+        ].join('\n'),
         docker_access: [
           "Could not connect to the docker service.",
           "Check if docker service is running.",

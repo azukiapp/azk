@@ -9,17 +9,25 @@ var net = {
   getPort(host = 'localhost') {
     var port   = portrange;
     portrange += 1;
-    var server = nativeNet.createServer();
 
+    return this
+      .checkPort(port, host)
+      .then((avaibly) => {
+        return (avaibly) ? port : this.getPort(host);
+      });
+  },
+
+  checkPort(port, host) {
+    var server = nativeNet.createServer();
     return defer((done) => {
       server.listen(port, host, (err) => {
         server.once('close', () => {
-          done.resolve(port);
+          done.resolve(true);
         });
         server.close();
       });
       server.on('error', (err) => {
-        done.resolve(this.getPort());
+        done.resolve(false);
       });
     });
   },

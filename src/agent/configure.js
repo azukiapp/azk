@@ -3,6 +3,7 @@ import { config, set_config } from 'azk';
 import { UIProxy } from 'azk/cli/ui';
 import { OSNotSupported, DependencyError } from 'azk/utils/errors';
 import { isIPv4 } from 'net';
+import { net } from 'azk/utils';
 
 var which = require('which');   // Search for command in path
 var qfs   = require('q-io/fs');
@@ -24,7 +25,8 @@ var ports_tabs = {
 export class Configure extends UIProxy {
   constructor(user_interface) {
     super(user_interface);
-    this.dns_tab = ports_tabs[os.platform()];
+    this.dns_tab   = ports_tabs[os.platform()];
+    this.docker_ip = null;
   }
 
   // Run configures and checks by operational system
@@ -61,10 +63,15 @@ export class Configure extends UIProxy {
         .all([
           this._checkDockerSocket(socket),
           this._checkAndConfigureNetwork(false),
-          //this._loadDnsServers(),
+          this._loadDnsServers(),
+          this._checkPorts('agent:balancer:port', 'balancer', 'AZK_BALANCER_PORT'),
+          this._checkPorts('agent:dns:port', 'dns', 'AZK_DNS_PORT'),
         ])
         .fail((err) => {
-          throw new DependencyError('docker_access', { socket });
+          if (!err instanceof DependencyError)
+            err = new DependencyError('docker_access', { socket });
+
+          throw err;
         });
     }
   }
@@ -86,6 +93,16 @@ export class Configure extends UIProxy {
     return docker.info()
       .then((info) => {
         return { 'docker:host': host };
+      });
+  }
+
+  _checkPorts(confKey, service, env) {
+    var port = config(confKey);
+    return net
+      .checkPort(port, this.docker_ip)
+      .then((avaibly) => {
+        if (!avaibly)
+          throw new DependencyError('port_error', { port, service, env });
       });
   }
 
@@ -147,7 +164,12 @@ export class Configure extends UIProxy {
           ip = yield this._getDockerIp();
         }
         yield this._generateResolverFile(ip, file);
+      } else {
+        result['docker:host'] = `http://${ip}:2375`;
       }
+
+      // Save to use in configure
+      this.docker_ip = ip;
 
       // Save configuration
       return _.merge({
