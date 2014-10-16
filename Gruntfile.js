@@ -128,14 +128,14 @@ module.exports = function(grunt) {
           'src/**/*.js',
           'spec/**/*.js',
         ],
-        tasks: ['clear', 'newer:traceur']
+        tasks: ['clear', 'newer:traceur', 'exec:build:dind-ubuntu']
       }
     },
 
     exec: {
       'build': {
         'cmd': function(system) {
-          return 'azk shell ' + system + ' -c "azk nvm grunt newer:traceur"'
+          return 'azk shell ' + system + ' --shell=/bin/bash -c "azk nvm grunt newer:traceur"';
         },
       }
     },
