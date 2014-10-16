@@ -16,15 +16,13 @@ var mounts = (function() {
     "/.tmux.conf"      : join(env.HOME, ".tmux.conf"),
     "/azk/demos"       : "../demos",
     "/azk/lib"         : persistent('lib-#{system.name}'),
-    "/azk/node_modules": persistent('node_modules-#{system.name}'),
     "/azk/data"        : persistent('data-#{system.name}'),
     "/var/lib/docker"  : persistent('docker_files-#{system.name}'),
-    "/azk/#{manifest.dir}/.nvmrc"    : ".nvmrc",
-    "/azk/#{manifest.dir}/bin/azk"   : "./bin/azk.new",
-    "/azk/#{manifest.dir}/bin/azk.js": "./bin/azk.js",
+    "/azk/#{manifest.dir}/node_modules": persistent('node_modules-#{system.name}'),
+    "/azk/#{manifest.dir}/.nvmrc" : ".nvmrc",
   }
 
-  var itens = glob.sync("./!(bin|lib|data|node_modules|npm-debug.log)");
+  var itens = glob.sync("./!(lib|data|node_modules|npm-debug.log)");
   mounts = _.reduce(itens, function(mount, item) {
     var key = join("/azk", "#{manifest.dir}", item);
     mount[key] = item;
@@ -48,8 +46,7 @@ var agent_system = function(image) {
       PATH: "/azk/#{manifest.dir}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
       AZK_DATA_PATH: "/azk/data",
       AZK_LIB_PATH : "/azk/lib",
-      AZK_BALANCER_HOST: "azk.linux",
-      AZK_DOCKER_NS    : "azk.linux",
+      AZK_NAMESPACE: "azk.linux",
       AZK_BALANCER_PORT: 8080,
       //EXTRA_ARGS       : "-H tcp://0.0.0.0:2375 -H unix://",
       LOG: "file",
