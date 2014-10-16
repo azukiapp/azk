@@ -15,6 +15,7 @@ var mounts = (function() {
   var mounts = {
     "/.tmux.conf"      : join(env.HOME, ".tmux.conf"),
     "/azk/demos"       : "../demos",
+    "/azk/build"       : persistent('build-#{system.name}'),
     "/azk/lib"         : persistent('lib-#{system.name}'),
     "/azk/data"        : persistent('data-#{system.name}'),
     "/var/lib/docker"  : persistent('docker_files-#{system.name}'),
@@ -47,6 +48,7 @@ var agent_system = function(image) {
       AZK_DATA_PATH: "/azk/data",
       AZK_LIB_PATH : "/azk/lib",
       AZK_NAMESPACE: "azk.linux",
+      AZK_BUILD_PATH: "/azk/build",
       AZK_BALANCER_PORT: 8080,
       //EXTRA_ARGS       : "-H tcp://0.0.0.0:2375 -H unix://",
       LOG: "file",
@@ -59,10 +61,30 @@ var agent_system = function(image) {
   };
 }
 
+var test_package_system = function(image){
+  return {
+    image: image,
+    workdir: "/azk/#{manifest.dir}",
+    shell: "/usr/local/bin/wrapdocker",
+    mounts: {
+      "/azk/#{manifest.dir}": ".",
+      "/var/lib/docker"     : persistent('docker_files-#{system.name}'),
+    },
+    docker_extra: {
+      start: { Privileged: true },
+    }
+  }
+}
+
 systems({
 
   'dind-ubuntu': agent_system('azukiapp/dind:ubuntu14'),
   'dind-fedora': agent_system('azukiapp/dind:fedora20'),
+
+  package: agent_system('azukiapp/fpm'),
+  'pkg-ubuntu12-test': test_package_system('azukiapp/dind:ubuntu12'),
+  'pkg-ubuntu14-test': test_package_system('azukiapp/dind:ubuntu14'),
+  'pkg-fedora-test': test_package_system('azukiapp/dind:fedora20'),
 
   grunt: {
     image: "dockerfile/nodejs",
