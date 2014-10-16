@@ -51,6 +51,7 @@
     "moment": "^2.8.1",
     "node-uuid": "^1.4.1",
     "parentpath": "^0.2.0",
+    "portscanner": "^1.0.0",
     "prettyjson": "^1.0.0",
     "printf": "^0.2.0",
     "progress": "git+https://github.com/nuxlli/node-progress",

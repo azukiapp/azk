@@ -1,5 +1,6 @@
 import { Q, _, fs, defer, config } from 'azk';
 
+var portscanner = require('portscanner');
 var url         = require('url');
 var nativeNet   = require('net');
 var portrange   = config("agent:portrange_start");
@@ -18,18 +19,10 @@ var net = {
   },
 
   checkPort(port, host) {
-    var server = nativeNet.createServer();
-    return defer((done) => {
-      server.listen(port, host, (err) => {
-        server.once('close', () => {
-          done.resolve(true);
-        });
-        server.close();
+    return Q.ninvoke(portscanner, "checkPortStatus", port, host)
+      .then((status) => {
+        return status == 'closed';
       });
-      server.on('error', (err) => {
-        done.resolve(false);
-      });
-    });
   },
 
   calculateNetIp(ip) {
@@ -56,11 +49,14 @@ var net = {
 
     // Parse options to try connect
     address = url.parse(address);
-    address = {
-      host: address.hostname,
-      port: address.port,
-      path: address.protocol == "unix:" ? address.path : null
-    };
+    if (address.protocol == 'unix:') {
+      address = { path: address.path };
+    } else {
+      address = {
+        host: address.hostname,
+        port: address.port,
+      };
+    }
 
     return defer((resolve, reject, notify) => {
       var client   = null;
