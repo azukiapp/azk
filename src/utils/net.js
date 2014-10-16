@@ -18,7 +18,7 @@ var net = {
       });
   },
 
-  checkPort(port, host) {
+  checkPort(port, host = 'localhost') {
     return Q.ninvoke(portscanner, "checkPortStatus", port, host)
       .then((status) => {
         return status == 'closed';

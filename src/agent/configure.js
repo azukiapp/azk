@@ -33,15 +33,7 @@ export class Configure extends UIProxy {
   run() {
     var method = this[os.platform()];
     if (method) {
-      return method.apply(this)
-        .then((confgs) => {
-          return _.reduce(confgs, (acc, lines) => {
-            if (!_.isEmpty(lines)) {
-              _.each(lines, (line, key) => acc[key] = line);
-            }
-            return acc;
-          }, {});
-        });
+      return method.apply(this);
     } else {
       throw new OSNotSupported(os.platform());
     }
@@ -59,31 +51,36 @@ export class Configure extends UIProxy {
       return this._checksForRequiresVm();
     } else {
       var socket = config('docker:socket');
-      return Q
-        .all([
-          this._checkDockerSocket(socket),
-          this._checkAndConfigureNetwork(false),
-          this._loadDnsServers(),
-          this._checkPorts('agent:balancer:port', 'balancer', 'AZK_BALANCER_PORT'),
-          this._checkPorts('agent:dns:port', 'dns', 'AZK_DNS_PORT'),
-        ])
-        .fail((err) => {
-          if (!err instanceof DependencyError)
-            err = new DependencyError('docker_access', { socket });
+      return async(this, function* () {
+        return _.merge(
+          {},
+          yield this._checkDockerSocket(socket),
+          yield this._checkAndConfigureNetwork(false),
+          yield this._loadDnsServers(),
+          yield this._checkPorts('agent:balancer:port', 'balancer', 'AZK_BALANCER_PORT'),
+          yield this._checkPorts('agent:dns:port', 'dns', 'AZK_DNS_PORT')
+        );
+      })
+      .fail((err) => {
+        if (!err instanceof DependencyError)
+          err = new DependencyError('docker_access', { socket });
 
-          throw err;
-        });
+        throw err;
+      });
     }
   }
 
   _checksForRequiresVm() {
-    return Q.all([
-      this._which('VBoxManage'),
-      this._which('unfsd', 'paths:unfsd'),
-      this._checkAndConfigureNetwork(),
-      this._checkAndGenerateSSHKeys(),
-      this._loadDnsServers(),
-    ]);
+    return async(this, function* () {
+      return _.merge(
+        {},
+        yield this._which('VBoxManage'),
+        yield this._which('unfsd', 'paths:unfsd'),
+        yield this._checkAndConfigureNetwork(),
+        yield this._checkAndGenerateSSHKeys(),
+        yield this._loadDnsServers()
+      );
+    });
   }
 
   _checkDockerSocket(socket) {
@@ -169,6 +166,7 @@ export class Configure extends UIProxy {
       }
 
       // Save to use in configure
+      console.log(ip);
       this.docker_ip = ip;
 
       // Save configuration
