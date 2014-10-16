@@ -2,9 +2,7 @@
 /tmp
 /node_modules
 /data
-/lib/spec
-/lib/nvm
-/lib/vm
+/lib
 .vimrc
 .azk
 /package
