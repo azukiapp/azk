@@ -48,7 +48,7 @@ var agent_system = function(image) {
       AZK_DATA_PATH: "/azk/data",
       AZK_LIB_PATH : "/azk/lib",
       AZK_NAMESPACE: "azk.linux",
-      AZK_BUILD_PATH: "/azk/build",
+      AZK_PACKAGE_PATH: "/azk/build",
       AZK_BALANCER_PORT: 8080,
       //EXTRA_ARGS       : "-H tcp://0.0.0.0:2375 -H unix://",
       LOG: "file",
@@ -67,8 +67,14 @@ var test_package_system = function(image){
     workdir: "/azk/#{manifest.dir}",
     shell: "/usr/local/bin/wrapdocker",
     mounts: {
+      "/azk/demos"          : "../demos",
       "/azk/#{manifest.dir}": ".",
+      "/azk/data"           : persistent('data-#{system.name}'),
       "/var/lib/docker"     : persistent('docker_files-#{system.name}'),
+    },
+    envs: {
+      AZK_DATA_PATH: "/azk/data",
+      LOG: "file", // Log docker to file
     },
     docker_extra: {
       start: { Privileged: true },

@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# Get azk root path
+abs_dir() {
+  cd "${1%/*}"; link=`readlink ${1##*/}`;
+  if [ -z "$link" ]; then pwd; else abs_dir $link; fi
+}
+
+export AZK_ROOT_PATH=`cd \`abs_dir ${BASH_SOURCE:-$0}\`/../..; pwd`
+cd $AZK_ROOT_PATH;
+
 PKG="azk"
 URL="https://github.com/azukiapp/azk"
 DESCRIPTION="Development environments with agility and automation"
@@ -61,17 +70,15 @@ azk_shell() {
   echo "Building $pkg_type for $PKG, $VERSION version..."
   echo
 
-
 # build!
 
-  sources="/azk/build/v0.5.0/"
+  sources="/azk/build/v${VERSION}/"
   prefix="usr"
   destdir="/azk/${THIS_FOLDER}/package/${pkg_type}"
-  azk_shell package "mkdir -p ${destdir}"
-  azk_shell package "make -e build"
+  mkdir -p package/${pkg_type}
+  azk_shell package "make -e build_package"
 
 # package!
-
 
   azk_shell package "fpm \
       -s dir -t ${pkg_type} \
