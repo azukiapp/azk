@@ -4,6 +4,7 @@
 
 * Enhancements
   * [Manifest] Replacing `mount_folders` and `persistent_folders` for `mounts`;
+  * [Agent] Warn when using an old AZK version;
 
 ## v0.5.1 - (2014-11-10)
 
@@ -11,8 +12,8 @@
   * [Cmds] Fixing stop all systems, if a dependencie system is down;
 
 * Enhancements
-  * Adding support `retry` and `timeout` in wait option;
-  * Adding support to configure `memory` and `cpus` with envs `AZK_VM_MEMORY` and `AZK_VM_CPUS`;
+  * [Manifest] Adding support `retry` and `timeout` in wait option;
+  * [Agent] Adding support to configure `memory` and `cpus` with envs `AZK_VM_MEMORY` and `AZK_VM_CPUS`;
 
 ## v0.5.0 - (2014-03-09)
 

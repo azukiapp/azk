@@ -29,6 +29,11 @@ module.exports = {
     os_not_supported: "System not supported (see http://azk.io)",
 
     dependencies: {
+      "*": {
+        upgrade: ["\nYou are using `v%(current_version)s` version.",
+                  "`v%(new_version)s` version is available.",
+                  "Please, access http://azk.io to upgrade\n"].join("\n")
+      },
       darwin: {
         VBoxManage : 'VirtualBox not installed. Install before continue.',
         unfsd: 'unfs3 not installed. Reinstall `azk` or \`brew install unfs3\` before continuing.',
@@ -151,6 +156,8 @@ module.exports = {
       "machine where `azk agent` is in execution.",
       "",
     ]).join('\n'),
+    check_version: 'Checking version...',
+    check_version_error: 'checking version: [ %(error_message)s ]!',
   },
 
   commands: {

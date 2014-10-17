@@ -25,7 +25,7 @@ class Cmd extends Command {
         if (!status.agent) {
           // Check and load configures
           this.warning('status.agent.wait');
-          opts.configs = yield Helpers.configure(this);
+          opts.configs = yield Helpers.configure(this).progress(progress);
 
           // Remove and adding vm (to refresh vm configs)
           if (config('agent:requires_vm') && opts['reload-vm']) {
