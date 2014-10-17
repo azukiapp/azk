@@ -66,21 +66,22 @@ module.exports = {
     },
 
     vm: {
-      installing: "installing virtual machine...",
-      installed : "virtual machine has been successfully installed.",
-      starting  : "starting virtual machine...",
-      started   : "virtual machine has been successfully started.",
+      installing  : "Installing virtual machine...",
+      installed   : "Virtual machine has been successfully installed.",
+      starting    : "Starting virtual machine...",
+      started     : "Virtual machine has been successfully started.",
       // TODO: stopping
-      stoping   : "stopping virtual machine...",
+      stoping     : "Stopping virtual machine...",
       // TODO: stopped
-      stoped    : "virtual machine has been successfully stopped.",
-      removing  : "removing virtual machine...",
-      removed   : "virtual machine has been successfully removed.",
+      stoped      : "Virtual machine has been successfully stopped.",
+      removing    : "Removing virtual machine...",
+      removed     : "Virtual machine has been successfully removed.",
       // TODO: waiting
-      wait      : "waiting for initialization of virtual machine...",
-      initialized : "virtual machine is ready to use.",
-      progress    : "trying connect to vm (%(uri)s) (%(attempts)d/%(max)d)...",
-      error     : "Error in vm process: %(data)s",
+      wait        : "Waiting for initialization of virtual machine...",
+      initialized : "Virtual machine is ready to use.",
+      progress    : "Trying connect to vm (%(uri)s) (%(attempts)d/%(max)d)...",
+      upkey       : "Upload the ssh key to vm...",
+      error       : "Error in vm process: %(data)s",
     },
 
     socat: {

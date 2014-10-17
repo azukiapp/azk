@@ -15,7 +15,7 @@ ${AZK_LIB_PATH}/azk: ${AZK_ROOT_PATH}/src ${AZK_NPM_PATH}/.installed
 	@echo "task: $@"
 	@export AZK_LIB_PATH=${AZK_LIB_PATH} && \
 		export AZK_NPM_PATH=${AZK_NPM_PATH} && \
-		azk nvm grunt traceur
+		azk nvm grunt newer:traceur
 
 ${AZK_NPM_PATH}/.installed: package.json ${NODE}
 	@echo "task: $@"
@@ -77,7 +77,7 @@ copy_files:
 	@echo "task: $@"
 	@mkdir -p ${PATH_USR_LIB_AZK}
 	@cp -r bin ${PATH_USR_LIB_AZK}
-	@cp -r locales ${PATH_USR_LIB_AZK}
+	@cp -r shared ${PATH_USR_LIB_AZK}
 	@cp .nvmrc ${PATH_USR_LIB_AZK}
 	@cp CHANGELOG.md ${PATH_USR_LIB_AZK}
 	@cp LICENSE ${PATH_USR_LIB_AZK}

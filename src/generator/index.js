@@ -8,7 +8,7 @@ var fs   = require('fs');
 var Handlebars = require('handlebars');
 
 var template = path.join(
-  config('paths:azk_root'), 'src', 'share', 'Azkfile.mustache.js'
+  config('paths:azk_root'), 'shared', 'templates', 'Azkfile.mustache.js'
 );
 
 export class Generator extends UIProxy {
