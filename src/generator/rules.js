@@ -6,14 +6,13 @@ var example_system = {
   __type  : "example",
   name    : "example",
   depends : [],
-  image   : { repository: "[repository]", tag: "[tag]" },
+  image   : "[repository]:[tag]",
   workdir : "/azk/#{manifest.dir}",
   balancer: true,
   command : "# command to run app",
-  mount_folders : {
-    ".": "/azk/#{manifest.dir}",
+  mounts  : {
+    "/azk/#{manifest.dir}": { type: 'path', value: '.' },
   },
-  persistent_folders: [],
   envs: {
     EXAMPLE: "value"
   }

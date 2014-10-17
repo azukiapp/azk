@@ -1,27 +1,28 @@
 import { Q, _, fs, defer, config } from 'azk';
 
+var portscanner = require('portscanner');
 var url         = require('url');
 var nativeNet   = require('net');
 var portrange   = config("agent:portrange_start");
 var nameservers = null;
 
 var net = {
-  getPort() {
+  getPort(host = 'localhost') {
     var port   = portrange;
     portrange += 1;
-    var server = nativeNet.createServer();
 
-    return defer((done) => {
-      server.listen(port, (err) => {
-        server.once('close', () => {
-          done.resolve(port);
-        });
-        server.close();
+    return this
+      .checkPort(port, host)
+      .then((avaibly) => {
+        return (avaibly) ? port : this.getPort(host);
       });
-      server.on('error', (err) => {
-        done.resolve(this.getPort());
+  },
+
+  checkPort(port, host = 'localhost') {
+    return Q.ninvoke(portscanner, "checkPortStatus", port, host)
+      .then((status) => {
+        return status == 'closed';
       });
-    });
   },
 
   calculateNetIp(ip) {
@@ -34,34 +35,28 @@ var net = {
 
   nameServers() {
     if (nameservers == null) {
-      nameservers = [config("agent:dns:ip")];
-
-      var file = "/etc/resolv.conf";
-      if (fs.existsSync(file)) {
-        var lines = fs.readFileSync(file).toString().split("\n");
-        _.each(lines, (line) => {
-          if (line.match(/^nameserver.*$/)) {
-            nameservers.push(line.replace(/^nameserver\s{1,}(.*)/, "$1"));
-          }
-        });
-      }
+      nameservers = config('agent:dns:nameservers');
+      nameservers.unshift(config("agent:dns:ip"));
     }
     return nameservers;
   },
 
-  waitService(address, retry = 15, opts = {}) {
+  waitService(uri, retry = 15, opts = {}) {
     opts = _.defaults(opts, {
       timeout: 10000,
       retry_if: () => { return Q(true); }
     });
 
     // Parse options to try connect
-    address = url.parse(address);
-    address = {
-      host: address.hostname,
-      port: address.port,
-      path: address.protocol == "unix:" ? address.path : null
-    };
+    var address = url.parse(uri);
+    if (address.protocol == 'unix:') {
+      address = { path: address.path };
+    } else {
+      address = {
+        host: address.hostname,
+        port: address.port,
+      };
+    }
 
     return defer((resolve, reject, notify) => {
       var client   = null;
@@ -69,8 +64,9 @@ var net = {
       var connect  = () => {
         var t = null;
         notify(_.merge({
+          uri : uri,
           type: 'try_connect', attempts, max, context: opts.context
-        }, address));
+        }, address ));
 
         client = nativeNet.connect(address, function() {
           client.end();

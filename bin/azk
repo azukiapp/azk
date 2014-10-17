@@ -1,504 +1,95 @@
 #!/bin/bash
 
+# Show and exit on errors
 set -e
 
-__FILE__="$BASH_SOURCE"
-export AZK_ROOT_PATH=`cd \`dirname $(readlink ${__FILE__} || echo ${__FILE__} )\`/..; pwd`
-export AZK_DATA_PATH=${AZK_DATA_PATH:-$AZK_ROOT_PATH/data}
+# Get azk root path
+abs_dir() {
+  cd "${1%/*}"; link=`readlink ${1##*/}`;
+  if [ -z "$link" ]; then pwd; else abs_dir $link; fi
+}
+
+export AZK_ROOT_PATH=`cd \`abs_dir ${BASH_SOURCE:-$0}\`/..; pwd`
+
+# Namespace and domain
+export AZK_NAMESPACE=${AZK_NAMESPACE:-azk.dev}
+export AZK_BALANCER_HOST=${AZK_BALANCER_HOST:-$AZK_NAMESPACE}
+
+# Default namespace use a data root path
+data_namespace="/ns/${AZK_NAMESPACE}";
+if [ "${AZK_NAMESPACE}" == "azk.dev" ]; then
+  data_namespace="";
+fi
+
+# Base folders
+export AZK_DATA_PATH=${AZK_DATA_PATH:-$HOME/.azk/data$data_namespace} # sockets, data disks and logs
+export AZK_LIB_PATH=${AZK_LIB_PATH:-$AZK_ROOT_PATH/lib};              # transpiled files from src and node runtime
+export AZK_NPM_PATH=${AZK_NPM_PATH:-$AZK_ROOT_PATH/node_modules};     # package dependencies
+
+# Nvm paths and configs
+node_version=`cat $AZK_ROOT_PATH/.nvmrc`
+export NVM_DIR=$AZK_LIB_PATH/nvm
+export AZK_NODE_PATH=${AZK_NODE_PATH:-$NVM_DIR/$node_version/bin}
+
+# Node load paths
+export NODE_PATH=$NVM_DIR/$node_version/node_modules
+export NODE_PATH=$AZK_ROOT_PATH:$NODE_PATH
+export NODE_PATH=$AZK_NPM_PATH:$NODE_PATH
+export NODE_PATH=$AZK_LIB_PATH:$NODE_PATH
+
+# Extra path
+export PATH=$AZK_NODE_PATH:$PATH
+export PATH=$AZK_NPM_PATH/.bin:$PATH
 
 # No use DOCKER_HOST
 unset DOCKER_HOST
 
-VERBOSE_ENABLED=0
-
-# OS
-UNFSD_INSTALL="Install unfs3 package before continuing.";
-case `uname -s` in
-  Linux)
-    SO="linux"
-    DNS_SEPARATOR=":"
-
-    # Force vm use?
-    export AZK_USE_VM=${AZK_USE_VM:-false}
-
-    LIBNSS_INSTALL="Install libnss-resolver before continue, instructions: http://git.io/-r08fg"
-    if [ "$AZK_USE_VM" == "false" ]; then
-      DOCKER_INSTALL="\`install docker\` before continuing."
-      export AZK_DOCKER_PATH=${AZK_DOCKER_PATH:-`which docker 2>/dev/null`}
-    else
-      export AZK_UNFSD_PATH=${AZK_UNFSD_PATH:-`which unfsd 2>/dev/null`}
-    fi
-    ;;
-  Darwin)
-    SO="darwin"
-    DNS_SEPARATOR="."
-
-    # Default use vm
-    export AZK_USE_VM=${AZK_USE_VM:-true}
-
-    if [ -f "$(which brew)" ]; then
-      BREW_PATH=`brew --prefix`
-      UNFSD_INSTALL="\`brew install unfs3\` before continuing."
-      PATH=$BREW_PATH/sbin:$BREW_PATH/bin:$PATH
-      export AZK_UNFSD_PATH=${AZK_UNFSD_PATH:-`which unfsd`}
-    fi
-    export AZK_UNFSD_PATH=${AZK_UNFSD_PATH:-`which unfsd`}
-    ;;
-  *)
-    echo "azk: System not supported (see http://azk.io)";
-    exit 1;
-esac
-
-# Npm folder
-AZK_NPM_PATH=${AZK_NPM_PATH:-$AZK_ROOT_PATH};
-export AZK_LIB_PATH=${AZK_LIB_PATH:-$AZK_ROOT_PATH/lib};
-
-# Set a internals paths
-export PATH=/usr/local/bin:/usr/local/sbin
-export PATH=/usr/bin:/bin:/usr/sbin:$PATH
-export PATH=$AZK_ROOT_PATH/bin:$PATH
-export PATH=$AZK_NPM_PATH/node_modules/.bin:$PATH
-
-# Azk opts
-export AZK_CURRENT_SYSTEM="${AZK_CURRENT_SYSTEM:-`pwd`}"
-[ -n "$NODE_DEBUG" ] && { export NODE_DEBUG="--debug-brk"; }
-
-# Node load paths
-export NODE_PATH=$AZK_ROOT_PATH
-export NODE_PATH=$AZK_NPM_PATH/node_modules:$NODE_PATH
-export NODE_PATH=$AZK_LIB_PATH:$NODE_PATH
-
-agent_ip() {
-  cat /etc/resolver/$AZK_BALANCER_HOST 2>/dev/null | grep -Eo '([0-9]{1,3}\.){3}[0-9]{1,3}'
-}
-
-# Configure NVM and VM
-export AZK_DATA_PATH=${AZK_DATA_PATH:-$AZK_ROOT_PATH/data}
-export AZK_BALANCER_HOST="${AZK_BALANCER_HOST:-azk.dev}"
-export AZK_DOCKER_NS="${AZK_DOCKER_NS:-azk.dev}"
-export AZK_DNS_PORT="${AZK_DNS_PORT:-53}"
-export NVM_DIR=$AZK_DATA_PATH/nvm
-export VM_DISK_PATH=$AZK_DATA_PATH/vm
-export AZK_BOOT_FILE=$VM_DISK_PATH/azk.iso
-export AZK_AGENT_VM_NAME="${AZK_AGENT_VM_NAME:-azk-agent}"
-export AZK_AGENT_VM_IP="${AZK_AGENT_VM_IP:-`agent_ip $AZK_AGENT_VM_NAME`}"
-export AZK_AGENT_VM_KEY="${VM_DISK_PATH}/azkvm_rsa"
-
-# local
-node_version="${NODE_VERSION:-v0.10.31}"
-nvm_file=$AZK_ROOT_PATH/vendor/bin/nvm.sh
-aws_bucket=https://s3-sa-east-1.amazonaws.com/azk
-data_url=$aws_bucket/azk-agent.vmdk.gz
-boot_url=$aws_bucket/azk.iso
-update=""
-data_folders=(
-  "$AZK_DATA_PATH"
-  "$NVM_DIR"
-  "$NVM_DIR/cache"
-  "$VM_DISK_PATH"
-  "$AZK_DATA_PATH/run"
-  "$AZK_DATA_PATH/vm"
-  "$AZK_DATA_PATH/logs"
-)
-
-azk.tput() {
-  [ -z "$TERM" ] && return 0
-  eval "tput $@"
-}
-
-azk.escape() {
-  echo "$@" | sed "
-    s/%{red}/$(azk.tput setaf 1)/g;
-    s/%{green}/$(azk.tput setaf 2)/g;
-    s/%{yellow}/$(azk.tput setaf 3)/g;
-    s/%{blue}/$(azk.tput setaf 4)/g;
-    s/%{magenta}/$(azk.tput setaf 5)/g;
-    s/%{cyan}/$(azk.tput setaf 6)/g;
-    s/%{white}/$(azk.tput setaf 7)/g;
-    s/%{reset}/$(azk.tput sgr0)/g;
-    s/%{[a-z]*}//g;
-  "
-}
-
-azk.escape_clear() {
-  echo "$@" | sed "s/%{[a-z]*}//g;"
-}
-
-azk=$AZK_ROOT_PATH/bin/azk
-azk_ok="%{green}azk%{reset}"
-azk_fail="%{red}azk%{reset}"
-
-log() {
-  e="echo"
-  if [ -n "$2" -a "$1" == "-n" ]; then
-    shift
-    e="echo -n"
-  fi
-  $e >&2 "$(azk.escape "${*}")"
-  $e >&1 "$(azk.escape_clear "${*}")" | logger -t azk-configure
-}
-
-download() {
-  log -n "%{cyan}azk%{reset}: Downloading $1 to $2" | logger -t azk-install
-  (
-    {
-      result="`curl -L -sS $1 -o $2 --connect-timeout 10 2>&1`"
-    } && {
-      azk.escape " [%{green}ok%{reset}]"
-      echo $result | logger -t azk-install >/dev/null
-      return 0;
-    } || {
-      azk.escape " [%{red}fail%{reset}]"
-      logger -t azk-install $result >/dev/null
-      azk.escape "$azk_fail: ${result}"
-      azk.escape "$azk_fail: try again or report"
-      return 1;
-    }
+make_data_folders() {
+  data_folders=(
+    "$NVM_DIR"
+    "$AZK_DATA_PATH"
+    "$AZK_DATA_PATH/ns"
+    "$AZK_DATA_PATH/run"
+    "$AZK_DATA_PATH/vm"
+    "$AZK_DATA_PATH/nvm"
+    "$AZK_DATA_PATH/logs"
   )
-}
 
-# Check if all required commands exist
-cmd_exists() {
-  while [ -n "$1" ]; do
-    command -v $1 >/dev/null 2>&1 || \
-      { log "command '$1' is required but not installed. Aborting."; notOK=1; }
-    shift
-  done
-  if [ -n "$notOK" ]; then
-    exit 1
-  fi
-}
-cmd_exists git curl grep head tr bash
-
-# Roles
-check_data_folders() {
   for dir in "${data_folders[@]}"; do
     [ -d "$dir" ] || mkdir -p $dir
   done
+
+  # Clean old install azk versions files (<0.6.0)
+  (
+    cd $AZK_DATA_PATH;
+    rm -Rf vm/*.tmp vm/*.iso vm/*.bz vm/*.sha
+  )
 }
 
-check_node() {
-  . $nvm_file
-  nvm use $node_version &>/dev/null
-}
-
-check_npm() {
-  [ -n "$update" ] && return 1;
-  [ -d $AZK_ROOT_PATH/node_modules ]
-}
-
-check_sum() {
-  shasum --portable $1 | awk '{ print $1 }'
-}
-
-check_unfsd() {
-  [ "$AZK_USE_VM" == "false" ] && return 0;
-  [ -n "$AZK_UNFSD_PATH" ]
-}
-
-check_docker() {
-  [ "$AZK_USE_VM" == "true" ] && return 0;
-  version=`docker --version 2>/dev/null`
-  [ -n "$version" ]
-}
-
-check_integrity() {
-  [ -f $1 ] && {
-    actual_version=`shasum --portable $1 | awk '{ print $1 }'`
-    new_version=`curl $aws_bucket/$2 2>/dev/null`
-    if [ "${actual_version}" != "${new_version}" ]; then
-      [ "$3" == "remove" ] && { rm $1; }
-      return 1;
-    else
-      return 0;
-    fi
-  }
-  return 1;
-}
-
-check_boot_disk() {
-  [ -n "$update" -a -f $AZK_BOOT_FILE ] && {
-    check_integrity $AZK_BOOT_FILE "azk.iso.sha" remove
-  }
-  [ -f $AZK_BOOT_FILE ]
-}
-
-check_data_disk() {
-  [ -f $VM_DISK_PATH/azk-agent.vmdk.bz ]
-}
-
-check_vm_ip() {
-  [ -n "$AZK_AGENT_VM_IP" ] && return 0;
-  [ "$1" == "version" ] && return 0;
-  return 1;
-}
-
-check_vm_key() {
-  [ "$AZK_USE_VM" == "false" ] && return 0;
-  [ -f $AZK_AGENT_VM_KEY ]
-}
-
-check_libnss() {
-  grep -qe "^hosts:.*\sresolver$" -e "^hosts:.*\sresolver\s" /etc/nsswitch.conf
-}
-
-# Check for depedencies
-# TODO: format logs as standard
-msg_depens() {
-  inst=${2:-Run '`azk check-install`'}
-  log "$azk_fail: error dependencies '$1' not installed. $inst"
-  exit 1
-}
-
-check_depedencies() {
-  check_data_folders
-
-  if [ "$AZK_USE_VM" != "false" ]; then
-    check_vm_ip $1 || msg_depens "virtual machine ip"
-    check_vm_key   || msg_depens "virtual machine ssh key"
-    check_unfsd    || msg_depens 'unfsd' "$UNFSD_INSTALL"
-  else
-    check_docker   || msg_depens 'docker' "$DOCKER_INSTALL"
-    check_libnss   || msg_depens 'libnss-resolver' "$LIBNSS_INSTALL"
-    check_vm_ip $1 || msg_depens "local domain (${AZK_BALANCER_HOST})"
-  fi
-
-  # Node checks
-  check_node || msg_depens node
-  check_npm  || msg_depens 'node dependencies'
-
-  if [ "$AZK_USE_VM" != "false" ]; then
-    check_data_disk || msg_depens 'initial data disk'
-    check_boot_disk || msg_depens 'iso vm boot'
-  fi
-}
-
-check_install() {
-  check=$1; name=$2;
-  shift 2;
-  log -n "%{yellow}azk%{reset}: Check $name: "
-  if `$check ${@}` ; then
-    azk.escape "[%{green}ok%{reset}]" >&2
-  else
-    azk.escape "[%{red}not_found%{reset}]" >&2
-    return 1
-  fi
-}
-
-check_agent_is_running() {
-  cd "$AZK_ROOT_PATH"
-  ./bin/azk agent status &>/dev/null && {
-    log "$azk_fail: agent is running, stop before update or re-configure!"
+azk_load_nvm() {
+  if ! $AZK_NODE_PATH/node --version &>/dev/null ; then
+    echo "node not installed";
+    echo "run: make -e bootstrap";
     exit 1;
-  } || return 0;
-}
-
-update_code_base() {
-  if [ -n "$update" ]; then
-    cd "$AZK_ROOT_PATH"
-    check_agent_is_running
-    log -n "$azk_ok: Update code..."
-    git fetch 2>&1 | logger -t azk:update &>/dev/null
-    git merge origin/`git branch | awk '/^\*/{print $2}'` 2>&1 | logger -t azk:update &>/dev/null
-    log "[%{green}ok%{reset}]" >&2
-  fi
-}
-
-update_vm() {
-  [ "$AZK_USE_VM" == "false" ] && return 0;
-  if [ -n "$update" ]; then
-    [ -d "$AZK_ROOT_PATH/.azk" ] && rm -Rf $AZK_ROOT_PATH/.azk
-    $azk vm installed &>/dev/null || return 0;
-    $azk vm remove
-  fi
-}
-
-check_is_installed() {
-  $AZK_ROOT_PATH/bin/azk --version &>/dev/null
-}
-
-vm_ip_msg() {
-  echo ""
-  azk.escape "In order to give \`azk\` access to \`azk agent\`,"
-  azk.escape "it is necessary to define an IP address to the virtual machine."
-  azk.escape "This IP address will be used to establish a private network"
-  azk.escape "between the physical machine running \`azk\` and the virtual"
-  azk.escape "machine where \`azk agent\` is in execution."
-  echo ""
-}
-
-azk_domain_msg() {
-  echo ""
-  azk.escape "Sobre a configuração de um domínio"
-  echo ""
-}
-
-configure_vm_ip() {
-  [ "$1" != "retry" ] && check_agent_is_running
-
-  if [ "$AZK_USE_VM" != "false" ]; then
-    default_ip="${AZK_AGENT_VM_IP:-192.168.50.4}"
-    msg="$(azk.escape "Enter the vm ip: (default: %{yellow}${default_ip}%{reset}): ")"
-    read -p "$msg" ip
-  else
-    default_ip=`/sbin/ifconfig docker0 | sed '/inet /!d;s/.*[addr:|inet]\(.*\) [netmask|Bcast].*$/\1/' | awk '{print $1}'`
-    [ -z "$default_ip" ] && msg_depens 'docker' "$DOCKER_INSTALL"
-  fi
-
-  ip=${ip:-$default_ip}
-  if [[ $ip =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
-    file=/etc/resolver/$AZK_BALANCER_HOST
-    ip="${default_ip}${DNS_SEPARATOR}${AZK_DNS_PORT}"
-
-    azk.escape "Adding %{yellow}${ip}%{reset} to $file ...";
-    set -x
-    sudo mkdir -p /etc/resolver 2>/dev/null
-    echo "nameserver $ip" | sudo tee $file
-    sudo chown $(id -u):$(id -g) $file
-    set +x
-    echo ""
-  else
-    [ "$AZK_USE_VM" != "false" ] && azk.escape "$azk_fail: %{yellow}${ip}%{reset} is a invalid v4 ip, try again.";
-    configure_vm_ip retry;
-  fi
-}
-
-install() {
-  log_i() { azk.escape -n "%{green}azk%{reset}: ${@}"; }
-
-  if [ "$AZK_USE_VM" != "false" ]; then
-    check_install "check_unfsd" "dependencies" || msg_depens 'unfsd' "$UNFSD_INSTALL"
-
-    # Not configure or force configure
-    [[ "${@}" =~ --configure-ip ]] && { configure_vm_ip; } || {
-      check_install "check_vm_ip" "vm ip" $1 || { vm_ip_msg; configure_vm_ip; }
-    }
-
-    # Vm key
-    check_install "check_vm_key" "vm ssh key" || {
-      ssh-keygen -t rsa -f $AZK_AGENT_VM_KEY -N ''
-    }
-  else
-    # Without vm
-    check_install "check_docker" "docker" || msg_depens 'docker' "$DOCKER_INSTALL"
-
-    # Require libnnss-resolver
-    check_install "check_libnss" "dependencies" || msg_depens 'libnss-resolver' "$LIBNSS_INSTALL"
-
-    # Not configure or force configure
-    [[ "${@}" =~ --configure-ip ]] && { configure_vm_ip; } || {
-      check_install "check_vm_ip" "local domain (${AZK_BALANCER_HOST})" $1 || { azk_domain_msg; configure_vm_ip; }
-    }
-  fi
-
-  # Update azk code base
-  [ "$1" == '--update' ] && {
-    check_is_installed || {
-      log "$azk_fail: Can not be updated because it does not installed. Try \`azk check-install\`";
-      exit 1;
-    }
-    update="true"
-    update_code_base
-    update_vm
-  }
-
-  # Load nvm
-  mkdir -p $NVM_DIR 2>/dev/null
-  . $nvm_file
-
-  check_install "check_node" "node" || {
-    log_i "Install node..."
-    nvm install $node_version
-  }
-
-  if [[ $VERBOSE_ENABLED -eq 1 ]]; then
-    log_i "nvm use $node_version"; echo
-    nvm use $node_version
-  else
-    nvm use $node_version &>/dev/null
-  fi
-  check_install "check_npm" "azk node dependencies" || {
-    log_i "Install node depedencies..."
-    cd $AZK_ROOT_PATH
-    if [[ $VERBOSE_ENABLED -eq 1 ]]; then
-      echo; log_i 'npm install --production'; echo
-      npm install --production
-    else
-      npm install --production &>/dev/null
-      echo
-    fi
-  }
-
-  # Vm disks
-  if [ "$AZK_USE_VM" != "false" ]; then
-    mkdir -p $VM_DISK_PATH
-
-    check_install "check_boot_disk" "iso to boot vm" || {
-      download $boot_url $AZK_BOOT_FILE
-      check_boot_disk force
-      check_integrity $AZK_BOOT_FILE "azk.iso.sha" remove || {
-        log "$azk_fail: Fail download iso boot, try again";
-        exit 1;
-      }
-    }
-
-    check_install "check_data_disk" "initial data disk" || {
-      download $data_url $VM_DISK_PATH/azk-agent.vmdk.bz
-    }
-  fi
-
-  if [ -n "$update" ]; then
-    log "%{magenta}azk%{reset}: Update done, re-check dependencies";
-    exec $AZK_ROOT_PATH/bin/azk check-install;
-  else
-    log "$azk_ok: Azk has installed and configured"
   fi
 }
 
 azk_node_run() {
-  check_depedencies $1
-  cd $AZK_ROOT_PATH
-  exec node $NODE_DEBUG --harmony $AZK_ROOT_PATH/bin/azk.js "${@}"
+  exec $AZK_NODE_PATH/node --harmony $AZK_ROOT_PATH/bin/azk.js "${@}"
+}
+
+npm() {
+  exec $AZK_NODE_PATH/npm --cache=${AZK_DATA_PATH}/nvm/cache ${@}
 }
 
 azk_main() {
+  make_data_folders
   case "$1" in
-    update)
-      install --update
-      ;;
-    check-install|configure)
-      if [[ "$2" == "--verbose" ]]; then
-        VERBOSE_ENABLED=1
-      fi
-      install "${@}"
-      ;;
     nvm)
-      check_depedencies
       shift; "${@}"
       ;;
-    ssh)
-      log "$azk_fail: not support ssh into systems and instances, trying \`%{yellow}azk shell%{reset}\`"
-      shift
-      azk_node_run shell "${@}"
-      ;;
-    vm)
-      if [ "$2" == "ssh" ]; then
-        ssh_opts="StrictHostKeyChecking=no -o LogLevel=quiet -o UserKnownHostsFile=/dev/null"
-          vm_url="docker@$AZK_AGENT_VM_IP"
-        shift 2; exec ssh -i $AZK_AGENT_VM_KEY -o $ssh_opts $vm_url $*
-      else
-        azk_node_run "${@}"
-      fi
-      ;;
-    docker)
-      if [ "$AZK_USE_VM" == "false" ]; then
-        shift;
-        exec docker "${@}"
-      else
-        azk_node_run "${@}"
-      fi
-      ;;
     *)
+      azk_load_nvm
       azk_node_run "${@}"
   esac
 }

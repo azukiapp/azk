@@ -1,4 +1,4 @@
-import { _, Q, path, fs, config, log, defer, async } from 'azk';
+import { _, Q, t, path, fs, config, log, defer, async } from 'azk';
 import { net } from 'azk/utils';
 import { Tools } from 'azk/agent/tools';
 import { AgentStartError } from 'azk/utils/errors';
@@ -13,6 +13,11 @@ var Balancer = {
   memcached: null,
   hipache  : null,
   mem_client : null,
+
+  running: {
+    dns: false,
+    'balancer-redirect': false,
+  },
 
   get memCached() {
     if (!this.mem_client) {
@@ -64,16 +69,6 @@ var Balancer = {
         var ip     = net.calculateGatewayIp(config("agent:vm:ip"))
         var port   = yield net.getPort();
 
-        // Memcached
-        change_status("starting_memcached");
-        yield this.start_memcached(socket);
-        change_status("started_memcached");
-
-        // Hipache
-        change_status("starting_hipache");
-        yield this.start_hipache(ip, port, socket);
-        change_status("started_hipache");
-
         // Dns server
         change_status("starting_dns");
         yield this.start_dns(ip, port);
@@ -83,6 +78,16 @@ var Balancer = {
         change_status("starting_socat");
         yield this.start_socat(ip, port);
         change_status("started_socat");
+
+        // Memcached
+        change_status("starting_memcached");
+        yield this.start_memcached(socket);
+        change_status("started_memcached");
+
+        // Hipache
+        change_status("starting_hipache");
+        yield this.start_hipache(ip, port, socket);
+        change_status("started_hipache");
       }
     });
   },
@@ -190,10 +195,11 @@ var Balancer = {
   },
 
   _waitDocker() {
-    var promise = net.waitService(config("docker:host"), 5, { context: "dns" });
+    var docker_host = config("docker:host");
+    var promise = net.waitService(docker_host, 5, { timeout: 1000, context: "balancer" });
     return promise.then((success) => {
       if (!success) {
-        throw new AgentStartError(t(errors.not_connect_docker));
+        throw new AgentStartError(t('errors.not_connect_docker'));
       }
       return true;
     });
@@ -202,6 +208,8 @@ var Balancer = {
   // TODO: check if system is running
   _run_system(system_name, options = {}) {
     return async(this, function* () {
+      if (this.running[system_name]) return true;
+
       var system  = this._getSystem(system_name);
 
       // Wait docker
@@ -220,11 +228,16 @@ var Balancer = {
       if (!result) {
         throw new Error(`Fail to start balancer (${system_name}): ${output}`);
       }
+
+      // Save state
+      this.running[system_name] = true;
     });
   },
 
   _stop_system(system_name, change_status) {
     return async(this, function* () {
+      if (!this.running[system_name]) return false;
+
       var system = this._getSystem(system_name);
 
       // Wait docker
@@ -232,8 +245,14 @@ var Balancer = {
 
       // Stop
       change_status("stoping_" + system_name);
-      yield system.stop();
+      yield system.stop().catch((err) => {
+        log.error(err);
+        change_status("error", error);
+      });
       change_status("stoped_" + system_name);
+
+      // Save state
+      this.running[system_name] = false;
     });
   },
 

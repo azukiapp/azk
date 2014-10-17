@@ -1,9 +1,16 @@
-import { log, _, async, config, t } from 'azk';
+import { log, _, async, config, t, dynamic } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
-import { Manifest } from 'azk/manifest';
 import { SYSTEMS_CODE_ERROR, NotBeenImplementedError } from 'azk/utils/errors';
 
-var moment = require('moment');
+dynamic(this, {
+  Manifest() {
+    return require('azk/manifest').Manifest;
+  },
+
+  moment() {
+    return require('moment');
+  },
+});
 
 class Cmd extends Command {
   action(opts) {

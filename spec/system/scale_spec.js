@@ -3,7 +3,6 @@ import { config, async, Q } from 'azk';
 import { System } from 'azk/system';
 import { Scale } from 'azk/system/scale';
 import { SystemDependError, SystemNotScalable } from 'azk/utils/errors';
-import docker from 'azk/docker';
 
 describe("Azk system class, scale set", function() {
   var manifest, system, system_db;
@@ -40,7 +39,7 @@ describe("Azk system class, scale set", function() {
         h.expect(result).to.eql(1);
         h.expect(instances).to.length(1);
 
-        var container   = yield docker.getContainer(instances[0].Id).inspect();
+        var container   = yield h.docker.getContainer(instances[0].Id).inspect();
         var annotations = container.Annotations.azk;
         h.expect(annotations).to.have.deep.property("type", 'daemon');
         h.expect(annotations).to.have.deep.property("sys", db.name);
@@ -58,7 +57,7 @@ describe("Azk system class, scale set", function() {
         var id = instances[0].Id;
 
         yield db.scale(0);
-        result = yield docker.findContainer(id);
+        result = yield h.docker.findContainer(id);
         h.expect(result).to.null;
       });
     });
@@ -73,7 +72,7 @@ describe("Azk system class, scale set", function() {
         var id = instances[0].Id;
 
         yield db.scale(0, { remove: false });
-        result = yield docker.findContainer(id);
+        result = yield h.docker.findContainer(id);
         h.expect(result).to.not.null;
       });
     });
@@ -87,7 +86,7 @@ describe("Azk system class, scale set", function() {
           h.expect(result).to.eql(3);
           h.expect(instances).to.length(3);
 
-          var container   = yield docker.getContainer(instances[0].Id).inspect();
+          var container   = yield h.docker.getContainer(instances[0].Id).inspect();
           var annotations = container.Annotations.azk;
           h.expect(annotations).to.have.deep.property("type", 'daemon');
           h.expect(annotations).to.have.deep.property("sys", system.name);
@@ -141,7 +140,7 @@ describe("Azk system class, scale set", function() {
           yield manifest.system('example').scale(1);
 
           var instances = yield system.instances();
-          var container = yield docker.getContainer(instances[0].Id).inspect();
+          var container = yield h.docker.getContainer(instances[0].Id).inspect();
           var envs = container.Config.Env;
 
           h.expect(envs).to.include.something.match(/PATH=/);

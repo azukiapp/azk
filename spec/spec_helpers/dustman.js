@@ -1,7 +1,8 @@
-import docker from 'azk/docker';
 import { Q, Azk, pp, _, config, t, defer } from 'azk';
 
 export function extend(Helpers) {
+  var h = Helpers;
+
   var t_regexs = [
     RegExp(`${Helpers.escapeRegExp(config('docker:image_empty'))}`),
     RegExp(`${Helpers.escapeRegExp(config('docker:repository'))}`),
@@ -12,10 +13,10 @@ export function extend(Helpers) {
 
   Helpers.remove_containers = function() {
     return defer((done) => {
-      return docker.azkListContainers({ all: true }).then((containers) => {
+      return h.docker.azkListContainers({ all: true }).then((containers) => {
         done.notify(t('test.remove_containers', containers.length));
         return Q.all(_.map(containers, (container) => {
-          var c = docker.getContainer(container.Id);
+          var c = h.docker.getContainer(container.Id);
           return c.kill().then(() => {
             return c.remove({ force: true });
           });
@@ -26,7 +27,7 @@ export function extend(Helpers) {
 
   Helpers.remove_images = function() {
     return defer((done) => {
-      return docker.listImages().then((images) => {
+      return h.docker.listImages().then((images) => {
         var tags = _.flatten(_.map(
           images, (image) => { return image.RepoTags }
         ));
@@ -35,7 +36,7 @@ export function extend(Helpers) {
         done.notify(t('test.remove_images', tags.length));
 
         return Q.all(_.map(tags, (tag) => {
-          return docker.getImage(tag).remove();
+          return h.docker.getImage(tag).remove();
         }));
       });
     });

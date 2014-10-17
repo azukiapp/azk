@@ -1,4 +1,4 @@
-import { config, path, fs } from 'azk';
+import { config, path, fs, utils } from 'azk';
 import h from 'spec/spec_helper';
 import { Generator } from 'azk/generator';
 import { Manifest } from 'azk/manifest';
@@ -35,10 +35,10 @@ describe("Azk generator ruby rule", function() {
     h.expect(system).to.have.deep.property("name", name);
     h.expect(system).to.have.deep.property("image.name", "dockerfile/ruby:latest");
     h.expect(system).to.have.deep.property("depends").and.to.eql([]);
-    h.expect(system).to.have.deep.property("options.workdir", "/azk/" + name);
     h.expect(system).to.have.deep.property("command").and.match(command);
-    h.expect(system).to.have.deep.property("raw_mount_folders")
-      .and.to.eql({ ".": "/azk/" + name });
+    h.expect(system).to.have.deep.property("mounts")
+      .and.to.eql({ ["/azk/" + name]: utils.docker.resolvePath(manifest.manifestPath) });
+    h.expect(system).to.have.deep.property("options.workdir", "/azk/" + name);
     h.expect(system).to.have.deep.property("options.provision")
       .and.to.eql(["bundle install --path vendor/bundler"]);
 

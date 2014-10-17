@@ -1,7 +1,12 @@
-import { Q, async, _ } from 'azk';
+import { Q, async, _, dynamic } from 'azk';
 import { SystemDependError, SystemNotScalable } from 'azk/utils/errors';
 import { Balancer } from 'azk/system/balancer';
-import docker from 'azk/docker';
+
+dynamic(this, {
+  docker() {
+    return require('azk/docker').default;
+  }
+});
 
 var Scale = {
   start(system, options = {}) {

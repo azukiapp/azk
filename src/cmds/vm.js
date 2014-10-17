@@ -1,8 +1,16 @@
-import { Q, _, config, async, t } from 'azk';
+import { Q, _, config, async, t, dynamic } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
-import { Server } from 'azk/agent/server';
-import { VM } from 'azk/agent/vm';
 import { net } from 'azk/utils';
+
+dynamic(this, {
+  VM() {
+    return require('azk/agent/vm').VM;
+  },
+
+  Server() {
+    return require('azk/agent/server').Server;
+  },
+});
 
 class RequiredError extends Error {
   constructor(key) {
@@ -35,7 +43,7 @@ class VmCmd extends Command {
       var vm_name = config("agent:vm:name");
       var vm_info = yield VM.info(vm_name);
 
-      var promise = this[`action_${action}`](vm_info);
+      var promise = this[`action_${action}`](vm_info, opts);
       promise = promise.progress(Helpers.vmStartProgress(this));
 
       return promise.fail(opts.fail || ((error) => {
@@ -45,6 +53,20 @@ class VmCmd extends Command {
         }
         throw error;
       }));
+    });
+  }
+
+  action_ssh(vm_info, opts) {
+    this.require_running(vm_info);
+    return async(this, function* () {
+      var configs  = yield Helpers.configure(this);
+      var ssh_url  = `${config('agent:vm:user')}@${configs['agent:vm:ip']}`;
+      var ssh_opts = "StrictHostKeyChecking=no -o LogLevel=quiet -o UserKnownHostsFile=/dev/null"
+      var args     = opts.__leftover.join(`" "`);
+      var script   = `ssh -i ${config('agent:vm:ssh_key')} -o ${ssh_opts} ${ssh_url} "${args}"`
+
+      this.info(script);
+      return this.execSh(script);
     });
   }
 
@@ -116,8 +138,8 @@ class VmCmd extends Command {
 
 export function init(cli) {
   if (config('agent:requires_vm')) {
-    (new VmCmd('vm {action}', cli))
-      .setOptions('action', { options: ['install', 'installed', 'start', 'status', 'stop', 'remove', 'reload'] });
+    (new VmCmd('vm {*action}', cli))
+      .setOptions('action', { options: ['ssh', 'install', 'installed', 'start', 'status', 'stop', 'remove', 'reload'] });
   }
 }
 

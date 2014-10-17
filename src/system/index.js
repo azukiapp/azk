@@ -16,9 +16,19 @@ export class System {
     this.manifest  = manifest;
     this.name      = name;
     this.image     = new Image(image);
-    this.__options = options;
+
+    // Options
+    this.__options = {}
     this.options   = _.merge({}, this.default_options, options);
     this.options   = this._expand_template(this.options);
+  }
+
+  set options(values) {
+    this.__options = values;
+  }
+
+  get options() {
+    return this.__options;
   }
 
   get default_options() {
@@ -196,28 +206,9 @@ export class System {
     return (`${this.name}_${[...args].join("_")}`).toUpperCase();
   }
 
-  // Volumes options
-  get volumes() {
-    var volumes = { };
-
-    // Volumes
-    _.each(this.raw_mount_folders, (target, point) => {
-      point = path.resolve(this.manifest.manifestPath, point);
-      volumes[point] = target;
-    });
-
-    return volumes;
-  }
-
-  get persistent_volumes() {
-    var folders = {};
-    var base = config('paths:persistent_folders');
-
-    return _.reduce(this.options.persistent_folders, (folders, folder) => {
-      var origin = path.join(base, this.manifest.namespace, this.name, folder);
-      folders[origin] = folder;
-      return folders;
-    }, {});
+  // Mounts options
+  get mounts() {
+    return this._mounts_to_volumes(this.options.mounts || {});
   }
 
   // Get depends info
@@ -301,8 +292,7 @@ export class System {
     // Default values
     options = _.defaults(options, {
       workdir: this.options.workdir,
-      volumes: {},
-      local_volumes: {},
+      mounts: {},
       envs: {},
       ports: {},
       sequencies: {},
@@ -320,14 +310,18 @@ export class System {
       ports[data.name] = [data.config];
     });
 
-    var type = daemon ? "daemon" : "shell";
+    var type   = daemon ? "daemon" : "shell";
+    var mounts = _.merge(
+      {}, this.mounts,
+      this._mounts_to_volumes(options.mounts)
+    );
+
     return {
       daemon: daemon,
       ports: ports,
       stdout: options.stdout,
       command: options.command || this.command,
-      volumes: _.merge({}, this.volumes, options.volumes),
-      local_volumes: _.merge({}, this.persistent_volumes, options.local_volumes),
+      volumes: mounts,
       working_dir: options.workdir || this.workdir,
       env: envs,
       dns: net.nameServers(),
@@ -392,6 +386,7 @@ export class System {
       },
       manifest: {
         dir: this.manifest.manifestDirName,
+        path: this.manifest.manifestPath,
         project_name: this.manifest.manifestDirName,
       },
       azk: {
@@ -408,5 +403,52 @@ export class System {
   _replace_keep_keys(template) {
     var regex = /(?:(?:[#|$]{|<%)[=|-]?)\s*((?:envs|net)\.[\S]+?)\s*(?:}|%>)/g;
     return template.replace(regex, "#{_keep_key('$1')}");
+  }
+
+  _mounts_to_volumes(mounts) {
+    var volumes = {};
+
+    // support mount_folders
+    mounts = _.reduce(this.raw_mount_folders, (mounts, point, target) => {
+      mounts[point] = { type: 'path', value: target };
+      return mounts;
+    }, mounts);
+
+    // support persistent_folders
+    mounts = _.reduce(this.options.persistent_folders, (mounts, point) => {
+      mounts[point] = { type: 'persistent', value: path.join(this.name, point) };
+      return mounts;
+    }, mounts);
+
+    // persistent folder
+    var persist_base = config('paths:persistent_folders');
+    persist_base = path.join(persist_base, this.manifest.namespace);
+
+    return _.reduce(mounts, (volumes, mount, point) => {
+      if (_.isString(mount)) {
+        mount = { type: 'path', value: mount }
+      }
+
+      var target = null;
+      switch(mount.type) {
+        case 'path':
+          target = mount.value;
+          if (!target.match(/^\//)) {
+            target = path.resolve(this.manifest.manifestPath, target);
+          }
+          target = (fs.existsSync(target)) ?
+            utils.docker.resolvePath(target) : null;
+          break;
+        case 'persistent':
+          target = path.join(persist_base, mount.value);
+          break;
+      }
+
+      if (!_.isEmpty(target)) {
+        volumes[point] = target;
+      }
+
+      return volumes;
+    }, volumes);
   }
 }

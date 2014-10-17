@@ -1,5 +1,5 @@
 import h from 'spec/spec_helper';
-import { config, path, t } from 'azk';
+import { config, path, t, utils } from 'azk';
 import { init } from 'azk/cmds/init';
 import { Manifest } from 'azk/manifest';
 
@@ -50,9 +50,9 @@ describe("Azk command init", function() {
         h.expect(system).to.have.deep.property("name", "example");
         h.expect(system).to.have.deep.property("image.name", "[repository]:[tag]");
         h.expect(system).to.have.deep.property("depends").and.to.eql([]);
+        h.expect(system).to.have.deep.property("mounts")
+          .and.to.eql({ ["/azk/" + name]: utils.docker.resolvePath(manifest.manifestPath) });
         h.expect(system).to.have.deep.property("options.workdir", "/azk/" + name);
-        h.expect(system).to.have.deep.property("options.mount_folders")
-          .and.to.eql({ ".": "/azk/" + name});
         h.expect(system).to.have.deep.property("options.command")
           .and.to.eql("# command to run app");
         h.expect(system).to.have.deep.property("options.envs")

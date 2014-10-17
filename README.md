@@ -1,4 +1,4 @@
-# ![azk](https://github.com/azukiapp/azk/raw/master/src/share/pres/top-logo-wo.png)
+# ![azk](https://github.com/azukiapp/azk/raw/master/src/pres/top-logo-wo.png)
 
 `azk` is a tool that assists web developers in the creation, maintenance and isolation of development environments through automation. You will be able to easily and quickly create isolated environments to many projects in almost any development stack. Automation happens by the use of simple scripts and images.
 
@@ -163,9 +163,9 @@ systems({
     ],
     workdir: "/azk/#{manifest.dir}",
     command: "node index.js",
-    // Mounts folders to assigned paths
-    mount_folders: {
-      ".": "/azk/#{manifest.dir}",
+    mounts: {
+      // Mounts folders to assigned paths
+      "/azk/#{manifest.dir}": path("."),
     },
     // Start with 2 instances
     scalable: { default: 2} 
@@ -177,13 +177,15 @@ systems({
     envs: {
       // Exports global variables
       NODE_ENV: "dev",
-    }
+    },
   },
   
   db: {
-    image: "dockerfile/mariadb"
-    // Activates a persistent data folder in '/data'
-    persistent_folders: ["/data"],
+    image: "dockerfile/mariadb",
+    mounts: {
+      // Activates a persistent data folder in '/data'
+      "/data": persistent("data"),
+    },
   }
 });
 
@@ -246,3 +248,4 @@ Check LEGAL and LICENSE files for more information.
 [virtualbox_dl]: http://www.vagrantup.com/downloads.html
 [homebrew_cask]: https://github.com/phinze/homebrew-cask
 [libnss-resolver]: https://github.com/azukiapp/libnss-resolver
+

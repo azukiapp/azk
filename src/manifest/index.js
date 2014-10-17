@@ -4,6 +4,7 @@ import { runInNewContext, createScript } from 'vm';
 import { System } from 'azk/system';
 import { createSync as createCache } from 'fscache';
 import { sync as mkdir } from 'mkdirp';
+import { Validate } from 'azk/manifest/validate';
 import { ManifestError, ManifestRequiredError, SystemNotFoundError } from 'azk/utils/errors';
 import Utils from 'azk/utils';
 
@@ -17,6 +18,16 @@ var ManifestDsl = {
   env: process.env,
   disable: null,
 
+  // Mounts
+  path(folder) {
+    return { type: 'path', value: folder }
+  },
+
+  persistent(name) {
+    return { type: 'persistent', value: name }
+  },
+
+  // Systems
   system(name, data) {
     this.addSystem(name, data);
   },
@@ -27,6 +38,7 @@ var ManifestDsl = {
     });
   },
 
+  // Extra options
   addImage(name, image) {
     this.images[name] = image;
   },
@@ -104,6 +116,11 @@ export class Manifest {
       throw new ManifestRequiredError(cwd);
 
     this.meta    = new Meta(this);
+  }
+
+  // Validate
+  validate(...args) {
+    return Validate.analyze(this, ...args);
   }
 
   parse() {
@@ -333,9 +350,9 @@ export class Manifest {
     return manifest.addSystem("--tmp--", {
       image: image,
       workdir: "/azk/#{manifest.dir}",
-      mount_folders: {
-        ".": "/azk/#{manifest.dir}",
-      },
+      mounts: {
+        "/azk/#{manifest.dir}": "#{manifest.path}"
+      }
     });
   }
 }

@@ -1,8 +1,8 @@
-import { config, path, fs, _ } from 'azk';
+import { config, path, fs, _, utils } from 'azk';
 import h from 'spec/spec_helper';
 import { Generator } from 'azk/generator';
 import { Manifest } from 'azk/manifest';
-import { example_system as node_example }  from 'azk/generator/rules/node';
+import { example_system as node_example } from 'azk/generator/rules/node';
 
 var touch = require('touch');
 
@@ -32,6 +32,8 @@ describe("Azk generator tool", function() {
       return new Manifest(dir);
     };
 
+    var export_db = "#{envs.USER}:#{envs.PASSWORD}@#{net.host}:#{net.port.3666}";
+
     var default_data = {
       systems: {
         front: {
@@ -40,15 +42,19 @@ describe("Azk generator tool", function() {
           image: { repository: 'base', tag: '0.1' },
           scalable: true,
           http: true,
-          mount_folders: {
-            ".": "/azk/#{manifest.dir}",
+          mounts: {
+            "/azk/root": "/",
+            "/azk/#{manifest.dir}": { type: 'path', value: '.' },
+            "/azk/data": { type: 'persistent', value: 'data' },
           },
+          mount_folders: { ".": "/azk/old" },
+          persistent_folders: ["/data"],
           command: 'bundle exec rackup config.ru',
           envs: { RACK_ENV: 'dev' },
         },
         db: {
           image: "base",
-          export_envs: { DB_URL: "#{envs.USER}:#{envs.PASSWORD}@#{net.host}:#{net.port.3666}" }
+          export_envs: { DB_URL: export_db }
         }
       },
       defaultSystem: 'front',
@@ -101,17 +107,34 @@ describe("Azk generator tool", function() {
       h.expect(system).to.have.deep.property("depends").and.to.eql(["db"]);
       h.expect(system).to.have.deep.property("options.workdir", "/azk/" + name);
       h.expect(system).to.have.deep.property("options.scalable").and.ok;
-      h.expect(system).to.have.deep.property("options.mount_folders")
-        .and.to.eql({ ".": "/azk/" + name});
       h.expect(system).to.have.deep.property("options.command")
         .and.to.eql("bundle exec rackup config.ru");
+    });
+
+    it("should generate a mounts options", function() {
+      var manifest = generate_manifest(dir, default_data);
+      var system   = manifest.systemDefault;
+      var name     = path.basename(dir);
+
+      var persist_base = config('paths:persistent_folders');
+      persist_base = path.join(persist_base, manifest.namespace);
+
+      var mounts = system.mounts;
+      h.expect(system).to.have.property('mounts');
+      h.expect(mounts).to.have.property('/azk/root', config('agent:vm:mount_point') + '/');
+      h.expect(mounts).to.have.property('/azk/' + name, utils.docker.resolvePath(manifest.manifestPath));
+      h.expect(mounts).to.have.property('/azk/old', utils.docker.resolvePath(manifest.manifestPath));
+      h.expect(mounts).to.have.property('/azk/data', path.join(persist_base, 'data'));
+      h.expect(mounts).to.have.property('/data', path.join(persist_base, system.name, 'data'));
     });
 
     it("should generate export envs", function() {
       var manifest = generate_manifest(dir, default_data);
       var system   = manifest.system('db');
       h.expect(system).to.have.deep.property("options.export_envs")
-        .and.to.eql({ DB_URL: "#{envs.USER}:#{envs.PASSWORD}@#{net.host}:#{net.port.3666}" });
+        .and.to.eql({
+          DB_URL: "#{envs.USER}:#{envs.PASSWORD}@#{net.host}:#{net.port.3666}"
+        });
     });
 
     it("should support instances in scalable", function() {
@@ -123,7 +146,8 @@ describe("Azk generator tool", function() {
       var manifest = generate_manifest(dir, data);
       var system   = manifest.systemDefault;
 
-      h.expect(system).to.have.deep.property("options.scalable").and.eql({ default: 5});
+      h.expect(system).to.have.deep.property("options.scalable")
+        .and.eql({ default: 5});
     });
   });
 });

@@ -13,15 +13,18 @@ var Unfsd = {
     return Tools.async_status("unsfd", this, function* (change_status) {
       if (this.isRunnig()) return;
 
-      var port = this.port = yield net.getPort();
-      var file = this.__checkConfig();
-      var args = [
+      var vm_ip = config('agent:vm:ip');
+      var port  = this.port = yield net.getPort('0.0.0.0');
+      var file  = this._checkConfig(vm_ip);
+      var args  = [
         config("paths:unfsd"),
         "-s", "-d", "-p", "-t",
         "-n", port,
         "-m", port,
         "-e", file
-      ]
+      ];
+
+      log.debug(`starting ntfs: ${args.join(" ")}`);
 
       return defer((resolve, reject) => {
         change_status("starting");
@@ -90,8 +93,9 @@ var Unfsd = {
 
       change_status("mounting");
       return VM.ssh(vm_name, cmd).progress(progress).then((code) => {
-        if (code != 0)
+        if (code != 0) {
           throw new Error('not mount share files, error:\n' + stderr);
+        }
         change_status("mounted");
       });
     });
@@ -101,13 +105,13 @@ var Unfsd = {
     return (this.child && this.child.running);
   },
 
-  __checkConfig() {
+  _checkConfig(vm_ip) {
     var file = config('paths:unfsd_file');
 
     // set content
     fs.writeFileSync(file, [
       "# All",
-      "/ " + net.calculateNetIp(config("agent:vm:ip")) + "(rw)"
+      "/ " + net.calculateNetIp(vm_ip) + "(rw)"
     ].join("\n"));
 
     return file;

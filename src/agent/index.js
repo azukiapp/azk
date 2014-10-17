@@ -1,10 +1,13 @@
-import { Q, config, defer, log, _ } from 'azk';
+import { Q, config, defer, log, _, dynamic } from 'azk';
+import { config, set_config } from 'azk';
 import { Pid } from 'azk/utils/pid';
 import { AgentStartError } from 'azk/utils/errors';
 
-function Server() {
-  return require('azk/agent/server').Server;
-}
+dynamic(this, {
+  Server() {
+    return require('azk/agent/server').Server;
+  }
+});
 
 var Agent = {
   wait: null,
@@ -25,6 +28,7 @@ var Agent = {
     var pid = this.agentPid();
     return defer((resolve, reject, notify) => {
       this.wait_notify = notify;
+      options = _.defaults(options, { configs: {} });
 
       if (pid.running) {
         this.change_status('already');
@@ -32,10 +36,10 @@ var Agent = {
       } else {
         this.change_status('starting');
         if (options.daemon) {
-          return this.launchDaemon();
+          return this.launchDaemon(options.configs);
         } else {
           this.wait = resolve;
-          this.processWrapper().progress(notify).fail((err) => {
+          this.processWrapper(options.configs).progress(notify).fail((err) => {
             this.change_status("error", err.stack || err);
             return this.stop().progress(notify).then(() => {
               return 0;
@@ -52,7 +56,7 @@ var Agent = {
       if (this.wait) {
         this.change_status("stoping");
 
-        return Server().stop().progress(notify).then(() => {
+        return Server.stop().progress(notify).then(() => {
           try { pid.unlink(); } catch(e) {}
           this.change_status("stoped");
           this.wait(0);
@@ -99,27 +103,35 @@ var Agent = {
     process.on('SIGQUIT', gracefullExit);
   },
 
-  processWrapper() {
+  processWrapper(configs) {
+    // Merge configs to global confgs
+    var acc_keys = 'agent:config_keys';
+    _.each(configs, (value, key) => {
+      set_config(key, value);
+      set_config(acc_keys, [...config(acc_keys), key]);
+    });
+
+    // Set process name
     process.title = 'azk-agent';
+
     return defer((resolve, reject, notify) => {
       this.processStateHandler();
-      return Server().start().then(() => {
+      return Server.start().then(() => {
         this.change_status("started");
       });
     });
   },
 
-  launchDaemon() {
+  launchDaemon(configs) {
     return defer((done) => {
       var child_process = require('child_process');
 
       log.debug("Launching agent in daemon mode");
       var child = child_process.fork(__filename, [], {
-        silent  : true,
+        silent  : false,
         detached: true,
         cwd     : config('paths:azk_root'),
-        env     : _.extend({
-        }, process.env),
+        env     : _.extend({}, process.env),
       }, (err, stdout, stderr) => {
         if (err) done.reject(err.stack);
       });
@@ -139,8 +151,12 @@ var Agent = {
         }
       };
 
+      // Connect child events
       child.on('exit', exit);
       child.on('message', msg_cb);
+
+      // Send start to child with confgs
+      child.send({ type: 'start', configs: configs });
     });
   },
 }
@@ -155,8 +171,12 @@ if (require.main === module) {
     process.exit(code);
   }
 
-  Agent.processWrapper().fail((error) => {
-    Agent.change_status("error", error.toString());
-    return Agent.stop()
+  process.on('message', (msg) => {
+    if (msg.type = 'start') {
+      Agent.processWrapper(msg.configs).fail((error) => {
+        Agent.change_status("error", error.toString());
+        return Agent.stop()
+      });
+    }
   });
 }

@@ -1,5 +1,4 @@
 import { Q, _, config, defer, async } from 'azk';
-import docker from 'azk/docker';
 import { Container } from 'azk/docker';
 import h from 'spec/spec_helper';
 
@@ -32,14 +31,14 @@ describe("Azk docker containers class", function() {
     var container;
 
     beforeEach(() => {
-      return docker.run(default_img,
+      return h.docker.run(default_img,
         ["/bin/bash", "-c", "echo 'error' >&2; echo 'out';" ],
         { stdout: mocks.stdout, stderr: mocks.stderr }
       ).then((c) => container = c);
     });
 
     it("should parse status and set state", function() {
-      return docker.azkListContainers({ all: true }).then((instances) => {
+      return h.docker.azkListContainers({ all: true }).then((instances) => {
         container = _.find(instances, (c) => { return c.Id == container.Id });
         h.expect(container).to.have.deep.property("State.Running", false);
       });
@@ -47,14 +46,14 @@ describe("Azk docker containers class", function() {
     });
 
     it("should parse container name to annotations in get container list", function() {
-      return docker.azkListContainers({ all: true }).then((instances) => {
+      return h.docker.azkListContainers({ all: true }).then((instances) => {
         container = _.find(instances, (c) => { return c.Id == container.Id });
         h.expect(container).to.have.deep.property("Annotations.azk.type", "run");
       });
     });
 
     it("should parse container name to annotations to call inspect", function() {
-      return docker.getContainer(container.Id).inspect().then((container) => {
+      return h.docker.getContainer(container.Id).inspect().then((container) => {
         h.expect(container).to.have.deep.property("Annotations.azk.type", "run");
       });
     });

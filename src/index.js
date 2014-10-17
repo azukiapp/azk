@@ -14,7 +14,7 @@ class Azk {
 }
 
 // Default i18n method
-var t    = new i18n({ locale: config('locale') }).t;
+var _t   = null;
 var _log = null;
 
 module.exports = {
@@ -22,14 +22,31 @@ module.exports = {
   get pp() { return Azk.pp; },
   get Q()  { return Q; },
   get _()  { return _; },
-  get t()  { return t; },
+  get t()  {
+    if (!_t) {
+      _t = new i18n({
+        path: this.path.join(this.config('paths:azk_root'), 'shared', 'locales'),
+        locale: config('locale'),
+      }).t
+    }
+    return _t;
+  },
   get config() { return config; },
   get set_config() { return set_config; },
   get defer()  { return defer; },
   get async()  { return async; },
+  get os()     { return require('os'); },
   get path()   { return require('path'); },
   get fs()     { return require('fs-extra'); },
   get utils()  { return require('azk/utils'); },
+
+  get dynamic() {
+    return (obj, loads) => {
+      this._.each(loads, (func, getter) => {
+        obj.__defineGetter__(getter, func);
+      });
+    }
+  },
 
   get log() {
     if (!_log) {

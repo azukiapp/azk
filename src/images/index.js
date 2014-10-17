@@ -1,7 +1,16 @@
-import { async, defer, _ } from 'azk';
-import { Image as DImage, default as docker} from 'azk/docker';
+import { async, defer, _, dynamic } from 'azk';
 
 var default_tag = "latest";
+
+dynamic(this, {
+  DImage() {
+    return require('azk/docker').Image;
+  },
+
+  docker() {
+    return require('azk/docker').default;
+  }
+});
 
 export class Image {
   constructor(image) {

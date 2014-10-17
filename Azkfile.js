@@ -5,26 +5,33 @@
 // Global image to reuse
 //addImage('base', { repository: "cevich/empty_base_image" }); // tag: latest
 
-var path   = require('path');
-var fs     = require('fs');
-var glob   = require('glob');
+
 var config = require('azk').config;
-var _      = require('lodash');
+var mounts = (function() {
+  var _    = require('lodash');
+  var join = require('path').join;
+  var glob = require('glob');
 
-var itens = glob.sync("./!(lib|data|node_modules|npm-debug.log)");
-var mount = _.reduce(itens, function(mount, item) {
-  mount[item] = path.join("/azk", "#{manifest.dir}", item);
-  return mount;
-}, {});
+  var mounts = {
+    "/.tmux.conf"      : join(env.HOME, ".tmux.conf"),
+    "/azk/demos"       : "../demos",
+    "/azk/build"       : persistent('build-#{system.name}'),
+    "/azk/lib"         : persistent('lib-#{system.name}'),
+    "/azk/data"        : persistent('data-#{system.name}'),
+    "/var/lib/docker"  : persistent('docker_files-#{system.name}'),
+    "/azk/#{manifest.dir}/node_modules": persistent('node_modules-#{system.name}'),
+    "/azk/#{manifest.dir}/.nvmrc" : ".nvmrc",
+  }
 
-if (fs.existsSync("../demos")) {
-  mount["../demos"] = "/azk/demos";
-}
+  var itens = glob.sync("./!(lib|data|node_modules|npm-debug.log)");
+  mounts = _.reduce(itens, function(mount, item) {
+    var key = join("/azk", "#{manifest.dir}", item);
+    mount[key] = item;
+    return mount;
+  }, mounts);
 
-var tmuxrc = path.join(env.HOME, ".tmux.conf");
-if (fs.existsSync(tmuxrc)) {
-  mount[tmuxrc] = "/.tmux.conf";
-}
+  return mounts;
+})();
 
 var agent_system = function(image) {
   return {
@@ -35,19 +42,13 @@ var agent_system = function(image) {
     scale: false,
     workdir: "/azk/#{manifest.dir}",
     shell: "/usr/local/bin/wrapdocker",
-    mount_folders: mount,
-    persistent_folders: [
-      "/azk/lib",
-      "/azk/#{manifest.dir}/node_modules",
-      "/azk/data",
-      "/var/lib/docker",
-    ],
+    mounts: mounts,
     envs: {
       PATH: "/azk/#{manifest.dir}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
       AZK_DATA_PATH: "/azk/data",
       AZK_LIB_PATH : "/azk/lib",
-      AZK_BALANCER_HOST: "azk.linux",
-      AZK_DOCKER_NS    : "azk.linux",
+      AZK_NAMESPACE: "azk.linux",
+      AZK_PACKAGE_PATH: "/azk/build",
       AZK_BALANCER_PORT: 8080,
       //EXTRA_ARGS       : "-H tcp://0.0.0.0:2375 -H unix://",
       LOG: "file",
@@ -60,16 +61,42 @@ var agent_system = function(image) {
   };
 }
 
+var test_package_system = function(image){
+  return {
+    image: image,
+    workdir: "/azk/#{manifest.dir}",
+    shell: "/usr/local/bin/wrapdocker",
+    mounts: {
+      "/azk/demos"          : "../demos",
+      "/azk/#{manifest.dir}": ".",
+      "/azk/data"           : persistent('data-#{system.name}'),
+      "/var/lib/docker"     : persistent('docker_files-#{system.name}'),
+    },
+    envs: {
+      AZK_DATA_PATH: "/azk/data",
+      LOG: "file", // Log docker to file
+    },
+    docker_extra: {
+      start: { Privileged: true },
+    }
+  }
+}
+
 systems({
 
   'dind-ubuntu': agent_system('azukiapp/dind:ubuntu14'),
   'dind-fedora': agent_system('azukiapp/dind:fedora20'),
 
+  package: agent_system('azukiapp/fpm'),
+  'pkg-ubuntu12-test': test_package_system('azukiapp/dind:ubuntu12'),
+  'pkg-ubuntu14-test': test_package_system('azukiapp/dind:ubuntu14'),
+  'pkg-fedora-test': test_package_system('azukiapp/dind:fedora20'),
+
   grunt: {
     image: "dockerfile/nodejs",
     workdir: "/azk/#{manifest.dir}",
-    mount_folders: {
-      ".": "/azk/#{manifest.dir}",
+    mounts: {
+      "/azk/#{manifest.dir}": ".",
     },
     envs: {
       PATH: "/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/azk/#{manifest.dir}/node_modules/.bin"
@@ -82,9 +109,9 @@ systems({
       //'export INSTALL_DIR=/azk/<%= manifest.dir %>/vendor/python',
       //'pip install --target=$INSTALL_DIR --install-option="--install-scripts=$INSTALL_DIR/bin" sphinx',
     //],
-    workdir: "/azk/<%= manifest.dir %>",
-    mount_folders: {
-      ".": "/azk/<%= manifest.dir %>",
+    workdir: "/azk/#{manifest.dir}",
+    mounts: {
+      "/azk/#{manifest.dir}": ".",
     },
     //envs: {
       //PYTHONPATH: "/azk/<%= manifest.dir %>/vendor/python",

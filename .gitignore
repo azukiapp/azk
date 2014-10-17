@@ -2,6 +2,8 @@
 /tmp
 /node_modules
 /data
-/lib/spec
+/lib
 .vimrc
 .azk
+/package
+/build

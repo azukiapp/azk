@@ -8,7 +8,7 @@ import h from 'spec/spec_helper';
 var default_img = config('docker:image_default');
 var path = require('path');
 
-describe("Azk manifest class", function() {
+describe("Azk manifest class, main set", function() {
   describe("in a valid azk project folder", function() {
     var project, manifest;
 

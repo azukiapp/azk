@@ -1,6 +1,11 @@
 # Changelog
 
-## v0.5.1
+## v0.6.0 - dev
+
+* Enhancements
+  * [Manifest] Replacing `mount_folders` and `persistent_folders` for `mounts`;
+
+## v0.5.1 - (2014-11-10)
 
 * Bug
   * [Cmds] Fixing stop all systems, if a dependencie system is down;

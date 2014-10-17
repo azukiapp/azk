@@ -1,21 +1,41 @@
-import { _, fs, config, async, set_config } from 'azk';
+import { _, fs, config, async, set_config, dynamic } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
 import { AGENT_CODE_ERROR } from 'azk/utils/errors';
-import { VM  }   from 'azk/agent/vm';
 
-var net = require('net');
+dynamic(this, {
+  Client() {
+    return require('azk/agent/client').Client;
+  },
+
+  Configure() {
+    return require('azk/agent/configure').Configure;
+  },
+});
 
 class Cmd extends Command {
   action(opts) {
-    var Client   = require('azk/agent/client').Client;
+    // Create a progress output
     var progress = Helpers.vmStartProgress(this);
 
     return async(this, function* () {
-      if (opts['reload-vm'] && opts.action == "start") {
-        var cmd_vm = this.parent.commands.vm;
-        yield cmd_vm.action({ action: 'remove', fail: () => {} });
+      // Only in start
+      if (opts.action === 'start') {
+        // And no running
+        var status = yield Client.status();
+        if (!status.agent) {
+          // Check and load configures
+          this.warning('status.agent.wait');
+          opts.configs = yield Helpers.configure(this);
+
+          // Remove and adding vm (to refresh vm configs)
+          if (config('agent:requires_vm') && opts['reload-vm']) {
+            var cmd_vm = this.parent.commands.vm;
+            yield cmd_vm.action({ action: 'remove', fail: () => {} });
+          }
+        }
       }
 
+      // Call action in agent
       var promise = Client[opts.action](opts).progress(progress);
       return promise.then((result) => {
         if (opts.action != "status") return result;
