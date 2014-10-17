@@ -41,14 +41,14 @@ var net = {
     return nameservers;
   },
 
-  waitService(address, retry = 15, opts = {}) {
+  waitService(uri, retry = 15, opts = {}) {
     opts = _.defaults(opts, {
       timeout: 10000,
       retry_if: () => { return Q(true); }
     });
 
     // Parse options to try connect
-    address = url.parse(address);
+    var address = url.parse(uri);
     if (address.protocol == 'unix:') {
       address = { path: address.path };
     } else {
@@ -64,8 +64,9 @@ var net = {
       var connect  = () => {
         var t = null;
         notify(_.merge({
+          uri : uri,
           type: 'try_connect', attempts, max, context: opts.context
-        }, address));
+        }, address ));
 
         client = nativeNet.connect(address, function() {
           client.end();

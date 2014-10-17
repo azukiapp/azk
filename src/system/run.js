@@ -174,6 +174,7 @@ var Run = {
       // Wait for available
       var wait_opts = {
         timeout: timeout,
+        context: `${system.name}_connect`,
         retry_if: () => {
           return container.inspect().then((data) => {
             return data.State.Running;

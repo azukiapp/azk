@@ -62,6 +62,7 @@ module.exports = {
       stoped: "Agent has been successfully stopped.",
       error: "Agent starting error: %(data)s.",
       wait: "Wait, this process may take several minutes",
+      progress: "progress...",
     },
 
     vm: {
@@ -78,7 +79,7 @@ module.exports = {
       // TODO: waiting
       wait      : "waiting for initialization of virtual machine...",
       initialized : "virtual machine is ready to use.",
-      progress    : "trying connect to vm (%(host)s:%(port)d) (%(attempts)d/%(max)d)...",
+      progress    : "trying connect to vm (%(uri)s) (%(attempts)d/%(max)d)...",
       error     : "Error in vm process: %(data)s",
     },
 
@@ -86,13 +87,20 @@ module.exports = {
       progress : "trying to connect to docker (%(attempts)d/%(max)d)...",
     },
 
+    'balancer-redirect_connect': {
+      progress: "Check if balancer redirect service is up (%(uri)s) (%(attempts)d/%(max)d)...",
+    },
+
     balancer: {
-      starting_memcached: "starting memcached...",
-      started_memcached : "memcached started.",
-      starting_hipache  : "starting hipache...",
-      started_hipache   : "hipache started.",
-      starting_socat    : "starting socat...",
-      started_socat     : "socat started.",
+      starting_memcached: "Starting memcached...",
+      started_memcached : "Memcached started.",
+      starting_hipache  : "Starting hipache...",
+      started_hipache   : "Hipache started.",
+      starting_socat    : "Starting azk balancer redirect service...",
+      started_socat     : "Balancer redirect started.",
+      starting_dns      : "Starting azk dns service...",
+      started_dns       : "Dns service started.",
+      progress: "Trying connect to docker (%(uri)s) (%(attempts)d/%(max)d)...",
     },
 
     unsfd: {

@@ -51,7 +51,11 @@ var Helpers = {
               cmd.fail([...keys, event.status], event.data);
               break;
             case "error":
-              cmd.fail([...keys, event.status], event);
+              if (event.data instanceof Error) {
+                cmd.fail(event.data.toString())
+              } else {
+                cmd.fail([...keys, event.status], event);
+              }
               break;
             default:
               cmd.ok([...keys,  event.status], event.data);
