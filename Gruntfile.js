@@ -128,7 +128,7 @@ module.exports = function(grunt) {
           'src/**/*.js',
           'spec/**/*.js',
         ],
-        tasks: ['clear', 'newer:traceur', 'exec:build:dind-ubuntu']
+        tasks: ['clear', 'newer:traceur']
       }
     },
 
