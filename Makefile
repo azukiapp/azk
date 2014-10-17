@@ -4,6 +4,7 @@ AZK_VERSION:=$(shell cat package.json | grep -e "version" | cut -d' ' -f4 | sed 
 AZK_ROOT_PATH:=$(shell pwd)
 AZK_LIB_PATH:=${AZK_ROOT_PATH}/lib
 AZK_NPM_PATH:=${AZK_ROOT_PATH}/node_modules
+NVM_BIN_PATH:=${AZK_ROOT_PATH}/src/libexec/nvm.sh
 
 # default target
 all: bootstrap
@@ -30,7 +31,7 @@ ${NODE}:
 	@echo "task: $@"
 	@export NVM_DIR=${NVM_DIR} && \
 		mkdir -p ${NVM_DIR} && \
-		. ./vendor/bin/nvm.sh && \
+		. ${NVM_BIN_PATH} && \
 		nvm install $(NODE_VERSION)
 
 clean:
@@ -72,7 +73,7 @@ ${NODE_PACKAGE}:
 	@echo "task: $@"
 	@export NVM_DIR=${PATH_AZK_NVM} && \
 		mkdir -p ${PATH_AZK_NVM} && \
-		. ./vendor/bin/nvm.sh && \
+		. ${NVM_BIN_PATH} && \
 		nvm install $(NODE_VERSION)
 
 copy_files: ${AZK_LIB_PATH}/azk ${PATH_NODE_MODULES}

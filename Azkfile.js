@@ -50,10 +50,9 @@ var agent_system = function(image) {
       AZK_NAMESPACE: "azk.linux",
       AZK_PACKAGE_PATH: "/azk/build",
       AZK_BALANCER_PORT: 8080,
-      //EXTRA_ARGS       : "-H tcp://0.0.0.0:2375 -H unix://",
       LOG: "file",
       NODE_ENV: "test",
-      EXTRA_SCRIPT: "/azk/#{manifest.dir}/src/share/init_azk",
+      EXTRA_SCRIPT: "/azk/#{manifest.dir}/src/libexec/init_azk",
     },
     docker_extra: {
       start: { Privileged: true },
