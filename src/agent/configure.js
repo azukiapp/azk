@@ -156,17 +156,17 @@ export class Configure extends UIProxy {
         if (use_vm) {
           this.warning('configure.vm_ip_msg');
           ip = yield this._getNetworkIp();
-          result['docker:host'] = `http://${ip}:2375`;
         } else {
           ip = yield this._getDockerIp();
         }
         yield this._generateResolverFile(ip, file);
-      } else {
+      }
+
+      if (use_vm) {
         result['docker:host'] = `http://${ip}:2375`;
       }
 
       // Save to use in configure
-      console.log(ip);
       this.docker_ip = ip;
 
       // Save configuration
