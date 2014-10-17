@@ -1,3 +1,4 @@
+require('colors');
 var path   = require('path');
 var printf = require('printf');
 
@@ -29,10 +30,26 @@ export class i18n {
       if (!buffer) break;
     }
 
+    key = (typeof(key) == "string" ? key : key.join(".")).yellow;
+
     if (buffer) {
-      return typeof(buffer) == "string" ? printf(buffer, ...args) : buffer;
+      try {
+        return typeof(buffer) == "string" ? printf(buffer, ...args) : buffer;
+      } catch (err) {
+        var match, label = "Translate error".red;
+
+        if (match = err.toString().match(/Error: missing key (.*)/)) {
+          return label + `: '${key}', missing: ${match[1]}`;
+        }
+
+        if (match = err.toString().match(/Error: format requires a mapping/)) {
+          return label + `: '${key}', missing a mappping`;
+        }
+
+        throw err;
+      }
     } else {
-      return (typeof(key) == "string" ? key : key.join("."));
+      return key;
     }
   }
 }
