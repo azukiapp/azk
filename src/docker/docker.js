@@ -1,12 +1,14 @@
-import { Q, pp, config, path, _, log } from 'azk';
+import { Q, pp, config, path, _, log, lazy_require } from 'azk';
 import Utils from 'azk/utils';
-import { parseRepositoryTag } from 'dockerode/lib/util';
-
-var uuid = require('node-uuid');
 
 // Composer
 import { pull } from 'azk/docker/pull';
 import { run  } from 'azk/docker/run';
+
+lazy_require(this, {
+  parseRepositoryTag: ['dockerode/lib/util'],
+  uuid: 'node-uuid',
+});
 
 export class Image extends Utils.qify('dockerode/lib/image') {
   static parseRepositoryTag(...args) {

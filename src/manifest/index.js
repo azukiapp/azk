@@ -1,9 +1,5 @@
-import { sync as parent } from 'parentpath';
-import { path, fs, config, _, t } from 'azk';
-import { runInNewContext, createScript } from 'vm';
+import { path, fs, config, _, t, lazy_require } from 'azk';
 import { System } from 'azk/system';
-import { createSync as createCache } from 'fscache';
-import { sync as mkdir } from 'mkdirp';
 import { Validate } from 'azk/manifest/validate';
 import { ManifestError, ManifestRequiredError, SystemNotFoundError } from 'azk/utils/errors';
 import Utils from 'azk/utils';
@@ -11,6 +7,14 @@ import Utils from 'azk/utils';
 var file_name = config('manifest');
 var check     = require('syntax-error');
 var tsort     = require('gaia-tsort');
+
+lazy_require(this, {
+  mkdir          : ['mkdirp', 'sync'],
+  parent         : ['parentpath', 'sync'],
+  runInNewContext: ['vm'],
+  createScript   : ['vm'],
+  createCache    : ['fscache', 'createSync'],
+});
 
 var ManifestDsl = {
   console: console,

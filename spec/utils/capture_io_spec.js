@@ -1,4 +1,4 @@
-import { Q } form 'azk';
+import { Q } from 'azk';
 import h from 'spec/spec_helper';
 import capture_io from 'azk/utils/capture_io';
 

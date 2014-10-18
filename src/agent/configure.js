@@ -2,11 +2,11 @@ import { _, os, Q, async, dynamic } from 'azk';
 import { config, set_config } from 'azk';
 import { UIProxy } from 'azk/cli/ui';
 import { OSNotSupported, DependencyError } from 'azk/utils/errors';
-import { isIPv4 } from 'net';
 import { net } from 'azk/utils';
 
 var which = require('which');   // Search for command in path
 var qfs   = require('q-io/fs');
+var { isIPv4 } = require('net');
 
 dynamic(this, {
   docker() {

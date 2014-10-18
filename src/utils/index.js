@@ -1,13 +1,15 @@
-import { join, basename, dirname } from 'path';
 import { i18n } from 'azk/utils/i18n';
 
+var { join, basename, dirname } = require('path');
 var crypto = require('crypto');
-var Q    = require('q');
-var _    = require('lodash');
-var fs   = require('fs');
-var zlib = require('zlib');
+var Q      = require('q');
+var _      = require('lodash');
+var fs     = require('fs');
+var zlib   = require('zlib');
 
 var Utils = {
+  __esModule: true,
+
   get default() { return Utils },
   get i18n()    { return i18n; },
   get Q()       { return Q; },
