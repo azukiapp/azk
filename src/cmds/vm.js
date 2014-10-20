@@ -1,8 +1,8 @@
-import { Q, _, config, async, t, dynamic } from 'azk';
+import { Q, _, config, async, t, lazy_require } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
 import { net } from 'azk/utils';
 
-dynamic(this, {
+lazy_require(this, {
   VM() {
     return require('azk/agent/vm').VM;
   },

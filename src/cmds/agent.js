@@ -1,8 +1,8 @@
-import { _, fs, config, async, set_config, dynamic } from 'azk';
+import { _, fs, config, async, set_config, lazy_require } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
 import { AGENT_CODE_ERROR } from 'azk/utils/errors';
 
-dynamic(this, {
+lazy_require(this, {
   Client() {
     return require('azk/agent/client').Client;
   },

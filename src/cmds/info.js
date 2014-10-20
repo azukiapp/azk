@@ -1,7 +1,7 @@
-import { _, async, config, dynamic } from 'azk';
+import { _, async, config, lazy_require } from 'azk';
 import { Command } from 'azk/cli/command';
 
-dynamic(this, {
+lazy_require(this, {
   Manifest() {
     return require('azk/manifest').Manifest;
   },

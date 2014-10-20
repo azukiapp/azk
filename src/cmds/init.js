@@ -1,7 +1,7 @@
-import { _, config, fs, path, async, dynamic } from 'azk';
+import { _, config, fs, path, async, lazy_require } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
 
-dynamic(this, {
+lazy_require(this, {
   Generator() {
     return require('azk/generator').Generator;
   },

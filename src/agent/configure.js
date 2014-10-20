@@ -1,4 +1,4 @@
-import { _, os, Q, async, dynamic } from 'azk';
+import { _, os, Q, async, lazy_require } from 'azk';
 import { config, set_config } from 'azk';
 import { UIProxy } from 'azk/cli/ui';
 import { OSNotSupported, DependencyError } from 'azk/utils/errors';
@@ -8,7 +8,7 @@ var which = require('which');   // Search for command in path
 var qfs   = require('q-io/fs');
 var { isIPv4 } = require('net');
 
-dynamic(this, {
+lazy_require(this, {
   docker() {
     return require('azk/docker').default;
   },

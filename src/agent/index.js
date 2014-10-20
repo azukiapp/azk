@@ -1,9 +1,9 @@
-import { Q, config, defer, log, _, dynamic } from 'azk';
+import { Q, config, defer, log, _, lazy_require } from 'azk';
 import { config, set_config } from 'azk';
 import { Pid } from 'azk/utils/pid';
 import { AgentStartError } from 'azk/utils/errors';
 
-dynamic(this, {
+lazy_require(this, {
   Server() {
     return require('azk/agent/server').Server;
   }

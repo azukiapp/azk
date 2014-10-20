@@ -43,10 +43,6 @@ module.exports = {
   get fs()     { return require('fs-extra'); },
   get utils()  { return require('azk/utils'); },
 
-  get dynamic() {
-    return this.lazy_require;
-  },
-
   get lazy_require() {
     return (obj, loads) => {
       var _ = this._;
