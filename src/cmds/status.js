@@ -3,13 +3,8 @@ import { Command, Helpers } from 'azk/cli/command';
 import { SYSTEMS_CODE_ERROR, NotBeenImplementedError } from 'azk/utils/errors';
 
 lazy_require(this, {
-  Manifest() {
-    return require('azk/manifest').Manifest;
-  },
-
-  moment() {
-    return require('moment');
-  },
+  Manifest: ['azk/manifest'],
+  moment: 'moment',
 });
 
 class Cmd extends Command {
