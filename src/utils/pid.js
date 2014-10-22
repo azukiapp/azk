@@ -1,13 +1,21 @@
-import { fs, path, defer } from 'azk';
+import { Q, fs, path, defer } from 'azk';
 
 export class Pid {
   constructor(file) {
-    this.file = file;
-    this.pid  = null;
+    this.file  = file;
+    this.__pid = null;
 
     if (fs.existsSync(file)) {
       this.pid = parseInt(fs.readFileSync(file).toString());
     }
+  }
+
+  get pid() {
+    return this.__pid;
+  }
+
+  set pid(value) {
+    this.__pid = value;
   }
 
   get running() {
@@ -36,10 +44,15 @@ export class Pid {
     }
   }
 
-  term() {
+  kill() {
     if (this.running) {
       process.kill(this.pid, 'SIGTERM');
     }
+    return Q();
+  }
+
+  term() {
+    this.kill();
     this.pid = null;
     this.update();
   }
