@@ -51,6 +51,10 @@ var ManifestDsl = {
     this.bins[name] = [...args];
   },
 
+  setCacheDir(dir) {
+    this.cache_dir = dir;
+  },
+
   setDefault(name) {
     this.default = name;
   },
@@ -119,7 +123,11 @@ export class Manifest {
     if (required && !this.exist)
       throw new ManifestRequiredError(cwd);
 
-    this.meta    = new Meta(this);
+    // Create cache for application status
+    if (_.isEmpty(this.cache_dir)) {
+      this.cache_dir = path.join(this.cwd, config('azk_dir'), this.file_relative);
+    }
+    this.meta = new Meta(this);
   }
 
   // Validate
@@ -332,12 +340,12 @@ export class Manifest {
     return this.meta.getOrSet('namespace', def);
   }
 
+  set cache_dir(value) {
+    this.__cache_dir = value;
+  }
+
   get cache_dir() {
-    return path.join(
-      this.cwd,
-      config('azk_dir'),
-      this.file_relative
-    )
+    return this.__cache_dir;
   }
 
   static find_manifest(target) {

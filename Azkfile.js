@@ -6,10 +6,10 @@
 //addImage('base', { repository: "cevich/empty_base_image" }); // tag: latest
 
 
+  var join = require('path').join;
 var config = require('azk').config;
 var mounts = (function() {
   var _    = require('lodash');
-  var join = require('path').join;
   var glob = require('glob');
 
   var mounts = {
@@ -82,7 +82,6 @@ var test_package_system = function(image){
 }
 
 systems({
-
   'dind-ubuntu': agent_system('azukiapp/dind:ubuntu14'),
   'dind-fedora': agent_system('azukiapp/dind:fedora20'),
 
@@ -140,4 +139,5 @@ systems({
   },
 });
 
+setCacheDir(join(config('paths:data'), config('azk_dir')));
 setDefault('docs');
