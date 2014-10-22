@@ -8,6 +8,10 @@ import { Api } from 'azk/agent/api';
 
 var Server = {
   server: null,
+  vm_started: false,
+
+  // Warning: Only use test in mac
+  vm_enabled: true,
 
   // TODO: log start machine steps
   start() {
@@ -18,9 +22,9 @@ var Server = {
       yield Api.start();
 
       // Virtual machine is required?
-      if (config('agent:requires_vm')) {
-        yield this.installShare();
+      if (this.vm_enabled && config('agent:requires_vm')) {
         yield this.installVM(true);
+        yield this.installShare();
         yield this.mountShare();
       }
 
@@ -43,7 +47,7 @@ var Server = {
   },
 
   installBalancer() {
-    return Balancer.start();
+    return Balancer.start(this.vm_enabled);
   },
 
   removeBalancer() {
@@ -98,15 +102,18 @@ var Server = {
         var authoried = config('agent:vm:authorized_key');
         yield VM.copyFile(vm_name, key, authoried);
       };
+
+      // Mark installed
+      this.vm_started = true;
     });
   },
 
   stopVM(running) {
     var vm_name = config("agent:vm:name");
-    return async(function* () {
+    return async(this, function* () {
       running = (running == null) ? (yield VM.isRunnig(vm_name)) : false;
       if (running) {
-        yield VM.stop(vm_name);
+        yield VM.stop(vm_name, !this.vm_started);
       }
     });
   },
