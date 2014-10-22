@@ -46,7 +46,7 @@ var Client = {
   },
 
   stop(opts) {
-    return Agent.stop();
+    return Agent.stop(opts);
   },
 
   configs() {

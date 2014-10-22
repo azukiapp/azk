@@ -1,4 +1,5 @@
-import { _, fs, config, async, set_config, lazy_require } from 'azk';
+import { _, t, log, fs, config, set_config, lazy_require } from 'azk';
+import { Q, defer, async } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
 import { AGENT_CODE_ERROR } from 'azk/utils/errors';
 
@@ -10,10 +11,75 @@ lazy_require(this, {
   Configure() {
     return require('azk/agent/configure').Configure;
   },
+
+  spawn: ['child-process-promise'],
 });
 
 class Cmd extends Command {
   action(opts) {
+    // Fork process
+    return (opts.daemon && opts.action == 'start' ) ? this.daemon(opts) : this.no_daemon(opts);
+  }
+
+  installSignals(done) {
+    var stoping = false;
+    var gracefullExit = () => {
+      if (!stoping) {
+        stoping = true;
+        if (this.child) {
+          process.stdin.unpipe(this.child.stdin);
+          this.child.kill('SIGTERM');
+        } else {
+          done(1);
+        }
+      }
+    }
+
+    process.on('SIGTERM', gracefullExit);
+    process.on('SIGINT' , gracefullExit);
+    process.on('SIGQUIT', gracefullExit);
+  }
+
+  daemon(opts) {
+    var args = [..._.rest(process.argv, 2), "--no-daemon"];
+    var opts = {
+      silent  : true,
+      detached: true,
+      stdio   : ['pipe', 'pipe', 'pipe'],
+      cwd     : config('paths:azk_root'),
+      env     : _.extend({}, process.env),
+    };
+
+    return defer((resolve, reject) => {
+      this.installSignals(resolve);
+      log.debug('fork process to start agent in daemon');
+      spawn("azk", args, opts)
+        .progress((child) => {
+          this.child = child;
+
+          // Conect outputs
+          child.stderr.pipe(process.stderr);
+          child.stdout.pipe(process.stdout);
+          process.stdin.pipe(child.stdin);
+
+          // Capture agent sucess
+          var started = new RegExp(t('status.agent.started'));
+          child.stderr.on('data', (data) => {
+            data = data.toString('utf8');
+            if (data.match(started)) {
+              process.stdin.unpipe(child.stdin);
+              process.kill(child.pid, 'SIGUSR2');
+              child.unref();
+              resolve(0);
+            }
+          });
+        })
+        .then((result) => { return 0; })
+        .fail(reject);
+    });
+  }
+
+  no_daemon(opts) {
     // Create a progress output
     var progress = Helpers.vmStartProgress(this);
 
@@ -48,9 +114,9 @@ class Cmd extends Command {
 export function init(cli) {
   var cli = (new Cmd('agent {action}', cli))
     .setOptions('action', { options: ['start', 'status', 'stop'] })
-    .addOption(['--daemon', '-d'], { default: true });
+    .addOption(['--daemon'], { default: true });
 
   if (config('agent:requires_vm')) {
-    cli.addOption(['--reload-vm', '-d'], { default: true });
+    cli.addOption(['--reload-vm'], { default: true });
   }
 }
