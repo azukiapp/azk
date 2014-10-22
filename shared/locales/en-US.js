@@ -56,10 +56,8 @@ module.exports = {
       starting: "Agent is being started...",
       already: "Agent is already running.",
       started: "Agent has been successfully started.",
-      // TODO: stopping
-      stoping: "Agent is being stopped...",
-      // TODO: stopped
-      stoped: "Agent has been successfully stopped.",
+      stopping: "Agent is being stopped...",
+      stopped: "Agent has been successfully stopped.",
       error: "Agent starting error: %(data)s.",
       wait: "Wait, this process may take several minutes",
       progress: "progress...",
@@ -93,14 +91,27 @@ module.exports = {
     },
 
     balancer: {
-      starting_memcached: "Starting memcached...",
-      started_memcached : "Memcached started.",
-      starting_hipache  : "Starting hipache...",
-      started_hipache   : "Hipache started.",
-      starting_socat    : "Starting azk balancer redirect service...",
-      started_socat     : "Balancer redirect started.",
+      starting_memcached: "Starting memcached service...",
+      started_memcached : "Memcached service started.",
+      stopping_memcached: "Stopping memcached service...",
+      stoped_memcached  : "Memcached service was stoped.",
+      exited_memcached  : "Memcached service was `exited`.",
+
+      starting_hipache  : "Starting http balancer service...",
+      started_hipache   : "Http balancer service started.",
+      stopping_hipache  : "Stopping http balancer service...",
+      stoped_hipache    : "Http balancer service was stoped.",
+      exited_hipache    : "Http balancer service was `exited`.",
+
+      'starting_balancer-redirect': "Starting azk balancer redirect service...",
+      'started_balancer-redirect' : "Balancer redirect started.",
+      'stopping_balancer-redirect': "Stopping balancer redirect...",
+      'stoped_balancer-redirect'  : "Balancer redurect was stoped.",
+
       starting_dns      : "Starting azk dns service...",
       started_dns       : "Dns service started.",
+      stopping_dns      : "Stopping dns service...",
+      stoped_dns        : "Dns service was stoped.",
       progress: "Trying connect to docker (%(uri)s) (%(attempts)d/%(max)d)...",
     },
 
