@@ -1,4 +1,4 @@
-# ![azk](https://github.com/azukiapp/azk/raw/master/src/share/pres/top-logo-wo.png)
+# ![azk](https://raw.githubusercontent.com/azukiapp/azk/stable/src/share/pres/top-logo-wo.png)
 
 `azk` is a tool that assists web developers in the creation, maintenance and isolation of development environments through automation. You will be able to easily and quickly create isolated environments to many projects in almost any development stack. Automation happens by the use of simple scripts and images.
 
