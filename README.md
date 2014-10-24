@@ -140,7 +140,7 @@ systems({
     // Set hostname to use in http balancer
     http: {
       // node-example.dev.azk.io
-      hostname: "#{system.name}.#{azk.default_domain}",
+      domains: [ "#{system.name}.#{azk.default_domain}" ],
     },
     envs: {
       // Exports global variables
