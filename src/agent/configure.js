@@ -1,11 +1,15 @@
-import { _, os, Q, async, lazy_require } from 'azk';
+import { _, t, os, Q, async, lazy_require } from 'azk';
 import { config, set_config } from 'azk';
 import { UIProxy } from 'azk/cli/ui';
 import { OSNotSupported, DependencyError } from 'azk/utils/errors';
 import { net } from 'azk/utils';
+import Azk from 'azk';
 
-var which = require('which');   // Search for command in path
-var qfs   = require('q-io/fs');
+var which    = require('which');   // Search for command in path
+var qfs      = require('q-io/fs');
+var request  = require('request');
+var semver   = require('semver');
+var isOnline = require('is-online');
 var { isIPv4 } = require('net');
 
 lazy_require(this, {
@@ -54,6 +58,7 @@ export class Configure extends UIProxy {
       return async(this, function* () {
         return _.merge(
           {},
+          yield this._checkAzkVersion(),
           yield this._checkDockerSocket(socket),
           yield this._checkAndConfigureNetwork(false),
           yield this._loadDnsServers(),
@@ -74,12 +79,58 @@ export class Configure extends UIProxy {
     return async(this, function* () {
       return _.merge(
         {},
+        yield this._checkAzkVersion(),
         yield this._which('VBoxManage'),
         yield this._which('unfsd', 'paths:unfsd'),
         yield this._checkAndConfigureNetwork(),
         yield this._checkAndGenerateSSHKeys(),
         yield this._loadDnsServers()
       );
+    });
+  }
+
+  _checkAzkVersion() {
+    return async(this, function* (notify) {
+      try {
+        // check connectivity
+        var currentOnline = yield Q.ninvoke(isOnline);
+
+        if(!currentOnline){
+          log.debug('isOnline == false');
+          return {}; //can't check version
+        }
+
+        // get AZK version from Github API
+        var options = {
+          headers: { 'User-Agent': 'request' },
+          json: true,
+        }
+
+        notify({ type: "status", keys: "configure.check_version"});
+        var [response, body] = yield Q.ninvoke(request, 'get', config('urls:github:api:tags_url'), options);
+
+        var tagName = body[0].name;
+        var parsedVersion = semver.clean(tagName);
+        var newAzkVersionExists = semver.lt(parsedVersion, Azk.version);
+        if(newAzkVersionExists){
+          // just warn user that new AZK version is available
+          this.warning('errors.dependencies.*.upgrade', {
+            current_version: Azk.version,
+            new_version: parsedVersion
+          });
+        }else{
+          log.debug('AZK version `v'+ parsedVersion +'` is up to date.');
+        }
+      } catch(err) {
+        // log.error(t("configure.check_version_error", {error_message: err.message}));
+        notify({
+          type: "status",
+          status: "error",
+          data: new Error(t("configure.check_version_error", {
+            error_message: err.message
+          })),
+        });
+      }
     });
   }
 

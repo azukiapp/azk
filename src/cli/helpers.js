@@ -58,7 +58,11 @@ var Helpers = {
               }
               break;
             default:
-              cmd.ok([...keys,  event.status], event.data);
+              if (event.keys) {
+                cmd[event.status || "ok"](event.keys, event.data);
+              } else {
+                cmd.ok([...keys, event.status], event.data);
+              }
           }
           break;
         case "try_connect":

@@ -106,7 +106,16 @@ var options = mergeConfig({
 
       // Used to carry global configuration switches the agent
       config_keys: [],
-    }
+    },
+
+    urls: {
+      github: {
+        api:{
+          url: "https://api.github.com/repos/azukiapp/azk",
+          tags_url: "https://api.github.com/repos/azukiapp/azk/tags",
+        }
+      }
+    },
   },
   test: {
     paths: {
@@ -123,7 +132,7 @@ var options = mergeConfig({
         data_disk : path.join(paths.vm, "azk-agent-spec.vmdk"),
       }
     }
-  }
+  },
 });
 
 function env() {
