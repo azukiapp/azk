@@ -76,6 +76,7 @@
     "chai-things": "^0.2.0",
     "fixture-stdout": "^0.2.1",
     "grunt": "^0.4.4",
+    "grunt-aws-s3": "^0.9.4",
     "grunt-cli": "^0.1.13",
     "grunt-contrib-watch": "^0.6.1",
     "grunt-curl": "^2.0.3",
