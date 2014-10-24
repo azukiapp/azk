@@ -15,6 +15,7 @@ class Cmd extends VerboseCmd {
       yield Helpers.requireAgent();
 
       var manifest = new Manifest(this.cwd, true);
+      Helpers.manifestValidate(this, manifest);
       var systems  = manifest.getSystemsByName(opts.system);
 
       yield this[`${this.name}`](manifest, systems, opts);

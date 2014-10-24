@@ -23,31 +23,28 @@ export class Validate {
 
   static _have_old_volumes(manifest) {
     return _.reduce(manifest.systems, (errors, system) => {
-      if (
-        !_.isEmpty(system.options.mount_folders) ||
-        !_.isEmpty(system.options.persistent_folders)
-      ) {
-        errors.push(this._deprecate("old_volumes", manifest, {
-          system: system.name,
-        }));
-      }
-      return errors;
+      return errors.concat(
+        this._deprecate(system.options.mount_folders, manifest, system.name, 'mount_folders', 'mounts'),
+        this._deprecate(system.options.persistent_folders, manifest, system.name, 'persistent_folders', 'mounts')
+      );
     }, []);
   }
 
   static _have_old_http_hostname(manifest) {
     return _.reduce(manifest.systems, (errors, system) => {
-      if ( !_.isEmpty((system.options.http || {}).hostname)) {
-        errors.push(this._deprecate("old_hostname", manifest, {
-          system: system.name,
-        }));
-      }
-      return errors;
+      return errors.concat(
+        this._deprecate((system.options.http || {}).hostname, manifest, system.name, 'http.hostname', 'http.domains')
+      );
     }, []);
   }
 
-  static _deprecate(...args) {
-    return this._entry('deprecate', ...args);
+  static _deprecate(value, manifest, system, option, new_option) {
+    if (!_.isEmpty(value)) {
+      return [
+        this._entry('deprecate', 'deprecated', manifest, { system, option, new_option })
+      ];
+    }
+    return [];
   }
 
   static _warning(...args) {

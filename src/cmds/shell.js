@@ -28,6 +28,8 @@ class Cmd extends Command {
         var system   = manifest.systemDefault;
       } else {
         var manifest = new Manifest(dir, true);
+        Helpers.manifestValidate(this, manifest);
+
         var system   = manifest.systemDefault;
         if (opts.system) system = manifest.system(opts.system, true);
       }

@@ -40,7 +40,9 @@ var options = mergeConfig({
     manifest : "Azkfile.js",
     locale   : 'en-US',
     azk_dir  : ".azk",
-    flags    : { show_deprecate: true, },
+    flags    : {
+      show_deprecate: (envs('AZK_HIDE_DEPRECATE') != 'true'),
+    },
     paths    : {
       azk_root,
       data: data_path,
