@@ -51,9 +51,10 @@ PATH_NODE_MODULES:=${PATH_USR_LIB_AZK}/node_modules
 PATH_AZK_LIB:=${PATH_USR_LIB_AZK}/lib
 PATH_AZK_NVM:=${PATH_AZK_LIB}/nvm
 NODE_PACKAGE = ${PATH_AZK_NVM}/${NODE_VERSION}/bin/node
+PATH_MAC_PACKAGE = ${AZK_PACKAGE_PATH}/azk_${AZK_VERSION}.tar.gz
 
 # Build package folders tree
-package_mac: package_build ${PATH_AZK_LIB}/vm ${AZK_PACKAGE_PREFIX}.tar.gz
+package_mac: package_build ${PATH_AZK_LIB}/vm ${PATH_MAC_PACKAGE}
 package_linux: package_build creating_symbolic_links
 
 # Alias to create a distro package
@@ -104,8 +105,8 @@ creating_symbolic_links:
 ${PATH_AZK_LIB}/vm: ${AZK_LIB_PATH}/vm
 	@cp -r ${AZK_LIB_PATH}/vm ${PATH_AZK_LIB}/vm
 
-${AZK_PACKAGE_PREFIX}.tar.gz: ${AZK_PACKAGE_PREFIX}
-	@cd ${PATH_USR_LIB_AZK}/.. && tar -czf ${AZK_PACKAGE_PREFIX}.tar.gz ./
+${PATH_MAC_PACKAGE}: ${AZK_PACKAGE_PREFIX}
+	@cd ${PATH_USR_LIB_AZK}/.. && tar -czf ${PATH_MAC_PACKAGE} ./
 
 package_build: bootstrap ${PATH_NODE_MODULES}
 
