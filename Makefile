@@ -52,7 +52,11 @@ PATH_AZK_LIB:=${PATH_USR_LIB_AZK}/lib
 PATH_AZK_NVM:=${PATH_AZK_LIB}/nvm
 NODE_PACKAGE = ${PATH_AZK_NVM}/${NODE_VERSION}/bin/node
 
-package_mac: build_package
+# Build package folders tree
+package_mac: package_build ${PATH_AZK_LIB}/vm ${AZK_PACKAGE_PREFIX}.tar.gz
+package_linux: package_build creating_symbolic_links
+
+# Alias to create a distro package
 package_deb:
 	@mkdir -p package
 	@./src/libexec/package.sh deb
@@ -60,11 +64,11 @@ package_rpm:
 	@mkdir -p package
 	@./src/libexec/package.sh rpm
 
-clean_package:
+package_clean:
 	@echo "task: $@"
 	@rm -Rf ${AZK_PACKAGE_PREFIX}/..?* ${AZK_PACKAGE_PREFIX}/.[!.]* ${AZK_PACKAGE_PREFIX}/*
 
-${PATH_NODE_MODULES}: package.json ${NODE_PACKAGE}
+${PATH_NODE_MODULES}: copy_files ${PATH_USR_LIB_AZK}/package.json ${NODE_PACKAGE}
 	@echo "task: $@"
 	@mkdir -p ${PATH_NODE_MODULES}/..
 	@cd ${PATH_USR_LIB_AZK} && azk nvm npm install --production
@@ -76,9 +80,12 @@ ${NODE_PACKAGE}:
 		. ${NVM_BIN_PATH} && \
 		nvm install $(NODE_VERSION)
 
-copy_files: ${AZK_LIB_PATH}/azk ${PATH_NODE_MODULES}
+${PATH_USR_LIB_AZK}/package.json: ${AZK_ROOT_PATH}/package.json
+	@cp ${AZK_ROOT_PATH}/package.json ${PATH_USR_LIB_AZK}
+
+copy_files: ${AZK_LIB_PATH}/azk
 	@echo "task: $@"
-	@mkdir -p ${PATH_USR_LIB_AZK}
+	@mkdir -p ${PATH_AZK_LIB}
 	@cp -r bin ${PATH_USR_LIB_AZK}
 	@cp -r shared ${PATH_USR_LIB_AZK}
 	@cp -r ${AZK_LIB_PATH}/azk ${PATH_AZK_LIB}/azk
@@ -86,7 +93,6 @@ copy_files: ${AZK_LIB_PATH}/azk ${PATH_NODE_MODULES}
 	@cp CHANGELOG.md ${PATH_USR_LIB_AZK}
 	@cp LICENSE ${PATH_USR_LIB_AZK}
 	@cp README.md ${PATH_USR_LIB_AZK}
-	@cp package.json ${PATH_USR_LIB_AZK}
 	@cp Azkfile.js ${PATH_USR_LIB_AZK}
 
 creating_symbolic_links:
@@ -95,6 +101,12 @@ creating_symbolic_links:
 	@ln -sf ../lib/azk/bin/azk ${PATH_USR_BIN}/azk
 	@ln -sf ../lib/azk/bin/adocker ${PATH_USR_BIN}/adocker
 
-build_package: bootstrap copy_files creating_symbolic_links ${PATH_AZK_LIB}
+${PATH_AZK_LIB}/vm: ${AZK_LIB_PATH}/vm
+	@cp -r ${AZK_LIB_PATH}/vm ${PATH_AZK_LIB}/vm
 
-.PHONY: bootstrap clean package package_mac package_deb package_rpm build_package clean_package copy_files
+${AZK_PACKAGE_PREFIX}.tar.gz: ${AZK_PACKAGE_PREFIX}
+	@cd ${PATH_USR_LIB_AZK}/.. && tar -czf ${AZK_PACKAGE_PREFIX}.tar.gz ./
+
+package_build: bootstrap ${PATH_NODE_MODULES}
+
+.PHONY: bootstrap clean package package_mac package_deb package_rpm package_build package_clean copy_files

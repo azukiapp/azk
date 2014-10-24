@@ -76,7 +76,7 @@ azk_shell() {
   prefix="usr"
   destdir="/azk/${THIS_FOLDER}/package/${pkg_type}"
   mkdir -p package/${pkg_type}
-  azk_shell package "make -e build_package"
+  azk_shell package "make -e package_linux"
 
 # package!
 
