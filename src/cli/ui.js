@@ -11,10 +11,11 @@ var mbars    = [];
 var tables   = {};
 
 // Status labels
-var ok       = 'azk'.green;
-var fail     = 'azk'.red;
-var warning  = 'azk'.yellow;
-var info     = 'azk'.blue;
+var ok        = 'azk'.green;
+var fail      = 'azk'.red;
+var warning   = 'azk'.yellow;
+var info      = 'azk'.blue;
+var deprecate = 'azk'.cyan;
 
 var UI = {
   isUI: true,
@@ -47,10 +48,11 @@ var UI = {
   },
 
   // Helpers to print status
-  ok(...args)      { this._status(ok, ...args);      },
-  info(...args)    { this._status(info, ...args);    },
-  fail(...args)    { this._status(fail, ...args);    },
-  warning(...args) { this._status(warning, ...args); },
+  ok(...args)        { this._status(ok, ...args);      },
+  info(...args)      { this._status(info, ...args);    },
+  fail(...args)      { this._status(fail, ...args);    },
+  warning(...args)   { this._status(warning, ...args); },
+  deprecate(...args) { this._status(deprecate, ...args); },
   _status(tag, ...args) {
     var string = t(...args).replace(/^(.+)/gm, `${tag}: $1`);
     this.stderr().write(string + "\n");

@@ -1,4 +1,4 @@
-import { _, t, log, lazy_require } from 'azk';
+import { _, t, log, lazy_require, config } from 'azk';
 import { AgentNotRunning } from 'azk/utils/errors';
 
 var fmt_p = t('commands.helpers.pull.bar_progress');
@@ -11,13 +11,8 @@ var bar_opts = {
 }
 
 lazy_require(this, {
-  AgentClient() {
-    return require('azk/agent/client').Client;
-  },
-
-  Configure() {
-    return require('azk/agent/configure').Configure;
-  },
+  AgentClient: ['azk/agent/client', 'Client'],
+  Configure: ['azk/agent/configure', 'Configure'],
 });
 
 var Helpers = {
@@ -33,6 +28,14 @@ var Helpers = {
         cli.ok('configure.loaded');
         return configs;
       });
+  },
+
+  manifestValidate(cmd, manifest) {
+    if (config('flags:show_deprecate')) {
+      _.each(manifest.validate(), (error) => {
+        cmd[error.level](`manifest.validate.${error.key}`, error);
+      });
+    }
   },
 
   vmStartProgress(cmd) {
