@@ -124,7 +124,7 @@ export class Manifest {
       throw new ManifestRequiredError(cwd);
 
     // Create cache for application status
-    if (_.isEmpty(this.cache_dir)) {
+    if (_.isEmpty(this.cache_dir) && this.exist) {
       this.cache_dir = path.join(this.cwd, config('azk_dir'), this.file_relative);
     }
     this.meta = new Meta(this);
