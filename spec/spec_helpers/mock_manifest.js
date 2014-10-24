@@ -2,16 +2,35 @@ import { fs, path, _, config, async } from 'azk';
 import { Generator } from 'azk/generator';
 import { Manifest } from  'azk/manifest';
 
-function socat(port) {
-  return "socat TCP4-LISTEN:" + port + ",fork EXEC:`pwd`/src/bashttpd";
-}
+var qfs = require('q-io/fs');
 
 export function extend(h) {
+
+  function socat(port) {
+    return "socat TCP4-LISTEN:" + port + ",fork EXEC:`pwd`/src/bashttpd";
+  }
+
+  function fixture_path() {
+    return h.copyToTmp(h.fixture_path('test-app'));
+  }
+
+  h.mockManifestWithContent = function(content) {
+    return async(function* () {
+      // Copy structure
+      var tmp = yield fixture_path();
+
+      // Write content to manifest file
+      yield qfs.write(path.join(tmp, config('manifest')), content);
+
+      // Return a new project dir
+      return new Manifest(tmp);
+    });
+  }
 
   h.mockManifestWithData = function(data) {
     return async(function* () {
       // Copy structure
-      var tmp = yield h.copyToTmp(h.fixture_path('test-app'));
+      var tmp = yield fixture_path();
 
       // Read and write
       var generator = new Generator({});

@@ -22,6 +22,26 @@ describe("Azk manifest class, validate set", function() {
     h.expect(err[0]).to.have.property("level", "warning");
   });
 
+  it("should return deprecate use http hostname", function() {
+    var content = `
+      system('system1', {
+        image: "any",
+        http : { hostname: "foo.azk.dev" },
+      });
+    `
+    return h.mockManifestWithContent(content).then((mf) => {
+      var err = mf.validate();
+
+      h.expect(err).to.instanceof(Array);
+      h.expect(err).to.length(1);
+
+      h.expect(err[0]).to.have.property("key", "old_hostname");
+      h.expect(err[0]).to.have.property("manifest").and.eql(mf);
+      h.expect(err[0]).to.have.property("level", "deprecate");
+      h.expect(err[0]).to.have.property("system", "system1");
+    });
+  });
+
   it("should return deprecate use persistent_folders or mount_folders", function() {
     var data = {
       systems: {
