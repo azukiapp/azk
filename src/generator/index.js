@@ -79,6 +79,14 @@ function hash_key(data) {
   return (data || "").match(/^[\w|_]*$/) ? data : `'${data}'`;
 }
 
+function formatDomains(conditional, options) {
+  if (_.isBoolean(conditional)) {
+    return options.fn(this);
+  } else {
+    return options.inverse(this);
+  }
+}
+
 function mount(data) {
   if (_.isString(data)) { return json(data); }
   var type    = data.type;
@@ -104,6 +112,7 @@ function mount(data) {
 Handlebars.registerHelper('json', json);
 Handlebars.registerHelper('hash_key', hash_key);
 Handlebars.registerHelper('mount', mount);
+Handlebars.registerHelper('formatDomains', formatDomains);
 
 export { example_system };
 

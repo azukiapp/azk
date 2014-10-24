@@ -7,7 +7,8 @@ export class Validate {
     // validates
     errors = errors.concat(
       this._have_systems(manifest),
-      this._have_old_volumes(manifest)
+      this._have_old_volumes(manifest),
+      this._have_old_http_hostname(manifest)
     );
 
     return errors;;
@@ -27,6 +28,17 @@ export class Validate {
         !_.isEmpty(system.options.persistent_folders)
       ) {
         errors.push(this._deprecate("old_volumes", manifest, {
+          system: system.name,
+        }));
+      }
+      return errors;
+    }, []);
+  }
+
+  static _have_old_http_hostname(manifest) {
+    return _.reduce(manifest.systems, (errors, system) => {
+      if ( !_.isEmpty((system.options.http || {}).hostname)) {
+        errors.push(this._deprecate("old_hostname", manifest, {
           system: system.name,
         }));
       }

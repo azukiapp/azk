@@ -109,12 +109,25 @@ export class System {
   }
 
   // Ports and host
-  get hostname() {
-    return (this.options.http || {}).hostname || config('agent:balancer:host');
+  get http()  { return this.options.http || {} };
+  get hosts() {
+    var hostnames = this.http.domains || [config('agent:balancer:host')];
+
+    // v0.5.1 support
+    if (!_.isEmpty(this.http.hostname)) {
+      hostnames = [this.http.hostname];
+    }
+
+    return hostnames;
   }
+
+  get hostname() {
+    return this.hosts[0];
+  }
+
   get balanceable() {
     var ports = this.ports;
-    return ports.http && (this.options.http || {}).hostname;
+    return ports.http && !_.isEmpty(this.hosts);
   }
 
   get url() {
@@ -123,8 +136,7 @@ export class System {
     return `http://${host}${ port == 80 ? '' : ':' + port }`;
   }
 
-  get hosts() { return [this.hostname]; }
-  backends() { return Balancer.list(this); }
+  backends()  { return Balancer.list(this); }
 
   get http_port() {
     var ports = this._parse_ports(this.ports);

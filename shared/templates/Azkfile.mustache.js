@@ -55,8 +55,15 @@ systems({
     {{~/if}}
     {{~#if http}}
     http: {
+      {{~#formatDomains http }}
       // {{&@key}}.{{& ../../azk.default_domain}}
-      hostname: "#{system.name}.#{azk.default_domain}"
+      domains: [ "#{system.name}.#{azk.default_domain}" ]
+      {{~else}}
+      domains: [
+        {{~#each http}}
+        {{&json this}},{{/each}}
+      ],
+      {{~/formatDomains}}
     },
     {{~/if}}
     {{~#if ports}}

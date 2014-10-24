@@ -149,6 +149,34 @@ describe("Azk generator tool", function() {
       h.expect(system).to.have.deep.property("options.scalable")
         .and.eql({ default: 5});
     });
+
+    describe("with httop options", function() {
+      it("should generate a simple default host name", function() {
+        var manifest  = generate_manifest(dir, default_data);
+        var system    = manifest.systemDefault;
+        var re_domain = RegExp(h.escapeRegExp(`${system.name}.${config('agent:balancer:host')}`));
+
+        h.expect(system).to.have.deep.property("hosts").and.length(1);
+        h.expect(system).to.have.deep.property("hosts[0]").and.match(re_domain);
+      });
+
+      it("should generate a multiple hosts", function() {
+        var data = _.clone(default_data);
+        data.systems.front.http = [
+          '#{system.name}.#{azk.default_domain}',
+          'custom.#{azk.default_domain}',
+        ]
+
+        var manifest   = generate_manifest(dir, data);
+        var system     = manifest.systemDefault;
+        var re_default = RegExp(h.escapeRegExp(`${system.name}.${config('agent:balancer:host')}`));
+        var re_custom  = RegExp(h.escapeRegExp(`custom.${config('agent:balancer:host')}`));
+
+        h.expect(system).to.have.deep.property("hosts").and.length(2);
+        h.expect(system).to.have.deep.property("hosts[0]").and.match(re_default);
+        h.expect(system).to.have.deep.property("hosts[1]").and.match(re_custom);
+      });
+    });
   });
 });
 

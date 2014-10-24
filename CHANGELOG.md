@@ -4,6 +4,7 @@
 
 * Enhancements
   * [Manifest] Replacing `mount_folders` and `persistent_folders` for `mounts`;
+  * [Manifest] Replacing `http.hostname` for `http.domains` to support multiples alias;
   * [Cli] Refactoring `bin/azk` to simplify `azk` execution;
   * [Agent] Moving `bin/azk` checks to agent start process;
   * [Agent] Warn when using an old AZK version;
