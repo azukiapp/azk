@@ -1,9 +1,5 @@
-import { sync as parent } from 'parentpath';
-import { path, fs, config, _, t } from 'azk';
-import { runInNewContext, createScript } from 'vm';
+import { path, fs, config, _, t, lazy_require } from 'azk';
 import { System } from 'azk/system';
-import { createSync as createCache } from 'fscache';
-import { sync as mkdir } from 'mkdirp';
 import { Validate } from 'azk/manifest/validate';
 import { ManifestError, ManifestRequiredError, SystemNotFoundError } from 'azk/utils/errors';
 import Utils from 'azk/utils';
@@ -11,6 +7,14 @@ import Utils from 'azk/utils';
 var file_name = config('manifest');
 var check     = require('syntax-error');
 var tsort     = require('gaia-tsort');
+
+lazy_require(this, {
+  mkdir          : ['mkdirp', 'sync'],
+  parent         : ['parentpath', 'sync'],
+  runInNewContext: ['vm'],
+  createScript   : ['vm'],
+  createCache    : ['fscache', 'createSync'],
+});
 
 var ManifestDsl = {
   console: console,
@@ -45,6 +49,10 @@ var ManifestDsl = {
 
   registerBin(name, ...args) {
     this.bins[name] = [...args];
+  },
+
+  setCacheDir(dir) {
+    this.cache_dir = dir;
   },
 
   setDefault(name) {
@@ -115,7 +123,11 @@ export class Manifest {
     if (required && !this.exist)
       throw new ManifestRequiredError(cwd);
 
-    this.meta    = new Meta(this);
+    // Create cache for application status
+    if (_.isEmpty(this.cache_dir) && this.exist) {
+      this.cache_dir = path.join(this.cwd, config('azk_dir'), this.file_relative);
+    }
+    this.meta = new Meta(this);
   }
 
   // Validate
@@ -328,12 +340,12 @@ export class Manifest {
     return this.meta.getOrSet('namespace', def);
   }
 
+  set cache_dir(value) {
+    this.__cache_dir = value;
+  }
+
   get cache_dir() {
-    return path.join(
-      this.cwd,
-      config('azk_dir'),
-      this.file_relative
-    )
+    return this.__cache_dir;
   }
 
   static find_manifest(target) {

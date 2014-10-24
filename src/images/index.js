@@ -1,8 +1,8 @@
-import { async, defer, _, dynamic } from 'azk';
+import { async, defer, _, lazy_require } from 'azk';
 
 var default_tag = "latest";
 
-dynamic(this, {
+lazy_require(this, {
   DImage() {
     return require('azk/docker').Image;
   },

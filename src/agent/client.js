@@ -7,7 +7,7 @@ var request = require('request');
 
 var HttpClient = {
   url(path) {
-    return `unix:\/\/${config('paths:api_socket')}${path}` ;
+    return `http:\/\/unix:${config('paths:api_socket')}:${path}` ;
   },
 
   request(method, path, opts = {}) {
@@ -46,7 +46,7 @@ var Client = {
   },
 
   stop(opts) {
-    return Agent.stop();
+    return Agent.stop(opts);
   },
 
   configs() {

@@ -68,24 +68,29 @@ Coming soon...
 ### Requirements
 
 * Mac OS X or Linux (requires 64 bit platform) (Windows: planned)
-* git, curl, bash
+* bash
 * Internet connection
 
-#### Mac OS X requirements 
+#### Mac OS X
 
 It is necessary to install Virtualbox and an extra tool for file synchronization:
 
 * [VirtualBox][virtualbox_dl], version 4.3.6+ (VMware: planned)
-* unfs3 (to share files between your machine and the virtual machine)
 
 Using [Homebrew Cask][homebrew_cask]? It makes installing VirtualBox super easy!
 
 ```sh
-brew cask install virtualbox --appdir=/Applications
-brew install unfs3
+$ brew cask install virtualbox --appdir=/Applications
 ```
 
-#### Linux requirements
+Now the installation of `azk`:
+
+```sh
+$ brew install azukiapp/azk/azk
+$ azk agent start
+```
+
+#### Linux
 
 * Distribution (tested): Ubuntu 12.04/14.04 and Fedora20
 * [Docker][docker] 1.1.0 or greater
@@ -95,56 +100,19 @@ brew install unfs3
 
 If you are running a service on port `80` or `53` you can customize the configuration by setting the environment variable `AZK_BALANCER_PORT` and `AZK_DNS_PORT` respectively before run `azk agent start`.
 
-### Basic GitHub Checkout
-
-1. Check out `azk` into `~/.azk`.
-
-  ```bash
-  $ git clone -b stable https://github.com/azukiapp/azk.git ~/.azk
-  ```
-
-2. Add `~/.azk/bin` to your $PATH for access to the `azk` command-line utility.
-
-  ```bash
-  $ echo 'export PATH="$HOME/.azk/bin:$PATH"' >> ~/.bash_profile
-  # and reload
-  $ source ~/.bash_profile
-  ```
-
-  **Ubuntu Desktop note**: Modify your `~/.bashrc` instead of `~/.bash_profile`.
-
-  **Zsh note**: Modify your `~/.zshrc` file instead of `~/.bash_profile`.
-
-3. Install depedencies and configure vm (will download ~130MB):
-
-  ```bash
-  $ azk check-install
-  ```
-
-4. Run `azk-agent` in a terminal:
-
-  ```bash
-  $ azk agent start
-  ```
-
-5. Enjoy
-
-  ```bash
-  $ azk help
-  ```
-
-### Homebrew
-
 Coming soon...
 
-## Update
+## Update from azk <= 0.5.1
+
+Before install new version:
 
 ```bash
-$ cd ~/.azk
 $ azk agent stop
-$ azk update
-$ azk agent start
+$ cd ~/.azk
+$ ./bin/azk nvm node -e "console.log(require('glob').sync('./\!(data)', { dot: true }).join(' '))" | xargs rm -rf
 ```
+
+Now you can install new `azk` version.
 
 <a name="full_manifest_example"/>
 ## Full Azkfile.js example
@@ -197,7 +165,7 @@ setDefault("node-example")
 
 ```bash
 # Control azk agent
-$ azk agent start --daemon        # Starts azk agent in background
+$ azk agent start                 # Starts azk agent in background
 $ azk agent status                # Shows azk agent status
 $ azk agent stop                  # Stops azk agent
 
@@ -228,9 +196,9 @@ $ azk restart --reprovision       # Restarts a systems and reload provision
 Note that running these tests requires you to have `azk agent` running.
 
 ```bash
-$ cd ~/.azk
-$ azk nvm npm install
-$ azk nvm grunt test
+$ cd [azk_source_path]
+$ make bootstrap
+$ ./bin/azk nvm grunt test
 ```
 
 ## License

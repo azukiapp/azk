@@ -1,9 +1,11 @@
-import { _ } from 'azk';
-import { sync as glob } from 'glob';
+import { _, lazy_require } from 'azk';
 import { Command, Option } from 'azk/cli/command';
 import { InvalidValueError } from 'azk/utils/errors';
 
-var path = require('path');
+lazy_require(this, {
+  glob: ['glob', 'sync'],
+  path: 'path',
+});
 
 export { Command };
 export class Cli extends Command {

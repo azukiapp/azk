@@ -1,12 +1,13 @@
 require('traceur');
-import { version } from 'package.json';
 import { get as config, set as set_config }  from 'azk/config';
 import { Q, _, i18n, defer, async } from 'azk/utils';
 
 Q.longStackSupport = true;
 
 class Azk {
-  static get version() { return version };
+  static get version() {
+    return require('package.json').version;
+  };
 
   static pp(...args) {
     return console.log(...args);
@@ -18,6 +19,8 @@ var _t   = null;
 var _log = null;
 
 module.exports = {
+  __esModule: true,
+
   get default() { return Azk },
   get pp() { return Azk.pp; },
   get Q()  { return Q; },
@@ -40,9 +43,26 @@ module.exports = {
   get fs()     { return require('fs-extra'); },
   get utils()  { return require('azk/utils'); },
 
-  get dynamic() {
+  get lazy_require() {
     return (obj, loads) => {
-      this._.each(loads, (func, getter) => {
+      var _ = this._;
+      _.each(loads, (func, getter) => {
+        if (!_.isFunction(func)) {
+          var opts = func;
+
+          // Only name module support
+          if (_.isString(opts)) {
+            opts = [opts];
+          } else if (_.isEmpty(opts[1])) {
+            opts[1] = getter;
+          }
+
+          // Require function
+          func = () => {
+            var mod = require(opts[0]);
+            return _.isEmpty(opts[1]) ? mod : mod[opts[1]];
+          }
+        }
         obj.__defineGetter__(getter, func);
       });
     }

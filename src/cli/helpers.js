@@ -1,4 +1,4 @@
-import { _, t, log, dynamic } from 'azk';
+import { _, t, log, lazy_require } from 'azk';
 import { AgentNotRunning } from 'azk/utils/errors';
 
 var fmt_p = t('commands.helpers.pull.bar_progress');
@@ -10,7 +10,7 @@ var bar_opts = {
   , total: 100
 }
 
-dynamic(this, {
+lazy_require(this, {
   AgentClient() {
     return require('azk/agent/client').Client;
   },
@@ -58,7 +58,11 @@ var Helpers = {
               }
               break;
             default:
-              cmd.ok([...keys,  event.status], event.data);
+              if (event.keys) {
+                cmd[event.status || "ok"](event.keys, event.data);
+              } else {
+                cmd.ok([...keys, event.status], event.data);
+              }
           }
           break;
         case "try_connect":

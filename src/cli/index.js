@@ -48,15 +48,17 @@ export function cli(args, cwd, ui = UI) {
   }
 
   if (Q.isPromise(result)) {
-    result.then((code) => {
-      ui.exit(code ? code : 0);
-    }, (error) => {
-      if (error instanceof AzkError) {
-        ui.fail(error.toString());
-      } else {
-        ui.fail(error.stack ? error.stack : error);
-      }
-      ui.exit(error.code ? error.code : 127);
-    });
+    result
+      .then((code) => {
+        ui.exit(code ? code : 0);
+      })
+      .catch((error) => {
+        if (error instanceof AzkError) {
+          ui.fail(error.toString());
+        } else {
+          ui.fail(error.stack ? error.stack : error);
+        }
+        ui.exit(error.code ? error.code : 127);
+      });
   }
 }

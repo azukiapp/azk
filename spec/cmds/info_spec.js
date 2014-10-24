@@ -30,7 +30,18 @@ describe("Azk command info, run in an", function() {
     it("should show systems information", function() {
       cmd.cwd = manifest.manifestPath;
       return cmd.run().then(() => {
-        h.expect(outputs[0]).to.match(/example:/);
+        var rx_manifest = RegExp("manifest:.*" + h.escapeRegExp(manifest.file));
+        h.expect(outputs[0]).to.match(rx_manifest);
+
+        var rx_cache = RegExp("cache_dir:.*" + h.escapeRegExp(manifest.cache_dir));
+        h.expect(outputs[0]).to.match(rx_cache);
+
+        var rx_default = RegExp("default_system:.*" + h.escapeRegExp(manifest.default_system));
+        h.expect(outputs[0]).to.match(rx_default);
+
+        var rx_name = RegExp(`${h.escapeRegExp("example".yellow)}:`)
+        h.expect(outputs[0]).to.match(rx_name);
+
         h.expect(outputs[0]).to.match(RegExp(config('docker:image_default')));
         h.expect(outputs[0]).to.match(/command:.*socat/);
       });

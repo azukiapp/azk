@@ -1,4 +1,4 @@
-import { path, config } form 'azk';
+import { path, config } from 'azk';
 import { i18n } from 'azk/utils';
 import h from 'spec/spec_helper';
 

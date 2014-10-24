@@ -1,6 +1,9 @@
-import { Q, _, defer } from 'azk';
-import { XRegExp } from 'xregexp';
+import { Q, _, defer, lazy_require } from 'azk';
 import { ProvisionNotFound, ProvisionPullError } from 'azk/utils/errors';
+
+lazy_require(this, {
+  XRegExp: ['xregexp', 'XRegExp']
+});
 
 var msg_regex = {
   pulling_another    : new XRegExp('Repository.*another'),

@@ -1,15 +1,10 @@
-import { log, _, async, config, t, dynamic } from 'azk';
+import { log, _, async, config, t, lazy_require } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
 import { SYSTEMS_CODE_ERROR, NotBeenImplementedError } from 'azk/utils/errors';
 
-dynamic(this, {
-  Manifest() {
-    return require('azk/manifest').Manifest;
-  },
-
-  moment() {
-    return require('moment');
-  },
+lazy_require(this, {
+  Manifest: ['azk/manifest'],
+  moment: 'moment',
 });
 
 class Cmd extends Command {

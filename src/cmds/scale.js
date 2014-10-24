@@ -1,9 +1,9 @@
-import { log, t, _, async, config, t, dynamic } from 'azk';
+import { log, t, _, async, config, t, lazy_require } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
 import { VerboseCmd } from 'azk/cli/verbose_cmd';
 import { Cmd as StatusCmd } from 'azk/cmds/status';
 
-dynamic(this, {
+lazy_require(this, {
   Manifest() {
     return require('azk/manifest').Manifest;
   },

@@ -1,4 +1,5 @@
 import { _, Q, t, path, fs, config, log, defer, async } from 'azk';
+import { lazy_require } from 'azk';
 import { net } from 'azk/utils';
 import { Tools } from 'azk/agent/tools';
 import { AgentStartError } from 'azk/utils/errors';
@@ -8,17 +9,23 @@ var forever = require('forever-monitor');
 var MemoryStream    = require('memorystream');
 var MemcachedDriver = require('memcached');
 
+lazy_require(this, {
+  Manifest: ['azk/manifest'],
+  Client  : ['azk/agent/client'],
+});
+
 // TODO: Reaplce forever for a better solution :/
 var Balancer = {
-  memcached: null,
-  hipache  : null,
-  mem_client : null,
+  memcached : null,
+  hipache   : null,
+  mem_client: null,
 
   running: {
     dns: false,
     'balancer-redirect': false,
   },
 
+  // Hipache database controll
   get memCached() {
     if (!this.mem_client) {
       var socket = config('paths:memcached_socket');
@@ -62,32 +69,23 @@ var Balancer = {
     });
   },
 
-  start() {
+  // Balancer service and subsystems controll
+  start(vm_enabled = true) {
     return Tools.async_status("balancer", this, function* (change_status) {
       if (!this.isRunnig()) {
         var socket = config('paths:memcached_socket');
         var ip     = net.calculateGatewayIp(config("agent:vm:ip"))
         var port   = yield net.getPort();
 
-        // Dns server
-        change_status("starting_dns");
-        yield this.start_dns(ip, port);
-        change_status("started_dns");
+        if (vm_enabled) {
+          // Subsistems : dns and balancer redirect
+          yield this.start_dns(ip, port);
+          yield this.start_redirect(ip, port);
+        }
 
-        // Socat
-        change_status("starting_socat");
-        yield this.start_socat(ip, port);
-        change_status("started_socat");
-
-        // Memcached
-        change_status("starting_memcached");
+        // Memcached and Hipache
         yield this.start_memcached(socket);
-        change_status("started_memcached");
-
-        // Hipache
-        change_status("starting_hipache");
-        yield this.start_hipache(ip, port, socket);
-        change_status("started_hipache");
+        yield this.start_hipache(vm_enabled ? ip : null, port, socket);
       }
     });
   },
@@ -98,7 +96,7 @@ var Balancer = {
     });
   },
 
-  start_socat(ip, port) {
+  start_redirect(ip, port) {
     return this._run_system('balancer-redirect', {
       wait: true,
       envs: {
@@ -112,52 +110,28 @@ var Balancer = {
     var pid  = config("paths:hipache_pid");
     var file = this._check_config(ip, port, socket);
     var cmd = [ 'nvm', 'hipache', '--config', file ];
+    var name = "hipache";
 
-    log.info("starting hipache");
-    return this._start_service(cmd, pid).then((child) => {
+    return this._start_service(name, cmd, pid).then((child) => {
       this.hipache = child;
       log.info("hipache started in %s port with file config", port, file);
-      child.on('stop', () => {
-        log.info('hipache stoped');
-      });
-      child.on('exit:code', (code) => {
-        if (code && code != 0) {
-          log.error('hipache exit code: ' + code);
-        }
-      });
-      child.on('stdout', (data) => {
-        log.info('hipache: %s', data.toString().trim());
-      });
-      child.on('stderr', (data) => {
-        log.info('hipache: %s', data.toString().trim());
-      });
+      this._handleChild(name, child);
     });
   },
 
   start_memcached(socket) {
-    // Remove socket
-    if (fs.existsSync(socket)) fs.unlinkSync(socket);
-    var pid = config("paths:memcached_pid");
-    var cmd = [ 'nvm', 'memcachedjs', '--socket', socket ];
+    var pid  = config("paths:memcached_pid");
+    var cmd  = [ 'nvm', 'memcachedjs', '--socket', socket ];
+    var name = "memcached";
 
-    log.info("starting memcachedjs");
-    return this._start_service(cmd, pid).then((child) => {
+    // Remove socket before start
+    // TODO: replace by q-io
+    if (fs.existsSync(socket)) fs.unlinkSync(socket);
+
+    return this._start_service(name, cmd, pid).then((child) => {
       this.memcached = child;
       log.info("memcachedjs started in socket: ", socket);
-      child.on('stop', () => {
-        log.info('memcached stoped');
-      });
-      child.on('exit:code', (code) => {
-        if (code && code != 0) {
-          log.error('memcached exit code: ' + code);
-        }
-      });
-      child.on('stdout', (data) => {
-        log.info('memcached: %s', data.toString().trim());
-      });
-      child.on('stderr', (data) => {
-        log.info('memcached: %s', data.toString().trim());
-      });
+      this._handleChild(name, child);
     });
   },
 
@@ -189,7 +163,6 @@ var Balancer = {
   },
 
   _getSystem(system) {
-    var Manifest = require('azk/manifest').Manifest;
     var manifest = new Manifest(config('paths:azk_root'), true);
     return manifest.system(system, true);
   },
@@ -207,10 +180,9 @@ var Balancer = {
 
   // TODO: check if system is running
   _run_system(system_name, options = {}) {
-    return async(this, function* () {
+    return Tools.async_status("balancer", this, function* (change_status) {
       if (this.running[system_name]) return true;
-
-      var system  = this._getSystem(system_name);
+      var system = this._getSystem(system_name);
 
       // Wait docker
       yield this._waitDocker();
@@ -223,6 +195,7 @@ var Balancer = {
       });
 
       yield system.stop();
+      change_status("starting_" + system_name);
       var result = yield system.scale(1, options);
 
       if (!result) {
@@ -230,6 +203,7 @@ var Balancer = {
       }
 
       // Save state
+      change_status("started_" + system_name);
       this.running[system_name] = true;
     });
   },
@@ -244,11 +218,16 @@ var Balancer = {
       yield this._waitDocker();
 
       // Stop
-      change_status("stoping_" + system_name);
-      yield system.stop().catch((err) => {
-        log.error(err);
-        change_status("error", error);
-      });
+      change_status("stopping_" + system_name);
+      yield system
+        .stop()
+        .catch((err) => {
+          try {
+            log.error(err);
+            change_status("error", err);
+          } catch(err) {}
+          return true;
+        });
       change_status("stoped_" + system_name);
 
       // Save state
@@ -256,20 +235,47 @@ var Balancer = {
     });
   },
 
-  _start_service(cmd, pid) {
-    cmd = [path.join(config('paths:azk_root'), 'bin', 'azk'), ...cmd];
-    return defer((resolve, reject, notify) => {
-      var child = forever.start(cmd, {
-        max : 1,
-        silent : true,
-        pidFile: pid
-      });
+  _handleChild(name, child) {
+    child.on('stop', () => {
+      log.info(name + ' stoped');
+    });
 
-      child.on('exit:code', () => {
+    // Log child erro if exited
+    child.on('exit:code', (code) => {
+      if (code && code != 0) {
+        log.error(name + ' exit code: ' + code);
+      }
+    });
+
+    // Log child outpus
+    var info = (data) => {
+      log.info(name + ': %s', data.toString().trim());
+    };
+    child.on('stdout', info);
+    child.on('stderr', info);
+  },
+
+  _start_service(name, cmd, pid) {
+    cmd = [path.join(config('paths:azk_root'), 'bin', 'azk'), ...cmd];
+    var options = {
+      max : 1,
+      silent : true,
+      pidFile: pid
+    }
+
+    return Tools.defer_status("balancer", (resolve, reject, change_status) => {
+      // Log and notify
+      log.info("starting " + name);
+      change_status("starting_" + name);
+
+      var child = forever.start(cmd, options);
+      child.on('exit', () => {
         reject();
-        process.kill(process.pid);
+        Client.stop();
       });
       child.on('start', () => resolve(child));
+
+      change_status("started_" + name);
     });
   },
 
@@ -277,12 +283,19 @@ var Balancer = {
     return defer((resolve) => {
       var service = this[sub];
       if (service && service.running) {
+
         change_status("stopping_" + sub);
         service.on('stop', () => {
           change_status("stoped_" + sub);
           resolve();
         });
-        process.kill(service.pid);
+
+        service.on('exit', () => {
+          change_status("exited_" + sub);
+          resolve();
+        });
+
+        service.kill();
       } else {
         resolve();
       }
@@ -292,6 +305,10 @@ var Balancer = {
   _check_config(ip, port, memcached_socket) {
     var file = config('paths:balancer_file');
     var log  = path.join(config('paths:logs'), "hipache_access.log");
+    var bind = ["127.0.0.1", "::1"];
+
+    // Only ip not a null
+    if (ip) { bind.push(ip); }
 
     var data = {
       user: process.getuid(),
@@ -301,10 +318,7 @@ var Balancer = {
         maxSockets: 100,
         deadBackendTTL: 30
       },
-      http: {
-        port: port,
-        bind: ["127.0.0.1", ip, "::1"]
-      },
+      http: { port, bind },
       driver: ["memcached://" + memcached_socket]
     }
 

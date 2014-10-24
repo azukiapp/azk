@@ -1,9 +1,9 @@
-import { _, t, Q, async, defer, config, dynamic } from 'azk';
+import { _, t, Q, async, defer, config, lazy_require } from 'azk';
 import { ImageNotAvailable, SystemRunError, RunCommandError } from 'azk/utils/errors';
 import { Balancer } from 'azk/system/balancer';
 import net from 'azk/utils/net';
 
-dynamic(this, {
+lazy_require(this, {
   MemoryStream() {
     return require('memorystream');
   },

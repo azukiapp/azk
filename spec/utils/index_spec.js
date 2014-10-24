@@ -1,7 +1,8 @@
-import { join } from 'path';
 import h from 'spec/spec_helper';
 import utils from 'azk/utils';
 import { Q } from 'azk/utils';
+
+var { join } = require('path');
 
 describe("Azk utils module", function() {
   it("should run function in cwd", function() {

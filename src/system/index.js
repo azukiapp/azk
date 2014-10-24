@@ -1,12 +1,11 @@
 import { _, t, config, path, async, Q, fs, utils } from 'azk';
 import { Image } from 'azk/images';
 import { net } from 'azk/utils';
-import { XRegExp } from 'xregexp';
-
 import { Run } from 'azk/system/run';
 import { Scale } from 'azk/system/scale';
 import { Balancer } from 'azk/system/balancer';
 
+var XRegExp = require('xregexp').XRegExp;
 var regex_port = new XRegExp(
   "(?<private>[0-9]{1,})(:(?<public>[0-9]{1,})){0,1}(/(?<protocol>tcp|udp)){0,1}", "x"
 );

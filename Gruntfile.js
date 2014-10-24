@@ -44,7 +44,34 @@ module.exports = function(grunt) {
     env: {
       test: {
         NODE_ENV: "test",
+      },
+      aws: {
+        src: ".env",
       }
+    },
+
+    aws: {
+      "accessKeyId" : process.env.AWS_ACCESS_KEY_ID,
+      "secretKey"   : process.env.AWS_SECRET_KEY,
+      "bucket"      : process.env.AWS_BUCKET,
+    },
+
+    aws_s3: {
+      options: {
+        accessKeyId         : '<%= aws.accessKeyId %>',
+        secretAccessKey     : '<%= aws.secretKey %>',
+        region              : 'sa-east-1',
+        uploadConcurrency   : 5,
+        downloadConcurrency : 5,
+        bucket              : '<%= aws.bucket %>',
+        differential        : true,
+        displayChangesOnly  : true,
+      },
+      public_mac_package: {
+        files: [
+          {expand: true, cwd: "./package", src: ['*.tar.gz'], stream: true },
+        ],
+      },
     },
 
     // Downloads
@@ -137,6 +164,9 @@ module.exports = function(grunt) {
         'cmd': function(system) {
           return 'azk shell ' + system + ' --shell=/bin/bash -c "azk nvm grunt newer:traceur"';
         },
+      },
+      'public_mac_package': {
+        'cmd': "grunt aws_s3:public_mac_package"
       }
     },
   });
@@ -154,6 +184,7 @@ module.exports = function(grunt) {
   grunt.registerTask('slow_test', ['env:test', 'clear', 'newer:traceur', 'mochaTest:slow_test']);
   grunt.registerTask('compile', ['watch:traceur']);
   grunt.registerTask('inspector', ["node-inspector"]);
+  grunt.registerTask('public', ["env:aws", "exec:public_mac_package"]);
   grunt.registerTask('default', function() {
     key_watch(grunt);
     return grunt.task.run(['watch:spec']);

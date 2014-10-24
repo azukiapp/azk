@@ -1,8 +1,8 @@
-import { Q, _, config, async, t, dynamic } from 'azk';
+import { Q, _, config, async, t, lazy_require } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
 import { net } from 'azk/utils';
 
-dynamic(this, {
+lazy_require(this, {
   VM() {
     return require('azk/agent/vm').VM;
   },
@@ -102,15 +102,6 @@ class VmCmd extends Command {
     });
   }
 
-  action_install(vm_info) {
-    return async(this, function* () {
-      if (vm_info.installed) {
-        throw new RequiredError("commands.vm.already");
-      }
-      yield Server.installVM(false, false);
-    });
-  }
-
   action_remove(vm_info) {
     return async(this, function* () {
       this.require_installed(vm_info);
@@ -120,26 +111,12 @@ class VmCmd extends Command {
       yield VM.remove(vm_info.name);
     });
   }
-
-  action_reload(vm_info) {
-    return async(this, function* () {
-      this.require_installed(vm_info);
-
-      // Remove and install
-      yield this.action_remove(vm_info);
-      yield this.action_install({ installed: false });
-
-      if (vm_info.running) {
-        yield this.action_start({ installed: true, name: vm_info.name });
-      }
-    });
-  }
 }
 
 export function init(cli) {
   if (config('agent:requires_vm')) {
     (new VmCmd('vm {*action}', cli))
-      .setOptions('action', { options: ['ssh', 'install', 'installed', 'start', 'status', 'stop', 'remove', 'reload'] });
+      .setOptions('action', { options: ['ssh', 'installed', 'start', 'status', 'stop', 'remove'] });
   }
 }
 

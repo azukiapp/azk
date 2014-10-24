@@ -6,10 +6,10 @@
 //addImage('base', { repository: "cevich/empty_base_image" }); // tag: latest
 
 
+  var join = require('path').join;
 var config = require('azk').config;
 var mounts = (function() {
   var _    = require('lodash');
-  var join = require('path').join;
   var glob = require('glob');
 
   var mounts = {
@@ -50,10 +50,9 @@ var agent_system = function(image) {
       AZK_NAMESPACE: "azk.linux",
       AZK_PACKAGE_PATH: "/azk/build",
       AZK_BALANCER_PORT: 8080,
-      //EXTRA_ARGS       : "-H tcp://0.0.0.0:2375 -H unix://",
       LOG: "file",
       NODE_ENV: "test",
-      EXTRA_SCRIPT: "/azk/#{manifest.dir}/src/share/init_azk",
+      EXTRA_SCRIPT: "/azk/#{manifest.dir}/src/libexec/init_azk",
     },
     docker_extra: {
       start: { Privileged: true },
@@ -83,7 +82,6 @@ var test_package_system = function(image){
 }
 
 systems({
-
   'dind-ubuntu': agent_system('azukiapp/dind:ubuntu14'),
   'dind-fedora': agent_system('azukiapp/dind:fedora20'),
 
@@ -141,4 +139,5 @@ systems({
   },
 });
 
+setCacheDir(join(config('paths:data'), config('azk_dir')));
 setDefault('docs');
