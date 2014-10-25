@@ -100,7 +100,12 @@ $ azk agent start
 
 If you are running a service on port `80` or `53` you can customize the configuration by setting the environment variable `AZK_BALANCER_PORT` and `AZK_DNS_PORT` respectively before run `azk agent start`.
 
-Coming soon...
+```bash
+$ git clone https://github.com/azukiapp/azk.git ~/.azk
+$ cd ~/.azk
+$ git checkout master
+$ make -e boostrap
+```
 
 ## Update from azk <= 0.5.1
 
