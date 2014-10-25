@@ -8,6 +8,7 @@
 
   var join = require('path').join;
 var config = require('azk').config;
+
 var mounts = (function() {
   var _    = require('lodash');
   var glob = require('glob');
@@ -116,28 +117,6 @@ systems({
       //PATH: "/bin:/sbin:/usr/bin:/usr/sbin:/azk/<%= manifest.dir %>/vendor/python/bin"
     //}
   },
-
-  dns: {
-    image: config("docker:image_default"),
-    shell: '/bin/bash',
-    command: "dnsmasq -p $DNS_PORT --no-daemon --address=/#{azk.default_domain}/#{azk.balancer_ip}",
-    wait: false,
-    ports: {
-      dns: "53:53/udp",
-      80: disable,
-    }
-  },
-
-  'balancer-redirect': {
-    image: config("docker:image_default"),
-    shell: '/bin/bash',
-    command: "env; socat TCP4-LISTEN:$HTTP_PORT,fork TCP:$BALANCER_IP:$BALANCER_PORT",
-    ports: {
-      http: "#{azk.balancer_port}:#{azk.balancer_port}/tcp",
-      53: disable,
-    }
-  },
 });
 
-setCacheDir(join(config('paths:data'), config('azk_dir')));
 setDefault('docs');
