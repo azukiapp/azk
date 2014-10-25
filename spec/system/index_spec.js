@@ -25,7 +25,7 @@ describe("Azk system class, main set", function() {
     h.expect(system).to.have.property("envs").and.eql({});
     h.expect(system).to.have.property("shell", "/bin/sh");
     h.expect(system).to.have.property("workdir", "/");
-    h.expect(system).to.have.property("scalable").to.fail;
+    h.expect(system).to.have.property("scalable").and.eql({ default: 1, limit: 1 });
     h.expect(system).to.have.property("default_options").to.fail;
   });
 

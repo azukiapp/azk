@@ -36,7 +36,7 @@ class Cmd extends Command {
         var ports   = yield Cmd._ports_map(system, instances);
         var name    = instances.length > 0 ? `${system.name}`.green : `${system.name}`.red;
         var status  = instances.length > 0 ? `↑`.green : `↓`.red;
-        var counter = system.scalable ? instances.length.toString().blue : 'n/s'.red;
+        var counter = system.scalable.limit > 0 ? instances.length.toString().blue : 'n/s'.red;
 
         // Provisioned
         var provisioned = system.provisioned;

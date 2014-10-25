@@ -97,11 +97,18 @@ export class System {
   }
 
   // Scale options
-  get default_instances() {
-    return (this.options.scalable || {}).default || 1;
-  }
   get scalable() {
-    return this.options.scalable ? true : false;
+    var _scalable = this.options.scalable;
+
+    if(_.isNumber(_scalable)) {
+      _scalable = { default: _scalable };
+    } else if (!_.isObject(_scalable)) {
+      _scalable = _scalable ? { } : { limit: 1 };
+    }
+
+    return _.defaults(_scalable, {
+      default: 1, limit: -1
+    });
   }
   get wait_scale() {
     var wait = this.options.wait;
@@ -127,7 +134,7 @@ export class System {
 
   get balanceable() {
     var ports = this.ports;
-    return ports.http && !_.isEmpty(this.hosts);
+    return ports.http && !_.isEmpty(this.http);
   }
 
   get url() {
