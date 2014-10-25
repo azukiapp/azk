@@ -42,7 +42,7 @@ describe("Azk generator ruby rule", function() {
     h.expect(system).to.have.deep.property("options.provision")
       .and.to.eql(["bundle install --path vendor/bundler"]);
 
-    h.expect(system).to.have.property("scalable").and.ok;
+    h.expect(system).to.have.property("scalable").eql({ default: 2, limit: -1 });
     h.expect(system).to.have.property("hostname").and.match(new RegExp(name));
   });
 

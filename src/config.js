@@ -47,6 +47,7 @@ var options = mergeConfig({
       azk_root,
       data: data_path,
       logs: paths.logs,
+      shared: path.join(azk_root, "shared"),
       log : path.join(paths.logs, 'azk.log'),
 
       agent_pid         : path.join(paths.run, 'agent.pid'),

@@ -163,7 +163,7 @@ var Balancer = {
   },
 
   _getSystem(system) {
-    var manifest = new Manifest(config('paths:azk_root'), true);
+    var manifest = new Manifest(config('paths:shared'), true);
     return manifest.system(system, true);
   },
 

@@ -1,4 +1,4 @@
-import { _, t, os, Q, async, lazy_require } from 'azk';
+import { _, t, os, Q, async, log, lazy_require } from 'azk';
 import { config, set_config } from 'azk';
 import { UIProxy } from 'azk/cli/ui';
 import { OSNotSupported, DependencyError } from 'azk/utils/errors';

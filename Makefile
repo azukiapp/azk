@@ -94,7 +94,6 @@ copy_files: ${AZK_LIB_PATH}/azk
 	@cp CHANGELOG.md ${PATH_USR_LIB_AZK}
 	@cp LICENSE ${PATH_USR_LIB_AZK}
 	@cp README.md ${PATH_USR_LIB_AZK}
-	@cp Azkfile.js ${PATH_USR_LIB_AZK}
 
 creating_symbolic_links:
 	@echo "task: $@"
