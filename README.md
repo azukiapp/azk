@@ -257,15 +257,46 @@ $ azk restart [system_name,...]   # Restarts a systems
 $ azk restart --reprovision       # Restarts a systems and reload provision
 ```
 
-## Test (for experts only)
+## Contributions and testing (for experts only)
 
-Note that running these tests requires you to have `azk agent` running.
+1. Check out `azk` into `~/.azk`.
 
-```bash
-$ cd [azk_source_path]
-$ make bootstrap
-$ ./bin/azk nvm grunt test
-```
+  ```bash
+  $ git clone -b master https://github.com/azukiapp/azk.git ~/.azk
+  ```
+
+2. Add `~/.azk/bin` to your $PATH for access to the `azk` command-line utility.
+
+  ```bash
+  $ echo 'export PATH="$HOME/.azk/bin:$PATH"' >> ~/.bash_profile
+  # and reload
+  $ source ~/.bash_profile
+  ```
+
+  **Ubuntu Desktop note**: Modify your `~/.bashrc` instead of `~/.bash_profile`.
+
+  **Zsh note**: Modify your `~/.zshrc` file instead of `~/.bash_profile`.
+
+3. Install depedencies:
+
+  ```bash
+  $ make -e boostrap
+  ```
+
+4. Run `azk-agent` in a terminal:
+
+  ```bash
+  $ azk agent start
+  ```
+
+5. Run tests:
+
+  Note that running these tests requires you to have `azk agent` running.
+
+  ```bash
+  $ cd ~/.azk
+  $ ./bin/azk nvm grunt test
+  ```
 
 ## License
 
