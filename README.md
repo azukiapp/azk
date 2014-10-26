@@ -72,7 +72,7 @@ $ [sudo] touch /etc/apt/sources.list.d/azuki.list
 Include this line on /etc/apt/sources.list.d/azuki.list file:
 
 ```
-deb [trusted=yes] https://repo.fury.io/azuki-precise/ /
+deb [trusted=yes] http://repo.azukiapp.com/azuki-precise/ /
 ```
 
 Update sources and install azk:
@@ -94,7 +94,7 @@ $ [sudo] touch /etc/apt/sources.list.d/azuki.list
 Include this line on /etc/apt/sources.list.d/azuki.list file:
 
 ```
-deb [trusted=yes] https://repo.fury.io/azuki-trusty/ /
+deb [trusted=yes] http://repo.azukiapp.com/azuki-trusty/ /
 ```
 
 Update sources and install azk:
@@ -117,7 +117,7 @@ Include this line on `/etc/yum.repos.d/azuki.repo` file:
 ```
 [azuki]
 name=azk
-baseurl=https://repo.fury.io/azuki-fedora20/
+baseurl=http://repo.azukiapp.com/azuki-fedora20/
 enabled=1
 gpgcheck=0
 ```
