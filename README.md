@@ -32,7 +32,7 @@ In order to automate the provisioning of development environments, `azk` uses pr
 
 ### Starting a new application project:
 
-If you are starting a new application project, you can already use `azk` to obtain the proper runtime as well the corresponding generators for your chosen language and then generate the application's basic structure. An example in node.js would look like this: 
+If you are starting a new application project, you can already use `azk` to obtain the proper runtime as well the corresponding generators for your chosen language and then generate the application's basic structure. An example in node.js would look like this:
 
 ```bash
 $ cd ~/projects
@@ -61,7 +61,73 @@ $ azk start
 
 ## Installation from package
 
-Coming soon...
+#### Ubuntu 12
+
+Add Azuki package resource list file:
+
+```bash
+$ [sudo] touch /etc/apt/sources.list.d/azuki.list
+```
+
+Include this line on /etc/apt/sources.list.d/azuki.list file:
+
+```
+deb [trusted=yes] http://repo.azukiapp.com/azuki-precise/ /
+```
+
+Update sources and install azk:
+
+```bash
+$ [sudo] apt-get update
+$ [sudo] apt-get install azk
+```
+
+
+#### Ubuntu 14
+
+Add Azuki package resource list file:
+
+```bash
+$ [sudo] touch /etc/apt/sources.list.d/azuki.list
+```
+
+Include this line on /etc/apt/sources.list.d/azuki.list file:
+
+```
+deb [trusted=yes] http://repo.azukiapp.com/azuki-trusty/ /
+```
+
+Update sources and install azk:
+
+```bash
+$ [sudo] apt-get update
+$ [sudo] apt-get install azk
+```
+
+#### Fedora
+
+Add Azuki package resource list file:
+
+```bash
+$ [sudo] touch /etc/yum.repos.d/azuki.repo
+```
+
+Include this line on `/etc/yum.repos.d/azuki.repo` file:
+
+```
+[azuki]
+name=azk
+baseurl=http://repo.azukiapp.com/azuki-fedora20/
+enabled=1
+gpgcheck=0
+```
+
+Update sources and install libnss-resolver, docker and azk:
+
+```bash
+$ [sudo] yum install docker-io libnss-resolver azk
+```
+
 
 ## Installation from source
 
@@ -136,7 +202,7 @@ systems({
       "/azk/#{manifest.dir}": path("."),
     },
     // Start with 2 instances
-    scalable: { default: 2} 
+    scalable: { default: 2}
     // Set hostname to use in http balancer
     http: {
       // node-example.dev.azk.io
@@ -147,7 +213,7 @@ systems({
       NODE_ENV: "dev",
     },
   },
-  
+
   db: {
     image: "dockerfile/mariadb",
     mounts: {
@@ -170,7 +236,7 @@ $ azk agent status                # Shows azk agent status
 $ azk agent stop                  # Stops azk agent
 
 # Create initial Azkfile.js
-$ azk init [project_path] 
+$ azk init [project_path]
 
 # Run a shell in instances context
 $ azk shell                       # Runs shell in default system
