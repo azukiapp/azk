@@ -152,7 +152,7 @@ $ brew install azukiapp/azk/azk
 
 If you are running a service on ports `80` or/and `53` you can customize the configuration by setting the environment variable `AZK_BALANCER_PORT` and `AZK_DNS_PORT` respectively before run `azk agent start`.
 
-After install [docker](http://docs.docker.com/installation),  check session "non-root access" documetação the installation was followed to allow access to the service docker for your user.
+After install [docker](http://docs.docker.com/installation), check if session "non-root access" in the installation doc was followed to allow access to the service docker for your user.
 
 ##### Ubuntu Trusty 14.04 (LTS) (64-bit)
 
