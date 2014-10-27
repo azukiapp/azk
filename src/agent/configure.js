@@ -5,20 +5,16 @@ import { OSNotSupported, DependencyError } from 'azk/utils/errors';
 import { net } from 'azk/utils';
 import Azk from 'azk';
 
-var which    = require('which');   // Search for command in path
-var qfs      = require('q-io/fs');
-var request  = require('request');
-var semver   = require('semver');
-var isOnline = require('is-online');
+var which      = require('which');   // Search for command in path
+var qfs        = require('q-io/fs');
+var request    = require('request');
+var semver     = require('semver');
+var isOnline   = require('is-online');
 var { isIPv4 } = require('net');
 
 lazy_require(this, {
-  docker() {
-    return require('azk/docker').default;
-  },
-  exec() {
-    return require('child_process').exec;
-  },
+  docker: ['azk/docker', 'default'],
+  exec: ['child_process'],
 });
 
 var ports_tabs = {
@@ -62,6 +58,7 @@ export class Configure extends UIProxy {
           yield this._checkDockerSocket(socket),
           yield this._checkAndConfigureNetwork(false),
           yield this._loadDnsServers(),
+          yield this._cleanContainers(),
           yield this._checkPorts('agent:balancer:port', 'balancer', 'AZK_BALANCER_PORT'),
           yield this._checkPorts('agent:dns:port', 'dns', 'AZK_DNS_PORT')
         );
@@ -122,7 +119,6 @@ export class Configure extends UIProxy {
           log.debug('AZK version `v'+ parsedVersion +'` is up to date.');
         }
       } catch(err) {
-        // log.error(t("configure.check_version_error", {error_message: err.message}));
         notify({
           type: "status",
           status: "error",
@@ -132,6 +128,20 @@ export class Configure extends UIProxy {
         });
       }
     });
+  }
+
+  _cleanContainers() {
+    return docker
+      .azkListContainers()
+      .then((containers) => {
+        this.warning('configure.clean_containers', { count: containers.length } );
+        var removes = _.map(containers, (container) => {
+          return docker
+            .getContainer(container.Id)
+            .remove({ force: true });
+        });
+        return Q.all(removes);
+      });
   }
 
   _checkDockerSocket(socket) {
