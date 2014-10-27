@@ -4,13 +4,8 @@ import { Balancer } from 'azk/system/balancer';
 import net from 'azk/utils/net';
 
 lazy_require(this, {
-  MemoryStream() {
-    return require('memorystream');
-  },
-
-  docker() {
-    return require('azk/docker').default;
-  }
+  MemoryStream: 'memorystream',
+  docker: ['azk/docker', 'default']
 });
 
 var Run = {
@@ -281,7 +276,6 @@ var Run = {
     // Default options
     options = _.defaults(options, {
       include_dead: false,
-      include_exec: false,
       type: "*",
     });
 

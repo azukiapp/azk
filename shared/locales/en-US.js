@@ -173,6 +173,7 @@ module.exports = {
     ]).join('\n'),
     check_version: 'Checking version...',
     check_version_error: 'checking version: [ %(error_message)s ]!',
+    clean_containers: "Clearing %(count)d lost containers",
   },
 
   commands: {
