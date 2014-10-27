@@ -4,13 +4,70 @@
 
 ## Main features
 
-* Images: via [Docker][docker] Index or custom inline or file scripts
+* Multiplatform: Works on Linux & Mac OS X (requires 64 bit platform in both cases)
+* Images: via [Docker Registry][docker_registry]
 * Built in load-balancer
 * Built in file sync
 * Automatic start-up (and reload) script
 * Logging
+* And simple and easy to use DSL to describe its architecture:
 
-Works on Linux & Mac OS X (requires 64 bit platform in both cases)
+<a name="full_manifest_example"/>
+## Full Azkfile.js example
+
+```js
+// Adds the systems that shape your system
+systems({
+  'node-example': {
+    // Dependent systems
+    depends: ["db"],
+    // More images:  http://registry.hub.docker.com
+    image: "dockerfile/nodejs",
+    // Steps to execute before running instances
+    provision: [
+      "npm install",
+    ],
+    workdir: "/azk/#{manifest.dir}",
+    command: "node index.js",
+    mounts: {
+      // Mounts folders to assigned paths
+      "/azk/#{manifest.dir}": path("."),
+    },
+    // Start with 2 instances
+    scalable: { default: 2}
+    // Set hostname to use in http balancer
+    http: {
+      // node-example.dev.azk.io
+      domains: [ "#{system.name}.#{azk.default_domain}" ],
+    },
+    envs: {
+      // Exports global variables
+      NODE_ENV: "dev",
+    },
+  },
+
+  db: {
+    image: "tutum/mysql",
+    mounts: {
+      // Activates a persistent data folder in '/data'
+      "/data": persistent("data-#{system.name}"),
+    },
+    ports: {
+      data: "3306/tcp",
+    },
+    envs: {
+      MYSQL_PASS: "senha",
+      MYSQL_USER: "admin",
+    },
+    export_envs: {
+      DATABASE_URL: "mysql://#{envs.MYSQL_USER}:#{envs.MYSQL_PASS}@#{net.host}:#{net.port.data}/",
+    },
+  },
+});
+
+// Sets a default system (to use: start, stop, status, scale)
+setDefault("node-example")
+```
 
 ## Quick start
 
@@ -59,52 +116,65 @@ azk: 'Azkfile.js' generated
 $ azk start
 ```
 
-## Installation from package
+## Installation
 
-#### Ubuntu 12
+### Requirements
 
-Add Azuki package resource list file:
+* Mac OS X or Linux (requires 64 bit platform) (Windows: planned)
+* bash
+* Internet connection
+
+### Installation from package (recommending)
+
+#### Mac OS X
+
+It is necessary to install Virtualbox and an extra tool for file synchronization:
+
+* [VirtualBox][virtualbox_dl], version 4.3.6+ (VMware: planned)
+
+Using [Homebrew Cask][homebrew_cask]? It makes installing VirtualBox super easy!
+
+```sh
+$ brew cask install virtualbox --appdir=/Applications
+```
+
+Now the installation of `azk`:
+
+```sh
+$ brew install azukiapp/azk/azk
+```
+
+#### Linux
+
+* Distribution (tested): Ubuntu 12.04/14.04 and Fedora20
+* [Docker][docker] 1.1.0 or greater
+* Not running any service in `80` and `53` ports
+
+If you are running a service on ports `80` or/and `53` you can customize the configuration by setting the environment variable `AZK_BALANCER_PORT` and `AZK_DNS_PORT` respectively before run `azk agent start`.
+
+After install [docker](http://docs.docker.com/installation),  check session "non-root access" documetação the installation was followed to allow access to the service docker for your user.
+
+##### Ubuntu Trusty 14.04 (LTS) (64-bit)
+
+Add the Azuki repository to your apt sources list, update and install the `azk` package.
 
 ```bash
-$ [sudo] touch /etc/apt/sources.list.d/azuki.list
+$ echo "deb [trusted=yes] http://repo.azukiapp.com/azuki-trusty/ /" | sudo tee /etc/apt/sources.list.d/azk.list
+$ sudo apt-get update
+$ sudo apt-get azk
 ```
 
-Include this line on /etc/apt/sources.list.d/azuki.list file:
+##### Ubuntu Precise 12.04 (LTS) (64-bit)
 
-```
-deb [trusted=yes] http://repo.azukiapp.com/azuki-precise/ /
-```
-
-Update sources and install azk:
+Add the Azuki repository to your apt sources list, update and install the `azk` package.
 
 ```bash
-$ [sudo] apt-get update
-$ [sudo] apt-get install azk
+$ echo "deb [trusted=yes] http://repo.azukiapp.com/azuki-precise/ /" | sudo tee /etc/apt/sources.list.d/azk.list
+$ sudo apt-get update
+$ sudo apt-get azk
 ```
 
-
-#### Ubuntu 14
-
-Add Azuki package resource list file:
-
-```bash
-$ [sudo] touch /etc/apt/sources.list.d/azuki.list
-```
-
-Include this line on /etc/apt/sources.list.d/azuki.list file:
-
-```
-deb [trusted=yes] http://repo.azukiapp.com/azuki-trusty/ /
-```
-
-Update sources and install azk:
-
-```bash
-$ [sudo] apt-get update
-$ [sudo] apt-get install azk
-```
-
-#### Fedora
+##### Fedora 20
 
 Add Azuki package resource list file:
 
@@ -128,45 +198,36 @@ Update sources and install libnss-resolver, docker and azk:
 $ [sudo] yum install docker-io libnss-resolver azk
 ```
 
+<a name="install_from_source"/>
+### Other distributions - installation from source
 
-## Installation from source
+1. Install the dependency [libnss-resolver][libnss-resolver];
 
-### Requirements
+2. Check out `azk` into `~/.azk`.
 
-* Mac OS X or Linux (requires 64 bit platform) (Windows: planned)
-* bash
-* Internet connection
+  ```bash
+  $ git clone -b master https://github.com/azukiapp/azk.git ~/.azk
+  $ cd ~/.azk
+  $ make bootstrap
+  ```
 
-#### Mac OS X
+3. Add `~/.azk/bin` to your $PATH for access to the `azk` command-line utility.
 
-It is necessary to install Virtualbox and an extra tool for file synchronization:
+  ```bash
+  $ echo 'export PATH="$HOME/.azk/bin:$PATH"' >> ~/.bash_profile
+  # and reload
+  $ source ~/.bash_profile
+  ```
 
-* [VirtualBox][virtualbox_dl], version 4.3.6+ (VMware: planned)
+  **Ubuntu Desktop note**: Modify your `~/.bashrc` instead of `~/.bash_profile`.
 
-Using [Homebrew Cask][homebrew_cask]? It makes installing VirtualBox super easy!
+  **Zsh note**: Modify your `~/.zshrc` file instead of `~/.bash_profile`.
 
-```sh
-$ brew cask install virtualbox --appdir=/Applications
-```
+4. Run `azk-agent` in a terminal:
 
-Now the installation of `azk`:
-
-```sh
-$ brew install azukiapp/azk/azk
-$ azk agent start
-```
-
-#### Linux
-
-* Distribution (tested): Ubuntu 12.04/14.04 and Fedora20
-* [Docker][docker] 1.1.0 or greater
-* Docker non-root access: ability to run containers with your user
-* [libnss-resolver][libnss-resolver]
-* Not running any service in `80` and `53` ports
-
-If you are running a service on port `80` or `53` you can customize the configuration by setting the environment variable `AZK_BALANCER_PORT` and `AZK_DNS_PORT` respectively before run `azk agent start`.
-
-Coming soon...
+  ```bash
+  $ azk agent start
+  ```
 
 ## Update from azk <= 0.5.1
 
@@ -179,53 +240,6 @@ $ ./bin/azk nvm node -e "console.log(require('glob').sync('./\!(data)', { dot: t
 ```
 
 Now you can install new `azk` version.
-
-<a name="full_manifest_example"/>
-## Full Azkfile.js example
-
-```js
-// Adds the systems that shape your system
-systems({
-  'node-example': {
-    // Dependent systems
-    depends: ["db"],
-    // More images:  http://images.azk.io
-    image: "dockerfile/nodejs",
-    // Steps to execute before running instances
-    provision: [
-      "npm install",
-    ],
-    workdir: "/azk/#{manifest.dir}",
-    command: "node index.js",
-    mounts: {
-      // Mounts folders to assigned paths
-      "/azk/#{manifest.dir}": path("."),
-    },
-    // Start with 2 instances
-    scalable: { default: 2}
-    // Set hostname to use in http balancer
-    http: {
-      // node-example.dev.azk.io
-      domains: [ "#{system.name}.#{azk.default_domain}" ],
-    },
-    envs: {
-      // Exports global variables
-      NODE_ENV: "dev",
-    },
-  },
-
-  db: {
-    image: "dockerfile/mariadb",
-    mounts: {
-      // Activates a persistent data folder in '/data'
-      "/data": persistent("data"),
-    },
-  }
-});
-
-// Sets a default system (to use: start, stop, status, scale)
-setDefault("node-example")
-```
 
 ## Usage/Features
 
@@ -259,44 +273,13 @@ $ azk restart --reprovision       # Restarts a systems and reload provision
 
 ## Contributions and testing (for experts only)
 
-1. Check out `azk` into `~/.azk`.
-
-  ```bash
-  $ git clone -b master https://github.com/azukiapp/azk.git ~/.azk
-  ```
-
-2. Add `~/.azk/bin` to your $PATH for access to the `azk` command-line utility.
-
-  ```bash
-  $ echo 'export PATH="$HOME/.azk/bin:$PATH"' >> ~/.bash_profile
-  # and reload
-  $ source ~/.bash_profile
-  ```
-
-  **Ubuntu Desktop note**: Modify your `~/.bashrc` instead of `~/.bash_profile`.
-
-  **Zsh note**: Modify your `~/.zshrc` file instead of `~/.bash_profile`.
-
-3. Install depedencies:
-
-  ```bash
-  $ make -e boostrap
-  ```
-
-4. Run `azk-agent` in a terminal:
-
-  ```bash
-  $ azk agent start
-  ```
-
-5. Run tests:
-
-  Note that running these tests requires you to have `azk agent` running.
+First [install azk](#install_from_source) in from the source. Now you can run the testes:
 
   ```bash
   $ cd ~/.azk
   $ ./bin/azk nvm grunt test
   ```
+Note that running these tests requires you to have `azk agent` running.
 
 ## License
 
@@ -310,6 +293,7 @@ Check LEGAL and LICENSE files for more information.
 [docker]: http://docker.io
 [docker_index]: http://index.docker.io
 [dockerfile]: http://dockerfile.github.io
+[docker_registry]: http://registry.hub.docker.com
 [virtualbox_dl]: http://www.vagrantup.com/downloads.html
 [homebrew_cask]: https://github.com/phinze/homebrew-cask
 [libnss-resolver]: https://github.com/azukiapp/libnss-resolver
