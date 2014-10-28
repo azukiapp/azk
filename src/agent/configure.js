@@ -106,17 +106,17 @@ export class Configure extends UIProxy {
         notify({ type: "status", keys: "configure.check_version"});
         var [response, body] = yield Q.ninvoke(request, 'get', config('urls:github:api:tags_url'), options);
 
-        var tagName = body[0].name;
-        var parsedVersion = semver.clean(tagName);
-        var newAzkVersionExists = semver.lt(parsedVersion, Azk.version);
+        var tagNameGithub = body[0].name;
+        var tagNameGithubParsed = semver.clean(tagNameGithub);
+        var newAzkVersionExists = semver.lt(Azk.version, tagNameGithubParsed);
         if ( newAzkVersionExists ) {
           // just warn user that new AZK version is available
           this.warning('errors.dependencies.*.upgrade', {
             current_version: Azk.version,
-            new_version: parsedVersion
+            new_version: tagNameGithubParsed
           });
         } else {
-          log.debug('AZK version `v'+ parsedVersion +'` is up to date.');
+          log.debug('AZK version `v'+ tagNameGithubParsed +'` is up to date.');
         }
       } catch (err) {
         notify({
