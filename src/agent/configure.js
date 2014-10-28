@@ -9,12 +9,12 @@ var which      = require('which');   // Search for command in path
 var qfs        = require('q-io/fs');
 var request    = require('request');
 var semver     = require('semver');
-var isOnline   = require('is-online');
 var { isIPv4 } = require('net');
 
 lazy_require(this, {
-  docker: ['azk/docker', 'default'],
-  exec: ['child_process'],
+  docker  : ['azk/docker', 'default'],
+  exec    : ['child_process'],
+  isOnline: 'is-online',
 });
 
 var ports_tabs = {
@@ -92,7 +92,7 @@ export class Configure extends UIProxy {
         // check connectivity
         var currentOnline = yield Q.ninvoke(isOnline);
 
-        if(!currentOnline){
+        if ( !currentOnline ) {
           log.debug('isOnline == false');
           return {}; //can't check version
         }
@@ -109,16 +109,16 @@ export class Configure extends UIProxy {
         var tagName = body[0].name;
         var parsedVersion = semver.clean(tagName);
         var newAzkVersionExists = semver.lt(parsedVersion, Azk.version);
-        if(newAzkVersionExists){
+        if ( newAzkVersionExists ) {
           // just warn user that new AZK version is available
           this.warning('errors.dependencies.*.upgrade', {
             current_version: Azk.version,
             new_version: parsedVersion
           });
-        }else{
+        } else {
           log.debug('AZK version `v'+ parsedVersion +'` is up to date.');
         }
-      } catch(err) {
+      } catch (err) {
         notify({
           type: "status",
           status: "error",
@@ -127,6 +127,8 @@ export class Configure extends UIProxy {
           })),
         });
       }
+
+      return {};
     });
   }
 
@@ -134,13 +136,15 @@ export class Configure extends UIProxy {
     return docker
       .azkListContainers()
       .then((containers) => {
-        this.warning('configure.clean_containers', { count: containers.length } );
+        this.warning('configure.clean_containers', { count: containers.length });
         var removes = _.map(containers, (container) => {
           return docker
             .getContainer(container.Id)
             .remove({ force: true });
         });
-        return Q.all(removes);
+        return Q
+          .all(removes)
+          .then(() => { return {} });
       });
   }
 

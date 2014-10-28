@@ -2,9 +2,7 @@ import { _, async, log, config, utils, lazy_require } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
 
 lazy_require(this, {
-  Manifest() {
-    return require('azk/manifest').Manifest;
-  },
+  Manifest: ['azk/manifest'],
 });
 
 class Cmd extends Command {
@@ -31,12 +29,7 @@ class Cmd extends Command {
   }
 
   action(opts) {
-    return async(this, function* () {
-      if (config('agent:requires_vm')) {
-        yield Helpers.requireAgent();
-      }
-      return yield this.run_docker(opts);
-    });
+    return this.run_docker(opts);;
   }
 }
 

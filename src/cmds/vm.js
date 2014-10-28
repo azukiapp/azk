@@ -3,13 +3,8 @@ import { Command, Helpers } from 'azk/cli/command';
 import { net } from 'azk/utils';
 
 lazy_require(this, {
-  VM() {
-    return require('azk/agent/vm').VM;
-  },
-
-  Server() {
-    return require('azk/agent/server').Server;
-  },
+  VM: ['azk/agent/vm'],
+  Server: ['azk/agent/server'],
 });
 
 class RequiredError extends Error {
@@ -59,8 +54,9 @@ class VmCmd extends Command {
   action_ssh(vm_info, opts) {
     this.require_running(vm_info);
     return async(this, function* () {
-      var configs  = yield Helpers.configure(this);
-      var ssh_url  = `${config('agent:vm:user')}@${configs['agent:vm:ip']}`;
+      yield Helpers.requireAgent(this);
+
+      var ssh_url  = `${config('agent:vm:user')}@${config('agent:vm:ip')}`;
       var ssh_opts = "StrictHostKeyChecking=no -o LogLevel=quiet -o UserKnownHostsFile=/dev/null"
       var args     = opts.__leftover.join(`" "`);
       var script   = `ssh -i ${config('agent:vm:ssh_key')} -o ${ssh_opts} ${ssh_url} "${args}"`
