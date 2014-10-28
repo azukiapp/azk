@@ -6,13 +6,12 @@
 //addImage('base', { repository: "cevich/empty_base_image" }); // tag: latest
 
 
-  var join = require('path').join;
+var lodash = require('lodash');
+var join   = require('path').join;
 var config = require('azk').config;
 
 var mounts = (function() {
-  var _    = require('lodash');
   var glob = require('glob');
-
   var mounts = {
     "/.tmux.conf"      : join(env.HOME, ".tmux.conf"),
     "/azk/demos"       : "../demos",
@@ -25,7 +24,7 @@ var mounts = (function() {
   }
 
   var itens = glob.sync("./!(lib|data|node_modules|npm-debug.log)");
-  mounts = _.reduce(itens, function(mount, item) {
+  mounts = lodash.reduce(itens, function(mount, item) {
     var key = join("/azk", "#{manifest.dir}", item);
     mount[key] = item;
     return mount;
@@ -34,8 +33,10 @@ var mounts = (function() {
   return mounts;
 })();
 
-var agent_system = function(image) {
-  return {
+var agent_system = function(image, extras) {
+  extras = extras || {};
+
+  return lodash.merge({
     image: image,
     provision: [
       "azk check-install",
@@ -58,7 +59,7 @@ var agent_system = function(image) {
     docker_extra: {
       start: { Privileged: true },
     }
-  };
+  }, extras);
 }
 
 var test_package_system = function(image){
@@ -86,7 +87,9 @@ systems({
   'dind-ubuntu': agent_system('azukiapp/dind:ubuntu14'),
   'dind-fedora': agent_system('azukiapp/dind:fedora20'),
 
-  package: agent_system('azukiapp/fpm'),
+  package: agent_system('azukiapp/fpm', {
+    shell: "/bin/bash",
+  }),
   'pkg-ubuntu12-test': test_package_system('azukiapp/dind:ubuntu12'),
   'pkg-ubuntu14-test': test_package_system('azukiapp/dind:ubuntu14'),
   'pkg-fedora-test': test_package_system('azukiapp/dind:fedora20'),
