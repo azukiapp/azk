@@ -21,6 +21,7 @@ var mounts = (function() {
     "/var/lib/docker"  : persistent('docker_files-#{system.name}'),
     "/azk/#{manifest.dir}/node_modules": persistent('node_modules-#{system.name}'),
     "/azk/#{manifest.dir}/.nvmrc" : ".nvmrc",
+    "/root/.aptly.conf": path("./src/libexec/aptly.json"),
   }
 
   var itens = glob.sync("./!(lib|data|node_modules|npm-debug.log)");
