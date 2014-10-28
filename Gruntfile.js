@@ -69,7 +69,7 @@ module.exports = function(grunt) {
       },
       public_mac_package: {
         files: [
-          {expand: true, cwd: "./package", src: ['*.tar.gz'], stream: true },
+          {expand: true, cwd: "./package", src: ['*.tar.gz'], dest: "./mac/", stream: true },
         ],
       },
     },

@@ -30,7 +30,7 @@ usage() {
 azk_shell() {
   system="$1"; shift
   set -x
-  azk shell $system --shell=/bin/sh -c "$@";
+  ${AZK_ROOT_PATH}/bin/azk shell $system --shell=/bin/sh -c "$@";
   set +x
 }
 
