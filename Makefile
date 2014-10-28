@@ -6,6 +6,8 @@ AZK_LIB_PATH:=${AZK_ROOT_PATH}/lib
 AZK_NPM_PATH:=${AZK_ROOT_PATH}/node_modules
 NVM_BIN_PATH:=${AZK_ROOT_PATH}/src/libexec/nvm.sh
 
+AZK_BIN:=${AZK_ROOT_PATH}/bin/azk
+
 # default target
 all: bootstrap
 
@@ -18,13 +20,13 @@ ${AZK_LIB_PATH}/azk: ${AZK_ROOT_PATH}/src ${AZK_NPM_PATH}/.installed
 	@echo "task: $@"
 	@export AZK_LIB_PATH=${AZK_LIB_PATH} && \
 		export AZK_NPM_PATH=${AZK_NPM_PATH} && \
-		azk nvm grunt newer:traceur
+		${AZK_BIN} nvm grunt newer:traceur
 
 ${AZK_NPM_PATH}/.installed: package.json ${NODE}
 	@echo "task: $@"
 	@mkdir -p ${AZK_NPM_PATH}
 	@export AZK_LIB_PATH=${AZK_LIB_PATH} && \
-		azk nvm npm install && \
+		${AZK_BIN} nvm npm install && \
 		touch ${AZK_NPM_PATH}/.installed
 
 ${NODE}:
@@ -72,7 +74,7 @@ package_clean:
 ${PATH_NODE_MODULES}: copy_files ${PATH_USR_LIB_AZK}/package.json ${NODE_PACKAGE}
 	@echo "task: $@"
 	@mkdir -p ${PATH_NODE_MODULES}/..
-	@cd ${PATH_USR_LIB_AZK} && azk nvm npm install --production
+	@cd ${PATH_USR_LIB_AZK} && ${AZK_BIN} nvm npm install --production
 
 ${NODE_PACKAGE}:
 	@echo "task: $@"
