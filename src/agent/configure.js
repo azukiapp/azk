@@ -312,8 +312,11 @@ export class Configure extends UIProxy {
   }
 
   _getDockerIp() {
+    // inet end.: 172.17.42.1  Bcast:0.0.0.0  Masc:255.255.0.0  Ubuntu 14
+    // inet addr:10.0.42.1  Bcast:0.0.0.0  Mask:255.255.0.0     Ubuntu 12
+    // inet 10.0.42.1  netmask 255.255.0.0  broadcast 0.0.0.0   Fedora 20
+    var regex = /inet\s?(?:addr:|end\.:\s){0,1}(.*?)\s/m;
     var cmd   = "/sbin/ifconfig docker0";
-    var regex = /inet\s(?:addr:){0,1}(.*?)\s.*(?:Mask|netmask)/m;
 
     return Q.nfcall(exec, cmd)
       .spread((stdout) => {
