@@ -2,7 +2,7 @@
   "rootDir": "/azk/azk/package/aptly",
   "downloadConcurrency": 4,
   "downloadSpeedLimit": 0,
-  "architectures": [],
+  "architectures": ["amd64"],
   "dependencyFollowSuggests": false,
   "dependencyFollowRecommends": false,
   "dependencyFollowAllVariants": false,
