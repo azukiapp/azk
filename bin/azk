@@ -46,7 +46,6 @@ unset DOCKER_HOST
 
 make_data_folders() {
   data_folders=(
-    "$NVM_DIR"
     "$AZK_DATA_PATH"
     "$AZK_DATA_PATH/ns"
     "$AZK_DATA_PATH/run"
