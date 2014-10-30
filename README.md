@@ -116,6 +116,19 @@ azk: 'Azkfile.js' generated
 $ azk start
 ```
 
+## (important) Update from azk <= 0.5.1
+
+Before version `0.6.0` `azk` was considered alpha, but now it happens to be in beta version and can be installed and updated by installation packages. For those who have tested, before installing the beta version, please perform the following procedure before installing the new version:
+
+```bash
+$ cd ~/.azk
+$ ./bin/azk agent stop
+$ command ls | grep -v data | xargs rm -rf
+$ sudo rm /etc/resolver/azk.dev
+```
+
+And after to remove `~/.azk/bin` from your path, you can install new `azk` version.
+
 ## Installation
 
 ### Requirements
@@ -156,46 +169,38 @@ After install [docker](http://docs.docker.com/installation), check if session "n
 
 ##### Ubuntu Trusty 14.04 (LTS) (64-bit)
 
-Add the Azuki repository to your apt sources list, update and install the `azk` package.
+Add the Azuki repository to your apt sources list, update and install the `azk` package:
 
 ```bash
-$ echo "deb [trusted=yes] http://repo.azukiapp.com/azuki-trusty/ /" | sudo tee /etc/apt/sources.list.d/azk.list
+$ echo "deb [trusted=yes] http://repo.azukiapp.com trusty main" | \
+  sudo tee /etc/apt/sources.list.d/azk.list
 $ sudo apt-get update
 $ sudo apt-get azk
 ```
 
 ##### Ubuntu Precise 12.04 (LTS) (64-bit)
 
-Add the Azuki repository to your apt sources list, update and install the `azk` package.
+Add the Azuki repository to your apt sources list, update and install the `azk` package:
 
 ```bash
-$ echo "deb [trusted=yes] http://repo.azukiapp.com/azuki-precise/ /" | sudo tee /etc/apt/sources.list.d/azk.list
+$ echo "deb [trusted=yes] http://repo.azukiapp.com precise main " | \ 
+  sudo tee /etc/apt/sources.list.d/azk.list
 $ sudo apt-get update
 $ sudo apt-get azk
 ```
 
 ##### Fedora 20
 
-Add Azuki package resource list file:
+Add Azuki package resource list file, and install `azk` package:
 
 ```bash
-$ [sudo] touch /etc/yum.repos.d/azuki.repo
-```
-
-Include this line on `/etc/yum.repos.d/azuki.repo` file:
-
-```
-[azuki]
+$ echo "[azuki]
 name=azk
-baseurl=http://repo.azukiapp.com/azuki-fedora20/
+baseurl=http://repo.azukiapp.com//fedora20
 enabled=1
 gpgcheck=0
-```
-
-Update sources and install libnss-resolver, docker and azk:
-
-```bash
-$ [sudo] yum install docker-io libnss-resolver azk
+" > /etc/yum.repos.d/azuki.repo
+$ sudo yum install azk
 ```
 
 <a name="install_from_source"/>
@@ -206,9 +211,9 @@ $ [sudo] yum install docker-io libnss-resolver azk
 2. Check out `azk` into `~/.azk`.
 
   ```bash
-  $ git clone -b master https://github.com/azukiapp/azk.git ~/.azk
+  $ git clone https://github.com/azukiapp/azk.git ~/.azk
   $ cd ~/.azk
-  $ make bootstrap
+  $ make
   ```
 
 3. Add `~/.azk/bin` to your $PATH for access to the `azk` command-line utility.
@@ -228,18 +233,6 @@ $ [sudo] yum install docker-io libnss-resolver azk
   ```bash
   $ azk agent start
   ```
-
-## Update from azk <= 0.5.1
-
-Before install new version:
-
-```bash
-$ azk agent stop
-$ cd ~/.azk
-$ ./bin/azk nvm node -e "console.log(require('glob').sync('./\!(data)', { dot: true }).join(' '))" | xargs rm -rf
-```
-
-Now you can install new `azk` version.
 
 ## Usage/Features
 
