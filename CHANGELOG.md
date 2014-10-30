@@ -3,15 +3,19 @@
 ## v0.6.0 - dev
 
 * Enhancements
-  * [Manifest] Replacing `mount_folders` and `persistent_folders` for `mounts`;
-  * [Manifest] Replacing `http.hostname` for `http.domains` to support multiples alias;
-  * [Manifest] Now support `limit` in scalable to set max instances of the systems;
+  * [Manifest] Replacing `mount_folders` and `persistent_folders` with `mounts`;
+  * [Manifest] Replacing `http.hostname` with `http.domains` to support multiples alias;
+  * [Manifest] Show depracations warnings;
+  * [Manifest] Now support `scalable.limit` to set max instances of the systems;
   * [Cli] Refactoring `bin/azk` to simplify `azk` execution;
   * [Agent] Moving `bin/azk` checks to agent start process;
-  * [Agent] Warn when using an old AZK version;
+  * [Agent] Warn when using an old `azk` version;
+  * [Agent] Improve agent checks before starting;
   * [Code] Adding Makefile with `bootstrap` and `package_*` targets; 
-  * [Code] Upgrading `traceur` and removing transpiler files from `lib/azk`;
-  * [Install] Replacing install by source from brew formula in Mac OS X;
+  * [Code] Upgrading `traceur` and removing transpiled files from `lib/azk`;
+  * [Install] Replacing install by source with `brew` formula in Mac OS X;
+  * [Install] Replacing install by source with packages in Ubuntu and Fedora;
+  * [Docker] Upgrading to v1.2.0;
 
 ## v0.5.1 - (2014-11-10)
 
