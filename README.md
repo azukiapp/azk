@@ -170,9 +170,9 @@ If you are running a service on ports `80` or/and `53` you can customize the con
 
 1. Install docker
 
-  - [install the docker](https://docs.docker.com/installation/ubuntulinux/#installation)
+  - [install **latest version of Docker**](https://docs.docker.com/installation/ubuntulinux/#installation)
   - check if docker service is running;
-  - [giving non root access](https://docs.docker.com/installation/ubuntulinux/#giving-non-root-access) for yours user;
+  - configure your user [giving non root access](https://docs.docker.com/installation/ubuntulinux/#giving-non-root-access);
   - [fix dns service](https://docs.docker.com/installation/ubuntulinux/#docker-and-local-dns-server-warnings);
 
 2. Then, add the Azuki repository key to your local keychain.
@@ -186,7 +186,7 @@ If you are running a service on ports `80` or/and `53` you can customize the con
 
   ```bash
   $ echo "deb [arch=amd64] http://repo.azukiapp.com trusty main" | \
-    sudo tee /etc/apt/sources.list.d/azk.list
+    sudo tee /etc/apt/sources.list.d/azuki.list
   ```
 
 4. Update and install the `azk` and dependencies packages:
@@ -200,7 +200,7 @@ If you are running a service on ports `80` or/and `53` you can customize the con
 
 1. Install docker
 
-  - [install the docker](https://docs.docker.com/installation/ubuntulinux/#ubuntu-precise-1204-lts-64-bit)
+  - [install **latest version of Docker**](https://docs.docker.com/installation/ubuntulinux/#ubuntu-precise-1204-lts-64-bit)
   - check if docker service is running;
   - [giving non root access](https://docs.docker.com/installation/ubuntulinux/#giving-non-root-access) for yours user;
 
@@ -215,7 +215,7 @@ If you are running a service on ports `80` or/and `53` you can customize the con
 
   ```bash
   $ echo "deb [arch=amd64] http://repo.azukiapp.com precise main" | \
-    sudo tee /etc/apt/sources.list.d/azk.list
+    sudo tee /etc/apt/sources.list.d/azuki.list
   ```
 
 4. Update and install the `azk` and dependencies packages:
