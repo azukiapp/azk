@@ -1,10 +1,15 @@
-import { log, _, async, defer, config, Q, t } from 'azk';
+import { log, _, async, defer, config, Q, t, lazy_require } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
-import { Manifest } from 'azk/manifest';
-import { ReadableStream } from 'memory-streams';
-import docker from 'azk/docker';
 
-var moment  = require('moment');
+lazy_require(this, {
+  Manifest() {
+    return require('azk/manifest').Manifest;
+  },
+
+  docker() {
+    return require('azk/docker').default;
+  }
+});
 
 class Cmd extends Command {
   action(opts) {
@@ -41,9 +46,6 @@ class Cmd extends Command {
 
       return container.logs(options).then((stream) => {
         return defer((resolve, reject) => {
-          //if (_.isString(stream)) {
-            //stream = new ReadableStream(new Buffer(stream));
-          //}
           container.modem.demuxStream(stream, stdout, stderr);
           stream.on('end', resolve);
         });

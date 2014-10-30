@@ -23,11 +23,8 @@ export class SSH {
           done.notify({ type: "ssh", context, data });
         });
 
-        stream.on('exit', (code) => {
-          log.debug("agent vm ssh result: %s", code);
-          done.resolve(code);
-          process.nextTick(() => client.end());
-        });
+        stream.on('end', () => { client.end(); });
+        stream.on('exit', (code) => { client.exitcode = code });
       });
     });
   }
@@ -60,6 +57,13 @@ export class SSH {
       return defer((done) => {
         var client    = new ssh2();
         var exit_code = 0;
+        var options   = {
+          host: this.host,
+          port: this.port,
+          username: config("agent:vm:user"),
+          readyTimeout: ssh_timeout,
+          password: config("agent:vm:password"),
+        };
 
         client.on("ready", () => {
           done.notify({ type: 'connected' });
@@ -67,16 +71,10 @@ export class SSH {
           callback(client, done);
         });
 
-        client.on('end', () => { done.resolve(); });
-        client.on('error', (err) => done.reject(err));
+        client.on('end', () => { done.resolve(client.exitcode); });
+        client.on('error', (err) => { done.reject(err); });
 
-        client.connect({
-          host: this.host,
-          port: this.port,
-          username: config("agent:vm:user"),
-          readyTimeout: ssh_timeout,
-          password: config("agent:vm:password"),
-        });
+        client.connect(options);
       });
     }
 

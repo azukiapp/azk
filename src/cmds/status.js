@@ -1,9 +1,11 @@
-import { log, _, async, config, t } from 'azk';
+import { log, _, async, config, t, lazy_require } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
-import { Manifest } from 'azk/manifest';
 import { SYSTEMS_CODE_ERROR, NotBeenImplementedError } from 'azk/utils/errors';
 
-var moment = require('moment');
+lazy_require(this, {
+  Manifest: ['azk/manifest'],
+  moment: 'moment',
+});
 
 class Cmd extends Command {
   action(opts) {
@@ -11,15 +13,21 @@ class Cmd extends Command {
       yield Helpers.requireAgent();
 
       var manifest = new Manifest(this.cwd, true);
+      Helpers.manifestValidate(this, manifest);
       var systems  = manifest.getSystemsByName(opts.system);
 
-      yield Cmd.status(this, manifest, systems);
+      yield Cmd.status(this, manifest, systems, opts);
     });
   }
 
-  static status(cli, manifest, systems) {
+  static status(cli, manifest, systems, opts = {}) {
     return async(cli, function* () {
       var columns = ['', 'System'.blue, 'Instancies'.green, 'Hostname'.yellow, 'Instances-Ports'.magenta, "Provisioned".cyan];
+
+      if (opts.long) {
+        columns.push('Image'.white);
+      }
+
       var table_status = this.table_add('table_status', { head: columns });
 
       for (var system of systems) {
@@ -33,13 +41,16 @@ class Cmd extends Command {
         var ports   = yield Cmd._ports_map(system, instances);
         var name    = instances.length > 0 ? `${system.name}`.green : `${system.name}`.red;
         var status  = instances.length > 0 ? `↑`.green : `↓`.red;
-        var counter = system.scalable ? instances.length.toString().blue : 'n/s'.red;
+        var counter = instances.length.toString().blue;
 
         // Provisioned
         var provisioned = system.provisioned;
         provisioned = provisioned ? moment(provisioned).fromNow() : "-";
 
-        var line   = [status, name, counter, hostname, ports.join(', '), provisioned];
+        var line = [status, name, counter, hostname, ports.join(', '), provisioned];
+        if (opts.long) {
+          line.push(system.image.name.white);
+        }
         this.table_push(table_status, line);
       }
 
@@ -68,6 +79,7 @@ class Cmd extends Command {
 
 export { Cmd };
 export function init(cli) {
-  (new Cmd('status [system]', cli));
+  (new Cmd('status [system]', cli))
+    .addOption(['--long', '-l'], { default: false });
 }
 

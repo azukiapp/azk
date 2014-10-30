@@ -1,5 +1,4 @@
-import { _, t, log } from 'azk';
-import { Client } from 'azk/agent/client';
+import { _, t, log, lazy_require, config } from 'azk';
 import { AgentNotRunning } from 'azk/utils/errors';
 
 var fmt_p = t('commands.helpers.pull.bar_progress');
@@ -11,7 +10,34 @@ var bar_opts = {
   , total: 100
 }
 
+lazy_require(this, {
+  AgentClient: ['azk/agent/client', 'Client'],
+  Configure: ['azk/agent/configure', 'Configure'],
+});
+
 var Helpers = {
+  requireAgent() {
+    return AgentClient.require();
+  },
+
+  configure(cli) {
+    cli.ok('configure.loading_checking');
+    return (new Configure(cli))
+      .run()
+      .then((configs) => {
+        cli.ok('configure.loaded');
+        return configs;
+      });
+  },
+
+  manifestValidate(cmd, manifest) {
+    if (config('flags:show_deprecate')) {
+      _.each(manifest.validate(), (error) => {
+        cmd[error.level](`manifest.validate.${error.key}`, error);
+      });
+    }
+  },
+
   vmStartProgress(cmd) {
     return (event) => {
       if (!event) return;
@@ -28,13 +54,18 @@ var Helpers = {
               cmd.fail([...keys, event.status], event.data);
               break;
             case "error":
-              cmd.fail([...keys, event.status], event);
+              if (event.data instanceof Error) {
+                cmd.fail(event.data.toString())
+              } else {
+                cmd.fail([...keys, event.status], event);
+              }
               break;
             default:
-              if (event.status == "starting") {
-                cmd.warning([...keys, "wait"], event.data);
+              if (event.keys) {
+                cmd[event.status || "ok"](event.keys, event.data);
+              } else {
+                cmd.ok([...keys, event.status], event.data);
               }
-              cmd.ok([...keys,  event.status], event.data);
           }
           break;
         case "try_connect":
@@ -49,14 +80,6 @@ var Helpers = {
           log.debug(event);
       }
     };
-  },
-
-  requireAgent() {
-    return Client.status().then((status) => {
-      if (!status.agent) {
-        throw new AgentNotRunning();
-      }
-    });
   },
 
   newPullProgress(cmd) {

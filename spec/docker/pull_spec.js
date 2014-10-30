@@ -1,5 +1,4 @@
 import { Q, _, config, defer } from 'azk';
-import docker from 'azk/docker';
 import { Image } from 'azk/docker';
 import h from 'spec/spec_helper';
 import { ProvisionNotFound, ProvisionPullError } from 'azk/utils/errors';
@@ -13,7 +12,7 @@ describe("Azk docker module, image pull @slow", function() {
   it("should get a image by name", function() {
     var image  = Image.parseRepositoryTag(image_empty);
     var events = [];
-    return docker.pull(image.repository, image.tag)
+    return h.docker.pull(image.repository, image.tag)
       .progress((event) => events.push(event))
       .then(() => {
         var status = [
@@ -33,12 +32,12 @@ describe("Azk docker module, image pull @slow", function() {
   });
 
   it("should raise error to not found image", function() {
-    var result = docker.pull('not_found', 'not_exist');
+    var result = h.docker.pull('not_found', 'not_exist');
     return h.expect(result).to.be.rejectedWith(ProvisionNotFound);
   });
 
   it("should raise error to internal error", function() {
-    var result = docker.pull('http://127.0.0.1/invalid', 'not_exist');
+    var result = h.docker.pull('http://127.0.0.1/invalid', 'not_exist');
     return h.expect(result).to.be.rejectedWith(Error, /500/);
   });
 });

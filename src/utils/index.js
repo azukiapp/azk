@@ -1,21 +1,32 @@
-import { join, basename, dirname } from 'path';
 import { i18n } from 'azk/utils/i18n';
 
+var { join, basename, dirname } = require('path');
 var crypto = require('crypto');
-var Q    = require('q');
-var _    = require('lodash');
-var fs   = require('fs');
-var zlib = require('zlib');
+var Q      = require('q');
+var _      = require('lodash');
+var fs     = require('fs');
+var zlib   = require('zlib');
 
 var Utils = {
+  __esModule: true,
+
   get default() { return Utils },
   get i18n()    { return i18n; },
   get Q()       { return Q; },
   get _()       { return _; },
   get net()     { return require('azk/utils/net').default },
+  get docker()  { return require('azk/utils/docker').default },
 
   envs(key, defaultValue = null) {
-    return process.env[key] || defaultValue;
+    return process.env[key] || (_.isFunction(defaultValue) ? defaultValue() : defaultValue);
+  },
+
+  mergeConfig(options) {
+    _.each(options, (values, key) => {
+      if (key != '*')
+        options[key] = _.merge({}, options['*'], values);
+    });
+    return options;
   },
 
   cd(target, func) {

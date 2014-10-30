@@ -5,71 +5,113 @@
 // Global image to reuse
 //addImage('base', { repository: "cevich/empty_base_image" }); // tag: latest
 
-var path   = require('path');
-var fs     = require('fs');
-var glob   = require('glob');
+
+var lodash = require('lodash');
+var join   = require('path').join;
 var config = require('azk').config;
-var _      = require('lodash');
 
-var itens = glob.sync("./!(lib|data|node_modules|npm-debug.log)");
-var mount = _.reduce(itens, function(mount, item) {
-  mount[item] = path.join("/azk", "#{manifest.dir}", item);
-  return mount;
-}, {});
+var mounts = (function() {
+  var glob = require('glob');
+  var mounts = {
+    "/.tmux.conf"      : join(env.HOME, ".tmux.conf"),
+    "/azk/demos"       : "../demos",
+    "/azk/build"       : persistent('build-#{system.name}'),
+    "/azk/lib"         : persistent('lib-#{system.name}'),
+    "/azk/data"        : persistent('data-#{system.name}'),
+    "/var/lib/docker"  : persistent('docker_files-#{system.name}'),
+    "/azk/#{manifest.dir}/node_modules": persistent('node_modules-#{system.name}'),
+    "/azk/#{manifest.dir}/.nvmrc" : ".nvmrc",
+    "/root/.aptly.conf": path("./src/libexec/aptly.json"),
+  }
 
-if (fs.existsSync("../demos")) {
-  mount["../demos"] = "/azk/demos";
-}
+  var itens = glob.sync("./!(lib|data|node_modules|npm-debug.log)");
+  mounts = lodash.reduce(itens, function(mount, item) {
+    var key = join("/azk", "#{manifest.dir}", item);
+    mount[key] = item;
+    return mount;
+  }, mounts);
 
-var tmuxrc = path.join(env.HOME, ".tmux.conf");
-if (fs.existsSync(tmuxrc)) {
-  mount[tmuxrc] = "/.tmux.conf";
-}
+  return mounts;
+})();
 
-var agent_system = function(image) {
-  return {
+var agent_system = function(image, extras) {
+  extras = extras || {};
+
+  return lodash.merge({
     image: image,
-    provision: [
-      "azk check-install",
-    ],
     scale: false,
     workdir: "/azk/#{manifest.dir}",
     shell: "/usr/local/bin/wrapdocker",
-    mount_folders: mount,
-    persistent_folders: [
-      "/azk/lib",
-      "/azk/#{manifest.dir}/node_modules",
-      "/azk/data",
-      "/var/lib/docker",
-    ],
+    mounts: mounts,
     envs: {
       PATH: "/azk/#{manifest.dir}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
       AZK_DATA_PATH: "/azk/data",
       AZK_LIB_PATH : "/azk/lib",
-      AZK_BALANCER_HOST: "azk.linux",
-      AZK_DOCKER_NS    : "azk.linux",
+      AZK_NAMESPACE: "azk.linux",
+      AZK_PACKAGE_PATH: "/azk/build",
       AZK_BALANCER_PORT: 8080,
-      //EXTRA_ARGS       : "-H tcp://0.0.0.0:2375 -H unix://",
       LOG: "file",
       NODE_ENV: "test",
-      EXTRA_SCRIPT: "/azk/#{manifest.dir}/src/share/init_azk",
+      EXTRA_SCRIPT: "/azk/#{manifest.dir}/src/libexec/init_azk",
+      VERSION: "0.6.0",
     },
     docker_extra: {
       start: { Privileged: true },
     }
-  };
+  }, extras);
+}
+
+var test_package_system = function(image){
+  return {
+    depends: ["package"],
+    image: image,
+    workdir: "/azk/#{manifest.dir}",
+    shell: "/usr/local/bin/wrapdocker",
+    mounts: {
+      "/azk/demos"          : "../demos",
+      "/azk/#{manifest.dir}": ".",
+      "/azk/data"           : persistent('data-#{system.name}'),
+      "/var/lib/docker"     : persistent('docker_files-#{system.name}'),
+    },
+    envs: {
+      AZK_DATA_PATH: "/azk/data",
+      LOG: "file", // Log docker to file
+    },
+    docker_extra: {
+      start: { Privileged: true },
+    }
+  }
 }
 
 systems({
-
   'dind-ubuntu': agent_system('azukiapp/dind:ubuntu14'),
   'dind-fedora': agent_system('azukiapp/dind:fedora20'),
+
+  package: agent_system('azukiapp/fpm', {
+    provision: [
+      "cd package/aptly/public",
+      "[ -L fedora20 ] || ( ln -s ../../fedora20 )",
+    ],
+    shell: "/bin/bash",
+    command: "aptly serve",
+    scalable: { default: 0 },
+    http: {
+      domains: ["#{system.name}.azk.#{azk.default_domain}"],
+    },
+    ports: {
+      http: "8080/tcp",
+    },
+  }),
+
+  'pkg-ubuntu12-test': test_package_system('azukiapp/dind:ubuntu12'),
+  'pkg-ubuntu14-test': test_package_system('azukiapp/dind:ubuntu14'),
+  'pkg-fedora-test': test_package_system('azukiapp/dind:fedora20'),
 
   grunt: {
     image: "dockerfile/nodejs",
     workdir: "/azk/#{manifest.dir}",
-    mount_folders: {
-      ".": "/azk/#{manifest.dir}",
+    mounts: {
+      "/azk/#{manifest.dir}": ".",
     },
     envs: {
       PATH: "/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/azk/#{manifest.dir}/node_modules/.bin"
@@ -82,35 +124,14 @@ systems({
       //'export INSTALL_DIR=/azk/<%= manifest.dir %>/vendor/python',
       //'pip install --target=$INSTALL_DIR --install-option="--install-scripts=$INSTALL_DIR/bin" sphinx',
     //],
-    workdir: "/azk/<%= manifest.dir %>",
-    mount_folders: {
-      ".": "/azk/<%= manifest.dir %>",
+    workdir: "/azk/#{manifest.dir}",
+    mounts: {
+      "/azk/#{manifest.dir}": ".",
     },
     //envs: {
       //PYTHONPATH: "/azk/<%= manifest.dir %>/vendor/python",
       //PATH: "/bin:/sbin:/usr/bin:/usr/sbin:/azk/<%= manifest.dir %>/vendor/python/bin"
     //}
-  },
-
-  dns: {
-    image: config("docker:image_default"),
-    shell: '/bin/bash',
-    command: "dnsmasq -p $DNS_PORT --no-daemon --address=/#{azk.default_domain}/#{azk.balancer_ip}",
-    wait: false,
-    ports: {
-      dns: "53:53/udp",
-      80: disable,
-    }
-  },
-
-  'balancer-redirect': {
-    image: config("docker:image_default"),
-    shell: '/bin/bash',
-    command: "env; socat TCP4-LISTEN:$HTTP_PORT,fork TCP:$BALANCER_IP:$BALANCER_PORT",
-    ports: {
-      http: "#{azk.balancer_port}:#{azk.balancer_port}/tcp",
-      53: disable,
-    }
   },
 });
 

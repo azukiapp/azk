@@ -1,6 +1,15 @@
-import { _, config, fs, path, async } from 'azk';
+import { _, config, fs, path, async, lazy_require } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
-import { Generator, example_system } from 'azk/generator';
+
+lazy_require(this, {
+  Generator() {
+    return require('azk/generator').Generator;
+  },
+
+  example_system() {
+    return require('azk/generator').example_system;
+  }
+});
 
 class Cmd extends Command {
   action(opts) {

@@ -1,8 +1,13 @@
-import { log, t, _, async, config, t } from 'azk';
-import { Manifest } from 'azk/manifest';
+import { log, t, _, async, config, t, lazy_require } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
 import { VerboseCmd } from 'azk/cli/verbose_cmd';
 import { Cmd as StatusCmd } from 'azk/cmds/status';
+
+lazy_require(this, {
+  Manifest() {
+    return require('azk/manifest').Manifest;
+  },
+});
 
 class Cmd extends VerboseCmd {
   action(opts) {
@@ -10,6 +15,7 @@ class Cmd extends VerboseCmd {
       yield Helpers.requireAgent();
 
       var manifest = new Manifest(this.cwd, true);
+      Helpers.manifestValidate(this, manifest);
       var systems  = manifest.getSystemsByName(opts.system);
 
       yield this[`${this.name}`](manifest, systems, opts);

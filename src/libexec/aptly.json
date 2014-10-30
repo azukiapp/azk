@@ -1,0 +1,22 @@
+{
+  "rootDir": "/azk/azk/package/aptly",
+  "downloadConcurrency": 4,
+  "downloadSpeedLimit": 0,
+  "architectures": ["amd64"],
+  "dependencyFollowSuggests": false,
+  "dependencyFollowRecommends": false,
+  "dependencyFollowAllVariants": false,
+  "dependencyFollowSource": false,
+  "gpgDisableSign": false,
+  "gpgDisableVerify": false,
+  "downloadSourcePackages": false,
+  "ppaDistributorID": "ubuntu",
+  "ppaCodename": "",
+  "S3PublishEndpoints": {
+    "repo.azukiapp.com":{
+       "region":"sa-east-1",
+       "bucket":"repo.azukiapp.com",
+       "acl":"public-read"
+    }
+  }
+}

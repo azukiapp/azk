@@ -44,7 +44,45 @@ module.exports = function(grunt) {
     env: {
       test: {
         NODE_ENV: "test",
+      },
+      aws: {
+        src: ".env",
       }
+    },
+
+    aws: {
+      "accessKeyId" : process.env.AWS_ACCESS_KEY_ID,
+      "secretKey"   : process.env.AWS_SECRET_KEY,
+      "bucket"      : process.env.AWS_BUCKET,
+    },
+
+    aws_s3: {
+      options: {
+        accessKeyId         : '<%= aws.accessKeyId %>',
+        secretAccessKey     : '<%= aws.secretKey %>',
+        region              : 'sa-east-1',
+        uploadConcurrency   : 5,
+        downloadConcurrency : 5,
+        bucket              : '<%= aws.bucket %>',
+        differential        : true,
+        displayChangesOnly  : true,
+      },
+      public_mac_package: {
+        files: [
+          {expand: true, cwd: "./package", src: ['*.tar.gz'], dest: "./mac/", stream: true },
+          {expand: true, cwd: "./package/aptly/public", src: ['**/*'], stream: true },
+          {expand: true, cwd: "./package/fedora20", src: ['**/*'], dest: "./fedora20/", stream: true },
+          {expand: true, cwd: "./src/libexec/gpg", src: ['azuki.asc'], dest: "./keys/", stream: true },
+        ],
+      },
+    },
+
+    // Downloads
+    'curl-dir': {
+      'brace-expansion': {
+        src: [ "https://s3-sa-east-1.amazonaws.com/azk/azk{.iso,-agent.vmdk.gz}" ],
+        dest: lib + '/vm',
+      },
     },
 
     // Configuration to be run (and then tested).
@@ -94,12 +132,15 @@ module.exports = function(grunt) {
           timeout: 50000,
           grep: test_grep,
         },
-        src: [lib + 'spec/**/*_spec.js']
+        src: [lib + '/spec/**/*_spec.js']
       }
     },
 
     watch: {
       spec: {
+        options: {
+          atBegin: true,
+        },
         files: [
           'Gruntfile.js',
           'src/**/*.js',
@@ -109,12 +150,26 @@ module.exports = function(grunt) {
       },
 
       traceur: {
+        options: {
+          atBegin: true,
+        },
         files: [
           'Gruntfile.js',
           'src/**/*.js',
           'spec/**/*.js',
         ],
         tasks: ['clear', 'newer:traceur']
+      }
+    },
+
+    exec: {
+      'build': {
+        'cmd': function(system) {
+          return 'azk shell ' + system + ' --shell=/bin/bash -c "azk nvm grunt newer:traceur"';
+        },
+      },
+      'public_mac_package': {
+        'cmd': "grunt aws_s3:public_mac_package"
       }
     },
   });
@@ -127,12 +182,14 @@ module.exports = function(grunt) {
     process.stdout.write('\u001B[2J\u001B[0;0f');
   });
 
+  grunt.registerTask('vm-download', [ 'curl-dir:brace-expansion' ]);
   grunt.registerTask('test', ['env:test', 'clear', 'newer:traceur', 'mochaTest:test']);
   grunt.registerTask('slow_test', ['env:test', 'clear', 'newer:traceur', 'mochaTest:slow_test']);
-  grunt.registerTask('compile', ['clear', 'newer:traceur', 'watch:traceur']);
+  grunt.registerTask('compile', ['watch:traceur']);
   grunt.registerTask('inspector', ["node-inspector"]);
+  grunt.registerTask('public', ["env:aws", "exec:public_mac_package"]);
   grunt.registerTask('default', function() {
     key_watch(grunt);
-    return grunt.task.run([test_task, 'watch:spec']);
+    return grunt.task.run(['watch:spec']);
   });
 };

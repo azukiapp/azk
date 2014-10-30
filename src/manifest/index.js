@@ -1,9 +1,6 @@
-import { sync as parent } from 'parentpath';
-import { path, fs, config, _, t } from 'azk';
-import { runInNewContext, createScript } from 'vm';
+import { path, fs, config, _, t, lazy_require } from 'azk';
 import { System } from 'azk/system';
-import { createSync as createCache } from 'fscache';
-import { sync as mkdir } from 'mkdirp';
+import { Validate } from 'azk/manifest/validate';
 import { ManifestError, ManifestRequiredError, SystemNotFoundError } from 'azk/utils/errors';
 import Utils from 'azk/utils';
 
@@ -11,12 +8,30 @@ var file_name = config('manifest');
 var check     = require('syntax-error');
 var tsort     = require('gaia-tsort');
 
+lazy_require(this, {
+  mkdir          : ['mkdirp', 'sync'],
+  parent         : ['parentpath', 'sync'],
+  runInNewContext: ['vm'],
+  createScript   : ['vm'],
+  createCache    : ['fscache', 'createSync'],
+});
+
 var ManifestDsl = {
   console: console,
   require: require,
   env: process.env,
   disable: null,
 
+  // Mounts
+  path(folder) {
+    return { type: 'path', value: folder }
+  },
+
+  persistent(name) {
+    return { type: 'persistent', value: name }
+  },
+
+  // Systems
   system(name, data) {
     this.addSystem(name, data);
   },
@@ -27,12 +42,17 @@ var ManifestDsl = {
     });
   },
 
+  // Extra options
   addImage(name, image) {
     this.images[name] = image;
   },
 
   registerBin(name, ...args) {
     this.bins[name] = [...args];
+  },
+
+  setCacheDir(dir) {
+    this.cache_dir = dir;
   },
 
   setDefault(name) {
@@ -103,7 +123,16 @@ export class Manifest {
     if (required && !this.exist)
       throw new ManifestRequiredError(cwd);
 
-    this.meta    = new Meta(this);
+    // Create cache for application status
+    if (_.isEmpty(this.cache_dir) && this.exist) {
+      this.cache_dir = path.join(this.cwd, config('azk_dir'), this.file_relative);
+    }
+    this.meta = new Meta(this);
+  }
+
+  // Validate
+  validate(...args) {
+    return Validate.analyze(this, ...args);
   }
 
   parse() {
@@ -311,12 +340,12 @@ export class Manifest {
     return this.meta.getOrSet('namespace', def);
   }
 
+  set cache_dir(value) {
+    this.__cache_dir = value;
+  }
+
   get cache_dir() {
-    return path.join(
-      this.cwd,
-      config('azk_dir'),
-      this.file_relative
-    )
+    return this.__cache_dir;
   }
 
   static find_manifest(target) {
@@ -333,9 +362,9 @@ export class Manifest {
     return manifest.addSystem("--tmp--", {
       image: image,
       workdir: "/azk/#{manifest.dir}",
-      mount_folders: {
-        ".": "/azk/#{manifest.dir}",
-      },
+      mounts: {
+        "/azk/#{manifest.dir}": "#{manifest.path}"
+      }
     });
   }
 }

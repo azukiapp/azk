@@ -1,5 +1,4 @@
-import { Q, _, config, defer, async } from 'azk';
-import docker from 'azk/docker';
+import { Q, _, config, defer, async, utils } from 'azk';
 import h from 'spec/spec_helper';
 
 var default_img = config('docker:image_default');
@@ -15,7 +14,7 @@ describe("Azk docker module, run method @slow", function() {
   });
 
   it("should demux outputs", function() {
-    var result = docker.run(default_img,
+    var result = h.docker.run(default_img,
       ["/bin/bash", "-c", "echo 'error' >&2; echo 'out';" ],
       { stdout: mocks.stdout, stderr: mocks.stderr }
     );
@@ -27,7 +26,7 @@ describe("Azk docker module, run method @slow", function() {
   })
 
   it("should support interactive run", function() {
-    var result = docker.run(default_img,
+    var result = h.docker.run(default_img,
       ["/bin/bash"],
       { tty: true, stdin: stdin, stdout: mocks.stdout }
     );
@@ -45,7 +44,7 @@ describe("Azk docker module, run method @slow", function() {
   });
 
   it("should support envs", function() {
-    var result = docker.run(default_img,
+    var result = h.docker.run(default_img,
       ["/bin/bash", "-c", "env"],
       {
         stdout: mocks.stdout, rm: true,
@@ -63,7 +62,7 @@ describe("Azk docker module, run method @slow", function() {
   });
 
   it("should support custom dns servers", function() {
-    var result = docker.run(default_img,
+    var result = h.docker.run(default_img,
       ["/bin/bash", "-c", "cat /etc/resolv.conf"],
       {
         stdout: mocks.stdout, rm: true, dns: [ "127.0.0.1", "8.8.8.8" ]
@@ -76,17 +75,17 @@ describe("Azk docker module, run method @slow", function() {
     });
   });
 
-  it("should support bind local and remote volumes", function() {
-    var cmd = ["/bin/bash", "-c", "ls -l /azk /app"];
+  it("should support bind volumes", function() {
+    var cmd = ["/bin/bash", "-c", "ls -l /azk"];
     var options = {
       stdout: mocks.stdout, rm: true,
-      volumes: { [__dirname]: "/app" },
-      local_volumes: { '/etc/': "/azk" },
+      volumes: {
+        "/azk": utils.docker.resolvePath(__dirname),
+      },
     }
 
-    return docker.run(default_img, cmd, options).then(() => {
+    return h.docker.run(default_img, cmd, options).then(() => {
       h.expect(outputs.stdout).to.match(/run_spec.js/);
-      h.expect(outputs.stdout).to.match(/hosts/);
     })
   });
 
@@ -98,7 +97,7 @@ describe("Azk docker module, run method @slow", function() {
 
     return async(function* () {
       // Run http server
-      var container = yield docker.run(default_img, cmd, opts);
+      var container = yield h.docker.run(default_img, cmd, opts);
       var data = yield container.inspect();
 
       var name = data.NetworkSettings.Access["1500"].name;
@@ -111,7 +110,7 @@ describe("Azk docker module, run method @slow", function() {
 
       // Request
       var _cmd = ["/bin/bash", "-c", `exec 3<>/dev/tcp/${host}/${port}; echo -e "" >&3; cat <&3`];
-      yield docker.run(default_img, _cmd, { stdout: mocks.stdout });
+      yield h.docker.run(default_img, _cmd, { stdout: mocks.stdout });
       h.expect(outputs.stdout).to.match(/HTTP\/1\.1/);
 
       return container.kill();
@@ -124,7 +123,7 @@ describe("Azk docker module, run method @slow", function() {
       var cmd  = ["/bin/bash", "-c", "while true; do env; sleep 1; done"];
       var opts = { daemon: true };
 
-      var container = yield docker.run(default_img, cmd, opts);
+      var container = yield h.docker.run(default_img, cmd, opts);
       var data = yield container.inspect();
       h.expect(data).to.have.deep.property("State.Running", true);
 
@@ -152,7 +151,7 @@ describe("Azk docker module, run method @slow", function() {
         start : { Privileged: true },
         create: { Memory: memory },
       }};
-      var cont = yield docker.run(default_img, cmd, opts);
+      var cont = yield h.docker.run(default_img, cmd, opts);
       var data = yield cont.inspect();
 
       h.expect(data).to.have.deep.property('HostConfig.Privileged').and.to.ok;
@@ -165,7 +164,7 @@ describe("Azk docker module, run method @slow", function() {
       var name = `/${namespace}.azk-test-cont-name`;
       var cmd  = ["/bin/true"];
       var opts = { name: name, rm: false, stdout: mocks.stdout };
-      var cont = yield docker.run(default_img, cmd, opts);
+      var cont = yield h.docker.run(default_img, cmd, opts);
       var data = yield cont.inspect();
 
       h.expect(data).to.have.property('Name', name);
@@ -181,7 +180,7 @@ describe("Azk docker module, run method @slow", function() {
       }};
       var cmd  = ["/bin/true"];
       var opts = { rm: false, stdout: mocks.stdout, annotations };
-      var cont = yield docker.run(default_img, cmd, opts);
+      var cont = yield h.docker.run(default_img, cmd, opts);
       var data = yield cont.inspect();
 
       h.expect(data).to.have.deep.property("Annotations.azk.azk" , "test");
@@ -200,7 +199,7 @@ describe("Azk docker module, run method @slow", function() {
       }};
       var cmd  = ["/bin/true"];
       var opts = { rm: false, stdout: mocks.stdout, annotations };
-      var cont = yield docker.run(default_img, cmd, opts);
+      var cont = yield h.docker.run(default_img, cmd, opts);
       var data = yield cont.inspect();
 
       var envs = data.Config.Env;
@@ -215,7 +214,7 @@ describe("Azk docker module, run method @slow", function() {
     return async(function* () {
       var cmd  = ["/bin/true"];
       var opts = { rm: false, stdout: mocks.stdout };
-      var cont = yield docker.run(default_img, cmd, opts);
+      var cont = yield h.docker.run(default_img, cmd, opts);
       var data = yield cont.inspect();
 
       h.expect(data).to.have.deep.property("Annotations.azk.azk" , "test");

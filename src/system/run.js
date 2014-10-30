@@ -1,10 +1,12 @@
-import { _, t, Q, async, defer, config} from 'azk';
-import docker from 'azk/docker';
+import { _, t, Q, async, defer, config, lazy_require } from 'azk';
 import { ImageNotAvailable, SystemRunError, RunCommandError } from 'azk/utils/errors';
-import net from 'azk/utils/net';
 import { Balancer } from 'azk/system/balancer';
+import net from 'azk/utils/net';
 
-var MemoryStream = require('memorystream');
+lazy_require(this, {
+  MemoryStream: 'memorystream',
+  docker: ['azk/docker', 'default']
+});
 
 var Run = {
   runProvision(system, options = {}) {
@@ -167,6 +169,7 @@ var Run = {
       // Wait for available
       var wait_opts = {
         timeout: timeout,
+        context: `${system.name}_connect`,
         retry_if: () => {
           return container.inspect().then((data) => {
             return data.State.Running;
@@ -273,7 +276,6 @@ var Run = {
     // Default options
     options = _.defaults(options, {
       include_dead: false,
-      include_exec: false,
       type: "*",
     });
 

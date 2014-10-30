@@ -1,23 +1,22 @@
-import { Q, async, _ } from 'azk';
+import { Q, async, _, lazy_require } from 'azk';
 import { SystemDependError, SystemNotScalable } from 'azk/utils/errors';
 import { Balancer } from 'azk/system/balancer';
-import docker from 'azk/docker';
+
+lazy_require(this, {
+  docker: ['azk/docker', 'default'],
+});
 
 var Scale = {
   start(system, options = {}) {
-    return this.scale(system, system.default_instances, options);
+    // Scale to default instances
+    return this.scale(system, options);
   },
 
   scale(system, instances = {}, options = {}) {
     // Default instances
     if (_.isObject(instances)) {
       options   = _.merge(instances, options);
-      instances = system.default_instances;
-    }
-
-    // Protect not scalable systems
-    if (!system.scalable && instances > 1) {
-      return Q.reject(new SystemNotScalable(system));
+      instances = system.scalable.default;
     }
 
     // Default options
@@ -27,9 +26,18 @@ var Scale = {
     });
 
     return async(this, function* (notify) {
+      // how many times the
       var containers = yield this.instances(system);
+
+      // how to add or remove
       var from = containers.length;
       var icc  = instances - from;
+
+      // Protect not scalable systems
+      var limit = system.scalable.limit;
+      if (limit > 0 && icc > 0 && (from + icc > limit)) {
+        return Q.reject(new SystemNotScalable(system));
+      }
 
       if (icc != 0)
         notify({ type: "scale", from, to: from + icc, system: system.name });
@@ -75,7 +83,7 @@ var Scale = {
   checkDependsAndReturnEnvs(system, options, required = true) {
     var depends = system.dependsInstances;
     return async(this, function* () {
-      var instances, depend, envs = {};
+      var instances, depend, scale_to, envs = {};
 
       for (var d = 0; d < depends.length; d++) {
         depend    = depends[d];
@@ -83,7 +91,8 @@ var Scale = {
         if (_.isEmpty(instances) && required) {
           // Run dependencies
           if (options.dependencies) {
-            yield depend.start(this._dependencies_options(options));
+            scale_to = depend.scalable.default;
+            yield depend.scale(scale_to > 0 ? scale_to : 1, this._dependencies_options(options));
             instances = yield this.instances(depend);
           } else {
             throw new SystemDependError(system.name, depend.name);

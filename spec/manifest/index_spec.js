@@ -1,14 +1,14 @@
 import { t, _, fs, config } from 'azk';
 import { Manifest, file_name } from 'azk/manifest';
 import { System } from 'azk/system';
-import { createSync as createCache } from 'fscache';
 import { ManifestError, ManifestRequiredError, SystemNotFoundError } from 'azk/utils/errors';
 import h from 'spec/spec_helper';
 
-var default_img = config('docker:image_default');
 var path = require('path');
+var { createSync: createCache } = require('fscache');
+var default_img = config('docker:image_default');
 
-describe("Azk manifest class", function() {
+describe("Azk manifest class, main set", function() {
   describe("in a valid azk project folder", function() {
     var project, manifest;
 

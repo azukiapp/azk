@@ -1,4 +1,4 @@
-import { _ } from 'azk';
+import { Q, _ } from 'azk';
 import { UI as OriginalUI } from 'azk/cli/command';
 
 export function extend(h) {
@@ -11,14 +11,11 @@ export function extend(h) {
         outputs.push(data.replace(/(.*)\n/, "$1"));
       }
     }};
+    UI.stderr = UI.stdout;
 
-    UI.execSh = (cmd, options, callback) => {
-      if (_.isFunction(options)) {
-        [callback, options] = [options, {}];
-      }
-
-      UI.dir(cmd, options);
-      callback();
+    UI.execSh = (cmd, options) => {
+      UI.dir(cmd);
+      return Q(0);
     };
 
     func(() => {

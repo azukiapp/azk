@@ -1,11 +1,8 @@
 require('source-map-support').install();
 
 import { Q, Azk, pp, _, config, t, async } from 'azk';
+import { Client as AgentClient } from 'azk/agent/client';
 import Utils from 'azk/utils';
-import { set as configSet } from 'azk/config';
-//import { VM } from 'azk/agent/vm';
-import { Client } from 'azk/agent/client';
-import { AgentNotRunning } from 'azk/utils/errors';
 
 var chai  = require('chai');
 var tmp   = require('tmp');
@@ -25,6 +22,10 @@ var Helpers = {
   pp: pp,
   capture_io: capture_io,
   expect : chai.expect,
+
+  get docker() {
+    return require('azk/docker').default;
+  },
 
   tmp_dir(opts = { prefix: "azk-test-"}) {
     return Q.nfcall(tmp.dir, opts).then((dir) => {
@@ -50,9 +51,9 @@ var Helpers = {
     });
   },
 
-  fixture_path(fixture) {
+  fixture_path(...fixture) {
     return Utils.resolve(
-      '.', 'spec', 'fixtures', fixture
+      '.', 'spec', 'fixtures', ...fixture
     );
   },
 
@@ -72,12 +73,7 @@ var Helpers = {
 // In specs the virtual machine is required
 before(() => {
   console.log(t('test.before'));
-
-  return Client.status().then((status) => {
-    if (!status.agent) {
-      throw new AgentNotRunning();
-    }
-  });
+  return AgentClient.require();
 });
 
 // Helpers

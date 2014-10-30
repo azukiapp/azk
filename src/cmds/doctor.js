@@ -1,10 +1,18 @@
-import { _, async, config } from 'azk';
+import { _, async, config, lazy_require } from 'azk';
 import { Command } from 'azk/cli/command';
-import { Client } from 'azk/agent/client';
 import Azk from 'azk';
-import docker from 'azk/docker';
+
+lazy_require(this, {
+  Client() {
+    return require('azk/agent/client').Client;
+  },
+});
 
 class Cmd extends Command {
+  get docker() {
+    return require('azk/docker').default;
+  }
+
   action(opts) {
     return async(this, function* () {
       // Get agent status
@@ -14,7 +22,7 @@ class Cmd extends Command {
       // Mount data to render
       var data = {
         version: Azk.version,
-        docker: require_vm && !agent.agent ? { Version: "down".red } : yield docker.version(),
+        docker: require_vm && !agent.agent ? { Version: "down".red } : yield this.docker.version(),
         use_vm: require_vm ? "yes".green : "no".yellow,
         agent_running: agent.agent ? "up".green : "down".red,
       };

@@ -8,7 +8,7 @@ var fs   = require('fs');
 var Handlebars = require('handlebars');
 
 var template = path.join(
-  config('paths:azk_root'), 'src', 'share', 'Azkfile.mustache.js'
+  config('paths:azk_root'), 'shared', 'templates', 'Azkfile.mustache.js'
 );
 
 export class Generator extends UIProxy {
@@ -79,8 +79,40 @@ function hash_key(data) {
   return (data || "").match(/^[\w|_]*$/) ? data : `'${data}'`;
 }
 
+function formatDomains(conditional, options) {
+  if (_.isBoolean(conditional)) {
+    return options.fn(this);
+  } else {
+    return options.inverse(this);
+  }
+}
+
+function mount(data) {
+  if (_.isString(data)) { return json(data); }
+  var type    = data.type;
+  var options = _.reduce(data, (opts, value, key) => {
+    if (key != 'value' && key != 'type') {
+      opts[key] = value;
+    }
+    return opts;
+  }, {});
+
+  // args
+  var args  = [];
+  if (!_.isUndefined(data.value)) { args.push(data.value) };
+  if (!_.isEmpty(options)) args.push(options);
+  args = _.map(args, (arg) => { return json(arg); });
+
+  switch(data.type) {
+    default:
+      return `${data.type}(${args.join(', ')})`;
+  }
+}
+
 Handlebars.registerHelper('json', json);
 Handlebars.registerHelper('hash_key', hash_key);
+Handlebars.registerHelper('mount', mount);
+Handlebars.registerHelper('formatDomains', formatDomains);
 
 export { example_system };
 

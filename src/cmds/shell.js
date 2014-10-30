@@ -1,7 +1,15 @@
-import { _, path, config, t, async, defer } from 'azk';
+import { _, path, config, t, async, defer, lazy_require } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
-import { Manifest } from 'azk/manifest';
-import docker from 'azk/docker';
+
+lazy_require(this, {
+  Manifest() {
+    return require('azk/manifest').Manifest;
+  },
+
+  docker() {
+    return require('azk/docker').default;
+  }
+});
 
 class Cmd extends Command {
   action(opts, extras) {
@@ -20,6 +28,8 @@ class Cmd extends Command {
         var system   = manifest.systemDefault;
       } else {
         var manifest = new Manifest(dir, true);
+        Helpers.manifestValidate(this, manifest);
+
         var system   = manifest.systemDefault;
         if (opts.system) system = manifest.system(opts.system, true);
       }
@@ -40,8 +50,10 @@ class Cmd extends Command {
       }
 
       // Support extra envs, ports and mount volumes
-      options.envs    = this._parse_option(opts.env  , /.*=.*/, '=', 'invalid_env');
-      options.volumes = this._parse_option(opts.mount, /.*=.*/, '=', 'invalid_mount');
+      options.envs   = this._parse_option(opts.env  , /.+=.+/, '=', 'invalid_env');
+      options.mounts = this._parse_option(opts.mount, /.+:.+:?.*/, ':', 'invalid_mount', (opts) => {
+        return { type: (opts[2] ? opts[1] : 'path'), value: (opts[2] ? opts[2] : opts[1]) };
+      });
 
       var cmd = [opts.shell || system.shell];
       if (opts.command) {
@@ -92,13 +104,13 @@ class Cmd extends Command {
     throw error;
   }
 
-  _parse_option(option, regex, split, fail) {
+  _parse_option(option, regex, split, fail, format = null) {
     var result = {};
     for(var j = 0; j < option.length; j++) {
       var opt = option[j];
       if (opt.match(regex)) {
-        opt = opt.split('=');
-        result[opt[0]] = opt[1];
+        opt = opt.split(split);
+        result[opt[0]] = format ? format(opt) : opt[1];
       } else {
         this.fail('commands.shell.' + fail, { value: opt });
         return 1;

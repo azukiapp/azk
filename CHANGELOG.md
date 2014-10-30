@@ -1,13 +1,30 @@
 # Changelog
 
-## v0.5.1
+## v0.6.0 - dev
+
+* Enhancements
+  * [Manifest] Replacing `mount_folders` and `persistent_folders` with `mounts`;
+  * [Manifest] Replacing `http.hostname` with `http.domains` to support multiples alias;
+  * [Manifest] Show depracations warnings;
+  * [Manifest] Now support `scalable.limit` to set max instances of the systems;
+  * [Cli] Refactoring `bin/azk` to simplify `azk` execution;
+  * [Agent] Moving `bin/azk` checks to agent start process;
+  * [Agent] Warn when using an old `azk` version;
+  * [Agent] Improve agent checks before starting;
+  * [Code] Adding Makefile with `bootstrap` and `package_*` targets; 
+  * [Code] Upgrading `traceur` and removing transpiled files from `lib/azk`;
+  * [Install] Replacing install by source with `brew` formula in Mac OS X;
+  * [Install] Replacing install by source with packages in Ubuntu and Fedora;
+  * [Docker] Upgrading to v1.2.0;
+
+## v0.5.1 - (2014-11-10)
 
 * Bug
   * [Cmds] Fixing stop all systems, if a dependencie system is down;
 
 * Enhancements
-  * Adding support `retry` and `timeout` in wait option;
-  * Adding support to configure `memory` and `cpus` with envs `AZK_VM_MEMORY` and `AZK_VM_CPUS`;
+  * [Manifest] Adding support `retry` and `timeout` in wait option;
+  * [Agent] Adding support to configure `memory` and `cpus` with envs `AZK_VM_MEMORY` and `AZK_VM_CPUS`;
 
 ## v0.5.0 - (2014-03-09)
 
@@ -54,7 +71,7 @@
   * [Vm] Adding ssh keys generator, and uploads the key to start vm.
   * [Generators] Now Generators and rules is a extension of the UI.
   * [Cmds] Removing `-s` and `--system` from `start,stop,scale,shell` commands, now use `[command] [system_name,...]`.
-  * [Cmds] Removing `-i` and `--instances` in scale command, now use `scale [system_name,...] [number_of_instances].
+  * [Cmds] Removing `-i` and `--instances` in scale command, now use `scale [system_name,...] [number_of_instances]`.
   * [Cmds] Print startup error in `start` and `scale` commands.
   * [Cmds] Implementing the command `logs`, including support `--follow` and `--lines` options.
   * [Cmds] Implementing the command `doctor`, including support `--logo` option.
