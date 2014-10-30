@@ -116,7 +116,7 @@ azk: 'Azkfile.js' generated
 $ azk start
 ```
 
-## (important) Update from azk <= 0.5.1
+## Important steps before upgrading from azk <= 0.5.1
 
 Before version `0.6.0` `azk` was considered alpha, but now it happens to be in beta version and can be installed and updated by installation packages. For those who have tested, before installing the beta version, please perform the following procedure before installing the new version:
 
@@ -128,7 +128,7 @@ $ command ls | grep -v data | xargs rm -rf
 $ sudo rm /etc/resolver/azk.dev
 ```
 
-And after to remove `~/.azk/bin` from your path, you can install new `azk` version.
+Finally remove `~/.azk/bin` from your `$PATH`. Now you are able to install new `azk` version.
 
 ## Installation
 
@@ -259,9 +259,15 @@ If you are running a service on ports `80` or/and `53` you can customize the con
 <a name="install_from_source"/>
 ### Other distributions - installation from source
 
-1. Install the dependency [libnss-resolver][libnss-resolver];
+1. Install docker
 
-2. Check out `azk` into `~/.azk`.
+  - [install **latest version of Docker**](https://docs.docker.com/installation/#installation)
+  - check if docker service is running;
+  - [giving non root access](https://docs.docker.com/installation/ubuntulinux/#giving-non-root-access) for yours user;
+
+2. Install [libnss-resolver][libnss-resolver] dependency;
+
+3. Clone `azk` into `~/.azk`.
 
   ```bash
   $ git clone https://github.com/azukiapp/azk.git ~/.azk
@@ -269,7 +275,7 @@ If you are running a service on ports `80` or/and `53` you can customize the con
   $ make
   ```
 
-3. Add `~/.azk/bin` to your $PATH for access to the `azk` command-line utility.
+4. Add `~/.azk/bin` to your $PATH for access to the `azk` command-line utility.
 
   ```bash
   $ echo 'export PATH="$HOME/.azk/bin:$PATH"' >> ~/.bash_profile
@@ -277,11 +283,11 @@ If you are running a service on ports `80` or/and `53` you can customize the con
   $ source ~/.bash_profile
   ```
 
-  **Ubuntu Desktop note**: Modify your `~/.bashrc` instead of `~/.bash_profile`.
+  **Linux/bash note**: Modify your `~/.bashrc` instead of `~/.bash_profile`.
 
   **Zsh note**: Modify your `~/.zshrc` file instead of `~/.bash_profile`.
 
-4. Run `azk-agent` in a terminal:
+5. Run `azk agent` in a terminal:
 
   ```bash
   $ azk agent start
@@ -319,17 +325,17 @@ $ azk restart --reprovision       # Restarts a systems and reload provision
 
 ## Contributions and testing (for experts only)
 
-First [install azk](#install_from_source) in from the source. Now you can run the testes:
+First [install azk](#install_from_source) in from the source. Now you can run tests:
 
   ```bash
   $ cd ~/.azk
-  $ ./bin/azk nvm grunt test
+  $ azk nvm grunt test
   ```
 Note that running these tests requires you to have `azk agent` running.
 
 ## License
 
-"Azuki", "Azk" and the Azuki logo are copyright (c) 2013 Azuki Serviços de Internet LTDA.
+"Azuki", "Azk" and the Azuki logo are copyright (c) 2013-2014 Azuki Serviços de Internet LTDA.
 
 Azk source code is released under Apache 2 License.
 
