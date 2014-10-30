@@ -123,6 +123,7 @@ Before version `0.6.0` `azk` was considered alpha, but now it happens to be in b
 ```bash
 $ cd ~/.azk
 $ ./bin/azk agent stop
+$ ./bin/azk vm remove # mac only
 $ command ls | grep -v data | xargs rm -rf
 $ sudo rm /etc/resolver/azk.dev
 ```
