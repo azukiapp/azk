@@ -39,9 +39,6 @@ var agent_system = function(image, extras) {
 
   return lodash.merge({
     image: image,
-    provision: [
-      "azk check-install",
-    ],
     scale: false,
     workdir: "/azk/#{manifest.dir}",
     shell: "/usr/local/bin/wrapdocker",
@@ -56,6 +53,7 @@ var agent_system = function(image, extras) {
       LOG: "file",
       NODE_ENV: "test",
       EXTRA_SCRIPT: "/azk/#{manifest.dir}/src/libexec/init_azk",
+      VERSION: "0.6.0",
     },
     docker_extra: {
       start: { Privileged: true },
@@ -65,6 +63,7 @@ var agent_system = function(image, extras) {
 
 var test_package_system = function(image){
   return {
+    depends: ["package"],
     image: image,
     workdir: "/azk/#{manifest.dir}",
     shell: "/usr/local/bin/wrapdocker",
@@ -89,8 +88,21 @@ systems({
   'dind-fedora': agent_system('azukiapp/dind:fedora20'),
 
   package: agent_system('azukiapp/fpm', {
+    provision: [
+      "cd package/aptly/public",
+      "[ -L fedora20 ] || ( ln -s ../../fedora20 )",
+    ],
     shell: "/bin/bash",
+    command: "aptly serve",
+    scalable: { default: 0 },
+    http: {
+      domains: ["#{system.name}.azk.#{azk.default_domain}"],
+    },
+    ports: {
+      http: "8080/tcp",
+    },
   }),
+
   'pkg-ubuntu12-test': test_package_system('azukiapp/dind:ubuntu12'),
   'pkg-ubuntu14-test': test_package_system('azukiapp/dind:ubuntu14'),
   'pkg-fedora-test': test_package_system('azukiapp/dind:fedora20'),
