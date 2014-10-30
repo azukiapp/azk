@@ -166,93 +166,95 @@ $ brew install azukiapp/azk/azk
 
 If you are running a service on ports `80` or/and `53` you can customize the configuration by setting the environment variable `AZK_BALANCER_PORT` and `AZK_DNS_PORT` respectively before run `azk agent start`.
 
-After install [docker](http://docs.docker.com/installation), check if session "non-root access" in the installation doc was followed to allow access to the service docker for your user.
-
 ##### Ubuntu Trusty 14.04 (LTS) (64-bit)
 
-First you must [install the docker](https://docs.docker.com/installation/ubuntulinux/#installation)
+1. Install docker
 
-**important**:
-  
+  - [install the docker](https://docs.docker.com/installation/ubuntulinux/#installation)
   - check if docker service is running;
   - [giving non root access](https://docs.docker.com/installation/ubuntulinux/#giving-non-root-access) for yours user;
   - [fix dns service](https://docs.docker.com/installation/ubuntulinux/#docker-and-local-dns-server-warnings);
 
-Then, add the Azuki repository key to your local keychain.
+2. Then, add the Azuki repository key to your local keychain.
 
-```bash
-$ sudo apt-key adv --keyserver keys.gnupg.net \
-  --recv-keys 022856F6D78159DF43B487D5C82CF0628592D2C9
-```
+  ```bash
+  $ sudo apt-key adv --keyserver keys.gnupg.net \
+    --recv-keys 022856F6D78159DF43B487D5C82CF0628592D2C9
+  ```
 
-Add the Azuki repository to your apt sources list:
+3. Add the Azuki repository to your apt sources list:
 
-```bash
-$ echo "deb [arch=amd64] http://repo.azukiapp.com trusty main" | \
-  sudo tee /etc/apt/sources.list.d/azk.list
-```
+  ```bash
+  $ echo "deb [arch=amd64] http://repo.azukiapp.com trusty main" | \
+    sudo tee /etc/apt/sources.list.d/azk.list
+  ```
 
-Update and install the `azk` and dependencies packages:
+4. Update and install the `azk` and dependencies packages:
 
-```bash
-$ sudo apt-get update
-$ sudo apt-get azk
-```
+  ```bash
+  $ sudo apt-get update
+  $ sudo apt-get azk
+  ```
 
 ##### Ubuntu Precise 12.04 (LTS) (64-bit)
 
-First you must [install the docker](https://docs.docker.com/installation/ubuntulinux/#installation)
+1. Install docker
 
-**important**:
-  
+  - [install the docker](https://docs.docker.com/installation/ubuntulinux/#ubuntu-precise-1204-lts-64-bit)
   - check if docker service is running;
   - [giving non root access](https://docs.docker.com/installation/ubuntulinux/#giving-non-root-access) for yours user;
 
-Then, add the Azuki repository key to your local keychain.
+2. Then, add the Azuki repository key to your local keychain.
 
-```bash
-$ sudo apt-key adv --keyserver keys.gnupg.net \
-  --recv-keys 022856F6D78159DF43B487D5C82CF0628592D2C9
-```
+  ```bash
+  $ sudo apt-key adv --keyserver keys.gnupg.net \
+    --recv-keys 022856F6D78159DF43B487D5C82CF0628592D2C9
+  ```
 
-Add the Azuki repository to your apt sources list:
+3. Add the Azuki repository to your apt sources list:
 
-```bash
-$ echo "deb [arch=amd64] http://repo.azukiapp.com precise main" | \
-  sudo tee /etc/apt/sources.list.d/azk.list
-```
+  ```bash
+  $ echo "deb [arch=amd64] http://repo.azukiapp.com precise main" | \
+    sudo tee /etc/apt/sources.list.d/azk.list
+  ```
 
-Update and install the `azk` and dependencies packages:
+4. Update and install the `azk` and dependencies packages:
 
-```bash
-$ sudo apt-get update
-$ sudo apt-get azk
-```
+  ```bash
+  $ sudo apt-get update
+  $ sudo apt-get azk
+  ```
 
 ##### Fedora 20
 
-Then, add the Azuki repository key to your local keychain.
+1. Then, add the Azuki repository key to your local keychain.
 
-```bash
-$ rpm --import \
-  'http://repo.azukiapp.com/keys/azuki.asc'
-```
+  ```bash
+  $ rpm --import \
+    'http://repo.azukiapp.com/keys/azuki.asc'
+  ```
 
-Add the Azuki repository to your apt sources list:
+2. Add the Azuki repository to your apt sources list:
 
-```bash
-$ echo "[azuki]
-name=azk
-baseurl=http://repo.azukiapp.com/fedora20
-enabled=1
-gpgcheck=1
-" > /etc/yum.repos.d/azuki.repo
-```
+  ```bash
+  $ echo "[azuki]
+  name=azk
+  baseurl=http://repo.azukiapp.com/fedora20
+  enabled=1
+  gpgcheck=1
+  " > /etc/yum.repos.d/azuki.repo
+  ```
 
-Install the `azk` and dependencies packages:
-```bash
-$ sudo yum install azk
-```
+3. Install the `azk` and dependencies packages:
+
+  ```bash
+  $ sudo yum install azk
+  ```
+
+4. Before run `azk agent`:
+
+  - check if docker service is running;
+  - [giving non root access](https://docs.docker.com/installation/ubuntulinux/#giving-non-root-access) for yours user;
 
 <a name="install_from_source"/>
 ### Other distributions - installation from source
