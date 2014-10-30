@@ -4,6 +4,7 @@ require('source-map-support').install();
 var cli = require('azk/cli').cli;
 
 process.once("azk:command:exit", function(code) {
+  process.stdin.pause();
   process.exit(code);
 });
 

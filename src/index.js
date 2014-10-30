@@ -34,14 +34,21 @@ module.exports = {
     }
     return _t;
   },
-  get config() { return config; },
+
+  // Config options
+  get config()  { return config; },
   get set_config() { return set_config; },
-  get defer()  { return defer; },
-  get async()  { return async; },
-  get os()     { return require('os'); },
-  get path()   { return require('path'); },
-  get fs()     { return require('fs-extra'); },
-  get utils()  { return require('azk/utils'); },
+
+  // Promise helpers
+  get defer()   { return defer; },
+  get async()   { return async; },
+
+  // Internals alias
+  get os()      { return require('os'); },
+  get path()    { return require('path'); },
+  get fs()      { return require('fs-extra'); },
+  get utils()   { return require('azk/utils'); },
+  get version() { return Azk.version; },
 
   get lazy_require() {
     return (obj, loads) => {
