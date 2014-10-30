@@ -71,7 +71,7 @@ package_clean:
 	@echo "task: $@"
 	@rm -Rf ${AZK_PACKAGE_PREFIX}/..?* ${AZK_PACKAGE_PREFIX}/.[!.]* ${AZK_PACKAGE_PREFIX}/*
 
-${PATH_NODE_MODULES}: copy_files ${PATH_USR_LIB_AZK}/package.json ${NODE_PACKAGE}
+${PATH_NODE_MODULES}: ${PATH_USR_LIB_AZK}/package.json ${NODE_PACKAGE}
 	@echo "task: $@"
 	@mkdir -p ${PATH_NODE_MODULES}/..
 	@cd ${PATH_USR_LIB_AZK} && ${AZK_BIN} nvm npm install --production
@@ -109,6 +109,6 @@ ${PATH_AZK_LIB}/vm: ${AZK_LIB_PATH}/vm
 ${PATH_MAC_PACKAGE}: ${AZK_PACKAGE_PREFIX}
 	@cd ${PATH_USR_LIB_AZK}/.. && tar -czf ${PATH_MAC_PACKAGE} ./
 
-package_build: bootstrap ${PATH_NODE_MODULES}
+package_build: bootstrap copy_files ${PATH_NODE_MODULES}
 
 .PHONY: bootstrap clean package package_mac package_deb package_rpm package_build package_clean copy_files
