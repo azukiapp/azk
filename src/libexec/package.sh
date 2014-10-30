@@ -90,6 +90,7 @@ azk_shell() {
       --vendor \"${VENDOR}\" \
       --license \"${LICENSE}\" \
       --category \"admin\" \
+      --depends \"iproute\" \
       ${fpm_extra_options} \
       --maintainer \"${MAINTAINER}\" \
       -f -p ${destdir} -C ${sources} usr/bin usr/lib/azk \
