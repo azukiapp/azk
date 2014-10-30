@@ -170,16 +170,25 @@ After install [docker](http://docs.docker.com/installation), check if session "n
 
 ##### Ubuntu Trusty 14.04 (LTS) (64-bit)
 
+First you must [install the docker](https://docs.docker.com/installation/ubuntulinux/#installation)
+
+**important**:
+  
+  - check if docker service is running;
+  - [giving non root access](https://docs.docker.com/installation/ubuntulinux/#giving-non-root-access) for yours user;
+  - [fix dns service](https://docs.docker.com/installation/ubuntulinux/#docker-and-local-dns-server-warnings);
+
 Then, add the Azuki repository key to your local keychain.
 
 ```bash
-$ sudo apt-key adv --keyserver keys.gnupg.net --recv-keys 022856F6D78159DF43B487D5C82CF0628592D2C9
+$ sudo apt-key adv --keyserver keys.gnupg.net \
+  --recv-keys 022856F6D78159DF43B487D5C82CF0628592D2C9
 ```
 
 Add the Azuki repository to your apt sources list:
 
 ```bash
-$ echo "deb http://repo.azukiapp.com trusty main" | \
+$ echo "deb [arch=amd64] http://repo.azukiapp.com trusty main" | \
   sudo tee /etc/apt/sources.list.d/azk.list
 ```
 
@@ -192,16 +201,24 @@ $ sudo apt-get azk
 
 ##### Ubuntu Precise 12.04 (LTS) (64-bit)
 
+First you must [install the docker](https://docs.docker.com/installation/ubuntulinux/#installation)
+
+**important**:
+  
+  - check if docker service is running;
+  - [giving non root access](https://docs.docker.com/installation/ubuntulinux/#giving-non-root-access) for yours user;
+
 Then, add the Azuki repository key to your local keychain.
 
 ```bash
-$ sudo apt-key adv --keyserver keys.gnupg.net --recv-keys 022856F6D78159DF43B487D5C82CF0628592D2C9
+$ sudo apt-key adv --keyserver keys.gnupg.net \
+  --recv-keys 022856F6D78159DF43B487D5C82CF0628592D2C9
 ```
 
 Add the Azuki repository to your apt sources list:
 
 ```bash
-$ echo "deb http://repo.azukiapp.com precise main" | \
+$ echo "deb [arch=amd64] http://repo.azukiapp.com precise main" | \
   sudo tee /etc/apt/sources.list.d/azk.list
 ```
 
@@ -218,7 +235,7 @@ Then, add the Azuki repository key to your local keychain.
 
 ```bash
 $ rpm --import \
-  'http://keys.gnupg.net/pks/lookup?op=get&search=0xC82CF0628592D2C9'
+  'http://repo.azukiapp.com/keys/azuki.asc'
 ```
 
 Add the Azuki repository to your apt sources list:
