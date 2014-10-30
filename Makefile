@@ -83,19 +83,28 @@ ${NODE_PACKAGE}:
 		. ${NVM_BIN_PATH} && \
 		nvm install $(NODE_VERSION)
 
-${PATH_USR_LIB_AZK}/package.json: ${AZK_ROOT_PATH}/package.json
-	@cp ${AZK_ROOT_PATH}/package.json ${PATH_USR_LIB_AZK}
+define COPY_FILES
+$(abspath $(2)/$(3)): $(abspath $(1)/$(3))
+	@echo "task: copy from $$< to $$@"
+	@mkdir -p $$(dir $$@)
+	@[ -d $$< ] || cp -f $$< $$@
+endef
 
-copy_files: ${AZK_LIB_PATH}/azk
-	@echo "task: $@"
-	@mkdir -p ${PATH_AZK_LIB}
-	@cp -r bin ${PATH_USR_LIB_AZK}
-	@cp -r shared ${PATH_USR_LIB_AZK}
-	@cp -r ${AZK_LIB_PATH}/azk ${PATH_AZK_LIB}/azk
-	@cp .nvmrc ${PATH_USR_LIB_AZK}
-	@cp CHANGELOG.md ${PATH_USR_LIB_AZK}
-	@cp LICENSE ${PATH_USR_LIB_AZK}
-	@cp README.md ${PATH_USR_LIB_AZK}
+# copy regular files
+FILES_FILTER  = package.json bin shared .nvmrc CHANGELOG.md LICENSE README.md
+FILES_ALL     = $(shell cd ${AZK_ROOT_PATH}; find $(FILES_FILTER) -print)
+FILES_TARGETS = $(foreach file,$(addprefix $(PATH_USR_LIB_AZK)/, $(FILES_ALL)),$(abspath $(file)))
+$(foreach file,$(FILES_ALL),$(eval $(call COPY_FILES,$(AZK_ROOT_PATH),$(PATH_USR_LIB_AZK),$(file))))
+
+# Copy transpiled files
+FILES_JS         = $(shell cd ${AZK_LIB_PATH}/azk; find ./ -name '*.*' -print)
+FILES_JS_TARGETS = $(foreach file,$(addprefix ${PATH_AZK_LIB}/azk/, $(FILES_JS)),$(abspath $(file)))
+$(foreach file,$(FILES_JS),$(eval $(call COPY_FILES,$(AZK_LIB_PATH)/azk,$(PATH_AZK_LIB)/azk,$(file))))
+
+# Debug opts
+#$(warning $(FILES_JS))
+#$(foreach file,$(FILES_ALL),$(warning $(file)))
+# $(warning $(abspath $(2)/$(3)): $(abspath $(1)/$(3)))
 
 creating_symbolic_links:
 	@echo "task: $@"
@@ -109,6 +118,6 @@ ${PATH_AZK_LIB}/vm: ${AZK_LIB_PATH}/vm
 ${PATH_MAC_PACKAGE}: ${AZK_PACKAGE_PREFIX}
 	@cd ${PATH_USR_LIB_AZK}/.. && tar -czf ${PATH_MAC_PACKAGE} ./
 
-package_build: bootstrap copy_files ${PATH_NODE_MODULES}
+package_build: bootstrap $(FILES_TARGETS) $(FILES_JS_TARGETS) ${PATH_NODE_MODULES}
 
 .PHONY: bootstrap clean package package_mac package_deb package_rpm package_build package_clean copy_files
