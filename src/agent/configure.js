@@ -64,7 +64,7 @@ export class Configure extends UIProxy {
         );
       })
       .fail((err) => {
-        if (!err instanceof DependencyError)
+        if (!(err instanceof DependencyError))
           err = new DependencyError('docker_access', { socket });
 
         throw err;
@@ -149,10 +149,11 @@ export class Configure extends UIProxy {
   }
 
   _checkDockerSocket(socket) {
-    var host   = `unix://${socket}`;
+    var host = `unix://${socket}`;
     set_config('docker:host', host);
 
-    return docker.info()
+    return docker
+      .info()
       .then((info) => {
         return { 'docker:host': host };
       });
