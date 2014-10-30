@@ -170,37 +170,70 @@ After install [docker](http://docs.docker.com/installation), check if session "n
 
 ##### Ubuntu Trusty 14.04 (LTS) (64-bit)
 
-Add the Azuki repository to your apt sources list, update and install the `azk` package:
+Then, add the Azuki repository key to your local keychain.
 
 ```bash
-$ echo "deb [trusted=yes] http://repo.azukiapp.com trusty main" | \
+$ sudo apt-key adv --keyserver keys.gnupg.net --recv-keys 022856F6D78159DF43B487D5C82CF0628592D2C9
+```
+
+Add the Azuki repository to your apt sources list:
+
+```bash
+$ echo "deb http://repo.azukiapp.com trusty main" | \
   sudo tee /etc/apt/sources.list.d/azk.list
+```
+
+Update and install the `azk` and dependencies packages:
+
+```bash
 $ sudo apt-get update
 $ sudo apt-get azk
 ```
 
 ##### Ubuntu Precise 12.04 (LTS) (64-bit)
 
-Add the Azuki repository to your apt sources list, update and install the `azk` package:
+Then, add the Azuki repository key to your local keychain.
 
 ```bash
-$ echo "deb [trusted=yes] http://repo.azukiapp.com precise main " | \ 
+$ sudo apt-key adv --keyserver keys.gnupg.net --recv-keys 022856F6D78159DF43B487D5C82CF0628592D2C9
+```
+
+Add the Azuki repository to your apt sources list:
+
+```bash
+$ echo "deb http://repo.azukiapp.com precise main" | \
   sudo tee /etc/apt/sources.list.d/azk.list
+```
+
+Update and install the `azk` and dependencies packages:
+
+```bash
 $ sudo apt-get update
 $ sudo apt-get azk
 ```
 
 ##### Fedora 20
 
-Add Azuki package resource list file, and install `azk` package:
+Then, add the Azuki repository key to your local keychain.
+
+```bash
+$ rpm --import \
+  'http://keys.gnupg.net/pks/lookup?op=get&search=0xC82CF0628592D2C9'
+```
+
+Add the Azuki repository to your apt sources list:
 
 ```bash
 $ echo "[azuki]
 name=azk
-baseurl=http://repo.azukiapp.com//fedora20
+baseurl=http://repo.azukiapp.com/fedora20
 enabled=1
-gpgcheck=0
+gpgcheck=1
 " > /etc/yum.repos.d/azuki.repo
+```
+
+Install the `azk` and dependencies packages:
+```bash
 $ sudo yum install azk
 ```
 
