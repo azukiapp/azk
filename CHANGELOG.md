@@ -1,6 +1,8 @@
 # Changelog
 
-## v0.6.0
+## v0.6.1 - dev
+
+## v0.6.0 - (2014-30-10)
 
 * Enhancements
   * [Manifest] Replacing `mount_folders` and `persistent_folders` with `mounts`;
