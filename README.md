@@ -193,7 +193,7 @@ If you are running a service on ports `80` or/and `53` you can customize the con
 
   ```bash
   $ sudo apt-get update
-  $ sudo apt-get azk
+  $ sudo apt-get install azk
   ```
 
 ##### Ubuntu Precise 12.04 (LTS) (64-bit)
@@ -222,7 +222,7 @@ If you are running a service on ports `80` or/and `53` you can customize the con
 
   ```bash
   $ sudo apt-get update
-  $ sudo apt-get azk
+  $ sudo apt-get install azk
   ```
 
 ##### Fedora 20
