@@ -16,18 +16,19 @@ NVM_DIR := ${AZK_LIB_PATH}/nvm
 NODE_VERSION := $(shell cat ./.nvmrc)
 NODE = ${NVM_DIR}/${NODE_VERSION}/bin/node
 
-${AZK_LIB_PATH}/azk: ${AZK_ROOT_PATH}/src ${AZK_NPM_PATH}/.installed
+SRC_JS = $(shell cd ${AZK_ROOT_PATH} && find ./src -name '*.*' -print 2>/dev/null)
+
+${AZK_LIB_PATH}/azk: $(SRC_JS) ${AZK_NPM_PATH}
 	@echo "task: $@"
 	@export AZK_LIB_PATH=${AZK_LIB_PATH} && \
 		export AZK_NPM_PATH=${AZK_NPM_PATH} && \
-		${AZK_BIN} nvm grunt newer:traceur
+		${AZK_BIN} nvm grunt newer:traceur && touch ${AZK_LIB_PATH}/azk
 
-${AZK_NPM_PATH}/.installed: package.json ${NODE}
+${AZK_NPM_PATH}: package.json ${NODE}
 	@echo "task: $@"
 	@mkdir -p ${AZK_NPM_PATH}
 	@export AZK_LIB_PATH=${AZK_LIB_PATH} && \
-		${AZK_BIN} nvm npm install && \
-		touch ${AZK_NPM_PATH}/.installed
+		${AZK_BIN} nvm npm install
 
 ${NODE}:
 	@echo "task: $@"
@@ -87,17 +88,24 @@ define COPY_FILES
 $(abspath $(2)/$(3)): $(abspath $(1)/$(3))
 	@echo "task: copy from $$< to $$@"
 	@mkdir -p $$(dir $$@)
+	@if [ -d "$$<" ]; then \
+		if [ -d "$$@" ]; then \
+			touch $$@; \
+		else \
+		  mkdir -p $$@; \
+		fi \
+	fi
 	@[ -d $$< ] || cp -f $$< $$@
 endef
 
 # copy regular files
 FILES_FILTER  = package.json bin shared .nvmrc CHANGELOG.md LICENSE README.md
-FILES_ALL     = $(shell cd ${AZK_ROOT_PATH}; find $(FILES_FILTER) -print)
+FILES_ALL     = $(shell cd ${AZK_ROOT_PATH} && find $(FILES_FILTER) -print 2>/dev/null)
 FILES_TARGETS = $(foreach file,$(addprefix $(PATH_USR_LIB_AZK)/, $(FILES_ALL)),$(abspath $(file)))
 $(foreach file,$(FILES_ALL),$(eval $(call COPY_FILES,$(AZK_ROOT_PATH),$(PATH_USR_LIB_AZK),$(file))))
 
 # Copy transpiled files
-FILES_JS         = $(shell cd ${AZK_LIB_PATH}/azk; find ./ -name '*.*' -print)
+FILES_JS         = $(shell cd ${AZK_LIB_PATH}/azk && find ./ -name '*.*' -print 2>/dev/null)
 FILES_JS_TARGETS = $(foreach file,$(addprefix ${PATH_AZK_LIB}/azk/, $(FILES_JS)),$(abspath $(file)))
 $(foreach file,$(FILES_JS),$(eval $(call COPY_FILES,$(AZK_LIB_PATH)/azk,$(PATH_AZK_LIB)/azk,$(file))))
 
@@ -118,6 +126,6 @@ ${PATH_AZK_LIB}/vm: ${AZK_LIB_PATH}/vm
 ${PATH_MAC_PACKAGE}: ${AZK_PACKAGE_PREFIX}
 	@cd ${PATH_USR_LIB_AZK}/.. && tar -czf ${PATH_MAC_PACKAGE} ./
 
-package_build: bootstrap $(FILES_TARGETS) $(FILES_JS_TARGETS) ${PATH_NODE_MODULES}
+package_build: bootstrap ${AZK_LIB_PATH}/azk $(FILES_TARGETS) $(FILES_JS_TARGETS) ${PATH_NODE_MODULES}
 
 .PHONY: bootstrap clean package package_mac package_deb package_rpm package_build package_clean copy_files
