@@ -54,7 +54,7 @@ PATH_NODE_MODULES:=${PATH_USR_LIB_AZK}/node_modules
 PATH_AZK_LIB:=${PATH_USR_LIB_AZK}/lib
 PATH_AZK_NVM:=${PATH_AZK_LIB}/nvm
 NODE_PACKAGE = ${PATH_AZK_NVM}/${NODE_VERSION}/bin/node
-PATH_MAC_PACKAGE = ${AZK_PACKAGE_PATH}/azk_${AZK_VERSION}.tar.gz
+PATH_MAC_PACKAGE = ${AZK_PACKAGE_PATH}/brew/azk_${AZK_VERSION}.tar.gz
 
 # Build package folders tree
 package_mac: package_build ${PATH_AZK_LIB}/vm ${PATH_MAC_PACKAGE}

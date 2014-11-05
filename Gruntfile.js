@@ -69,7 +69,7 @@ module.exports = function(grunt) {
       },
       public_mac_package: {
         files: [
-          {expand: true, cwd: "./package", src: ['*.tar.gz'], dest: "./mac/", stream: true },
+          {expand: true, cwd: "./package/brew", src: ['*.tar.gz'], dest: "./mac/", stream: true },
           {expand: true, cwd: "./package/aptly/public", src: ['**/*'], stream: true },
           {expand: true, cwd: "./package/fedora20", src: ['**/*'], dest: "./fedora20/", stream: true },
           {expand: true, cwd: "./src/libexec/gpg", src: ['azuki.asc'], dest: "./keys/", stream: true },
