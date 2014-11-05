@@ -2,6 +2,9 @@
 
 ## v0.6.1 - dev
 
+* Enhancements
+  * [Cli] Now stacktrace show the `/AZK_[version]/` for transpiled files paths in errors;
+
 * Bug
   * [Docker] Fixing a bug if docker return a invalid json in image download;
 
