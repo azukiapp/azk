@@ -1,6 +1,17 @@
 # Changelog
 
-## v0.6.0
+## v0.6.1 - dev
+
+* Enhancements
+  * [Cli] Now stacktrace show the `/AZK_[version]/` for transpiled files paths in errors;
+
+* Bug
+  * [Docker] Fixing a bug if docker return a invalid json in image download;
+
+* Deprecations
+  * [Manifest] `mount_folders` and `persistent_folders` is no longer supported. ;
+
+## v0.6.0 - (2014-30-10)
 
 * Enhancements
   * [Manifest] Replacing `mount_folders` and `persistent_folders` with `mounts`;

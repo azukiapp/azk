@@ -179,6 +179,7 @@ export class Manifest {
     return this;
   }
 
+  // TODO: refactoring to use validate
   _system_validate(name, data) {
     if (!name.match(/^[a-zA-Z0-9-]+$/)) {
       var msg = t("manifest.system_name_invalid", { system: name });
@@ -190,6 +191,16 @@ export class Manifest {
     }
     if (!_.isEmpty(data.balancer)) {
       var msg = t("manifest.balancer_depreciation", { system: name });
+      throw new ManifestError(this.file, msg);
+    }
+    if (!_.isEmpty(data.mount_folders)) {
+      var opts = { option: 'mount_folders', system: name, manifest: this.file }
+      var msg  = t("manifest.mount_and_persistent_depreciation", opts);
+      throw new ManifestError(this.file, msg);
+    }
+    if (!_.isEmpty(data.persistent_folders)) {
+      var opts = { option: 'persistent_folders', system: name, manifest: this.file }
+      var msg  = t("manifest.mount_and_persistent_depreciation", opts);
       throw new ManifestError(this.file, msg);
     }
   }

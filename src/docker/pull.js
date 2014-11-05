@@ -45,22 +45,25 @@ export function pull(docker, repository, tag, stdout) {
   return promise.then((stream) => {
     return defer((resolve, reject, notify) => {
       stream.on('data', (data) => {
-        var msg  = JSON.parse(data.toString());
-        msg.type = "pull_msg";
-        if (msg.error) {
-          if (msg.error.match(/404/) || msg.error.match(/not found$/)) {
-            return reject(new ProvisionNotFound(image));
+        // TODO: add support chucks
+        try {
+          var msg  = JSON.parse(data.toString());
+          msg.type = "pull_msg";
+          if (msg.error) {
+            if (msg.error.match(/404/) || msg.error.match(/not found$/)) {
+              return reject(new ProvisionNotFound(image));
+            }
+            reject(new ProvisionPullError(image, msg.error));
+          } else {
+            msg.statusParsed = parse_status(msg.status);
+            if (msg.statusParsed) {
+              notify(msg);
+            }
+            if (stdout) {
+              stdout.write(msg.status + "\n");
+            }
           }
-          reject(new ProvisionPullError(image, msg.error));
-        } else {
-          msg.statusParsed = parse_status(msg.status);
-          if (msg.statusParsed) {
-            notify(msg);
-          }
-          if (stdout) {
-            stdout.write(msg.status + "\n");
-          }
-        }
+        } catch (e) {};
       });
 
       stream.on('end', () => resolve(docker.findImage(image)));

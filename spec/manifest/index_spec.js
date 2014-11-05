@@ -164,17 +164,18 @@ describe("Azk manifest class, main set", function() {
   });
 
   describe("in a not manifest with a valid syntax", function() {
-    var project;
+    var project, file;
 
     before(() => {
-      return h.tmp_dir({ prefix: "azk-test-" }).then((dir) => project = dir);
+      return h.tmp_dir({ prefix: "azk-test-" }).then((dir) => {
+        file = path.join(dir, file_name);
+        project = dir;
+      });
     });
 
     var mock_manifest = (data) => {
-      fs.writeFileSync(path.join(project, file_name), data);
-      return () => {
-        new Manifest(project);
-      }
+      fs.writeFileSync(file, data);
+      return () => new Manifest(project);
     }
 
     it("should raise a invalid system name", function() {
@@ -191,6 +192,20 @@ describe("Azk manifest class, main set", function() {
     it("should raise a if use balancer option", function() {
       var func = mock_manifest('system("system", { image: "foo", balancer: { key: "value" } });');
       var msgs = t("manifest.balancer_depreciation", { system: "system" });
+      h.expect(func).to.throw(ManifestError).and.match(RegExp(msgs));
+    });
+
+    it("should raise a if use mounts_folders option", function() {
+      var func = mock_manifest('system("system", { image: "foo", mount_folders: { key: "value" } });');
+      var opts = { option: 'mount_folders', system: 'system', manifest: file };
+      var msgs = h.escapeRegExp(t("manifest.mount_and_persistent_depreciation", opts));
+      h.expect(func).to.throw(ManifestError).and.match(RegExp(msgs));
+    });
+
+    it("should raise a if use persistent_folders option", function() {
+      var func = mock_manifest('system("system", { image: "foo", persistent_folders: { key: "value" } });');
+      var opts = { option: 'persistent_folders', system: 'system', manifest: file };
+      var msgs = h.escapeRegExp(t("manifest.mount_and_persistent_depreciation", opts));
       h.expect(func).to.throw(ManifestError).and.match(RegExp(msgs));
     });
 

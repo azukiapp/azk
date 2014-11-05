@@ -1,10 +1,7 @@
-/log
-/tmp
-/node_modules
-/data
-/lib
 .vimrc
 .azk
+/data
+/lib
 /package
-/build
+/node_modules
 npm-debug.log

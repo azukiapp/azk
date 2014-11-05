@@ -1,6 +1,23 @@
 #!/usr/bin/env node
 
-require('source-map-support').install();
+var root    = process.env.AZK_ROOT_PATH;
+var fs      = require('fs');
+var version = require(root + '/package.json').version;
+
+require('source-map-support').install({
+  retrieveSourceMap: function(source) {
+    var map_file = source + '.map';
+    if (fs.existsSync(map_file)) {
+      var map = JSON.parse(fs.readFileSync(map_file, 'utf8'));
+      map.sourceRoot = '/azk.io:' + version;
+      return {
+        url: source,
+        map: map,
+      };
+    }
+    return null;
+  }
+});
 var cli = require('azk/cli').cli;
 
 process.once("azk:command:exit", function(code) {

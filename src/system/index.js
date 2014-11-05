@@ -91,7 +91,6 @@ export class System {
 
   // Get options
   get shell()             { return this.options.shell };
-  get raw_mount_folders() { return this.options.mount_folders };
   get namespace() {
     return this.manifest.namespace + '-sys.' + this.name;
   }
@@ -400,7 +399,6 @@ export class System {
       },
       system: {
         name: this.name,
-        persistent_folders: "/data",
       },
       manifest: {
         dir: this.manifest.manifestDirName,
@@ -425,18 +423,6 @@ export class System {
 
   _mounts_to_volumes(mounts) {
     var volumes = {};
-
-    // support mount_folders
-    mounts = _.reduce(this.raw_mount_folders, (mounts, point, target) => {
-      mounts[point] = { type: 'path', value: target };
-      return mounts;
-    }, mounts);
-
-    // support persistent_folders
-    mounts = _.reduce(this.options.persistent_folders, (mounts, point) => {
-      mounts[point] = { type: 'persistent', value: path.join(this.name, point) };
-      return mounts;
-    }, mounts);
 
     // persistent folder
     var persist_base = config('paths:persistent_folders');

@@ -47,8 +47,6 @@ describe("Azk generator tool", function() {
             "/azk/#{manifest.dir}": { type: 'path', value: '.' },
             "/azk/data": { type: 'persistent', value: 'data' },
           },
-          mount_folders: { ".": "/azk/old" },
-          persistent_folders: ["/data"],
           command: 'bundle exec rackup config.ru',
           envs: { RACK_ENV: 'dev' },
         },
@@ -129,9 +127,7 @@ describe("Azk generator tool", function() {
       }
 
       h.expect(mounts).to.have.property('/azk/' + name, utils.docker.resolvePath(manifest.manifestPath));
-      h.expect(mounts).to.have.property('/azk/old', utils.docker.resolvePath(manifest.manifestPath));
       h.expect(mounts).to.have.property('/azk/data', path.join(persist_base, 'data'));
-      h.expect(mounts).to.have.property('/data', path.join(persist_base, system.name, 'data'));
     });
 
     it("should generate export envs", function() {
