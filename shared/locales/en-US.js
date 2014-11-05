@@ -143,6 +143,11 @@ module.exports = {
     depends_not_declared: "The `%(system)s` system depends on the `%(depend)s` system, which was not stated.",
     balancer_depreciation: "The `balancer` option used in the `%(system)s` is deprecated, use `http` and `scalable` to replace",
     invalid_default: "Unable to set the system `%(system)s` as a default because it was not declared",
+    mount_and_persistent_depreciation: [
+      "The `%(option)s` option used in system `%(system)s` is no longer supported.",
+      "You must change the %(manifest)s to use `mounts`",
+      "Check http://git.io/29JW0w for further information",
+    ].join("\n"),
     validate: {
       deprecated : "The `%(option)s` used in `%(system)s` is deprecated, check the documentation for `%(new_option)s`",
       not_systems: "No system has been set yet, check the documentation",

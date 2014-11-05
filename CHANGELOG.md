@@ -2,6 +2,12 @@
 
 ## v0.6.1 - dev
 
+* Bug
+  * [Docker] Fixing a bug if docker return a invalid json in image download;
+
+* Deprecations
+  * [Manifest] `mount_folders` and `persistent_folders` is no longer supported. ;
+
 ## v0.6.0 - (2014-30-10)
 
 * Enhancements

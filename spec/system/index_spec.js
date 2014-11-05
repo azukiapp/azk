@@ -64,7 +64,6 @@ describe("Azk system class, main set", function() {
         var system    = manifest.system('expand-test');
         var provision = system.options.provision;
         h.expect(provision).to.include(`system.name: ${system.name}`);
-        h.expect(provision).to.include(`system.persistent_folders: /data`);
         h.expect(provision).to.include(`manifest.dir: ${manifest.manifestDirName}`);
         h.expect(provision).to.include(`manifest.path: ${manifest.manifestPath}`);
         h.expect(provision).to.include(`manifest.project_name: ${manifest.manifestDirName}`);
