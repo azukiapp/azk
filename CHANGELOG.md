@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.6.1 - dev
+## v0.6.1 - (2014-04-11)
 
 * Enhancements
   * [Cli] Now stacktrace show the `/AZK_[version]/` for transpiled files paths in errors;
