@@ -1,5 +1,7 @@
 # Changelog
 
+## v0.7.0 - dev
+
 ## v0.6.1 - (2014-04-11)
 
 * Enhancements
