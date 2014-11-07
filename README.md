@@ -120,7 +120,7 @@ $ azk start
 
 Until recently, version `0.6.0` was still an alpha version, but now it has reached a maturity level that makes it a beta version (now it can be installed and updated by installation packages).
 
-For those who have tested it before (pior to this beta version), please perform the following procedures before installing the new version:
+For those who have tested it before (prior to this beta version), please perform the following procedures before installing the new version:
 
 1. **Warning:** `azk 0.6.0` is NOT backward compatible with prior versions, therefore your persistent folders like dependencies or databases will be deleted. To perform a backup:
 
