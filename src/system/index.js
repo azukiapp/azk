@@ -109,6 +109,11 @@ export class System {
       default: 1, limit: -1
     });
   }
+
+  get disabled() {
+    return this.scalable.default == 0 && this.scalable.limit == 0;
+  }
+
   get wait_scale() {
     var wait = this.options.wait;
     return _.isEmpty(wait) && wait != false ? true : wait;

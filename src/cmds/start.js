@@ -4,9 +4,7 @@ import { SYSTEMS_CODE_ERROR, NotBeenImplementedError } from 'azk/utils/errors';
 import { Cmd as ScaleCmd } from 'azk/cmds/scale';
 
 lazy_require(this, {
-  Manifest() {
-    return require('azk/manifest').Manifest;
-  },
+  Manifest: ['azk/manifest'],
 });
 
 class Cmd extends ScaleCmd {
@@ -23,9 +21,18 @@ class Cmd extends ScaleCmd {
 
       while(system = systems.shift()) {
         var ns = ["commands", action];
+        var instances = _.clone(options.instances);
+
+        // Force start scalable = { default: 0 }
+        // Only if specified
+        if (!(opts.systems) && action == "start") {
+          if (system.scalable.default == 0 && !system.disabled) {
+            instances = 1;
+          }
+        }
 
         this.verbose([...ns, "verbose"], system);
-        var icc = yield super(system, _.clone(options.instances), opts);
+        var icc = yield super(system, instances, opts);
 
         if (icc == 0) {
           this.fail([...ns, options.key], system);
