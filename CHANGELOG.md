@@ -2,6 +2,9 @@
 
 ## v0.7.0 - dev
 
+* Bug
+  * [Docker] Fixing bug that prevented the start for systems with `scalable: {default: 0}`;
+
 ## v0.6.1 - (2014-04-11)
 
 * Enhancements
