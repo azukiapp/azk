@@ -4,9 +4,7 @@ import { VerboseCmd } from 'azk/cli/verbose_cmd';
 import { Cmd as StatusCmd } from 'azk/cmds/status';
 
 lazy_require(this, {
-  Manifest() {
-    return require('azk/manifest').Manifest;
-  },
+  Manifest: ['azk/manifest'],
 });
 
 class Cmd extends VerboseCmd {
@@ -16,7 +14,7 @@ class Cmd extends VerboseCmd {
 
       var manifest = new Manifest(this.cwd, true);
       Helpers.manifestValidate(this, manifest);
-      var systems  = manifest.getSystemsByName(opts.system);
+      var systems = manifest.getSystemsByName(opts.system);
 
       yield this[`${this.name}`](manifest, systems, opts);
 
