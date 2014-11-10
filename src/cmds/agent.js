@@ -52,6 +52,9 @@ class Cmd extends Command {
           }
       }
 
+      // Changing directory for security
+      process.chdir(config('paths:azk_root'));
+
       // Call action in agent
       var promise = Client[opts.action](opts).progress(progress);
       return promise.then((result) => {

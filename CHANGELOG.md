@@ -2,6 +2,9 @@
 
 ## v0.7.0 - dev
 
+* Bug
+  * [Agent] Fixing if current directory is removed before stop agent.
+
 ## v0.6.1 - (2014-04-11)
 
 * Enhancements
