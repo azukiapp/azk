@@ -5,7 +5,7 @@ var getRailsVersion = function(content) {
 
   // http://regex101.com/r/qP4gG7/2
   // version will be on the first group
-  var gemRailsRegex = /^\s*gem ['']rails[''],\s+[''](.+?)['']\s*$/gm;
+  var gemRailsRegex = /^\s*gem ['"]rails['"],\s+['"](.+?)['"]\s*$/gm;
 
   var capture = gemRailsRegex.exec(content);
   var railsVersion = capture && capture.length >= 1 && capture[1];
@@ -16,7 +16,7 @@ var getRailsVersion = function(content) {
 };
 
 var detectDatabase = function(content) {
-  var mySqlRegex = /^\s*gem ['']mysql2?['']/gm;
+  var mySqlRegex = /^\s*gem ['"]mysql2?['"]/gm;
   if (mySqlRegex.test(content)) {
     return {
       name: 'mysql',
@@ -25,7 +25,7 @@ var detectDatabase = function(content) {
     };
   }
 
-  var pgRegex = /^\s*gem ['']pg['']/gm;
+  var pgRegex = /^\s*gem ['"]pg['"]/gm;
   if (pgRegex.test(content)) {
     return {
       name: 'pg',
