@@ -15,28 +15,6 @@ var getRailsVersion = function(content) {
   return semver.clean(railsVersion);
 };
 
-var detectDatabase = function(content) {
-  var mySqlRegex = /^\s*gem ['"]mysql2?['"]/gm;
-  if (mySqlRegex.test(content)) {
-    return {
-      name: 'mysql',
-      type: 'database',
-      databasename: ''
-    };
-  }
-
-  var pgRegex = /^\s*gem ['"]pg['"]/gm;
-  if (pgRegex.test(content)) {
-    return {
-      name: 'pg',
-      type: 'database',
-      databasename: ''
-    };
-  }
-
-  return null;
-};
-
 export class Rule extends BaseRule {
   constructor(ui) {
     super(ui);
@@ -69,13 +47,6 @@ export class Rule extends BaseRule {
     }
 
     evidence.version = railsVersion;
-
-    // try to get database
-    var databaseDetection = detectDatabase(content);
-    if (databaseDetection) {
-      evidence.detections = evidence.detections || [];
-      evidence.detections.push(databaseDetection);
-    }
 
     return evidence;
   }

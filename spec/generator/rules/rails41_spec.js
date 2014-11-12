@@ -30,39 +30,6 @@ describe('Azk generators Rails 4.1 rule', function() {
     h.expect(evidence.replaces).to.include('ruby');
     h.expect(evidence.replaces).to.include('node');
     h.expect(evidence).to.have.deep.property('version' , '4.1.6');
-
-    //databases
-    h.expect(evidence.detections[0])
-      .to.have.deep.property('name', 'mysql');
-
-  });
-
-  it('should find a mysql database', () => {
-    var gemfilePath = '/tmp/azk-test-30501680wvr4/front/Gemfile';
-    var gemfileContent = [
-      'source \'https://rubygems.org\'',
-      'gem \'rails\', \'4.1.6\'',
-      'gem \'mysql2\', :git => "git://github.com/brianmario/mysql2"',
-      'gem \'pg\', \'~> 0.17.1\'',
-    ].join('\n');
-
-    var evidence = rule.getEvidence(gemfilePath, gemfileContent);
-    h.expect(evidence.detections[0])
-      .to.have.deep.property('name', 'mysql');
-  });
-
-
-  it('should find a pg database', () => {
-    var gemfilePath = '/tmp/azk-test-30501680wvr4/front/Gemfile';
-    var gemfileContent = [
-      'source \'https://rubygems.org\'',
-      'gem \'rails\', \'4.1.6\'',
-      'gem \'pg\', \'~> 0.17.1\'',
-    ].join('\n');
-
-    var evidence = rule.getEvidence(gemfilePath, gemfileContent);
-    h.expect(evidence.detections[0])
-      .to.have.deep.property('name', 'pg');
   });
 
 });

@@ -282,6 +282,7 @@ export class Court extends UIProxy {
 
   _replacesEvidences() {
     var groupedByDir = this._getEvidencesByFolder();
+
     _.forEach(groupedByDir, function(dir) {
       _.forEach(dir, function(evidence) {
         // this evidence will replace
@@ -297,6 +298,7 @@ export class Court extends UIProxy {
         }
       });
     });
+
     this.__evidences_by_folder = groupedByDir;
   }
 

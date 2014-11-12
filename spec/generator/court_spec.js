@@ -1,5 +1,5 @@
 import h from 'spec/spec_helper';
-import { path, fs } from 'azk';
+import { path, fs, _ } from 'azk';
 import { Court } from 'azk/generator/court';
 var qfs = require('q-io/fs');
 
@@ -22,12 +22,8 @@ describe('Azk generator tool court veredict:', function() {
     var gemfileContent = [
       'source \'https://rubygems.org\'',
       '',
-      '',
-      '# Bundle edge Rails instead: gem \'rails\', github: \'rails/rails\'',
       'gem \'rails\', \'4.1.6\'',
-      '# Use sqlite3 as the database for Active Record',
-      'gem \'sqlite3\'',
-      '# Use SCSS for stylesheets',
+      'gem \'pg\', \'~> 0.17.1\'',
     ].join('\n');
     return qfs.write(gemfilePath, gemfileContent);
 
@@ -93,31 +89,76 @@ describe('Azk generator tool court veredict:', function() {
 
   it('should return an array with evidences on investigate() call', function() {
     court._investigate(rootFullPath);
-    h.expect(court.__evidences).to.have.length(3);
+    h.expect(court.__evidences).to.have.length(4);
   });
 
-  it('should replacesevidences_by_folder() replaces ruby with rails', function() {
+  it('should _replacesEvidences() replaces ruby with rails', function() {
     court._investigate(rootFullPath);
     court._replacesEvidences();
-    var folders = Object.keys(court.__evidences_by_folder);
-    h.expect(folders).to.have.length(2);
+
+    var filteredEvidences = _.values(court.__evidences_by_folder);
+    /*
+    [
+       [
+          {
+             fullpath:'/tmp/azk-test-302101g49y9s/api/package.json',
+             ruleType:'runtime',
+             name:'node',
+             ruleName:'node010',     <----------
+             version:'0.4.1'
+          }
+       ],
+       [
+          {
+             fullpath:'/tmp/azk-test-302101g49y9s/front/Gemfile',
+             ruleType:'framework',
+             name:'rails',
+             ruleName:'rails41',     <----------
+             replaces:[
+                Object
+             ],
+             version:'4.1.6',
+             detections:[
+                Object
+             ]
+          },
+          {
+             fullpath:'/tmp/azk-test-302101g49y9s/front/Gemfile',
+             ruleType:'database',
+             name:'postgres',
+             ruleName:'postgres93'   <----------
+          }
+       ]
+    ]
+    */
+    h.expect(filteredEvidences[0][0]).to.have.property('ruleName', 'node010');
+    h.expect(filteredEvidences[1][0]).to.have.property('ruleName', 'rails41');
+    h.expect(filteredEvidences[1][1]).to.have.property('ruleName', 'postgres93');
+
   });
 
-  it('should judge and suggest a manifest', function() {
+  it('should judge and suggest 3 systems', function() {
     court.judge(rootFullPath);
     var folders = Object.keys(court.__folders_suggestions);
 
-    h.expect(folders).to.have.length(2);
+    console.log('\n>>---------\n court.__folders_suggestions:', court.__folders_suggestions, '\n>>---------\n');
+    h.expect(folders).to.have.length(3);
 
-    // evidence
-    var firstEvidence = court.__folders_suggestions[0].evidence[0];
+  });
+
+  it('should judge and suggest a valid node system', function() {
+    court.judge(rootFullPath);
+
+    // first evidence
+    var suggestion0 = court.__folders_suggestions[0];
+    var firstEvidence = suggestion0.evidence[0];
     h.expect(firstEvidence).to.have.property('ruleType', 'runtime');
     h.expect(firstEvidence).to.have.property('name', 'node');
     h.expect(firstEvidence).to.have.property('ruleName', 'node010');
     h.expect(firstEvidence).to.have.property('version', '0.4.1');
 
-    // suggestion
-    var firstSuggestion = court.__folders_suggestions[0].suggestionChoosen;
+    // first suggestion
+    var firstSuggestion = suggestion0.suggestionChoosen;
     h.expect(firstSuggestion).to.have.property('name', 'node 0.10.x');
     h.expect(firstSuggestion.ruleNamesList).to.contains('node010');
     h.expect(firstSuggestion.suggestion).have.property('__type', 'node.js');
