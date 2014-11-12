@@ -233,7 +233,9 @@ export class Court extends UIProxy {
           var isRelevantFile = _.contains(rule.relevantsFiles(), basename);
           if (isRelevantFile) {
             var evidence = rule.getEvidence(file.fullpath, file.content);
-            evidences.push(evidence);
+            if(evidence) {
+              evidences.push(evidence);
+            }
           }
         });
     }, this);

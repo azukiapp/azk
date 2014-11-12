@@ -7,15 +7,15 @@ export class Suggestion extends UIProxy {
     super(...args);
 
     // Readable name for this suggestion
-    this.name = 'rails 4.1';
+    this.name = 'jruby 1.7';
 
     // Which rules they suggestion is valid
-    this.ruleNamesList = ['rails41'];
+    this.ruleNamesList = ['jruby17'];
 
     // Initial Azkfile.js suggestion
     this.suggestion = _.extend({}, example_system, {
-      __type  : 'rails 4.1',
-      image   : 'rails:4.1',
+      __type  : 'jruby 1.7',
+      image   : 'jruby:1.7',
       provision: [
         'bundle install --path /azk/bundler',
       ],
@@ -28,7 +28,7 @@ export class Suggestion extends UIProxy {
         '/azk/bundler'        : {type: 'persistent', value: 'bundler'},
       },
       envs    : {
-        RAILS_ENV : 'development',
+        RUBY_ENV : 'development',
         BUNDLE_APP_CONFIG : '/azk/bundler',
       }
     });

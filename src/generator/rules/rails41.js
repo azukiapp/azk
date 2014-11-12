@@ -57,6 +57,9 @@ export class Rule extends BaseRule {
     };
 
     var railsVersion = getRailsVersion(content);
+    if (!railsVersion) {
+      return null;
+    }
 
     var isRails41 = semver.gt(railsVersion, '4.1.0') &&
                     semver.lt(railsVersion, '5.0.0');
