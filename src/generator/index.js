@@ -1,6 +1,7 @@
 import { _, config, log } from 'azk';
 import { Helpers, example_system } from 'azk/generator/rules';
 import { UIProxy } from 'azk/cli/ui';
+import { Court } from 'azk/generator/court';
 
 var glob = require('glob');
 var path = require('path');
@@ -14,19 +15,7 @@ var template = path.join(
 export class Generator extends UIProxy {
   constructor(ui) {
     super(ui);
-
-    this.__rules = {
-      runtime  : [],
-      database : [],
-      tasks    : [],
-    }
-
-    // Load default rules
-    this.load(path.join(__dirname, "rules"));
-  }
-
-  get rules() {
-    return [...this.__rules.runtime, ...this.__rules.database, ...this.__rules.tasks];
+    this.court = new Court(path.join(__dirname, "rules"), this);
   }
 
   get tpl() {
@@ -35,37 +24,23 @@ export class Generator extends UIProxy {
     return this._tpl;
   }
 
-  load(dir) {
-    _.each(glob.sync(path.join(dir, '**/*.js')), (file) => {
-      var Rule = require(file).Rule;
-      if (Rule) {
-        var rule = new Rule(this);
-        if (_.isArray(this.__rules[rule.type])) {
-          rule.name = path.basename(file, ".js");
-          this.__rules[rule.type].push(rule);
-        }
-      }
-    });
-  }
-
-  rule(name) {
-    return _.find(this.rules, (rule) => { return rule.name == name });
-  }
-
   findSystems(dir) {
-    return _.reduce(this.rules, (systems, rule) => {
-      return _.merge(systems, rule.run(dir, systems) || {});
-    }, {});
+    this.court.judge(dir);
+    return this.court.systems_suggestions;
   }
 
   render(data, file) {
     data = _.extend({
       bins: [],
       azk: {
-        default_domain: config('agent:balancer:host')
+        default_domiapn: config('agent:balancer:host')
       },
     }, data);
-    fs.writeFileSync(file, this.tpl(data));
+
+    var renderedTemplate = this.tpl(data);
+    log.debug('renderedTemplate:', renderedTemplate);
+
+    fs.writeFileSync(file, renderedTemplate);
   }
 }
 

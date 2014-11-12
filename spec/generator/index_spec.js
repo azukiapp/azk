@@ -2,21 +2,13 @@ import { config, path, fs, _, utils } from 'azk';
 import h from 'spec/spec_helper';
 import { Generator } from 'azk/generator';
 import { Manifest } from 'azk/manifest';
-import { example_system as node_example } from 'azk/generator/rules/node';
 
-var touch = require('touch');
-
-describe("Azk generator tool", function() {
+describe('Azk generator tool index:', function() {
   var outputs = [];
   var UI = h.mockUI(beforeEach, outputs);
   var generator = new Generator(UI);
 
-  it("should load default rules", function() {
-    var node = generator.rule("node");
-    h.expect(node).to.have.property("type", "runtime");
-  });
-
-  describe("run in a directory", function() {
+  describe('run in a directory', function() {
     var dir;
 
     before(() => {
@@ -25,14 +17,15 @@ describe("Azk generator tool", function() {
       });
     });
 
-    // Genereate manifest file
+    // Generates manifest file
     var generate_manifest = (dir, data) => {
       var file = path.join(dir, config('manifest'));
       generator.render(data, file);
-      return new Manifest(dir);
+      var manifest = new Manifest(dir);
+      return manifest;
     };
 
-    var export_db = "#{envs.USER}:#{envs.PASSWORD}@#{net.host}:#{net.port.3666}";
+    var export_db = '#{envs.USER}:#{envs.PASSWORD}@#{net.host}:#{net.port.3666}';
 
     var default_data = {
       systems: {
@@ -43,28 +36,28 @@ describe("Azk generator tool", function() {
           scalable: true,
           http: true,
           mounts: {
-            "/azk/root": "/",
-            "/azk/#{manifest.dir}": { type: 'path', value: '.' },
-            "/azk/data": { type: 'persistent', value: 'data' },
+            '/azk/root': '/',
+            '/azk/#{manifest.dir}': { type: 'path', value: '.' },
+            '/azk/data': { type: 'persistent', value: 'data' },
           },
           command: 'bundle exec rackup config.ru',
           envs: { RACK_ENV: 'dev' },
         },
         db: {
-          image: "base",
+          image: 'base',
           export_envs: { DB_URL: export_db }
         }
       },
       defaultSystem: 'front',
       bins: [
-        { name: "console", command: ["bundler", "exec"] }
+        { name: 'console', command: ['bundler', 'exec'] }
       ]
     };
 
-    it("should generate with a valid format", function() {
+    it('should generate with a valid format', function() {
       var extra = _.merge({}, default_data, {
         systems: {
-           front: { envs: { "F-O_O": "BAR"}, scalable: { default: 3}}
+           front: { envs: { 'F-O_O': 'BAR'}, scalable: { default: 3 }}
         }
       });
 
@@ -76,12 +69,12 @@ describe("Azk generator tool", function() {
       h.expect(data).to.match(/^\s{6}'F-O_O': "BAR",$/m);
     });
 
-    it("should expand image build steps", function() {
+    it('should expand image build steps', function() {
       var extra = _.merge({}, default_data, {
         systems: {
            front: { image: { build: [
-             "run step 1",
-             ["run", "step 2"],
+             'run step 1',
+             ['run', 'step 2'],
            ] } }
         }
       });
@@ -95,21 +88,21 @@ describe("Azk generator tool", function() {
       h.expect(data).to.match(/^\s{8}\["run"\, "step 2"\],$/m);
     });
 
-    it("should generete a valid manifest file", function() {
+    it('should generete a valid manifest file', function() {
       var manifest = generate_manifest(dir, default_data);
       var system   = manifest.systemDefault;
       var name     = path.basename(dir);
 
-      h.expect(system).to.have.deep.property("name", "front");
-      h.expect(system).to.have.deep.property("image.name", "base:0.1");
-      h.expect(system).to.have.deep.property("depends").and.to.eql(["db"]);
-      h.expect(system).to.have.deep.property("options.workdir", "/azk/" + name);
-      h.expect(system).to.have.deep.property("options.scalable").and.ok;
-      h.expect(system).to.have.deep.property("options.command")
-        .and.to.eql("bundle exec rackup config.ru");
+      h.expect(system).to.have.deep.property('name', 'front');
+      h.expect(system).to.have.deep.property('image.name', 'base:0.1');
+      h.expect(system).to.have.deep.property('depends').and.to.eql(['db']);
+      h.expect(system).to.have.deep.property('options.workdir', '/azk/' + name);
+      h.expect(system).to.have.deep.property('options.scalable').and.ok;
+      h.expect(system).to.have.deep.property('options.command')
+        .and.to.eql('bundle exec rackup config.ru');
     });
 
-    it("should generate a mounts options", function() {
+    it('should generate a mounts options', function() {
       var manifest = generate_manifest(dir, default_data);
       var system   = manifest.systemDefault;
       var name     = path.basename(dir);
@@ -130,16 +123,16 @@ describe("Azk generator tool", function() {
       h.expect(mounts).to.have.property('/azk/data', path.join(persist_base, 'data'));
     });
 
-    it("should generate export envs", function() {
+    it('should generate export envs', function() {
       var manifest = generate_manifest(dir, default_data);
       var system   = manifest.system('db');
-      h.expect(system).to.have.deep.property("options.export_envs")
+      h.expect(system).to.have.deep.property('options.export_envs')
         .and.to.eql({
-          DB_URL: "#{envs.USER}:#{envs.PASSWORD}@#{net.host}:#{net.port.3666}"
+          DB_URL: '#{envs.USER}:#{envs.PASSWORD}@#{net.host}:#{net.port.3666}'
         });
     });
 
-    it("should support instances in scalable", function() {
+    it('should support instances in scalable', function() {
       var data = _.merge({}, default_data, { systems: {
         front: {
           scalable: { default: 5 }
@@ -148,35 +141,35 @@ describe("Azk generator tool", function() {
       var manifest = generate_manifest(dir, data);
       var system   = manifest.systemDefault;
 
-      h.expect(system).to.have.deep.property("options.scalable")
+      h.expect(system).to.have.deep.property('options.scalable')
         .and.eql({ default: 5});
     });
 
-    describe("with httop options", function() {
-      it("should generate a simple default host name", function() {
+    describe('with httop options', function() {
+      it('should generate a simple default host name', function() {
         var manifest  = generate_manifest(dir, default_data);
         var system    = manifest.systemDefault;
         var re_domain = RegExp(h.escapeRegExp(`${system.name}.${config('agent:balancer:host')}`));
 
-        h.expect(system).to.have.deep.property("hosts").and.length(1);
-        h.expect(system).to.have.deep.property("hosts[0]").and.match(re_domain);
+        h.expect(system).to.have.deep.property('hosts').and.length(1);
+        h.expect(system).to.have.deep.property('hosts[0]').and.match(re_domain);
       });
 
-      it("should generate a multiple hosts", function() {
+      it('should generate a multiple hosts', function() {
         var data = _.clone(default_data);
         data.systems.front.http = [
           '#{system.name}.#{azk.default_domain}',
           'custom.#{azk.default_domain}',
-        ]
+        ];
 
         var manifest   = generate_manifest(dir, data);
         var system     = manifest.systemDefault;
         var re_default = RegExp(h.escapeRegExp(`${system.name}.${config('agent:balancer:host')}`));
         var re_custom  = RegExp(h.escapeRegExp(`custom.${config('agent:balancer:host')}`));
 
-        h.expect(system).to.have.deep.property("hosts").and.length(2);
-        h.expect(system).to.have.deep.property("hosts[0]").and.match(re_default);
-        h.expect(system).to.have.deep.property("hosts[1]").and.match(re_custom);
+        h.expect(system).to.have.deep.property('hosts').and.length(2);
+        h.expect(system).to.have.deep.property('hosts[0]').and.match(re_default);
+        h.expect(system).to.have.deep.property('hosts[1]').and.match(re_custom);
       });
     });
   });

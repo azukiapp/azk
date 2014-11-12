@@ -1,60 +1,97 @@
-import { config, path, fs, utils } from 'azk';
 import h from 'spec/spec_helper';
-import { Generator } from 'azk/generator';
-import { Manifest } from 'azk/manifest';
+import { Rule } from 'azk/generator/rules/ruby';
 
-describe("Azk generator ruby rule", function() {
-  var project = null;
-  var name    = null;
+describe('Azk generators Ruby rule', function() {
   var outputs = [];
   var UI  = h.mockUI(beforeEach, outputs);
-  var generator = new Generator(UI);
+  var rule;
 
   before(function() {
-    return h.tmp_dir().then((dir) => {
-      project = dir;
-      name    = path.basename(dir);
-    });
+    outputs = [];
+    UI  = h.mockUI(beforeEach, outputs);
+    rule = new Rule(UI);
   });
 
-  var generateAndReturnManifest = (project) => {
-    var manifest = path.join(project, config('manifest'));
-    generator.render({
-      systems: generator.findSystems(project),
-    }, manifest);
-    return new Manifest(project);
-  }
+  it('should return an evidence object', () => {
+    var gemfilePath = '/tmp/azk-test-30501680wvr4/front/Gemfile';
+    var gemfileContent = [
+      'source \'https://rubygems.org\'',
+      'ruby \'1.9.3\'',
+    ].join('\n');
 
-  it("should detect single node system", function() {
-    h.touchSync(path.join(project, "Gemfile"));
-    var manifest = generateAndReturnManifest(project);
-    var system   = manifest.systemDefault;
+    var evidence = rule.getEvidence(gemfilePath, gemfileContent);
 
-    var command  = new RegExp(h.escapeRegExp("bundle exec rackup config.ru --port $HTTP_PORT"));
+    h.expect(evidence).to.have.deep.property('fullpath', gemfilePath);
+    h.expect(evidence).to.have.deep.property('ruleType', 'runtime');
+    h.expect(evidence).to.have.deep.property('name'    , 'ruby');
+    h.expect(evidence).to.have.deep.property('ruleName', 'ruby19');
+    h.expect(evidence).to.have.deep.property('version' , '1.9.3');
 
-    h.expect(system).to.have.deep.property("name", name);
-    h.expect(system).to.have.deep.property("image.name", "dockerfile/ruby:latest");
-    h.expect(system).to.have.deep.property("depends").and.to.eql([]);
-    h.expect(system).to.have.deep.property("command").and.match(command);
-    h.expect(system).to.have.deep.property("mounts")
-      .and.to.eql({ ["/azk/" + name]: utils.docker.resolvePath(manifest.manifestPath) });
-    h.expect(system).to.have.deep.property("options.workdir", "/azk/" + name);
-    h.expect(system).to.have.deep.property("options.provision")
-      .and.to.eql(["bundle install --path vendor/bundler"]);
-
-    h.expect(system).to.have.property("scalable").eql({ default: 2, limit: -1 });
-    h.expect(system).to.have.property("hostname").and.match(new RegExp(name));
   });
 
-  it("should detect sub-system", function() {
-    var sub = path.join(project, "sub");
-    fs.mkdirSync(sub);
-    h.touchSync(path.join(sub, "Gemfile"));
+  it('should get latest ruby version when do not found engine', () => {
+    var gemfilePath = '/tmp/azk-test-30501680wvr4/front/Gemfile';
+    var gemfileContent = [
+      'source \'https://rubygems.org\'',
+    ].join('\n');
 
-    var manifest = generateAndReturnManifest(project);
-    var system   = manifest.system("sub");
-
-    h.expect(system).to.have.deep.property("name", "sub");
-    h.expect(system).to.have.deep.property("options.workdir", "/azk/" + name + "/sub");
+    var evidence = rule.getEvidence(gemfilePath, gemfileContent);
+    h.expect(evidence).to.have.deep.property('ruleName', 'ruby21');
   });
+
+  it('should get latest ruby version when version is too low', () => {
+    var gemfilePath = '/tmp/azk-test-30501680wvr4/front/Gemfile';
+    var gemfileContent = [
+      'source \'https://rubygems.org\'',
+      'ruby \'1.8.1\'',
+    ].join('\n');
+
+    var evidence = rule.getEvidence(gemfilePath, gemfileContent);
+    h.expect(evidence).to.have.deep.property('ruleName', 'ruby21');
+  });
+
+  it('should get 1.9 ruby version when detected', () => {
+    var gemfilePath = '/tmp/azk-test-30501680wvr4/front/Gemfile';
+    var gemfileContent = [
+      'source \'https://rubygems.org\'',
+      'ruby \'1.9.3\'',
+    ].join('\n');
+
+    var evidence = rule.getEvidence(gemfilePath, gemfileContent);
+    h.expect(evidence).to.have.deep.property('ruleName', 'ruby19');
+  });
+
+  it('should get 2.0 ruby version when detected', () => {
+    var gemfilePath = '/tmp/azk-test-30501680wvr4/front/Gemfile';
+    var gemfileContent = [
+      'source \'https://rubygems.org\'',
+      'ruby \'2.0.0\'',
+    ].join('\n');
+
+    var evidence = rule.getEvidence(gemfilePath, gemfileContent);
+    h.expect(evidence).to.have.deep.property('ruleName', 'ruby20');
+  });
+
+  it('should get 2.1 ruby version when detected', () => {
+    var gemfilePath = '/tmp/azk-test-30501680wvr4/front/Gemfile';
+    var gemfileContent = [
+      'source \'https://rubygems.org\'',
+      'ruby \'2.1.0\'',
+    ].join('\n');
+
+    var evidence = rule.getEvidence(gemfilePath, gemfileContent);
+    h.expect(evidence).to.have.deep.property('ruleName', 'ruby21');
+  });
+
+  it('should get jruby if detected', () => {
+    var gemfilePath = '/tmp/azk-test-30501680wvr4/front/Gemfile';
+    var gemfileContent = [
+      'source \'https://rubygems.org\'',
+      'ruby \'1.9.3\', :engine => \'jruby\', :engine_version => \'1.7.16\'',
+    ].join('\n');
+
+    var evidence = rule.getEvidence(gemfilePath, gemfileContent);
+    h.expect(evidence).to.have.deep.property('ruleName', 'jruby17');
+  });
+
 });
