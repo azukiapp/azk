@@ -15,6 +15,11 @@ var fs   = require('fs');
   systems on each folder.
 -------------------
 
+  judge()
+    - _investigate(dir);
+    - _replacesEvidences();
+    - _veredict();
+
 # 1) _investigate(dir);
   - for each rule receives relevantsFiles to search
   - get relevant files with its contents
@@ -52,9 +57,9 @@ var fs   = require('fs');
   ]
 
 ----------------------------------------------------------------
-# 2) _analysis -> _replacesEvidences();
+# 2) _analysis
   - check if the evidence has a 'replaces' array
-  - replaces other evidences on the same path (system)
+  - _replacesEvidences(): replaces other evidences on the same path (system)
   returns -> __evidences_by_folder
      ---------
   :: i.e.
@@ -84,14 +89,15 @@ var fs   = require('fs');
   }
 
 ----------------------------------------------------------------
-# 3) judge(dir)
-  execute above methods:
-    - _investigate(dir);
-    - _replacesEvidences();
-  returns -> __folders_suggestions
+# 3) _veredict()
+  - fills __folders_suggestions with found evidences grouping in folders(systems)
+  - finally converts __folders_suggestions to  __systems_suggestions
+    for the Azkfile mustache template
      ---------
   :: i.e.
-    court.folders_suggestions: [
+    --------------------------------------------------------
+    court.folders_suggestions:
+    [
       {
         path              : '/tmp/azk-test-1632gcdoc1c/api',
 
@@ -106,6 +112,36 @@ var fs   = require('fs');
       }
       ...
     ]
+
+    --------------------------------------------------------
+    __systems_suggestions
+    { api:
+     { __type: 'node.js',
+       name: 'example',
+       depends: [],
+       image: 'node:0.10',
+       workdir: '/azk/#{manifest.dir}/api/api',
+       balancer: true,
+       command: 'npm start',
+       mounts: { '/azk/#{manifest.dir}': [Object] },
+       envs: { NODE_ENV: 'dev' },
+       provision: [ 'npm install' ],
+       http: true,
+       scalable: { default: 2 } },
+    front:
+     { __type: 'rails 4.1',
+       name: 'example',
+       depends: [],
+       image: 'rails:4.1',
+       workdir: '/azk/#{manifest.dir}/front/front',
+       balancer: true,
+       command: 'bundle exec rackup config.ru --port $HTTP_PORT',
+       mounts: { '/azk/#{manifest.dir}': [Object], '/azk/bundler': [Object] },
+       envs: { RAILS_ENV: 'development', BUNDLE_APP_CONFIG: '/azk/bundler' },
+       provision: [ 'bundle install --path /azk/bundler' ],
+       http: true,
+       scalable: { default: 2 },
+       shell: '/bin/bash' } }
 
 */
 export class Court extends UIProxy {
@@ -143,7 +179,7 @@ export class Court extends UIProxy {
   }
 
   get systems_suggestions() {
-    return this.__convertFoldersToSystems(this.__folders_suggestions);
+    return this.__systems_suggestions;
   }
 
   load(dir) {
@@ -289,6 +325,8 @@ export class Court extends UIProxy {
         suggestionChoosen: suggestion,
       });
     }, this);
+
+    this.__systems_suggestions = this.__convertFoldersToSystems(this.__folders_suggestions);
   }
 
   // convert __folders_suggestions to 'systems data' to mustache templates
