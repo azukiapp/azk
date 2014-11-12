@@ -1,22 +1,6 @@
 import { _ } from 'azk';
-import { BaseRule, example_system } from 'azk/generator/rules';
+import { BaseRule } from 'azk/generator/rules';
 var semver = require('semver');
-
-// TODO: suggest an entry for test execution
-
-var suggestion = _.extend({}, example_system, {
-  __type: "ruby",
-  image : "dockerfile/ruby",
-  provision: [
-    "bundle install --path vendor/bundler"
-  ],
-  http: true,
-  scalable: { default: 2 },
-  command : "bundle exec rackup config.ru --port $HTTP_PORT",
-  envs    : {
-    RUBY_ENV: "dev"
-  }
-});
 
 // i.e.: ruby "1.8.7", :engine => "jruby", :engine_version => "1.6.7"
 var getVersion = function(content) {

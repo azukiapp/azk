@@ -16,7 +16,7 @@ export class Suggestion extends UIProxy {
     this.suggestion = _.extend({}, example_system, {
       __type  : 'ruby 2.1',
       image   : 'ruby:2.1',
-      provisio: [
+      provision: [
         'bundle install --path /azk/bundler',
       ],
       http    : true,

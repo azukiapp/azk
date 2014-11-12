@@ -1,9 +1,8 @@
 import { _, config, log } from 'azk';
-import { Helpers, example_system } from 'azk/generator/rules';
+import { example_system } from 'azk/generator/rules';
 import { UIProxy } from 'azk/cli/ui';
 import { Court } from 'azk/generator/court';
 
-var glob = require('glob');
 var path = require('path');
 var fs   = require('fs');
 var Handlebars = require('handlebars');
@@ -64,7 +63,6 @@ function formatDomains(conditional, options) {
 
 function mount(data) {
   if (_.isString(data)) { return json(data); }
-  var type    = data.type;
   var options = _.reduce(data, (opts, value, key) => {
     if (key != 'value' && key != 'type') {
       opts[key] = value;
@@ -74,7 +72,7 @@ function mount(data) {
 
   // args
   var args  = [];
-  if (!_.isUndefined(data.value)) { args.push(data.value) };
+  if (!_.isUndefined(data.value)) args.push(data.value);
   if (!_.isEmpty(options)) args.push(options);
   args = _.map(args, (arg) => { return json(arg); });
 

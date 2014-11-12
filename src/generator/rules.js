@@ -23,7 +23,7 @@ export class BaseRule extends UIProxy {
     throw new Error('Don\'t use \'relevantsFiles\' directly, implements on rule file.');
   }
 
-  getEvidence(path, content) {
+  getEvidence() {
     throw new Error('Don\'t use \'getEvidence\' directly, implements on rule file.');
   }
 

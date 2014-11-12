@@ -21,7 +21,7 @@ export class Suggestion extends UIProxy {
       ],
       http: true,
       scalable: { default: 2 },
-      command : "node index.js",
+      command : "npm start",
       envs    : {
         NODE_ENV: "dev"
       }

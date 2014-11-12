@@ -1,31 +1,5 @@
-import { _ } from 'azk';
-import { BaseRule, exampleSystem } from 'azk/generator/rules';
+import { BaseRule } from 'azk/generator/rules';
 var semver = require('semver');
-
-// TODO: suggest an entry for test execution
-
-var suggestion = _.extend({}, exampleSystem, {
-  __type: 'rails 4.1',
-  image : 'rails:4',
-  provision: [
-    'bundle install --path /azk/bundler',
-    'bundle exec rake db:create',
-    'bundle exec rake db:migrate',
-  ],
-  http: true,
-  scalable: { default: 2 },
-  command : 'bundle exec rails server --pid /tmp/rails.pid --port $HTTP_PORT',
-  shell   : '/bin/bash',
-  // mounts: {
-  //   '/azk/#{manifest.dir}': path('.'),
-  //   '/azk/bundler'        : persistent('bundler'),
-  // },
-  envs: {
-    // set instances variables
-    RUBY_ENV : 'development',
-    BUNDLE_APP_CONFIG : '/azk/bundler',
-  },
-});
 
 var getRailsVersion = function(content) {
 

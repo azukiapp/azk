@@ -143,7 +143,7 @@ export class Court extends UIProxy {
   }
 
   get systems_suggestions() {
-    return this.convertoToSystems(this.__folders_suggestions);
+    return this.__convertFoldersToSystems(this.__folders_suggestions);
   }
 
   load(dir) {
@@ -289,23 +289,32 @@ export class Court extends UIProxy {
     }, this);
   }
 
-  judge(dir) {
-    this._investigate(dir);
-    this._analysis();
-    this._veredict();
-  }
-
-  convertoToSystems() {
+  // convert __folders_suggestions to 'systems data' to mustache templates
+  __convertFoldersToSystems() {
     var systems = {};
+    var root_basename = path.basename(this.__root_folder);
 
     _.forEach(this.__folders_suggestions, function(folderSuggestion) {
       var name = this._getSystemNameByFolder(folderSuggestion.path);
+      var system_basename = path.basename(folderSuggestion.path);
       if(folderSuggestion.suggestionChoosen) {
         systems[name] = folderSuggestion.suggestionChoosen.suggestion;
+
+        // change sub folder workdir
+        if(system_basename !== root_basename) {
+          systems[name].workdir = path.join(systems[name].workdir, system_basename);
+        }
       }
     }, this);
-
     return systems;
+  }
+
+  judge(dir) {
+    this.__root_folder = dir;
+
+    this._investigate(dir);
+    this._analysis();
+    this._veredict();
   }
 
 }
