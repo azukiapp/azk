@@ -1,9 +1,9 @@
-import { config, path, fs } from 'azk';
+import { config, path, fs, utils } from 'azk';
 import h from 'spec/spec_helper';
 import { Generator } from 'azk/generator';
 import { Manifest } from 'azk/manifest';
 
-describe('Azk generator node rule', function() {
+describe('Azk generator generation node rule', function() {
   var project = null;
   var name    = null;
   var outputs = [];
@@ -35,9 +35,14 @@ describe('Azk generator node rule', function() {
     h.expect(system).to.have.deep.property('image.name', 'node:0.10');
     h.expect(system).to.have.deep.property('depends').and.to.eql([]);
     h.expect(system).to.have.deep.property('command').and.to.match(command);
-    // h.expect(system).to.have.deep.property('mounts')
-    //   .and.to.eql({ ['/azk/' + name]: utils.docker.resolvePath(manifest.manifestPath) });
-    h.expect(system).to.have.deep.property('options.workdir', '/azk/' + name);
+
+    var expectedMounts = {};
+    var workdir = '/azk/' + name;
+    expectedMounts[workdir] = utils.docker.resolvePath(manifest.manifestPath);
+    h.expect(system).to.have.deep.property('mounts')
+     .and.to.eql(expectedMounts);
+
+    h.expect(system).to.have.deep.property('options.workdir', workdir);
     h.expect(system).to.have.deep.property('options.provision')
       .and.to.eql(['npm install']);
 

@@ -7,7 +7,7 @@ var example_system = {
   image   : '[repository]:[tag]',
   workdir : '/azk/#{manifest.dir}',
   balancer: true,
-  command : '# command to run app',
+  // command : '# command to run app',
   mounts  : {
     '/azk/#{manifest.dir}': {type: 'path', value: '.'},
   },

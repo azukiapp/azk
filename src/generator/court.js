@@ -314,9 +314,7 @@ export class Court extends UIProxy {
 
   _analysis() {
     this._replacesEvidences();
-  }
 
-  _veredict() {
     this.__folders_suggestions = [];
     _.forEach(this.__evidences_by_folder, function(value, key) {
       var ruleNames = _.map(value, 'ruleName');
@@ -328,7 +326,9 @@ export class Court extends UIProxy {
         suggestionsChoosen: suggestions,
       });
     }, this);
+  }
 
+  _veredict() {
     this.__systems_suggestions = this.__convertFoldersToSystems(this.__folders_suggestions);
   }
 
