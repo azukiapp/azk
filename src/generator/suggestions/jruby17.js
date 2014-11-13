@@ -7,7 +7,7 @@ export class Suggestion extends UIProxy {
     super(...args);
 
     // Readable name for this suggestion
-    this.name = 'jruby 1.7';
+    this.name = 'jruby17';
 
     // Which rules they suggestion is valid
     this.ruleNamesList = ['jruby17'];

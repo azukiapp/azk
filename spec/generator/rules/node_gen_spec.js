@@ -31,7 +31,7 @@ describe('Azk generator node rule', function() {
     var system   = manifest.systemDefault;
     var command  = new RegExp(h.escapeRegExp('npm start'));
 
-    h.expect(system).to.have.deep.property('name', name);
+    h.expect(system).to.have.deep.property('name', name + '-node010');
     h.expect(system).to.have.deep.property('image.name', 'node:0.10');
     h.expect(system).to.have.deep.property('depends').and.to.eql([]);
     h.expect(system).to.have.deep.property('command').and.to.match(command);
@@ -51,9 +51,9 @@ describe('Azk generator node rule', function() {
     h.touchSync(path.join(sub, 'package.json'));
 
     var manifest = generateAndReturnManifest(project);
-    var system   = manifest.system('sub');
+    var system   = manifest.system('sub-node010');
 
-    h.expect(system).to.have.deep.property('name', 'sub');
+    h.expect(system).to.have.deep.property('name', 'sub-node010');
     h.expect(system).to.have.deep.property('options.workdir', '/azk/' + name + '/sub');
   });
 });

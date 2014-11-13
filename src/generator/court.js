@@ -103,7 +103,7 @@ var fs   = require('fs');
 
         evidence          : [ [Object] ],
 
-        suggestionChoosen : {
+        suggestionsChoosen : {
           parent       : [Object],
           name         : 'node 0.10.x',
           ruleNamesList: ['node010'],
@@ -170,12 +170,12 @@ export class Court extends UIProxy {
 
   get rules() {
     return [
-              ...this.__rules.runtime,
-              ...this.__rules.framework,
-              ...this.__rules.database,
-              ...this.__rules.worker,
-              ...this.__rules.task
-           ];
+      ...this.__rules.runtime,
+      ...this.__rules.framework,
+      ...this.__rules.database,
+      ...this.__rules.worker,
+      ...this.__rules.task
+    ];
   }
 
   get systems_suggestions() {
@@ -308,7 +308,7 @@ export class Court extends UIProxy {
     });
   }
 
-  _getSystemNameByFolder(fullpath) {
+  _folderBasename(fullpath) {
     return path.basename(fullpath).replace(/_/g, '-').replace(/[^a-zA-Z0-9-]/g, '');
   }
 
@@ -320,11 +320,12 @@ export class Court extends UIProxy {
     this.__folders_suggestions = [];
     _.forEach(this.__evidences_by_folder, function(value, key) {
       var ruleNames = _.map(value, 'ruleName');
-      var suggestion = this.sugestionChooser.suggest(ruleNames);
+      var suggestions = this.sugestionChooser.suggest(ruleNames);
+
       this.__folders_suggestions.push({
         path: key,
         evidence: value,
-        suggestionChoosen: suggestion,
+        suggestionsChoosen: suggestions,
       });
     }, this);
 
@@ -337,23 +338,29 @@ export class Court extends UIProxy {
     var root_basename = path.basename(this.__root_folder);
 
     _.forEach(this.__folders_suggestions, function(folderSuggestion) {
-      var name = this._getSystemNameByFolder(folderSuggestion.path);
-      var system_basename = path.basename(folderSuggestion.path);
-      if(folderSuggestion.suggestionChoosen) {
-        systems[name] = folderSuggestion.suggestionChoosen.suggestion;
 
-        // change sub folder workdir
-        if(system_basename !== root_basename) {
-          systems[name].workdir = path.join(systems[name].workdir, system_basename);
-        }
+      var name = this._folderBasename(folderSuggestion.path);
+      var system_basename = path.basename(folderSuggestion.path);
+      if(folderSuggestion.suggestionsChoosen) {
+        _.forEach(folderSuggestion.suggestionsChoosen, (suggestionChoosenItem) => {
+
+          var folderNameEvidenceName = name + '-' + suggestionChoosenItem.name;
+          folderNameEvidenceName = folderNameEvidenceName.replace(/_/g, '-').replace(/[^a-zA-Z0-9-]/g, '');
+          systems[folderNameEvidenceName] = suggestionChoosenItem.suggestion;
+
+          // when on a sub-folder change workdir
+          if(system_basename !== root_basename) {
+            systems[folderNameEvidenceName].workdir = path.join(systems[folderNameEvidenceName].workdir, system_basename);
+          }
+        });
       }
     }, this);
+
     return systems;
   }
 
   judge(dir) {
     this.__root_folder = dir;
-
     this._investigate(dir);
     this._analysis();
     this._veredict();

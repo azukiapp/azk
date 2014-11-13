@@ -7,7 +7,7 @@ export class Suggestion extends UIProxy {
     super(...args);
 
     // Readable name for this suggestion
-    this.name = 'ruby 2.0';
+    this.name = 'ruby20';
 
     // Which rules they suggestion is valid
     this.ruleNamesList = ['ruby20'];

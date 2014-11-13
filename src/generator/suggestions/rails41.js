@@ -7,7 +7,7 @@ export class Suggestion extends UIProxy {
     super(...args);
 
     // Readable name for this suggestion
-    this.name = 'rails 4.1';
+    this.name = 'rails';
 
     // Which rules they suggestion is valid
     this.ruleNamesList = ['rails41'];

@@ -137,12 +137,10 @@ describe('Azk generator tool court veredict:', function() {
 
   });
 
-  it('should judge and suggest 3 systems', function() {
+  it('should judge and suggest 2 folders', function() {
     court.judge(rootFullPath);
     var folders = Object.keys(court.__folders_suggestions);
-
-    console.log('\n>>---------\n court.__folders_suggestions:', court.__folders_suggestions, '\n>>---------\n');
-    h.expect(folders).to.have.length(3);
+    h.expect(folders).to.have.length(2);
 
   });
 
@@ -158,8 +156,8 @@ describe('Azk generator tool court veredict:', function() {
     h.expect(firstEvidence).to.have.property('version', '0.4.1');
 
     // first suggestion
-    var firstSuggestion = suggestion0.suggestionChoosen;
-    h.expect(firstSuggestion).to.have.property('name', 'node 0.10.x');
+    var firstSuggestion = suggestion0.suggestionsChoosen[0];
+    h.expect(firstSuggestion).to.have.property('name', 'node010');
     h.expect(firstSuggestion.ruleNamesList).to.contains('node010');
     h.expect(firstSuggestion.suggestion).have.property('__type', 'node.js');
   });
@@ -167,7 +165,12 @@ describe('Azk generator tool court veredict:', function() {
   it('should suggest systems for the Azkfile.js template', function() {
     court.judge(rootFullPath);
     var folders = Object.keys(court.systems_suggestions);
-    h.expect(folders).to.have.length(2);
+    h.expect(folders).to.have.length(3);
+
+    h.expect(folders).to.contains('api-node010');
+    h.expect(folders).to.contains('front-rails');
+    h.expect(folders).to.contains('front-postgres');
+
   });
 
 });

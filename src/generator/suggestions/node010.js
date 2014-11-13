@@ -7,7 +7,7 @@ export class Suggestion extends UIProxy {
     super(...args);
 
     // Readable name for this suggestion
-    this.name = 'node 0.10.x';
+    this.name = 'node010';
 
     // Which rules they suggestion is valid
     this.ruleNamesList = ['node010'];

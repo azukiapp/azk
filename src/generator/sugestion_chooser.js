@@ -26,10 +26,11 @@ export class SugestionChooser extends UIProxy {
   }
 
   suggest(ruleNamesList) {
-    return _.find(this.suggestions, (suggestion) => {
-      // try find same combinations of systems on ruleNamesList
-      var diff = _.difference(suggestion.ruleNamesList, ruleNamesList);
-      return (diff.length === 0);
+    return _.map(ruleNamesList, (ruleName) => {
+      return _.find(this.suggestions, (suggestion) => {
+        var diff = _.difference([ ruleName ], suggestion.ruleNamesList);
+        return diff.length === 0;
+      });
     });
   }
 
