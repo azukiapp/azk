@@ -15,6 +15,9 @@
 <a name="full_manifest_example"/>
 ## Full Azkfile.js example
 
+Obs: this is just an example with all the choices available on `Azkfile.js`,
+it is not a valid configuration for an application. Use it only as reference.
+
 ```js
 // Adds the systems that shape your system
 systems({
@@ -34,7 +37,7 @@ systems({
       "/azk/#{manifest.dir}": path("."),
     },
     // Start with 2 instances
-    scalable: { default: 2}
+    scalable: { default: 2},
     // Set hostname to use in http balancer
     http: {
       // node-example.dev.azk.io
