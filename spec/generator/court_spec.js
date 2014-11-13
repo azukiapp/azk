@@ -64,7 +64,7 @@ describe('Azk generator tool court veredict:', function() {
     // Asks rule about which files to lookup
     var relevantFiles = court.relevantsFiles();
 
-    h.expect(relevantFiles.length).to.equal(2);
+    h.expect(relevantFiles.length).to.equal(3);
     h.expect(relevantFiles).to.include('Gemfile');
     h.expect(relevantFiles).to.include('package.json');
   });
