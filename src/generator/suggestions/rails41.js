@@ -18,6 +18,8 @@ export class Suggestion extends UIProxy {
       image   : 'rails:4.1',
       provision: [
         'bundle install --path /azk/bundler',
+        'bundle exec rake db:create',
+        'bundle exec rake db:migrate',
       ],
       http    : true,
       scalable: { default: 2 },

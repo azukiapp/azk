@@ -4,6 +4,7 @@ var example_system = {
   __type  : 'example',
   name    : 'example',
   depends : [],
+  shell   : '/bin/bash',
   image   : '[repository]:[tag]',
   workdir : '/azk/#{manifest.dir}',
   balancer: true,

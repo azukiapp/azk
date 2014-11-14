@@ -152,8 +152,8 @@ export class Court extends UIProxy {
 
     this.__rules = {
       runtime   : [],
-      framework : [],
       database  : [],
+      framework : [],
       worker    : [],
       task      : [],
     };
@@ -171,8 +171,8 @@ export class Court extends UIProxy {
   get rules() {
     return [
       ...this.__rules.runtime,
-      ...this.__rules.framework,
       ...this.__rules.database,
+      ...this.__rules.framework,
       ...this.__rules.worker,
       ...this.__rules.task
     ];
@@ -349,7 +349,7 @@ export class Court extends UIProxy {
           systems[folderNameEvidenceName] = suggestionChoosenItem.suggestion;
 
           // when on a sub-folder change workdir
-          if(system_basename !== root_basename) {
+          if(system_basename !== root_basename && systems[folderNameEvidenceName].workdir) {
             systems[folderNameEvidenceName].workdir = path.join(systems[folderNameEvidenceName].workdir, system_basename);
           }
         });

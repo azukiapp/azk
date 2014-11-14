@@ -37,7 +37,7 @@ export class Generator extends UIProxy {
     }, data);
 
     var renderedTemplate = this.tpl(data);
-    log.debug('renderedTemplate:', renderedTemplate);
+    // log.debug('renderedTemplate:', renderedTemplate);
 
     fs.writeFileSync(file, renderedTemplate);
   }

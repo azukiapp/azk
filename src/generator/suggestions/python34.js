@@ -17,18 +17,19 @@ export class Suggestion extends UIProxy {
       __type  : 'python 3.4',
       image   : 'python:3.4',
       provision: [
-        'pip install --user -e django-trunk',
+        'pip install --user Django',
       ],
       http    : true,
       scalable: { default: 2 },
       command : 'python manage.py runserver 0.0.0.0:$HTTP_PORT',
       shell   : '/bin/bash',
       mounts  : {
-        '/azk/#{manifest.dir}': {type: 'path', value: '.'}
+        '/azk/#{manifest.dir}': {type: 'path',       value: '.'},
+        '/azk/pythonuserbase':  {type: 'persistent', value: 'pythonuserbase'},
       },
       envs    : {
-        // RUBY_ENV : 'development',
-        PYTHONUSERBASE: '/azk/myappenv',
+        PATH : '/azk/pythonuserbase/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
+        PYTHONUSERBASE: '/azk/pythonuserbase',
       }
     });
   }

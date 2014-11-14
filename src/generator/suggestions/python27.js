@@ -17,7 +17,7 @@ export class Suggestion extends UIProxy {
       __type  : 'python 2.7',
       image   : 'python:2.7',
       provision: [
-        'pip install -e django-trunk',
+        'pip install django-trunk',
       ],
       http    : true,
       scalable: { default: 2 },

@@ -45,45 +45,30 @@ describe('Azk generator generation mysql rule', function() {
   it('should detect single mysql system', function() {
     var manifest = generateAndReturnManifest(projectFolder);
 
-    /******************************************************************************/
-    // { manifest:
-    //    { images: {},
-    //      systems:
-    //       { 'project-rails':
-    //          { manifest: [Circular],
-    //            name: 'project-rails',
-    //            image: [Object],
-    //            __options: [Object] },
-    //         'project-mysql': [Circular] },
-    //      bins: {},
-    //      _default: 'project-rails',
-    //      cwd: '/tmp/azk-test-1876421jcflc/project',
-    //      __file: '/tmp/azk-test-1876421jcflc/project/Azkfile.js',
-    //      __cache_dir: '/tmp/azk-test-1876421jcflc/project/.azk/Azkfile.js',
-    //      meta: { manifest: [Circular], __cache: null } },
-    //   name: 'project-mysql',
-    //   image: { repository: 'mysql', tag: '5.6' },
-    //   __options:
-    //    { shell: '/bin/sh',
-    //      depends: [ [length]: 0 ],
-    //      envs:
-    //       { MYSQL_ROOT_PASSWORD: 'mysecretpassword',
-    //         MYSQL_USER: 'azk',
-    //         MYSQL_PASSWORD: 'password',
-    //         MYSQL_DATABASE: 'my_database' },
-    //      scalable: false,
-    //      workdir: '/azk/project',
-    //      command: null,
-    //      mounts:
-    //       { '/var/lib/mysql':
-    //          { type: 'persistent',
-    //            value: 'mysql_libproject-mysql' } },
-    //      ports: { portA: '3306/tcp' },
-    //      export_envs: { DATABASE_URL: 'mysql://#{envs.MYSQL_USER}:#{envs.MYSQL_PASSWORD}@#{net.host}:#{net.port.data}/#{envs.MYSQL_DATABASE}' } } }
-
-    /******************************************************************************/
-
     var mysqlSystem = manifest.systems[path.basename(projectFolder) + '-mysql'];
+
+/****** DEBUG ******************************************************************/
+/******************************************************************************/
+var debugSource = mysqlSystem.__options;
+var util = require('util');
+var scrubbed = util.inspect(debugSource, {
+  showHidden: true,
+  depth: 3,
+  colors: true
+});
+
+console.log(
+  '\n>>------------------------------------------------------\n' +
+  '  source: ( ' + __filename + ' )'                             +
+  '\n  ------------------------------------------------------\n' +
+  '  $ mysqlSystem'                                                     +
+  '\n  ------------------------------------------------------\n' +
+     scrubbed                                                    +
+  '\n<<------------------------------------------------------\n'
+);
+
+/******************************************************************************/
+/****** \DEBUG ***************************************************************/
 
 
     h.expect(mysqlSystem).to.have.deep.property('name', path.basename(projectFolder) + '-mysql');

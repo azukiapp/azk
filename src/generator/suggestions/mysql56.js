@@ -21,9 +21,13 @@ export class Suggestion extends UIProxy {
       },
       balancer: false,
       http: false,
+      command: null,
+      workdir: null,
+      mounts  : null,
       shell   : '/bin/bash',
-      mounts  : {
-        '/var/lib/mysql': {type: 'persistent', value: 'mysql_lib#{system.name}'}
+      wait: {
+        retry: 1000,
+        timeout: 25
       },
       envs: {
         // set instances variables
@@ -33,41 +37,13 @@ export class Suggestion extends UIProxy {
         MYSQL_DATABASE: "my_database",
       },
       export_envs: {
-        DATABASE_URL: "mysql://#{envs.MYSQL_USER}:#{envs.MYSQL_PASSWORD}@#{net.host}:#{net.port.data}/${envs.MYSQL_DATABASE}",
+        DATABASE_URL: "mysql://#{envs.MYSQL_USER}:#{envs.MYSQL_PASSWORD}@#{net.host}:#{net.port.portA}/${envs.MYSQL_DATABASE}",
       },
     });
   }
 
   suggest() {
     var suggestion = this.suggestion;
-    delete suggestion.workdir;
-    delete suggestion.command;
-
-
-    /****** DEBUG ******************************************************************/
-    /******************************************************************************/
-    var debugSource = suggestion;
-    var util = require('util');
-    var scrubbed = util.inspect(debugSource, {
-      showHidden: true,
-      depth: 3,
-      colors: true
-    });
-
-    console.log(
-      '\n>>------------------------------------------------------\n' +
-      '  source: ( ' + __filename + ' )'                             +
-      '\n  ------------------------------------------------------\n' +
-      '  $ suggestion'                                                     +
-      '\n  ------------------------------------------------------\n' +
-         scrubbed                                                    +
-      '\n<<------------------------------------------------------\n'
-    );
-
-    /******************************************************************************/
-    /****** \DEBUG ***************************************************************/
-
-
     return suggestion;
   }
 }

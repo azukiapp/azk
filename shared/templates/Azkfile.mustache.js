@@ -29,7 +29,18 @@ systems({
     {{~#if workdir}}
     workdir: "{{&workdir}}",
     {{~/if}}
+    {{~#if shell}}
+    shell: "{{&shell}}",
+    {{~/if}}
+    {{~#if wait}}
+    wait: {
+      {{~#each wait}}
+      {{&hash_key @key}}: {{&json this}},{{/each}}
+    },
+    {{~/if}}
+    {{~#if command}}
     command: {{&json command}},
+    {{~/if}}
     {{~#if mounts }}
     mounts: {
       {{~#each mounts}}
