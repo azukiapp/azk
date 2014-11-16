@@ -90,29 +90,41 @@ var fs   = require('fs');
 
 ----------------------------------------------------------------
 # 3) _veredict()
-  - fills __folders_suggestions with found evidences grouping in folders(systems)
-  - finally converts __folders_suggestions to  __systems_suggestions
+  - fills __folder_evidences_suggestion with found evidences grouping in folders(systems)
+  - set system name
+  - set database dependencies for [framework,runtime] suggestions
+  - finally converts __folder_evidences_suggestion to  __systems_suggestions
     for the Azkfile mustache template
      ---------
   :: i.e.
     --------------------------------------------------------
-    court.folders_suggestions:
+    folders_evidence_suggestion:
     [
-      {
-        path              : '/tmp/azk-test-1632gcdoc1c/api',
 
-        evidence          : [ [Object] ],
-
-        suggestionsChoosen : {
-          parent       : [Object],
-          name         : 'node 0.10.x',
-          ruleNamesList: ['node010'],
-          suggestion   : [Object]
-        }
+      { fullpath: '/tmp/azk-test-28160o76dgi8/project/Gemfile',
+        ruleType: 'database',
+        name: 'mysql',
+        ruleName: 'mysql56',
+        suggestionChoosen:
+         { parent: [Object],
+           name: 'mysql',
+           ruleNamesList: [Object],
+           suggestion: [Object] }
       }
-      ...
-    ]
 
+      { fullpath: '/tmp/azk-test-28160o76dgi8/project/Gemfile',
+        ruleType: 'framework',
+        name: 'rails',
+        ruleName: 'rails41',
+        replaces: [ 'ruby', 'node' ],
+        version: '4.1.6',
+        suggestionChoosen:
+         { parent: [Object],
+           name: 'rails',
+           ruleNamesList: [Object],
+           suggestion: [Object] }
+      }
+    ]
     --------------------------------------------------------
     __systems_suggestions
     { api:
@@ -160,7 +172,7 @@ export class Court extends UIProxy {
 
     this.__evidences = [];
     this.__evidences_by_folder = [];
-    this.__folders_suggestions = [];
+    this.__folder_evidences_suggestion = [];
     this.__systems_suggestions = [];
 
     // Load default rules
@@ -315,45 +327,79 @@ export class Court extends UIProxy {
   _analysis() {
     this._replacesEvidences();
 
-    this.__folders_suggestions = [];
+    this.__folder_evidences_suggestion = [];
     _.forEach(this.__evidences_by_folder, function(value, key) {
-      var ruleNames = _.map(value, 'ruleName');
-      var suggestions = this.sugestionChooser.suggest(ruleNames);
 
-      this.__folders_suggestions.push({
+
+      var folders_evidence_suggestion = this.sugestionChooser.suggest(value);
+      this.__folder_evidences_suggestion.push({
         path: key,
-        evidence: value,
-        suggestionsChoosen: suggestions,
+        suggestions: folders_evidence_suggestion
       });
+
     }, this);
   }
 
   _veredict() {
-    this.__systems_suggestions = this.__convertFoldersToSystems(this.__folders_suggestions);
+    _.forEach(this.__folder_evidences_suggestion, function(folder_evidence_suggestion) {
+
+      var folderName = folder_evidence_suggestion.path;
+      var evidences_suggestion = folder_evidence_suggestion.suggestions;
+
+      // set system name
+      _.forEach(evidences_suggestion, function(evidence_suggestion) {
+        var folderBasename = this._folderBasename(folderName);
+        var systemName     = folderBasename + '-' + evidence_suggestion.name;
+        var suggestion     = evidence_suggestion.suggestionChoosen.suggestion;
+        suggestion.name = systemName;
+      }, this);
+
+      // get all database suggestions
+      var databaseSuggestions = _.filter(evidences_suggestion, function(evidence_suggestion) {
+        return evidence_suggestion.ruleType === 'database';
+      });
+
+      // get all [framework,runtime] suggestions
+      var runtimeFrameWorkSuggestions = _.filter(evidences_suggestion, function(evidence_suggestion) {
+        return evidence_suggestion.ruleType === 'runtime' ||
+               evidence_suggestion.ruleType === 'framework';
+      });
+
+      // include database dependency on [framework,runtime] suggestions
+      if(databaseSuggestions.length > 0 && runtimeFrameWorkSuggestions.length > 0) {
+        _.forEach(runtimeFrameWorkSuggestions, function(system) {
+          var runtimeFrameWorkSuggestions = system.suggestionChoosen.suggestion;
+          var firstDatabaseName = databaseSuggestions[0].suggestionChoosen.suggestion.name;
+          runtimeFrameWorkSuggestions.depends = [firstDatabaseName];
+        }, this);
+      }
+    }, this);
+
+    this.__systems_suggestions = this.__convertFoldersToSystems(this.__folder_evidences_suggestion);
   }
 
-  // convert __folders_suggestions to 'systems data' to mustache templates
+  // convert __folder_evidences_suggestion to 'systems data' to mustache templates
   __convertFoldersToSystems() {
     var systems = {};
-    var root_basename = path.basename(this.__root_folder);
 
-    _.forEach(this.__folders_suggestions, function(folderSuggestion) {
+    _.forEach(this.__folder_evidences_suggestion, function(folder_evidence_suggestion) {
 
-      var name = this._folderBasename(folderSuggestion.path);
-      var system_basename = path.basename(folderSuggestion.path);
-      if(folderSuggestion.suggestionsChoosen) {
-        _.forEach(folderSuggestion.suggestionsChoosen, (suggestionChoosenItem) => {
+      var folderName = folder_evidence_suggestion.path;
+      var folderBasename = this._folderBasename(folderName);
+      var evidences_suggestion = folder_evidence_suggestion.suggestions;
 
-          var folderNameEvidenceName = name + '-' + suggestionChoosenItem.name;
-          folderNameEvidenceName = folderNameEvidenceName.replace(/_/g, '-').replace(/[^a-zA-Z0-9-]/g, '');
-          systems[folderNameEvidenceName] = suggestionChoosenItem.suggestion;
+      _.forEach(evidences_suggestion, function(evidence_suggestion) {
+        var suggestion     = evidence_suggestion.suggestionChoosen.suggestion;
 
-          // when on a sub-folder change workdir
-          if(system_basename !== root_basename && systems[folderNameEvidenceName].workdir) {
-            systems[folderNameEvidenceName].workdir = path.join(systems[folderNameEvidenceName].workdir, system_basename);
-          }
-        });
-      }
+        // create a new system
+        systems[suggestion.name] = suggestion;
+
+        // when in a sub-folder change `workdir`
+        if(folderName !== this.__root_folder && systems[suggestion.name].workdir) {
+          systems[suggestion.name].workdir = path.join(systems[suggestion.name].workdir, folderBasename);
+        }
+
+      }, this);
     }, this);
 
     return systems;

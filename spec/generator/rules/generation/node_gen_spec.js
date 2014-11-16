@@ -4,40 +4,40 @@ import { Generator } from 'azk/generator';
 import { Manifest } from 'azk/manifest';
 
 describe('Azk generator generation node rule', function() {
-  var project = null;
-  var name    = null;
+  var project_folder = null;
+  var project_folder_name    = null;
   var outputs = [];
   var UI  = h.mockUI(beforeEach, outputs);
   var generator = new Generator(UI);
 
   before(function() {
     return h.tmp_dir().then((dir) => {
-      project = dir;
-      name    = path.basename(dir);
+      project_folder      = dir;
+      project_folder_name = path.basename(dir);
     });
   });
 
-  var generateAndReturnManifest = (project) => {
-    var manifest = path.join(project, config('manifest'));
+  var generateAndReturnManifest = (project_folder) => {
+    var manifest = path.join(project_folder, config('manifest'));
     generator.render({
-      systems: generator.findSystems(project),
+      systems: generator.findSystems(project_folder),
     }, manifest);
-    return new Manifest(project);
+    return new Manifest(project_folder);
   };
 
   it('should detect single node system', function() {
-    h.touchSync(path.join(project, 'package.json'));
-    var manifest = generateAndReturnManifest(project);
+    h.touchSync(path.join(project_folder, 'package.json'));
+    var manifest = generateAndReturnManifest(project_folder);
     var system   = manifest.systemDefault;
     var command  = new RegExp(h.escapeRegExp('npm start'));
 
-    h.expect(system).to.have.deep.property('name', name + '-node010');
+    h.expect(system).to.have.deep.property('name', project_folder_name + '-node');
     h.expect(system).to.have.deep.property('image.name', 'node:0.10');
     h.expect(system).to.have.deep.property('depends').and.to.eql([]);
     h.expect(system).to.have.deep.property('command').and.to.match(command);
 
     var expectedMounts = {};
-    var workdir = '/azk/' + name;
+    var workdir = '/azk/' + project_folder_name;
     expectedMounts[workdir] = utils.docker.resolvePath(manifest.manifestPath);
     h.expect(system).to.have.deep.property('mounts')
      .and.to.eql(expectedMounts);
@@ -47,18 +47,18 @@ describe('Azk generator generation node rule', function() {
       .and.to.eql(['npm install']);
 
     h.expect(system).to.have.property('scalable').and.eql({ default: 2, limit: -1 });
-    h.expect(system).to.have.property('hostname').and.match(new RegExp(name));
+    h.expect(system).to.have.property('hostname').and.match(new RegExp(project_folder_name));
   });
 
   it('should detect sub-system', function() {
-    var sub = path.join(project, 'sub');
+    var sub = path.join(project_folder, 'sub');
     fs.mkdirSync(sub);
     h.touchSync(path.join(sub, 'package.json'));
 
-    var manifest = generateAndReturnManifest(project);
-    var system   = manifest.system('sub-node010');
+    var manifest = generateAndReturnManifest(project_folder);
+    var system   = manifest.system('sub-node');
 
-    h.expect(system).to.have.deep.property('name', 'sub-node010');
-    h.expect(system).to.have.deep.property('options.workdir', '/azk/' + name + '/sub');
+    h.expect(system).to.have.deep.property('name', 'sub-node');
+    h.expect(system).to.have.deep.property('options.workdir', '/azk/' + project_folder_name + '/sub');
   });
 });

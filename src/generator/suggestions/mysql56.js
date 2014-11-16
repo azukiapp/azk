@@ -37,7 +37,7 @@ export class Suggestion extends UIProxy {
         MYSQL_DATABASE: "my_database",
       },
       export_envs: {
-        DATABASE_URL: "mysql://#{envs.MYSQL_USER}:#{envs.MYSQL_PASSWORD}@#{net.host}:#{net.port.portA}/${envs.MYSQL_DATABASE}",
+        DATABASE_URL: "mysql2://#{envs.MYSQL_USER}:#{envs.MYSQL_PASSWORD}@#{net.host}:#{net.port.portA}/${envs.MYSQL_DATABASE}",
       },
     });
   }

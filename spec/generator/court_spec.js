@@ -96,7 +96,9 @@ describe('Azk generator tool court veredict:', function() {
     court._investigate(rootFullPath);
     court._replacesEvidences();
 
-    var filteredEvidences = _.values(court.__evidences_by_folder);
+    var keys = Object.keys(court.__evidences_by_folder);
+    h.expect(keys).to.have.length(2);
+
     /*
     [
        [
@@ -104,42 +106,39 @@ describe('Azk generator tool court veredict:', function() {
              fullpath:'/tmp/azk-test-302101g49y9s/api/package.json',
              ruleType:'runtime',
              name:'node',
-             ruleName:'node010',     <----------
+             ruleName:'node010',     <----------  [0][0]
              version:'0.4.1'
           }
        ],
        [
           {
              fullpath:'/tmp/azk-test-302101g49y9s/front/Gemfile',
-             ruleType:'framework',
-             name:'rails',
-             ruleName:'rails41',     <----------
-             replaces:[
-                Object
-             ],
-             version:'4.1.6',
-             detections:[
-                Object
-             ]
-          },
-          {
-             fullpath:'/tmp/azk-test-302101g49y9s/front/Gemfile',
              ruleType:'database',
              name:'postgres',
-             ruleName:'postgres93'   <----------
+             ruleName:'postgres93'   <----------  [1][0]
           }
+          {
+             fullpath:'/tmp/azk-test-302101g49y9s/front/Gemfile',
+             ruleType:'framework',
+             name:'rails',
+             ruleName:'rails41',     <----------  [1][1]
+             replaces:[ 'ruby', 'node' ],
+             version:'4.1.6'
+          },
        ]
     ]
     */
+    var filteredEvidences = _.values(court.__evidences_by_folder);
+
     h.expect(filteredEvidences[0][0]).to.have.property('ruleName', 'node010');
-    h.expect(filteredEvidences[1][0]).to.have.property('ruleName', 'rails41');
-    h.expect(filteredEvidences[1][1]).to.have.property('ruleName', 'postgres93');
+    h.expect(filteredEvidences[1][0]).to.have.property('ruleName', 'postgres93');
+    h.expect(filteredEvidences[1][1]).to.have.property('ruleName', 'rails41');
 
   });
 
-  it('should judge and suggest 2 folders', function() {
+  it('should judge and insert database dependency on rails', function() {
     court.judge(rootFullPath);
-    var folders = Object.keys(court.__folders_suggestions);
+    var folders = Object.keys(court.__folder_evidences_suggestion);
     h.expect(folders).to.have.length(2);
 
   });
@@ -148,18 +147,18 @@ describe('Azk generator tool court veredict:', function() {
     court.judge(rootFullPath);
 
     // first evidence
-    var suggestion0 = court.__folders_suggestions[0];
-    var firstEvidence = suggestion0.evidence[0];
+    var evidence0 = court.__folder_evidences_suggestion[0].suggestions[0];
+    var firstEvidence = evidence0;
     h.expect(firstEvidence).to.have.property('ruleType', 'runtime');
     h.expect(firstEvidence).to.have.property('name', 'node');
     h.expect(firstEvidence).to.have.property('ruleName', 'node010');
     h.expect(firstEvidence).to.have.property('version', '0.4.1');
 
     // first suggestion
-    var firstSuggestion = suggestion0.suggestionsChoosen[0];
-    h.expect(firstSuggestion).to.have.property('name', 'node010');
-    h.expect(firstSuggestion.ruleNamesList).to.contains('node010');
-    h.expect(firstSuggestion.suggestion).have.property('__type', 'node.js');
+    var firstSuggestion = evidence0.suggestionChoosen.suggestion;
+    h.expect(firstSuggestion).to.have.property('name', 'api-node');
+    h.expect(evidence0.suggestionChoosen.ruleNamesList).to.contains('node010');
+    h.expect(firstSuggestion).have.property('__type', 'node.js');
   });
 
   it('should suggest systems for the Azkfile.js template', function() {
@@ -167,7 +166,7 @@ describe('Azk generator tool court veredict:', function() {
     var folders = Object.keys(court.systems_suggestions);
     h.expect(folders).to.have.length(3);
 
-    h.expect(folders).to.contains('api-node010');
+    h.expect(folders).to.contains('api-node');
     h.expect(folders).to.contains('front-rails');
     h.expect(folders).to.contains('front-postgres');
 

@@ -25,12 +25,15 @@ export class SugestionChooser extends UIProxy {
     });
   }
 
-  suggest(ruleNamesList) {
-    return _.map(ruleNamesList, (ruleName) => {
-      return _.find(this.suggestions, (suggestion) => {
-        var diff = _.difference([ ruleName ], suggestion.ruleNamesList);
+  suggest(evidences) {
+
+    return _.map(evidences, (evidence) => {
+      var suggestionChoosen = _.find(this.suggestions, (suggestion) => {
+        var diff = _.difference([ evidence.ruleName ], suggestion.ruleNamesList);
         return diff.length === 0;
       });
+      evidence.suggestionChoosen = suggestionChoosen;
+      return evidence;
     });
   }
 

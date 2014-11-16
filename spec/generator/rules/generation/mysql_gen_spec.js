@@ -1,4 +1,4 @@
-import { config, path, fs, utils } from 'azk';
+import { config, path, fs } from 'azk';
 import h from 'spec/spec_helper';
 import { Generator } from 'azk/generator';
 import { Manifest } from 'azk/manifest';
@@ -6,7 +6,6 @@ var qfs = require('q-io/fs');
 
 describe('Azk generator generation mysql rule', function() {
   var project = null;
-  var name    = null;
   var outputs = [];
   var UI  = h.mockUI(beforeEach, outputs);
   var generator = new Generator(UI);
@@ -47,30 +46,6 @@ describe('Azk generator generation mysql rule', function() {
 
     var mysqlSystem = manifest.systems[path.basename(projectFolder) + '-mysql'];
 
-/****** DEBUG ******************************************************************/
-/******************************************************************************/
-var debugSource = mysqlSystem.__options;
-var util = require('util');
-var scrubbed = util.inspect(debugSource, {
-  showHidden: true,
-  depth: 3,
-  colors: true
-});
-
-console.log(
-  '\n>>------------------------------------------------------\n' +
-  '  source: ( ' + __filename + ' )'                             +
-  '\n  ------------------------------------------------------\n' +
-  '  $ mysqlSystem'                                                     +
-  '\n  ------------------------------------------------------\n' +
-     scrubbed                                                    +
-  '\n<<------------------------------------------------------\n'
-);
-
-/******************************************************************************/
-/****** \DEBUG ***************************************************************/
-
-
     h.expect(mysqlSystem).to.have.deep.property('name', path.basename(projectFolder) + '-mysql');
     h.expect(mysqlSystem).to.have.deep.property('image.name', 'mysql:5.6');
     h.expect(mysqlSystem).to.have.deep.property('depends').and.to.eql([]);
@@ -81,8 +56,16 @@ console.log(
     h.expect(mysqlSystem).to.have.deep.property('options.envs.MYSQL_DATABASE', 'my_database');
 
     h.expect(mysqlSystem).to.not.have.deep.property('options.provision');
-    h.expect(mysqlSystem).to.not.have.deep.property('command');
-    h.expect(mysqlSystem).to.not.have.deep.property('workdir');
+    h.expect(mysqlSystem).to.not.have.deep.property('options.command');
+    h.expect(mysqlSystem).to.not.have.deep.property('options.workdir');
+  });
+
+  it('should rails have a mysql dependency', function() {
+    var manifest = generateAndReturnManifest(projectFolder);
+    var railsSystem = manifest.systems[path.basename(projectFolder) + '-rails'];
+
+    h.expect(railsSystem).to.have.deep.property('name', path.basename(projectFolder) + '-rails');
+    h.expect(railsSystem).to.have.deep.property('depends').and.to.eql([path.basename(projectFolder) + '-mysql']);
   });
 
 });
