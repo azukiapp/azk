@@ -22,7 +22,6 @@ export class Suggestion extends UIProxy {
       http    : true,
       scalable: { default: 2 },
       command : 'bundle exec rackup config.ru --port $HTTP_PORT',
-      shell   : '/bin/bash',
       mounts  : {
         '/azk/#{manifest.dir}': {type: 'path', value: '.'},
         '/azk/bundler'        : {type: 'persistent', value: 'bundler'},

@@ -23,8 +23,9 @@ export class Suggestion extends UIProxy {
       http: false,
       command: null,
       workdir: null,
-      mounts  : null,
-      shell   : '/bin/bash',
+      mounts: {
+        '/var/lib/mysql': {type: 'persistent', value: 'mysql_lib#{system.name}'},
+      },
       wait: {
         retry: 25,
         timeout: 1000

@@ -10,24 +10,54 @@ var fs   = require('fs');
 -------------------
   Court
 -------------------
-  Investigates directories looking for files that can define the
-  systems. Suggests Docker images that fills the combination of
-  systems on each folder.
--------------------
 
-  judge()
-    - _investigate(dir);
-    - _replacesEvidences();
-    - _veredict();
+## More generators
+- from issue #46: Adding more generators
+- https://github.com/azukiapp/azk/pull/149
 
-# 1) _investigate(dir);
-  - for each rule receives relevantsFiles to search
-  - get relevant files with its contents
-  - for each detected file executes rule.getEvidence()
-  returns -> __evidences
-     ---------
-  :: i.e.
-  [
+Investigates directories looking for files that can define the systems. Suggests `docker images` that match systems requirements for each folder.
+
+-----------
+## Main Flow
+
+##### Cmd Init():
+```js
+    var systemsData = generator.findSystems(cwd);
+```
+
+##### Generator findSystems(dir):
+```js
+    this.court.judge(dir);
+    return this.court.systems_suggestions;
+```
+
+##### Court judge(dir):
+```js
+  judge(dir) {
+    this.__root_folder = dir;
+    this._investigate(dir);
+    this._analysis();
+    this._veredict();
+  }
+```
+
+##### Cmd Init():
+```js
+    generator.render({ systems: systemsData }, file);
+```
+
+-----------
+## Court judge(dir) details
+
+### _investigate(dir);
+ - For each rule receives `relevantsFiles` to search
+ - Get relevant files with its `contents`
+ - For each detected file executes `rule.getEvidence()`
+
+##### __evidences
+
+```js
+[
    {
       fullpath:'/tmp/azk-test-129227oubphs/api/package.json',
       ruleType:'runtime',
@@ -55,14 +85,15 @@ var fs   = require('fs');
       version:'4.1.6'
    }
   ]
+```
 
-----------------------------------------------------------------
-# 2) _analysis
-  - check if the evidence has a 'replaces' array
-  - _replacesEvidences(): replaces other evidences on the same path (system)
-  returns -> __evidences_by_folder
-     ---------
-  :: i.e.
+
+### _analysis
+  - check if the `evidence` has a `replaces` array
+  - `_replacesEvidences`(): replaces other evidences on the same path (system)
+
+##### __evidences_by_folder
+```js
   {
      "/tmp/azk-test-71169z8zhz4/api": [
         {
@@ -87,17 +118,19 @@ var fs   = require('fs');
         }
      ]
   }
+```
 
-----------------------------------------------------------------
-# 3) _veredict()
-  - fills __folder_evidences_suggestion with found evidences grouping in folders(systems)
-  - set system name
-  - set database dependencies for [framework,runtime] suggestions
-  - finally converts __folder_evidences_suggestion to  __systems_suggestions
-    for the Azkfile mustache template
-     ---------
-  :: i.e.
-    --------------------------------------------------------
+
+### _veredict()
+  - fills `__folder_evidences_suggestion` with found evidences grouping in folders(systems)
+  - set `system name`
+  - set `database dependencies` for `[framework,runtime]` suggestions
+  - finally converts `__folder_evidences_suggestion` to  `__systems_suggestions`
+    for the Azkfile `mustache template`
+
+
+##### folders_evidence_suggestion
+```js
     folders_evidence_suggestion:
     [
 
@@ -125,7 +158,11 @@ var fs   = require('fs');
            suggestion: [Object] }
       }
     ]
-    --------------------------------------------------------
+```
+
+##### __systems_suggestions
+
+```js
     __systems_suggestions
     { api:
      { __type: 'node.js',
@@ -154,6 +191,8 @@ var fs   = require('fs');
        http: true,
        scalable: { default: 2 },
        shell: '/bin/bash' } }
+
+```
 
 */
 export class Court extends UIProxy {

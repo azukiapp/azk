@@ -22,7 +22,6 @@ export class Suggestion extends UIProxy {
       http    : true,
       scalable: { default: 2 },
       command : 'python manage.py runserver 0.0.0.0:$HTTP_PORT',
-      shell   : '/bin/bash',
       mounts  : {
         '/azk/#{manifest.dir}': {type: 'path',       value: '.'},
         '/azk/pythonuserbase':  {type: 'persistent', value: 'pythonuserbase'},
