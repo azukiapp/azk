@@ -72,6 +72,9 @@ var options = mergeConfig({
       repository    : 'azk',
       default_domain: 'azk',
       image_default : 'azukiapp/azktcl:0.0.2',
+      ca_pem        : path.join(paths.vm, '.docker', 'ca.pem'),
+      cert_pem      : path.join(paths.vm, '.docker', 'cert.pem'),
+      key_pem       : path.join(paths.vm, '.docker', 'key.pem'),
       run: {
         timeout: 1000,
         retry: 10,
