@@ -7,13 +7,18 @@ lazy_require(this, {
   Manifest: ['azk/manifest'],
 });
 
+var action_opts = {
+  start: { instances: {}, key: "already" },
+  stop:  { instances: 0 , key: "not_running" },
+};
+
 class Cmd extends ScaleCmd {
   _scale(systems, action, opts) {
-    var options = {
-      start: { instances: {}, key: "already" },
-      stop:  { instances: 0 , key: "not_running" },
-    };
-    options = options[action];
+    var scale_options = action_opts[action];
+
+    opts = _.defaults(opts, {
+      instances: {},
+    });
 
     return async(this, function* () {
       var system, result = 0;
@@ -21,11 +26,17 @@ class Cmd extends ScaleCmd {
 
       while(system = systems.shift()) {
         var ns = ["commands", action];
-        var instances = _.clone(options.instances);
+
+        if (action == "start") {
+          // The number of instances is not set to system.name use "{}"
+          var instances = _.defaults(opts.instances[system.name], _.clone(scale_options.instances));
+        } else {
+          var instances =_.clone(scale_options.instances);
+        };
 
         // Force start scalable = { default: 0 }
         // Only if specified
-        if (!(opts.systems) && action == "start") {
+        if (!(opts.systems) && action == "start" && _.isObject(scale_options.instances)) {
           if (system.scalable.default == 0 && !system.disabled) {
             instances = 1;
           }
@@ -35,7 +46,7 @@ class Cmd extends ScaleCmd {
         var icc = yield super(system, instances, opts);
 
         if (icc == 0) {
-          this.fail([...ns, options.key], system);
+          this.fail([...ns, scale_options.key], system);
           result = SYSTEMS_CODE_ERROR;
         }
       };
@@ -60,8 +71,18 @@ class Cmd extends ScaleCmd {
 
   restart(manifest, systems, opts) {
     return async(this, function* () {
+      var scale_options = _.merge({
+        instances: {}
+      }, opts);
+
+      // save instances count
+      for (var system of systems) {
+        var instances = yield system.instances({ type: "daemon" });
+        scale_options.instances[system.name] = instances.length;
+      }
+
       yield this.stop(manifest, systems, opts);
-      yield this.start(manifest, systems, opts);
+      yield this.start(manifest, systems, scale_options);
     });
   }
 }

@@ -4,5 +4,5 @@
 /lib
 /package
 /node_modules
-npm-debug.log
 /build
+npm-debug.log
