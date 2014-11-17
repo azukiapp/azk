@@ -7,6 +7,10 @@ var example_system = {
   shell   : '/bin/bash',
   image   : '[repository]:[tag]',
   workdir : '/azk/#{manifest.dir}',
+  wait: {
+    retry: 20,
+    timeout: 1000
+  },
   balancer: true,
   command : '# command to run app',
   mounts  : {

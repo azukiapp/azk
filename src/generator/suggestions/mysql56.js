@@ -26,8 +26,8 @@ export class Suggestion extends UIProxy {
       mounts  : null,
       shell   : '/bin/bash',
       wait: {
-        retry: 1000,
-        timeout: 25
+        retry: 25,
+        timeout: 1000
       },
       envs: {
         // set instances variables
