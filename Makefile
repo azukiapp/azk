@@ -18,17 +18,18 @@ NODE = ${NVM_DIR}/${NODE_VERSION}/bin/node
 
 SRC_JS = $(shell cd ${AZK_ROOT_PATH} && find ./src -name '*.*' -print 2>/dev/null)
 
-${AZK_LIB_PATH}/azk: $(SRC_JS) ${AZK_NPM_PATH}
+${AZK_LIB_PATH}/azk: $(SRC_JS) ${AZK_NPM_PATH}/.install
 	@echo "task: $@"
 	@export AZK_LIB_PATH=${AZK_LIB_PATH} && \
 		export AZK_NPM_PATH=${AZK_NPM_PATH} && \
 		${AZK_BIN} nvm grunt newer:traceur && touch ${AZK_LIB_PATH}/azk
 
-${AZK_NPM_PATH}: package.json ${NODE}
+${AZK_NPM_PATH}/.install: package.json ${NODE}
 	@echo "task: $@"
 	@mkdir -p ${AZK_NPM_PATH}
 	@export AZK_LIB_PATH=${AZK_LIB_PATH} && \
-		${AZK_BIN} nvm npm install
+		${AZK_BIN} nvm npm install && \
+		touch ${AZK_NPM_PATH}/.install
 
 ${NODE}:
 	@echo "task: $@"
@@ -105,7 +106,7 @@ FILES_TARGETS = $(foreach file,$(addprefix $(PATH_USR_LIB_AZK)/, $(FILES_ALL)),$
 $(foreach file,$(FILES_ALL),$(eval $(call COPY_FILES,$(AZK_ROOT_PATH),$(PATH_USR_LIB_AZK),$(file))))
 
 # Copy transpiled files
-FILES_JS         = $(shell cd ${AZK_LIB_PATH}/azk && find ./ -name '*.*' -print 2>/dev/null)
+FILES_JS         = $(shell cd ${AZK_LIB_PATH}/azk 2>/dev/null && find ./ -name '*.*' -print 2>/dev/null)
 FILES_JS_TARGETS = $(foreach file,$(addprefix ${PATH_AZK_LIB}/azk/, $(FILES_JS)),$(abspath $(file)))
 $(foreach file,$(FILES_JS),$(eval $(call COPY_FILES,$(AZK_LIB_PATH)/azk,$(PATH_AZK_LIB)/azk,$(file))))
 
