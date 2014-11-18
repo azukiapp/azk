@@ -32,7 +32,7 @@ export class SugestionChooser extends UIProxy {
         var diff = _.difference([ evidence.ruleName ], suggestion.ruleNamesList);
         return diff.length === 0;
       });
-      evidence.suggestionChoosen = suggestionChoosen;
+      evidence.suggestionChoosen = _.cloneDeep(suggestionChoosen);
       return evidence;
     });
   }
