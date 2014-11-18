@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.7.0 - dev
+## v0.7.0 - (2014-18-11)
 
 * Enhancements
   * [Cli] Adding new generators to `azk init`: Node.js 0.10, Python 3.4, jRuby 1.7, Rails 4.1, Ruby 1.9, Ruby 2.0, Ruby 2.1, Mysql 5.6 and Postgres 9.3
