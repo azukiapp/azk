@@ -1,59 +1,109 @@
-import { config, path, fs, utils } from 'azk';
 import h from 'spec/spec_helper';
-import { Generator } from 'azk/generator';
-import { Manifest } from 'azk/manifest';
+import { Rule } from 'azk/generator/rules/node';
 
-describe("Azk generator node rule", function() {
-  var project = null;
-  var name    = null;
+describe('Azk generators Node.js rule', function() {
   var outputs = [];
   var UI  = h.mockUI(beforeEach, outputs);
-  var generator = new Generator(UI);
+  var rule;
 
   before(function() {
-    return h.tmp_dir().then((dir) => {
-      project = dir;
-      name    = path.basename(dir);
-    });
+    outputs = [];
+    UI  = h.mockUI(beforeEach, outputs);
+    rule = new Rule(UI);
   });
 
-  var generateAndReturnManifest = (project) => {
-    var manifest = path.join(project, config('manifest'));
-    generator.render({
-      systems: generator.findSystems(project),
-    }, manifest);
-    return new Manifest(project);
-  }
+  it('should return an node evidence object', () => {
+    var packageJsonfilePath = '/tmp/azk-test-30501680wvr4/front/package.json';
+    var packageJsonContent = [
+      '{',
+      '  "name": "best-practices",',
+      '  "engine": "node >= 0.4.1",',
+      '  "author": "Charlie Robbins <charlie@nodejitsu.com>"',
+      '}',
+    ].join('\n');
 
-  it("should detect single node system", function() {
-    h.touchSync(path.join(project, "package.json"));
-    var manifest = generateAndReturnManifest(project);
-    var system   = manifest.systemDefault;
-    var command  = new RegExp(h.escapeRegExp("node index.js"));
+    var evidence = rule.getEvidence(packageJsonfilePath, packageJsonContent);
 
-    h.expect(system).to.have.deep.property("name", name);
-    h.expect(system).to.have.deep.property("image.name", "dockerfile/nodejs:latest");
-    h.expect(system).to.have.deep.property("depends").and.to.eql([]);
-    h.expect(system).to.have.deep.property("command").and.to.match(command);
-    h.expect(system).to.have.deep.property("mounts")
-      .and.to.eql({ ["/azk/" + name]: utils.docker.resolvePath(manifest.manifestPath) });
-    h.expect(system).to.have.deep.property("options.workdir", "/azk/" + name);
-    h.expect(system).to.have.deep.property("options.provision")
-      .and.to.eql(["npm install"]);
-
-    h.expect(system).to.have.property("scalable").and.eql({ default: 2, limit: -1 });
-    h.expect(system).to.have.property("hostname").and.match(new RegExp(name));
+    h.expect(evidence).to.have.deep.property('fullpath', packageJsonfilePath);
+    h.expect(evidence).to.have.deep.property('ruleType', 'runtime');
+    h.expect(evidence).to.have.deep.property('name'    , 'node');
+    h.expect(evidence).to.have.deep.property('ruleName', 'node010');
+    h.expect(evidence).to.have.deep.property('version' , '0.4.1');
   });
 
-  it("should detect sub-system", function() {
-    var sub = path.join(project, "sub");
-    fs.mkdirSync(sub);
-    h.touchSync(path.join(sub, "package.json"));
+  it('should get latest node version when do not found engine', () => {
+    var packageJsonfilePath = '/tmp/azk-test-30501680wvr4/front/package.json';
+    var packageJsonContent = [
+      '{',
+      '  "name": "best-practices",',
+      '  "author": "Charlie Robbins <charlie@nodejitsu.com>"',
+      '}',
+    ].join('\n');
 
-    var manifest = generateAndReturnManifest(project);
-    var system   = manifest.system("sub");
-
-    h.expect(system).to.have.deep.property("name", "sub");
-    h.expect(system).to.have.deep.property("options.workdir", "/azk/" + name + "/sub");
+    var evidence = rule.getEvidence(packageJsonfilePath, packageJsonContent);
+    h.expect(evidence).to.have.deep.property('ruleName', 'node010');
   });
+
+  it('should get latest node version when version is too low', () => {
+    var packageJsonfilePath = '/tmp/azk-test-30501680wvr4/front/package.json';
+    var packageJsonContent = [
+      '{',
+      '  "name": "best-practices",',
+      '  "engine": "node >= 0.4.1",',
+      '  "author": "Charlie Robbins <charlie@nodejitsu.com>"',
+      '}',
+    ].join('\n');
+
+    var evidence = rule.getEvidence(packageJsonfilePath, packageJsonContent);
+    h.expect(evidence).to.have.deep.property('ruleName', 'node010');
+  });
+
+  it('should get 0.8 version when required', () => {
+    var packageJsonfilePath = '/tmp/azk-test-30501680wvr4/front/package.json';
+    var packageJsonContent = [
+      '{',
+      '  "name": "best-practices",',
+      '  "engines": {',
+      '    "node": "v0.8.0"',
+      '  },',
+      '  "author": "Charlie Robbins <charlie@nodejitsu.com>"',
+      '}',
+    ].join('\n');
+
+    var evidence = rule.getEvidence(packageJsonfilePath, packageJsonContent);
+    h.expect(evidence).to.have.deep.property('ruleName', 'node08');
+  });
+
+  it('should get latest version when version is v0.10', () => {
+    var packageJsonfilePath = '/tmp/azk-test-30501680wvr4/front/package.json';
+    var packageJsonContent = [
+      '{',
+      '  "name": "best-practices",',
+      '  "engines": {',
+      '    "node": "v0.10.0"',
+      '  },',
+      '  "author": "Charlie Robbins <charlie@nodejitsu.com>"',
+      '}',
+    ].join('\n');
+
+    var evidence = rule.getEvidence(packageJsonfilePath, packageJsonContent);
+    h.expect(evidence).to.have.deep.property('ruleName', 'node010');
+  });
+
+  it('should get 0.11 version when version is >= v0.11', () => {
+    var packageJsonfilePath = '/tmp/azk-test-30501680wvr4/front/package.json';
+    var packageJsonContent = [
+      '{',
+      '  "name": "best-practices",',
+      '  "engines": {',
+      '    "node": "v0.11.0"',
+      '  },',
+      '  "author": "Charlie Robbins <charlie@nodejitsu.com>"',
+      '}',
+    ].join('\n');
+
+    var evidence = rule.getEvidence(packageJsonfilePath, packageJsonContent);
+    h.expect(evidence).to.have.deep.property('ruleName', 'node011');
+  });
+
 });

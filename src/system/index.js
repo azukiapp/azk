@@ -338,7 +338,7 @@ export class System {
       this._mounts_to_volumes(options.mounts)
     );
 
-    return {
+    var finalOptions = {
       daemon: daemon,
       ports: ports,
       stdout: options.stdout,
@@ -355,6 +355,8 @@ export class System {
         seq  : (options.sequencies[type] || 1),
       }}
     };
+
+    return finalOptions;
   }
 
   _envs_from_file() {

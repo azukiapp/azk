@@ -1,0 +1,16 @@
+{
+	"undef": true,
+	"unused": true,
+	"esnext": true,
+	"node": true,
+
+	"predef": [
+        "before",
+        "after",
+        "beforeEach",
+        "afterEach",
+        "describe",
+        "it",
+        "_"
+    ]
+}

@@ -1,5 +1,5 @@
 import { _, config, fs, path, async, lazy_require } from 'azk';
-import { Command, Helpers } from 'azk/cli/command';
+import { Command } from 'azk/cli/command';
 
 lazy_require(this, {
   Generator() {
@@ -24,13 +24,14 @@ class Cmd extends Command {
         return 1;
       }
 
-      var systems = generator.findSystems(cwd);
-      if (_.isEmpty(systems)) {
+      var systemsData = generator.findSystems(cwd);
+
+      if (_.isEmpty(systemsData)) {
         this.fail(this.tKeyPath("not_found"));
-        systems = { [example_system.name]: example_system };
+        systemsData = { [example_system.name]: example_system };
       }
 
-      generator.render({ systems }, file);
+      generator.render({ systems: systemsData }, file);
       this.ok(this.tKeyPath('generated'), manifest);
 
       // Only show tips if is a git dir

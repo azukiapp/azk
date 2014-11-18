@@ -15,6 +15,9 @@
 <a name="full_manifest_example"/>
 ## Full Azkfile.js example
 
+Obs: this is just an example with all the choices available on `Azkfile.js`,
+it is not a valid configuration for an application. Use it only as reference.
+
 ```js
 // Adds the systems that shape your system
 systems({
@@ -34,7 +37,7 @@ systems({
       "/azk/#{manifest.dir}": path("."),
     },
     // Start with 2 instances
-    scalable: { default: 2}
+    scalable: { default: 2},
     // Set hostname to use in http balancer
     http: {
       // node-example.dev.azk.io
@@ -120,7 +123,7 @@ $ azk start
 
 Until recently, version `0.6.0` was still an alpha version, but now it has reached a maturity level that makes it a beta version (now it can be installed and updated by installation packages).
 
-For those who have tested it before (pior to this beta version), please perform the following procedures before installing the new version:
+For those who have tested it before (prior to this beta version), please perform the following procedures before installing the new version:
 
 1. **Warning:** `azk 0.6.0` is NOT backward compatible with prior versions, therefore your persistent folders like dependencies or databases will be deleted. To perform a backup:
 

@@ -97,18 +97,19 @@ var Run = {
       var container  = yield docker.run(system.image.name, command, docker_opt);
 
       if (options.wait) {
+
         // TODO: support to wait udp protocol
         var data = yield container.inspect();
         var port_data = _.chain(data.NetworkSettings.Access)
           .filter((port) => {
-            return port.protocol == 'tcp'
+            return port.protocol == 'tcp';
           })
           .find()
           .value();
 
         if (!_.isEmpty(port_data)) {
-          var retry   = options.wait.timeout || config('docker:run:retry');
-          var timeout = options.wait.retry   || config('docker:run:timeout');
+          var retry   = options.wait.retry   || config('docker:run:retry');
+          var timeout = options.wait.timeout || config('docker:run:timeout');
 
           yield this._wait_available(system, port_data, container, retry, timeout);
         }
