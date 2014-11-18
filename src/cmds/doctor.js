@@ -1,11 +1,9 @@
 import { _, async, config, lazy_require } from 'azk';
-import { Command } from 'azk/cli/command';
+import { Command, Helpers } from 'azk/cli/command';
 import Azk from 'azk';
 
 lazy_require(this, {
-  Client() {
-    return require('azk/agent/client').Client;
-  },
+  Client: ['azk/agent/client'],
 });
 
 class Cmd extends Command {
@@ -18,6 +16,11 @@ class Cmd extends Command {
       // Get agent status
       var agent = yield Client.status();
       var require_vm = config("agent:requires_vm");
+
+      // Load configs from agent
+      if (agent.agent) {
+        yield Helpers.requireAgent();
+      }
 
       // Mount data to render
       var data = {
