@@ -11,6 +11,7 @@
   * [Cli] Fixing doctor command, get agent configs if is running;
   * [Agent] Fixing if current directory is removed before stop agent.
   * [Manifest] Fixing `wait` option, was `retry` and `timeout` inverted;
+  * [Agent] Fixing search paths for 'unfs3' in Mac OS X;
 
 ## v0.6.1 - (2014-04-11)
 
