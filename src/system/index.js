@@ -109,6 +109,11 @@ export class System {
       default: 1, limit: -1
     });
   }
+
+  get disabled() {
+    return this.scalable.default == 0 && this.scalable.limit == 0;
+  }
+
   get wait_scale() {
     var wait = this.options.wait;
     return _.isEmpty(wait) && wait != false ? true : wait;
@@ -333,7 +338,7 @@ export class System {
       this._mounts_to_volumes(options.mounts)
     );
 
-    return {
+    var finalOptions = {
       daemon: daemon,
       ports: ports,
       stdout: options.stdout,
@@ -350,6 +355,8 @@ export class System {
         seq  : (options.sequencies[type] || 1),
       }}
     };
+
+    return finalOptions;
   }
 
   _envs_from_file() {

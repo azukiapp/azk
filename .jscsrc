@@ -1,0 +1,17 @@
+{
+  "preset": "google",
+  "excludeFiles": [
+    "node_modules/**",
+    "lib/**",
+    ".jscsrc/**",
+    "data/**",
+    "package/**",
+    "shared/**"
+  ],
+  "requireCurlyBraces": null,
+  "esnext": true,
+  "validateIndentation": 2,
+  "validateQuoteMarks": "'",
+  "requireSpaceBeforeBlockStatements": true,
+  "disallowSpacesInsideObjectBrackets": false
+}

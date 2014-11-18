@@ -66,7 +66,6 @@ export class Configure extends UIProxy {
       .fail((err) => {
         if (!(err instanceof DependencyError))
           err = new DependencyError('docker_access', { socket });
-
         throw err;
       });
     }

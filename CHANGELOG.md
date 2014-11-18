@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.7.0 - dev
+
+* Enhancements
+  * [Cli] Adding new generators to `azk init`: Node.js 0.10, Python 3.4, jRuby 1.7, Rails 4.1, Ruby 1.9, Ruby 2.0, Ruby 2.1, Mysql 5.6 and Postgres 9.3
+
+* Bug
+  * [Manifest] Fixing bug that prevented the start for systems with `scalable: {default: 0}`;
+  * [Cli] Correcting the restart command to use the current number of instances;
+  * [Cli] Fixing doctor command, get agent configs if is running;
+  * [Agent] Fixing if current directory is removed before stop agent.
+  * [Manifest] Fixing `wait` option, was `retry` and `timeout` inverted;
+  * [Agent] Fixing search paths for 'unfs3' in Mac OS X;
+
 ## v0.6.1 - (2014-04-11)
 
 * Enhancements
@@ -22,7 +35,7 @@
   * [Agent] Moving `bin/azk` checks to agent start process;
   * [Agent] Warn when using an old `azk` version;
   * [Agent] Improve agent checks before starting;
-  * [Code] Adding Makefile with `bootstrap` and `package_*` targets; 
+  * [Code] Adding Makefile with `bootstrap` and `package_*` targets;
   * [Code] Upgrading `traceur` and removing transpiled files from `lib/azk`;
   * [Install] Replacing install by source with `brew` formula in Mac OS X;
   * [Install] Replacing install by source with packages in Ubuntu and Fedora;

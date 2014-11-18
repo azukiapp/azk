@@ -38,6 +38,7 @@ export NODE_PATH=$AZK_NPM_PATH:$NODE_PATH
 export NODE_PATH=$AZK_LIB_PATH:$NODE_PATH
 
 # Extra path
+export PATH=/usr/local/sbin:$PATH
 export PATH=$AZK_NODE_PATH:$PATH
 export PATH=$AZK_NPM_PATH/.bin:$PATH
 
