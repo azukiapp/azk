@@ -34,9 +34,13 @@ export class Suggestion extends UIProxy {
         // set instances variables
         MYSQL_ROOT_PASSWORD: "mysecretpassword",
         MYSQL_USER: "azk",
-        MYSQL_PASSWORD: "password",
-        MYSQL_DATABASE: "my_database",
+        MYSQL_PASSWORD: "azk",
+        MYSQL_DATABASE: "#{manifest.dir}_development",
       },
+      export_envs_comment: [
+        'check this gist to configure your database',
+        'https://gist.github.com/gullitmiranda/62082f2e47c364ef9617'
+      ],
       export_envs: {
         DATABASE_URL: "mysql2://#{envs.MYSQL_USER}:#{envs.MYSQL_PASSWORD}@#{net.host}:#{net.port.portA}/${envs.MYSQL_DATABASE}",
       },

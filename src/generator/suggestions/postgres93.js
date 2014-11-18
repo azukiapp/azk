@@ -15,7 +15,7 @@ export class Suggestion extends UIProxy {
     // Initial Azkfile.js suggestion
     this.suggestion = _.extend({}, example_system, {
       __type  : 'postgres',
-      image   : 'postgres:9.3',
+      image   : 'wyaeld/postgres:9.3',
       ports:{
         portA: "5432:5432/tcp",
       },
@@ -26,6 +26,22 @@ export class Suggestion extends UIProxy {
       mounts  : {
         '/var/lib/postgresql' : {type: 'persistent', value: 'postgresql'},
         '/var/log/postgresql' : {type: 'path', value: './log/postgresql'},
+      },
+      envs: {
+        // set instances variables
+        // Move this to .env file
+        POSTGRESQL_USER: "azk",
+        POSTGRESQL_PASS: "azk",
+        POSTGRESQL_DB : "#{manifest.dir}_development",
+        POSTGRESQL_HOST: "#{net.host}",
+        POSTGRESQL_PORT: "#{net.port.data}",
+      },
+      export_envs_comment: [
+        'check this gist to configure your database',
+        'https://gist.github.com/gullitmiranda/62082f2e47c364ef9617'
+      ],
+      export_envs: {
+        DATABASE_URL: "postgres://#{envs.MYSQL_USER}:#{envs.MYSQL_PASSWORD}@#{net.host}:#{net.port.portA}/${envs.MYSQL_DATABASE}",
       },
     });
   }

@@ -93,7 +93,12 @@ systems({
     {{~/if}}
     {{~#if export_envs}}
     export_envs: {
+      {{~#if export_envs_comment}}
+      {{~#each export_envs_comment}}
+      // {{&this}}{{/each}}
+      {{~else}}
       // exports variables for dependent systems
+      {{~/if}}
       {{~#each export_envs}}
       {{&hash_key @key}}: "{{&this}}",{{/each}}
     },
