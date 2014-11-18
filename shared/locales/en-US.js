@@ -132,7 +132,7 @@ module.exports = {
   },
 
   generator: {
-    found: "A system of the `%(__type)s` type found in '%(dir)s'",
+    found: "`%(__type)s` system was detected at '%(dir)s'",
   },
 
   manifest: {

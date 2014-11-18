@@ -44,16 +44,16 @@ describe('Azk generator generation mysql rule', function() {
   it('should detect single mysql system', function() {
     var manifest = generateAndReturnManifest(projectFolder);
 
-    var mysqlSystem = manifest.systems[path.basename(projectFolder) + '-mysql'];
+    var mysqlSystem = manifest.systems['mysql'];
 
-    h.expect(mysqlSystem).to.have.deep.property('name', path.basename(projectFolder) + '-mysql');
+    h.expect(mysqlSystem).to.have.deep.property('name', 'mysql');
     h.expect(mysqlSystem).to.have.deep.property('image.name', 'mysql:5.6');
     h.expect(mysqlSystem).to.have.deep.property('depends').and.to.eql([]);
 
     h.expect(mysqlSystem).to.have.deep.property('options.envs.MYSQL_ROOT_PASSWORD', 'mysecretpassword');
     h.expect(mysqlSystem).to.have.deep.property('options.envs.MYSQL_USER', 'azk');
-    h.expect(mysqlSystem).to.have.deep.property('options.envs.MYSQL_PASSWORD', 'password');
-    h.expect(mysqlSystem).to.have.deep.property('options.envs.MYSQL_DATABASE', 'my_database');
+    h.expect(mysqlSystem).to.have.deep.property('options.envs.MYSQL_PASSWORD', 'azk');
+    h.expect(mysqlSystem).to.have.deep.property('options.envs.MYSQL_DATABASE', 'project_development');
 
     h.expect(mysqlSystem).to.not.have.deep.property('options.provision');
     h.expect(mysqlSystem).to.not.have.deep.property('options.command');
@@ -62,10 +62,10 @@ describe('Azk generator generation mysql rule', function() {
 
   it('should rails have a mysql dependency', function() {
     var manifest = generateAndReturnManifest(projectFolder);
-    var railsSystem = manifest.systems[path.basename(projectFolder) + '-rails'];
+    var railsSystem = manifest.systems['project'];
 
-    h.expect(railsSystem).to.have.deep.property('name', path.basename(projectFolder) + '-rails');
-    h.expect(railsSystem).to.have.deep.property('depends').and.to.eql([path.basename(projectFolder) + '-mysql']);
+    h.expect(railsSystem).to.have.deep.property('name', 'project');
+    h.expect(railsSystem).to.have.deep.property('depends').and.to.eql(['mysql']);
   });
 
 });

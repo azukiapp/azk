@@ -381,14 +381,21 @@ export class Court extends UIProxy {
 
   _veredict() {
     _.forEach(this.__folder_evidences_suggestion, function(folder_evidence_suggestion) {
-
+      var systemName = '';
       var folderName = folder_evidence_suggestion.path;
       var evidences_suggestion = folder_evidence_suggestion.suggestions;
 
       // set system name
       _.forEach(evidences_suggestion, function(evidence_suggestion) {
         var folderBasename = this._folderBasename(folderName);
-        var systemName     = folderBasename + '-' + evidence_suggestion.name;
+
+        if( evidence_suggestion.ruleType === 'runtime'  ||
+            evidence_suggestion.ruleType === 'framework'  ) {
+          systemName = folderBasename;
+        }
+        else if( evidence_suggestion.ruleType === 'database') {
+          systemName = evidence_suggestion.name;
+        }
         var suggestion     = evidence_suggestion.suggestionChoosen.suggestion;
         suggestion.name = systemName;
       }, this);
@@ -428,10 +435,11 @@ export class Court extends UIProxy {
       var evidences_suggestion = folder_evidence_suggestion.suggestions;
 
       _.forEach(evidences_suggestion, function(evidence_suggestion) {
-        var suggestion     = evidence_suggestion.suggestionChoosen.suggestion;
+        var suggestion = evidence_suggestion.suggestionChoosen.suggestion;
 
         // create a new system
         systems[suggestion.name] = suggestion;
+        this.ok('generator.found', { __type: evidence_suggestion.name, dir: folderName});
 
         // when in a sub-folder change `workdir`
         if(folderName !== this.__root_folder && systems[suggestion.name].workdir) {

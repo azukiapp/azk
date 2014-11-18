@@ -156,7 +156,7 @@ describe('Azk generator tool court veredict:', function() {
 
     // first suggestion
     var firstSuggestion = evidence0.suggestionChoosen.suggestion;
-    h.expect(firstSuggestion).to.have.property('name', 'api-node');
+    h.expect(firstSuggestion).to.have.property('name', 'api');
     h.expect(evidence0.suggestionChoosen.ruleNamesList).to.contains('node010');
     h.expect(firstSuggestion).have.property('__type', 'node.js');
   });
@@ -166,9 +166,9 @@ describe('Azk generator tool court veredict:', function() {
     var folders = Object.keys(court.systems_suggestions);
     h.expect(folders).to.have.length(3);
 
-    h.expect(folders).to.contains('api-node');
-    h.expect(folders).to.contains('front-rails');
-    h.expect(folders).to.contains('front-postgres');
+    h.expect(folders).to.contains('api');
+    h.expect(folders).to.contains('front');
+    h.expect(folders).to.contains('postgres');
 
   });
 
