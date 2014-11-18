@@ -7,6 +7,8 @@
 
 * Bug
   * [Manifest] Fixing bug that prevented the start for systems with `scalable: {default: 0}`;
+  * [Cli] Correcting the restart command to use the current number of instances;
+  * [Cli] Fixing doctor command, get agent configs if is running;
   * [Agent] Fixing if current directory is removed before stop agent.
   * [Manifest] Fixing `wait` option, was `retry` and `timeout` inverted;
 
