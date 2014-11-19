@@ -17,7 +17,7 @@ export class Suggestion extends UIProxy {
       __type  : 'mysql',
       image   : 'mysql:5.6', //https://registry.hub.docker.com/u/library/mysql/
       ports:{
-        portA: "3306/tcp",
+        data: "3306/tcp",
       },
       balancer: false,
       http: false,
@@ -35,14 +35,14 @@ export class Suggestion extends UIProxy {
         MYSQL_ROOT_PASSWORD: "mysecretpassword",
         MYSQL_USER: "azk",
         MYSQL_PASSWORD: "azk",
-        MYSQL_DATABASE: "#{manifest.dir}_development",
+        MYSQL_DATABASE: "mysql_development",
       },
       export_envs_comment: [
         'check this gist to configure your database',
         'https://gist.github.com/gullitmiranda/62082f2e47c364ef9617'
       ],
       export_envs: {
-        DATABASE_URL: "mysql2://#{envs.MYSQL_USER}:#{envs.MYSQL_PASSWORD}@#{net.host}:#{net.port.portA}/${envs.MYSQL_DATABASE}",
+        DATABASE_URL: "mysql2://#{envs.MYSQL_USER}:#{envs.MYSQL_PASSWORD}@#{net.host}:#{net.port.data}/${envs.MYSQL_DATABASE}",
       },
     });
   }

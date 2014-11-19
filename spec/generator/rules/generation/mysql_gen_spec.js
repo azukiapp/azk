@@ -53,7 +53,7 @@ describe('Azk generator generation mysql rule', function() {
     h.expect(mysqlSystem).to.have.deep.property('options.envs.MYSQL_ROOT_PASSWORD', 'mysecretpassword');
     h.expect(mysqlSystem).to.have.deep.property('options.envs.MYSQL_USER', 'azk');
     h.expect(mysqlSystem).to.have.deep.property('options.envs.MYSQL_PASSWORD', 'azk');
-    h.expect(mysqlSystem).to.have.deep.property('options.envs.MYSQL_DATABASE', 'project_development');
+    h.expect(mysqlSystem).to.have.deep.property('options.envs.MYSQL_DATABASE', 'mysql_development');
 
     h.expect(mysqlSystem).to.not.have.deep.property('options.provision');
     h.expect(mysqlSystem).to.not.have.deep.property('options.command');

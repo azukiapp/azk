@@ -17,7 +17,7 @@ export class Suggestion extends UIProxy {
       __type  : 'postgres',
       image   : 'wyaeld/postgres:9.3',
       ports:{
-        portA: "5432:5432/tcp",
+        data: "5432:5432/tcp",
       },
       balancer: false,
       http: false,
@@ -32,7 +32,7 @@ export class Suggestion extends UIProxy {
         // Move this to .env file
         POSTGRESQL_USER: "azk",
         POSTGRESQL_PASS: "azk",
-        POSTGRESQL_DB : "#{manifest.dir}_development",
+        POSTGRESQL_DB  : "postgres_development",
         POSTGRESQL_HOST: "#{net.host}",
         POSTGRESQL_PORT: "#{net.port.data}",
       },
@@ -41,7 +41,7 @@ export class Suggestion extends UIProxy {
         'https://gist.github.com/gullitmiranda/62082f2e47c364ef9617'
       ],
       export_envs: {
-        DATABASE_URL: "postgres://#{envs.MYSQL_USER}:#{envs.MYSQL_PASSWORD}@#{net.host}:#{net.port.portA}/${envs.MYSQL_DATABASE}",
+        DATABASE_URL: "postgres://#{envs.POSTGRESQL_USER}:#{envs.POSTGRESQL_PASS}@#{net.host}:#{net.port.data}/${envs.POSTGRESQL_DB}",
       },
     });
   }
