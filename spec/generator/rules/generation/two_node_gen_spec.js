@@ -16,13 +16,13 @@ describe('Azk generator generation two nodes systems', function() {
     return h.tmp_dir().then((dir) => {
       rootFolder = dir;
 
-      // create node 1 system folder
+      // `node 1` system folder
       var projectFolder = path.join(dir, 'node1');
       fs.mkdirSync(projectFolder);
       var  packageJson = path.join(projectFolder, 'package.json');
       h.touchSync(packageJson);
 
-      // create node 2 system folder
+      // `node 2` system folder
       projectFolder = path.join(dir, 'node2');
       fs.mkdirSync(projectFolder);
       packageJson = path.join(projectFolder, 'package.json');
