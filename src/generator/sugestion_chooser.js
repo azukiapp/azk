@@ -26,13 +26,13 @@ export class SugestionChooser extends UIProxy {
   }
 
   suggest(evidences) {
-
     return _.map(evidences, (evidence) => {
       var suggestionChoosen = _.find(this.suggestions, (suggestion) => {
         var diff = _.difference([ evidence.ruleName ], suggestion.ruleNamesList);
         return diff.length === 0;
       });
-      evidence.suggestionChoosen = _.cloneDeep(suggestionChoosen);
+      evidence.suggestionChoosen            = _.clone(suggestionChoosen);
+      evidence.suggestionChoosen.suggestion = _.clone(suggestionChoosen.suggestion);
       return evidence;
     });
   }
