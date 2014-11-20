@@ -1,15 +1,17 @@
 # Changelog
 
+## v0.7.1 - dev
+
 ## v0.7.0 - (2014-18-11)
 
 * Enhancements
-  * [Cli] Adding new generators to `azk init`: Node.js 0.10, Python 3.4, jRuby 1.7, Rails 4.1, Ruby 1.9, Ruby 2.0, Ruby 2.1, Mysql 5.6 and Postgres 9.3
+  * [Generators] Adding new generators to `azk init`: Node.js 0.10, Python 3.4, jRuby 1.7, Rails 4.1, Ruby 1.9, Ruby 2.0, Ruby 2.1, Mysql 5.6 and Postgres 9.3;
 
 * Bug
   * [Manifest] Fixing bug that prevented the start for systems with `scalable: {default: 0}`;
   * [Cli] Correcting the restart command to use the current number of instances;
   * [Cli] Fixing doctor command, get agent configs if is running;
-  * [Agent] Fixing if current directory is removed before stop agent.
+  * [Agent] Fixing if current directory is removed before stop agent;
   * [Manifest] Fixing `wait` option, was `retry` and `timeout` inverted;
   * [Agent] Fixing search paths for 'unfs3' in Mac OS X;
 
