@@ -446,6 +446,21 @@ export class Court extends UIProxy {
           systems[suggestion.name].workdir = path.join(systems[suggestion.name].workdir, folderBasename);
         }
 
+        // when in a sub-folder change default `path('.') mounts` to the subfolder
+        var default_mount_path = _.findKey(systems[suggestion.name].mounts, function(mount) {
+          return (mount.type === 'path' && mount.value === '.');
+        });
+
+        if( default_mount_path &&
+            folderName !== this.__root_folder &&
+            systems[suggestion.name].mounts) {
+
+          var keyBackup = systems[suggestion.name].mounts[default_mount_path];
+          delete systems[suggestion.name].mounts[default_mount_path];
+          var newPathKey = default_mount_path.replace(/^(\/azk\/#\{manifest\.dir\})$/gm, '$1/' + folderBasename);
+          systems[suggestion.name].mounts[newPathKey] = keyBackup;
+        }
+
       }, this);
     }, this);
 
