@@ -13,186 +13,43 @@ var fs   = require('fs');
 
 ## More generators
 - from issue #46: Adding more generators
-- https://github.com/azukiapp/azk/pull/149
+- Details at https://github.com/azukiapp/azk/pull/149
 
 Investigates directories looking for files that can define the systems. Suggests `docker images` that match systems requirements for each folder.
 
 -----------
 ## Main Flow
 
-##### Cmd Init():
-```js
+- Cmd Init():
     var systemsData = generator.findSystems(cwd);
-```
 
-##### Generator findSystems(dir):
-```js
+- Generator findSystems(dir):
     this.court.judge(dir);
     return this.court.systems_suggestions;
-```
 
-##### Court judge(dir):
-```js
+- Court judge(dir):
   judge(dir) {
     this.__root_folder = dir;
-    this._investigate(dir);
-    this._analysis();
-    this._veredict();
-  }
-```
 
-##### Cmd Init():
-```js
+    ### _investigate(dir);
+     - For each rule receives `relevantsFiles` to search
+     - Get relevant files with its `contents`
+     - For each detected file executes `rule.getEvidence()`
+
+    ### _analysis
+      - check if the `evidence` has a `replaces` array
+      - `_replacesEvidences`(): replaces other evidences on the same path (system)
+
+    ### _veredict()
+      - fills `__folder_evidences_suggestion` with found evidences grouping in folders(systems)
+      - set `system name`
+      - set `database dependencies` for `[framework,runtime]` suggestions
+      - finally converts `__folder_evidences_suggestion` to  `__systems_suggestions`
+        for the Azkfile `mustache template`
+  }
+
+- Cmd Init():
     generator.render({ systems: systemsData }, file);
-```
-
------------
-## Court judge(dir) details
-
-### _investigate(dir);
- - For each rule receives `relevantsFiles` to search
- - Get relevant files with its `contents`
- - For each detected file executes `rule.getEvidence()`
-
-##### __evidences
-
-```js
-[
-   {
-      fullpath:'/tmp/azk-test-129227oubphs/api/package.json',
-      ruleType:'runtime',
-      name:'node',
-      ruleName:'node010',
-      version:'0.4.1'
-   },
-
-   {
-      fullpath:'/tmp/azk-test-129227oubphs/front/Gemfile',
-      ruleType:'runtime',
-      name:'ruby',
-      ruleName:'ruby2',
-      version:null
-   },
-   {
-      fullpath:'/tmp/azk-test-129227oubphs/front/Gemfile',
-      ruleType:'framework',
-      name:'rails',
-      ruleName:'rails41',
-      replaces:[
-         'ruby',
-         'node'
-      ],
-      version:'4.1.6'
-   }
-  ]
-```
-
-
-### _analysis
-  - check if the `evidence` has a `replaces` array
-  - `_replacesEvidences`(): replaces other evidences on the same path (system)
-
-##### __evidences_by_folder
-```js
-  {
-     "/tmp/azk-test-71169z8zhz4/api": [
-        {
-           "fullpath": "/tmp/azk-test-71169z8zhz4/api/package.json",
-           "ruleType": "runtime",
-           "name": "node",
-           "ruleName": "node010",
-           "version": "0.4.1"
-        }
-     ],
-     "/tmp/azk-test-71169z8zhz4/front": [
-        {
-           "fullpath": "/tmp/azk-test-71169z8zhz4/front/Gemfile",
-           "ruleType": "framework",
-           "name": "rails",
-           "ruleName": "rails41",
-           "replaces": [
-              "ruby",
-              "node"
-           ],
-           "version": "4.1.6"
-        }
-     ]
-  }
-```
-
-
-### _veredict()
-  - fills `__folder_evidences_suggestion` with found evidences grouping in folders(systems)
-  - set `system name`
-  - set `database dependencies` for `[framework,runtime]` suggestions
-  - finally converts `__folder_evidences_suggestion` to  `__systems_suggestions`
-    for the Azkfile `mustache template`
-
-
-##### folders_evidence_suggestion
-```js
-    folders_evidence_suggestion:
-    [
-
-      { fullpath: '/tmp/azk-test-28160o76dgi8/project/Gemfile',
-        ruleType: 'database',
-        name: 'mysql',
-        ruleName: 'mysql56',
-        suggestionChoosen:
-         { parent: [Object],
-           name: 'mysql',
-           ruleNamesList: [Object],
-           suggestion: [Object] }
-      }
-
-      { fullpath: '/tmp/azk-test-28160o76dgi8/project/Gemfile',
-        ruleType: 'framework',
-        name: 'rails',
-        ruleName: 'rails41',
-        replaces: [ 'ruby', 'node' ],
-        version: '4.1.6',
-        suggestionChoosen:
-         { parent: [Object],
-           name: 'rails',
-           ruleNamesList: [Object],
-           suggestion: [Object] }
-      }
-    ]
-```
-
-##### __systems_suggestions
-
-```js
-    __systems_suggestions
-    { api:
-     { __type: 'node.js',
-       name: 'example',
-       depends: [],
-       image: 'node:0.10',
-       workdir: '/azk/#{manifest.dir}/api/api',
-       balancer: true,
-       command: 'npm start',
-       mounts: { '/azk/#{manifest.dir}': [Object] },
-       envs: { NODE_ENV: 'dev' },
-       provision: [ 'npm install' ],
-       http: true,
-       scalable: { default: 2 } },
-    front:
-     { __type: 'rails 4.1',
-       name: 'example',
-       depends: [],
-       image: 'rails:4.1',
-       workdir: '/azk/#{manifest.dir}/front/front',
-       balancer: true,
-       command: 'bundle exec rackup config.ru --port $HTTP_PORT',
-       mounts: { '/azk/#{manifest.dir}': [Object], '/azk/bundler': [Object] },
-       envs: { RAILS_ENV: 'development', BUNDLE_APP_CONFIG: '/azk/bundler' },
-       provision: [ 'bundle install --path /azk/bundler' ],
-       http: true,
-       scalable: { default: 2 },
-       shell: '/bin/bash' } }
-
-```
 
 */
 export class Court extends UIProxy {
@@ -439,7 +296,11 @@ export class Court extends UIProxy {
 
         // create a new system
         systems[suggestion.name] = suggestion;
-        this.ok('generator.found', { __type: evidence_suggestion.name, dir: folderName});
+        this.ok('generator.found', {
+          __type: evidence_suggestion.name,
+          dir: folderName,
+          systemName: suggestion.name
+        });
 
         // when in a sub-folder change `workdir`
         if(folderName !== this.__root_folder && systems[suggestion.name].workdir) {
