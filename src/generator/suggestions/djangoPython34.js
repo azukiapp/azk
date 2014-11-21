@@ -7,28 +7,28 @@ export class Suggestion extends UIProxy {
     super(...args);
 
     // Readable name for this suggestion
-    this.name = 'python27';
+    this.name = 'djangoPython34';
 
     // Which rules they suggestion is valid
-    this.ruleNamesList = ['python27'];
+    this.ruleNamesList = ['djangoPython34'];
 
     // Initial Azkfile.js suggestion
     this.suggestion = _.extend({}, example_system, {
-      __type  : 'python 2.7',
-      image   : 'python:2.7',
+      __type  : 'djangoPython34',
+      image   : 'python:3.4',
       provision: [
         'pip install --user --allow-all-external -r requirements.txt',
       ],
       http    : true,
       scalable: { default: 2 },
-      command : 'python server.py',
+      command : 'python manage.py runserver 0.0.0.0:$HTTP_PORT',
       mounts  : {
         '/azk/#{manifest.dir}': {type: 'path',       value: '.'},
-        '/azk/pythonuserbase':  {type: 'persistent', value: 'pythonuserbase'},
+        '/azk/djangouserbase':  {type: 'persistent', value: 'djangouserbase'},
       },
-      envs    : {
-        PATH : '/azk/pythonuserbase/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
-        PYTHONUSERBASE: '/azk/pythonuserbase',
+      envs: {
+        PATH : '/azk/djangouserbase/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
+        PYTHONUSERBASE: '/azk/djangouserbase',
       }
     });
   }

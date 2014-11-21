@@ -1,6 +1,9 @@
 # Changelog
 
 ## v0.7.1 - dev
+* Enhancements
+  * [Generators] Improving Python generators to detect and suport Django and SimpleHttpServers systems. Now Django will choose correct python version Docker image.
+  * [Cli] Better message when `azk` find systems with `azk init`
 
 ## v0.7.0 - (2014-18-11)
 
