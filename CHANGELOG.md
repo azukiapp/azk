@@ -2,6 +2,11 @@
 
 ## v0.7.1 - dev
 
+* Bug
+  * [Generators] Fixing slow generators;
+  * [Generators] Fixing port name sugestion;
+  * [Generators] Fixing mounts subfolders in a multi-system;
+
 ## v0.7.0 - (2014-18-11)
 
 * Enhancements
