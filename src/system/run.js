@@ -1,4 +1,4 @@
-import { _, t, Q, async, defer, config, lazy_require } from 'azk';
+import { _, t, Q, async, defer, config, lazy_require, log } from 'azk';
 import { ImageNotAvailable, SystemRunError, RunCommandError } from 'azk/utils/errors';
 import { Balancer } from 'azk/system/balancer';
 import net from 'azk/utils/net';
@@ -20,6 +20,7 @@ var Run = {
 
       if (_.isEmpty(steps)) return null;
       if ((!options.provision_force) && system.provisioned) return null;
+      log.inspectThis('provision steps', steps);
 
       // provision command (require /bin/sh)
       var cmd  = ["/bin/sh", "-c", "( " + steps.join('; ') + " )"];
@@ -61,6 +62,15 @@ var Run = {
 
       yield this._check_image(system, options);
       var docker_opt = system.shellOptions(options);
+
+
+      /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.      DEBUG */
+        //           ------------------------------------------
+        var target = docker_opt;
+        //           ------------------------------------------
+        var depth  = 2; var inspectResult=require("util").inspect(target,{showHidden:!0,colors:!0,depth:depth});console.log("\n>>------------------------------------------------------\n  ##  docker_opt\n  ------------------------------------------------------\n  source: ( "+__filename+" )"+"\n  ------------------------------------------------------\n"+inspectResult+"\n<<------------------------------------------------------\n");
+      /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-. /END-DEBUG */
+
 
       var container  = yield docker.run(system.image.name, command, docker_opt);
       var data       = yield container.inspect();

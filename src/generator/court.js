@@ -73,7 +73,7 @@ export class Court extends UIProxy {
 
     // Load default rules
     this.load(rules_folder);
-    log.debug('Court :: rules loaded:', this.rules.length);
+    log.inspectThis('Court :: rules loaded:', this.rules.length);
   }
 
   get rules() {
@@ -152,7 +152,7 @@ export class Court extends UIProxy {
       return rule.relevantsFiles();
     });
     filesToSearch = _.flatten(filesToSearch);
-    log.debug('Court :: filesToSearch:', filesToSearch);
+    log.inspectThis('Court :: filesToSearch:', filesToSearch);
 
     // relevant files in the project folders
     projectFiles = this._relevantProjectFiles(
@@ -160,7 +160,7 @@ export class Court extends UIProxy {
 
     projectFiles = _.flatten(projectFiles);
     projectFiles = _.union(projectFiles);
-    log.debug('Court :: projectFiles:', JSON.stringify(projectFiles, ' ', 3));
+    log.inspectThis('Court :: projectFiles:', projectFiles);
 
     // relevant files with its contents
     relevantFiles = _.map(projectFiles, (fullpath) => {
@@ -183,7 +183,6 @@ export class Court extends UIProxy {
           }
         });
     }, this);
-    log.debug('Court :: evidences:', JSON.stringify(evidences, ' ', 3) );
 
     this.__evidences = evidences;
   }
@@ -198,9 +197,6 @@ export class Court extends UIProxy {
           // try find dependency to remove
           _.remove(dir, function(dirItem) {
             var willRemove = _.contains(evidence.replaces, dirItem.name);
-            if(willRemove){
-              log.debug('Court :: _replacesEvidences: willRemove => ', dirItem);
-            }
             return willRemove;
           });
         }
@@ -222,18 +218,15 @@ export class Court extends UIProxy {
 
   _analysis() {
     this._replacesEvidences();
-
     this.__folder_evidences_suggestion = [];
     _.forEach(this.__evidences_by_folder, function(value, key) {
-
-
       var folders_evidence_suggestion = this.sugestionChooser.suggest(value);
       this.__folder_evidences_suggestion.push({
         path: key,
         suggestions: folders_evidence_suggestion
       });
-
     }, this);
+    log.inspectThis('__folder_evidences_suggestion', this.__folder_evidences_suggestion, 6);
   }
 
   _veredict() {

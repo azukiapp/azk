@@ -2,6 +2,7 @@ import { _, config, t } from 'azk';
 var winston = require('winston');
 
 var log = new winston.Logger();
+var sysUtil = require("util");
 
 // File log
 log.add(winston.transports.File, {
@@ -31,6 +32,30 @@ log.setConsoleLevel = (level) => {
   log.remove(winston.transports.Console);
   console_opts.level = level;
   log.add(winston.transports.Console, console_opts);
-}
+};
 
-export { log }
+var repeateString = function(char, size) {
+  var acc = '';
+  for(var i = 0; i <= size; i++) {
+    acc = acc + char;
+  }
+  return acc;
+};
+
+log.inspectThis = (title, targetToInspect, depth) => {
+  var inspectResult = sysUtil.inspect(targetToInspect, {
+    showHidden: true,
+    colors    : true,
+    depth     : depth || 2
+  });
+  var titleSize = title.length;
+  var separator = repeateString('-', titleSize);
+  log.debug(separator);
+  log.debug(title);
+  log.debug(separator + '\n' + inspectResult + '\n');
+  log.debug(' ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^ ^');
+};
+
+
+
+export { log };
