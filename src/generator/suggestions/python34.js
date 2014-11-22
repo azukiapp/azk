@@ -17,11 +17,11 @@ export class Suggestion extends UIProxy {
       __type  : 'python 3.4',
       image   : 'python:3.4',
       provision: [
-        'pip install --user Django',
+        'pip install --user --allow-all-external -r requirements.txt',
       ],
       http    : true,
       scalable: { default: 2 },
-      command : 'python manage.py runserver 0.0.0.0:$HTTP_PORT',
+      command : 'python server.py',
       mounts  : {
         '/azk/#{manifest.dir}': {type: 'path',       value: '.'},
         '/azk/pythonuserbase':  {type: 'persistent', value: 'pythonuserbase'},
