@@ -317,6 +317,7 @@ export class Court extends UIProxy {
             systems[suggestion.name].mounts) {
 
           var keyBackup = systems[suggestion.name].mounts[default_mount_path];
+          keyBackup.value = './' + folderBasename;
           delete systems[suggestion.name].mounts[default_mount_path];
           var newPathKey = default_mount_path.replace(/^(\/azk\/#\{manifest\.dir\})$/gm, '$1/' + folderBasename);
           systems[suggestion.name].mounts[newPathKey] = keyBackup;
