@@ -379,7 +379,16 @@ First [install azk](#install_from_source) in from the source. Now you can run te
   $ cd ~/.azk
   $ azk nvm grunt test
   ```
+
 Note that running these tests requires you to have `azk agent` running.
+
+To run test with filters run use `azk nvm grunt --grep "test name"`:
+
+Example:
+  ```bash
+  $ azk nvm grunt --grep "Azk generator"
+  ```
+
 
 ## License
 
