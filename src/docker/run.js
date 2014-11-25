@@ -76,7 +76,7 @@ export function run(docker, Container, image, cmd, opts = { }) {
     'Env': env,
     'WorkingDir': opts.working_dir || "/",
     'name': name,
-  }
+  };
 
   return async(docker, function* (notify) {
     container = yield this.createContainer(_.merge(optsc, docker_opts.create || {}));
@@ -112,8 +112,8 @@ export function run(docker, Container, image, cmd, opts = { }) {
         opts.stdin.resume();
         if (opts.tty) {
           try {
-            opts.stdin.setRawMode(true)
-          } catch(err) {};
+            opts.stdin.setRawMode(true);
+          } catch(err) {}
         }
 
         if (opts.stdin.custom_pipe) {

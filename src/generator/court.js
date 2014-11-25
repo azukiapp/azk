@@ -152,7 +152,7 @@ export class Court extends UIProxy {
       return rule.relevantsFiles();
     });
     filesToSearch = _.flatten(filesToSearch);
-    log.debug('Court :: filesToSearch:', filesToSearch);
+    log.debug('Court._investigate', { filesToSearch });
 
     // relevant files in the project folders
     projectFiles = this._relevantProjectFiles(
@@ -160,7 +160,7 @@ export class Court extends UIProxy {
 
     projectFiles = _.flatten(projectFiles);
     projectFiles = _.union(projectFiles);
-    log.debug('Court :: projectFiles:', JSON.stringify(projectFiles, ' ', 3));
+    log.debug('Court._investigate', { projectFiles });
 
     // relevant files with its contents
     relevantFiles = _.map(projectFiles, (fullpath) => {
@@ -183,7 +183,6 @@ export class Court extends UIProxy {
           }
         });
     }, this);
-    log.debug('Court :: evidences:', JSON.stringify(evidences, ' ', 3) );
 
     this.__evidences = evidences;
   }
@@ -191,15 +190,19 @@ export class Court extends UIProxy {
   _replacesEvidences() {
     var groupedByDir = this._getEvidencesByFolder();
 
-    _.forEach(groupedByDir, function(dir) {
-      _.forEach(dir, function(evidence) {
-        // this evidence will replace
+    _.forEach(groupedByDir, function(evidences) {
+      _.forEach(evidences, function(evidence) {
+        // this evidence can replace
         if (_.has(evidence, 'replaces')) {
           // try find dependency to remove
-          _.remove(dir, function(dirItem) {
+          _.remove(evidences, function(dirItem) {
             var willRemove = _.contains(evidence.replaces, dirItem.name);
-            if(willRemove){
-              log.debug('Court :: _replacesEvidences: willRemove => ', dirItem);
+            if(willRemove) {
+              log.debug('Court._replacesEvidences', {
+                name             : evidence.ruleName,
+                relevantFile     : evidence.fullpath,
+                evidenceReplaces : evidence.replaces,
+                willReplaces     : dirItem.ruleName });
             }
             return willRemove;
           });
@@ -222,17 +225,13 @@ export class Court extends UIProxy {
 
   _analysis() {
     this._replacesEvidences();
-
     this.__folder_evidences_suggestion = [];
     _.forEach(this.__evidences_by_folder, function(value, key) {
-
-
       var folders_evidence_suggestion = this.sugestionChooser.suggest(value);
       this.__folder_evidences_suggestion.push({
         path: key,
         suggestions: folders_evidence_suggestion
       });
-
     }, this);
   }
 
@@ -264,8 +263,9 @@ export class Court extends UIProxy {
 
       // get all [framework,runtime] suggestions
       var runtimeFrameWorkSuggestions = _.filter(evidences_suggestion, function(evidence_suggestion) {
-        return evidence_suggestion.ruleType === 'runtime' ||
-               evidence_suggestion.ruleType === 'framework';
+        var isRuntimeOrFramework =  evidence_suggestion.ruleType === 'runtime' ||
+                                    evidence_suggestion.ruleType === 'framework';
+        return isRuntimeOrFramework;
       });
 
       // include database dependency on [framework,runtime] suggestions
@@ -274,6 +274,9 @@ export class Court extends UIProxy {
           var runtimeFrameWorkSuggestions = system.suggestionChoosen.suggestion;
           var firstDatabaseName = databaseSuggestions[0].suggestionChoosen.suggestion.name;
           runtimeFrameWorkSuggestions.depends = [firstDatabaseName];
+          log.debug('Court._veredict - runtimeFrameWorkSuggestions.depends', {
+            who      : runtimeFrameWorkSuggestions.name,
+            dependsOn: runtimeFrameWorkSuggestions.depends });
         }, this);
       }
     }, this);

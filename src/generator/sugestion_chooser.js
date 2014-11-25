@@ -1,4 +1,4 @@
-import { _ } from 'azk';
+import { _, log } from 'azk';
 import { UIProxy } from 'azk/cli/ui';
 
 var glob = require('glob');
