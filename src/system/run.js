@@ -62,16 +62,6 @@ var Run = {
 
       yield this._check_image(system, options);
       var docker_opt = system.shellOptions(options);
-
-
-      /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.      DEBUG */
-        //           ------------------------------------------
-        var target = docker_opt;
-        //           ------------------------------------------
-        var depth  = 2; var inspectResult=require("util").inspect(target,{showHidden:!0,colors:!0,depth:depth});console.log("\n>>------------------------------------------------------\n  ##  docker_opt\n  ------------------------------------------------------\n  source: ( "+__filename+" )"+"\n  ------------------------------------------------------\n"+inspectResult+"\n<<------------------------------------------------------\n");
-      /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-. /END-DEBUG */
-
-
       var container  = yield docker.run(system.image.name, command, docker_opt);
       var data       = yield container.inspect();
 
