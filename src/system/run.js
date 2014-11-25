@@ -20,7 +20,7 @@ var Run = {
 
       if (_.isEmpty(steps)) return null;
       if ((!options.provision_force) && system.provisioned) return null;
-      log.inspectThis('provision steps', steps);
+      log.debug('provision steps', steps);
 
       // provision command (require /bin/sh)
       var cmd  = ["/bin/sh", "-c", "( " + steps.join('; ') + " )"];
