@@ -295,7 +295,8 @@ export class Court extends UIProxy {
         var suggestion = evidence_suggestion.suggestionChoosen.suggestion;
 
         // create a new system
-        systems[suggestion.name] = suggestion;
+        var systemSuggestion = systems[suggestion.name] = suggestion;
+
         this.ok('generator.found', {
           __type: evidence_suggestion.name,
           dir: folderName,
@@ -303,24 +304,22 @@ export class Court extends UIProxy {
         });
 
         // when in a sub-folder change `workdir`
-        if(folderName !== this.__root_folder && systems[suggestion.name].workdir) {
-          systems[suggestion.name].workdir = path.join(systems[suggestion.name].workdir, folderBasename);
+        if(folderName !== this.__root_folder && systemSuggestion.workdir) {
+          systemSuggestion.workdir = path.join(systemSuggestion.workdir, folderBasename);
         }
 
         // when in a sub-folder change default `path('.') mounts` to the subfolder
-        var default_mount_path = _.findKey(systems[suggestion.name].mounts, function(mount) {
+        var default_mount_path = _.findKey(systemSuggestion.mounts, function(mount) {
           return (mount.type === 'path' && mount.value === '.');
         });
 
-        if( default_mount_path &&
-            folderName !== this.__root_folder &&
-            systems[suggestion.name].mounts) {
-
-          var keyBackup = systems[suggestion.name].mounts[default_mount_path];
+        if(default_mount_path && folderName !== this.__root_folder) {
+          var keyBackup = systemSuggestion.mounts[default_mount_path];
           keyBackup.value = './' + folderBasename;
-          delete systems[suggestion.name].mounts[default_mount_path];
+
+          delete systemSuggestion.mounts[default_mount_path];
           var newPathKey = default_mount_path.replace(/^(\/azk\/#\{manifest\.dir\})$/gm, '$1/' + folderBasename);
-          systems[suggestion.name].mounts[newPathKey] = keyBackup;
+          systemSuggestion.mounts[newPathKey] = keyBackup;
         }
 
       }, this);
