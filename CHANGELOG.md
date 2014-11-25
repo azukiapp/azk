@@ -2,7 +2,8 @@
 
 ## v0.7.1 - dev
 * Enhancements
-  * [Generators] Improving Python generators to detect and suport Django and SimpleHttpServers systems. Now Django will choose correct python version Docker image.
+  * [Generators] Improving Python generators to detect and support Django and SimpleHttpServers systems. Now Django will choose correct python version Docker image.
+  * [Generators] Create PHP generators to detect and support systems with composer and laravel. Used official azuki images of docker with [`php-apache:5.5/5.6`](https://registry.hub.docker.com/u/azukiapp/php-apache/), both with apache and composer.
   * [Cli] Better message when `azk` find systems with `azk init`
 
 * Bug
