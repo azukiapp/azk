@@ -17,7 +17,7 @@ export class Suggestion extends UIProxy {
       __type  : 'postgres',
       image   : 'wyaeld/postgres:9.3',
       ports:{
-        data: "5432:5432/tcp",
+        data: "5432/tcp",
       },
       balancer: false,
       http: false,
