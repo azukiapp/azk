@@ -129,6 +129,10 @@ export class System {
       hostnames = [this.http.hostname];
     }
 
+    hostnames = _.map(hostnames, function(hostname) {
+      return hostname.toLowerCase();
+    });
+
     return hostnames;
   }
 
