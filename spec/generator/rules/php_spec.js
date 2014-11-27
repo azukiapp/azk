@@ -5,8 +5,6 @@ describe('Azk generators PHP rule', function() {
   var outputs = [];
   var UI  = h.mockUI(beforeEach, outputs);
   var rule;
-  var packageJsonfilePath;
-  var packageJsonContent;
 
   before(function() {
     outputs = [];

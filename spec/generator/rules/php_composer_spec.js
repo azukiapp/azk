@@ -1,12 +1,10 @@
 import h from 'spec/spec_helper';
-import { Rule } from 'azk/generator/rules/phpcomposer';
+import { Rule } from 'azk/generator/rules/php_composer';
 
 describe('Azk generators PHP with composer rule', function() {
   var outputs = [];
   var UI  = h.mockUI(beforeEach, outputs);
   var rule;
-  var packageJsonfilePath;
-  var packageJsonContent;
 
   before(function() {
     outputs = [];

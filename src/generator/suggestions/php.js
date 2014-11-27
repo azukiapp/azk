@@ -17,9 +17,16 @@ export class Suggestion extends UIProxy {
       __type  : 'php',
       image   : 'azukiapp/php-apache:5.6',
       http    : true,
+      ports: {
+        http: "80/tcp",
+      },
+      command: null,
       scalable: { default: 2 },
       mounts  : {
         '/azk/#{manifest.dir}': {type: 'path', value: '.'}
+      },
+      docker_extra: {
+        start: { Privileged: true },
       }
     });
   }
