@@ -1,12 +1,10 @@
 import h from 'spec/spec_helper';
-import { Rule } from 'azk/generator/rules/phplaravel';
+import { Rule } from 'azk/generator/rules/php_laravel';
 
 describe('Azk generators PHP with laravel rule', function() {
   var outputs = [];
   var UI  = h.mockUI(beforeEach, outputs);
   var rule;
-  var packageJsonfilePath;
-  var packageJsonContent;
 
   before(function() {
     outputs = [];
@@ -27,7 +25,7 @@ describe('Azk generators PHP with laravel rule', function() {
       '        }',
       '    ],',
       '    "require": {',
-      '        "php": "~5.6.3"',
+      '        "php": "~5.6.3",',
       '        "laravel/framework": "4.2.*"',
       '    }',
       '}',
@@ -58,7 +56,7 @@ describe('Azk generators PHP with laravel rule', function() {
       '        }',
       '    ],',
       '    "require": {',
-      '        "php": "~5.6.3"',
+      '        "php": "~5.6.3",',
       '        "laravel/framework": "4.1.*"',
       '    }',
       '}',

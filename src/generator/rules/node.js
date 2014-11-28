@@ -1,32 +1,29 @@
-import { _ } from 'azk';
+import { _, log } from 'azk';
 import { BaseRule } from 'azk/generator/rules';
 var semver = require('semver');
 
-var getVersion = function(content) {
-
-  // http://regex101.com/r/wR0kX9/2
-  // { "engine": "node >= 0.4.1", }
-  var versionRegex = /^\s*['"]engine['"]:\s*['"]node.*(\d+\.\d+\.\d+)['"]/gm;
-  var capture = versionRegex.exec(content);
-  var extractedVersion = capture && capture.length >= 1 && capture[1];
-
-  if (!extractedVersion) {
-    // http://regex101.com/r/wR0kX9/3
-    // "engines":{
-    //   "node": ">=0.10.3 <0.12"
-    // },
-    versionRegex = /['"]node['"]\s*:.+?.*?(\d+\.[\dx]+(?:\.[\dx]+)?)/gm;
-    capture = versionRegex.exec(content);
-    extractedVersion = capture && capture.length >= 1 && capture[1];
+var getVersion = function(path, content) {
+  var parsedJson;
+  try {
+    parsedJson = JSON.parse(content);
+  } catch (err) {
+    log.error('JSON.parse error [', path, ']', err.stack || err);
   }
 
-  if (extractedVersion) {
-    return semver.clean(extractedVersion);
-  }
-  else{
-    return null;
+  if(parsedJson &&
+     parsedJson.engine) {
+    // remove garbage
+    var versionCleaned = parsedJson.engine.replace(/[^\d\.]/g, "");
+    return semver.clean(versionCleaned);
   }
 
+  if(parsedJson &&
+     parsedJson.engines &&
+     parsedJson.engines.node) {
+    return semver.clean(parsedJson.engines.node);
+  }
+
+  return null;
 };
 
 export class Rule extends BaseRule {
@@ -47,7 +44,7 @@ export class Rule extends BaseRule {
       ruleName: 'node010'
     };
 
-    var nodeVersion = getVersion(content);
+    var nodeVersion = getVersion(path, content);
     evidence.version = nodeVersion;
 
     // cant find node version, will use default node:latest

@@ -20,9 +20,16 @@ export class Suggestion extends UIProxy {
         'composer install',
       ],
       http    : true,
+      ports: {
+        http: "80/tcp",
+      },
+      command: null,
       scalable: { default: 2 },
       mounts  : {
         '/azk/#{manifest.dir}': {type: 'path', value: '.'}
+      },
+      docker_extra: {
+        start: { Privileged: true },
       }
     });
   }
