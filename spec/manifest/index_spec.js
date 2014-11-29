@@ -186,7 +186,7 @@ describe("Azk manifest class, main set", function() {
 
     it("should raise a sytax error", function() {
       var func = mock_manifest("var a; \n var = ;");
-      h.expect(func).to.throw(ManifestError).and.match(/Unexpected token =/);
+      h.expect(func).to.throw(ManifestError).and.match(/Unexpected token/);
     });
 
     it("should raise a if use balancer option", function() {
