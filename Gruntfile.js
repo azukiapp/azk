@@ -67,12 +67,12 @@ module.exports = function(grunt) {
         differential        : true,
         displayChangesOnly  : true,
       },
-      public_mac_package: {
+      publish_package: {
         files: [
           {expand: true, cwd: "./package/brew", src: ['*.tar.gz'], dest: "./mac/", stream: true },
           {expand: true, cwd: "./package/aptly/public", src: ['**/*'], stream: true },
           {expand: true, cwd: "./package/fedora20", src: ['**/*'], dest: "./fedora20/", stream: true },
-          {expand: true, cwd: "./src/libexec/gpg", src: ['azuki.asc'], dest: "./keys/", stream: true },
+          //{expand: true, cwd: "./src/libexec/gpg", src: ['azuki.asc'], dest: "./keys/", stream: true },
         ],
       },
     },
@@ -168,8 +168,8 @@ module.exports = function(grunt) {
           return 'azk shell ' + system + ' --shell=/bin/bash -c "azk nvm grunt newer:traceur"';
         },
       },
-      'public_mac_package': {
-        'cmd': "grunt aws_s3:public_mac_package"
+      'publish_package': {
+        'cmd': "grunt aws_s3:publish_package"
       }
     },
   });
@@ -183,12 +183,12 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('vm-download', [ 'curl-dir:brace-expansion' ]);
-  grunt.registerTask('test', ['env:test', 'clear', 'newer:traceur', 'mochaTest:test']);
-  grunt.registerTask('slow_test', ['env:test', 'clear', 'newer:traceur', 'mochaTest:slow_test']);
-  grunt.registerTask('compile', ['watch:traceur']);
-  grunt.registerTask('inspector', ["node-inspector"]);
-  grunt.registerTask('public', ["env:aws", "exec:public_mac_package"]);
-  grunt.registerTask('default', function() {
+  grunt.registerTask('test'       , ['env:test', 'clear', 'newer:traceur', 'mochaTest:test']);
+  grunt.registerTask('slow_test'  , ['env:test', 'clear', 'newer:traceur', 'mochaTest:slow_test']);
+  grunt.registerTask('compile'    , ['watch:traceur']);
+  grunt.registerTask('inspector'  , ["node-inspector"]);
+  grunt.registerTask('publish'    , ["env:aws", "exec:publish_package"]);
+  grunt.registerTask('default'    , function() {
     key_watch(grunt);
     return grunt.task.run(['watch:spec']);
   });
