@@ -1,5 +1,4 @@
-import { _, Q, config, defer, log, path, lazy_require } from 'azk';
-import { config, set_config } from 'azk';
+import { _, Q, config, defer, log, path, lazy_require, set_config } from 'azk';
 import { Pid } from 'azk/utils/pid';
 import { AgentStartError } from 'azk/utils/errors';
 

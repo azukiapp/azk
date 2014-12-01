@@ -1,15 +1,27 @@
 # Changelog
 
+## v0.7.1 - (2014-01-12)
+
+* Enhancements
+  * [Generators] Improving Python generators to detect and support Django and SimpleHttpServers systems. Now Django will choose correct python version Docker image.
+  * [Generators] Create PHP generators to detect and support systems with composer and laravel. Used official azuki images of docker with [`php-apache:5.5/5.6`](https://registry.hub.docker.com/u/azukiapp/php-apache/), both with apache and composer.
+  * [Cli] Better message when `azk` find systems with `azk init`
+
+* Bug
+  * [Generators] Fixing slow generators;
+  * [Generators] Fixing port name sugestion;
+  * [Generators] Fixing mounts subfolders in a multi-system;
+
 ## v0.7.0 - (2014-18-11)
 
 * Enhancements
-  * [Cli] Adding new generators to `azk init`: Node.js 0.10, Python 3.4, jRuby 1.7, Rails 4.1, Ruby 1.9, Ruby 2.0, Ruby 2.1, Mysql 5.6 and Postgres 9.3
+  * [Generators] Adding new generators to `azk init`: Node.js 0.10, Python 3.4, jRuby 1.7, Rails 4.1, Ruby 1.9, Ruby 2.0, Ruby 2.1, Mysql 5.6 and Postgres 9.3;
 
 * Bug
   * [Manifest] Fixing bug that prevented the start for systems with `scalable: {default: 0}`;
   * [Cli] Correcting the restart command to use the current number of instances;
   * [Cli] Fixing doctor command, get agent configs if is running;
-  * [Agent] Fixing if current directory is removed before stop agent.
+  * [Agent] Fixing if current directory is removed before stop agent;
   * [Manifest] Fixing `wait` option, was `retry` and `timeout` inverted;
   * [Agent] Fixing search paths for 'unfs3' in Mac OS X;
 

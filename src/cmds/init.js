@@ -1,4 +1,4 @@
-import { _, config, fs, path, async, lazy_require } from 'azk';
+import { _, config, fs, path, async, lazy_require, log } from 'azk';
 import { Command } from 'azk/cli/command';
 
 lazy_require(this, {
@@ -25,6 +25,7 @@ class Cmd extends Command {
       }
 
       var systemsData = generator.findSystems(cwd);
+      log.debug('generator.findSystems(\'%s\')', cwd);
 
       if (_.isEmpty(systemsData)) {
         this.fail(this.tKeyPath("not_found"));

@@ -11,16 +11,11 @@ var getVersion = function(path, content) {
   }
 
   if(parsedJson &&
-     parsedJson.engine) {
+     parsedJson.require &&
+     parsedJson.require.php) {
     // remove garbage
-    var versionCleaned = parsedJson.engine.replace(/[^\d\.]/g, "");
+    var versionCleaned = parsedJson.require.php.replace(/[^\d\.\*]/g, "");
     return semver.clean(versionCleaned);
-  }
-
-  if(parsedJson &&
-     parsedJson.engines &&
-     parsedJson.engines.node) {
-    return semver.clean(parsedJson.engines.node);
   }
 
   return null;
@@ -33,35 +28,35 @@ export class Rule extends BaseRule {
   }
 
   relevantsFiles() {
-    return ['package.json'];
+    return ['composer.json'];
   }
 
   getEvidence(path, content) {
     var evidence = {
       fullpath: path,
       ruleType: 'runtime',
-      name    : 'node',
-      ruleName: 'node010'
+      name    : 'phpcomposer',
+      ruleName: 'php56',
+      replaces: ['php', 'node']
     };
 
-    var nodeVersion = getVersion(path, content);
-    evidence.version = nodeVersion;
+    var phpVersion = getVersion(path, content);
+    evidence.version = phpVersion;
 
-    // cant find node version, will use default node:latest
-    if(!nodeVersion){
+    // cant find php version, will use default php v5.5.9
+    if(!phpVersion){
       return evidence;
     }
 
     // Suggest a docker image
     // https://registry.hub.docker.com/u/library/node/
     var versionRules = {
-      'node010': '<0.8.0 || >=0.10.0 <0.11.0',
-      'node08' : '>=0.8.0 <0.10.0',
-      'node011': '>=0.11.0',
+      'php55' : '>=5.5.9 <5.6.3',
+      'php56' : '<5.5.9 || >=5.6.3'
     };
 
     evidence.ruleName = _.findKey(versionRules, (value) => {
-      return semver.satisfies(nodeVersion, value);
+      return semver.satisfies(phpVersion, value);
     });
 
     return evidence;

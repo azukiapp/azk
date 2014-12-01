@@ -11,12 +11,5 @@
   "gpgDisableVerify": false,
   "downloadSourcePackages": false,
   "ppaDistributorID": "ubuntu",
-  "ppaCodename": "",
-  "S3PublishEndpoints": {
-    "repo.azukiapp.com":{
-       "region":"sa-east-1",
-       "bucket":"repo.azukiapp.com",
-       "acl":"public-read"
-    }
-  }
+  "ppaCodename": ""
 }

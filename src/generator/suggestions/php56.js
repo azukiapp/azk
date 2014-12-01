@@ -7,28 +7,29 @@ export class Suggestion extends UIProxy {
     super(...args);
 
     // Readable name for this suggestion
-    this.name = 'python27';
+    this.name = 'php56';
 
     // Which rules they suggestion is valid
-    this.ruleNamesList = ['python27'];
+    this.ruleNamesList = ['php56'];
 
     // Initial Azkfile.js suggestion
     this.suggestion = _.extend({}, example_system, {
-      __type  : 'python 2.7',
-      image   : 'python:2.7',
+      __type  : 'php 5.6',
+      image   : 'azukiapp/php-apache:5.6',
       provision: [
-        'pip install --user --allow-all-external -r requirements.txt',
+        'composer install',
       ],
       http    : true,
-      scalable: { default: 2 },
-      command : 'python server.py',
-      mounts  : {
-        '/azk/#{manifest.dir}': {type: 'path',       value: '.'},
-        '/azk/pythonuserbase':  {type: 'persistent', value: 'pythonuserbase'},
+      ports: {
+        http: "80/tcp",
       },
-      envs    : {
-        PATH : '/azk/pythonuserbase/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
-        PYTHONUSERBASE: '/azk/pythonuserbase',
+      command: null,
+      scalable: { default: 2 },
+      mounts  : {
+        '/azk/#{manifest.dir}': {type: 'path', value: '.'}
+      },
+      docker_extra: {
+        start: { Privileged: true },
       }
     });
   }
