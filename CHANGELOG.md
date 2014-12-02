@@ -4,6 +4,9 @@
 * Enhancements
   * [Cli] Now the status of ui supports error object.
 
+* Bug
+  * When an error occurs in `azk start/restart` all instances are stopped.
+
 ## v0.7.1 - (2014-01-12)
 
 * Enhancements

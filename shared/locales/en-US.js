@@ -301,6 +301,7 @@ module.exports = {
     start: {
       description: "Starts an instance of the system(s)",
       already: "System `%(name)s` already started",
+      fail: "Due to the above error azk will stop all instances already begun.\n",
       options: {
         verbose: verbose,
         reprovision: reprovision,
