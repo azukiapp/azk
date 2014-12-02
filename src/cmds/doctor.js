@@ -19,7 +19,7 @@ class Cmd extends Command {
 
       // Load configs from agent
       if (agent.agent) {
-        yield Helpers.requireAgent();
+        yield Helpers.requireAgent(this);
       }
 
       // Mount data to render

@@ -16,8 +16,28 @@ lazy_require(this, {
 });
 
 var Helpers = {
-  requireAgent() {
-    return AgentClient.require();
+  requireAgent(cli) {
+    return AgentClient
+      .status()
+      .then((status) => {
+        if (!status.agent) {
+          var question = {
+            type    : 'confirm',
+            name    : 'start',
+            message : 'commands.agent.start_before',
+            default : 'Y'
+          };
+
+          return cli.prompt(question)
+            .then((answers) => {
+              var cmd = "azk agent start";
+              return answers.start ? cli.execSh(cmd) : false;
+            });
+        }
+      })
+      .then(() => {
+        return AgentClient.require();
+      });
   },
 
   configure(cli) {

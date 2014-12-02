@@ -14,7 +14,7 @@ lazy_require(this, {
 class Cmd extends Command {
   action(opts) {
     return async(this, function* () {
-      yield Helpers.requireAgent();
+      yield Helpers.requireAgent(this);
 
       var manifest = new Manifest(this.cwd, true);
       var systems  = manifest.getSystemsByName(opts.system);

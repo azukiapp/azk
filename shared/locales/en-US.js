@@ -207,6 +207,7 @@ module.exports = {
     agent: {
       description: "Controls azk agent",
       start_fail: "Agent start fail: %s",
+      start_before: "The agent is not running, would you like to start it now?",
       options: {
         action: {
           name: "actions".magenta,

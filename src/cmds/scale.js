@@ -10,7 +10,7 @@ lazy_require(this, {
 class Cmd extends VerboseCmd {
   action(opts) {
     return async(this, function* () {
-      yield Helpers.requireAgent();
+      yield Helpers.requireAgent(this);
 
       var manifest = new Manifest(this.cwd, true);
       Helpers.manifestValidate(this, manifest);
