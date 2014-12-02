@@ -1,5 +1,6 @@
 import { _, Q, t, defer } from 'azk';
 import { Multibar } from 'azk/cli/multi_bars';
+import { AzkError } from 'azk/utils/errors';
 
 require('colors');
 
@@ -53,9 +54,21 @@ var UI = {
   fail(...args)      { this._status(fail, ...args);    },
   warning(...args)   { this._status(warning, ...args); },
   deprecate(...args) { this._status(deprecate, ...args); },
-  _status(tag, ...args) {
-    var string = t(...args).replace(/^(.+)/gm, `${tag}: $1`);
-    this.stderr().write(string + "\n");
+  _status(tag, second, ...args) {
+    var message;
+
+    if (second instanceof Error) {
+      if (second instanceof AzkError) {
+        message = second.toString();
+      } else {
+        message = second.stack ? second.stack : second.toString();
+      }
+    } else {
+      message = t(second, ...args);
+    }
+
+    message = message.replace(/^(.+)/gm, `${tag}: $1`);
+    this.stderr().write(message + "\n");
   },
 
   // TOOD: Flush log (https://github.com/flatiron/winston/issues/228)

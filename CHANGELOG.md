@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.7.2-dev
+* Enhancements
+  * [Cli] Now the status of ui supports error object.
+
 ## v0.7.1 - (2014-01-12)
 
 * Enhancements
