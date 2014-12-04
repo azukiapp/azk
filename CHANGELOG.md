@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.8.0-dev
+* Enhancements
+  * [CI] configuring Wercker service to run all tests whenever there is a commit on master branch.
+
 ## v0.7.1 - (2014-01-12)
 
 * Enhancements
