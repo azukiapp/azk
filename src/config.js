@@ -50,6 +50,7 @@ var options = mergeConfig({
       shared: path.join(azk_root, "shared"),
       log : path.join(paths.logs, 'azk.log'),
 
+      pems              : path.join(paths.vm , '.docker'),
       agent_pid         : path.join(paths.run, 'agent.pid'),
       unfsd_pid         : path.join(paths.run, 'unfsd.pid'),
       memcached_pid     : path.join(paths.run, 'memcachedjs.pid'),
@@ -72,9 +73,6 @@ var options = mergeConfig({
       repository    : 'azk',
       default_domain: 'azk',
       image_default : 'azukiapp/azktcl:0.0.2',
-      ca_pem        : path.join(paths.vm, '.docker', 'ca.pem'),
-      cert_pem      : path.join(paths.vm, '.docker', 'cert.pem'),
-      key_pem       : path.join(paths.vm, '.docker', 'key.pem'),
       run: {
         timeout: 1000,
         retry: 10,

@@ -18,9 +18,9 @@ module.exports = {
           protocol: protocol.substring(0, protocol.length - 1),
           host : 'http://' + opts.hostname,
           port : opts.port,
-          ca   : fs.readFileSync(config('docker:ca_pem')),
-          cert : fs.readFileSync(config('docker:cert_pem')),
-          key  : fs.readFileSync(config('docker:key_pem')),
+          ca   : fs.readFileSync(path.join(config('paths:pems'), 'ca.pem')),
+          cert : fs.readFileSync(path.join(config('paths:pems'), 'cert.pem')),
+          key  : fs.readFileSync(path.join(config('paths:pems'), 'key.pem')),
         }
       }
       this.connect = new Docker(opts);

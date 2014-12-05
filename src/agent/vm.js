@@ -320,6 +320,10 @@ var vm = {
 
   copyFile(name, origin, target) {
     return this.make_ssh(name).then((ssh) => { return ssh.putFile(origin, target) });
+  },
+
+  copyVMFile(name, origin, target) {
+    return this.make_ssh(name).then((ssh) => { return ssh.getFile(origin, target) });
   }
 }
 
