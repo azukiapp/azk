@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.8.0-dev
+* Enhancements
+  * [Docker] Upgrading azk.iso and azk to support Docker 1.3
+
 ## v0.7.1 - dev
 * Enhancements
   * [Generators] Improving Python generators to detect and suport Django and SimpleHttpServers systems. Now Django will choose correct python version Docker image.
