@@ -50,6 +50,7 @@ var options = mergeConfig({
       shared: path.join(azk_root, "shared"),
       log : path.join(paths.logs, 'azk.log'),
 
+      pems              : path.join(paths.vm , '.docker'),
       agent_pid         : path.join(paths.run, 'agent.pid'),
       unfsd_pid         : path.join(paths.run, 'unfsd.pid'),
       memcached_pid     : path.join(paths.run, 'memcachedjs.pid'),

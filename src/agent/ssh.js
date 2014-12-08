@@ -33,6 +33,25 @@ export class SSH {
     return '"'+ cmd.replace(/(["\s'$`\\])/g, '\\$1') + '"';
   }
 
+  getFile(origin, dest, wait = false) {
+    return this.connect(wait, (client, done) => {
+      log.debug("agent vm ssh scp: %s <= %s", origin, dest);
+      done.notify({ type: "ssh", context: "scp", dest, origin});
+
+      client.sftp((err, sftp) => {
+        if (err) return done.reject(err);
+        var scp = new scp2();
+        scp.__sftp = sftp;
+
+        scp.download(origin, dest, (err) => {
+          if (err) return done.reject(err);
+          done.resolve(0);
+          process.nextTick(() => client.end());
+        });
+      });
+    });
+  }
+
   putFile(origin, dest, wait = false) {
     return this.connect(wait, (client, done) => {
       log.debug("agent vm ssh scp: %s => %s", origin, dest);
