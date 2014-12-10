@@ -304,6 +304,7 @@ module.exports = {
       options: {
         verbose: verbose,
         reprovision: reprovision,
+        open: "Open a url of system in the preferred application",
       }
     },
     stop: {
@@ -335,6 +336,7 @@ module.exports = {
       options: {
         verbose: verbose,
         reprovision: reprovision,
+        open: "Open a url of system in the preferred application",
       }
     },
     reload: {

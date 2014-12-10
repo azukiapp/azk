@@ -3,6 +3,8 @@ import { Command, Helpers } from 'azk/cli/command';
 import { SYSTEMS_CODE_ERROR, NotBeenImplementedError } from 'azk/utils/errors';
 import { Cmd as ScaleCmd } from 'azk/cmds/scale';
 
+var open = require('open');
+
 lazy_require(this, {
   Manifest: ['azk/manifest'],
 });
@@ -56,7 +58,22 @@ class Cmd extends ScaleCmd {
   }
 
   start(manifest, systems, opts) {
-    return this._scale(systems, 'start', opts);
+    return async(this, function* () {
+      var result = yield this._scale(systems, 'start', opts);
+
+      // if flag --open
+      if (!_.isUndefined(opts.open)) {
+        var open_with = _.isString(opts.open) ? opts.open : null;
+
+        for (var system of systems) {
+          var instances = yield system.instances({ type: "daemon" });
+
+          if (system.balanceable && instances.length > 0) {
+            open(system.url, open_with);
+          }
+        }
+      };
+    });
   }
 
   stop(manifest, systems, opts) {
@@ -88,14 +105,18 @@ class Cmd extends ScaleCmd {
 }
 
 export function init(cli) {
-  var cmds = [
-    (new Cmd('start [system]' , cli))
-      .addOption(['--reprovision', '-R'], { default: false }),
-    (new Cmd('stop [system]'  , cli))
-      .addOption(['--remove', '-r'], { default: true }),
-    (new Cmd('restart [system]', cli))
-      .addOption(['--reprovision', '-R'], { default: false }),
-    (new Cmd('reload [system]', cli))
-      .addOption(['--reprovision', '-R'], { default: true }),
-  ];
+  var cmds = {
+    start   : (new Cmd('start [system]'   , cli))
+                .addOption(['--reprovision', '-R'], { default: false })
+                .addOption(['--open', '-o'], { type: String }),
+    stop    : (new Cmd('stop [system]'    , cli))
+                .addOption(['--remove', '-r'], { default: true }),
+    restart : (new Cmd('restart [system]' , cli))
+                .addOption(['--reprovision', '-R'], { default: false })
+                .addOption(['--open', '-o'], { type: String }),
+    reload  : (new Cmd('reload [system]'  , cli))
+                .addOption(['--reprovision', '-R'], { default: true }),
+  }
+
+  return cmds;
 }

@@ -3,6 +3,7 @@
 ## v0.8.0-dev
 * Enhancements
   * [CI] configuring Wercker service to run all tests whenever there is a commit on master branch.
+  * [Cli] Adding `--open` option in `start/restart`.
 
 ## v0.7.1 - (2014-01-12)
 
