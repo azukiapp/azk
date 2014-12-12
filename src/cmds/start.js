@@ -63,14 +63,26 @@ class Cmd extends ScaleCmd {
 
       // if flag --open
       if (!_.isUndefined(opts.open)) {
-        var open_with = _.isString(opts.open) ? opts.open : null;
+        var open_with,
+            system = manifest.systemDefault;
 
-        for (var system of systems) {
+        if (_.isNull(opts.open) || !_.isString(opts.open) || opts.open == 'default_browser') {
+          open_with = null;
+        } else {
+          open_with = opts.open;
+        }
+
+        if (system.balanceable) {
           var instances = yield system.instances({ type: "daemon" });
 
-          if (system.balanceable && instances.length > 0) {
+          if (instances.length > 0) {
             open(system.url, open_with);
+          } else {
+            this.warning('commands.start.option_errors.open.system_not_running', { name : system.name });
           }
+
+        } else {
+          this.warning('commands.start.option_errors.open.default_system_not_balanceable', { name : system.name });
         }
       };
     });
@@ -108,12 +120,12 @@ export function init(cli) {
   var cmds = {
     start   : (new Cmd('start [system]'   , cli))
                 .addOption(['--reprovision', '-R'], { default: false })
-                .addOption(['--open', '-o'], { type: String }),
+                .addOption(['--open', '-o'], { type: String, default: "default_browser" }),
     stop    : (new Cmd('stop [system]'    , cli))
                 .addOption(['--remove', '-r'], { default: true }),
     restart : (new Cmd('restart [system]' , cli))
                 .addOption(['--reprovision', '-R'], { default: false })
-                .addOption(['--open', '-o'], { type: String }),
+                .addOption(['--open', '-o'], { type: String, default: "default_browser" }),
     reload  : (new Cmd('reload [system]'  , cli))
                 .addOption(['--reprovision', '-R'], { default: true }),
   }

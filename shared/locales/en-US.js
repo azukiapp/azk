@@ -304,7 +304,13 @@ module.exports = {
       options: {
         verbose: verbose,
         reprovision: reprovision,
-        open: "Open a url of system in the preferred application",
+        open: "Open a url of default system in the preferred application",
+      },
+      option_errors: {
+        open: {
+          default_system_not_balanceable: "\nThe default system `%(name)s` does not have ports http to open.",
+          system_not_running: "System `%(name)s` is not running to open.",
+        }
       }
     },
     stop: {
@@ -336,7 +342,7 @@ module.exports = {
       options: {
         verbose: verbose,
         reprovision: reprovision,
-        open: "Open a url of system in the preferred application",
+        open: "Open a url of default system in the preferred application",
       }
     },
     reload: {
