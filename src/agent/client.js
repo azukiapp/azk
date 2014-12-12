@@ -56,7 +56,8 @@ var Client = {
   },
 
   require() {
-    return this.status()
+    return this
+      .status()
       .then((status) => {
         if (status.agent) return this.configs();
         throw new AgentNotRunning();
