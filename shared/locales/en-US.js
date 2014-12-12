@@ -368,6 +368,19 @@ module.exports = {
       not_runnig   : "virtual machine is not running, try `azk vm start`.",
       error        : "vm error: %(error)s.",
       not_requires : "this system not requires virtual machine, to try force this behavior set `AZK_USE_VM=true`",
+      options: {
+        action: {
+          name: "actions".magenta,
+          options: {
+            ssh: "Connect via SSH to the virtual machine",
+            installed: "Check if the virtual machine is installed",
+            start: "Start virtual machine",
+            status: "Check virtual machine status",
+            stop: "Stop virtual machine",
+            remove: "Remove virtual machine but keep its contents",
+          },
+        },
+      }
     }
   },
 
