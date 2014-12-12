@@ -56,7 +56,15 @@ class Cmd extends ScaleCmd {
   }
 
   start(manifest, systems, opts) {
-    return this._scale(systems, 'start', opts);
+    return this
+      ._scale(systems, 'start', opts)
+      .fail((error) => {
+        this.fail(error);
+        this.fail('commands.start.fail', error);
+        return this
+          .stop(manifest, systems, opts)
+          .then(() => { return error.code ? error.code : 127 });
+      });
   }
 
   stop(manifest, systems, opts) {

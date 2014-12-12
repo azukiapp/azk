@@ -5,6 +5,10 @@
 * Enhancements
   * [Docker] Upgrading azk.iso and azk to support Docker 1.3
   * [CI] configuring Wercker service to run all tests whenever there is a commit on master branch.
+  * [Cli] Now the status of ui supports error object.
+
+* Bug
+  * When an error occurs in `azk start/restart` all instances are stopped.
 
 ## v0.7.1 - (2014-01-12)
 
