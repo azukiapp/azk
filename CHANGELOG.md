@@ -5,6 +5,7 @@
 * Enhancements
   * [Docker] Upgrading azk.iso and azk to support Docker 1.3
   * [CI] configuring Wercker service to run all tests whenever there is a commit on master branch.
+  * [Cli] Adding `--open` option in `start/restart`.
   * [Cli] Now the status of ui supports error object.
 
 * Bug

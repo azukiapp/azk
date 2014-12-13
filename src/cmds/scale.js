@@ -95,7 +95,7 @@ class Cmd extends VerboseCmd {
 
 export { Cmd };
 export function init(cli) {
-  (new Cmd('scale [system] [to]', cli))
+  return (new Cmd('scale [system] [to]', cli))
     .addOption(['--remove', '-r'], { default: true });
 }
 
