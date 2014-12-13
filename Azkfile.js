@@ -27,7 +27,7 @@ var mounts = (function() {
   var itens = glob.sync("./!(lib|data|node_modules|npm-debug.log)");
   mounts = lodash.reduce(itens, function(mount, item) {
     var key = join("/azk", "#{manifest.dir}", item);
-    mount[key] = item;
+    mount[key] = path(item, { vbox: true });
     return mount;
   }, mounts);
 

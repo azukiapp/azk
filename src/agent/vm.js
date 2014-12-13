@@ -110,6 +110,16 @@ function config_net_interfaces(name, ip) {
   });
 }
 
+function config_share(name) {
+  var args = [
+    "sharedfolder", "add", name,
+    "--name", "Users",
+    "--hostpath", "/Users",
+    "--automount"
+  ];
+  return exec.apply(null, args);
+}
+
 function config_disks(name, boot, data) {
   var storage_opts = [
     "storagectl"   , name  ,
@@ -208,6 +218,7 @@ var vm = {
       yield modifyvm(name, cmd);
       yield config_net_interfaces(name, opts.ip);
       yield config_disks(name, opts.boot, opts.data);
+      yield config_share(name);
 
       status_change("installed");
       return yield this.info(name);

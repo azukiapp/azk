@@ -451,8 +451,11 @@ export class System {
           if (!target.match(/^\//)) {
             target = path.resolve(this.manifest.manifestPath, target);
           }
-          target = (fs.existsSync(target)) ?
-            utils.docker.resolvePath(target) : null;
+          // TODO: Show error if vbox true and path no match "^/Users/.*"
+          if (!(mount.options || {}).vbox) {
+            target = (fs.existsSync(target)) ?
+              utils.docker.resolvePath(target) : null;
+          }
           break;
         case 'persistent':
           target = path.join(persist_base, mount.value);

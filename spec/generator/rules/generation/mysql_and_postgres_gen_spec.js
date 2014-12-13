@@ -95,7 +95,8 @@ describe('Azk generator db', function() {
         h.expect(system).to.not.have.deep.property('options.workdir');
         h.expect(system).to.have.deep.property('options.mounts').and.to.eql(
           { '/var/lib/mysql': { type: 'persistent',
-                                value: 'mysql_libmysql' } } );
+                                value: 'mysql_libmysql',
+                                options: {} } } );
       });
     });
 
@@ -121,8 +122,8 @@ describe('Azk generator db', function() {
         h.expect(system).to.have.deep.property('options.wait.timeout', 1000);
         h.expect(system).to.not.have.deep.property('options.workdir');
         h.expect(system).to.have.deep.property('options.mounts').and.to.eql(
-          { '/var/lib/postgresql': { type: 'persistent', value: 'postgresql' },
-            '/var/log/postgresql': { type: 'path',       value: './log/postgresql' } } );
+          { '/var/lib/postgresql': { type: 'persistent', value: 'postgresql', options: {} },
+            '/var/log/postgresql': { type: 'path',       value: './log/postgresql', options: {} } } );
       });
     });
 
@@ -151,8 +152,8 @@ describe('Azk generator db', function() {
         h.expect(system).to.have.deep.property('options.workdir', workdir);
 
         var expectedMounts = {};
-        expectedMounts[workdir] = { type: 'path', value: './railsMysql' };
-        expectedMounts['/azk/bundler'] = { type: 'persistent', value: 'bundler' };
+        expectedMounts[workdir] = { type: 'path', value: './railsMysql', options: {} };
+        expectedMounts['/azk/bundler'] = { type: 'persistent', value: 'bundler', options: {} };
 
         h.expect(system).to.have.deep.property('options.mounts').and.to.eql(
           expectedMounts );
@@ -184,15 +185,12 @@ describe('Azk generator db', function() {
         h.expect(system).to.have.deep.property('options.workdir', workdir);
 
         var expectedMounts = {};
-        expectedMounts[workdir] = { type: 'path', value: './railsPostgres' };
-        expectedMounts['/azk/bundler'] = { type: 'persistent', value: 'bundler' };
+        expectedMounts[workdir] = { type: 'path', value: './railsPostgres', options: {} };
+        expectedMounts['/azk/bundler'] = { type: 'persistent', value: 'bundler', options: {} };
 
         h.expect(system).to.have.deep.property('options.mounts').and.to.eql(
           expectedMounts );
       });
     });
-
-
   });
-
 });

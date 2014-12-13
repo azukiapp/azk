@@ -23,12 +23,12 @@ var ManifestDsl = {
   disable: null,
 
   // Mounts
-  path(folder) {
-    return { type: 'path', value: folder }
+  path(folder, options = {}) {
+    return { type: 'path', value: folder, options: options }
   },
 
-  persistent(name) {
-    return { type: 'persistent', value: name }
+  persistent(name, options = {}) {
+    return { type: 'persistent', value: name, options: options }
   },
 
   // Systems
