@@ -37,12 +37,7 @@ build:
     - script:
         name: azk agent start
         code: |
-          bin/azk agent start --no-daemon > azk-agent-start.log 2>&1 &
-
-    - script:
-        name: wait agent to start
-        code: |
-          until bin/azk status; do sleep 1; done
+          bin/azk agent start
 
     - script:
         name: download azktcl
