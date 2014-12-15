@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.8.0-dev
+## v0.8.0
 
 * Enhancements
   * [Docker] Upgrading azk.iso and azk to support Docker 1.3
