@@ -132,7 +132,11 @@ var UI = {
     return defer((resolve) => {
       inquirer.prompt(questions, (answers) => resolve(answers));
     });
-  }
+  },
+
+  get isInteractive() {
+    return this.stdout.isTTY == true;
+  },
 }
 
 export { UI };
