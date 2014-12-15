@@ -40,7 +40,7 @@ ${NODE}:
 
 clean:
 	@echo "task: $@"
-	@rm -Rf ${AZK_LIB_PATH}/..?* ${AZK_LIB_PATH}/.[!.]* ${AZK_LIB_PATH}/*
+	@find ./lib -maxdepth 1 -not -name "lib" | grep -v "/vm\$$" | xargs rm -Rf
 	@rm -Rf ${AZK_NPM_PATH}/..?* ${AZK_NPM_PATH}/.[!.]* ${AZK_NPM_PATH}/*
 	@rm -Rf ${NVM_DIR}/..?* ${NVM_DIR}/.[!.]* ${NVM_DIR}/*
 

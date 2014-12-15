@@ -63,7 +63,7 @@
     "scp2": "^0.1.4",
     "semver": "^4.1.0",
     "source-map-support": "~0.2.5",
-    "ssh2": "^0.2.22",
+    "ssh2": "0.2.22",
     "syntax-error": "^1.1.0",
     "touch": "0.0.3",
     "traceur": "0.0.72",
