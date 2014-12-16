@@ -1,5 +1,6 @@
 import h from 'spec/spec_helper';
-import { config, _, path, Q, async, defer, utils } from 'azk';
+import { _, path, Q, async, defer, utils } from 'azk';
+import { config, version } from 'azk';
 import { System } from 'azk/system';
 import { Manifest } from 'azk/manifest';
 import { net } from 'azk/utils';
@@ -67,6 +68,7 @@ describe("Azk system class, main set", function() {
         h.expect(provision).to.include(`manifest.dir: ${manifest.manifestDirName}`);
         h.expect(provision).to.include(`manifest.path: ${manifest.manifestPath}`);
         h.expect(provision).to.include(`manifest.project_name: ${manifest.manifestDirName}`);
+        h.expect(provision).to.include(`azk.version: ${version}`);
         h.expect(provision).to.include(`azk.default_domain: ${config('agent:balancer:host')}`);
         h.expect(provision).to.include(`azk.balancer_port: ${config('agent:balancer:port').toString()}`);
         h.expect(provision).to.include(`azk.balancer_ip: ${config('agent:balancer:ip')}`);

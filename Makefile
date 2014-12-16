@@ -40,7 +40,7 @@ ${NODE}:
 
 clean:
 	@echo "task: $@"
-	@rm -Rf ${AZK_LIB_PATH}/..?* ${AZK_LIB_PATH}/.[!.]* ${AZK_LIB_PATH}/*
+	@find ./lib -maxdepth 1 -not -name "lib" | grep -v "/vm\$$" | xargs rm -Rf
 	@rm -Rf ${AZK_NPM_PATH}/..?* ${AZK_NPM_PATH}/.[!.]* ${AZK_NPM_PATH}/*
 	@rm -Rf ${NVM_DIR}/..?* ${NVM_DIR}/.[!.]* ${NVM_DIR}/*
 
@@ -55,13 +55,17 @@ PATH_NODE_MODULES:=${PATH_USR_LIB_AZK}/node_modules
 PATH_AZK_LIB:=${PATH_USR_LIB_AZK}/lib
 PATH_AZK_NVM:=${PATH_AZK_LIB}/nvm
 NODE_PACKAGE = ${PATH_AZK_NVM}/${NODE_VERSION}/bin/node
-PATH_MAC_PACKAGE = ${AZK_PACKAGE_PATH}/brew/azk_${AZK_VERSION}.tar.gz
+PATH_MAC_PACKAGE = ${AZK_PACKAGE_PATH}/azk_${AZK_VERSION}.tar.gz
 
 # Build package folders tree
-package_mac: package_build ${PATH_AZK_LIB}/vm ${PATH_MAC_PACKAGE}
-package_linux: package_build creating_symbolic_links
+package_brew: package_build ${PATH_AZK_LIB}/vm ${PATH_MAC_PACKAGE}
+package_mac:
+	@export AZK_PACKAGE_PATH=${AZK_PACKAGE_PATH}/brew && \
+		mkdir -p $$AZK_PACKAGE_PATH && \
+		make -e package_brew
 
 # Alias to create a distro package
+package_linux: package_build creating_symbolic_links
 package_deb:
 	@mkdir -p package
 	@./src/libexec/package.sh deb
@@ -129,4 +133,4 @@ ${PATH_MAC_PACKAGE}: ${AZK_PACKAGE_PREFIX}
 
 package_build: bootstrap ${AZK_LIB_PATH}/azk $(FILES_TARGETS) $(FILES_JS_TARGETS) ${PATH_NODE_MODULES}
 
-.PHONY: bootstrap clean package package_mac package_deb package_rpm package_build package_clean copy_files
+.PHONY: bootstrap clean package package_brew package_mac package_deb package_rpm package_build package_clean copy_files
