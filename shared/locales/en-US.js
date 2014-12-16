@@ -207,6 +207,7 @@ module.exports = {
     agent: {
       description: "Controls azk agent",
       start_fail: "Agent start fail: %s",
+      start_before: "The agent is not running, would you like to start it now?",
       options: {
         action: {
           name: "actions".magenta,
@@ -301,9 +302,17 @@ module.exports = {
     start: {
       description: "Starts an instance of the system(s)",
       already: "System `%(name)s` already started",
+      fail: "Due to the above error azk will stop all instances already begun.\n",
       options: {
         verbose: verbose,
         reprovision: reprovision,
+        open: "Open a url of default system in the preferred application",
+      },
+      option_errors: {
+        open: {
+          default_system_not_balanceable: "\nThe default system `%(name)s` does not have ports http to open.",
+          system_not_running: "System `%(name)s` is not running to open.",
+        }
       }
     },
     stop: {
@@ -335,6 +344,7 @@ module.exports = {
       options: {
         verbose: verbose,
         reprovision: reprovision,
+        open: "Open a url of default system in the preferred application",
       }
     },
     reload: {

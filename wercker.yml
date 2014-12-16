@@ -1,0 +1,55 @@
+box: wercker-labs/docker
+build:
+  steps:
+
+    - script:
+        name: configure Docker 1.2.0
+        code: |
+          sudo groupadd docker -f
+          sudo gpasswd -a ${USER} docker
+
+    - script:
+        name: install libnss-resolver
+        code: |
+          sudo apt-key adv --keyserver keys.gnupg.net --recv-keys 022856F6D78159DF43B487D5C82CF0628592D2C9
+          echo "deb [arch=amd64] http://repo.azukiapp.com trusty main" | sudo tee /etc/apt/sources.list.d/azuki.list
+          sudo apt-get update -y
+          sudo apt-get install libnss-resolver -y
+
+    - script:
+        name: /etc/resolver/azk.dev
+        code: |
+          sudo mkdir -p /etc/resolver
+          sudo touch /etc/resolver/azk.dev
+          echo "nameserver 172.17.42.1:53" | sudo tee -a /etc/resolver/azk.dev
+
+    - script:
+        name: make
+        code: |
+          make
+
+    - script:
+        name: versions
+        code: |
+          docker -v
+          bin/azk version
+
+    - script:
+        name: azk agent start
+        code: |
+          bin/azk agent start --no-daemon > azk-agent-start.log 2>&1 &
+
+    - script:
+        name: wait agent to start
+        code: |
+          until bin/azk status; do sleep 1; done
+
+    - script:
+        name: download azktcl
+        code: |
+          docker pull azukiapp/azktcl:0.0.2
+
+    - script:
+        name: run all slow tests
+        code: |
+          bin/azk nvm grunt slow_test

@@ -20,7 +20,7 @@ class Cmd extends Command {
       var dir = this.cwd;
       var env = {};
 
-      yield Helpers.requireAgent();
+      yield Helpers.requireAgent(this);
 
       if (opts.image) {
         // Arbitrary image

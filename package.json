@@ -1,6 +1,6 @@
 {
   "name": "azk",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "description": "Development environments with agility and automation",
   "main": "index.js",
   "scripts": {
@@ -51,6 +51,7 @@
     "mkdirp": "^0.5.0",
     "moment": "^2.8.1",
     "node-uuid": "^1.4.1",
+    "open": "0.0.5",
     "parentpath": "^0.2.0",
     "portscanner": "^1.0.0",
     "prettyjson": "^1.0.0",
@@ -62,7 +63,7 @@
     "scp2": "^0.1.4",
     "semver": "^4.1.0",
     "source-map-support": "~0.2.5",
-    "ssh2": "^0.2.22",
+    "ssh2": "0.2.22",
     "syntax-error": "^1.1.0",
     "touch": "0.0.3",
     "traceur": "0.0.72",

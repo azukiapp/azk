@@ -11,7 +11,7 @@ class Cmd extends Command {
     return async(this, function* () {
 
       // Requirements
-      yield Helpers.requireAgent();
+      yield Helpers.requireAgent(this);
       var manifest = new Manifest(this.cwd, true);
 
       // Mount data to show

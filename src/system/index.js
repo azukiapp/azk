@@ -1,4 +1,5 @@
-import { _, t, config, path, async, Q, fs, utils } from 'azk';
+import { _, t, path, async, Q, fs, utils } from 'azk';
+import { version, config } from 'azk';
 import { Image } from 'azk/images';
 import { net } from 'azk/utils';
 import { Run } from 'azk/system/run';
@@ -412,14 +413,15 @@ export class System {
         name: this.name,
       },
       manifest: {
-        dir: this.manifest.manifestDirName,
+        dir : this.manifest.manifestDirName,
         path: this.manifest.manifestPath,
         project_name: this.manifest.manifestDirName,
       },
       azk: {
+        version       : version,
         default_domain: config('agent:balancer:host'),
-        balancer_port: config('agent:balancer:port'),
-        balancer_ip: config('agent:balancer:ip'),
+        balancer_port : config('agent:balancer:port'),
+        balancer_ip   : config('agent:balancer:ip'),
       }
     };
 
@@ -451,8 +453,11 @@ export class System {
           if (!target.match(/^\//)) {
             target = path.resolve(this.manifest.manifestPath, target);
           }
-          target = (fs.existsSync(target)) ?
-            utils.docker.resolvePath(target) : null;
+          // TODO: Show error if vbox true and path no match "^/Users/.*"
+          if (!(mount.options || {}).vbox) {
+            target = (fs.existsSync(target)) ?
+              utils.docker.resolvePath(target) : null;
+          }
           break;
         case 'persistent':
           target = path.join(persist_base, mount.value);

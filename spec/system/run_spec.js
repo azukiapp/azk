@@ -32,7 +32,7 @@ describe("Azk system class, run set", function() {
           { stdout: mocks.stdout, stderr: mocks.stderr }
         );
         h.expect(exitResult).to.have.property("code", 0);
-        h.expect(outputs).to.have.property("stdout").match(/root.*src/);
+        h.expect(outputs).to.have.property("stdout").match(/(root|1000).*src/);
       });
     });
 

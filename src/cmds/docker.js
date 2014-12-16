@@ -19,7 +19,14 @@ class Cmd extends Command {
         yield Helpers.requireAgent(this);
 
         var point = config('agent:vm:mount_point') + '.nfs';
-        var _path = utils.docker.resolvePath(this.cwd, point);
+
+        // resolver path
+        if (this.cwd.match(/^\/Users\/.*/)) {
+          var _path = this.cwd;
+        } else {
+          var _path = utils.docker.resolvePath(this.cwd, point);
+        }
+
         var cmd   = `azk vm ssh -t "cd ${_path}; docker ${args.join(" ")}" 2>/dev/null`;
       }
 

@@ -3,6 +3,8 @@ import { Command, Helpers } from 'azk/cli/command';
 import { SYSTEMS_CODE_ERROR, NotBeenImplementedError } from 'azk/utils/errors';
 import { Cmd as ScaleCmd } from 'azk/cmds/scale';
 
+var open = require('open');
+
 lazy_require(this, {
   Manifest: ['azk/manifest'],
 });
@@ -56,7 +58,41 @@ class Cmd extends ScaleCmd {
   }
 
   start(manifest, systems, opts) {
-    return this._scale(systems, 'start', opts);
+    return async(this, function* () {
+      var result = yield this._scale(systems, 'start', opts);
+
+      // if flag --open
+      if (!_.isUndefined(opts.open)) {
+        var open_with,
+            system = manifest.systemDefault;
+
+        if (_.isNull(opts.open) || !_.isString(opts.open) || opts.open == 'default_browser') {
+          open_with = null;
+        } else {
+          open_with = opts.open;
+        }
+
+        if (system.balanceable) {
+          var instances = yield system.instances({ type: "daemon" });
+
+          if (instances.length > 0) {
+            open(system.url, open_with);
+          } else {
+            this.warning('commands.start.option_errors.open.system_not_running', { name : system.name });
+          }
+
+        } else {
+          this.warning('commands.start.option_errors.open.default_system_not_balanceable', { name : system.name });
+        }
+      };
+    })
+    .fail((error) => {
+      this.fail(error);
+      this.fail('commands.start.fail', error);
+      return this
+        .stop(manifest, systems, opts)
+        .then(() => { return error.code ? error.code : 127 });
+    });
   }
 
   stop(manifest, systems, opts) {
@@ -88,14 +124,18 @@ class Cmd extends ScaleCmd {
 }
 
 export function init(cli) {
-  var cmds = [
-    (new Cmd('start [system]' , cli))
-      .addOption(['--reprovision', '-R'], { default: false }),
-    (new Cmd('stop [system]'  , cli))
-      .addOption(['--remove', '-r'], { default: true }),
-    (new Cmd('restart [system]', cli))
-      .addOption(['--reprovision', '-R'], { default: false }),
-    (new Cmd('reload [system]', cli))
-      .addOption(['--reprovision', '-R'], { default: true }),
-  ];
+  var cmds = {
+    start   : (new Cmd('start [system]'   , cli))
+                .addOption(['--reprovision', '-R'], { default: false })
+                .addOption(['--open', '-o'], { type: String, default: "default_browser" }),
+    stop    : (new Cmd('stop [system]'    , cli))
+                .addOption(['--remove', '-r'], { default: true }),
+    restart : (new Cmd('restart [system]' , cli))
+                .addOption(['--reprovision', '-R'], { default: false })
+                .addOption(['--open', '-o'], { type: String, default: "default_browser" }),
+    reload  : (new Cmd('reload [system]'  , cli))
+                .addOption(['--reprovision', '-R'], { default: true }),
+  }
+
+  return cmds;
 }

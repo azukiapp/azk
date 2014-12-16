@@ -10,7 +10,7 @@ lazy_require(this, {
 class Cmd extends VerboseCmd {
   action(opts) {
     return async(this, function* () {
-      yield Helpers.requireAgent();
+      yield Helpers.requireAgent(this);
 
       var manifest = new Manifest(this.cwd, true);
       Helpers.manifestValidate(this, manifest);
@@ -95,7 +95,7 @@ class Cmd extends VerboseCmd {
 
 export { Cmd };
 export function init(cli) {
-  (new Cmd('scale [system] [to]', cli))
+  return (new Cmd('scale [system] [to]', cli))
     .addOption(['--remove', '-r'], { default: true });
 }
 
