@@ -247,28 +247,35 @@ export class Configure extends UIProxy {
   _generateResolverFile(ip, file) {
     var port = config('agent:dns:port');
 
-    // Creating resolver file and adding ip (with sudo)
-    this.info('configure.adding_ip', { ip, file });
-    ip = `${ip}${this.dns_tab}${port}`;
-    var script = `
-      echo "" &&
-      set -x &&
-      sudo mkdir -p /etc/resolver 2>/dev/null &&
-      echo "# azk agent configure" | sudo tee ${file} &&
-      echo "nameserver ${ip}" | sudo tee -a ${file} &&
-      sudo chown \$(id -u):\$(id -g) ${file} &&
-      set +x &&
-      echo ""
-    `;
+    // TODO: Fixing is not root and not have a sudo
+    return this
+      ._which('sudo', 'sudo')
+      .then((sudo_path) => { return sudo_path.sudo; })
+      .fail(() => { return ""; })
+      .then((sudo_path) => {
+        // Creating resolver file and adding ip (with sudo)
+        this.info('configure.adding_ip', { ip, file });
+        ip = `${ip}${this.dns_tab}${port}`;
+        var script = `
+          echo "" &&
+          set -x &&
+          ${sudo_path} mkdir -p /etc/resolver 2>/dev/null &&
+          echo "# azk agent configure" | ${sudo_path} tee ${file} &&
+          echo "nameserver ${ip}" | ${sudo_path} tee -a ${file} &&
+          ${sudo_path} chown \$(id -u):\$(id -g) ${file} &&
+          set +x &&
+          echo ""
+        `;
 
-    // Call interactive shell (to support sudo)
-    return this.execSh(script).then((code) => {
-      if (code != 0) {
-        throw new DependencyError('network');
-      } else {
-        return code;
-      }
-    });
+        // Call interactive shell (to support sudo)
+        return this.execSh(script).then((code) => {
+          if (code != 0) {
+            throw new DependencyError('network');
+          } else {
+            return code;
+          }
+        });
+      });
   }
 
   _parseNameserver(content) {
