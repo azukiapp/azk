@@ -208,6 +208,12 @@ Now the installation of `azk`:
 $ brew install azukiapp/azk/azk
 ```
 
+Run `azk agent` in a terminal:
+
+```sh
+$ azk agent start
+```
+
 #### Linux
 
 * Distribution (tested): Ubuntu 12.04/14.04 and Fedora20
