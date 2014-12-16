@@ -418,6 +418,7 @@ module.exports = {
         options: {
           verbose: "Verbose mode",
           string: "String option",
+          'string-placeholder': "String option with placeholder",
           flag: "Boolean flag",
           'flag-default': "Flag with default",
           subcommand: {
