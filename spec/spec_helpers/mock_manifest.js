@@ -141,6 +141,7 @@ export function extend(h) {
             "manifest.dir: #{manifest.dir}",
             "manifest.path: #{manifest.path}",
             "manifest.project_name: #{manifest.project_name}",
+            "azk.version: #{azk.version}",
             "azk.default_domain: #{azk.default_domain}",
             "azk.balancer_port: #{azk.balancer_port}",
             "azk.balancer_ip: #{azk.balancer_ip}",

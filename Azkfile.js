@@ -2,16 +2,12 @@
  * Documentation: http://docs.azk.io/Azkfile.js
  */
 
-// Global image to reuse
-//addImage('base', { repository: "cevich/empty_base_image" }); // tag: latest
-
-
 var lodash = require('lodash');
 var join   = require('path').join;
 var config = require('azk').config;
 
 var mounts = (function() {
-  var glob = require('glob');
+  // Default mounts
   var mounts = {
     "/.tmux.conf"      : join(env.HOME, ".tmux.conf"),
     "/azk/demos"       : "../demos",
@@ -21,13 +17,15 @@ var mounts = (function() {
     "/var/lib/docker"  : persistent('docker_files-#{system.name}'),
     "/azk/#{manifest.dir}/node_modules": persistent('node_modules-#{system.name}'),
     "/azk/#{manifest.dir}/.nvmrc" : ".nvmrc",
-    "/root/.aptly.conf": path("./src/libexec/aptly.json"),
+    "/root/.aptly.conf": path("./src/libexec/aptly.json")
   }
 
+  var glob  = require('glob');
   var itens = glob.sync("./!(lib|data|node_modules|npm-debug.log)");
+
   mounts = lodash.reduce(itens, function(mount, item) {
-    var key = join("/azk", "#{manifest.dir}", item);
-    mount[key] = path(item, { vbox: true });
+    var key    = join("/azk", "#{manifest.dir}", item);
+    mount[key] = path(item);
     return mount;
   }, mounts);
 
@@ -53,7 +51,7 @@ var agent_system = function(image, extras) {
       LOG: "file",
       NODE_ENV: "test",
       EXTRA_SCRIPT: "/azk/#{manifest.dir}/src/libexec/init_azk",
-      VERSION: "0.6.0",
+      VERSION: "#{azk.version}",
     },
     docker_extra: {
       start: { Privileged: true },

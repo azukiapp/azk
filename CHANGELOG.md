@@ -7,6 +7,7 @@
   * [CI] configuring Wercker service to run all tests whenever there is a commit on master branch.
   * [Cli] Adding `--open` option in `start/restart`.
   * [Cli] Now the status of ui supports error object.
+  * [Manifest] Adding `azk.version` to use in template.
 
 * Bug
   * When an error occurs in `azk start/restart` all instances are stopped.
