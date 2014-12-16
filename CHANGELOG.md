@@ -1,5 +1,9 @@
 # Changelog
 
+## dev
+* Bug
+  * Fixing option --open in command `start/restart` not null.
+
 ## v0.8.0
 
 * Enhancements
