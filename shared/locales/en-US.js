@@ -85,6 +85,7 @@ module.exports = {
       progress    : "Trying connect to vm (%(uri)s) (%(attempts)d/%(max)d)...",
       upkey       : "Upload the ssh key to vm...",
       error       : "Error in vm process: %(data)s",
+      docker_keys : "Downloading required keys to connect with docker",
     },
 
     socat: {

@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.8.2
+
+* Bug
+  * Fixing downloading requireds keys to connect docker.
+
 ## v0.8.1
 
 * Bug

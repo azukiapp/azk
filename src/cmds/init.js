@@ -13,34 +13,32 @@ lazy_require(this, {
 
 class Cmd extends Command {
   action(opts) {
-    return async(this, function* () {
-      var manifest = config("manifest");
-      var cwd  = opts.path || this.cwd;
-      var file = path.join(cwd, manifest);
-      var generator = new Generator(this);
+    var manifest = config("manifest");
+    var cwd  = opts.path || this.cwd;
+    var file = path.join(cwd, manifest);
+    var generator = new Generator(this);
 
-      if (fs.existsSync(file) && !opts.force) {
-        this.fail(this.tKeyPath("already"), manifest);
-        return 1;
-      }
+    if (fs.existsSync(file) && !opts.force) {
+      this.fail(this.tKeyPath("already"), manifest);
+      return 1;
+    }
 
-      var systemsData = generator.findSystems(cwd);
-      log.debug('generator.findSystems(\'%s\')', cwd);
+    var systemsData = generator.findSystems(cwd);
+    log.debug('generator.findSystems(\'%s\')', cwd);
 
-      if (_.isEmpty(systemsData)) {
-        this.fail(this.tKeyPath("not_found"));
-        systemsData = { [example_system.name]: example_system };
-      }
+    if (_.isEmpty(systemsData)) {
+      this.fail(this.tKeyPath("not_found"));
+      systemsData = { [example_system.name]: example_system };
+    }
 
-      generator.render({ systems: systemsData }, file);
-      this.ok(this.tKeyPath('generated'), manifest);
+    generator.render({ systems: systemsData }, file);
+    this.ok(this.tKeyPath('generated'), manifest);
 
-      // Only show tips if is a git dir
-      if (fs.existsSync(path.join(cwd, ".git")))
-        this.tOutput(this.tKeyPath('github'));
+    // Only show tips if is a git dir
+    if (fs.existsSync(path.join(cwd, ".git")))
+      this.tOutput(this.tKeyPath('github'));
 
-      return 0;
-    });
+    return 0;
   }
 }
 
