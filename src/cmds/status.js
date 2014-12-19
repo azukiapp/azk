@@ -52,34 +52,26 @@ class Cmd extends Command {
         var provisioned = system.provisioned;
         provisioned = provisioned ? moment(provisioned).fromNow() : "-";
 
-        var lines   = [];
-        var splits  = Math.round(ports.length / 2)
+        if (opts.text) {
+          var ports_string = ports.join(', ')
+        } else {
+          var ports_line = [];
 
-
-        for (var i = 0; i <= ports.length; i+=2) {
-          var line;
-          var _ports = ports.slice(i, i+2).join(', ');
-
-          if (i == 0) {
-            line = [status, name, counter, hostname, _ports, provisioned];
-          } else {
-            line = ['', '', '', '', _ports, ''];
-          }
-
-          if (opts.long) {
-            line.push(system.image.name.white);
-          }
-
-          lines.push(line)
-        };
-
-
-        _.map(lines, (line, ix) => {
-          if (lines.length > 1 && ix > 0) {
-            this.table(table_status).options.wrappedLines.push(this.table(table_status).length)
+          for (var i = 0; i <= ports.length; i+=2) {
+            var _ports = ports.slice(i, i+2).join(', ');
+            ports_line.push(_ports);
           };
-          this.table_push(table_status, line);
-        });
+
+          var ports_string = ports_line.join('\n')
+        }
+
+        var line = [status, name, counter, hostname, ports_string, provisioned];
+
+        if (opts.long) {
+          line.push(system.image.name.white);
+        }
+
+        this.table_push(table_status, line);
       }
 
       this.table_show(table_status);
