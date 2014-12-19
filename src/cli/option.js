@@ -57,7 +57,9 @@ export class Option {
 
     switch(this.type) {
       case String:
-        names[0] += `="${this.default != null ? this.default : ''}"`;
+        if (this.default != null || this.placeholder != null) {
+          names[0] += `="${this.default || this.placeholder}"`;
+        }
         break;
       case Boolean:
         if (this.show_default)
