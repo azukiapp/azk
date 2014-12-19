@@ -1,6 +1,7 @@
 # Changelog
 
-## dev
+## v0.8.1
+
 * Bug
   * Fixing option --open in command `start/restart` not null.
 

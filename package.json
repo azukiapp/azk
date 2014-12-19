@@ -1,10 +1,10 @@
 {
   "name": "azk",
-  "version": "0.8.0",
-  "description": "Development environments with agility and automation",
+  "version": "0.8.1",
+  "description": "Orchestrate development environments with agility and automation",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./bin/azk nvm grunt test"
   },
   "repository": {
     "type": "git",
@@ -18,7 +18,9 @@
     "clustering",
     "devops",
     "dev ops",
-    "azuki"
+    "azuki",
+    "orchestrate",
+    "orquestration"
   ],
   "author": "Éverton Ribeiro",
   "license": "Apache 2.0",
