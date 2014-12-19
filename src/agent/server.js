@@ -91,7 +91,7 @@ var Server = {
         // Wait for vm start
         var n = (status) => notify({ type: "status", context: "vm", status });
         n("wait");
-        var address = `tcp://${config("agent:vm:ip")}:22`;
+        var address = `tcp://${config("agent:vm:ip")}:2376`;
         var success = yield net_utils.waitService(address, 10, { context: "vm" });
         if (!success) {
           throw new AgentStartError(t("errors.not_vm_start"));
@@ -110,11 +110,16 @@ var Server = {
         yield qfs.makeTree(pems);
 
         // Copy files
+        // TODO: Make downloads asyncs
+        n("docker_keys");
         for (var i = 0; i < files.length; i++) {
-          n("docker_keys");
           origin = path.join("/home/docker/.docker", files[i]);
           dest   = path.join(pems, files[i]);
-          yield VM.copyVMFile(vm_name, origin, dest);
+          yield VM
+            .copyVMFile(vm_name, origin, dest)
+            .fail(() => {
+              throw Error(`Erro to download file: ${origin}`);
+            });
         }
       };
 
