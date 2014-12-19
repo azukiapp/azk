@@ -100,6 +100,20 @@ var UI = {
   },
 
   table_add(name, options) {
+    options = options || {};
+
+    if (options.text) {
+      options["chars"] = {
+        'top'           : '', 'top-mid'       : '', 'top-left'    : '',
+        'top-right'     : '', 'bottom'        : '', 'bottom-mid'  : '',
+        'bottom-left'   : '', 'bottom-right'  : '', 'left'        : '',
+        'left-mid'      : '', 'mid'           : '', 'mid-mid'     : '',
+        'right'         : '', 'right-mid'     : '', 'middle'      : ''
+      }
+
+      delete(options.text)
+    };
+
     tables[name] = new Table(options);
     return name;
   },

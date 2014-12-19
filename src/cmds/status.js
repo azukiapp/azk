@@ -28,7 +28,12 @@ class Cmd extends Command {
         columns.push('Image'.white);
       }
 
-      var table_status = this.table_add('table_status', { head: columns });
+      var table_options = {
+        head: columns,
+        text: opts.text
+      }
+
+      var table_status = this.table_add('table_status', table_options);
 
       for (var system of systems) {
         var instances = yield system.instances({ type: "daemon" });
@@ -103,6 +108,7 @@ class Cmd extends Command {
 export { Cmd };
 export function init(cli) {
   (new Cmd('status [system]', cli))
+    .addOption(['--text', '-t'], { default: false })
     .addOption(['--long', '-l'], { default: false });
 }
 
