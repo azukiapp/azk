@@ -47,11 +47,34 @@ class Cmd extends Command {
         var provisioned = system.provisioned;
         provisioned = provisioned ? moment(provisioned).fromNow() : "-";
 
-        var line = [status, name, counter, hostname, ports.join(', '), provisioned];
-        if (opts.long) {
-          line.push(system.image.name.white);
-        }
-        this.table_push(table_status, line);
+        var lines   = [];
+        var splits  = Math.round(ports.length / 2)
+
+
+        for (var i = 0; i <= ports.length; i+=2) {
+          var line;
+          var _ports = ports.slice(i, i+2).join(', ');
+
+          if (i == 0) {
+            line = [status, name, counter, hostname, _ports, provisioned];
+          } else {
+            line = ['', '', '', '', _ports, ''];
+          }
+
+          if (opts.long) {
+            line.push(system.image.name.white);
+          }
+
+          lines.push(line)
+        };
+
+
+        _.map(lines, (line, ix) => {
+          if (lines.length > 1 && ix > 0) {
+            this.table(table_status).options.wrappedLines.push(this.table(table_status).length)
+          };
+          this.table_push(table_status, line);
+        });
       }
 
       this.table_show(table_status);

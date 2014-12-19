@@ -108,6 +108,10 @@ var UI = {
     tables[name].push(...args);
   },
 
+  table(name) {
+    return tables[name];
+  },
+
   table_show(name) {
     this.output(tables[name].toString());
   },

@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "child-process-promise": "^1.0.0",
-    "cli-table": "^0.3.0",
+    "cli-table": "git+https://github.com/gullitmiranda/cli-table#master",
     "colors": "^0.6.2",
     "dns-sync": "^0.1.0",
     "dockerode": "^2.0.3",
