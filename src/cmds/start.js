@@ -66,7 +66,7 @@ class Cmd extends ScaleCmd {
         var open_with,
             system = manifest.systemDefault;
 
-        if (_.isNull(opts.open) || !_.isString(opts.open) || opts.open == 'default_browser') {
+        if (_.isNull(opts.open) || !_.isString(opts.open) ) {
           open_with = null;
         } else {
           open_with = opts.open;
@@ -127,12 +127,12 @@ export function init(cli) {
   var cmds = {
     start   : (new Cmd('start [system]'   , cli))
                 .addOption(['--reprovision', '-R'], { default: false })
-                .addOption(['--open', '-o'], { type: String, default: "default_browser" }),
+                .addOption(['--open', '-o'], { type: String, placeholder: "application" }),
     stop    : (new Cmd('stop [system]'    , cli))
                 .addOption(['--remove', '-r'], { default: true }),
     restart : (new Cmd('restart [system]' , cli))
                 .addOption(['--reprovision', '-R'], { default: false })
-                .addOption(['--open', '-o'], { type: String, default: "default_browser" }),
+                .addOption(['--open', '-o'], { type: String, placeholder: "application" }),
     reload  : (new Cmd('reload [system]'  , cli))
                 .addOption(['--reprovision', '-R'], { default: true }),
   }

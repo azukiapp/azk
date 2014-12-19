@@ -191,18 +191,19 @@ describe('Azk cli command class', function() {
 
   it("should raise directly command use", function() {
     var cmd  = new Command('test', UI);
-    h.expect(() => cmd.run()).to.throw(Error, /Don't use/);
+    h.expect(() => cmd.run()).to.throw(Error, /Don't use/); // '
   });
 
   describe("call showUsage", function() {
     it("should a usage and help options", function() {
       var cmd = new TestCmd('test_help {subcommand} [command]', UI);
       cmd
-        .addOption(['--verbose', '-v'], { acc: true, default: false } )
-        .addOption(['--flag-default', '-F'], { default: true })
-        .addOption(['--flag', '-f'])
-        .addOption(['--string'], { type: String })
-        .setOptions("subcommand", { options: ["start", "stop"] })
+      .addOption(['--verbose', '-v'                         ] , { acc: true, default: false } )
+      .addOption(['--flag-default', '-F'                    ] , { default: true })
+      .addOption(['--flag', '-f'                            ] )
+      .addOption(['--string'                                ] , { type: String })
+      .addOption(['--string-placeholder'                    ] , { type: String, placeholder: 'default' })
+      .setOptions("subcommand", { options: ["start", "stop" ] })
         .setOptions("command", { stop: true })
         .addExamples([ "this a example of the use" ]);
 
@@ -213,18 +214,20 @@ describe('Azk cli command class', function() {
       );
       h.expect(out).to.deep.property("[02]", 'Test help description');
       h.expect(out).to.deep.property("[04]", t('commands.help.options'));
-      h.expect(out).to.deep.property("[06]", '  --verbose, -v, -vv  Verbose mode (default: false) - multiples supported');
-      h.expect(out).to.deep.property("[07]", '  --flag-default, -F  Flag with default (default: true)');
-      h.expect(out).to.deep.property("[08]", '  --flag, -f          Boolean flag (default: false)');
-      h.expect(out).to.deep.property("[09]", '  --string=""         String option');
-      h.expect(out).to.deep.property("[10]", '');
-      h.expect(out).to.deep.property("[11]", 'subcommand:');
-      h.expect(out).to.deep.property("[13]", '  start  Start service');
-      h.expect(out).to.deep.property("[14]", '  stop   Stop service');
-      h.expect(out).to.deep.property("[15]", '');
-      h.expect(out).to.deep.property("[16]", t('commands.help.examples'));
-      h.expect(out).to.deep.property("[17]", '');
-      h.expect(out).to.deep.property("[18]", '  this a example of the use');
+      h.expect(out).to.deep.property("[06]", '  --verbose, -v, -vv              Verbose mode (default: false) - multiples supported');
+      h.expect(out).to.deep.property("[07]", '  --flag-default, -F              Flag with default (default: true)');
+      h.expect(out).to.deep.property("[08]", '  --flag, -f                      Boolean flag (default: false)');
+      h.expect(out).to.deep.property("[09]", '  --string                        String option');
+      h.expect(out).to.deep.property("[10]", '  --string-placeholder="default"  String option with placeholder');
+      h.expect(out).to.deep.property("[11]", '');
+      h.expect(out).to.deep.property("[12]", 'subcommand:');
+      h.expect(out).to.deep.property("[13]", '');
+      h.expect(out).to.deep.property("[14]", '  start  Start service');
+      h.expect(out).to.deep.property("[15]", '  stop   Stop service');
+      h.expect(out).to.deep.property("[16]", '');
+      h.expect(out).to.deep.property("[17]", t('commands.help.examples'));
+      h.expect(out).to.deep.property("[18]", '');
+      h.expect(out).to.deep.property("[19]", '  this a example of the use');
     });
 
     it("shund support a prefix in usage", function() {
