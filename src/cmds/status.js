@@ -28,7 +28,12 @@ class Cmd extends Command {
         columns.push('Image'.white);
       }
 
-      var table_status = this.table_add('table_status', { head: columns });
+      var table_options = {
+        head: columns,
+        text: opts.text
+      }
+
+      var table_status = this.table_add('table_status', table_options);
 
       for (var system of systems) {
         var instances = yield system.instances({ type: "daemon" });
@@ -47,10 +52,25 @@ class Cmd extends Command {
         var provisioned = system.provisioned;
         provisioned = provisioned ? moment(provisioned).fromNow() : "-";
 
-        var line = [status, name, counter, hostname, ports.join(', '), provisioned];
+        if (opts.text) {
+          var ports_string = ports.join(', ')
+        } else {
+          var ports_line = [];
+
+          for (var i = 0; i <= ports.length; i+=2) {
+            var _ports = ports.slice(i, i+2).join(', ');
+            ports_line.push(_ports);
+          };
+
+          var ports_string = ports_line.join('\n')
+        }
+
+        var line = [status, name, counter, hostname, ports_string, provisioned];
+
         if (opts.long) {
           line.push(system.image.name.white);
         }
+
         this.table_push(table_status, line);
       }
 
@@ -80,6 +100,7 @@ class Cmd extends Command {
 export { Cmd };
 export function init(cli) {
   (new Cmd('status [system]', cli))
+    .addOption(['--text', '-t'], { default: false })
     .addOption(['--long', '-l'], { default: false });
 }
 
