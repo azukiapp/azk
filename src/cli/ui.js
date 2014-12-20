@@ -152,8 +152,8 @@ var UI = {
     });
   },
 
-  get isInteractive() {
-    return this.stdout.isTTY == true;
+  isInteractive() {
+    return this.stdout().isTTY == true;
   },
 }
 
