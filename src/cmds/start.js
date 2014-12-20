@@ -63,8 +63,10 @@ class Cmd extends ScaleCmd {
 
       // if flag --open
       if (!_.isUndefined(opts.open)) {
-        var open_with,
-            system = manifest.systemDefault;
+        var open_with;
+        var system = manifest.systemDefault;
+        var tKey   = 'commands.start.option_errors.open';
+        var tOpt   = { name : system.name };
 
         if (_.isNull(opts.open) || !_.isString(opts.open) ) {
           open_with = null;
@@ -78,13 +80,15 @@ class Cmd extends ScaleCmd {
           if (instances.length > 0) {
             open(system.url, open_with);
           } else {
-            this.warning('commands.start.option_errors.open.system_not_running', { name : system.name });
+            this.warning(`${tKey}.system_not_running`, tOpt);
           }
 
         } else {
-          this.warning('commands.start.option_errors.open.default_system_not_balanceable', { name : system.name });
+          this.warning(`${tKey}.default_system_not_balanceable`, tOpt);
         }
       };
+
+      return result;
     })
     .fail((error) => {
       this.fail(error);
