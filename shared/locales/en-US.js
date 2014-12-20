@@ -367,6 +367,8 @@ module.exports = {
         system: "System(s) name(s)",
         instances: "Shows details about instances",
         all: "Includes all instances (including those terminated)",
+        long: "Show all columns",
+        text: "Show in text mode",
       }
     },
     vm: {

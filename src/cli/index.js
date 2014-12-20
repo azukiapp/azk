@@ -56,5 +56,7 @@ export function cli(args, cwd, ui = UI) {
         ui.fail(error);
         ui.exit(error.code ? error.code : 127);
       });
+  } else {
+    ui.exit(result);
   }
 }
