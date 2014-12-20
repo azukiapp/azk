@@ -22,46 +22,44 @@ describe("Azk command init", function() {
 
     it("should fail", function() {
       var message = t("commands.init.already", manifest);
-      return cmd.run([]).then((code) => {
-        h.expect(code).to.equal(1);
-        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp(message)));
-      });
+      var code = cmd.run([])
+      h.expect(code).to.equal(1);
+      h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp(message)));
     });
 
     it("should sucess if --force is passed", function() {
       var message = t("commands.init.already", manifest);
-      return cmd.run(["--force"]).then((code) => {
-        h.expect(code).to.equal(0);
-        h.expect(outputs[0]).to.not.match(RegExp(h.escapeRegExp(message)));
-      });
+      var code = cmd.run(["--force"]);
+      h.expect(code).to.equal(0);
+      h.expect(outputs[0]).to.not.match(RegExp(h.escapeRegExp(message)));
     });
   });
 
 
   it("should generate a manifest with a example system in a blank dir", function() {
     return h.tmp_dir().then((project) => {
-      cmd.cwd = project;
-      return cmd.run([]).then(() => {
+      cmd.cwd  = project;
+      var code = cmd.run([]);
 
-        // Check generated manifest
-        var manifest = new Manifest(project);
-        var system   = manifest.systemDefault;
-        var name     = path.basename(project);
-        h.expect(system).to.have.deep.property("name", "example");
-        h.expect(system).to.have.deep.property("image.name", "[repository]:[tag]");
-        h.expect(system).to.have.deep.property("depends").and.to.eql([]);
-        h.expect(system).to.have.deep.property("mounts")
-          .and.to.eql({ ["/azk/" + name]: utils.docker.resolvePath(manifest.manifestPath) });
-        h.expect(system).to.have.deep.property("options.workdir", "/azk/" + name);
-        h.expect(system).to.have.deep.property("options.command")
-          .and.to.eql("# command to run app");
-        h.expect(system).to.have.deep.property("options.envs")
-          .and.to.eql({ EXAMPLE: "value" });
+      // Check generated manifest
+      var manifest = new Manifest(project);
+      var system   = manifest.systemDefault;
+      var name     = path.basename(project);
 
-        // Check messages
-        var message = t("commands.init.not_found");
-        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp(message)));
-      });
+      h.expect(system).to.have.deep.property("name", "example");
+      h.expect(system).to.have.deep.property("image.name", "[repository]:[tag]");
+      h.expect(system).to.have.deep.property("depends").and.to.eql([]);
+      h.expect(system).to.have.deep.property("mounts")
+        .and.to.eql({ ["/azk/" + name]: utils.docker.resolvePath(manifest.manifestPath) });
+      h.expect(system).to.have.deep.property("options.workdir", "/azk/" + name);
+      h.expect(system).to.have.deep.property("options.command")
+        .and.to.eql("# command to run app");
+      h.expect(system).to.have.deep.property("options.envs")
+        .and.to.eql({ EXAMPLE: "value" });
+
+      // Check messages
+      var message = t("commands.init.not_found");
+      h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp(message)));
     });
   });
 });
