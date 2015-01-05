@@ -5,12 +5,18 @@ export class Validate {
     var errors = [];
 
     // validates
-    errors = errors.concat(
-      this._have_systems(manifest),
-      this._have_old_http_hostname(manifest)
-    );
+    var validations = [ this._have_systems(manifest),
+                        this._have_old_http_hostname(manifest),
+                        this._have_old_image_definition(manifest)];
 
-    return errors;;
+    validations.forEach(function(validation) {
+
+      if(validation && validation.length > 0){
+        errors = errors.concat(validation);
+      }
+    });
+
+    return errors;
   }
 
   static _have_systems(manifest) {
@@ -24,6 +30,18 @@ export class Validate {
     return _.reduce(manifest.systems, (errors, system) => {
       return errors.concat(
         this._deprecate((system.options.http || {}).hostname, manifest, system.name, 'http.hostname', 'http.domains')
+      );
+    }, []);
+  }
+
+  static _have_old_image_definition(manifest) {
+    return _.reduce(manifest.systems, (errors, system) => {
+
+      console.log('\n>>------------\n system.image.repository:', system.image.repository, '\n<<------------\n');
+      console.log('\n>>------------\n system.image.tag:', system.image.tag, '\n<<------------\n');
+
+      return errors.concat(
+        this._deprecate((system.options.image || {}).hostname, manifest, system.name, 'image', 'image.docker')
       );
     }, []);
   }

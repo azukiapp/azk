@@ -43,4 +43,27 @@ describe("Azk manifest class, validate set", function() {
       h.expect(err[0]).to.have.property("system", "system1");
     });
   });
+
+  it("should return deprecate use image", function() {
+    var content = `
+      system('system1', {
+        image: "any"
+      });
+    `;
+
+    return h.mockManifestWithContent(content).then((mf) => {
+      var err = mf.validate();
+
+      h.expect(err).to.instanceof(Array);
+      h.expect(err).to.length(1);
+
+      h.expect(err[0]).to.have.property("key", "deprecated");
+      h.expect(err[0]).to.have.property("option", "http.hostname");
+      h.expect(err[0]).to.have.property("new_option", "http.domains");
+      h.expect(err[0]).to.have.property("manifest").and.eql(mf);
+      h.expect(err[0]).to.have.property("level", "deprecate");
+      h.expect(err[0]).to.have.property("system", "system1");
+    });
+  });
+
 });

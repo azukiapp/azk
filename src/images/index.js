@@ -1,6 +1,7 @@
 import { async, defer, _, lazy_require } from 'azk';
 
-var default_tag = "latest";
+var default_tag      = "latest";
+var default_provider = "docker";
 
 lazy_require(this, {
   DImage() {
@@ -18,7 +19,8 @@ export class Image {
       this.name = image;
     } else {
       this.repository = image.repository;
-      this.tag = image.tag || default_tag;
+      this.tag        = image.tag      || default_tag;
+      this.provider   = image.provider || default_provider;
     }
   }
 
