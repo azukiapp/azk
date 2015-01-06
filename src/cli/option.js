@@ -43,46 +43,53 @@ export class Option {
   }
 
   help(desc) {
-    var help = [];
-    // Names
-    var names = _.reduce(this.alias, (names, alias) => {
-      if (alias.length == 1) {
-        names.push('-' + alias);
-        if (this.acc) names.push('-' + alias + alias);
-      } else {
-        names.push('--' + alias);
-      }
-      return names;
-    }, []);
-
-    switch(this.type) {
-      case String:
-        if (this.default != null || this.placeholder != null) {
-          names[0] += `="${this.default || this.placeholder}"`;
+    if (this.hidden !== true) {
+      var help = [];
+      // Names
+      var names = _.reduce(this.alias, (names, alias) => {
+        if (alias.length == 1) {
+          names.push('-' + alias);
+          if (this.acc) names.push('-' + alias + alias);
+        } else {
+          names.push('--' + alias);
         }
-        break;
-      case Boolean:
-        if (this.show_default)
-          var value = this.default;
-          if (value != null) {
-            desc += ` (default: ${value ? true : false})`;
+        return names;
+      }, []);
+
+      switch(this.type) {
+        case String:
+          if (this.default != null || this.placeholder != null) {
+            names[0] += `="${this.default || this.placeholder}"`;
           }
-        break;
-    }
+          break;
+        case Boolean:
+          if (this.show_default)
+            var value = this.default;
+            if (value != null) {
+              desc += ` (default: ${value ? true : false})`;
+            }
+          break;
+      }
 
-    if (this.acc) {
-      desc += " - multiples supported"
-    }
+      if (this.acc) {
+        desc += " - multiples supported"
+      }
 
-    return [names.join(', '), desc].join('\t');
+      return [names.join(', '), desc].join('\t');
+    } else {
+      return "\t"
+    }
   }
 
   helpValues(tKey) {
     var help = [];
+    var hidden_options = this.hidden || [];
 
     _.each(this.options, (opt) => {
-      var desc = t(_.isObject(opt) ? ["commands", opt.name, "description"] : [...tKey, opt]);
-      help.push(this.__optionName(opt) + '\t' + desc);
+      if (!_.contains(hidden_options, opt)) {
+        var desc = t(_.isObject(opt) ? ["commands", opt.name, "description"] : [...tKey, opt]);
+        help.push(this.__optionName(opt) + '\t' + desc);
+      };
     });
 
     return help;
