@@ -45,7 +45,8 @@ export class Image {
   set name(value) {
     var image = DImage.parseRepositoryTag(value);
     this.repository = image.repository;
-    this.tag = image.tag || default_tag;
+    this.tag        = image.tag      || default_tag;
+    this.provider   = image.provider || default_provider;
   }
 
   get name() {

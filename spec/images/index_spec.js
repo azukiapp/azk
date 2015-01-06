@@ -15,11 +15,13 @@ describe("Azk image class", function() {
         h.expect(img).to.have.property("repository", "azukiapp/image");
         h.expect(img).to.have.property("tag", "latest");
         h.expect(img).to.have.property("name", "azukiapp/image:latest");
+        h.expect(img).to.have.property("provider", "docker");
       });
       it("should parse with tag", function() {
         var img = new Image("azukiapp/image:0.1.0");
         h.expect(img).to.have.property("repository", "azukiapp/image");
         h.expect(img).to.have.property("tag", "0.1.0");
+        h.expect(img).to.have.property("provider", "docker");
       });
     });
 
@@ -29,12 +31,21 @@ describe("Azk image class", function() {
         h.expect(img).to.have.property("repository", "azukiapp/image");
         h.expect(img).to.have.property("tag", "latest");
         h.expect(img).to.have.property("name", "azukiapp/image:latest");
+        h.expect(img).to.have.property("provider", "docker");
       });
 
-      it("should parse withou tag", function() {
+      it("should parse with a tag", function() {
         var img = new Image({ repository: "azukiapp/image", tag: "0.0.1" });
         h.expect(img).to.have.property("repository", "azukiapp/image");
         h.expect(img).to.have.property("tag", "0.0.1");
+        h.expect(img).to.have.property("provider", "docker");
+      });
+
+      it("should parse with a provider", function() {
+        var img = new Image({ repository: "azukiapp/image", tag: "0.0.1", provider: "myProvider" });
+        h.expect(img).to.have.property("repository", "azukiapp/image");
+        h.expect(img).to.have.property("tag", "0.0.1");
+        h.expect(img).to.have.property("provider", "myProvider");
       });
     });
 
