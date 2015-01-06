@@ -1,5 +1,10 @@
 # Changelog
 
+## dev
+
+* Enhancements
+  * Added support to hide the help command options
+
 ## v0.8.3
 
 * Enhancements
