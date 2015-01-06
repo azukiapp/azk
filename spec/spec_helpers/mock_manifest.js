@@ -58,7 +58,7 @@ export function extend(h) {
         example: {
           depends: ["db", "api"],
           workdir: '/azk/#{manifest.dir}',
-          image: default_img,
+          image: { docker: default_img },
           mounts: mounts_with_persitent,
           scalable: { default: 3 },
           http: true,
@@ -70,7 +70,7 @@ export function extend(h) {
         api: {
           depends: ["db"],
           workdir: '/azk/#{manifest.dir}',
-          image: default_img,
+          image: { docker: default_img },
           mounts: mounts,
           scalable: true,
           http: true,
@@ -81,7 +81,7 @@ export function extend(h) {
         },
         db: {
           workdir: '/azk/#{manifest.dir}',
-          image: default_img,
+          image: { docker: default_img },
           mounts: mounts_with_persitent,
           scalable: false,
           envs: {
@@ -99,14 +99,14 @@ export function extend(h) {
         },
         empty: {
           up: false,
-          image: config('docker:image_empty'),
+          image: { docker: config('docker:image_empty') },
           command: "/bin/false",
         },
         'test-image-opts': {
-          image: default_img,
+          image: { docker: default_img },
         },
         'ports-test': {
-          image: config("docker:image_empty"),
+          image: { docker: config("docker:image_empty") },
           ports: {
             test_tcp: "80/tcp",
             test_udp: "53/udp",
@@ -114,7 +114,7 @@ export function extend(h) {
           },
         },
         'ports-disable': {
-          image: default_img,
+          image: { docker: default_img },
           ports: {
             test_tcp: "80/tcp",
             53: null,
@@ -122,7 +122,7 @@ export function extend(h) {
         },
         'mount-test': {
           up: false,
-          image: default_img,
+          image: { docker: default_img },
           mounts: {
             "/azk/#{system.name}": '.',
             "/azk/root": '/',
@@ -134,7 +134,7 @@ export function extend(h) {
         },
         'expand-test': {
           up: false,
-          image: default_img,
+          image: { docker: default_img },
           provision: [
             "system.name: #{system.name}",
             "system.persistent_folders: #{system.persistent_folders}",

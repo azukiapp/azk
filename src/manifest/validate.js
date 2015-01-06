@@ -7,7 +7,7 @@ export class Validate {
     // validates
     var validations = [ this._have_systems(manifest),
                         this._have_old_http_hostname(manifest),
-                        this._have_old_image_definition(manifest)];
+                        this._have_old_image_definition(manifest) ];
 
     validations.forEach(function(validation) {
 
@@ -36,13 +36,14 @@ export class Validate {
 
   static _have_old_image_definition(manifest) {
     return _.reduce(manifest.systems, (errors, system) => {
-
-      console.log('\n>>------------\n system.image.repository:', system.image.repository, '\n<<------------\n');
-      console.log('\n>>------------\n system.image.tag:', system.image.tag, '\n<<------------\n');
-
-      return errors.concat(
-        this._deprecate((system.options.image || {}).hostname, manifest, system.name, 'image', 'image.docker')
-      );
+      if (system.image && system.image.isDeprecated) {
+        return errors.concat(
+          this._deprecate((system.image || {}), manifest, system.name, 'image', 'image.provider')
+        );
+      }
+      else {
+        return errors;
+      }
     }, []);
   }
 

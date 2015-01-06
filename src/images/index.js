@@ -15,13 +15,34 @@ lazy_require(this, {
 
 export class Image {
   constructor(image) {
+
+    // only a string, will be deprecated
     if (_.isString(image)) {
+      this.provider = 'docker';
+      this.isDeprecated = true;
       this.name = image;
-    } else {
+      return null;
+    }
+
+    var keys = _.keys(image);
+    if (keys.length === 1) {
+      this.provider = keys[0];
+
+      if (this.provider === 'docker') {
+        this.name = image[keys[0]];
+        return null;
+      } else{
+        this.repository = image.repository;
+        this.tag        = image.tag      || default_tag;
+        this.provider   = image.provider || default_provider;
+      }
+    }
+    else {
       this.repository = image.repository;
       this.tag        = image.tag      || default_tag;
       this.provider   = image.provider || default_provider;
     }
+
   }
 
   check() {
@@ -43,13 +64,17 @@ export class Image {
   }
 
   set name(value) {
-    var image = DImage.parseRepositoryTag(value);
-    this.repository = image.repository;
-    this.tag        = image.tag      || default_tag;
-    this.provider   = image.provider || default_provider;
+    var imageParsed = DImage.parseRepositoryTag(value);
+    this.repository = imageParsed.repository;
+    this.tag        = imageParsed.tag      || default_tag;
+    this.provider   = imageParsed.provider || default_provider;
   }
 
   get name() {
     return `${this.repository}:${this.tag}`;
+  }
+
+  get full_name() {
+    return `{ ${this.provider}: "${this.repository}:${this.tag}" }`;
   }
 }
