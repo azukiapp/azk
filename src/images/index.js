@@ -24,16 +24,15 @@ export class Image {
       return null;
     }
 
-    this.provider   = image;
-    this.tag        = image.tag || default_tag;
-
+    this.provider = image;
 
     if (!image.repository && this.provider) {
       // 2. i.e.: { dockerfile: 'azukiapp/azktcl' }
-      this.repository = image[this.provider];
+      this.name = image[this.provider];
     } else {
       // 3. i.e.: { provider: 'dockerfile', repository: 'azukiapp/azktcl' }
       this.repository = image.repository;
+      this.tag        = image.tag || default_tag;
     }
   }
 
