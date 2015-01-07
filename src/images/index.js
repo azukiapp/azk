@@ -29,11 +29,16 @@ export class Image {
     this.parse_provider(image);
     if (image.hasOwnProperty(this.provider)) {
       // 2. i.e.: { docker: 'azukiapp/azktcl:0.0.2' }
-      this.name = image[this.provider];
+      if (this.provider === 'docker') {
+        this.name = image[this.provider];
+      } else if (this.provider === 'dockerfile') {
+        this.path = image[this.provider];
+      }
     } else {
       // 3. i.e.: { provider: 'dockerfile', repository: 'azukiapp/azktcl' }
       this.repository = image.repository;
       this.tag        = image.tag || default_tag;
+      this.path = image.path;
     }
   }
 
@@ -64,7 +69,7 @@ export class Image {
         var qfs = require('q-io/fs');
         var path = require('path');
 
-        var dockerfile_path = this.dockerfile_path;
+        var dockerfile_path = this.path;
         var exists = yield qfs.exists(dockerfile_path);
         if (exists) {
           var stats = yield qfs.stat(dockerfile_path);
@@ -72,14 +77,14 @@ export class Image {
           if(isDirectory) {
             // it is a folder - try find the manifesto
             var dockerfile_inner_path = path.join(dockerfile_path, 'Dockerfile');
-            var exists = yield qfs.exists(dockerfile_inner_path);
+            exists = yield qfs.exists(dockerfile_inner_path);
 
             if(!exists){
-              var msg = t("manifest.can_find_dockerfile", {});
+              var msg = t("manifest.can_find_dockerfile", {system: 'systemName FIXME'});
               throw new ManifestError('', msg);
             }
 
-            this.dockerfile_path = dockerfile_inner_path;
+            this.path = dockerfile_inner_path;
           }
         }
 

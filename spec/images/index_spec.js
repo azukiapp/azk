@@ -62,10 +62,23 @@ describe("Azk image class", function() {
       });
 
       it("should parse with provider in key without tag", function() {
-        var img = new Image({ dockerfile: "azukiapp/image" });
+        var img = new Image({ docker: "azukiapp/image" });
         h.expect(img).to.have.property("repository", "azukiapp/image");
         h.expect(img).to.have.property("tag", "latest");
+        h.expect(img).to.have.property("provider", "docker");
+      });
+    });
+
+    describe("with a dockerfile", function() {
+      it("should parse in the short form", function() {
+        var img = new Image({ dockerfile: "./path_to_docker_file" });
         h.expect(img).to.have.property("provider", "dockerfile");
+        h.expect(img).to.have.property("path", "./path_to_docker_file");
+      });
+      it("should parse with the hashes", function() {
+        var img = new Image({ provider: "dockerfile", path: "./path_to_docker_file" });
+        h.expect(img).to.have.property("provider", "dockerfile");
+        h.expect(img).to.have.property("path", "./path_to_docker_file");
       });
     });
 

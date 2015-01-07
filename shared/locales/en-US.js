@@ -140,6 +140,7 @@ module.exports = {
     not_found: "no such '%s' in current project",
     circular_depends: "Circular dependency between %(system1)s and %(system2)s",
     image_required: "Not image set for the `%(system)s' system",
+    can_find_dockerfile: "Can't find manifesto file for `%(system)s`",
     system_name_invalid: "The system name `%(system)s` is not valid.",
     provider_invalid: "The provider not found: `%(wrongProvider)s`.",
     depends_not_declared: "The `%(system)s` system depends on the `%(depend)s` system, which was not stated.",
