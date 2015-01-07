@@ -164,8 +164,8 @@ export class Docker extends Utils.qify('dockerode') {
     return pull(this, ...args);
   }
 
-  buildImage(...args) {
-    return buildImage(this, ...args);
+  build(...args) {
+    return build(this, ...args);
   }
 
   run(...args) {

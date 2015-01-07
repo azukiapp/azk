@@ -1,72 +1,15 @@
-import { Q, _, defer, lazy_require } from 'azk';
-import { ProvisionNotFound, ProvisionPullError } from 'azk/utils/errors';
+import { _, t, Q, fs, async, defer, config, lazy_require, log } from 'azk';
+import { DockerBuildNotFound, DockerBuildError } from 'azk/utils/errors';
+
+
+var archiver = require('archiver');
 
 lazy_require(this, {
-  XRegExp: ['xregexp', 'XRegExp']
+  parseRepositoryTag: ['dockerode/lib/util'],
+  docker: ['azk/docker', 'default'],
+  uuid: 'node-uuid',
 });
 
-var msg_regex = {
-  building_another    : new XRegExp('Repository.*another'),
-  building_repository : new XRegExp('Pulling repository (?<repository>.*)'),
-  building_layers     : new XRegExp('Pulling dependent layers'),
-  building_metadata   : new XRegExp('Pulling metadata'),
-  building_fs_layer   : new XRegExp('Pulling fs layer'),
-  building_image      : new XRegExp(
-    'Pulling image \((?<tag>.*)\) from (?<repository>.*), endpoint: (?<endpoint>.*)'
-  ),
-  download: new XRegExp('Downloading'),
-  download_complete: new XRegExp('Download complete'),
-}
-
-function parse_status(msg) {
-  var result = {};
-  _.find(msg_regex, (regex, type) => {
-    var match  = XRegExp.exec(msg, regex);
-    if (match) {
-      result['type'] = type;
-      _.each(regex.xregexp.captureNames, function(key) {
-        if (match[key]) {
-          result[key] = match[key];
-        }
-      });
-      return true;
-    }
-  });
-  return result;
-}
-
-export function build(docker, repository, tag, stdout) {
-  var image   = `${repository}:${tag}`;
-  var promise = docker.createImage({
-    fromImage: repository,
-    tag: tag,
-  });
-
-  return promise.then((stream) => {
-    return defer((resolve, reject, notify) => {
-      stream.on('data', (data) => {
-        // TODO: add support chucks
-        try {
-          var msg  = JSON.parse(data.toString());
-          msg.type = "build_msg";
-          if (msg.error) {
-            if (msg.error.match(/404/) || msg.error.match(/not found$/)) {
-              return reject(new ProvisionNotFound(image));
-            }
-            reject(new ProvisionPullError(image, msg.error));
-          } else {
-            msg.statusParsed = parse_status(msg.status);
-            if (msg.statusParsed) {
-              notify(msg);
-            }
-            if (stdout) {
-              stdout.write(msg.status + "\n");
-            }
-          }
-        } catch (e) {};
-      });
-
-      stream.on('end', () => resolve(docker.findImage(image)));
-    });
-  })
+export function build(docker, image) {
+  console.log('\n>>---------\n image:', image, '\n>>---------\n');
 }
