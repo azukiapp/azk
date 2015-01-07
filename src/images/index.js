@@ -1,4 +1,5 @@
-import { async, defer, _, lazy_require } from 'azk';
+import { async, defer, _, lazy_require, t } from 'azk';
+import { ManifestError } from 'azk/utils/errors';
 
 var AVAILABLE_PROVIDERS = ["docker", "dockerfile", "rocket"];
 var default_tag      = "latest";
@@ -17,17 +18,17 @@ lazy_require(this, {
 export class Image {
   constructor(image) {
 
-    // 1. only a string, will be deprecated. i.e.: 'azukiapp/azktcl:0.0.2'
     if (_.isString(image)) {
+      // 1. i.e.: 'azukiapp/azktcl:0.0.2' (deprecated)
       this.isDeprecated = true;
+      this.provider = default_provider;
       this.name = image;
       return null;
     }
 
-    this.provider = image;
-
-    if (!image.repository && this.provider) {
-      // 2. i.e.: { dockerfile: 'azukiapp/azktcl' }
+    this.parse_provider(image);
+    if (image.hasOwnProperty(this.provider)) {
+      // 2. i.e.: { docker: 'azukiapp/azktcl:0.0.2' }
       this.name = image[this.provider];
     } else {
       // 3. i.e.: { provider: 'dockerfile', repository: 'azukiapp/azktcl' }
@@ -58,7 +59,6 @@ export class Image {
     var imageParsed = DImage.parseRepositoryTag(value);
     this.repository = imageParsed.repository;
     this.tag        = imageParsed.tag      || default_tag;
-    this.provider   = imageParsed.provider || default_provider;
   }
 
   get name() {
@@ -69,23 +69,30 @@ export class Image {
     return `{ ${this.provider}: "${this.repository}:${this.tag}" }`;
   }
 
-  set provider(image) {
-    if (image.provider && _.contains(AVAILABLE_PROVIDERS, image.provider)) {
-      // { provider: 'dockerfile', repository: 'azukiapp/azktcl' }
-      this._provider = image.provider;
-    } else {
-      // { docker: 'azukiapp/azktcl' }
-      var provider = _.find(_.keys(image), function(key) {
+  parse_provider(image) {
+    var hasProvider = image.hasOwnProperty('provider');
+    if(hasProvider) {
+      if (_.contains(AVAILABLE_PROVIDERS, image.provider)) {
+        return this.provider = image.provider;
+      }
+    }
+
+    // try find provider in image keys
+    var image_keys = _.keys(image);
+    if(image_keys.length > 0) {
+      var provider = _.find(image_keys, function(key) {
         if (_.contains(AVAILABLE_PROVIDERS, key)) {
           return key;
         }
       });
-
-      this._provider = provider || default_provider;
+      if(provider) {
+        return this.provider = provider;
+      }
     }
-  }
 
-  get provider() {
-    return this._provider;
+    // Error: cant find any provider
+    var wrongProvider_name = image.provider || '';
+    var msg = t("manifest.provider_invalid", { wrongProvider: wrongProvider_name });
+    throw new ManifestError('', msg);
   }
 }

@@ -141,6 +141,7 @@ module.exports = {
     circular_depends: "Circular dependency between %(system1)s and %(system2)s",
     image_required: "Not image set for the `%(system)s' system",
     system_name_invalid: "The system name `%(system)s` is not valid.",
+    provider_invalid: "The provider not found: `%(wrongProvider)s`.",
     depends_not_declared: "The `%(system)s` system depends on the `%(depend)s` system, which was not stated.",
     balancer_depreciation: "The `balancer` option used in the `%(system)s` is deprecated, use `http` and `scalable` to replace",
     invalid_default: "Unable to set the system `%(system)s` as a default because it was not declared",

@@ -32,7 +32,7 @@ describe('Azk generator tool index:', function() {
         front: {
           depends: ['db'],
           workdir: '/azk/#{manifest.dir}',
-          image: { repository: 'base', tag: '0.1' },
+          image: { provider: 'docker', repository: 'base', tag: '0.1' },
           scalable: true,
           http: true,
           mounts: {
@@ -67,25 +67,6 @@ describe('Azk generator tool index:', function() {
       h.expect(data).to.match(/^\s{2}db: {$/m);
       h.expect(data).to.match(/^\s{6}RACK_ENV: "dev",$/m);
       h.expect(data).to.match(/^\s{6}'F-O_O': "BAR",$/m);
-    });
-
-    it('should expand image build steps', function() {
-      var extra = _.merge({}, default_data, {
-        systems: {
-           front: { image: { build: [
-             'run step 1',
-             ['run', 'step 2'],
-           ] } }
-        }
-      });
-
-      var manifest = generate_manifest(dir, extra);
-      var data = fs.readFileSync(manifest.file).toString();
-
-      h.expect(data).to.match(/^\s{2}db: {$/m);
-      h.expect(data).to.match(/^\s{6}build: \[$/m);
-      h.expect(data).to.match(/^\s{8}"run step 1",$/m);
-      h.expect(data).to.match(/^\s{8}\["run"\, "step 2"\],$/m);
     });
 
     it('should generete a valid manifest file', function() {

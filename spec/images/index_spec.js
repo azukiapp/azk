@@ -1,6 +1,7 @@
 import { config } from 'azk';
 import { Image } from 'azk/images';
 import h from 'spec/spec_helper';
+import { ManifestError } from 'azk/utils/errors';
 
 var path = require('path');
 
@@ -10,7 +11,7 @@ describe("Azk image class", function() {
 
   describe("in new image", function() {
     describe("by a string name", function() {
-      it("should parse withou tag", function() {
+      it("should parse without tag", function() {
         var img = new Image("azukiapp/image");
         h.expect(img).to.have.property("repository", "azukiapp/image");
         h.expect(img).to.have.property("tag", "latest");
@@ -26,8 +27,8 @@ describe("Azk image class", function() {
     });
 
     describe("by a hash info", function() {
-      it("should parse withou tag", function() {
-        var img = new Image({ repository: "azukiapp/image" });
+      it("should parse without tag", function() {
+        var img = new Image({ provider: "docker", repository: "azukiapp/image" });
         h.expect(img).to.have.property("repository", "azukiapp/image");
         h.expect(img).to.have.property("tag", "latest");
         h.expect(img).to.have.property("name", "azukiapp/image:latest");
@@ -35,31 +36,29 @@ describe("Azk image class", function() {
       });
 
       it("should parse with a tag", function() {
-        var img = new Image({ repository: "azukiapp/image", tag: "0.0.1" });
+        var img = new Image({ provider: "docker", repository: "azukiapp/image", tag: "0.0.1" });
         h.expect(img).to.have.property("repository", "azukiapp/image");
         h.expect(img).to.have.property("tag", "0.0.1");
         h.expect(img).to.have.property("provider", "docker");
       });
 
       it("should parse with a provider", function() {
-        var img = new Image({ repository: "azukiapp/image", tag: "0.0.1", provider: "dockerfile" });
-        h.expect(img).to.have.property("repository", "azukiapp/image");
-        h.expect(img).to.have.property("tag", "0.0.1");
-        h.expect(img).to.have.property("provider", "dockerfile");
-      });
-
-      it("should parse with a invalid provider", function() {
-        var img = new Image({ repository: "azukiapp/image", tag: "0.0.1", provider: "MyProvider" });
+        var img = new Image({ provider: "docker", repository: "azukiapp/image", tag: "0.0.1" });
         h.expect(img).to.have.property("repository", "azukiapp/image");
         h.expect(img).to.have.property("tag", "0.0.1");
         h.expect(img).to.have.property("provider", "docker");
       });
 
+      it("should throw an error with an invalid provider", function() {
+        var func = () => new Image({ provider: "MyInexistentProvider", repository: "azukiapp/image", tag: "0.0.1" });
+        h.expect(func).to.throw(ManifestError);
+      });
+
       it("should parse with provider in key", function() {
-        var img = new Image({ dockerfile: "azukiapp/image", tag: "0.0.1" });
+        var img = new Image({ docker: "azukiapp/image:0.0.1" });
         h.expect(img).to.have.property("repository", "azukiapp/image");
         h.expect(img).to.have.property("tag", "0.0.1");
-        h.expect(img).to.have.property("provider", "dockerfile");
+        h.expect(img).to.have.property("provider", "docker");
       });
 
       it("should parse with provider in key without tag", function() {
@@ -72,7 +71,7 @@ describe("Azk image class", function() {
 
     describe("by another image", function() {
       it("should return same image", function() {
-        var img  = new Image({ repository: "azukiapp/image" });
+        var img  = new Image({ provider: "docker", repository: "azukiapp/image" });
         var img2 = new Image(img);
         h.expect(img2).to.eql(img);
       });
