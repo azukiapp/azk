@@ -1,5 +1,5 @@
 import { Q, pp, config, path, _, log, lazy_require } from 'azk';
-import { Utils } from 'azk/utils';
+import Utils from 'azk/utils';
 
 // Composer
 import { pull  } from 'azk/docker/pull';
@@ -165,7 +165,7 @@ export class Docker extends Utils.qify('dockerode') {
   }
 
   buildImage(...args) {
-    return buildImage(this, ..args);
+    return buildImage(this, ...args);
   }
 
   run(...args) {

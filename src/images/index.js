@@ -55,6 +55,40 @@ export class Image {
     });
   }
 
+  build(stdout) {
+    return async(this, function* (notify) {
+      var image = yield this.check();
+      if (image === null) {
+        notify({ type: 'action', context: 'image', action: 'build_image', data: this });
+
+        var qfs = require('q-io/fs');
+        var path = require('path');
+
+        var dockerfile_path = this.dockerfile_path;
+        var exists = yield qfs.exists(dockerfile_path);
+        if (exists) {
+          var stats = yield qfs.stat(dockerfile_path);
+          var isDirectory = stats.isDirectory();
+          if(isDirectory) {
+            // it is a folder - try find the manifesto
+            var dockerfile_inner_path = path.join(dockerfile_path, 'Dockerfile');
+            var exists = yield qfs.exists(dockerfile_inner_path);
+
+            if(!exists){
+              var msg = t("manifest.can_find_dockerfile", {});
+              throw new ManifestError('', msg);
+            }
+
+            this.dockerfile_path = dockerfile_inner_path;
+          }
+        }
+
+        image = yield docker.build(this, _.isObject(stdout) ? stdout : null);
+      }
+      return image;
+    });
+  }
+
   set name(value) {
     var imageParsed = DImage.parseRepositoryTag(value);
     this.repository = imageParsed.repository;

@@ -331,6 +331,7 @@ module.exports = {
       wait_port   : "◴".magenta + " waiting start `"+ "%(system)s".blue  + "` system, try connect port %(name)s/%(protocol)s...",
       check_image : "✓".cyan    + " checking `"     + "%(image)s".yellow + "` image...",
       pull_image  : "⇲".blue    + " downloading `"  + "%(image)s".yellow + "` image...",
+      build_image : "⇲".blue    + " building `"     + "%(image)s".yellow + "` image...",
       provision   : "↻".yellow  + " provisioning `" + "%(system)s".blue  + "` system...",
       starting    : "↑".green   + " starting `"     + "%(system)s".blue  + "` system, " + "%(to)d".green + " new instances...",
       stopping    : "↓".red     + " stopping `"     + "%(system)s".blue  + "` system, " + "%(from)d".red + " instances...",
