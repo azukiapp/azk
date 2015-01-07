@@ -71,12 +71,14 @@ export class Image {
 
   set provider(image) {
     if (image.provider && _.contains(AVAILABLE_PROVIDERS, image.provider)) {
+      // { provider: 'dockerfile', repository: 'azukiapp/azktcl' }
       this._provider = image.provider;
     } else {
+      // { docker: 'azukiapp/azktcl' }
       var provider = _.find(_.keys(image), function(key) {
         if (_.contains(AVAILABLE_PROVIDERS, key)) {
           return key;
-        };
+        }
       });
 
       this._provider = provider || default_provider;
