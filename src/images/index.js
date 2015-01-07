@@ -1,5 +1,6 @@
 import { async, defer, _, lazy_require } from 'azk';
 
+var AVAILABLE_PROVIDERS = ["docker", "dockerfile", "rocket"];
 var default_tag      = "latest";
 var default_provider = "docker";
 
@@ -18,25 +19,22 @@ export class Image {
 
     // 1. only a string, will be deprecated. i.e.: 'azukiapp/azktcl:0.0.2'
     if (_.isString(image)) {
-      this.provider = 'docker';
       this.isDeprecated = true;
       this.name = image;
       return null;
     }
 
-    // 2. provider object. i.e.: { docker: 'azukiapp/azktcl:0.0.2' }
-    var keys = _.keys(image);
-    if (keys.length === 1 && (keys[0] === 'docker' ||
-                              keys[0] === 'dockerfile') ) {
-      this.provider = keys[0];
-      this.name = image[keys[0]];
-      return null;
-    }
+    this.provider   = image;
+    this.tag        = image.tag || default_tag;
 
-    // 3. specific properties
-    this.repository = image.repository;
-    this.tag        = image.tag      || default_tag;
-    this.provider   = image.provider || default_provider;
+
+    if (!image.repository && this.provider) {
+      // 2. i.e.: { dockerfile: 'azukiapp/azktcl' }
+      this.repository = image[this.provider];
+    } else {
+      // 3. i.e.: { provider: 'dockerfile', repository: 'azukiapp/azktcl' }
+      this.repository = image.repository;
+    }
   }
 
   check() {
@@ -70,5 +68,23 @@ export class Image {
 
   get full_name() {
     return `{ ${this.provider}: "${this.repository}:${this.tag}" }`;
+  }
+
+  set provider(image) {
+    if (image.provider && _.contains(AVAILABLE_PROVIDERS, image.provider)) {
+      this._provider = image.provider;
+    } else {
+      var provider = _.find(_.keys(image), function(key) {
+        if (_.contains(AVAILABLE_PROVIDERS, key)) {
+          return key;
+        };
+      });
+
+      this._provider = provider || default_provider;
+    }
+  }
+
+  get provider() {
+    return this._provider;
   }
 }
