@@ -239,7 +239,12 @@ var Run = {
 
     return async(function* () {
       if (options.image_pull) {
-        var promise = system.image.pull();
+        var promise;
+        if (system.image.provider === 'docker') {
+          promise = system.image.pull();
+        } else if(system.image.provider === 'dockerfile') {
+          promise = system.image.build();
+        }
       } else {
         var promise = system.image.check().then((image) => {
           if (image == null) {
