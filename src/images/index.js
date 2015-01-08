@@ -33,12 +33,15 @@ export class Image {
         this.name = image[this.provider];
       } else if (this.provider === 'dockerfile') {
         this.path = image[this.provider];
+        if (image.name) {
+          this.name = image.name;
+        };
       }
     } else {
       // 3. i.e.: { provider: 'dockerfile', repository: 'azukiapp/azktcl' }
       this.repository = image.repository;
       this.tag        = image.tag || default_tag;
-      this.path = image.path;
+      this.path       = image.path;
     }
   }
 
@@ -63,6 +66,7 @@ export class Image {
   build(stdout) {
     return async(this, function* (notify) {
       var image = yield this.check();
+
       if (image === null) {
         notify({ type: 'action', context: 'image', action: 'build_image', data: this });
 
@@ -101,7 +105,9 @@ export class Image {
   }
 
   get name() {
-    return `${this.repository}:${this.tag}`;
+    if (this.repository && this.tag) {
+      return `${this.repository}:${this.tag}`;
+    };
   }
 
   get full_name() {
