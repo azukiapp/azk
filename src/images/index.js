@@ -33,15 +33,14 @@ export class Image {
         this.name = image[this.provider];
       } else if (this.provider === 'dockerfile') {
         this.path = image[this.provider];
-        if (image.name) {
-          this.name = image.name;
-        };
+        this.name = image.name;
       }
     } else {
       // 3. i.e.: { provider: 'dockerfile', repository: 'azukiapp/azktcl' }
       this.repository = image.repository;
       this.tag        = image.tag || default_tag;
       this.path       = image.path;
+      this.name       = image.name;
     }
   }
 
@@ -99,6 +98,10 @@ export class Image {
   }
 
   set name(value) {
+    if(!value){
+      return;
+    }
+
     var imageParsed = DImage.parseRepositoryTag(value);
     this.repository = imageParsed.repository;
     this.tag        = imageParsed.tag      || default_tag;

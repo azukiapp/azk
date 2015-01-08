@@ -11,26 +11,22 @@ describe("Azk docker module, image build @slow", function() {
   var rootFolder;
 
   before(function() {
-    return h.tmp_dir().then((dir) => {
+    return h.remove_images()
+      .then(h.tmp_dir)
+      .then((dir) => {
       // save root dir
       rootFolder = dir;
 
       var dockerfilePath = path.join(dir, 'Dockerfile');
       h.touchSync(dockerfilePath);
       var dockerfileContent = [
-        'FROM azukiapp/node:0.10',
+        'FROM library/scratch',
         'MAINTAINER Azuki <support@azukiapp.com>',
-        '',
-        'RUN env',
-        '',
-        'CMD [ "node" ]',
       ].join('\n');
 
       return qfs.write(dockerfilePath, dockerfileContent);
     });
   });
-
-  before(() => h.remove_images());
 
   it("should get a dockerfile", function() {
     var img = new Image({ dockerfile: rootFolder, name: config('docker:repository') });
@@ -43,8 +39,6 @@ describe("Azk docker module, image build @slow", function() {
         var status = [
           'building_from',
           'building_maintainer',
-          'building_run',
-          'building_cmd',
           'building_complete',
         ];
         _.each(status, (status) => {
