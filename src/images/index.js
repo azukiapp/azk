@@ -1,5 +1,8 @@
 import { async, defer, _, lazy_require, t } from 'azk';
 import { ManifestError } from 'azk/utils/errors';
+var qfs = require('q-io/fs');
+var path = require('path');
+
 
 var AVAILABLE_PROVIDERS = ["docker", "dockerfile", "rocket"];
 var default_tag      = "latest";
@@ -68,9 +71,6 @@ export class Image {
 
       if (image === null) {
         notify({ type: 'action', context: 'image', action: 'build_image', data: this });
-
-        var qfs = require('q-io/fs');
-        var path = require('path');
 
         var dockerfile_path = this.path;
         var exists = yield qfs.exists(dockerfile_path);

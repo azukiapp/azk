@@ -1,8 +1,8 @@
-import { _, t, Q, fs, async, defer, config, lazy_require, log } from 'azk';
+import { _, t, Q, fs, async, defer, config, lazy_require, log, path } from 'azk';
 import { DockerBuildNotFound, DockerBuildError } from 'azk/utils/errors';
-
-
-var tar = require('tar-fs')
+import { ManifestError } from 'azk/utils/errors';
+var archiver = require('archiver');
+var qfs      = require('q-io/fs');
 
 lazy_require(this, {
   parseRepositoryTag: ['dockerode/lib/util'],
@@ -40,6 +40,44 @@ function parse_stream(msg) {
   return result;
 }
 
+function parseAddManifestFiles (archive, dockerfile_path, dockerfile_content) {
+  return async(function* (notify) {
+
+    var base_dir = path.dirname(dockerfile_path);
+
+    // https://regex101.com/r/yT1jF9/1
+    var dockerfileRegex = /^ADD\s+([^\s]+)\s+([^\s]+)$/gm;
+    var capture = null;
+    while( (capture = dockerfileRegex.exec(dockerfile_content)) ){
+      var source      = path.join(base_dir, capture[1]);
+      //var destination = capture[2];
+
+      var exists = yield qfs.exists(source);
+      if (!exists) {
+        var msg = t("manifest.can_find_add_file_in_dockerfile");
+        throw new ManifestError('', msg);
+      }
+
+      var stats = yield qfs.stat(source);
+      if (stats.isDirectory()) {
+        var dirname = source.split(path.sep)[source.split(path.sep).length - 1];
+        var parent = path.dirname(source);
+        archive.bulk([
+          { expand: true, cwd: parent, src: [path.join(dirname, '**')], dest: '/' },
+        ]);
+      }
+      else if (stats.isFile()) {
+        console.log('adding file ' + source);
+        var filename = source.split(path.sep)[source.split(path.sep).length - 1];
+        archive.file(source, {name: filename});
+      }
+    }
+
+    return archive;
+
+  });
+}
+
 export function build(docker, image, opts) {
   return async(function* () {
     opts = _.extend({
@@ -49,12 +87,18 @@ export function build(docker, image, opts) {
 
     // TODO: Make name with notations
     var image_name    = image.name || config('docker:repository');
-    var build_options = { t: image_name, nocache: !opts.cache, q: !opts.verbose }
+    var build_options = { t: image_name, nocache: !opts.cache, q: !opts.verbose };
 
-    var dir           = path.dirname(image.path);
-    var dirStream     = yield tar.pack(dir);
+    // include Dockerfile
+    var archive = archiver('tar');
+    archive.file(image.path, { name: 'Dockerfile' });
 
-    return docker.buildImage(dirStream, build_options)
+    // find ADDs on Dockerfile and include them
+    var dockerfile_content = yield qfs.read(image.path);
+    yield parseAddManifestFiles(archive, image.path, dockerfile_content);
+    archive.finalize(function() {});
+
+    return docker.buildImage(archive, build_options)
       .then((stream) => {
         return defer((resolve, reject, notify) => {
           stream.on('data', (data) => {
@@ -81,6 +125,10 @@ export function build(docker, image, opts) {
 
           stream.on('end', () => resolve(docker.findImage(image_name)));
         });
+      })
+      .catch(function(err) {
+        console.log('\n>>---------\n err:', err, '\n>>---------\n');
+        console.log('\n>>---------\n err.stack:', err.stack, '\n>>---------\n');
       });
   });
 }

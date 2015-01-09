@@ -1,4 +1,4 @@
-import { Q, _, config, defer } from 'azk';
+import { Q, _, config, defer, path, fs } from 'azk';
 import { Image } from 'azk/images';
 import h from 'spec/spec_helper';
 import { DockerfileNotFound, DockerBuildError } from 'azk/utils/errors';
@@ -17,11 +17,29 @@ describe("Azk docker module, image build @slow", function() {
       // save root dir
       rootFolder = dir;
 
+      /*
+        create a folder structure like this:
+        -----------------------------------
+        ./Dockerfile
+        ./file_to_add
+        ./dir_to_add/some_other_file_inside
+      */
       var dockerfilePath = path.join(dir, 'Dockerfile');
       h.touchSync(dockerfilePath);
+
+      var file_to_add_filePath = path.join(dir, 'file_to_add');
+      h.touchSync(file_to_add_filePath);
+
+      var dir_to_add = path.join(dir, 'dir_to_add');
+      fs.mkdirSync(dir_to_add);
+      var  some_other_file_inside = path.join(dir, 'dir_to_add', 'some_other_file_inside');
+      h.touchSync(some_other_file_inside);
+
       var dockerfileContent = [
-        'FROM library/scratch',
+        'FROM azukiapp/azktcl:0.0.1',
         'MAINTAINER Azuki <support@azukiapp.com>',
+        'ADD ./file_to_add /file_to_add',
+        'ADD ./dir_to_add /dir_to_add',
       ].join('\n');
 
       return qfs.write(dockerfilePath, dockerfileContent);
