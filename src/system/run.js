@@ -237,6 +237,8 @@ var Run = {
       image_pull: true,
     });
 
+    system.setImageName();
+
     return async(function* () {
       if (options.image_pull) {
         var promise;

@@ -1,8 +1,8 @@
-import { async, defer, _, lazy_require, t } from 'azk';
+import { async, defer, _, lazy_require, t, path } from 'azk';
 import { ManifestError } from 'azk/utils/errors';
-var qfs = require('q-io/fs');
-var path = require('path');
+import Utils from 'azk/utils';
 
+var qfs = require('q-io/fs');
 
 var AVAILABLE_PROVIDERS = ["docker", "dockerfile", "rocket"];
 var default_tag      = "latest";
@@ -36,14 +36,17 @@ export class Image {
         this.name = image[this.provider];
       } else if (this.provider === 'dockerfile') {
         this.path = image[this.provider];
-        this.name = image.name;
       }
     } else {
       // 3. i.e.: { provider: 'dockerfile', repository: 'azukiapp/azktcl' }
       this.repository = image.repository;
       this.tag        = image.tag || default_tag;
-      this.path       = image.path;
-      this.name       = image.name;
+
+      if (this.provider === 'dockerfile') {
+        this.path       = image.path;
+      } else {
+        this.name       = image.name;
+      }
     }
   }
 
@@ -72,29 +75,45 @@ export class Image {
       if (image === null) {
         notify({ type: 'action', context: 'image', action: 'build_image', data: this });
 
-        var dockerfile_path = this.path;
-        var exists = yield qfs.exists(dockerfile_path);
-        if (exists) {
-          var stats = yield qfs.stat(dockerfile_path);
-          var isDirectory = stats.isDirectory();
-          if(isDirectory) {
-            // it is a folder - try find the manifesto
-            var dockerfile_inner_path = path.join(dockerfile_path, 'Dockerfile');
-            exists = yield qfs.exists(dockerfile_inner_path);
-
-            if(!exists){
-              var msg = t("manifest.can_find_dockerfile", {system: 'systemName FIXME'});
-              throw new ManifestError('', msg);
-            }
-
-            this.path = dockerfile_inner_path;
-          }
-        }
-
         image = yield docker.build(this, _.isObject(stdout) ? stdout : null);
       }
       return image;
     });
+  }
+
+  set path(dockerfile_path) {
+    if (!dockerfile_path) {
+      return null;
+    }
+
+    return async(this, function* () {
+      var exists = yield qfs.exists(dockerfile_path);
+
+      if (exists) {
+        var stats = yield qfs.stat(dockerfile_path);
+        var isDirectory = stats.isDirectory();
+
+        if(isDirectory) {
+          // it is a folder - try find the manifesto
+          dockerfile_path = path.join(dockerfile_path, 'Dockerfile');
+          exists = yield qfs.exists(dockerfile_path);
+
+          if(!exists){
+            var msg = t("manifest.can_find_dockerfile", {system: 'systemName FIXME'});
+            throw new ManifestError('', msg);
+          }
+        }
+
+        var dockerfileHash = yield Utils.calculateHash(dockerfile_path);
+
+        this.tag    = dockerfileHash
+        this._path  = dockerfile_path;
+      }
+    });
+  }
+
+  get path() {
+    return this._path;
   }
 
   set name(value) {
@@ -135,6 +154,7 @@ export class Image {
       });
       if(provider) {
         return this.provider = provider;
+
       }
     }
 

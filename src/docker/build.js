@@ -1,6 +1,6 @@
 import { _, t, Q, fs, async, defer, config, lazy_require, log, path } from 'azk';
-import { DockerBuildNotFound, DockerBuildError } from 'azk/utils/errors';
-import { ManifestError } from 'azk/utils/errors';
+import { DockerBuildNotFound, DockerBuildError, ManifestError } from 'azk/utils/errors';
+
 var archiver = require('archiver');
 var qfs      = require('q-io/fs');
 
@@ -85,7 +85,7 @@ export function build(docker, image, opts) {
       cache: true,
     }, opts);
 
-    // TODO: Make name with notations
+    // TODO: Make name with annotations
     var image_name    = image.name || config('docker:repository');
     var build_options = { t: image_name, nocache: !opts.cache, q: !opts.verbose };
 
