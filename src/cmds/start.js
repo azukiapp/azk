@@ -131,11 +131,13 @@ export function init(cli) {
   var cmds = {
     start   : (new Cmd('start [system]'   , cli))
                 .addOption(['--reprovision', '-R'], { default: false })
+                .addOption(['--rebuild', '--pull', '-B'], { default: false })
                 .addOption(['--open', '-o'], { type: String, placeholder: "application" }),
     stop    : (new Cmd('stop [system]'    , cli))
                 .addOption(['--remove', '-r'], { default: true }),
     restart : (new Cmd('restart [system]' , cli))
                 .addOption(['--reprovision', '-R'], { default: false })
+                .addOption(['--rebuild', '--pull', '-B'], { default: false })
                 .addOption(['--open', '-o'], { type: String, placeholder: "application" }),
     reload  : (new Cmd('reload [system]'  , cli))
                 .addOption(['--reprovision', '-R'], { default: true }),

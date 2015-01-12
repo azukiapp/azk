@@ -85,9 +85,8 @@ export function build(docker, image, opts) {
       cache: true,
     }, opts);
 
-    // TODO: Make name with annotations
     var image_name    = image.name || config('docker:repository');
-    var build_options = { t: image_name, nocache: !opts.cache, q: !opts.verbose };
+    var build_options = { t: image_name, forcerm: true, nocache: !opts.cache, q: !opts.verbose };
 
     // include Dockerfile
     var archive = archiver('tar');

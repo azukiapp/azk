@@ -77,7 +77,8 @@ class Cmd extends VerboseCmd {
     }
 
     var options = {
-      provision_force: opts.reprovision || false,
+      build_force: opts.rebuild || false,
+      provision_force: (opts.rebuild ? true : opts.reprovision) || false,
       remove: opts.remove,
     };
 

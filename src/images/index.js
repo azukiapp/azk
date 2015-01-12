@@ -29,6 +29,10 @@ export class Image {
       return null;
     }
 
+    if (image.hasOwnProperty("skip_check_dockerfile")) {
+      this.skip_check_dockerfile = image.skip_check_dockerfile;
+    }
+
     this.parse_provider(image);
     if (image.hasOwnProperty(this.provider)) {
       // 2. i.e.: { docker: 'azukiapp/azktcl:0.0.2' }
@@ -57,10 +61,11 @@ export class Image {
     });
   }
 
-  pull(stdout) {
+  pull(options, stdout) {
+    var options = options || {};
     return async(this, function* (notify) {
       var image = yield this.check();
-      if (image == null) {
+      if (options.build_force || image === null) {
         notify({ type: "action", context: "image", action: "pull_image", data: this });
         image = yield docker.pull(this.repository, this.tag, _.isObject(stdout) ? stdout : null);
       }
@@ -68,13 +73,12 @@ export class Image {
     });
   }
 
-  build(stdout) {
+  build(options, stdout) {
+    var options = options || {};
     return async(this, function* (notify) {
       var image = yield this.check();
-
-      if (image === null) {
+      if (options.build_force || image === null) {
         notify({ type: 'action', context: 'image', action: 'build_image', data: this });
-
         image = yield docker.build(this, _.isObject(stdout) ? stdout : null);
       }
       return image;
@@ -84,6 +88,8 @@ export class Image {
   set path(dockerfile_path) {
     if (!dockerfile_path) {
       return null;
+    } else if (this.skip_check_dockerfile) {
+      return this._path  = dockerfile_path;
     }
 
     return async(this, function* () {

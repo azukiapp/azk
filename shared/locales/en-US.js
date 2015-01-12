@@ -3,6 +3,7 @@ require('colors');
 var version = "Shows azk version";
 var verbose = "Sets the level of detail";
 var systems_options = "Targets systems of action";
+var rebuild = "Force the rebuild or pull image and reprovision before starting an instance";
 var reprovision = "Force the provisioning actions before starting an instance";
 
 module.exports = {
@@ -309,6 +310,7 @@ module.exports = {
       fail: "Due to the above error azk will stop all instances already begun.\n",
       options: {
         verbose: verbose,
+        rebuild: rebuild,
         reprovision: reprovision,
         open: "Open a url of default system in the preferred application",
       },
@@ -348,6 +350,7 @@ module.exports = {
       description: "Stops all system and starts again",
       options: {
         verbose: verbose,
+        rebuild: rebuild,
         reprovision: reprovision,
         open: "Open a url of default system in the preferred application",
       }
@@ -357,6 +360,7 @@ module.exports = {
       deprecation: "`reload` this deprecated, use restart",
       options: {
         verbose: verbose,
+        rebuild: rebuild,
         reprovision: reprovision,
       }
     },

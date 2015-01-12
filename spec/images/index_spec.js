@@ -71,12 +71,12 @@ describe("Azk image class", function() {
 
     describe("with a dockerfile", function() {
       it("should parse in the short form", function() {
-        var img = new Image({ dockerfile: "./path_to_docker_file" });
+        var img = new Image({ dockerfile: "./path_to_docker_file", skip_check_dockerfile: true });
         h.expect(img).to.have.property("provider", "dockerfile");
         h.expect(img).to.have.property("path", "./path_to_docker_file");
       });
       it("should parse with the hashes", function() {
-        var img = new Image({ provider: "dockerfile", path: "./path_to_docker_file" });
+        var img = new Image({ provider: "dockerfile", path: "./path_to_docker_file", skip_check_dockerfile: true });
         h.expect(img).to.have.property("provider", "dockerfile");
         h.expect(img).to.have.property("path", "./path_to_docker_file");
       });
