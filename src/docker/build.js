@@ -46,11 +46,17 @@ function parseAddManifestFiles (archive, dockerfile_path, dockerfile_content) {
     var base_dir = path.dirname(dockerfile_path);
 
     // https://regex101.com/r/yT1jF9/1
-    var dockerfileRegex = /^ADD\s+([^\s]+)\s+([^\s]+)$/gm;
+    var dockerfileRegex = /^ADD\s+([^\s]+)\s+([^\s]+)$/gmi;
+    var isUrlRegex      = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/gmi;
     var capture = null;
     while( (capture = dockerfileRegex.exec(dockerfile_content)) ){
       var source      = path.join(base_dir, capture[1]);
+      var isUrl       = isUrlRegex.test(capture[1]);
       //var destination = capture[2];
+
+      if (isUrl) {
+        continue;
+      }
 
       var exists = yield qfs.exists(source);
       if (!exists) {
