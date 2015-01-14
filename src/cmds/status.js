@@ -22,7 +22,7 @@ class Cmd extends Command {
 
   static status(cli, manifest, systems, opts = {}) {
     return async(cli, function* () {
-      var columns = ['', 'System'.blue, 'Instancies'.green, 'Hostname'.yellow, 'Instances-Ports'.magenta, "Provisioned".cyan];
+      var columns = ['', 'System'.blue, 'Instances'.green, 'Hostname'.yellow, 'Instances-Ports'.magenta, "Provisioned".cyan];
 
       if (opts.long) {
         columns.push('Image'.white);
