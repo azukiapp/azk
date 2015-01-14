@@ -179,7 +179,7 @@ describe("Azk manifest class, main set", function() {
     }
 
     it("should raise a invalid system name", function() {
-      var func = mock_manifest('system("system.1", { image: "foo" });');
+      var func = mock_manifest('system("system.1", { image: { docker: "foo" } });');
       var msgs = t("manifest.system_name_invalid", { system: "system.1" });
       h.expect(func).to.throw(ManifestError).and.match(RegExp(msgs));
     });
@@ -190,20 +190,20 @@ describe("Azk manifest class, main set", function() {
     });
 
     it("should raise a if use balancer option", function() {
-      var func = mock_manifest('system("system", { image: "foo", balancer: { key: "value" } });');
+      var func = mock_manifest('system("system", { image: { docker: "foo" }, balancer: { key: "value" } });');
       var msgs = t("manifest.balancer_depreciation", { system: "system" });
       h.expect(func).to.throw(ManifestError).and.match(RegExp(msgs));
     });
 
     it("should raise a if use mounts_folders option", function() {
-      var func = mock_manifest('system("system", { image: "foo", mount_folders: { key: "value" } });');
+      var func = mock_manifest('system("system", { image: { docker: "foo" }, mount_folders: { key: "value" } });');
       var opts = { option: 'mount_folders', system: 'system', manifest: file };
       var msgs = h.escapeRegExp(t("manifest.mount_and_persistent_depreciation", opts));
       h.expect(func).to.throw(ManifestError).and.match(RegExp(msgs));
     });
 
     it("should raise a if use persistent_folders option", function() {
-      var func = mock_manifest('system("system", { image: "foo", persistent_folders: { key: "value" } });');
+      var func = mock_manifest('system("system", { image: { docker: "foo" }, persistent_folders: { key: "value" } });');
       var opts = { option: 'persistent_folders', system: 'system', manifest: file };
       var msgs = h.escapeRegExp(t("manifest.mount_and_persistent_depreciation", opts));
       h.expect(func).to.throw(ManifestError).and.match(RegExp(msgs));
@@ -217,8 +217,8 @@ describe("Azk manifest class, main set", function() {
 
     it("should raise an exception if the dependency is circular systems", function() {
       var data = "";
-      data += 'system("system1", { image: "foo", depends: ["system2"] });';
-      data += 'system("system2", { image: "foo", depends: ["system1"] });';
+      data += 'system("system1", { image: { docker: "foo" }, depends: ["system2"] });';
+      data += 'system("system2", { image: { docker: "foo" }, depends: ["system1"] });';
 
       var func = mock_manifest(data);
       var msgs = t("manifest.circular_depends", {system1: "system1", system2: "system2"});
@@ -227,7 +227,7 @@ describe("Azk manifest class, main set", function() {
 
     it("should raise an exception if the dependency it's not declared", function() {
       var data = "";
-      data += 'system("system1", { image: "foo", depends: ["system2"] });';
+      data += 'system("system1", { image: { docker: "foo" }, depends: ["system2"] });';
 
       var func = mock_manifest(data);
       var msgs = t("manifest.depends_not_declared", {system: "system1", depend: "system2"});

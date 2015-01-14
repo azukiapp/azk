@@ -47,7 +47,7 @@ describe("Azk manifest class, validate set", function() {
   it("should return deprecate use of image", function() {
     var content = `
       system('system1', {
-        image: "any"
+        image: "isDeprecated"
       });
     `;
 

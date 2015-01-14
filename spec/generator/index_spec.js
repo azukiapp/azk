@@ -44,7 +44,7 @@ describe('Azk generator tool index:', function() {
           envs: { RACK_ENV: 'dev' },
         },
         db: {
-          image: 'base',
+          image: { docker: 'base' },
           export_envs: { DB_URL: export_db }
         }
       },

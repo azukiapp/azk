@@ -27,7 +27,7 @@ systems({
     // Dependent systems
     depends: ["db"],
     // More images:  http://registry.hub.docker.com
-    image: "dockerfile/nodejs",
+    image: { docker: "dockerfile/nodejs" },
     // Steps to execute before running instances
     provision: [
       "npm install",
@@ -52,7 +52,7 @@ systems({
   },
 
   db: {
-    image: "tutum/mysql",
+    image: { docker: "tutum/mysql" },
     mounts: {
       // Activates a persistent data folder in '/data'
       "/data": persistent("data-#{system.name}"),
@@ -136,7 +136,7 @@ For those who have tested it before (prior to this beta version), please perform
 
 2. For projects in which you were already using `azk`, it is required to update azkfile.js, replacing `mounts_folders` and `persistent_folders` for mounts, according to the following example:
 
-  Where used to be: 
+  Where used to be:
 
     ```javascript
     systems({

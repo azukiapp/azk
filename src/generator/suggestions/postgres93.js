@@ -15,7 +15,7 @@ export class Suggestion extends UIProxy {
     // Initial Azkfile.js suggestion
     this.suggestion = _.extend({}, example_system, {
       __type  : 'postgres',
-      image   : 'wyaeld/postgres:9.3',
+      image   : { docker: 'wyaeld/postgres:9.3' },
       ports:{
         data: "5432/tcp",
       },

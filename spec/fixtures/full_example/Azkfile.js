@@ -14,7 +14,7 @@ addImage('base:0.0.3', { from: "base:0.0.1", steps: [
 systems({
   front: {
     depends: [ "api" ],
-    image: "base",
+    image: { docker: "base" },
     // Run after get/build image and before any execution
     provision: [
       "npm install",
@@ -60,7 +60,7 @@ systems({
   },
 
   worker: {
-    image: "base",
+    image: { docker: "base" },
     auto_start: false,
     depends: [ "db_slave", "api" ],
     build: { "path": "../worker" }, // Find ../worker/Dockerfile to build
@@ -71,11 +71,11 @@ systems({
   },
 
   db_master: {
-    image: "orchardup/postgresql",
+    image: { docker: "orchardup/postgresql" },
   },
 
   db_slave: {
-    image: "orchardup/postgresql",
+    image: { docker: "orchardup/postgresql" },
     depends: [ "db_master" ],
     env: {
       USER: "usuario",
@@ -87,7 +87,7 @@ systems({
   },
 
   pg_sql: {
-    image: "orchardup/postgresql",
+    image: { docker: "orchardup/postgresql" },
     ports: {
       data: '5432/tcp',
     },
@@ -110,7 +110,7 @@ systems({
 });
 
 system("db", {
-  image: "orchardup/redis"
+  image: { docker: "orchardup/redis" }
 });
 
 setDefault("front");
