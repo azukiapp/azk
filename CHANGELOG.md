@@ -1,5 +1,9 @@
 # Changelog
 
+## dev
+* Enhancements
+  * Adding option `--quiet` to support `non-interactive` mode in commands.
+
 ## v0.8.3
 
 * Enhancements
