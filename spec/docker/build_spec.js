@@ -30,6 +30,11 @@ describe("Azk docker module, image build @slow", function() {
       var file_to_add_filePath = path.join(dir, 'file_to_add');
       h.touchSync(file_to_add_filePath);
 
+      var file2_dir = path.join(dir, 'file2_dir');
+      fs.mkdirSync(file2_dir);
+      var file2_to_add_filePath = path.join(dir, 'file2_dir', 'file2_to_add');
+      h.touchSync(file2_to_add_filePath);
+
       var dir_to_add = path.join(dir, 'dir_to_add');
       fs.mkdirSync(dir_to_add);
       var  some_other_file_inside = path.join(dir, 'dir_to_add', 'some_other_file_inside');
@@ -39,6 +44,7 @@ describe("Azk docker module, image build @slow", function() {
         'FROM azukiapp/azktcl:0.0.1',
         'MAINTAINER Azuki <support@azukiapp.com>',
         'ADD ./file_to_add /file_to_add',
+        'ADD ./file2_dir/file2_to_add /file2_to_add',
         'ADD ./dir_to_add /dir_to_add',
       ].join('\n');
 

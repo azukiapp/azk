@@ -73,9 +73,7 @@ function parseAddManifestFiles (archive, dockerfile_path, dockerfile_content) {
         ]);
       }
       else if (stats.isFile()) {
-        console.log('adding file ' + source);
-        var filename = source.split(path.sep)[source.split(path.sep).length - 1];
-        archive.file(source, {name: filename});
+        archive.file(source, { name: capture[1] });
       }
     }
 
@@ -109,7 +107,7 @@ export function build(docker, image, opts) {
           stream.on('data', (data) => {
             try {
               var msg  = JSON.parse(data.toString());
-              msg.type = "build_msg";
+              msg.type = 'build_msg';
 
               if (msg.error) {
                 if (msg.error.match(/404/) || msg.error.match(/not found$/)) {
