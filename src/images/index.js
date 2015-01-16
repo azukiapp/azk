@@ -74,14 +74,12 @@ export class Image {
       var Syncronizer = require('docker-registry-downloader').Syncronizer;
       var dockerHub   = new DockerHub();
       var syncronizer = new Syncronizer(socketPath);
-
       var tag         = repo_tag;
-      var outputPath  = '/tmp'; // this folder must exist
 
       // get token from DOCKER HUB API
       return dockerHub.images(namespace, repository).then(function(hubResult) {
         // sync registry layer with local layers
-        return syncronizer.sync(hubResult, tag, outputPath);
+        return syncronizer.sync(hubResult, tag);
       });
 
     });
