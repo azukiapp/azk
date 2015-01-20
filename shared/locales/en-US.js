@@ -2,6 +2,7 @@ require('colors');
 
 var version = "Shows azk version";
 var verbose = "Sets the level of detail";
+var quiet   = "Never prompt";
 var systems_options = "Targets systems of action";
 var rebuild = "Force the rebuild or pull image and reprovision before starting an instance";
 var reprovision = "Force the provisioning actions before starting an instance";
@@ -214,6 +215,8 @@ module.exports = {
       start_fail: "Agent start fail: %s",
       start_before: "The agent is not running, would you like to start it now?",
       options: {
+        verbose: verbose,
+        quiet: quiet,
         action: {
           name: "actions".magenta,
           options: {
@@ -230,23 +233,33 @@ module.exports = {
       description: "Shows the azk configs values",
     },
     docker: {
+      options: {
+        verbose: verbose,
+        quiet: quiet,
+      },
       description: "Alias for calling the docker in 'azk' scope configurations",
     },
     doctor: {
       description: "Shows an analysis of the health of `azk`",
       options: {
         logo: "Shows the `azk` logo before show health informations",
+        verbose: verbose,
+        quiet: quiet,
       },
     },
     info: {
       description: "Shows systems informactions for the current `Azkfile.js`",
       options: {
+        verbose: verbose,
+        quiet: quiet,
         colored: "Outputs with colors",
       },
     },
     logs: {
       description: "Shows logs for the systems",
       options: {
+        verbose: verbose,
+        quiet: quiet,
         follow: "Follow log output",
         lines: "Output the specified number of lines at the end of logs",
         timestamps: "Show timestamps",
@@ -263,7 +276,8 @@ module.exports = {
         remove  : "Removes shell instances after exit shell or command",
         command : "Runs a specific command",
         shell   : "The path to shell binary",
-        verbose : "Shows details about command execution",
+        verbose : verbose,
+        quiet   : quiet,
         mount   : "Points for additional mounting (ex:./origin:/azk/target)",
         cwd     : "Default directory",
         image   : "Defines the image in which the command will be executed",
@@ -311,6 +325,7 @@ module.exports = {
       options: {
         verbose: verbose,
         rebuild: rebuild,
+        quiet   : quiet,
         reprovision: reprovision,
         open: "Open a url of default system in the preferred application",
       },
@@ -325,7 +340,8 @@ module.exports = {
       description: "Stops an instance of the system(s)",
       not_running: "System `%(name)s` not running",
       options: {
-        verbose: verbose,
+        verbose : verbose,
+        quiet   : quiet,
         remove: "Removes the instances before stop",
       }
     },
@@ -344,6 +360,7 @@ module.exports = {
       options: {
         remove: "Removes the instances before stop",
         verbose: verbose,
+        quiet: quiet,
       }
     },
     restart: {
@@ -351,6 +368,7 @@ module.exports = {
       options: {
         verbose: verbose,
         rebuild: rebuild,
+        quiet   : quiet,
         reprovision: reprovision,
         open: "Open a url of default system in the preferred application",
       }
@@ -361,6 +379,7 @@ module.exports = {
       options: {
         verbose: verbose,
         rebuild: rebuild,
+        quiet   : quiet,
         reprovision: reprovision,
       }
     },
@@ -372,6 +391,8 @@ module.exports = {
       status: "%(system)s: %(instances)d instances - %(hosts)s",
       status_with_dead: "%(system)s: %(instances)d up and %(down)d down - %(hosts)s",
       options: {
+        verbose : verbose,
+        quiet   : quiet,
         system: "System(s) name(s)",
         instances: "Shows details about instances",
         all: "Includes all instances (including those terminated)",
@@ -390,6 +411,8 @@ module.exports = {
       error        : "vm error: %(error)s.",
       not_requires : "this system not requires virtual machine, to try force this behavior set `AZK_USE_VM=true`",
       options: {
+        verbose : verbose,
+        quiet   : quiet,
         action: {
           name: "actions".magenta,
           options: {

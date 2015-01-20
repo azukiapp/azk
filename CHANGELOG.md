@@ -2,10 +2,14 @@
 
 ## dev
 * Enhancements
-  * Add **Dockerfile** support
-  * Add `--rebuild` and `--pull` options for the `azk start` or `azk restart` commands. It forces rebuild or image pulling and reprovision before start an instance (default: false).
-  * Added support to hide the help command options
-  * Adding option `--quiet` to support `non-interactive` mode in commands.
+  * [Manifest] Add **Dockerfile** support
+  * [Cli] Add `--rebuild` and `--pull` options for the `azk start` or `azk restart` commands. It forces rebuild or image pulling and reprovision before start an instance (default: false).
+  * [Cli] Added support to hide the help command options
+  * [Cli] Adding option `--quiet` to support `non-interactive` mode in commands.
+  * [Cli] Correcting help on quiet and verbose #226
+  * [Cli] Showing azk in lowercase at azk version command #222
+  * [Cli] Sorting commands on azk --help #223
+
 
 ## v0.8.3
 
