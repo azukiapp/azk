@@ -42,7 +42,7 @@ build:
     - script:
         name: wait agent to start
         code: |
-          until bin/azk status; do sleep 1; done
+          until bin/azk status --quiet; do sleep 1; done
 
     - script:
         name: download azktcl
