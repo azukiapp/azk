@@ -72,6 +72,7 @@ var options = mergeConfig({
       namespace     : envs('AZK_NAMESPACE'),
       repository    : 'azk',
       default_domain: 'azk',
+      build_name    : 'azkbuild',
       image_default : 'azukiapp/azktcl:0.0.2',
       run: {
         timeout: 1000,
@@ -128,6 +129,7 @@ var options = mergeConfig({
     docker: {
       namespace   : 'azk.test',
       repository  : 'azk-test',
+      build_name  : 'azkbuild-test',
       image_empty : 'cevich/empty_base_image',
     },
     agent: {

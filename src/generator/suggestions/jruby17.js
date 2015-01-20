@@ -15,7 +15,7 @@ export class Suggestion extends UIProxy {
     // Initial Azkfile.js suggestion
     this.suggestion = _.extend({}, example_system, {
       __type  : 'jruby 1.7',
-      image   : 'jruby:1.7',
+      image   : { docker: 'jruby:1.7' },
       provision: [
         'bundle install --path /azk/bundler',
       ],

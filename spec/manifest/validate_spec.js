@@ -25,7 +25,7 @@ describe("Azk manifest class, validate set", function() {
   it("should return deprecate use http hostname", function() {
     var content = `
       system('system1', {
-        image: "any",
+        image: { docker: "any" },
         http : { hostname: "foo.azk.dev" },
       });
     `
@@ -43,4 +43,42 @@ describe("Azk manifest class, validate set", function() {
       h.expect(err[0]).to.have.property("system", "system1");
     });
   });
+
+  it("should return deprecate use of image", function() {
+    var content = `
+      system('system1', {
+        image: "isDeprecated"
+      });
+    `;
+
+    return h.mockManifestWithContent(content).then((mf) => {
+      var err = mf.validate();
+
+      h.expect(err).to.instanceof(Array);
+      h.expect(err).to.length(1);
+
+      h.expect(err[0]).to.have.property("key", "deprecated");
+      h.expect(err[0]).to.have.property("option", "image");
+      h.expect(err[0]).to.have.property("new_option", "image.provider");
+      h.expect(err[0]).to.have.property("manifest").and.eql(mf);
+      h.expect(err[0]).to.have.property("level", "deprecate");
+      h.expect(err[0]).to.have.property("system", "system1");
+    });
+  });
+
+  it("should not return deprecate use of image", function() {
+    var content = `
+      system('system1', {
+        image: { docker: "any" }
+      });
+    `;
+
+    return h.mockManifestWithContent(content).then((mf) => {
+      var err = mf.validate();
+
+      h.expect(err).to.instanceof(Array);
+      h.expect(err).to.length(0);
+    });
+  });
+
 });

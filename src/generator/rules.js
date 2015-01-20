@@ -5,7 +5,7 @@ var example_system = {
   name    : 'example',
   depends : [],
   shell   : '/bin/bash',
-  image   : '[repository]:[tag]',
+  image   : { docker: '[repository]:[tag]' },
   workdir : '/azk/#{manifest.dir}',
   wait: {
     retry: 20,

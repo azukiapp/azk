@@ -172,6 +172,15 @@ export class System {
     return name;
   }
 
+  // Image name
+  setImageName() {
+    if (this.image.provider === 'dockerfile' && !this.image.hasOwnProperty("name")) {
+      this.image.name = `${config('docker:build_name')}/${this.manifest.namespace}-${this.name}:${this.image.tag}`;
+    }
+    return this.image.name;
+  }
+
+
   get ports() {
     var ports = this.options.ports || {};
 

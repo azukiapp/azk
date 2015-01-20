@@ -28,6 +28,7 @@
     "url": "https://github.com/azukiapp/azk/issues"
   },
   "dependencies": {
+    "archiver": "^0.13.1",
     "child-process-promise": "^1.0.0",
     "cli-table": "git+https://github.com/gullitmiranda/cli-table#master",
     "colors": "^0.6.2",

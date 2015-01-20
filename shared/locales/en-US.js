@@ -3,6 +3,7 @@ require('colors');
 var version = "Shows azk version";
 var verbose = "Sets the level of detail";
 var systems_options = "Targets systems of action";
+var rebuild = "Force the rebuild or pull image and reprovision before starting an instance";
 var reprovision = "Force the provisioning actions before starting an instance";
 
 module.exports = {
@@ -140,7 +141,10 @@ module.exports = {
     not_found: "no such '%s' in current project",
     circular_depends: "Circular dependency between %(system1)s and %(system2)s",
     image_required: "Not image set for the `%(system)s' system",
+    can_find_dockerfile: "Can't find manifesto file for `%(system)s`",
+    can_find_add_file_in_dockerfile: "Can't find file to ADD in manifesto",
     system_name_invalid: "The system name `%(system)s` is not valid.",
+    provider_invalid: "The provider not found: `%(wrongProvider)s`.",
     depends_not_declared: "The `%(system)s` system depends on the `%(depend)s` system, which was not stated.",
     balancer_depreciation: "The `balancer` option used in the `%(system)s` is deprecated, use `http` and `scalable` to replace",
     invalid_default: "Unable to set the system `%(system)s` as a default because it was not declared",
@@ -306,6 +310,7 @@ module.exports = {
       fail: "Due to the above error azk will stop all instances already begun.\n",
       options: {
         verbose: verbose,
+        rebuild: rebuild,
         reprovision: reprovision,
         open: "Open a url of default system in the preferred application",
       },
@@ -330,6 +335,7 @@ module.exports = {
       wait_port   : "◴".magenta + " waiting start `"+ "%(system)s".blue  + "` system, try connect port %(name)s/%(protocol)s...",
       check_image : "✓".cyan    + " checking `"     + "%(image)s".yellow + "` image...",
       pull_image  : "⇲".blue    + " downloading `"  + "%(image)s".yellow + "` image...",
+      build_image : "⇲".blue    + " building `"     + "%(image)s".yellow + "` image...",
       provision   : "↻".yellow  + " provisioning `" + "%(system)s".blue  + "` system...",
       starting    : "↑".green   + " starting `"     + "%(system)s".blue  + "` system, " + "%(to)d".green + " new instances...",
       stopping    : "↓".red     + " stopping `"     + "%(system)s".blue  + "` system, " + "%(from)d".red + " instances...",
@@ -344,6 +350,7 @@ module.exports = {
       description: "Stops all system and starts again",
       options: {
         verbose: verbose,
+        rebuild: rebuild,
         reprovision: reprovision,
         open: "Open a url of default system in the preferred application",
       }
@@ -353,6 +360,7 @@ module.exports = {
       deprecation: "`reload` this deprecated, use restart",
       options: {
         verbose: verbose,
+        rebuild: rebuild,
         reprovision: reprovision,
       }
     },

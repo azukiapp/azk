@@ -5,12 +5,18 @@ export class Validate {
     var errors = [];
 
     // validates
-    errors = errors.concat(
-      this._have_systems(manifest),
-      this._have_old_http_hostname(manifest)
-    );
+    var validations = [ this._have_systems(manifest),
+                        this._have_old_http_hostname(manifest),
+                        this._have_old_image_definition(manifest) ];
 
-    return errors;;
+    validations.forEach(function(validation) {
+
+      if(validation && validation.length > 0){
+        errors = errors.concat(validation);
+      }
+    });
+
+    return errors;
   }
 
   static _have_systems(manifest) {
@@ -25,6 +31,19 @@ export class Validate {
       return errors.concat(
         this._deprecate((system.options.http || {}).hostname, manifest, system.name, 'http.hostname', 'http.domains')
       );
+    }, []);
+  }
+
+  static _have_old_image_definition(manifest) {
+    return _.reduce(manifest.systems, (errors, system) => {
+      if (system.image && system.image.isDeprecated) {
+        return errors.concat(
+          this._deprecate((system.image || {}), manifest, system.name, 'image', 'image.provider')
+        );
+      }
+      else {
+        return errors;
+      }
     }, []);
   }
 

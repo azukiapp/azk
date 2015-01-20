@@ -1,5 +1,10 @@
 # Changelog
 
+## dev
+* Enhancements
+  * Add **Dockerfile** support
+  * Add `--rebuild` and `--pull` options for the `azk start` or `azk restart` commands. It forces rebuild or image pulling and reprovision before start an instance (default: false).
+
 ## v0.8.3
 
 * Enhancements

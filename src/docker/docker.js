@@ -2,8 +2,9 @@ import { Q, pp, config, path, _, log, lazy_require } from 'azk';
 import Utils from 'azk/utils';
 
 // Composer
-import { pull } from 'azk/docker/pull';
-import { run  } from 'azk/docker/run';
+import { pull  } from 'azk/docker/pull';
+import { run   } from 'azk/docker/run';
+import { build } from 'azk/docker/build';
 
 lazy_require(this, {
   parseRepositoryTag: ['dockerode/lib/util'],
@@ -161,6 +162,10 @@ export class Docker extends Utils.qify('dockerode') {
 
   pull(...args) {
     return pull(this, ...args);
+  }
+
+  build(...args) {
+    return build(this, ...args);
   }
 
   run(...args) {
