@@ -64,12 +64,57 @@ export class Image {
   pull(options, stdout) {
     var options = options || {};
     return async(this, function* (notify) {
-      var image = yield this.check();
-      if (options.build_force || image === null) {
-        notify({ type: "action", context: "image", action: "pull_image", data: this });
-        image = yield docker.pull(this.repository, this.tag, _.isObject(stdout) ? stdout : null);
+      // split docker namespace and docker repository
+      var namespace   = '';
+      var repository  = '';
+      var splited = this.repository.split('\/');
+      if (splited.length === 2) {
+        namespace   = splited[0];
+        repository  = splited[1];
       }
-      return image;
+      else {
+        namespace   = 'library';
+        repository  = this.repository;
+      }
+
+      // check if exists local image
+      this.repository = namespace + '/' + repository;
+      var image = yield this.check();
+
+      // check official docker image without "library/" namespace
+      if (image === null && namespace === 'library') {
+        this.repository = repository;
+        image = yield this.check();
+      }
+
+      // download from registry
+      if (image === null) {
+        this.repository = namespace + '/' + repository;
+        notify({ type: "action", context: "image", action: "pull_image", data: this });
+
+        yield this.pullWithDockerRegistryDownloader(docker.modem.socketPath, namespace, repository, this.tag);
+
+        // old implementation of pull
+        // image = yield docker.pull(this.repository, this.tag, _.isObject(stdout) ? stdout : null);
+      }
+      return yield this.check();
+    });
+  }
+
+  pullWithDockerRegistryDownloader(socketPath, namespace, repository, repo_tag) {
+    return async(this, function* (notify) {
+      var DockerHub   = require('docker-registry-downloader').DockerHub;
+      var Syncronizer = require('docker-registry-downloader').Syncronizer;
+      var dockerHub   = new DockerHub();
+      var syncronizer = new Syncronizer(socketPath);
+      var tag         = repo_tag;
+
+      // get token from DOCKER HUB API
+      return dockerHub.images(namespace, repository).then(function(hubResult) {
+        // sync registry layer with local layers
+        return syncronizer.sync(hubResult, tag);
+      });
+
     });
   }
 
