@@ -1,4 +1,5 @@
 import { _, async, config, lazy_require } from 'azk';
+import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Command, Helpers } from 'azk/cli/command';
 import Azk from 'azk';
 
@@ -6,7 +7,7 @@ lazy_require(this, {
   Client: ['azk/agent/client'],
 });
 
-class Cmd extends Command {
+class Cmd extends InteractiveCmds {
   get docker() {
     return require('azk/docker').default;
   }

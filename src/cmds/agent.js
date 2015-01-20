@@ -1,5 +1,6 @@
 import { _, t, log, fs, config, set_config, lazy_require } from 'azk';
 import { Q, defer, async } from 'azk';
+import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Command, Helpers } from 'azk/cli/command';
 import { AGENT_CODE_ERROR } from 'azk/utils/errors';
 
@@ -10,7 +11,7 @@ lazy_require(this, {
   net: 'net',
 });
 
-class Cmd extends Command {
+class Cmd extends InteractiveCmds {
   action(opts) {
     return this
       .callAgent(opts)

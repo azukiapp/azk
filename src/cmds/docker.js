@@ -1,11 +1,12 @@
 import { _, async, log, config, utils, lazy_require } from 'azk';
+import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Command, Helpers } from 'azk/cli/command';
 
 lazy_require(this, {
   Manifest: ['azk/manifest'],
 });
 
-class Cmd extends Command {
+class Cmd extends InteractiveCmds {
   run_docker(opts) {
     return async(this, function* () {
       var args = _.map(process.argv.slice(3), (arg) => {

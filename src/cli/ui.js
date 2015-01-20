@@ -150,11 +150,7 @@ var UI = {
     return defer((resolve) => {
       inquirer.prompt(questions, (answers) => resolve(answers));
     });
-  },
-
-  isInteractive() {
-    return this.stdout().isTTY == true;
-  },
+  }
 }
 
 export { UI };

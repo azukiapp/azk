@@ -1,13 +1,13 @@
 import { log, _, async, config, t, lazy_require } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
-import { VerboseCmd } from 'azk/cli/verbose_cmd';
+import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Cmd as StatusCmd } from 'azk/cmds/status';
 
 lazy_require(this, {
   Manifest: ['azk/manifest'],
 });
 
-class Cmd extends VerboseCmd {
+class Cmd extends InteractiveCmds {
   action(opts) {
     return async(this, function* () {
       yield Helpers.requireAgent(this);

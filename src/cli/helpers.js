@@ -20,7 +20,7 @@ var Helpers = {
     return AgentClient
       .status()
       .then((status) => {
-        if (!status.agent && cli.isInteractive()) {
+        if (!status.agent && !cli.non_interactive) {
           var question = {
             type    : 'confirm',
             name    : 'start',

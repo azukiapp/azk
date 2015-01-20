@@ -1,4 +1,5 @@
 import { log, _, async, defer, config, Q, t, lazy_require } from 'azk';
+import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Command, Helpers } from 'azk/cli/command';
 
 lazy_require(this, {
@@ -11,7 +12,7 @@ lazy_require(this, {
   }
 });
 
-class Cmd extends Command {
+class Cmd extends InteractiveCmds {
   action(opts) {
     return async(this, function* () {
       yield Helpers.requireAgent(this);
