@@ -3,7 +3,7 @@ import Azk from 'azk';
 
 class HelpCmd extends Command {
   action(opts) {
-    this.output("Azk %s", Azk.version);
+    this.output("azk %s", Azk.version);
     return 0;
   }
 }
