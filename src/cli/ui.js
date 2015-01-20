@@ -35,7 +35,7 @@ var UI = {
   },
 
   outputWithLabel(rows, ident = '') {
-    rows = _.map(rows, (row) => {
+    rows = _.map(_.sortBy(rows), (row) => {
       return _.isArray(row) ? row : row.split('\t');
     });
 
