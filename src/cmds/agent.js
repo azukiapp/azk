@@ -146,7 +146,7 @@ class Cmd extends Command {
 
 export function init(cli) {
   var cli = (new Cmd('agent {action}', cli))
-    .setOptions('action', { options: ['start', 'status', 'stop', 'startchild'] })
+    .setOptions('action', { options: ['start', 'status', 'stop', 'startchild'], hidden: ['startchild'] })
     .addOption(['--daemon'], { default: true })
 
   if (config('agent:requires_vm')) {
