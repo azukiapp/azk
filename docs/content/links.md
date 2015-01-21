@@ -1,0 +1,11 @@
+[docker]: http://docker.io
+[virtualbox_dl]: http://www.vagrantup.com/downloads.html
+[homebrew_cask]: https://github.com/phinze/homebrew-cask
+[libnss-resolver]: https://github.com/azukiapp/libnss-resolver
+[docker_install]: https://docs.docker.com/installation/#installation
+[docker_ubuntu_14_04]: https://docs.docker.com/installation/ubuntulinux/#installation
+[docker_ubuntu_12_04]: https://docs.docker.com/installation/ubuntulinux/#ubuntu-precise-1204-lts-64-bit
+[docker_ubuntu_dns]: https://docs.docker.com/installation/ubuntulinux/#docker-and-local-dns-server-warnings
+[docker_root_access]: https://docs.docker.com/installation/ubuntulinux/#giving-non-root-access
+[postgres]: http://www.postgresql.org/
+[redis]: http://redis.io/

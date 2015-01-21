@@ -1,0 +1,25 @@
+{
+    "title": "azk Docs Gitbook",
+    "description": "Gitbook documentation for azk",
+    "plugins":[
+        "scrollablecode",
+        "jsbin",
+        "anchors",
+        "include",
+        "-mathjax"
+    ],
+    "links": {
+        "home": "http://azk.io",
+        "issues": "https://github.com/azukiapp/azk/issues",
+        "theme": "node_modules/gitbook-theme-clarity/lib",
+        "custom": {
+            "custom": "http://azukiapp.com"
+        },
+        "sharing": {
+            "google": false,
+            "facebook": null,
+            "twitter": null,
+            "all": false
+        }
+    }
+}

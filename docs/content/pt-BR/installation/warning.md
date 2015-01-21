@@ -1,0 +1,1 @@
+**Aviso**: Se você já tem o `azk` nas versões anteriores a `0.6.0` instalado, siga [estes passos](upgrading.md#atualizando-a-partir-azk--051) antes de continuar. Se você não tem o `azk` instalado ignore este aviso e continue a instalação normalmente.
