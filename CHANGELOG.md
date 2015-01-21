@@ -1,5 +1,9 @@
 # Changelog
 
+## dev
+* Enhancements
+  * [Manifest] Adding `extends` support.
+
 ## v0.9.2 - (2015-29-01)
 
 * Bug

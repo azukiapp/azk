@@ -141,7 +141,7 @@ export class Manifest {
           var sourceSystem = _.cloneDeep(allSystems[data.extends]);
           var destinationSystem = allSystems[name];
 
-          // if "depends" or "image" is null ignore this properties
+          // if "depends" or "image" is null ignore these properties
           if (destinationSystem.depends === null) {
             delete destinationSystem.depends;
           }
