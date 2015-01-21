@@ -252,14 +252,18 @@ describe("Azk manifest class, main set", function() {
         var example_system         = manifest.system('example');
         var example_extends_system = manifest.system('example-extends');
 
-        h.expect(example_extends_system.options.shell).to.be.deep.equal(example_system.options.shell);
-        h.expect(example_extends_system.options.depends).to.be.deep.equal(example_system.options.depends);
-        h.expect(example_extends_system.options.envs).to.be.deep.equal(example_system.options.envs);
-        h.expect(example_extends_system.options.scalable).to.be.deep.equal(example_system.options.scalable);
+        // all equal
+        h.expect(example_extends_system.options.shell)    .to.be.deep.equal(example_system.options.shell);
+        h.expect(example_extends_system.options.depends)  .to.be.deep.equal(example_system.options.depends);
+        h.expect(example_extends_system.options.envs)     .to.be.deep.equal(example_system.options.envs);
         h.expect(example_extends_system.options.provision).to.be.deep.equal(example_system.options.provision);
-        h.expect(example_extends_system.options.workdir).to.be.deep.equal(example_system.options.workdir);
-        h.expect(example_extends_system.options.command).to.be.deep.equal(example_system.options.command);
-        h.expect(example_extends_system.options.mounts).to.be.deep.equal(example_system.options.mounts);
+        h.expect(example_extends_system.options.workdir)  .to.be.deep.equal(example_system.options.workdir);
+        h.expect(example_extends_system.options.command)  .to.be.deep.equal(example_system.options.command);
+        h.expect(example_extends_system.options.mounts)   .to.be.deep.equal(example_system.options.mounts);
+
+        //divergent
+        h.expect(example_system.options.scalable.default)        .to.be.equal(3);
+        h.expect(example_extends_system.options.scalable.default).to.be.equal(1);
 
       });
     });
@@ -273,10 +277,7 @@ describe("Azk manifest class, main set", function() {
         }
       };
 
-      return h.mockManifest(data).then(function(mf) {
-        console.log('\n>>---------\n mf:', mf, '\n>>---------\n');
-        }).catch(function(err) {
-
+      return h.mockManifest(data).catch(function(err) {
           var msg  = t('manifest.extends_system_invalid',
                       { system_source   : 'example-NOT_EXISTS',
                         system_to_extend: 'example-extends-error' });

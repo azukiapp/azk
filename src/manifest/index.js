@@ -138,7 +138,20 @@ export class Manifest {
             throw new ManifestError(this.file, msg);
           }
 
-          _.merge(allSystems[name], allSystems[data.extends]);
+          var sourceSystem = _.cloneDeep(allSystems[data.extends]);
+          var destinationSystem = allSystems[name];
+
+          // if "depends" or "image" is null ignore this properties
+          if (destinationSystem.depends === null) {
+            delete destinationSystem.depends;
+          }
+          if (destinationSystem.image === null) {
+            delete destinationSystem.image;
+          }
+
+          // get all from sourceSystem but override with destinationSystem
+          _.assign(sourceSystem, destinationSystem);
+          allSystems[name] = sourceSystem;
         }
       }
     });

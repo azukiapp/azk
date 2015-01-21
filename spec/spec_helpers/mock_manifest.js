@@ -69,6 +69,7 @@ export function extend(h) {
         },
         "example-extends": {
           extends: "example",
+          scalable: { default: 1 },
         },
         api: {
           depends: ["db"],
