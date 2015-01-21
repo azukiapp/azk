@@ -243,4 +243,74 @@ describe("Azk manifest class, main set", function() {
       );
     });
   });
+
+
+  describe("extends from other system", function() {
+    it("should inherit everything from mother system", function() {
+      return h.mockManifest({ }).then((mf) => {
+        var manifest = mf;
+        var example_system         = manifest.system('example');
+        var example_extends_system = manifest.system('example-extends');
+
+        h.expect(example_extends_system.options.shell).to.be.deep.equal(example_system.options.shell);
+        h.expect(example_extends_system.options.depends).to.be.deep.equal(example_system.options.depends);
+        h.expect(example_extends_system.options.envs).to.be.deep.equal(example_system.options.envs);
+        h.expect(example_extends_system.options.scalable).to.be.deep.equal(example_system.options.scalable);
+        h.expect(example_extends_system.options.provision).to.be.deep.equal(example_system.options.provision);
+        h.expect(example_extends_system.options.workdir).to.be.deep.equal(example_system.options.workdir);
+        h.expect(example_extends_system.options.command).to.be.deep.equal(example_system.options.command);
+        h.expect(example_extends_system.options.mounts).to.be.deep.equal(example_system.options.mounts);
+
+      });
+    });
+
+    it("should raise an exception when trying to extend from non existent system", function() {
+      var data = {
+        systems: {
+          "example-extends-error": {
+            extends: "example-NOT_EXISTS",
+          }
+        }
+      };
+
+      return h.mockManifest(data).then(function(mf) {
+        console.log('\n>>---------\n mf:', mf, '\n>>---------\n');
+        }).catch(function(err) {
+
+          var msg  = t('manifest.extends_system_invalid',
+                      { system_source   : 'example-NOT_EXISTS',
+                        system_to_extend: 'example-extends-error' });
+
+          h.expect(err.err_message).to.equal(msg);
+      });
+    });
+
+    describe('_system_validate', function () {
+      var project, file;
+
+      before(() => {
+        return h.tmp_dir({ prefix: "azk-test-" }).then((dir) => {
+          file = path.join(dir, file_name);
+          project = dir;
+        });
+      });
+
+      var mock_manifest = (data) => {
+        fs.writeFileSync(file, data);
+        return () => new Manifest(project);
+      };
+
+      it("should raise an exception when trying to extend from itself", function() {
+        var func = mock_manifest('system("system1", { extends: "system1" });');
+        var msg  = t('manifest.cannot_extends_itself', { system: "system1" });
+        h.expect(func).to.throw(ManifestError).and.match(
+          RegExp(h.escapeRegExp(msg))
+        );
+      });
+
+    });
+
+  });
+
+
 });

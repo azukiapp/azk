@@ -67,6 +67,9 @@ export function extend(h) {
             ECHO_DATA: "data"
           }
         },
+        "example-extends": {
+          extends: "example",
+        },
         api: {
           depends: ["db"],
           workdir: '/azk/#{manifest.dir}',
