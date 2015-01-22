@@ -28,11 +28,11 @@ azk: ↑ starting `redis` system, 1 new instances...
 azk: ✓ checking `dockerfile/redis:latest` image...
 azk: ◴ waiting start `redis` system, try connect port 6379/tcp...
 
-┌───┬────────┬────────────┬──────────┬─────────────────┬─────────────┐
-│   │ System │ Instances  │ Hostname │ Instances-Ports │ Provisioned │
-├───┼────────┼────────────┼──────────┼─────────────────┼─────────────┤
-│ ↑ │ redis  │ 1          │ azk.dev  │ 1-6379:49157    │ -           │
-└───┴────────┴────────────┴──────────┴─────────────────┴─────────────┘
+┌───┬────────┬────────────┬────────────┬─────────────────┬─────────────┐
+│   │ System │ Instances  │ Hostname   │ Instances-Ports │ Provisioned │
+├───┼────────┼────────────┼────────────┼─────────────────┼─────────────┤
+│ ↑ │ redis  │ 1          │ dev.azk.io │ 1-6379:49157    │ -           │
+└───┴────────┴────────────┴────────────┴─────────────────┴─────────────┘
 ```
 
 # Configuring application
@@ -79,13 +79,13 @@ azk: ✓ checking `dockerfile/nodejs:latest` image...
 azk: ◴ waiting start `azkdemo` system, try connect port http/tcp...
 azk: ◴ waiting start `azkdemo` system, try connect port http/tcp...
 
-┌───┬─────────┬────────────┬────────────────────────┬────────────────────────────┬───────────────┐
-│   │ System  │ Instances  │ Hostname               │ Instances-Ports            │ Provisioned   │
-├───┼─────────┼────────────┼────────────────────────┼────────────────────────────┼───────────────┤
-│ ↑ │ azkdemo │ 2          │ http://azkdemo.azk.dev │ 2-http:49164, 1-http:49163 │ 6 minutes ago │
-└───┴─────────┴────────────┴────────────────────────┴────────────────────────────┴───────────────┘
+┌───┬─────────┬────────────┬───────────────────────────┬────────────────────────────┬───────────────┐
+│   │ System  │ Instances  │ Hostname                  │ Instances-Ports            │ Provisioned   │
+├───┼─────────┼────────────┼───────────────────────────┼────────────────────────────┼───────────────┤
+│ ↑ │ azkdemo │ 2          │ http://azkdemo.dev.azk.io │ 2-http:49164, 1-http:49163 │ 6 minutes ago │
+└───┴─────────┴────────────┴───────────────────────────┴────────────────────────────┴───────────────┘
 ```
 
-Accessing [http://azkdemo.azk.dev](http://azkdemo.azk.dev) you will see:
+Accessing [http://azkdemo.azk.dev](http://azkdemo.dev.azk.io) you will see:
 
 ![Figure 1-1](../resources/images/start_2.png)

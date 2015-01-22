@@ -21,14 +21,14 @@ npm WARN package.json azk-hello@0.0.1 No repository field.
 azk: ◴ waiting start `azkdemo` system, try connect port http/tcp...
 azk: ◴ waiting start `azkdemo` system, try connect port http/tcp...
 
-┌───┬────────┬────────────┬───────────────────────┬────────────────────────────┬───────────────────┐
-│   │ System │ Instances  │ Hostname              │ Instances-Ports            │ Provisioned       │
-├───┼────────┼────────────┼───────────────────────┼────────────────────────────┼───────────────────┤
-│ ↑ │ azkiso │ 2          │ http://azkdemo.azk.dev│ 2-http:49154, 1-http:49153 │ a few seconds ago │
-└───┴────────┴────────────┴───────────────────────┴────────────────────────────┴───────────────────┘
+┌───┬────────┬────────────┬──────────────────────────┬────────────────────────────┬───────────────────┐
+│   │ System │ Instances  │ Hostname                 │ Instances-Ports            │ Provisioned       │
+├───┼────────┼────────────┼──────────────────────────┼────────────────────────────┼───────────────────┤
+│ ↑ │ azkiso │ 2          │ http://azkdemo.dev.azk.io│ 2-http:49154, 1-http:49153 │ a few seconds ago │
+└───┴────────┴────────────┴──────────────────────────┴────────────────────────────┴───────────────────┘
 ```
 
-Se tudo ocorreu conforme o esperado agora você pode acessar [http://azkdemo.azk.dev](http://azkdemo.azk.dev) e a seguinte tela deve aparecer:
+Se tudo ocorreu conforme o esperado agora você pode acessar [http://azkdemo.azk.dev](http://azkdemo.dev.azk.io) e a seguinte tela deve aparecer:
 
 ![Figure 1-1](../resources/images/start_1.png)
 
@@ -39,12 +39,12 @@ Na saída do `azk status` podemos conferir que existem 2 instâncias do sistema 
 ```
 $ azk status
 
-┌───┬─────────┬────────────┬────────────────────────┬────────────────────────────┬───────────────┐
-│   │ System  │ Instances  │ Hostname               │ Instances-Ports            │ Provisioned   │
-├───┼─────────┼────────────┼────────────────────────┼────────────────────────────┼───────────────┤
-│ ↑ │ azkdemo │ 2          │ http://azkdemo.azk.dev │ 2-http:49168, 1-http:49167 │ 3 minutes ago │
-│   │         │            │                        │                            │               │
-└───┴─────────┴────────────┴────────────────────────┴────────────────────────────┴───────────────┘
+┌───┬─────────┬────────────┬───────────────────────────┬────────────────────────────┬───────────────┐
+│   │ System  │ Instances  │ Hostname                  │ Instances-Ports            │ Provisioned   │
+├───┼─────────┼────────────┼───────────────────────────┼────────────────────────────┼───────────────┤
+│ ↑ │ azkdemo │ 2          │ http://azkdemo.dev.azk.io │ 2-http:49168, 1-http:49167 │ 3 minutes ago │
+│   │         │            │                           │                            │               │
+└───┴─────────┴────────────┴───────────────────────────┴────────────────────────────┴───────────────┘
 ```
 
 Esta configuração, de se usar duas instâncias, está definida no Azkfile.js (gerado no [passo anterior](configs-project.md)):

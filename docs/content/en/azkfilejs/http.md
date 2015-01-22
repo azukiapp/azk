@@ -12,7 +12,7 @@ http: {
 
 ##### Examples:
 
-If the project is inside the folder `/home/projects/azukidemo/` the address http://azukidemo-sys1.azk.dev/ will be available.
+If the project is inside the folder `/home/projects/azukidemo/` the address http://azukidemo-sys1.dev.azk.io/ will be available.
 
 ```js
 sys1:{

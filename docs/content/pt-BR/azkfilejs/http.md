@@ -12,7 +12,7 @@ http: {
 
 ##### Exemplos:
 
-Caso o projeto esteja na pasta `/home/projetos/azukidemo/` será disponibilizado o endereço http://azukidemo-sys1.azk.dev/
+Caso o projeto esteja na pasta `/home/projetos/azukidemo/` será disponibilizado o endereço http://azukidemo-sys1.dev.azk.io/
 
 ```js
 sys1:{
