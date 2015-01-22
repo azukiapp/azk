@@ -33,7 +33,7 @@
     "cli-table": "git+https://github.com/gullitmiranda/cli-table#master",
     "colors": "^0.6.2",
     "dns-sync": "^0.1.0",
-    "docker-registry-downloader": "^0.1.18",
+    "docker-registry-downloader": "^0.1.19",
     "dockerode": "^2.0.3",
     "esprima": "^1.2.2",
     "exec-sh": "^0.1.3",
