@@ -92,10 +92,10 @@ export class Image {
         this.repository = namespace + '/' + repository;
         notify({ type: "action", context: "image", action: "pull_image", data: this });
 
-        yield this.pullWithDockerRegistryDownloader(docker.modem, namespace, repository, this.tag);
+        //yield this.pullWithDockerRegistryDownloader(docker.modem, namespace, repository, this.tag);
 
         // old implementation of pull
-        // image = yield docker.pull(this.repository, this.tag, _.isObject(stdout) ? stdout : null);
+        image = yield docker.pull(this.repository, this.tag, _.isObject(stdout) ? stdout : null);
       }
       return yield this.check();
     });
