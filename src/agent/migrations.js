@@ -35,10 +35,14 @@ var Migrations = {
         }
 
         // Remove old machine
-        var old_name = "azk-vm-azk.dev";
-        var new_name = config("agent:vm:name");
-        configure.info('configure.migrations.renaming_vm', { old_name, new_name });
-        return VM.rename(old_name, new_name);
+        if (config('agent:requires_vm')) {
+          var old_name = "azk-vm-azk.dev";
+          var new_name = config("agent:vm:name");
+          configure.info('configure.migrations.renaming_vm', { old_name, new_name });
+          yield VM.rename(old_name, new_name);
+        }
+
+        return true;
       });
     },
   ],
