@@ -34,7 +34,7 @@ describe('Azk cli interactive cmds class', function() {
   describe('whith quiet option', function() {
     var cmd = new TestCmd('test_options', UI);
 
-    it('should true', function (done) {
+    it('should true', function () {
       cmd.run(['--quiet']);
       h.expect(outputs).to.eql([{ verbose: 0, __leftover: [], quiet: true}]);
     });

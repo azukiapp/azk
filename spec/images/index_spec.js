@@ -97,15 +97,5 @@ describe("Azk image class", function() {
     it("should check image is avaible", function() {
       return h.expect(img.check()).to.eventually.equal(null);
     });
-
-    it("pull a image @slow", function() {
-      var events = [];
-      return img.pull().progress((event) => events.push(event))
-        .then(() => {
-          h.expect(events)
-            .to.contain.an.item.with
-            .deep.property('statusParsed.type', 'download_complete');
-        });
-    });
   });
 });
