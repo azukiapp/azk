@@ -34,9 +34,4 @@ systems({
 });
 
 // Set cache in azk data dir
-setCacheDir(join_path(
-  config('paths:data'),
-  config('azk_dir'),
-  "shared",
-  "Azkfile.js"
-));
+setCacheDir(config('paths:azk_meta'));

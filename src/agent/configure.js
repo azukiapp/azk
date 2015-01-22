@@ -1,5 +1,5 @@
-import { _, t, os, Q, async, log, lazy_require } from 'azk';
-import { config, set_config } from 'azk';
+import { _, t, os, Q, async, defer, log, lazy_require } from 'azk';
+import { path, config, set_config } from 'azk';
 import { UIProxy } from 'azk/cli/ui';
 import { OSNotSupported, DependencyError } from 'azk/utils/errors';
 import { net } from 'azk/utils';
@@ -12,9 +12,10 @@ var semver     = require('semver');
 var { isIPv4 } = require('net');
 
 lazy_require(this, {
-  docker  : ['azk/docker', 'default'],
-  exec    : ['child_process'],
-  isOnline: 'is-online',
+  docker     : ['azk/docker', 'default'],
+  exec       : ['child_process'],
+  isOnline   : 'is-online',
+  Migrations : ['azk/agent/migrations'],
 });
 
 var ports_tabs = {
@@ -52,9 +53,11 @@ export class Configure extends UIProxy {
     } else {
       var socket = config('docker:socket');
       return async(this, function* () {
+        yield this._checkAzkVersion();
+        yield Migrations.run(this);
+
         return _.merge(
           {},
-          yield this._checkAzkVersion(),
           yield this._checkDockerSocket(socket),
           yield this._checkAndConfigureNetwork(false),
           yield this._loadDnsServers(),
@@ -73,9 +76,11 @@ export class Configure extends UIProxy {
 
   _checksForRequiresVm() {
     return async(this, function* () {
+      yield this._checkAzkVersion();
+      yield Migrations.run(this);
+
       return _.merge(
         {},
-        yield this._checkAzkVersion(),
         yield this._which('VBoxManage'),
         yield this._which('unfsd', 'paths:unfsd'),
         yield this._checkAndConfigureNetwork(),
@@ -85,11 +90,20 @@ export class Configure extends UIProxy {
     });
   }
 
+  isOnline() {
+    return defer(function (resolve, reject) {
+      isOnline(function (err, result) {
+        if (err) return reject(err);
+        resolve(result);
+      });
+    });
+  }
+
   _checkAzkVersion() {
     return async(this, function* (notify) {
       try {
         // check connectivity
-        var currentOnline = yield Q.ninvoke(isOnline);
+        var currentOnline = yield this.isOnline();
 
         if ( !currentOnline ) {
           log.debug('isOnline == false');
@@ -243,39 +257,45 @@ export class Configure extends UIProxy {
     });
   }
 
-  // Generate file /etc/resolver/*
-  _generateResolverFile(ip, file) {
-    var port = config('agent:dns:port');
-
-    // TODO: Fixing is not root and not have a sudo
-    return this
-      ._which('sudo', 'sudo')
+  sudo_check() {
+    return this._which('sudo', 'sudo')
       .then((sudo_path) => { return sudo_path.sudo; })
       .fail(() => { return ""; })
-      .then((sudo_path) => {
-        // Creating resolver file and adding ip (with sudo)
-        this.info('configure.adding_ip', { ip, file });
-        ip = `${ip}${this.dns_tab}${port}`;
-        var script = `
-          echo "" &&
-          set -x &&
-          ${sudo_path} mkdir -p /etc/resolver 2>/dev/null &&
-          echo "# azk agent configure" | ${sudo_path} tee ${file} &&
-          echo "nameserver ${ip}" | ${sudo_path} tee -a ${file} &&
-          ${sudo_path} chown \$(id -u):\$(id -g) ${file} &&
-          set +x &&
-          echo ""
-        `;
+  }
 
-        // Call interactive shell (to support sudo)
-        return this.execSh(script).then((code) => {
-          if (code != 0) {
-            throw new DependencyError('network');
-          } else {
-            return code;
-          }
-        });
+  // Generate file /etc/resolver/*
+  _generateResolverFile(ip, file) {
+    // TODO: Fixing is not root and not have a sudo
+    return this.execShWithSudo('network', (sudo_path) => {
+      var port = config('agent:dns:port');
+      // Creating resolver file and adding ip (with sudo)
+      this.info('configure.adding_ip', { ip, file });
+      ip = `${ip}${this.dns_tab}${port}`;
+      return `
+        echo "" &&
+        set -x &&
+        ${sudo_path} mkdir -p /etc/resolver 2>/dev/null &&
+        echo "# azk agent configure" | ${sudo_path} tee ${file} &&
+        echo "nameserver ${ip}" | ${sudo_path} tee -a ${file} &&
+        ${sudo_path} chown \$(id -u):\$(id -g) ${file} &&
+        set +x &&
+        echo ""
+      `;
+    });
+  }
+
+  execShWithSudo(error_label, block) {
+    return this.sudo_check().then((sudo_path) => {
+      var script = block(sudo_path);
+      // Call interactive shell (to support sudo)
+      return this.execSh(script).then((code) => {
+        if (code != 0) {
+          throw new DependencyError(error_label);
+        } else {
+          return code;
+        }
       });
+    });
   }
 
   _parseNameserver(content) {

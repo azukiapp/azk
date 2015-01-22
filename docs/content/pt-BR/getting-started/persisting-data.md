@@ -1,12 +1,12 @@
 # Persistindo informações
 
-Se você [configurou um banco de dados](database.md), verá que vários _refresh_, na página [http://azkdemo.azk.dev](http://azkdemo.azk.dev), fazem com que nosso contador de acessos seja incrementado. Porém se você executar um `azk restart` no sistema __redis__, como demonstrado abaixo:
+Se você [configurou um banco de dados](database.md), verá que vários _refresh_, na página [http://azkdemo.azk.dev](http://azkdemo.dev.azk.io), fazem com que nosso contador de acessos seja incrementado. Porém se você executar um `azk restart` no sistema __redis__, como demonstrado abaixo:
 
 ```bash
 $ azk restart redis
 ```
 
-Ao acessar [http://azkdemo.azk.dev](http://azkdemo.azk.dev) você irá verificar que o contador de acessos foi reiniciado. Isso acontece porque o banco de dados não sabe onde deve persistir a informação sobre os acessos.
+Ao acessar [http://azkdemo.azk.dev](http://azkdemo.dev.azk.io) você irá verificar que o contador de acessos foi reiniciado. Isso acontece porque o banco de dados não sabe onde deve persistir a informação sobre os acessos.
 
 ## Volume persistente
 
