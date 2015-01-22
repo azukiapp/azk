@@ -1,6 +1,6 @@
 # Changelog
 
-## dev
+## v0.9.0
 
 * Bug
   * [Kernel] Replacing `azk.dev` for `dev.azk.io` to improve compatibility with browsers
