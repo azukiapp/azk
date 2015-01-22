@@ -92,7 +92,7 @@ export class Image {
         this.repository = namespace + '/' + repository;
         notify({ type: "action", context: "image", action: "pull_image", data: this });
 
-        yield this.pullWithDockerRegistryDownloader(docker.modem.socketPath, namespace, repository, this.tag);
+        yield this.pullWithDockerRegistryDownloader(docker.modem, namespace, repository, this.tag);
 
         // old implementation of pull
         // image = yield docker.pull(this.repository, this.tag, _.isObject(stdout) ? stdout : null);
@@ -101,12 +101,12 @@ export class Image {
     });
   }
 
-  pullWithDockerRegistryDownloader(socketPath, namespace, repository, repo_tag) {
+  pullWithDockerRegistryDownloader(dockerode_modem, namespace, repository, repo_tag) {
     return async(this, function* (notify) {
       var DockerHub   = require('docker-registry-downloader').DockerHub;
       var Syncronizer = require('docker-registry-downloader').Syncronizer;
       var dockerHub   = new DockerHub();
-      var syncronizer = new Syncronizer(socketPath);
+      var syncronizer = new Syncronizer({ dockerode_modem: dockerode_modem });
       var tag         = repo_tag;
 
       // get token from DOCKER HUB API
