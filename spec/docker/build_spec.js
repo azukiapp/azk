@@ -58,7 +58,20 @@ describe("Azk docker module, image build @slow", function() {
 
   describe("with a invalids Dockerfile's", function () {
     it("should raise error for a invalid image", function() {
-      return h.expect(build('DockerfileInvalid')).to.be.rejectedWith(DockerBuildError, /DockerfileInvalid/);
+      var events = [];
+      return build('DockerfileInvalid')
+        .progress((event) => {
+          events.push(event);
+        })
+        .then(() => {
+          // test for Docker 1.2
+          h.expect(events).to.be.length(1);
+          h.expect(events[0].statusParsed).to.be.deep.equal({});
+        })
+        .catch(function(rejection) {
+          // test for Docker 1.4
+          h.expect(rejection.translation_key).to.equal('docker_build_error.server_error');
+        });
     });
 
     it("should raise error for not found from", function() {
