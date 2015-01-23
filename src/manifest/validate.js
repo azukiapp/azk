@@ -36,7 +36,7 @@ export class Validate {
 
   static _have_old_image_definition(manifest) {
     return _.reduce(manifest.systems, (errors, system) => {
-      if (system.image && system.image.isDeprecated) {
+      if (system.deprecatedImage) {
         return errors.concat(
           this._deprecate((system.image || {}), manifest, system.name, 'image', 'image.provider')
         );

@@ -8,7 +8,7 @@ var _         = require('azk')._;
 
 // Default options for all systems
 var _default = {
-  image   : config("docker:image_default"),
+  image   : { docker: config("docker:image_default") },
   shell   : '/bin/bash',
   wait    : false,
   scalable: false,

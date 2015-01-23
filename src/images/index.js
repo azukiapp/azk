@@ -1,56 +1,43 @@
-import { async, defer, _, lazy_require, t, path } from 'azk';
+import { _, fs, config, async, defer, lazy_require, t, path } from 'azk';
 import { ManifestError } from 'azk/utils/errors';
 import Utils from 'azk/utils';
 
 var qfs = require('q-io/fs');
 
-var AVAILABLE_PROVIDERS = ["docker", "dockerfile", "rocket"];
+var AVAILABLE_PROVIDERS = ["docker", "dockerfile"];
 var default_tag      = "latest";
 var default_provider = "docker";
 
 lazy_require(this, {
-  DImage() {
-    return require('azk/docker').Image;
-  },
-
-  docker() {
-    return require('azk/docker').default;
-  }
+  DImage: ['azk/docker', 'Image'],
+  docker: ['azk/docker', 'default'],
 });
 
 export class Image {
-  constructor(image) {
+  constructor(options) {
+    this.system = options.system || { image_name_suggest: null };
 
-    if (_.isString(image)) {
-      // 1. i.e.: 'azukiapp/azktcl:0.0.2' (deprecated)
-      this.isDeprecated = true;
-      this.provider = default_provider;
-      this.name = image;
-      return null;
-    }
+    // Extract provider information
+    // 2. i.e.: { docker: 'azukiapp/azktcl:0.0.2' }
+    // 3. i.e.: { provider: 'dockerfile', repository: 'azukiapp/azktcl' }
+    this.provider = this._parse_provider(options);
 
-    if (image.hasOwnProperty("skip_check_dockerfile")) {
-      this.skip_check_dockerfile = image.skip_check_dockerfile;
-    }
-
-    this.parse_provider(image);
-    if (image.hasOwnProperty(this.provider)) {
-      // 2. i.e.: { docker: 'azukiapp/azktcl:0.0.2' }
+    if (options.hasOwnProperty(this.provider)) {
       if (this.provider === 'docker') {
-        this.name = image[this.provider];
+        this.name = options[this.provider];
       } else if (this.provider === 'dockerfile') {
-        this.path = image[this.provider];
+        this.path = options[this.provider];
       }
     } else {
-      // 3. i.e.: { provider: 'dockerfile', repository: 'azukiapp/azktcl' }
-      this.repository = image.repository;
-      this.tag        = image.tag || default_tag;
-
       if (this.provider === 'dockerfile') {
-        this.path       = image.path;
-      } else {
-        this.name       = image.name;
+        this.path = options.path;
       }
+      this.repository = options.repository;
+      this.tag        = this.tag || options.tag || default_tag;
+    }
+
+    if (_.isEmpty(this.name)) {
+      this.name = `${this.system.image_name_suggest}:${this.tag}`;
     }
   }
 
@@ -124,43 +111,36 @@ export class Image {
       var image = yield this.check();
       if (options.build_force || image === null) {
         notify({ type: 'action', context: 'image', action: 'build_image', data: this });
-        image = yield docker.build(this, _.isObject(stdout) ? stdout : null);
+        image = yield docker.build({ dockerfile: this.path, tag: this.name });
       }
       return image;
     });
   }
 
-  set path(dockerfile_path) {
-    if (!dockerfile_path) {
-      return null;
-    } else if (this.skip_check_dockerfile) {
-      return this._path  = dockerfile_path;
+  set path(dockerfile) {
+    this._path = this._findDockerfile(dockerfile);
+    this.tag   = Utils.calculateHash(dockerfile);
+  }
+
+  _findDockerfile(dockerfile_path, require_file = false) {
+    var exists = fs.existsSync(dockerfile_path);
+
+    if (exists) {
+      var stats = fs.statSync(dockerfile_path);
+      var isDirectory = stats.isDirectory();
+
+      if(!isDirectory) {
+        return dockerfile_path;
+      } else if(isDirectory && !require_file) {
+
+        // it is a folder - try find the manifesto
+        dockerfile_path = path.join(dockerfile_path, 'Dockerfile');
+        return this._findDockerfile(dockerfile_path, true);
+      }
     }
 
-    return async(this, function* () {
-      var exists = yield qfs.exists(dockerfile_path);
-
-      if (exists) {
-        var stats = yield qfs.stat(dockerfile_path);
-        var isDirectory = stats.isDirectory();
-
-        if(isDirectory) {
-          // it is a folder - try find the manifesto
-          dockerfile_path = path.join(dockerfile_path, 'Dockerfile');
-          exists = yield qfs.exists(dockerfile_path);
-
-          if(!exists){
-            var msg = t("manifest.can_find_dockerfile", {system: 'systemName FIXME'});
-            throw new ManifestError('', msg);
-          }
-        }
-
-        var dockerfileHash = yield Utils.calculateHash(dockerfile_path);
-
-        this.tag    = dockerfileHash
-        this._path  = dockerfile_path;
-      }
-    });
+    var msg = t("manifest.can_find_dockerfile", {system: this.system.name});
+    throw new ManifestError('', msg);
   }
 
   get path() {
@@ -174,7 +154,7 @@ export class Image {
 
     var imageParsed = DImage.parseRepositoryTag(value);
     this.repository = imageParsed.repository;
-    this.tag        = imageParsed.tag      || default_tag;
+    this.tag        = imageParsed.tag || default_tag;
   }
 
   get name() {
@@ -187,31 +167,35 @@ export class Image {
     return `{ ${this.provider}: "${this.repository}:${this.tag}" }`;
   }
 
-  parse_provider(image) {
-    var hasProvider = image.hasOwnProperty('provider');
-    if(hasProvider) {
-      if (_.contains(AVAILABLE_PROVIDERS, image.provider)) {
-        return this.provider = image.provider;
+  _parse_provider(options) {
+    var provider = null;
+
+    var hasProvider = options.hasOwnProperty('provider');
+    if (hasProvider) {
+      // 1. ie: { provider: "docker" }
+      if (_.contains(AVAILABLE_PROVIDERS, options.provider)) {
+        provider = options.provider;
+      }
+    } else {
+      // try find provider in image keys
+      // 2. ie: { docker: "[image]" }
+      var options_keys = _.keys(options);
+      if (options_keys.length > 0) {
+        var provider = _.find(options_keys, function(key) {
+          if (_.contains(AVAILABLE_PROVIDERS, key)) {
+            return key;
+          }
+        });
       }
     }
 
-    // try find provider in image keys
-    var image_keys = _.keys(image);
-    if(image_keys.length > 0) {
-      var provider = _.find(image_keys, function(key) {
-        if (_.contains(AVAILABLE_PROVIDERS, key)) {
-          return key;
-        }
-      });
-      if(provider) {
-        return this.provider = provider;
-
-      }
+    if (_.isEmpty(provider)) {
+      // Error: cant find any provider
+      var wrongProvider_name = options.provider || '';
+      var msg = t("manifest.provider_invalid", { wrongProvider: wrongProvider_name });
+      throw new ManifestError('', msg);
     }
 
-    // Error: cant find any provider
-    var wrongProvider_name = image.provider || '';
-    var msg = t("manifest.provider_invalid", { wrongProvider: wrongProvider_name });
-    throw new ManifestError('', msg);
+    return provider;
   }
 }
