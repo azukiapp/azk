@@ -6,6 +6,7 @@ export function extend(Helpers) {
   var t_regexs = [
     RegExp(`${Helpers.escapeRegExp(config('docker:image_empty'))}`),
     RegExp(`${Helpers.escapeRegExp(config('docker:repository'))}`),
+    RegExp(`${Helpers.escapeRegExp(config('docker:build_name'))}`),
   ]
   var filter_tags = (tag) => {
     return _.some(t_regexs, (regex) => { return tag.match(regex) });

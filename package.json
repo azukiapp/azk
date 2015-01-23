@@ -47,6 +47,7 @@
     "hipache": "git+https://github.com/hipache/hipache#master",
     "inquirer": "^0.8.0",
     "is-online": "^3.0.0",
+    "jstream": "^0.2.7",
     "lodash": "^2.4.1",
     "memcached": "^0.2.8",
     "memcachedjs": "0.0.1",
@@ -96,7 +97,7 @@
     "keypress": "~0.2.1",
     "load-grunt-tasks": "^0.6.0",
     "mocha": "^1.21.4",
-    "node-inspector": "~0.7.2",
+    "node-inspector": "~0.8.3",
     "tmp": "0.0.23"
   }
 }

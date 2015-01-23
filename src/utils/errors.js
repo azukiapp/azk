@@ -64,10 +64,9 @@ export class InvalidValueError extends InvalidOptionError {
 }
 
 export class DockerBuildError extends AzkError {
-  constructor(image, msg) {
-    super('docker_build_error')
-    this.image = image;
-    this.msg   = msg;
+  constructor(type, options = {}) {
+    super(`docker_build_error.${type}`);
+    _.merge(this, options);
   }
 }
 
