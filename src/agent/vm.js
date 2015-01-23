@@ -225,6 +225,14 @@ var vm = {
     });
   },
 
+  rename(old_name, new_name) {
+    return this.isInstalled(old_name).then((installed) => {
+      if (installed) {
+        return modifyvm(old_name, ['--name', new_name]);
+      }
+    });
+  },
+
   isInstalled(vm_name) {
     return this.info(vm_name).then((status) => {
       return status.installed;

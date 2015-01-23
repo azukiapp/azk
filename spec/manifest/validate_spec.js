@@ -26,7 +26,7 @@ describe("Azk manifest class, validate set", function() {
     var content = `
       system('system1', {
         image: { docker: "any" },
-        http : { hostname: "foo.azk.dev" },
+        http : { hostname: "foo.dev.azk.io" },
       });
     `
     return h.mockManifestWithContent(content).then((mf) => {

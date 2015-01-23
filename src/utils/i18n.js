@@ -21,8 +21,7 @@ export class i18n {
     }
   }
 
-  translate(key, ...args) {
-    var keys   = (typeof(key) == "string") ? key.split('.') : key;
+  _find(keys) {
     var buffer = this.dict || {};
 
     for(var i = 0; i < keys.length; i++) {
@@ -30,11 +29,26 @@ export class i18n {
       if (!buffer) break;
     }
 
+    return buffer;
+  }
+
+  translate(key, ...args) {
+    var keys   = (typeof(key) == "string") ? key.split('.') : key;
+    var result = this._find(keys);
+
+    // Search again, now ancestors is *
+    if (!result) {
+      var again_keys = new Array(...keys);
+      again_keys[again_keys.length - 2] = '*';
+      result = this._find(again_keys);
+    }
+
+    // Key to show in a error
     key = (typeof(key) == "string" ? key : key.join(".")).yellow;
 
-    if (buffer) {
+    if (result) {
       try {
-        return typeof(buffer) == "string" ? printf(buffer, ...args) : buffer;
+        return typeof(result) == "string" ? printf(result, ...args) : key;
       } catch (err) {
         var match, label = "Translate error".red;
 

@@ -171,7 +171,8 @@ describe("Azk system class, run set", function() {
     });
 
     describe("check image before run", function() {
-      var system, image = {
+      // TODO: Replace this merge for a mock class
+      var system, image_mock = {
         pull() {
           return defer((resolve, reject, notify) => {
             process.nextTick(() => {
@@ -192,8 +193,7 @@ describe("Azk system class, run set", function() {
 
       before(() => {
         system = manifest.system("empty");
-        image.name = system.image.name;
-        system.image = image;
+        system.image = _.merge(_.clone(system.image), image_mock);
       });
 
       it("should raise error if image not found", function() {

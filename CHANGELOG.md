@@ -1,15 +1,19 @@
 # Changelog
 
-## dev
+## v0.9.0
+
+* Bug
+  * [Kernel] Replacing `azk.dev` for `dev.azk.io` to improve compatibility with browsers
+
 * Enhancements
   * [Manifest] Add **Dockerfile** support
+  * [Agent] We now have self routines performed AZK update for changes in the installation and configuration of it.
   * [Cli] Add `--rebuild` and `--pull` options for the `azk start` or `azk restart` commands. It forces rebuild or image pulling and reprovision before start an instance (default: false).
   * [Cli] Added support to hide the help command options
   * [Cli] Adding option `--quiet` to support `non-interactive` mode in commands.
   * [Cli] Correcting help on quiet and verbose #226
   * [Cli] Showing azk in lowercase at azk version command #222
   * [Cli] Sorting commands on azk --help #223
-
 
 ## v0.8.3
 

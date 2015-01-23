@@ -33,13 +33,11 @@ export class Generator extends UIProxy {
     data = _.extend({
       bins: [],
       azk: {
-        default_domiapn: config('agent:balancer:host')
+        default_domain: config('agent:balancer:host')
       },
     }, data);
 
     var renderedTemplate = this.tpl(data);
-    // log.debug('renderedTemplate:', renderedTemplate);
-
     fs.writeFileSync(file, renderedTemplate);
   }
 }

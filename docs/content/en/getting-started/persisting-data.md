@@ -1,12 +1,12 @@
 # Persisting information
 
-If you [set up a database](database.md), you will see that several _refresh_ on page [http://azkdemo.azk.dev](http://azkdemo.azk.dev) will increment our access counter. But if you run `azk restart` in the __redis__ system, as shown below:
+If you [set up a database](database.md), you will see that several _refresh_ on page [http://azkdemo.azk.dev](http://azkdemo.dev.azk.io) will increment our access counter. But if you run `azk restart` in the __redis__ system, as shown below:
 
 ```bash
 $ azk restart redis
 ```
 
-By accessing [http://azkdemo.azk.dev](http://azkdemo.azk.dev) you will see that the access counter was restarted. This is because the database does not know where to persist information about the counter.
+By accessing [http://azkdemo.azk.dev](http://azkdemo.dev.azk.io) you will see that the access counter was restarted. This is because the database does not know where to persist information about the counter.
 
 ## Persistent volume
 

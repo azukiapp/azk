@@ -3,17 +3,16 @@ import { System } from 'azk/system';
 import { Validate } from 'azk/manifest/validate';
 import { ManifestError, ManifestRequiredError, SystemNotFoundError } from 'azk/utils/errors';
 import Utils from 'azk/utils';
+import { Meta, FakeCache } from 'azk/manifest/meta';
 
 var file_name = config('manifest');
 var check     = require('syntax-error');
 var tsort     = require('gaia-tsort');
 
 lazy_require(this, {
-  mkdir          : ['mkdirp', 'sync'],
   parent         : ['parentpath', 'sync'],
   runInNewContext: ['vm'],
   createScript   : ['vm'],
-  createCache    : ['fscache', 'createSync'],
 });
 
 var ManifestDsl = {
@@ -58,52 +57,6 @@ var ManifestDsl = {
   setDefault(name) {
     this.default = name;
   },
-}
-
-class Meta {
-  constructor(manifest, cache = null) {
-    this.manifest = manifest;
-    this.cache = cache;
-  }
-
-  set cache(value) {
-    this.__cache = value;
-  }
-
-  clean() {
-    var path = this.manifest.cache_dir;
-    if (fs.existsSync(path)) {
-      this.__cache = null;
-      return fs.removeSync(path);
-    }
-  }
-
-  get cache() {
-    if (!this.__cache) {
-      var cache_dir = this.manifest.cache_dir;
-      mkdir(cache_dir);
-      this.__cache = createCache(cache_dir);
-    }
-    return this.__cache;
-  }
-
-  getOrSet(key, defaultValue) {
-    var value = this.cache.getSync(key);
-    if (!value && defaultValue) {
-      value = defaultValue;
-      this.set(key, value);
-    }
-    return value;
-  }
-
-  get(key, defaultValue) {
-    return this.cache.getSync(key) || defaultValue;
-  }
-
-  set(key, value) {
-    this.cache.putSync(key, value);
-    return this;
-  }
 }
 
 export class Manifest {
@@ -368,7 +321,7 @@ export class Manifest {
 
   static makeFake(cwd, image) {
     var file = path.join(cwd, file_name);
-    var manifest = new Fake(null, file);
+    var manifest = new FakeManifest(null, file);
 
     return manifest.addSystem("--tmp--", {
       image: image,
@@ -380,24 +333,10 @@ export class Manifest {
   }
 }
 
-class Fake extends Manifest {
+class FakeManifest extends Manifest {
   constructor(...args) {
     super(...args);
-    this.meta.cache = {
-      values: {},
-      clean: function() {
-        this.values = {};
-      },
-      keyCalc: function(key) {
-        return Utils.calculateHash(JSON.stringify(key));
-      },
-      getSync: function(key) {
-        return this.values[this.keyCalc(key)];
-      },
-      putSync: function(key, value) {
-        this.values[this.keyCalc(key)] = value;
-      }
-    }
+    this.meta.cache = new FakeCache();
   }
   parse() {}
 }

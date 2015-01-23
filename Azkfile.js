@@ -36,7 +36,7 @@ var agent_system = function(image, extras) {
   extras = extras || {};
 
   return lodash.merge({
-    image: image,
+    image: { docker: image },
     scale: false,
     workdir: "/azk/#{manifest.dir}",
     shell: "/usr/local/bin/wrapdocker",
@@ -49,7 +49,6 @@ var agent_system = function(image, extras) {
       AZK_PACKAGE_PATH: "/azk/build",
       AZK_BALANCER_PORT: 8080,
       LOG: "file",
-      NODE_ENV: "test",
       EXTRA_SCRIPT: "/azk/#{manifest.dir}/src/libexec/init_azk",
       VERSION: "#{azk.version}",
     },
@@ -62,7 +61,7 @@ var agent_system = function(image, extras) {
 var test_package_system = function(image){
   return {
     depends: ["package"],
-    image: image,
+    image: { docker: image },
     workdir: "/azk/#{manifest.dir}",
     shell: "/usr/local/bin/wrapdocker",
     mounts: {

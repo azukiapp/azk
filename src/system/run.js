@@ -240,8 +240,6 @@ var Run = {
       image_pull: true,
     });
 
-    system.setImageName();
-
     return async(function* () {
       if ((options.build_force || options.image_pull) && !system.image.builded) {
         if (system.image.provider === 'docker') {

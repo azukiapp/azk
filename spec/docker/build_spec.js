@@ -1,5 +1,4 @@
 import { Q, _, config, defer, path, fs } from 'azk';
-import { Image } from 'azk/images';
 import h from 'spec/spec_helper';
 import { DockerfileNotFound, DockerBuildError } from 'azk/utils/errors';
 
@@ -7,78 +6,63 @@ var qfs = require('q-io/fs');
 
 describe("Azk docker module, image build @slow", function() {
   this.timeout(20000);
+  var repository = config('docker:build_name') + '/buildtest';
 
-  var rootFolder;
+  var build = (file_path, tag = null) => {
+    var build_options = {
+      dockerfile: path.join(h.fixture_path('build'), file_path),
+      tag: `${repository}:${tag || file_path}`,
+    }
+    return h.docker.build(build_options);
+  }
 
-  before(function() {
-    return h.remove_images()
-      .then(h.tmp_dir)
-      .then((dir) => {
-      // save root dir
-      rootFolder = dir;
+  describe('with a valid Dockerfile', function () {
+    // Used to test the performance of a container
+    var outputs = { };
+    var mocks = h.mockOutputs(beforeEach, outputs);
 
-      /*
-        create a folder structure like this:
-        -----------------------------------
-        ./Dockerfile
-        ./file_to_add
-        ./dir_to_add/some_other_file_inside
-      */
-      var dockerfilePath = path.join(dir, 'Dockerfile');
-      h.touchSync(dockerfilePath);
+    it("should generate a valid image", function() {
+      return build('Dockerfile', 'sucess')
+        .then((image) => {
+          var result = h.docker.run(
+            image.name,
+            ["/bin/bash", "-c", "/run.sh" ],
+            { stdout: mocks.stdout, stderr: mocks.stderr, rm: true }
+          );
 
-      var file_to_add_filePath = path.join(dir, 'file_to_add');
-      h.touchSync(file_to_add_filePath);
+          return result.then((container) => {
+            h.expect(outputs.stdout).to.equal("Sucess!!\n");
+            return container.remove();
+          });
+        });
+    });
 
-      var file2_dir = path.join(dir, 'file2_dir');
-      fs.mkdirSync(file2_dir);
-      var file2_to_add_filePath = path.join(dir, 'file2_dir', 'file2_to_add');
-      h.touchSync(file2_to_add_filePath);
+    it("should parse progress mensagens", function() {
+      var events = [];
+      return build('Dockerfile')
+        .progress((event) => events.push(event))
+        .then(() => {
 
-      var dir_to_add = path.join(dir, 'dir_to_add');
-      fs.mkdirSync(dir_to_add);
-      var  some_other_file_inside = path.join(dir, 'dir_to_add', 'some_other_file_inside');
-      h.touchSync(some_other_file_inside);
-
-      var dockerfileContent = [
-        'FROM azukiapp/azktcl:0.0.1',
-        'MAINTAINER Azuki <support@azukiapp.com>',
-        'ADD ./file_to_add /file_to_add',
-        'ADD ./file2_dir/file2_to_add /file2_to_add',
-        'ADD ./dir_to_add /dir_to_add',
-      ].join('\n');
-
-      return qfs.write(dockerfilePath, dockerfileContent);
+          var status = [
+            'building_from',
+            'building_maintainer',
+            'building_complete',
+          ];
+          _.each(status, (status) => {
+            h.expect(events)
+              .to.contain.an.item.with.deep.property('statusParsed.type', status);
+          });
+        });
     });
   });
 
-  it("should get a dockerfile", function() {
-    var img = new Image({ dockerfile: rootFolder, name: config('docker:repository') });
+  describe("with a invalids Dockerfile's", function () {
+    it("should raise error for a invalid image", function() {
+      return h.expect(build('DockerfileInvalid')).to.be.rejectedWith(DockerBuildError, /DockerfileInvalid/);
+    });
 
-    var events = [];
-    return img.build()
-      .progress((event) => events.push(event))
-      .then(() => {
-
-        var status = [
-          'building_from',
-          'building_maintainer',
-          'building_complete',
-        ];
-        _.each(status, (status) => {
-          h.expect(events)
-            .to.contain.an.item.with.deep.property('statusParsed.type', status);
-        });
-      });
+    it("should raise error for not found from", function() {
+      return h.expect(build('DockerfileFrom404')).to.be.rejectedWith(DockerBuildError, /not_found/);
+    });
   });
-
-  // it("should raise error to not found dockerfile", function() {
-  //   var result = h.docker.build('not_found', 'not_exist');
-  //   return h.expect(result).to.be.rejectedWith(DockerfileNotFound);
-  // });
-
-  // it("should raise error to internal error", function() {
-  //   var result = h.docker.build('http://127.0.0.1/invalid', 'not_exist');
-  //   return h.expect(result).to.be.rejectedWith(Error, /500/);
-  // });
 });

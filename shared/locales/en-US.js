@@ -30,11 +30,19 @@ module.exports = {
     provision_not_found: "Not found '%(image)s' image",
     os_not_supported: "System not supported (see http://azk.io)",
 
+    docker_build_error: {
+      server_error: "Internal error in build `%(dockerfile)s`: %(error)",
+      not_found   : "Can't find `%(from)s` image to build `%(dockerfile)s`",
+      can_find_dockerfile: "Can't find %(dockerfile)s file",
+      can_find_add_file_in_dockerfile: "Can't find `%(source)s` file to ADD in `%(dockerfile)s`",
+    },
+
     dependencies: {
       "*": {
         upgrade: ["\nYou are using `v%(current_version)s` version.",
                   "`v%(new_version)s` version is available.",
-                  "Please, access http://azk.io to upgrade\n"].join("\n")
+                  "Please, access http://azk.io to upgrade\n"].join("\n"),
+        mv_resolver: "Upgrading domains error, was not possible to move files",
       },
       darwin: {
         VBoxManage : 'VirtualBox not installed. Install before continue.',
@@ -142,8 +150,7 @@ module.exports = {
     not_found: "no such '%s' in current project",
     circular_depends: "Circular dependency between %(system1)s and %(system2)s",
     image_required: "Not image set for the `%(system)s' system",
-    can_find_dockerfile: "Can't find manifesto file for `%(system)s`",
-    can_find_add_file_in_dockerfile: "Can't find file to ADD in manifesto",
+    can_find_dockerfile: "Can't find `%(dockerfile)s` file to build a image for `%(system)s` system",
     system_name_invalid: "The system name `%(system)s` is not valid.",
     provider_invalid: "The provider not found: `%(wrongProvider)s`.",
     depends_not_declared: "The `%(system)s` system depends on the `%(depend)s` system, which was not stated.",
@@ -185,6 +192,12 @@ module.exports = {
     check_version: 'Checking version...',
     check_version_error: 'checking version: [ %(error_message)s ]!',
     clean_containers: "Clearing %(count)d lost containers",
+    migrations: {
+      alert: "Azk updated, checking update procedures...",
+      changing_domain: "Changing domain upgrading, (issue: #255)",
+      moving_resolver: "Moving %(origin)s to %(target)s ...",
+      renaming_vm: "Renaming VirtualBox machine %(old_name)s to %(new_name)s",
+    }
   },
 
   commands: {

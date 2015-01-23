@@ -35,7 +35,7 @@ systems({
     },
     scalable: {"default": 2},
     http: {
-      // azkdemo.azk.dev
+      // azkdemo.dev.azk.io
       domains: [ "#{system.name}.#{azk.default_domain}" ]
     },
     envs: {
