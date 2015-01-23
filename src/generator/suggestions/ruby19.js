@@ -15,13 +15,13 @@ export class Suggestion extends UIProxy {
     // Initial Azkfile.js suggestion
     this.suggestion = _.extend({}, example_system, {
       __type  : 'ruby 1.9',
-      image   : { docker: 'ruby:1.9' },
+      image   : { docker: 'azukiapp/ruby:1.9' },
       provision: [
         'bundle install --path /azk/bundler',
       ],
       http    : true,
       scalable: { default: 2 },
-      command : 'bundle exec rackup config.ru --port $HTTP_PORT',
+      command : 'bundle exec rackup config.ru --pid /tmp/rails.pid --port $HTTP_PORT --host 0.0.0.0',
       mounts  : {
         '/azk/#{manifest.dir}': {type: 'path', value: '.'},
         '/azk/bundler'        : {type: 'persistent', value: 'bundler'},

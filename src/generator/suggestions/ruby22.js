@@ -7,15 +7,15 @@ export class Suggestion extends UIProxy {
     super(...args);
 
     // Readable name for this suggestion
-    this.name = 'ruby20';
+    this.name = 'ruby22';
 
     // Which rules they suggestion is valid
-    this.ruleNamesList = ['ruby20'];
+    this.ruleNamesList = ['ruby22'];
 
     // Initial Azkfile.js suggestion
     this.suggestion = _.extend({}, example_system, {
-      __type  : 'ruby 2.0',
-      image   : { docker: 'azukiapp/ruby:2.0' },
+      __type  : 'ruby 2.2',
+      image   : { docker: 'azukiapp/ruby:2.2' },
       provision: [
         'bundle install --path /azk/bundler',
       ],

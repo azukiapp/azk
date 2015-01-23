@@ -103,7 +103,8 @@ export class Rule extends BaseRule {
     var versionRules = {
       'ruby19': '>=1.9.3 <2.0.0',
       'ruby20': '>=2.0.0 <2.1.0',
-      'ruby21': '<1.9.3 || >=2.1.0',
+      'ruby21': '>=2.1.0 <2.2.0',
+      'ruby21': '<1.9.3 || >=2.2.0',
     };
 
     evidence.ruleName = _.findKey(versionRules, (value) => {
