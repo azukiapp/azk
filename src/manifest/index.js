@@ -73,14 +73,17 @@ export class Manifest {
     this._default = null;
     this.file     = file || Manifest.find_manifest(cwd);
 
-    if (required && !this.exist)
-      throw new ManifestRequiredError(cwd);
+    if (required && !this._exist())
+      throw new ManifestRequiredError(cwd)
 
     // Create cache for application status
-    if (_.isEmpty(this.cache_dir) && this.exist) {
-      this.cache_dir = path.join(this.cwd, config('azk_dir'), this.file_relative);
+    if (_.isEmpty(this.cache_dir) && this._exist()) {
+      this.cache_dir = path.join(this.cwd, config('azk_dir'), this._file_relative());
     }
     this.meta = new Meta(this);
+
+    if (this._exist())
+      this.parse();
   }
 
   // Validate
@@ -282,19 +285,16 @@ export class Manifest {
     return this.__file;
   }
 
-  get exist() {
-    return fs.existsSync(this.file);
-  }
-
   set file(value) {
     this.cwd = path.dirname(value);
     this.__file = value;
-    if (this.exist) {
-      this.parse();
-    }
   }
 
-  get file_relative() {
+  _exist() {
+    return fs.existsSync(this.file);
+  }
+
+  _file_relative() {
     return path.relative(this.manifestPath, this.file);
   }
 
