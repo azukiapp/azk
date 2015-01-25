@@ -66,7 +66,10 @@ export function pull(docker, repository, tag, stdout) {
         } catch (e) {};
       });
 
-      stream.on('end', () => resolve(docker.findImage(image)));
+      stream.on('end', () => {
+        notify({ type: "pull_msg", end: true, image});
+        resolve(docker.findImage(image));
+      });
     });
   })
 }

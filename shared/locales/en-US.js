@@ -319,6 +319,7 @@ module.exports = {
         pulling: 'Pulling repository %s...',
         bar_progress: '  :title [:bar] :percent :progress',
         bar_status: '  :title :msg',
+        pull_ended  : "✓".blue + " complete downloading `" + "%(image)s".yellow + "`",
       }
     },
     init: {

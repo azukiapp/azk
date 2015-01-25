@@ -19,7 +19,7 @@ class Cmd extends InteractiveCmds {
       var data = _.reduce(manifest.systems, (data, system) => {
         var system_data = {
           depends : system.options.depends,
-          image   : system.image.name,
+          image   : { [system.image.provider]: system.image.name },
           command : this._format_command(system.command),
           ports   : system.ports,
         };

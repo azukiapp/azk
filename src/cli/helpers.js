@@ -107,26 +107,32 @@ var Helpers = {
     var bars  = {};
 
     return (event) => {
-      if (event.type != "pull_msg" || !event.id) return event;
+      if (event.type === "pull_msg") {
+        if (event.end) {
+          cmd.output("\n");
+          cmd.ok('commands.helpers.pull.pull_ended', event);
+          return false;
+        } else if (!_.isEmpty(event.id)) {
+          var status = event.statusParsed;
+          var title  = `${event.id}:`;
+          var bar    = bars[event.id] || cmd.newBar(mbars, fmt_p, bar_opts);
 
-      var status = event.statusParsed;
-      var title  = `${event.id}:`;
-      var bar    = bars[event.id] || cmd.newBar(mbars, fmt_p, bar_opts);
+          switch(status.type) {
+            case 'download':
+              var progress = event.progressDetail;
+              var tick     = progress.current - bar.curr;
+              bar.total    = progress.total + 1;
+              bar.tick(tick, { title, progress: event.progress });
+              break;
+            default:
+              bar.tick(bar.curr, { title, fmt: fmt_s, msg: event.status });
+          }
 
-      switch(status.type) {
-        case 'download':
-          var progress = event.progressDetail;
-          var tick     = progress.current - bar.curr;
-          bar.total    = progress.total + 1;
-          bar.tick(tick, { title, progress: event.progress });
-          break;
-        default:
-          bar.tick(bar.curr, { title, fmt: fmt_s, msg: event.status });
+          bars[event.id] = bar;
+          return false;
+        }
       }
-
-      bars[event.id] = bar;
-
-      return false;
+      return event;
     }
   },
 
