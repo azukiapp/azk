@@ -24,6 +24,7 @@
   * [Cli] Correcting help on quiet and verbose #226
   * [Cli] Showing azk in lowercase at azk version command #222
   * [Cli] Sorting commands on azk --help #223
+  * [Generators] Updating suggestions, #224 #218
 
 ## v0.8.3
 
