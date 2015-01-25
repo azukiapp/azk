@@ -23,18 +23,14 @@ class Cmd extends InteractiveCmds {
 
   static status(cli, manifest, systems, opts = {}) {
     return async(cli, function* () {
-      var columns = ['', 'System'.blue, 'Instances'.green, 'Hostname'.yellow, 'Instances-Ports'.magenta, "Provisioned".cyan];
+      // Force types if not interactive or narrow console
+      if (cli.outputColumns() === -1) opts.text = true;
+      if (!opts.long && cli.outputColumns() < 90) opts.short = true;
 
-      if (opts.long) {
-        columns.push('Image'.white);
-      }
-
-      var table_options = {
-        head: columns,
+      var table = cli.table_add('status', {
+        head: Cmd._head(opts, cli.outputColumns()),
         text: opts.text
-      }
-
-      var table_status = this.table_add('table_status', table_options);
+      });
 
       for (var system of systems) {
         var instances = yield system.instances({ type: "daemon" });
@@ -66,16 +62,16 @@ class Cmd extends InteractiveCmds {
           var ports_string = ports_line.join('\n')
         }
 
-        var line = [status, name, counter, hostname, ports_string, provisioned];
+        // Mount line values
+        var line = [status, name, counter, hostname, ports_string];
+        if (opts.text || opts.short) line.shift();
+        if (!opts.short) line.push(provisioned);
+        if (opts.long) line.push(system.image.name.white);
 
-        if (opts.long) {
-          line.push(system.image.name.white);
-        }
-
-        this.table_push(table_status, line);
+        cli.table_push(table, line);
       }
 
-      this.table_show(table_status);
+      cli.table_show(table);
     });
   }
 
@@ -96,12 +92,29 @@ class Cmd extends InteractiveCmds {
       return _.isEmpty(ports) ? ["-"] : ports;
     });
   }
+
+  static _head(opts, columns_size = -1) {
+    var colors  = ["green", "blue", "yellow", "magenta", "cyan", "white"];
+    var columns = [
+      "System".green,
+      (columns_size > 80 ? 'Instances' : 'Inst.').blue,
+      'Hostname/url'.yellow,
+      'Instances-Ports'.magenta,
+    ];
+
+    if (!opts.short) columns.push('Provisioned'.cyan);
+    if (opts.long) columns.push('Image'.white);
+    if (!opts.text && !opts.short) columns.unshift('');
+
+    return columns;
+  }
 }
 
 export { Cmd };
 export function init(cli) {
   (new Cmd('status [system]', cli))
     .addOption(['--text', '-t'], { default: false })
-    .addOption(['--long', '-l'], { default: false });
+    .addOption(['--long', '-l'], { default: false })
+    .addOption(['--short'], { default: false });
 }
 
