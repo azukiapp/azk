@@ -12,11 +12,4 @@ Shows an analysis of `azk`'s health.
 
 #### Example:
 
-```
-$ azk doctor
-
-      Azk   : 0.8.3
-      Agent : up
-      Docker: 1.4.1
-      Use vm: no
-```
+![Figure 1-1](../resources/images/doctor.png)

@@ -5,7 +5,7 @@ Identifica quais dependências são necessárias para que o sistema seja levanta
 #### Uso:
 
 ```js
-depends: "['SYSTEM_NAME_1', 'SYSTEM_NAME_2', ..., 'SYSTEM_NAME_N']",
+depends: ['SYSTEM_NAME_1', 'SYSTEM_NAME_2', /*..., */ 'SYSTEM_NAME_N'],
 ```
 
 ##### Exemplos:

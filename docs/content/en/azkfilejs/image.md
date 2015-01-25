@@ -1,6 +1,6 @@
 ## image
 
-Defines which "image" will be used to start the instance of the container. Currently available _providers_ are `docker` and `dockerfile`. In the first case the image is downloaded from [Docker](https://registry.hub.docker.com), and in the second case, `dockerfile` the _build_ is performed locally.
+Defines which "image" will be used to start the instance of the container. Currently available _providers_ are `docker` and `dockerfile`. In the first case the image is downloaded from [Docker Registry](https://registry.hub.docker.com), and in the second case, `dockerfile` the _build_ is performed locally.
 
 #### Usage:
 
@@ -11,7 +11,7 @@ image: { dockerfile: './PATH_TO_DOCKERFILE' },
 
 #### Docker:
 
-The image is downloaded from [Docker](https://registry.hub.docker.com)
+The image is downloaded from [Docker Registry](https://registry.hub.docker.com)
 
 ```js
 // short mode
@@ -48,7 +48,8 @@ image: {
 ##### Examples:
 
 ```js
-// We can define different tags which allows us to pick different versions of the repository [Azktcl](https://registry.hub.docker.com/u/azukiapp/azktcl/)
+// We can define different tags which allows us to pick different
+// versions of the repository (https://registry.hub.docker.com/u/azukiapp/azktcl/)
 image: { docker: "azukiapp/azktcl:0.0.1" },
 image: { docker: "azukiapp/azktcl:0.0.2" },
 
@@ -59,5 +60,6 @@ image: { docker: "azukiapp/azktcl:0.0.2" },
 image: { docker: "node:0" },
 image: { docker: "node:0.10" },
 image: { docker: "node:latest" },
-image: { docker: "library/node:latest" },  // <- library/ is optional only in this case, for the standard Docker repositories
+// library/ is optional only in this case, for the standard Docker repositories
+image: { docker: "library/node:latest" },
 ```

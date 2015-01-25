@@ -1,6 +1,6 @@
 ## azk agent
 
-Controla o serviço `azk agent`. Este comando deve ser executado antes de levantar qualquer sistema.
+Controla o serviço `azk agent`. Para mais informações sobre o agent [acesse](../agent/README.md).
 
 #### Uso:
 

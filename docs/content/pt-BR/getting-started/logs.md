@@ -6,7 +6,7 @@ Umas das coisas mais importante quando estamos desenvolvendo uma aplicação web
 $ azk logs -f
 ```
 
-Acessando [http://azkdemo.azk.dev](http://azkdemo.dev.azk.io) algumas vezes, devemos obter um log parecido com o exibido abaixo:
+Acessando [http://azkdemo.dev.azk.io](http://azkdemo.dev.azk.io) algumas vezes, devemos obter um log parecido com o exibido abaixo:
 
 ![Figure 1-1](../resources/images/logs.png)
 

@@ -1,6 +1,6 @@
 ## image
 
-Define qual "imagem" será utilizada para levantar a instância do container. Atualmente os _providers_ disponíveis são `docker` e `dockerfile`. No primeiro caso a imagem é baixada do [Docker](https://registry.hub.docker.com) e no segundo caso, `dockerfile`, é realizado o _build_ localmente.
+Define qual "imagem" será utilizada para levantar a instância do container. Atualmente os _providers_ disponíveis são `docker` e `dockerfile`. No primeiro caso a imagem é baixada do [Docker Registry](https://registry.hub.docker.com) e no segundo caso, `dockerfile`, é realizado o _build_ localmente.
 
 #### Uso:
 
@@ -11,7 +11,7 @@ image: { dockerfile: './CAMINHO_DO_DOCKERFILE' },
 
 #### Docker:
 
-A imagem é baixada do [Docker](https://registry.hub.docker.com)
+A imagem é baixada do [Docker Registry](https://registry.hub.docker.com)
 
 ```js
 // modo reduzido
@@ -48,7 +48,8 @@ image: {
 ##### Exemplos:
 
 ```js
-// Podemos definir tags diferentes e assim pegar versões diferentes do repositório [Azktcl](https://registry.hub.docker.com/u/azukiapp/azktcl/)
+// Podemos definir tags diferentes e assim pegar versões diferentes
+// do repositório (https://registry.hub.docker.com/u/azukiapp/azktcl/)
 image: { docker: "azukiapp/azktcl:0.0.1" },
 image: { docker: "azukiapp/azktcl:0.0.2" },
 
@@ -59,6 +60,7 @@ image: { docker: "azukiapp/azktcl:0.0.2" },
 image: { docker: "node:0" },
 image: { docker: "node:0.10" },
 image: { docker: "node:latest" },
-image: { docker: "library/node:latest" },  // <- library/ é opcional somente neste caso, para os repositórios padrões do Docker
+// library/ é opcional somente neste caso, para os repositórios padrões do Docker
+image: { docker: "library/node:latest" },
 ```
 
