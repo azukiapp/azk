@@ -128,12 +128,6 @@ describe("Azk manifest class, main set", function() {
       return h.tmp_dir({ prefix: "azk-test-" }).then((dir) => project = dir);
     });
 
-    it("should return not found manifest", function() {
-      h.expect(Manifest.find_manifest(project)).to.equal(null);
-      var manifest = new Manifest(project);
-      h.expect(manifest).to.have.property("exist").and.fail;
-    });
-
     it("should require a cwd in new manifest", function() {
       var func = () => new Manifest(null, true);
       h.expect(func).to.throw(Error, /require.*path/);
