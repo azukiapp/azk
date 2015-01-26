@@ -437,6 +437,7 @@ module.exports = {
             remove: "Remove virtual machine but keep its contents",
           },
         },
+        force: "Tries to force virtual machine destruction. It's useful when the `remove` action doesn't work properly.",
       }
     }
   },
