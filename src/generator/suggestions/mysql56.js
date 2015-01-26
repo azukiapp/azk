@@ -15,7 +15,7 @@ export class Suggestion extends UIProxy {
     // Initial Azkfile.js suggestion
     this.suggestion = _.extend({}, example_system, {
       __type  : 'mysql',
-      image   : { docker: 'azukipp/mysql:5.6' }, //https://registry.hub.docker.com/u/library/mysql/
+      image   : { docker: 'azukiapp/mysql:5.6' }, //https://registry.hub.docker.com/u/library/mysql/
       ports:{
         data: "3306/tcp",
       },

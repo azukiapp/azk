@@ -83,7 +83,7 @@ describe('Azk generator db', function() {
       it('should has correct properties', function() {
         // main properties
         h.expect(system).to.have.property('name', 'mysql');
-        h.expect(system).to.have.deep.property('image.repository', 'mysql');
+        h.expect(system).to.have.deep.property('image.repository', 'azukiapp/mysql');
         h.expect(system).to.have.deep.property('image.tag', '5.6');
 
         // __options

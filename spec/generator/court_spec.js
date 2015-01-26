@@ -86,11 +86,6 @@ describe('Azk generator tool court veredict:', function() {
     h.expect(rails).to.have.property('type', 'framework');
   });
 
-  it('should return an array with evidences on investigate() call', function() {
-    court._investigate(rootFullPath);
-    h.expect(court.__evidences).to.have.length(4);
-  });
-
   it('should _replacesEvidences() replaces ruby with rails', function() {
     court._investigate(rootFullPath);
     court._replacesEvidences();
