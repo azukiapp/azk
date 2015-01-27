@@ -1,13 +1,13 @@
 import { log, _, async, config, t, lazy_require } from 'azk';
 import { Command, Helpers } from 'azk/cli/command';
-import { VerboseCmd } from 'azk/cli/verbose_cmd';
+import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Cmd as StatusCmd } from 'azk/cmds/status';
 
 lazy_require(this, {
   Manifest: ['azk/manifest'],
 });
 
-class Cmd extends VerboseCmd {
+class Cmd extends InteractiveCmds {
   action(opts) {
     return async(this, function* () {
       yield Helpers.requireAgent(this);
@@ -48,7 +48,7 @@ class Cmd extends VerboseCmd {
   _scale(system, instances = {}, opts) {
     var progress = (event) => {
       var pull_progress = Helpers.newPullProgress(this);
-      if (event.type == "pull_msg") {
+      if (event.type === "pull_msg") {
         pull_progress(event);
       } else {
         var keys = ["commands", "scale"];
@@ -77,7 +77,8 @@ class Cmd extends VerboseCmd {
     }
 
     var options = {
-      provision_force: opts.reprovision || false,
+      build_force: opts.rebuild || false,
+      provision_force: (opts.rebuild ? true : opts.reprovision) || false,
       remove: opts.remove,
     };
 

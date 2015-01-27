@@ -15,7 +15,7 @@ export class Suggestion extends UIProxy {
     // Initial Azkfile.js suggestion
     this.suggestion = _.extend({}, example_system, {
       __type  : 'rails 4.1',
-      image   : 'rails:4.1',
+      image   : { docker: 'rails:4.1' },
       provision: [
         'bundle install --path /azk/bundler',
         'bundle exec rake db:create',

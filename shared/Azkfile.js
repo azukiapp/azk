@@ -8,7 +8,7 @@ var _         = require('azk')._;
 
 // Default options for all systems
 var _default = {
-  image   : config("docker:image_default"),
+  image   : { docker: config("docker:image_default") },
   shell   : '/bin/bash',
   wait    : false,
   scalable: false,
@@ -34,9 +34,4 @@ systems({
 });
 
 // Set cache in azk data dir
-setCacheDir(join_path(
-  config('paths:data'),
-  config('azk_dir'),
-  "shared",
-  "Azkfile.js"
-));
+setCacheDir(config('paths:azk_meta'));

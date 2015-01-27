@@ -35,6 +35,13 @@ export class ImageNotExistError extends AzkError {
   }
 }
 
+export class DockerfileNotFound extends AzkError {
+  constructor(image) {
+    super('dockerfile_not_found');
+    this.image = image;
+  }
+}
+
 export class ProvisionNotFound extends AzkError {
   constructor(image) {
     super('provision_not_found');
@@ -53,6 +60,13 @@ export class InvalidValueError extends InvalidOptionError {
   constructor(option, value) {
     super(option, "invalid_value_error");
     this.value   = value;
+  }
+}
+
+export class DockerBuildError extends AzkError {
+  constructor(type, options = {}) {
+    super(`docker_build_error.${type}`);
+    _.merge(this, options);
   }
 }
 

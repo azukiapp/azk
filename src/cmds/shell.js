@@ -1,4 +1,5 @@
 import { _, path, config, t, async, defer, lazy_require } from 'azk';
+import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Command, Helpers } from 'azk/cli/command';
 
 lazy_require(this, {
@@ -11,7 +12,7 @@ lazy_require(this, {
   }
 });
 
-class Cmd extends Command {
+class Cmd extends InteractiveCmds {
   action(opts, extras) {
     var progress = Helpers.newPullProgress(this);
 

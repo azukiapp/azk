@@ -34,22 +34,26 @@ class Dynamic {
   constructor(key) { this.key = key };
 }
 
+// Dir name used by manifest meta
+var azk_dir = '.azk';
+
 var options = mergeConfig({
   '*': {
     namespace: namespace,
     manifest : "Azkfile.js",
     locale   : 'en-US',
-    azk_dir  : ".azk",
+    azk_dir  : azk_dir,
     flags    : {
       show_deprecate: (envs('AZK_HIDE_DEPRECATE') != 'true'),
     },
     paths    : {
       azk_root,
-      data: data_path,
-      logs: paths.logs,
+      data  : data_path,
+      logs  : paths.logs,
+      log   : path.join(paths.logs, 'azk.log'),
       shared: path.join(azk_root, "shared"),
-      log : path.join(paths.logs, 'azk.log'),
 
+      azk_meta          : path.join(data_path, azk_dir, "shared", "Azkfile.js"),
       pems              : path.join(paths.vm , '.docker'),
       agent_pid         : path.join(paths.run, 'agent.pid'),
       unfsd_pid         : path.join(paths.run, 'unfsd.pid'),
@@ -72,6 +76,7 @@ var options = mergeConfig({
       namespace     : envs('AZK_NAMESPACE'),
       repository    : 'azk',
       default_domain: 'azk',
+      build_name    : 'azkbuild',
       image_default : 'azukiapp/azktcl:0.0.2',
       run: {
         timeout: 1000,
@@ -127,7 +132,8 @@ var options = mergeConfig({
     },
     docker: {
       namespace   : 'azk.test',
-      repository  : 'azk-test',
+      repository  : 'azk_test',
+      build_name  : 'azkbuildtest',
       image_empty : 'cevich/empty_base_image',
     },
     agent: {

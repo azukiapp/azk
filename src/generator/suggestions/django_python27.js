@@ -15,7 +15,7 @@ export class Suggestion extends UIProxy {
     // Initial Azkfile.js suggestion
     this.suggestion = _.extend({}, example_system, {
       __type  : 'djangoPython27',
-      image   : 'python:2.7',
+      image   : { docker: 'python:2.7' },
       provision: [
         'pip install --user --allow-all-external -r requirements.txt',
       ],

@@ -17,15 +17,16 @@ build:
           sudo apt-get install libnss-resolver -y
 
     - script:
-        name: /etc/resolver/azk.dev
+        name: /etc/resolver/dev.azk.io
         code: |
           sudo mkdir -p /etc/resolver
-          sudo touch /etc/resolver/azk.dev
-          echo "nameserver 172.17.42.1:53" | sudo tee -a /etc/resolver/azk.dev
+          sudo touch /etc/resolver/dev.azk.io
+          echo "nameserver 172.17.42.1:53" | sudo tee -a /etc/resolver/dev.azk.io
 
     - script:
         name: make
         code: |
+          make clean
           make
 
     - script:
@@ -42,7 +43,7 @@ build:
     - script:
         name: wait agent to start
         code: |
-          until bin/azk status; do sleep 1; done
+          until bin/azk status --quiet; do sleep 1; done
 
     - script:
         name: download azktcl

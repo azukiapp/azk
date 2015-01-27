@@ -7,7 +7,7 @@ imageAlias('base', { repository: "azukiapp/rails" });
 
 system("front", {
   depends: [ "api" ],
-  image: "base",
+  image: { docker: "base" },
   // Enable balancer over de instances
   balancer: {
     hostname: "myapp_<%= system.name %>",

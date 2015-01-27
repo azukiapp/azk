@@ -1,4 +1,5 @@
 import { _, async, config, lazy_require } from 'azk';
+import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Command, Helpers } from 'azk/cli/command';
 
 lazy_require(this, {
@@ -6,7 +7,7 @@ lazy_require(this, {
   prettyjson: 'prettyjson',
 });
 
-class Cmd extends Command {
+class Cmd extends InteractiveCmds {
   action(opts) {
     return async(this, function* () {
 
@@ -18,7 +19,7 @@ class Cmd extends Command {
       var data = _.reduce(manifest.systems, (data, system) => {
         var system_data = {
           depends : system.options.depends,
-          image   : system.image.name,
+          image   : { [system.image.provider]: system.image.name },
           command : this._format_command(system.command),
           ports   : system.ports,
         };

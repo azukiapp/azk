@@ -28,7 +28,6 @@ export function run(docker, Container, image, cmd, opts = { }) {
   if (daemon) {
     interactive = false;
     opts.tty    = false;
-    opts.rm     = false;
   }
 
   // Volumes

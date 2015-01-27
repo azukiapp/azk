@@ -15,6 +15,7 @@ var Run = {
 
       options = _.defaults(options, {
         provision_force: false,
+        build_force: false,
         provision_verbose: false,
       });
 
@@ -233,13 +234,22 @@ var Run = {
 
   // Check and pull image
   _check_image(system, options) {
+    var promise;
+
     options = _.defaults(options, {
       image_pull: true,
     });
 
     return async(function* () {
-      if (options.image_pull) {
-        var promise = system.image.pull();
+      if ((options.build_force || options.image_pull) && !system.image.builded) {
+        if (system.image.provider === 'docker') {
+          promise = system.image.pull(options);
+        } else if(system.image.provider === 'dockerfile'){
+          promise = system.image.build(options);
+        }
+
+        // save the date provisioning
+        system.image.builded = new Date();
       } else {
         var promise = system.image.check().then((image) => {
           if (image == null) {

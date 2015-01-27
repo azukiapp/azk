@@ -15,12 +15,23 @@ export class System {
   constructor(manifest, name, image, options = {}) {
     this.manifest  = manifest;
     this.name      = name;
-    this.image     = new Image(image);
+
+    if (_.isString(image)) {
+      image = { docker: image };
+      this.deprecatedImage = true;
+    }
+
+    image.system = this;
+    this.image   = new Image(image);
 
     // Options
     this.__options = {}
     this.options   = _.merge({}, this.default_options, options);
     this.options   = this._expand_template(this.options);
+  }
+
+  get image_name_suggest() {
+    return `${config('docker:build_name')}/${this.manifest.namespace}-${this.name}`;
   }
 
   set options(values) {

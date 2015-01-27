@@ -64,7 +64,6 @@ systems({
     {{~#if http}}
     http: {
       {{~#formatDomains http }}
-      // {{&@key}}.{{& ../../azk.default_domain}}
       domains: [ "#{system.name}.#{azk.default_domain}" ]
       {{~else}}
       domains: [

@@ -12,7 +12,7 @@ describe("Azk system class, balancer set", function() {
     });
   });
 
-  var clean = () => { return system.killAll(); }
+  var clean = () => { return system.killAll(); };
   afterEach(clean);
   beforeEach(clean);
 

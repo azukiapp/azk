@@ -1,4 +1,5 @@
 import { Q, _, config, async, t, lazy_require } from 'azk';
+import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Command, Helpers } from 'azk/cli/command';
 import { net } from 'azk/utils';
 
@@ -13,7 +14,7 @@ class RequiredError extends Error {
   }
 }
 
-class VmCmd extends Command {
+class VmCmd extends InteractiveCmds {
   require_installed(vm_info) {
     if (!vm_info.installed) {
       throw new RequiredError("commands.vm.not_installed");

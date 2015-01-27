@@ -2,7 +2,9 @@ require('colors');
 
 var version = "Shows azk version";
 var verbose = "Sets the level of detail";
+var quiet   = "Never prompt";
 var systems_options = "Targets systems of action";
+var rebuild = "Force the rebuild or pull image and reprovision before starting an instance";
 var reprovision = "Force the provisioning actions before starting an instance";
 
 module.exports = {
@@ -28,11 +30,19 @@ module.exports = {
     provision_not_found: "Not found '%(image)s' image",
     os_not_supported: "System not supported (see http://azk.io)",
 
+    docker_build_error: {
+      server_error: "Internal error in build `%(dockerfile)s`: %(error)",
+      not_found   : "Can't find `%(from)s` image to build `%(dockerfile)s`",
+      can_find_dockerfile: "Can't find %(dockerfile)s file",
+      can_find_add_file_in_dockerfile: "Can't find `%(source)s` file to ADD in `%(dockerfile)s`",
+    },
+
     dependencies: {
       "*": {
         upgrade: ["\nYou are using `v%(current_version)s` version.",
                   "`v%(new_version)s` version is available.",
-                  "Please, access http://azk.io to upgrade\n"].join("\n")
+                  "Please, access http://azk.io to upgrade\n"].join("\n"),
+        mv_resolver: "Upgrading domains error, was not possible to move files",
       },
       darwin: {
         VBoxManage : 'VirtualBox not installed. Install before continue.',
@@ -140,7 +150,9 @@ module.exports = {
     not_found: "no such '%s' in current project",
     circular_depends: "Circular dependency between %(system1)s and %(system2)s",
     image_required: "Not image set for the `%(system)s' system",
+    can_find_dockerfile: "Can't find `%(dockerfile)s` file to build a image for `%(system)s` system",
     system_name_invalid: "The system name `%(system)s` is not valid.",
+    provider_invalid: "The provider not found: `%(wrongProvider)s`.",
     depends_not_declared: "The `%(system)s` system depends on the `%(depend)s` system, which was not stated.",
     balancer_depreciation: "The `balancer` option used in the `%(system)s` is deprecated, use `http` and `scalable` to replace",
     invalid_default: "Unable to set the system `%(system)s` as a default because it was not declared",
@@ -180,6 +192,12 @@ module.exports = {
     check_version: 'Checking version...',
     check_version_error: 'checking version: [ %(error_message)s ]!',
     clean_containers: "Clearing %(count)d lost containers",
+    migrations: {
+      alert: "Azk updated, checking update procedures...",
+      changing_domain: "Changing domain upgrading, (issue: #255)",
+      moving_resolver: "Moving %(origin)s to %(target)s ...",
+      renaming_vm: "Renaming VirtualBox machine %(old_name)s to %(new_name)s",
+    }
   },
 
   commands: {
@@ -210,6 +228,8 @@ module.exports = {
       start_fail: "Agent start fail: %s",
       start_before: "The agent is not running, would you like to start it now?",
       options: {
+        verbose: verbose,
+        quiet: quiet,
         action: {
           name: "actions".magenta,
           options: {
@@ -226,23 +246,33 @@ module.exports = {
       description: "Shows the azk configs values",
     },
     docker: {
+      options: {
+        verbose: verbose,
+        quiet: quiet,
+      },
       description: "Alias for calling the docker in 'azk' scope configurations",
     },
     doctor: {
       description: "Shows an analysis of the health of `azk`",
       options: {
         logo: "Shows the `azk` logo before show health informations",
+        verbose: verbose,
+        quiet: quiet,
       },
     },
     info: {
       description: "Shows systems informactions for the current `Azkfile.js`",
       options: {
+        verbose: verbose,
+        quiet: quiet,
         colored: "Outputs with colors",
       },
     },
     logs: {
       description: "Shows logs for the systems",
       options: {
+        verbose: verbose,
+        quiet: quiet,
         follow: "Follow log output",
         lines: "Output the specified number of lines at the end of logs",
         timestamps: "Show timestamps",
@@ -259,7 +289,8 @@ module.exports = {
         remove  : "Removes shell instances after exit shell or command",
         command : "Runs a specific command",
         shell   : "The path to shell binary",
-        verbose : "Shows details about command execution",
+        verbose : verbose,
+        quiet   : quiet,
         mount   : "Points for additional mounting (ex:./origin:/azk/target)",
         cwd     : "Default directory",
         image   : "Defines the image in which the command will be executed",
@@ -288,6 +319,7 @@ module.exports = {
         pulling: 'Pulling repository %s...',
         bar_progress: '  :title [:bar] :percent :progress',
         bar_status: '  :title :msg',
+        pull_ended  : "✓".blue + " complete downloading `" + "%(image)s".yellow + "`",
       }
     },
     init: {
@@ -306,6 +338,8 @@ module.exports = {
       fail: "Due to the above error azk will stop all instances already begun.\n",
       options: {
         verbose: verbose,
+        rebuild: rebuild,
+        quiet   : quiet,
         reprovision: reprovision,
         open: "Open a url of default system in the preferred application",
       },
@@ -320,7 +354,8 @@ module.exports = {
       description: "Stops an instance of the system(s)",
       not_running: "System `%(name)s` not running",
       options: {
-        verbose: verbose,
+        verbose : verbose,
+        quiet   : quiet,
         remove: "Removes the instances before stop",
       }
     },
@@ -330,6 +365,7 @@ module.exports = {
       wait_port   : "◴".magenta + " waiting start `"+ "%(system)s".blue  + "` system, try connect port %(name)s/%(protocol)s...",
       check_image : "✓".cyan    + " checking `"     + "%(image)s".yellow + "` image...",
       pull_image  : "⇲".blue    + " downloading `"  + "%(image)s".yellow + "` image...",
+      build_image : "⇲".blue    + " building `"     + "%(image)s".yellow + "` image...",
       provision   : "↻".yellow  + " provisioning `" + "%(system)s".blue  + "` system...",
       starting    : "↑".green   + " starting `"     + "%(system)s".blue  + "` system, " + "%(to)d".green + " new instances...",
       stopping    : "↓".red     + " stopping `"     + "%(system)s".blue  + "` system, " + "%(from)d".red + " instances...",
@@ -338,12 +374,15 @@ module.exports = {
       options: {
         remove: "Removes the instances before stop",
         verbose: verbose,
+        quiet: quiet,
       }
     },
     restart: {
       description: "Stops all system and starts again",
       options: {
         verbose: verbose,
+        rebuild: rebuild,
+        quiet   : quiet,
         reprovision: reprovision,
         open: "Open a url of default system in the preferred application",
       }
@@ -353,6 +392,8 @@ module.exports = {
       deprecation: "`reload` this deprecated, use restart",
       options: {
         verbose: verbose,
+        rebuild: rebuild,
+        quiet   : quiet,
         reprovision: reprovision,
       }
     },
@@ -364,6 +405,8 @@ module.exports = {
       status: "%(system)s: %(instances)d instances - %(hosts)s",
       status_with_dead: "%(system)s: %(instances)d up and %(down)d down - %(hosts)s",
       options: {
+        verbose : verbose,
+        quiet   : quiet,
         system: "System(s) name(s)",
         instances: "Shows details about instances",
         all: "Includes all instances (including those terminated)",
@@ -382,6 +425,8 @@ module.exports = {
       error        : "vm error: %(error)s.",
       not_requires : "this system not requires virtual machine, to try force this behavior set `AZK_USE_VM=true`",
       options: {
+        verbose : verbose,
+        quiet   : quiet,
         action: {
           name: "actions".magenta,
           options: {
