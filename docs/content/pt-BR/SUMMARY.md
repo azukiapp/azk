@@ -36,6 +36,7 @@
    * [envs](azkfilejs/envs.md)
    * [export_envs](azkfilejs/export_envs.md)
    * [ports](azkfilejs/ports.md)
+   * [extends](azkfilejs/extends.md)
 /*****************************************************/
 * [Linha de comando](command-line/README.md)
    * [agent](command-line/agent.md)
