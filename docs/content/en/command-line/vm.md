@@ -59,7 +59,7 @@ Removes the virtual machine.
 
 #### Options:
 
-- `--force`      Tries to force virtual machine destruction. It's useful when the `remove` action doesn't work properly due some unkown problem.
+- `--force`      Tries to force virtual machine destruction. It's useful when the `remove` action doesn't work properly due some unknown problem.
 
 #### Examples:
 
