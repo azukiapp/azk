@@ -3,34 +3,47 @@
 This documentation is made using Gitbook.
 
 ### prepare your environment
+
 ```sh
 azk nvm npm install
-azk nvm node_modules/gitbook/bin/gitbook.js install content
-azk nvm node_modules/gitbook/bin/gitbook.js build   content
+azk nvm gitbook install content
+azk nvm gitbook build   content
 ```
 
 ### start server
+
 ```sh
 # if you have node and gitbook installed
 gitbook serve content
 
 # this you work if you have azk instaled
-azk nvm node_modules/gitbook/bin/gitbook.js serve content
+azk nvm gitbook serve content
 ```
 
-open: http://localhost:4000
+Now you can open [http://localhost:4000] to give this as being the result
+
+## Screenshot for information
+
+_Font_: Inconsolata
+_Font-size_: 15pt
+_Console columns_: 87
+_Shell_: zsh
+_Zsh Theme_: edvardm
 
 ## Deploying
-Before deploy you must create a file `.env.json`
 
-```js
-{
-    "AWS_ACCESS_KEY_ID": "XXXXXXXXXXXXXX",
-    "AWS_SECRET_KEY":    "XXXXXXXXXXXXXXXXX"
-}
+Before deploy you must create a file `.env` or copy and update `.env.sample`
+
+```ini
+AWS_ACCESS_KEY_ID=XXXXXXXXXXXXXX
+AWS_SECRET_KEY=XXXXXXXXXXXXXXXXX
+AWS_BUCKET_PROD=[bucket to prod deploy]
+AWS_BUCKET_STAGE=[bucket to stage deploy]
+MIXPANEL_TOKEN=XXXXXXXXXXXXXXXXX
 ```
 
 ### azk buckets
+
 ```sh
 # stage
 azk-docs-stage
@@ -39,17 +52,16 @@ azk-docs-stage
 docs.azk.io
 ```
 
-### to deploy all files
-```sh
-AWS_BUCKET=azk-docs-stage ./deploy.sh
-```
+### build and deploy
 
-### to deploy only doc files (fast)
 ```sh
-AWS_BUCKET=azk-docs-stage ./deploy-only-doc.sh
+azk nvm gulp deploy-stage
+azk nvm gulp deploy-prod
 ```
 
 #### to remove all file from a bucket use the s3cmd
+
 ```sh
 s3cmd del s3://azk-docs-stage/ --recursive --force
+rm .awspublish-azk-docs-stage
 ```

@@ -14,36 +14,6 @@ azk: 'Azkfile.js' generated
 
 Isso deve gerar o `Azkfile.js`:
 
-```js
-// Adds the systems that shape your system
-systems({
-  azkdemo: {
-    // Dependent systems
-    depends: [],
-    // More images: http://images.azk.io
-    image: "node:0.10",
-    // Steps to execute before running instances
-    provision: [
-      "npm install",
-    ],
-    workdir: "/azk/#{manifest.dir}",
-    shell: "/bin/bash",
-    command: "npm start",
-    wait: { retry: 20, timeout: 1000 },
-    mounts: {
-      '/azk/#{manifest.dir}': path("."),
-    },
-    scalable: {"default": 2},
-    http: {
-      // azkdemo.dev.azk.io
-      domains: [ "#{system.name}.#{azk.default_domain}" ]
-    },
-    envs: {
-      // set instances variables
-      NODE_ENV: "dev",
-    },
-  },
-});
-```
+!INCLUDE "../../common/getting-started/Azkfile_project_configure.md"
 
 Na seção [Azkfile.js](../azkfilejs/README.md) você encontra informações detalhadas sobre como construir um `Azkfile.js` e quais opções estão disponíveis. Por hora, temos o suficiente para executar nossa aplicação.

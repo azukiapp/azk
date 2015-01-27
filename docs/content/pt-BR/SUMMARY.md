@@ -23,7 +23,6 @@
    /** [PHP](exemplos/php.md)*/
 /*****************************************************/
 * [Azkfile.js](azkfilejs/README.md)
-   * [Visão geral](azkfilejs/overview.md)
    * [image](azkfilejs/image.md)
    * [depends](azkfilejs/depends.md)
    * [provision](azkfilejs/provision.md)
@@ -40,7 +39,6 @@
 /*****************************************************/
 * [Linha de comando](command-line/README.md)
    * [agent](command-line/agent.md)
-   * [configs](command-line/configs.md)
    * [docker](command-line/docker.md)
    * [doctor](command-line/doctor.md)
    * [help](command-line/help.md)
@@ -59,7 +57,7 @@
    /** [Escalando](azkfilejs/escalando.md)*/
 /*****************************************************/
 * [Agent](agent/README.md)
-* [Imagens](images/README.md)
-* [FAQ](faq/README.md)
+/** [Imagens](images/README.md)*/
+/** [FAQ](faq/README.md)*/
 /** [Contribuíndo](contributing/README.md)*/
 /** [Roadmap](roadmap/README.md)*/

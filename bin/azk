@@ -88,6 +88,8 @@ azk_main() {
   make_data_folders
   case "$1" in
     nvm)
+      extra_path=`pwd`/node_modules/.bin
+      [ -d "$extra_path" ] && { export PATH=$extra_path:$PATH; }
       shift; "${@}"
       ;;
     *)
@@ -98,4 +100,3 @@ azk_main() {
 
 # run main function
 azk_main "${@}"
-

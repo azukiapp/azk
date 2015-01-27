@@ -4,19 +4,7 @@ Se observarmos o `Azkfile.js` gerado, é possível notar uma entrada no sistema 
 
 If we look at the generated `Azkfile.js`, you can see an entry in the `azkdemo` system called `mounts`:
 
-```js
-systems({
-  azkdemo: {
-    // ...
-    command: "npm start",
-    mounts: {
-      '/azk/#{manifest.dir}': path("."),
-    },
-    scalable: {"default": 2},
-    // ..
-  },
-});
-```
+!INCLUDE "../../common/getting-started/mounts_example.md"
 
 This entry basically guides `azk` on which local files should be available to your application in the isolated environment where it will run. In this case, the current directory, which is the `azkdemo` folder, will be available in the path `/azk/azkdemo` within the isolated environment.
 

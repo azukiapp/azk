@@ -10,7 +10,7 @@ $ azk agent start
 
 The output should slightly vary according to the platform (Linux or Mac). But overall you should expect to see the message **"Agent has been successfully started"**, and only then continue following this guide.
 
-> **Important**: Never run `azk agent start` as a super user (not even using sudo), this can lead to an inconsistent state that can make the `azk agent` command to not work. More information [here](../faq/README.md#root-access).	
+> **Important**: Never run `azk agent start` as a super user (not even using sudo), this can lead to an inconsistent state that can make the `azk agent` command to not work.
 
 An output sample for the command:
 

@@ -27,6 +27,6 @@ envs: {
 }
 ```
 
-> __Importante__: Esta não é a forma recomendada de se expor informações confidenciais, como senhas. Recomenda-se que cada desenvolvedor tenha um arquivo .env na raiz do projeto e este arquivo seja incluído no .gitignore.
+> __Importante__: Esta não é a forma recomendada de se expor informações confidenciais, como senhas. Recomenda-se que cada desenvolvedor tenha um arquivo .env na raiz do projeto e este arquivo seja ignorado no controle de versão.
 
 !INCLUDE "../../links.md"

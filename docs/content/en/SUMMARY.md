@@ -40,7 +40,6 @@
 /*****************************************************/
 * [Command line](command-line/README.md)
    * [agent](command-line/agent.md)
-   * [configs](command-line/configs.md)
    * [docker](command-line/docker.md)
    * [doctor](command-line/doctor.md)
    * [help](command-line/help.md)
@@ -58,9 +57,9 @@
    /** [Shell](azkfilejs/shell.md)*/
    /** [Scaling](azkfilejs/escalando.md)*/
 /*****************************************************/
-* [Agent](agent/README.md)
-* [Images](images/README.md)
-* [FAQ](faq/README.md)
+/** [Agent](agent/README.md)*/
+/** [Images](images/README.md)*/
+/** [FAQ](faq/README.md)*/
 /** [Roadmap](roadmap/README.md)*/
 /** [Contributing](contribuindo/README.md)*/
 /** [Roadmap](roodmap/README.md)*/

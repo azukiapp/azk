@@ -24,6 +24,11 @@ rails_system: {
     "bundle exec rake db:create",
     "bundle exec rake db:migrate",
   ],
+  // ...
+  mounts: {
+    "/azk/#{manifest.dir}": path("."),
+    "/azk/bundler": persistent("bundler"),
+  }
 },
 ```
 
@@ -35,5 +40,10 @@ node_system: {
   provision: [
     "npm install"
   ],
+  // ...
+  mounts: {
+    "/azk/#{manifest.dir}": path("."),
+    "/azk/#{manifest.dir}/node_modules": persistent("modules"),
+  }
 },
 ```

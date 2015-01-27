@@ -5,7 +5,7 @@ Identifies which dependencies are required for the system to be started. When st
 #### Usage:
 
 ```js
-depends: "['SYSTEM_NAME_1', 'SYSTEM_NAME_2', ..., 'SYSTEM_NAME_N']",
+depends: ['SYSTEM_NAME_1', 'SYSTEM_NAME_2', /*..., */ 'SYSTEM_NAME_N'],
 ```
 
 ##### Examples:

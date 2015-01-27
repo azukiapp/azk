@@ -1,6 +1,6 @@
 ## ports
 
-Defines the ports that will be externalised to the host.
+Defines the ports that will be externalised to the host `dev.azk.io`.
 
 #### Usage:
 

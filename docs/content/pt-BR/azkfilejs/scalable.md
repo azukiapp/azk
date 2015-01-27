@@ -1,31 +1,36 @@
 ## scalable
 
-Define quantas instâncias do sistema devem ser levantadas.
+Define quantas instâncias do sistema devem ser levantadas quando o comando `azk start` for rodado.
 
 #### Uso:
 
 ```js
-scalable: { "default": NUM },
+scalable: { default: NUM, limit: NUM },
 ```
 
 ##### Exemplos:
 
-Nenhuma instância por padrão, ou seja, não será levantado pelo azk start.
+* (__padrão__) Uma instância por padrão, e limitado apenas a uma instância:
 
-```js
-scalable: { "default": 0 },
-```
+  ```js
+  scalable: { default: 1, limit: 1 },
+  ```
 
-_____________
-Apenas uma instância
+* Nenhuma instância por padrão, ou seja, não será levantado pelo `azk start`:
 
-```js
-scalable: { "default": 1 },
-```
+  ```js
+  scalable: { default: 0 },
+  ```
 
-_____________
-Quatro instâncias por padrão
+* Apenas uma instância:
 
-```js
-scalable: { "default": 4 },
-```
+  ```js
+  scalable: { default: 1 },
+  ```
+
+* Quatro instâncias por padrão:
+
+  ```js
+  scalable: { default: 4 },
+  ```
+

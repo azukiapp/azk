@@ -1,6 +1,6 @@
 ## azk doctor
 
-Mostra uma análise da saúde do `azk`. 
+Mostra uma análise da saúde do `azk`.
 
 #### Opções:
 
@@ -12,11 +12,4 @@ Mostra uma análise da saúde do `azk`.
 
 #### Exemplo:
 
-```
-$ azk doctor
-
-      Azk   : 0.8.3
-      Agent : up
-      Docker: 1.4.1
-      Use vm: no
-```
+![Figure 1-1](../resources/images/doctor.png)
