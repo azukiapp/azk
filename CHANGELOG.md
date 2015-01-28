@@ -1,6 +1,11 @@
 # Changelog
 
-## v0.9.0
+## v0.9.1 - (2015-27-01)
+
+* Bug
+  * [Agent] Fixing http balancer error.
+
+## v0.9.0 - (2015-27-01)
 
 * Bug
   * [Kernel] Replacing `azk.dev` for `dev.azk.io` to improve compatibility with browsers
