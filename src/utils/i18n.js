@@ -48,7 +48,14 @@ export class i18n {
 
     if (result) {
       try {
-        return typeof(result) == "string" ? printf(result, ...args) : key;
+        switch(typeof(result)) {
+          case "string":
+            return printf(result, ...args);
+          case "object":
+            return result;
+          default:
+            return key;
+        }
       } catch (err) {
         var match, label = "Translate error".red;
 
