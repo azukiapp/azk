@@ -1,4 +1,4 @@
-import { Q, pp, config, path, _, log, lazy_require } from 'azk';
+import { config, _, log, lazy_require } from 'azk';
 import Utils from 'azk/utils';
 
 // Composer
@@ -6,6 +6,7 @@ import { pull  } from 'azk/docker/pull';
 import { run   } from 'azk/docker/run';
 import { build } from 'azk/docker/build';
 
+/* global parseRepositoryTag, uuid */
 lazy_require(this, {
   parseRepositoryTag: ['dockerode/lib/util'],
   uuid: 'node-uuid',
@@ -37,7 +38,7 @@ export class Container extends Utils.qify('dockerode/lib/container') {
         protocol: port.Type,
         gateway: port.IP,
         port: port.PublicPort,
-      }
+      };
       return ports;
     }, {});
   }
@@ -63,7 +64,7 @@ export class Container extends Utils.qify('dockerode/lib/container') {
       ExitCode: 0,
       Paused:  (status.match(/^Up.*\(Paused\)$/)) ? true : false,
       Running: (status.match(/^Up/)) ? true : false
-    }
+    };
 
     // Exited? Get return code
     if (status.match(/Exited/)) {
@@ -103,7 +104,9 @@ export class Container extends Utils.qify('dockerode/lib/container') {
 
   static envsFromAnnotations(annotations = { azk: {}}) {
     return _.reduce(annotations.azk, (envs, value, key) => {
-      if (key == 'azk') key = "env";
+      if (key == 'azk') {
+        key = "env";
+      }
       envs[`AZK_${key.toUpperCase()}`] = value;
       return envs;
     }, {});
@@ -128,10 +131,11 @@ export class Docker extends Utils.qify('dockerode') {
 
   __findObj(obj) {
     return obj.inspect().then(
-      (_data) => { return obj; },
+      (/*_data*/) => { return obj; },
       (err  ) => {
-        if (err.statusCode == 404)
+        if (err.statusCode == 404) {
           return null;
+        }
         throw err;
       }
     );

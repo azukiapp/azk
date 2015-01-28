@@ -18,8 +18,9 @@ export class Generator extends UIProxy {
   }
 
   get tpl() {
-    if (!this._tpl)
+    if (!this._tpl) {
       this._tpl = Handlebars.compile(fs.readFileSync(template).toString());
+    }
     return this._tpl;
   }
 
@@ -71,11 +72,15 @@ function mount(data) {
 
   // args
   var args  = [];
-  if (!_.isUndefined(data.value)) args.push(data.value);
-  if (!_.isEmpty(options)) args.push(options);
+  if (!_.isUndefined(data.value)) {
+    args.push(data.value);
+  }
+  if (!_.isEmpty(options)) {
+    args.push(options);
+  }
   args = _.map(args, (arg) => { return json(arg); });
 
-  switch(data.type) {
+  switch (data.type) {
     default:
       return `${data.type}(${args.join(', ')})`;
   }
@@ -87,4 +92,3 @@ Handlebars.registerHelper('mount', mount);
 Handlebars.registerHelper('formatDomains', formatDomains);
 
 export { example_system };
-

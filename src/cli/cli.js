@@ -2,6 +2,7 @@ import { _, lazy_require } from 'azk';
 import { Command, Option } from 'azk/cli/command';
 import { InvalidValueError } from 'azk/utils/errors';
 
+/* global glob, path */
 lazy_require(this, {
   glob: ['glob', 'sync'],
   path: 'path',

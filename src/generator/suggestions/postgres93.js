@@ -41,7 +41,8 @@ export class Suggestion extends UIProxy {
         'https://gist.github.com/gullitmiranda/62082f2e47c364ef9617'
       ],
       export_envs: {
-        DATABASE_URL: "postgres://#{envs.POSTGRESQL_USER}:#{envs.POSTGRESQL_PASS}@#{net.host}:#{net.port.data}/${envs.POSTGRESQL_DB}",
+        DATABASE_URL: "postgres://#{envs.POSTGRESQL_USER}:#{envs.POSTGRESQL_PASS}" +
+          "@#{net.host}:#{net.port.data}/${envs.POSTGRESQL_DB}",
       },
     });
   }

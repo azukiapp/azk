@@ -2,6 +2,7 @@ import { _, async, log, config, utils, lazy_require } from 'azk';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Command, Helpers } from 'azk/cli/command';
 
+/* global Manifest */
 lazy_require(this, {
   Manifest: ['azk/manifest'],
 });

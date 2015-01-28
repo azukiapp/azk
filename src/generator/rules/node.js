@@ -10,16 +10,16 @@ var getVersion = function(path, content) {
     log.error('JSON.parse error [', path, ']', err.stack || err);
   }
 
-  if(parsedJson &&
-     parsedJson.engine) {
+  if (parsedJson &&
+      parsedJson.engine) {
     // remove garbage
     var versionCleaned = parsedJson.engine.replace(/[^\d\.]/g, "");
     return semver.clean(versionCleaned);
   }
 
-  if(parsedJson &&
-     parsedJson.engines &&
-     parsedJson.engines.node) {
+  if (parsedJson &&
+      parsedJson.engines &&
+      parsedJson.engines.node) {
     return semver.clean(parsedJson.engines.node);
   }
 
@@ -48,7 +48,7 @@ export class Rule extends BaseRule {
     evidence.version = nodeVersion;
 
     // cant find node version, will use default node:latest
-    if(!nodeVersion){
+    if (!nodeVersion) {
       return evidence;
     }
 

@@ -4,6 +4,7 @@ import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Command, Helpers } from 'azk/cli/command';
 import { AGENT_CODE_ERROR } from 'azk/utils/errors';
 
+/* global Client, Configure, spawn, net */
 lazy_require(this, {
   Client: [ 'azk/agent/client' ],
   Configure: [ 'azk/agent/configure' ],

@@ -1,6 +1,7 @@
-import { Q, _, defer, lazy_require } from 'azk';
+import { _, defer, lazy_require } from 'azk';
 import { ProvisionNotFound, ProvisionPullError } from 'azk/utils/errors';
 
+/* global XRegExp */
 lazy_require(this, {
   XRegExp: ['xregexp', 'XRegExp']
 });
@@ -16,14 +17,14 @@ var msg_regex = {
   ),
   download: new XRegExp('Downloading'),
   download_complete: new XRegExp('Download complete'),
-}
+};
 
 function parse_status(msg) {
   var result = {};
   _.find(msg_regex, (regex, type) => {
     var match  = XRegExp.exec(msg, regex);
     if (match) {
-      result['type'] = type;
+      result.type = type;
       _.each(regex.xregexp.captureNames, function(key) {
         if (match[key]) {
           result[key] = match[key];
@@ -63,7 +64,7 @@ export function pull(docker, repository, tag, stdout) {
               stdout.write(msg.status + "\n");
             }
           }
-        } catch (e) {};
+        } catch (e) {}
       });
 
       stream.on('end', () => {
@@ -71,5 +72,5 @@ export function pull(docker, repository, tag, stdout) {
         resolve(docker.findImage(image));
       });
     });
-  })
+  });
 }

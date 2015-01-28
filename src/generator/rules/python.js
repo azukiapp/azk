@@ -40,7 +40,7 @@ export class Rule extends BaseRule {
     evidence.version = pythonVersion;
 
     // cant find version, will use latest
-    if(pythonVersion === null){
+    if (pythonVersion === null) {
       return evidence;
     }
 
@@ -58,4 +58,3 @@ export class Rule extends BaseRule {
   }
 
 }
-

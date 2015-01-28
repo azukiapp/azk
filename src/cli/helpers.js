@@ -10,6 +10,7 @@ var bar_opts = {
   , total: 100
 }
 
+/* global AgentClient, Configure */
 lazy_require(this, {
   AgentClient: ['azk/agent/client', 'Client'],
   Configure: ['azk/agent/configure', 'Configure'],

@@ -11,6 +11,7 @@ var request    = require('request');
 var semver     = require('semver');
 var { isIPv4 } = require('net');
 
+/* global docker, exec, isOnline, Migrations */
 lazy_require(this, {
   docker     : ['azk/docker', 'default'],
   exec       : ['child_process'],

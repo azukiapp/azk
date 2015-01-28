@@ -1,6 +1,7 @@
-import { _, config, fs, path, async, lazy_require, log } from 'azk';
+import { _, config, fs, path, lazy_require, log } from 'azk';
 import { Command } from 'azk/cli/command';
 
+/* global Generator, example_system */
 lazy_require(this, {
   Generator() {
     return require('azk/generator').Generator;
@@ -35,8 +36,9 @@ class Cmd extends Command {
     this.ok(this.tKeyPath('generated'), manifest);
 
     // Only show tips if is a git dir
-    if (fs.existsSync(path.join(cwd, ".git")))
+    if (fs.existsSync(path.join(cwd, ".git"))) {
       this.tOutput(this.tKeyPath('github'));
+    }
 
     return 0;
   }
@@ -46,4 +48,3 @@ export function init(cli) {
   return new Cmd('init [path]', cli)
     .addOption(['--force', '-f'], { default: false });
 }
-

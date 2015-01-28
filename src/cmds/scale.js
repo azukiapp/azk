@@ -1,8 +1,9 @@
-import { log, _, async, config, t, lazy_require } from 'azk';
-import { Command, Helpers } from 'azk/cli/command';
+import { log, _, async, t, lazy_require } from 'azk';
+import { Helpers } from 'azk/cli/command';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Cmd as StatusCmd } from 'azk/cmds/status';
 
+/* global Manifest */
 lazy_require(this, {
   Manifest: ['azk/manifest'],
 });
@@ -29,7 +30,7 @@ class Cmd extends InteractiveCmds {
         var system = systems[i];
         yield this._scale(system, parseInt(opts.to || 1), opts);
       }
-    })
+    });
   }
 
   _formatAction(keys, event, system) {
@@ -47,6 +48,7 @@ class Cmd extends InteractiveCmds {
 
   _scale(system, instances = {}, opts) {
     var progress = (event) => {
+      var type;
       var pull_progress = Helpers.newPullProgress(this);
       if (event.type === "pull_msg") {
         pull_progress(event);
@@ -59,9 +61,9 @@ class Cmd extends InteractiveCmds {
           case "scale":
             event.instances = t([...keys, "instances"], event);
             if (this.name != "scale") {
-              var type = event.from > event.to ? "stopping" : "starting";
+              type = event.from > event.to ? "stopping" : "starting";
             } else {
-              var type = event.from > event.to ? "scaling_down" : "scaling_up";
+              type = event.from > event.to ? "scaling_down" : "scaling_up";
             }
 
             this.ok([...keys, type], event);
@@ -74,7 +76,7 @@ class Cmd extends InteractiveCmds {
             log.debug(event);
         }
       }
-    }
+    };
 
     var options = {
       build_force: opts.rebuild || false,

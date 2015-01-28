@@ -18,15 +18,17 @@ export class i18n {
     // Alias to translate
     this.t = (...args) => {
       return this.translate(...args);
-    }
+    };
   }
 
   _find(keys) {
     var buffer = this.dict || {};
 
-    for(var i = 0; i < keys.length; i++) {
+    for (var i = 0; i < keys.length; i++) {
       buffer = buffer[keys[i]];
-      if (!buffer) break;
+      if (!buffer) {
+        break;
+      }
     }
 
     return buffer;
@@ -58,12 +60,13 @@ export class i18n {
         }
       } catch (err) {
         var match, label = "Translate error".red;
-
-        if (match = err.toString().match(/Error: missing key (.*)/)) {
+        match = err.toString().match(/Error: missing key (.*)/);
+        if (match) {
           return label + `: '${key}', missing: ${match[1]}`;
         }
 
-        if (match = err.toString().match(/Error: format requires a mapping/)) {
+        match = err.toString().match(/Error: format requires a mapping/);
+        if (match) {
           return label + `: '${key}', missing a mappping`;
         }
 
@@ -74,4 +77,3 @@ export class i18n {
     }
   }
 }
-

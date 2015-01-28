@@ -1,7 +1,8 @@
-import { _, async, config, lazy_require } from 'azk';
+import { _, async, lazy_require } from 'azk';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
-import { Command, Helpers } from 'azk/cli/command';
+import { Helpers } from 'azk/cli/command';
 
+/* global Manifest, prettyjson */
 lazy_require(this, {
   Manifest: ['azk/manifest'],
   prettyjson: 'prettyjson',
@@ -26,7 +27,7 @@ class Cmd extends InteractiveCmds {
 
         // Adjust
         if (_.isEmpty(system_data.depends)) {
-          system_data.depends = 'no dependencies'.cyan
+          system_data.depends = 'no dependencies'.cyan;
         }
 
         if (_.isEmpty(system_data.ports)) {
@@ -63,6 +64,5 @@ class Cmd extends InteractiveCmds {
 
 export function init(cli) {
   return (new Cmd('info', cli))
-    .addOption(['--colored', '-C'], { default: true })
+    .addOption(['--colored', '-C'], { default: true });
 }
-

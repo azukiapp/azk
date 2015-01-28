@@ -2,6 +2,7 @@ import { _, Q, async, lazy_require } from 'azk';
 import { config } from 'azk';
 var qfs = require('q-io/fs');
 
+/* global Meta, VM */
 lazy_require(this, {
   Meta : ['azk/manifest/meta'],
   VM   : ['azk/agent/vm'],

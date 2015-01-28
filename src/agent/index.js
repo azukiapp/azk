@@ -2,6 +2,7 @@ import { _, Q, config, defer, log, path, lazy_require, set_config } from 'azk';
 import { Pid } from 'azk/utils/pid';
 import { AgentStartError } from 'azk/utils/errors';
 
+/* global Server */
 lazy_require(this, {
   Server: ['azk/agent/server'],
 });

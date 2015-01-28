@@ -11,7 +11,9 @@ var getVersion = function(content) {
   // http://regex101.com/r/rO8iA0/3
   var rubyVersionRegex = /\s*\bruby ['"]?(\d+\.\d+\.\d+)['"]?/gm;
   var captureRubyVersionRegex = rubyVersionRegex.exec(content);
-  var extractedRubyVersionRegex = captureRubyVersionRegex && captureRubyVersionRegex.length >= 1 && captureRubyVersionRegex[1];
+  var extractedRubyVersionRegex = captureRubyVersionRegex &&
+                                  captureRubyVersionRegex.length >= 1 &&
+                                  captureRubyVersionRegex[1];
   if (extractedRubyVersionRegex) {
     rubyVersion = semver.clean(extractedRubyVersionRegex);
   }
@@ -36,14 +38,18 @@ var getVersion = function(content) {
   // http://regex101.com/r/rO8iA0/2
   var engineVersionRegex1 = /\s*:engine_version\s*\=\>\s*['"](\d+\.\d+\.\d+)['"]/gm;
   var captureEngineVersionRegex1 = engineVersionRegex1.exec(content);
-  var extractedEngineVersionRegex1 = captureEngineVersionRegex1 && captureEngineVersionRegex1.length >= 1 && captureEngineVersionRegex1[1];
+  var extractedEngineVersionRegex1 = captureEngineVersionRegex1 &&
+                                     captureEngineVersionRegex1.length >= 1 &&
+                                     captureEngineVersionRegex1[1];
   if (extractedEngineVersionRegex1) {
     rubyEngineVersion = semver.clean(extractedEngineVersionRegex1);
   }
   // http://regex101.com/r/rO8iA0/6
   var engineVersionRegex2 = /\s*\bruby ['"]?\d+\.\d+\.\d+['"]?\s*\(\w+\s+(\d+\.\d+\.\d+)/gm;
   var captureEngineVersionRegex2 = engineVersionRegex2.exec(content);
-  var extractedEngineVersionRegex2 = captureEngineVersionRegex2 && captureEngineVersionRegex2.length >= 1 && captureEngineVersionRegex2[1];
+  var extractedEngineVersionRegex2 = captureEngineVersionRegex2 &&
+                                     captureEngineVersionRegex2.length >= 1 &&
+                                     captureEngineVersionRegex2[1];
   if (extractedEngineVersionRegex2) {
     rubyEngineVersion = semver.clean(extractedEngineVersionRegex2);
   }
@@ -54,8 +60,7 @@ var getVersion = function(content) {
       rubyEngine: rubyEngine,
       rubyEngineVersion: rubyEngineVersion
    };
-  }
-  else {
+  } else {
     return null;
   }
 
@@ -83,13 +88,13 @@ export class Rule extends BaseRule {
     evidence.version = versions && versions.rubyVersion;
 
     // cant find node version, will use default node:latest
-    if(versions === null){
+    if (versions === null) {
       return evidence;
     }
 
     // JRuby
     // https://registry.hub.docker.com/u/library/jruby/
-    if (versions.rubyEngine === 'jruby'){
+    if (versions.rubyEngine === 'jruby') {
       evidence.ruleName = 'jruby17';
       return evidence;
     }
@@ -109,4 +114,3 @@ export class Rule extends BaseRule {
   }
 
 }
-

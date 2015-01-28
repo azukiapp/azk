@@ -1,13 +1,11 @@
-import { _, fs, config, async, defer, lazy_require, t, path } from 'azk';
+import { _, fs, async, defer, lazy_require, t, path } from 'azk';
 import { ManifestError } from 'azk/utils/errors';
 import Utils from 'azk/utils';
 
-var qfs = require('q-io/fs');
-
 var AVAILABLE_PROVIDERS = ["docker", "dockerfile"];
 var default_tag      = "latest";
-var default_provider = "docker";
 
+/* global DImage, docker */
 lazy_require(this, {
   DImage: ['azk/docker', 'Image'],
   docker: ['azk/docker', 'default'],
@@ -49,7 +47,6 @@ export class Image {
   }
 
   pull(options, stdout) {
-    var options = options || {};
     return async(this, function* (notify) {
       // split docker namespace and docker repository
       var namespace   = '';
@@ -58,8 +55,7 @@ export class Image {
       if (splited.length === 2) {
         namespace   = splited[0];
         repository  = splited[1];
-      }
-      else {
+      } else {
         namespace   = 'library';
         repository  = this.repository;
       }
@@ -89,7 +85,7 @@ export class Image {
   }
 
   pullWithDockerRegistryDownloader(dockerode_modem, namespace, repository, repo_tag) {
-    return async(this, function* (notify) {
+    return async(this, function* () {
       var DockerHub   = require('docker-registry-downloader').DockerHub;
       var Syncronizer = require('docker-registry-downloader').Syncronizer;
       var dockerHub   = new DockerHub();
@@ -105,8 +101,7 @@ export class Image {
     });
   }
 
-  build(options, stdout) {
-    var options = options || {};
+  build(options) {
     return async(this, function* (notify) {
       var image = yield this.check();
       if (options.build_force || image === null) {
@@ -129,9 +124,9 @@ export class Image {
       var stats = fs.statSync(dockerfile_path);
       var isDirectory = stats.isDirectory();
 
-      if(!isDirectory) {
+      if (!isDirectory) {
         return dockerfile_path;
-      } else if(isDirectory && !require_file) {
+      } else if (isDirectory && !require_file) {
 
         // it is a folder - try find the manifesto
         dockerfile_path = path.join(dockerfile_path, 'Dockerfile');
@@ -148,7 +143,7 @@ export class Image {
   }
 
   set name(value) {
-    if(!value){
+    if (!value) {
       return;
     }
 
@@ -160,7 +155,7 @@ export class Image {
   get name() {
     if (this.repository && this.tag) {
       return `${this.repository}:${this.tag}`;
-    };
+    }
   }
 
   get full_name() {
@@ -181,7 +176,7 @@ export class Image {
       // 2. ie: { docker: "[image]" }
       var options_keys = _.keys(options);
       if (options_keys.length > 0) {
-        var provider = _.find(options_keys, function(key) {
+        provider = _.find(options_keys, function(key) {
           if (_.contains(AVAILABLE_PROVIDERS, key)) {
             return key;
           }

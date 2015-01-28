@@ -9,6 +9,7 @@ var forever = require('forever-monitor');
 var MemoryStream    = require('memorystream');
 var MemcachedDriver = require('memcached');
 
+/* global Manifest, Client */
 lazy_require(this, {
   Manifest: ['azk/manifest'],
   Client  : ['azk/agent/client'],

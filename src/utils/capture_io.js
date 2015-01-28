@@ -1,11 +1,11 @@
-import { Q, _ } from 'azk/utils'
+import { Q, _ } from 'azk/utils';
 
 var StdOutFixture = require('fixture-stdout');
 
 var fixtures = {
   stdout: new StdOutFixture(),
   stderr: new StdOutFixture({ stream: process.stderr }),
-}
+};
 
 function capture_io(block) {
   return Q.when(null, () => {
@@ -13,7 +13,7 @@ function capture_io(block) {
 
     // Capture a write to stdout
     _.each(fixtures, (fixture, key) => {
-      fixture.capture((string, encoding, fd) => {
+      fixture.capture((string) => {
         writes[key] += string;
         return false;
       });
@@ -22,11 +22,12 @@ function capture_io(block) {
     var fail = (err) => {
       _.each(fixtures, (fixture) => fixture.release());
       throw err;
-    }
+    };
 
+    var result;
     try {
-      var result = block();
-    } catch (err) { return fail(err) };
+      result = block();
+    } catch (err) { return fail(err); }
 
     return Q.when(result, (value) => {
       _.each(fixtures, (fixture) => fixture.release());

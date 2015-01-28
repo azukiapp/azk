@@ -3,19 +3,18 @@ import { i18n } from 'azk/utils/i18n';
 var { join, basename, dirname } = require('path');
 var crypto = require('crypto');
 var Q      = require('q');
-var _      = require('lodash');
 var fs     = require('fs');
 var zlib   = require('zlib');
 
 var Utils = {
   __esModule: true,
 
-  get default() { return Utils },
+  get default() { return Utils; },
   get i18n()    { return i18n; },
   get Q()       { return Q; },
   get _()       { return _; },
-  get net()     { return require('azk/utils/net').default },
-  get docker()  { return require('azk/utils/docker').default },
+  get net()     { return require('azk/utils/net').default; },
+  get docker()  { return require('azk/utils/docker').default; },
 
   envs(key, defaultValue = null) {
     return process.env[key] || (_.isFunction(defaultValue) ? defaultValue() : defaultValue);
@@ -58,9 +57,10 @@ var Utils = {
   defer(func) {
     return Q.Promise((resolve, reject, notify) => {
       process.nextTick(() => {
+        var result;
         try {
           resolve = _.extend(resolve, { resolve, reject, notify });
-          var result = func(resolve, reject, notify);
+          result = func(resolve, reject, notify);
         } catch (e) {
           return reject(e);
         }
@@ -93,7 +93,7 @@ var Utils = {
 
     var newClass = function(...args) {
       klass.call(this, ...args);
-    }
+    };
 
     newClass.prototype = Object.create(klass.prototype);
 

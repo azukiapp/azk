@@ -1,17 +1,16 @@
-import { _, async, config, utils } from 'azk';
-var path = require('path');
+import { _, async, config } from 'azk';
 
 function new_resize(container) {
   return function() {
     var dimensions = {
       h: process.stdout.rows,
       w: process.stderr.columns
-    }
+    };
 
-    if (dimensions.h != 0 && dimensions.w != 0) {
-      container.resize(dimensions)
+    if (dimensions.h !== 0 && dimensions.w !== 0) {
+      container.resize(dimensions);
     }
-  }
+  };
 }
 
 export function run(docker, Container, image, cmd, opts = { }) {
@@ -53,12 +52,12 @@ export function run(docker, Container, image, cmd, opts = { }) {
   var envs = _.merge(Container.envsFromAnnotations(annotations), {
     AZK_NAME: name,
      AZK_ENV: config('docker:namespace').split('.')[1],
-  })
+  });
   opts.env = _.merge(envs, opts.env || {});
 
   var env  = _.reduce(opts.env, function(sum, value, key) {
-    sum.push(key + "=" + value)
-    return sum
+    sum.push(key + "=" + value);
+    return sum;
   }, []);
 
   // Create container options
@@ -78,23 +77,24 @@ export function run(docker, Container, image, cmd, opts = { }) {
   };
 
   return async(docker, function* (notify) {
+    var resize, isRaw, stream;
     container = yield this.createContainer(_.merge(optsc, docker_opts.create || {}));
 
     var c_notify = (type, ...data) => {
       return notify({ type, context: "container_run", id: container.id, data: data });
-    }
+    };
     c_notify("created");
     notify({type: "created", id: container.id});
 
     // Resize tty
     if (interactive) {
-      var resize = new_resize(container);
-      var isRaw  = process.stdin.isRaw;
+      resize = new_resize(container);
+      isRaw  = process.stdin.isRaw;
     }
 
     // Attach container
     if (!daemon) {
-      var stream = yield container.attach({
+      stream = yield container.attach({
         log: true, stream: true,
         stdin: interactive, stdout: true, stderr: true
       });
@@ -112,7 +112,7 @@ export function run(docker, Container, image, cmd, opts = { }) {
         if (opts.tty) {
           try {
             opts.stdin.setRawMode(true);
-          } catch(err) {}
+          } catch (err) {}
         }
 
         if (opts.stdin.custom_pipe) {
@@ -147,10 +147,11 @@ export function run(docker, Container, image, cmd, opts = { }) {
       if (interactive) {
         opts.stdout.removeListener('resize', resize);
         opts.stdin.removeAllListeners();
-        if (opts.tty)
+        if (opts.tty) {
           try {
             opts.stdin.setRawMode(isRaw);
-          } catch(err) {};
+          } catch (err) {}
+        }
         opts.stdin.resume();
         stream.end();
       }

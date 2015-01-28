@@ -1,4 +1,4 @@
-import { async, config } from 'azk';
+import { async, config, Q } from 'azk';
 
 var SystemBalancer = {
   get balancer() {
@@ -6,12 +6,10 @@ var SystemBalancer = {
   },
 
   clear(system) {
-    return async(this, function*() {
-      if (system.balanceable) {
-        return this.balancer.removeAll(system.hostname);
-      }
-      return false;
-    });
+    if (system.balanceable) {
+      return this.balancer.removeAll(system.hostname);
+    }
+    return false;
   },
 
   add(system, container) {
@@ -52,7 +50,7 @@ var SystemBalancer = {
       return `http://${config('agent:vm:ip')}:${port.port}`;
     }
   },
-}
+};
 
-export { SystemBalancer }
-export { SystemBalancer as Balancer }
+export { SystemBalancer };
+export { SystemBalancer as Balancer };

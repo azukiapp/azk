@@ -3,6 +3,7 @@ import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Command, Helpers } from 'azk/cli/command';
 import Azk from 'azk';
 
+/* global Client */
 lazy_require(this, {
   Client: ['azk/agent/client'],
 });
