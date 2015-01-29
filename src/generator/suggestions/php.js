@@ -15,7 +15,7 @@ export class Suggestion extends UIProxy {
     // Initial Azkfile.js suggestion
     this.suggestion = _.extend({}, example_system, {
       __type  : 'php',
-      image   : { docker: 'azukiapp/php-apache:5.6' },
+      image   : { docker: 'azukiapp/php-fpm' },
       http    : true,
       ports: {
         http: "80/tcp",
