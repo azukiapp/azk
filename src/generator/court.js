@@ -134,8 +134,12 @@ export class Court extends UIProxy {
       path.join(dir, '*', file_name),
     ];
 
-    var files = _.reduce(patterns, (files, pattern) => {
-      return files.concat(glob.sync(pattern));
+    var files = _.reduce(patterns, (files, pattern, ix) => {
+      if (!(ix >= 1 && files.length > 0)) {
+        var file = glob.sync(pattern);
+        files = files.concat(file);
+      }
+      return files;
     }, []);
 
     return _.map(files, (file) => { return file; });
