@@ -9,10 +9,11 @@ var which      = require('which');   // Search for command in path
 var request    = require('request');
 var semver     = require('semver');
 
-/* global docker, Migrations */
+/* global docker, Migrations, isOnline */
 lazy_require(this, {
   docker     : ['azk/docker', 'default'],
   Migrations : ['azk/agent/migrations'],
+  isOnline   : 'is-online',
 });
 
 var ports_tabs = {
@@ -88,7 +89,7 @@ export class Configure extends UIProxy {
     });
   }
 
-  isOnline() {
+  isOnlineCheck() {
     return defer(function (resolve, reject) {
       isOnline(function (err, result) {
         if (err) {
@@ -103,7 +104,7 @@ export class Configure extends UIProxy {
     return async(this, function* (notify) {
       try {
         // check connectivity
-        var currentOnline = yield this.isOnline();
+        var currentOnline = yield this.isOnlineCheck();
 
         if ( !currentOnline ) {
           log.debug('isOnline == false');
