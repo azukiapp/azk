@@ -6,29 +6,31 @@ export function extend(h) {
     // Mock UI
     var UI    = _.clone(OriginalUI);
     UI.dir    = (...args) => outputs.push(...args);
-    UI.stdout = () => { return {
-      write(data) {
-        outputs.push(data.replace(/(.*)\n/, "$1"));
-      }
-    }};
+    UI.stdout = () => {
+      return {
+        write(data) {
+          outputs.push(data.replace(/(.*)\n/, "$1"));
+        }
+      };
+    };
+
     UI.stderr = UI.stdout;
 
-    UI.execSh = (cmd, options) => {
+    UI.execSh = (cmd) => {
       UI.dir(cmd);
       return Q(0);
     };
 
     func(() => {
-      while(outputs.length > 0) {
+      while (outputs.length > 0) {
         outputs.pop();
       }
 
-      if (extra)
+      if (extra) {
         extra.call(this);
+      }
     });
 
     return UI;
-  }
+  };
 }
-
-

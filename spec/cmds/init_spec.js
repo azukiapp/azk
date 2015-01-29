@@ -22,7 +22,7 @@ describe("Azk command init", function() {
 
     it("should fail", function() {
       var message = t("commands.init.already", manifest);
-      var code = cmd.run([])
+      var code = cmd.run([]);
       h.expect(code).to.equal(1);
       h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp(message)));
     });
@@ -35,11 +35,10 @@ describe("Azk command init", function() {
     });
   });
 
-
   it("should generate a manifest with a example system in a blank dir", function() {
     return h.tmp_dir().then((project) => {
       cmd.cwd  = project;
-      var code = cmd.run([]);
+      cmd.run([]);
 
       // Check generated manifest
       var manifest = new Manifest(project);

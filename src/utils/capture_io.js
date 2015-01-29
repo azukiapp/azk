@@ -10,6 +10,7 @@ var fixtures = {
 function capture_io(block) {
   return Q.when(null, () => {
     var writes = { stdout: '', stderr: '' };
+    var result;
 
     // Capture a write to stdout
     _.each(fixtures, (fixture, key) => {

@@ -7,7 +7,7 @@ export class InteractiveCmds extends Command {
 
     super(...args);
     this.addOption(['--verbose', '-v'], { default: false, acc: true });
-    this.addOption(['--quiet'  , '-q'], { default: false } )
+    this.addOption(['--quiet'  , '-q'], { default: false } );
   }
 
   before_action(opts, ...args) {
@@ -20,7 +20,7 @@ export class InteractiveCmds extends Command {
     return super(opts, ...args);
   }
 
-  verbose(...args) {
+  verbose() {
     return null;
   }
 

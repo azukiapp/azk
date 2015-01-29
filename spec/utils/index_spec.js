@@ -10,7 +10,7 @@ describe("Azk utils module", function() {
     var other = null;
     utils.cd(__dirname, () => {
       other = process.cwd();
-    })
+    });
     h.expect(current).to.not.equal(other);
     h.expect(current).to.equal(process.cwd());
     h.expect(other).to.equal(__dirname);
@@ -41,13 +41,14 @@ describe("Azk utils module", function() {
 
   describe("in a class with async method", function() {
     class FooBar {
-      constructor(name) { this.name = name };
+      constructor(name) { this.name = name; }
       getAsyncName(callback) {
         setImmediate( () => {
-          if (this.name)
+          if (this.name) {
             callback(null, this.name);
-          else
+          } else {
             callback(new Error());
+          }
         });
       }
     }
@@ -71,7 +72,7 @@ describe("Azk utils module", function() {
         b.getAsyncName(), c.getAsyncName()
       ]).then((results) => {
         h.expect(results).to.eql(['bname', 'cname']);
-      })
+      });
     });
   });
 
@@ -79,10 +80,11 @@ describe("Azk utils module", function() {
     var mod = {
       getAsyncName(name, callback) {
         setImmediate( () => {
-            callback(null, name);
+          callback(null, name);
         });
       }
-    }
+    };
+
     var a = utils.qifyModule(mod);
 
     it("should qify a methods", function() {
@@ -109,13 +111,13 @@ describe("Azk utils module", function() {
           resolve(1);
         });
       });
-    }
+    };
 
     var will_fail = () => {
-      return defer((resolve, reject, notify) => {
+      return defer((resolve, reject) => {
         process.nextTick(() => reject(new Error()));
       });
-    }
+    };
 
     it("should return a error in promise scope", function() {
       var promise = defer(() => {
@@ -160,4 +162,3 @@ describe("Azk utils module", function() {
     });
   });
 });
-

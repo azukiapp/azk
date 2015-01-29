@@ -8,5 +8,5 @@ export class TestOptions extends Command {
 
 export function init(cli) {
   (new TestOptions('test_options', cli))
-    .addOption(['--number' , '-n'], { type: Number, desc: "Number description" })
+    .addOption(['--number' , '-n'], { type: Number, desc: "Number description" });
 }

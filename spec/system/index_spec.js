@@ -1,10 +1,8 @@
 import h from 'spec/spec_helper';
-import { _, path, Q, async, defer, utils } from 'azk';
+import { _, path, utils } from 'azk';
 import { config, version } from 'azk';
 import { System } from 'azk/system';
-import { Manifest } from 'azk/manifest';
 import { net } from 'azk/utils';
-import { ImageNotAvailable } from 'azk/utils/errors';
 
 describe("Azk system class, main set", function() {
   var system;
@@ -103,7 +101,7 @@ describe("Azk system class, main set", function() {
 
     it("should return a depends systems", function() {
       var depends = system.dependsInstances;
-      var names = _.map(depends, (system) => { return system.name });
+      var names = _.map(depends, (system) => { return system.name; });
       h.expect(names).to.eql(["db", "api"]);
     });
 
@@ -117,7 +115,7 @@ describe("Azk system class, main set", function() {
 
     describe("call to daemonOptions", function() {
       var options;
-      before(() => { options = system.daemonOptions() });
+      before(() => { options = system.daemonOptions(); });
 
       it("should return default docker options", function() {
         h.expect(options).to.have.property("daemon", true);
@@ -228,7 +226,7 @@ describe("Azk system class, main set", function() {
         );
 
         h.expect(options).to.have.property("working_dir", "/azk");
-        h.expect(options).to.have.property("volumes")
+        h.expect(options).to.have.property("volumes");
         h.expect(options).to.have.deep.property("annotations.azk.seq", 2);
         h.expect(options).to.have.property("env").and.eql({
           ECHO_DATA    : "data",
@@ -270,7 +268,7 @@ describe("Azk system class, main set", function() {
     describe("call to shellOptions", function() {
       var options;
       before(() => {
-        var custom = { stdout: {} }
+        var custom = { stdout: {} };
         options = system.shellOptions(custom);
       });
 
@@ -317,4 +315,4 @@ describe("Azk system class, main set", function() {
       });
     });
   });
-})
+});

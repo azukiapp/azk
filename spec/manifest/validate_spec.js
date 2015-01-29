@@ -1,4 +1,4 @@
-import { Manifest, file_name } from 'azk/manifest';
+import { Manifest } from 'azk/manifest';
 import h from 'spec/spec_helper';
 
 describe("Azk manifest class, validate set", function() {
@@ -28,7 +28,8 @@ describe("Azk manifest class, validate set", function() {
         image: { docker: "any" },
         http : { hostname: "foo.dev.azk.io" },
       });
-    `
+    `;
+
     return h.mockManifestWithContent(content).then((mf) => {
       var err = mf.validate();
 

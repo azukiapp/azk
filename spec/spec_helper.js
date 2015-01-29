@@ -6,16 +6,15 @@ import Utils from 'azk/utils';
 
 var chai  = require('chai');
 var tmp   = require('tmp');
-var path  = require('path');
 var qfs   = require('q-io/fs');
 var touch = require('touch');
 
 // Chai extensions
 chai.use(require('chai-as-promised'));
 chai.use(require('chai-things'));
-chai.config.includeStack = true
+chai.config.includeStack = true;
 
-import capture_io from 'azk/utils/capture_io'
+import capture_io from 'azk/utils/capture_io';
 var MemoryStream  = require('memorystream');
 
 var Helpers = {
@@ -68,7 +67,7 @@ var Helpers = {
   describeSkipVm(...args) {
     return config('agent:requires_vm') ? describe(...args) : describe.skip(...args);
   }
-}
+};
 
 // In specs the virtual machine is required
 before(() => {

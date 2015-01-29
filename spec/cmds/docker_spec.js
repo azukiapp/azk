@@ -2,8 +2,6 @@ import h from 'spec/spec_helper';
 import { config } from 'azk';
 import { init } from 'azk/cmds/docker';
 
-var desc = (config('agent:requires_vm')) ? describe : describe.skip;
-
 h.describeSkipVm("Azk command docker, run", function() {
   var outputs = [];
   var UI   = h.mockUI(beforeEach, outputs);

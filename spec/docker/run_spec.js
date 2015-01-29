@@ -1,4 +1,4 @@
-import { Q, _, config, defer, async, utils } from 'azk';
+import { Q, config, async, utils } from 'azk';
 import h from 'spec/spec_helper';
 
 var default_img = config('docker:image_default');
@@ -19,11 +19,11 @@ describe("Azk docker module, run method @slow", function() {
       { stdout: mocks.stdout, stderr: mocks.stderr }
     );
 
-    return result.then((container) => {
+    return result.then(() => {
       h.expect(outputs.stdout).to.equal("out\n");
       h.expect(outputs.stderr).to.equal("error\n");
     });
-  })
+  });
 
   it("should support interactive run", function() {
     var result = h.docker.run(default_img,
@@ -82,11 +82,11 @@ describe("Azk docker module, run method @slow", function() {
       volumes: {
         "/azk": utils.docker.resolvePath(__dirname),
       },
-    }
+    };
 
     return h.docker.run(default_img, cmd, options).then(() => {
       h.expect(outputs.stdout).to.match(/run_spec.js/);
-    })
+    });
   });
 
   it("should support bind ports", function() {
@@ -119,7 +119,7 @@ describe("Azk docker module, run method @slow", function() {
 
   it("should support run daemon mode", function() {
     return async(function* () {
-      var dir  = yield h.tmp_dir();
+      yield h.tmp_dir();
       var cmd  = ["/bin/bash", "-c", "while true; do env; sleep 1; done"];
       var opts = { daemon: true };
 
@@ -131,7 +131,7 @@ describe("Azk docker module, run method @slow", function() {
       yield container.logs({stdout: true, stderr: true}).then((stream) => {
         var stdout = {
           write(data) { log += data.toString(); }
-        }
+        };
         container.modem.demuxStream(stream, stdout, stdout);
         return true;
       });

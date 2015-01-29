@@ -1,7 +1,5 @@
 import h from 'spec/spec_helper';
-import { config, async, Q } from 'azk';
-import { System } from 'azk/system';
-import { Scale } from 'azk/system/scale';
+import { async } from 'azk';
 import { SystemDependError, SystemNotScalable } from 'azk/utils/errors';
 
 describe("Azk system class, scale set", function() {
@@ -153,4 +151,3 @@ describe("Azk system class, scale set", function() {
     });
   });
 });
-

@@ -1,9 +1,8 @@
-import { Q, _, config, defer, async } from 'azk';
+import { _, config } from 'azk';
 import { Container } from 'azk/docker';
 import h from 'spec/spec_helper';
 
 var default_img = config('docker:image_default');
-var namespace = config('docker:namespace');
 
 describe("Azk docker containers class", function() {
   this.timeout(20000);
@@ -39,7 +38,7 @@ describe("Azk docker containers class", function() {
 
     it("should parse status and set state", function() {
       return h.docker.azkListContainers({ all: true }).then((instances) => {
-        container = _.find(instances, (c) => { return c.Id == container.Id });
+        container = _.find(instances, (c) => { return c.Id == container.Id; });
         h.expect(container).to.have.deep.property("State.Running", false);
       });
 
@@ -47,7 +46,7 @@ describe("Azk docker containers class", function() {
 
     it("should parse container name to annotations in get container list", function() {
       return h.docker.azkListContainers({ all: true }).then((instances) => {
-        container = _.find(instances, (c) => { return c.Id == container.Id });
+        container = _.find(instances, (c) => { return c.Id == container.Id; });
         h.expect(container).to.have.deep.property("Annotations.azk.type", "run");
       });
     });
