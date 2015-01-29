@@ -1,14 +1,13 @@
 import { _, t, log, lazy_require, config } from 'azk';
-import { AgentNotRunning } from 'azk/utils/errors';
 
 var fmt_p = t('commands.helpers.pull.bar_progress');
 var fmt_s = t('commands.helpers.pull.bar_status');
 var bar_opts = {
-    complete: '='
-  , incomplete: ' '
-  , width: 30
-  , total: 100
-}
+    complete: '=',
+    incomplete: ' ',
+    width: 30,
+    total: 100
+};
 
 /* global AgentClient, Configure */
 lazy_require(this, {
@@ -63,7 +62,7 @@ var Helpers = {
     return (event) => {
       if (!event) return;
 
-      var context = event.context || "agent"
+      var context = event.context || "agent";
       var keys    = ["status", context];
 
       switch(event.type) {
@@ -76,7 +75,7 @@ var Helpers = {
               break;
             case "error":
               if (event.data instanceof Error) {
-                cmd.fail(event.data.toString())
+                cmd.fail(event.data.toString());
               } else {
                 cmd.fail([...keys, event.status], event);
               }
@@ -95,8 +94,13 @@ var Helpers = {
           cmd.ok(tKey, event);
           break;
         case "ssh":
-          if (context == "stderr")
+          if (context === "stderr") {
             break;
+          }
+          else{
+            log.debug(event);
+          }
+          break;
         default:
           log.debug(event);
       }
@@ -134,7 +138,7 @@ var Helpers = {
         }
       }
       return event;
-    }
+    };
   },
 
   escapeCapture(callback) {
@@ -172,8 +176,8 @@ var Helpers = {
         });
       }
       return true;
-    }
+    };
   }
-}
+};
 
 export { Helpers };

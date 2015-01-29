@@ -32,7 +32,7 @@ export class Cli extends Command {
 
   // External options
   addCmd(cmd) {
-    var opt = _.find(this.stackable, (opt) => { return opt.name == 'command' });
+    var opt = _.find(this.stackable, (opt) => { return opt.name == 'command'; });
     if (!opt) {
       opt = new Option({
         name: 'command', type: String, require: true, options: [], stop: true
@@ -44,22 +44,24 @@ export class Cli extends Command {
   }
 
   showUsage(command = null) {
-    if (!command) return super();
+    if (!command) {
+      return super();
+    }
 
     var cmd = this.commands[command];
-    if (!cmd)
+    if (!cmd) {
       throw new InvalidValueError('command', command);
+    }
 
     // Show usage for command
     var prefix = this.usageLine("command");
     return cmd.showUsage(prefix);
   }
 
-  action(opts, parent_opts) {
+  action(opts) {
     var cmd = this.commands[opts.command];
     if (cmd && cmd instanceof Command) {
       return cmd.run(_.clone(opts.__leftover), opts);
     }
   }
 }
-

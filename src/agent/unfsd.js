@@ -1,4 +1,4 @@
-import { Q, fs, config, log, defer } from 'azk';
+import { fs, config, log, defer } from 'azk';
 import { net } from 'azk/utils';
 import { VM  } from 'azk/agent/vm';
 import { Tools } from 'azk/agent/tools';
@@ -11,7 +11,9 @@ var Unfsd = {
 
   start() {
     return Tools.async_status("unsfd", this, function* (change_status) {
-      if (this.isRunnig()) return;
+      if (this.isRunnig()) {
+        return;
+      }
 
       var vm_ip = config('agent:vm:ip');
       var port  = this.port = yield net.getPort('0.0.0.0');
@@ -26,7 +28,7 @@ var Unfsd = {
 
       log.debug(`starting ntfs: ${args.join(" ")}`);
 
-      return defer((resolve, reject) => {
+      return defer((resolve) => {
         change_status("starting");
         this.child = forever.start(args, {
           max : 5,
@@ -70,7 +72,7 @@ var Unfsd = {
         'nfsvers=3',
         'nolock',
         'tcp',
-      ]
+      ];
       var mount  = `sudo mount -o ${opts.join(',')} ${ip}:/ ${point_nfs}`;
       var bindfs = `sudo bindfs --chown-ignore --chgrp-ignore ${point_nfs} ${point}`;
       var check  = `mount | grep "${point}\\s" &>/dev/null`;
@@ -89,11 +91,11 @@ var Unfsd = {
           stderr += event.data.toString();
         }
         return event;
-      }
+      };
 
       change_status("mounting");
       return VM.ssh(vm_name, cmd).progress(progress).then((code) => {
-        if (code != 0) {
+        if (code !== 0) {
           throw new Error('not mount share files, error:\n' + stderr);
         }
         change_status("mounted");
@@ -116,6 +118,6 @@ var Unfsd = {
 
     return file;
   }
-}
+};
 
-export { Unfsd }
+export { Unfsd };

@@ -10,8 +10,7 @@
         "beforeEach",
         "afterEach",
         "describe",
-        "it",
-        "_"
+        "it"
     ],
 
     "-W030": true

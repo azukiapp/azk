@@ -31,7 +31,7 @@ export class Command extends UIProxy {
     this.__cwd = value;
   }
 
-  initChildren(parent) { }
+  initChildren() { }
 
   __parse_name(name) {
     var names = name.split(' ');
@@ -83,7 +83,7 @@ export class Command extends UIProxy {
     return _.reduce(args, (memo, arg) => {
       // Split simple args (-afx => -a -f -x)
       if (arg.match(/^-[^-]/)) {
-        var args = _.map(arg.slice(1).split(''), (a) => { return `-${a}` });
+        var args = _.map(arg.slice(1).split(''), (a) => { return `-${a}`; });
         memo = memo.concat(args);
 
       // No options (--no-debug => --debug false )
@@ -95,7 +95,7 @@ export class Command extends UIProxy {
       } else if (arg.match(/^-{2,}.*=.*$/)) {
         memo = memo.concat(arg.split('='));
       } else {
-        memo.push(arg)
+        memo.push(arg);
       }
       return memo;
     }, []);
@@ -123,7 +123,7 @@ export class Command extends UIProxy {
         }
       }
       opts[options.name] = value;
-    }
+    };
 
     // Set a default values
     _.each(this.options, (opt) => {
@@ -145,14 +145,14 @@ export class Command extends UIProxy {
         }
 
         if (previous) {
+          var value;
           try {
-            var value = previous.processValue(previous_value);
+            value = previous.processValue(previous_value);
           } catch (err) {
-            if (
-              err instanceof InvalidValueError
-              && stackable.length > 0
-              && !previous.required
-            ) {
+            if (err instanceof InvalidValueError &&
+                stackable.length > 0 &&
+                !previous.required
+              ) {
               if (previous.type == Boolean) {
                 save_value(previous, true);
               }
@@ -168,7 +168,7 @@ export class Command extends UIProxy {
           this.invalid_options(previous_value);
         }
       }
-    }
+    };
 
     args = this.fix_args(args);
     while((!stop) && args.length > 0) {
@@ -193,14 +193,14 @@ export class Command extends UIProxy {
   }
 
   valid_requires(opts) {
-    var filter = (opt) => { return opt.required };
+    var filter = (opt) => { return opt.required; };
     var requireds = _.filter(this.options, filter);
     requireds = requireds.concat(_.filter(this.stackable, filter));
 
     _.each(requireds, (option) => {
       if (!opts[option.name])
         throw new RequiredOptionError(option.name);
-    })
+    });
   }
 
   before_action(...args) {

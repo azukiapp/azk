@@ -1,6 +1,5 @@
-import { _, Q, config, defer, log, path, lazy_require, set_config } from 'azk';
+import { _, config, defer, log, lazy_require, set_config } from 'azk';
 import { Pid } from 'azk/utils/pid';
-import { AgentStartError } from 'azk/utils/errors';
 
 /* global Server */
 lazy_require(this, {
@@ -11,7 +10,7 @@ var blank_observer = {
   notify()  {},
   resolve() {},
   reject()  {},
-}
+};
 
 var Agent = {
   observer: blank_observer,
@@ -48,7 +47,7 @@ var Agent = {
     return pid.kill();
   },
 
-  gracefullyStop(opts = {}) {
+  gracefullyStop() {
     var pid = this.agentPid();
     this.change_status("stopping");
     return Server
@@ -78,7 +77,7 @@ var Agent = {
 
   processStateHandler() {
     var stoping = false;
-    var gracefullExit = (signal) => {
+    var gracefullExit = () => {
       if (!stoping) {
         var catch_err = (err) => log.error('stop error' + err.stack || err);
         try {
@@ -89,7 +88,7 @@ var Agent = {
           catch_err(err);
         }
       }
-    }
+    };
 
     try {
       var pid = this.agentPid();
@@ -123,6 +122,6 @@ var Agent = {
       log.info("agent start with pid: " + process.pid);
     });
   },
-}
+};
 
 export { Agent };

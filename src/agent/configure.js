@@ -6,16 +6,12 @@ import { net } from 'azk/utils';
 import Azk from 'azk';
 
 var which      = require('which');   // Search for command in path
-var qfs        = require('q-io/fs');
 var request    = require('request');
 var semver     = require('semver');
-var { isIPv4 } = require('net');
 
-/* global docker, exec, isOnline, Migrations */
+/* global docker, Migrations */
 lazy_require(this, {
   docker     : ['azk/docker', 'default'],
-  exec       : ['child_process'],
-  isOnline   : 'is-online',
   Migrations : ['azk/agent/migrations'],
 });
 
@@ -68,8 +64,9 @@ export class Configure extends UIProxy {
         );
       })
       .fail((err) => {
-        if (!(err instanceof DependencyError))
+        if (!(err instanceof DependencyError)) {
           err = new DependencyError('docker_access', { socket });
+        }
         throw err;
       });
     }
@@ -94,7 +91,9 @@ export class Configure extends UIProxy {
   isOnline() {
     return defer(function (resolve, reject) {
       isOnline(function (err, result) {
-        if (err) return reject(err);
+        if (err) {
+          return reject(err);
+        }
         resolve(result);
       });
     });
@@ -115,7 +114,7 @@ export class Configure extends UIProxy {
         var options = {
           headers: { 'User-Agent': 'request' },
           json: true,
-        }
+        };
 
         notify({ type: "status", keys: "configure.check_version"});
         var [response, body] = yield Q.ninvoke(request, 'get', config('urls:github:api:tags_url'), options);
@@ -130,7 +129,7 @@ export class Configure extends UIProxy {
             new_version: tagNameGithubParsed
           });
         } else {
-          log.debug('AZK version `v'+ tagNameGithubParsed +'` is up to date.');
+          log.debug('AZK version `v' + tagNameGithubParsed + '` is up to date.');
         }
       } catch (err) {
         notify({
@@ -158,7 +157,7 @@ export class Configure extends UIProxy {
         });
         return Q
           .all(removes)
-          .then(() => { return {} });
+          .then(() => { return {}; });
       });
   }
 
@@ -168,7 +167,7 @@ export class Configure extends UIProxy {
 
     return docker
       .info()
-      .then((info) => {
+      .then(() => {
         return { 'docker:host': host };
       });
   }
@@ -178,15 +177,18 @@ export class Configure extends UIProxy {
     return net
       .checkPort(port, this.docker_ip)
       .then((avaibly) => {
-        if (!avaibly)
+        if (!avaibly) {
           throw new DependencyError('port_error', { port, service, env });
+        }
       });
   }
 
   _which(command, save_key = null) {
     return Q.nfcall(which, command)
       .then((path) => {
-        if (save_key) return { [save_key]: path };
+        if (save_key) {
+          return { [save_key]: path };
+        }
       })
       .fail(() => {
         throw new DependencyError(command);
@@ -306,7 +308,9 @@ export class Configure extends UIProxy {
     return _.reduce(lines, (nameservers, line) => {
       if (capture = line.match(regex)) {
         var ip = capture[1];
-        if (isIPv4(ip)) nameservers.push(ip);
+        if (isIPv4(ip)) {
+          nameservers.push(ip);
+        }
       }
       return nameservers;
     }, []);

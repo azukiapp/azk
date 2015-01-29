@@ -65,7 +65,7 @@ var net = {
         var t = null;
         notify(_.merge({
           uri : uri,
-          type: 'try_connect', attempts, max, context: opts.context
+          type: 'try_connect', attempts: attempts, max: max, context: opts.context
         }, address ));
 
         client = nativeNet.connect(address, function() {
@@ -99,7 +99,7 @@ var net = {
       var client   = null;
       var attempts = 1, max = retry;
       var connect  = () => {
-        notify({ type: 'try_connect', attempts, max });
+        notify({ type: 'try_connect', attempts: attempts, max: max });
 
         var timeout_func = function() {
           attempts += 1;

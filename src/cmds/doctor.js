@@ -1,6 +1,6 @@
-import { _, async, config, lazy_require } from 'azk';
+import { async, config, lazy_require } from 'azk';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
-import { Command, Helpers } from 'azk/cli/command';
+import { Helpers } from 'azk/cli/command';
 import Azk from 'azk';
 
 /* global Client */
@@ -74,4 +74,3 @@ export function init(cli) {
   (new Cmd('doctor', cli))
     .addOption(['--logo'], { default: false });
 }
-

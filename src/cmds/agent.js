@@ -1,13 +1,11 @@
-import { _, t, log, fs, config, set_config, lazy_require } from 'azk';
-import { Q, defer, async } from 'azk';
+import { _, t, log, config, lazy_require } from 'azk';
+import { defer, async } from 'azk';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
-import { Command, Helpers } from 'azk/cli/command';
-import { AGENT_CODE_ERROR } from 'azk/utils/errors';
+import { Helpers } from 'azk/cli/command';
 
-/* global Client, Configure, spawn, net */
+/* global Client, spawn, net */
 lazy_require(this, {
   Client: [ 'azk/agent/client' ],
-  Configure: [ 'azk/agent/configure' ],
   spawn: ['child-process-promise'],
   net: 'net',
 });
@@ -27,10 +25,10 @@ class Cmd extends InteractiveCmds {
     var progress = Helpers.vmStartProgress(this);
 
     return async(this, function* () {
-      switch(opts.action) {
+      switch (opts.action) {
         case 'startchild':
-            opts.configs = yield this.getConfig(true, opts).progress(progress);
-            opts.action  = "start";
+          opts.configs = yield this.getConfig(true, opts).progress(progress);
+          opts.action  = "start";
           break;
 
         case 'start':
@@ -60,7 +58,9 @@ class Cmd extends InteractiveCmds {
       // Call action in agent
       var promise = Client[opts.action](opts).progress(progress);
       return promise.then((result) => {
-        if (opts.action != "status") return result;
+        if (opts.action != "status") {
+          return result;
+        }
         return (result.agent) ? 0 : 1;
       });
     });
@@ -75,7 +75,7 @@ class Cmd extends InteractiveCmds {
       env     : _.extend({}, process.env),
     };
 
-    return defer((resolve, reject) => {
+    return defer((resolve) => {
       this.installSignals(resolve);
       log.debug('fork process to start agent in daemon');
       spawn("azk", args, opts)
@@ -103,7 +103,7 @@ class Cmd extends InteractiveCmds {
           var buff = Buffer(JSON.stringify(cmd_options.configs));
           pipe.write(buff);
         })
-        .then((result) => { return 0; })
+        .then(() => { return 0; })
         .fail(() => { process.stdin.pause(); });
     });
   }
@@ -119,20 +119,20 @@ class Cmd extends InteractiveCmds {
           done(1);
         }
       }
-    }
+    };
 
     process.on('SIGTERM', gracefullExit);
     process.on('SIGINT' , gracefullExit);
     process.on('SIGQUIT', gracefullExit);
   }
 
-  getConfig(waitpipe, options = {}) {
+  getConfig(waitpipe) {
     return defer((resolve, reject) => {
       if (waitpipe) {
         try {
           var pipe = new net.Socket({ fd: 3 });
           pipe.on('data', (buf) => {
-            var configs = JSON.parse(buf.toString('utf8'))
+            var configs = JSON.parse(buf.toString('utf8'));
             pipe.end();
             resolve(configs);
           });
@@ -147,9 +147,9 @@ class Cmd extends InteractiveCmds {
 }
 
 export function init(cli) {
-  var cli = (new Cmd('agent {action}', cli))
+  cli = (new Cmd('agent {action}', cli))
     .setOptions('action', { options: ['start', 'status', 'stop', 'startchild'], hidden: ['startchild'] })
-    .addOption(['--daemon'], { default: true })
+    .addOption(['--daemon'], { default: true });
 
   if (config('agent:requires_vm')) {
     cli.addOption(['--reload-vm'], { default: true });

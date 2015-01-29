@@ -8,7 +8,7 @@ function load(folder, locale) {
 }
 
 export class i18n {
-  constructor(opts) {
+  constructor(opts, ...args) {
     if (typeof(opts.dict) == "object") {
       this.dict = opts.dict;
     } else if (opts.locale) {

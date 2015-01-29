@@ -1,9 +1,7 @@
-import { _, Q, defer, log } from 'azk';
+import { _, Q, defer } from 'azk';
 import { config, set_config } from 'azk';
 import { Agent } from 'azk/agent';
 import { AgentNotRunning } from 'azk/utils/errors';
-
-var request = require('request');
 
 var HttpClient = {
   url(path) {
@@ -20,29 +18,29 @@ var HttpClient = {
   get(...args) {
     return this.request('get', ...args);
   }
-}
+};
 
 var Client = {
-  status(opts) {
-    var status = {
+  status() {
+    var status_obj = {
       agent   : false,
       docker  : false,
       balancer: false,
-    }
+    };
 
     return defer((resolve, _reject, notify) => {
       if (Agent.agentPid().running) {
         notify({ type: "status", status: "running" });
-        status.agent = true;
+        status_obj.agent = true;
       } else {
         notify({ type: "status", status: "not_running" });
       }
-      resolve(status);
+      resolve(status_obj);
     });
   },
 
   start(opts) {
-    return Agent.start(opts).then(() => { return 0 });
+    return Agent.start(opts).then(() => { return 0; });
   },
 
   stop(opts) {
@@ -59,7 +57,9 @@ var Client = {
     return this
       .status()
       .then((status) => {
-        if (status.agent) return this.configs();
+        if (status.agent) {
+          return this.configs();
+        }
         throw new AgentNotRunning();
       })
       .then((configs) => {
@@ -68,6 +68,6 @@ var Client = {
         });
       });
   },
-}
+};
 
 export { Client, HttpClient };

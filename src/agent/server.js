@@ -1,4 +1,4 @@
-import { config, defer, async, t, log, path } from 'azk';
+import { config, async, t, log, path } from 'azk';
 import { VM  }   from 'azk/agent/vm';
 import { Unfsd } from 'azk/agent/unfsd';
 import { Balancer } from 'azk/agent/balancer';
@@ -80,7 +80,7 @@ var Server = {
           ip  : config("agent:vm:ip"),
           boot: config("agent:vm:boot_disk"),
           data: config("agent:vm:data_disk"),
-        }
+        };
 
         yield VM.init(opts);
       }
@@ -121,7 +121,7 @@ var Server = {
               throw Error(`Erro to download file: ${origin}`);
             });
         }
-      };
+      }
 
       // Mark installed
       this.vm_started = true;
@@ -131,13 +131,12 @@ var Server = {
   stopVM(running) {
     var vm_name = config("agent:vm:name");
     return async(this, function* () {
-      running = (running == null) ? (yield VM.isRunnig(vm_name)) : false;
+      running = (running === null) ? (yield VM.isRunnig(vm_name)) : false;
       if (running) {
         yield VM.stop(vm_name, !this.vm_started);
       }
     });
   },
-}
+};
 
 export { Server };
-

@@ -3,6 +3,7 @@ import { i18n } from 'azk/utils/i18n';
 var { join, basename, dirname } = require('path');
 var crypto = require('crypto');
 var Q      = require('q');
+var _      = require('lodash');
 var fs     = require('fs');
 var zlib   = require('zlib');
 
@@ -59,7 +60,7 @@ var Utils = {
       process.nextTick(() => {
         var result;
         try {
-          resolve = _.extend(resolve, { resolve, reject, notify });
+          resolve = _.extend(resolve, { resolve: resolve, reject: reject, notify: notify });
           result = func(resolve, reject, notify);
         } catch (e) {
           return reject(e);
@@ -158,7 +159,7 @@ var Utils = {
     return (value || "").replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&");
   },
 
-  template(template, data) {
+  template(data) {
     var options = { interpolate: /(?:(?:[#|$]{|<%)[=|-]?)([\s\S]+?)(?:}|%>)/g };
     return _.template(template, data, options);
   },

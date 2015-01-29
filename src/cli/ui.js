@@ -4,7 +4,6 @@ import { AzkError } from 'azk/utils/errors';
 
 require('colors');
 
-var execSh   = require('exec-sh');
 var Table    = require('cli-table');
 var printf   = require('printf');
 var inquirer = require('inquirer');
@@ -49,10 +48,10 @@ var UI = {
   },
 
   // Helpers to print status
-  ok(...args)        { this._status(ok, ...args);      },
-  info(...args)      { this._status(info, ...args);    },
-  fail(...args)      { this._status(fail, ...args);    },
-  warning(...args)   { this._status(warning, ...args); },
+  ok(...args) {        this._status(ok, ...args);      },
+  info(...args) {      this._status(info, ...args);    },
+  fail(...args) {      this._status(fail, ...args);    },
+  warning(...args) {   this._status(warning, ...args); },
   deprecate(...args) { this._status(deprecate, ...args); },
   _status(tag, second, ...args) {
     var message;
@@ -103,16 +102,16 @@ var UI = {
     options = options || {};
 
     if (options.text) {
-      options["chars"] = {
+      options.chars = {
         'top'           : '', 'top-mid'       : '', 'top-left'    : '',
         'top-right'     : '', 'bottom'        : '', 'bottom-mid'  : '',
         'bottom-left'   : '', 'bottom-right'  : '', 'left'        : '',
         'left-mid'      : '', 'mid'           : '', 'mid-mid'     : '',
         'right'         : '', 'right-mid'     : '', 'middle'      : ''
-      }
+      };
 
-      delete(options.text)
-    };
+      delete(options.text);
+    }
 
     tables[name] = new Table(options);
     return name;
@@ -132,13 +131,15 @@ var UI = {
 
   // User interactions methods
   execSh(...args) {
-    var result = (err) => { return (err) ? err.code : 0; }
+    var result = (err) => { return (err) ? err.code : 0; };
     return Q.nfcall(execSh, ...args).spread(result, result);
   },
 
   prompt(questions) {
     // Object or array support
-    if (_.isObject(questions)) questions = [questions];
+    if (_.isObject(questions)) {
+      questions = [questions];
+    }
 
     questions = _.map(questions, (q) => {
       if (!_.isEmpty(q.message)) {
@@ -153,13 +154,13 @@ var UI = {
   },
 
   isInteractive() {
-    return this.stdout().isTTY == true;
+    return this.stdout().isTTY === true;
   },
 
   outputColumns() {
     return this.isInteractive() ? this.stdout().columns : -1;
   },
-}
+};
 
 export { UI };
 
@@ -185,5 +186,5 @@ export class UIProxy {
 _.each(_.methods(UI), (method) => {
   UIProxy.prototype[method] = function(...args) {
     return this.userInterface[method](...args);
-  }
+  };
 });

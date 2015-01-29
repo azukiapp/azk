@@ -23,6 +23,6 @@ var Tools = {
       return async(...args);
     });
   },
-}
+};
 
-export { Tools }
+export { Tools };
