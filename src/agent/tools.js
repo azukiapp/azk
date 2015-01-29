@@ -17,10 +17,11 @@ var Tools = {
 
   async_status(key, ...args) {
     return defer((_resolve, _reject, notify) => {
-      args = [...args, (status, data) => {
+      var args_to_call = [...args];
+      args_to_call.push((status, data) => {
         this.change_status(key, notify, status, data);
-      }];
-      return async(...args);
+      });
+      return async(...args_to_call);
     });
   },
 };

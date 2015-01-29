@@ -11,11 +11,11 @@ var Utils = {
   __esModule: true,
 
   get default() { return Utils; },
-  get i18n()    { return i18n; },
-  get Q()       { return Q; },
-  get _()       { return _; },
-  get net()     { return require('azk/utils/net').default; },
-  get docker()  { return require('azk/utils/docker').default; },
+  get i18n() {    return i18n; },
+  get Q() {       return Q; },
+  get _() {       return _; },
+  get net() {     return require('azk/utils/net').default; },
+  get docker() {  return require('azk/utils/docker').default; },
 
   envs(key, defaultValue = null) {
     return process.env[key] || (_.isFunction(defaultValue) ? defaultValue() : defaultValue);
@@ -23,8 +23,9 @@ var Utils = {
 
   mergeConfig(options) {
     _.each(options, (values, key) => {
-      if (key != '*')
+      if (key != '*') {
         options[key] = _.merge({}, options['*'], values);
+      }
     });
     return options;
   },
@@ -86,15 +87,16 @@ var Utils = {
         func = func.bind(obj);
       }
 
-      return Q.async(func)(...args, notify);
+      return Q.async(func).apply([...args].concat(notify));
     });
   },
   /* jshint ignore:end */
   //jscs:enable
 
   qify(klass) {
-    if (_.isString(klass))
+    if (_.isString(klass)) {
       klass = require(klass);
+    }
 
     var newClass = function(...args) {
       klass.call(this, ...args);

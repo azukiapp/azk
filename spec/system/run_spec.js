@@ -98,11 +98,11 @@ describe("Azk system class, run set", function() {
         var command = ["/bin/sh", "-c"];
         var options = { stdout: mocks.stdout, stderr: mocks.stderr };
 
-        var exitResult = yield system.runShell([...command, "rm provisioned; ls -l"], options);
+        var exitResult = yield system.runShell([...command].concat("rm provisioned; ls -l"), options);
         h.expect(exitResult).to.have.property("code", 0);
         yield system.runDaemon();
 
-        yield system.runShell([...command, "ls -l"], options);
+        yield system.runShell([...command].concat("ls -l"), options);
         h.expect(outputs).to.have.property("stdout").match(/provisioned/);
 
         h.expect(system).to.have.property("provisioned").and.not.null;
@@ -157,7 +157,9 @@ describe("Azk system class, run set", function() {
 
       it("should use a sequencial number in name", function() {
         return async(this, function* () {
-          for(var i = 0; i < 3; i++) { yield system.runDaemon(); }
+          for (var i = 0; i < 3; i++) {
+            yield system.runDaemon();
+          }
           var instances = yield system.instances({ type: "daemon" });
 
           h.expect(instances).to.length(3);
@@ -216,5 +218,3 @@ describe("Azk system class, run set", function() {
     });
   });
 });
-
-

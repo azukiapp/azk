@@ -38,15 +38,16 @@ class Cmd extends InteractiveCmds {
 
     var data = { image: system.image.name };
     if (event.action == "check_image") {
-      if (this.images_checked[data.image])
+      if (this.images_checked[data.image]) {
         return null;
+      }
       this.images_checked[data.image] = true;
     }
 
-    this.ok([...keys, event.action], data);
+    this.ok([...keys].concat(event.action), data);
   }
 
-  _scale(system, instances = {}, opts = null) {
+  _scale(system, instances = {}, opts = undefined) {
     var progress = (event) => {
       var type;
       var pull_progress = Helpers.newPullProgress(this);
@@ -54,23 +55,23 @@ class Cmd extends InteractiveCmds {
         pull_progress(event);
       } else {
         var keys = ["commands", "scale"];
-        switch(event.type) {
+        switch (event.type) {
           case "action":
             this._formatAction(keys, event, system);
             break;
           case "scale":
-            event.instances = t([...keys, "instances"], event);
+            event.instances = t([...keys].concat("instances"), event);
             if (this.name != "scale") {
               type = event.from > event.to ? "stopping" : "starting";
             } else {
               type = event.from > event.to ? "scaling_down" : "scaling_up";
             }
 
-            this.ok([...keys, type], event);
+            this.ok([...keys].concat(type), event);
             break;
           case "wait_port":
           case "provision":
-            this.ok([...keys, event.type], event);
+            this.ok([...keys].concat(event.type), event);
             break;
           default:
             log.debug(event);
@@ -101,4 +102,3 @@ export function init(cli) {
   return (new Cmd('scale [system] [to]', cli))
     .addOption(['--remove', '-r'], { default: true });
 }
-

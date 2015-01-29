@@ -28,7 +28,7 @@ class Cmd extends ScaleCmd {
           // The number of instances is not set to system.name use "{}"
           instances = _.defaults(opts.instances[system.name], _.clone(scale_options.instances));
         } else {
-          instances =_.clone(scale_options.instances);
+          instances = _.clone(scale_options.instances);
         }
 
         // Force start scalable = { default: 0 }
@@ -39,11 +39,11 @@ class Cmd extends ScaleCmd {
           }
         }
 
-        this.verbose([...ns, "verbose"], system);
+        this.verbose([...ns].concat("verbose"), system);
         var icc = yield super(system, instances, opts);
 
         if (icc === 0) {
-          this.fail([...ns, scale_options.key], system);
+          this.fail([...ns].concat(scale_options.key), system);
           result = SYSTEMS_CODE_ERROR;
         }
       }

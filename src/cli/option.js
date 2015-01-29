@@ -9,8 +9,9 @@ export class Option {
       show_default: true,
     }, opts);
 
-    if (_.has(opts, 'default'))
+    if (_.has(opts, 'default')) {
       this._default = opts.default;
+    }
   }
 
   get default() {
@@ -48,14 +49,16 @@ export class Option {
       var names = _.reduce(this.alias, (names, alias) => {
         if (alias.length == 1) {
           names.push('-' + alias);
-          if (this.acc) names.push('-' + alias + alias);
+          if (this.acc) {
+            names.push('-' + alias + alias);
+          }
         } else {
           names.push('--' + alias);
         }
         return names;
       }, []);
 
-      switch(this.type) {
+      switch (this.type) {
         case String:
           if (this.default !== null || this.placeholder !== null) {
             names[0] += `="${this.default || this.placeholder}"`;
@@ -63,10 +66,11 @@ export class Option {
           break;
         case Boolean:
           var default_value = this.default;
-          if (this.show_default)
+          if (this.show_default) {
             if (default_value !== null) {
               desc += ` (default: ${default_value ? true : false})`;
             }
+          }
           break;
       }
 
@@ -86,7 +90,7 @@ export class Option {
 
     _.each(this.options, (opt) => {
       if (!_.contains(hidden_options, opt)) {
-        var desc = t(_.isObject(opt) ? ["commands", opt.name, "description"] : [...tKey, opt]);
+        var desc = t(_.isObject(opt) ? ["commands", opt.name, "description"] : [...tKey].concat(opt));
         help.push(this.__optionName(opt) + '\t' + desc);
       }
     });
@@ -99,7 +103,7 @@ export class Option {
   }
 
   processValue(value) {
-    switch(this.type) {
+    switch (this.type) {
       case String:
         if (_.isArray(this.options)) {
           var options = _.map(this.options, this.__optionName);
@@ -111,8 +115,9 @@ export class Option {
       case Number:
         return value.match(/^-?[\d|.|,]*$/) ? Number(value) : null;
       default:
-        if (!_.contains(boolean_opts, value))
+        if (!_.contains(boolean_opts, value)) {
           throw new InvalidValueError(this.name, value);
+        }
         return (value == "true" || value == 1) ? true : false;
     }
   }
