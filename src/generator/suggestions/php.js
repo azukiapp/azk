@@ -25,6 +25,10 @@ export class Suggestion extends UIProxy {
       mounts  : {
         '/azk/#{manifest.dir}': {type: 'path', value: '.'}
       },
+      envs: {
+        // set instances variables
+        APP_DIR: '/azk/#{manifest.dir}',
+      },
       docker_extra: {
         start: { Privileged: true },
       }
