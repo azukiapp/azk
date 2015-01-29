@@ -10,19 +10,19 @@ describe('Azk generator generation node rule', function() {
   var UI  = h.mockUI(beforeEach, outputs);
   var generator = new Generator(UI);
 
-  before(function() {
+  beforeEach(function() {
     return h.tmp_dir().then((dir) => {
       project_folder      = dir;
       project_folder_name = path.basename(dir);
     });
   });
 
-  var generateAndReturnManifest = () => {
-    var manifest = path.join(project_folder, config('manifest'));
+  var generateAndReturnManifest = (folder) => {
+    var manifest = path.join(folder, config('manifest'));
     generator.render({
-      systems: generator.findSystems(project_folder),
+      systems: generator.findSystems(folder),
     }, manifest);
-    return new Manifest(project_folder);
+    return new Manifest(folder);
   };
 
   it('should detect single node system', function() {
@@ -42,6 +42,7 @@ describe('Azk generator generation node rule', function() {
     // FIXME: where does this api name comes from when all 'Azk generator' are run?
     // h.expect(system).to.have.deep.property('mounts')
     //  .and.to.eql(expectedMounts);
+
 
     h.expect(system).to.have.deep.property('options.workdir', workdir);
     h.expect(system).to.have.deep.property('options.provision')
