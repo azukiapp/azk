@@ -207,8 +207,8 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('vm-download', ['curl-dir:brace-expansion' ]);
-  grunt.registerTask('test'       , ['env:test', 'clear', 'newer:traceur', 'hint', 'mochaTest:test']);
-  grunt.registerTask('slow_test'  , ['env:test', 'clear', 'newer:traceur', 'hint', 'mochaTest:slow_test']);
+  grunt.registerTask('test'       , ['env:test', 'clear', 'hint', 'newer:traceur', 'mochaTest:test']);
+  grunt.registerTask('slow_test'  , ['env:test', 'clear', 'hint', 'newer:traceur', 'mochaTest:slow_test']);
   grunt.registerTask('compile'    , ['watch:traceur']);
   grunt.registerTask('inspector'  , ['node-inspector']);
   grunt.registerTask('hint'       , ['jshint', 'jscs']);
