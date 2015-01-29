@@ -47,7 +47,7 @@ var options = mergeConfig({
       show_deprecate: (envs('AZK_HIDE_DEPRECATE') != 'true'),
     },
     paths    : {
-      azk_root: azk_root,
+      azk_root,
       data  : data_path,
       logs  : paths.logs,
       log   : path.join(paths.logs, 'azk.log'),
@@ -146,8 +146,7 @@ var options = mergeConfig({
 });
 
 function env() {
-  var node_env = envs('NODE_ENV', 'production');
-  return node_env;
+  return envs('NODE_ENV', 'production');
 }
 
 export function get(key) {
@@ -177,13 +176,13 @@ export function set(key, value) {
     process.env.NODE_ENV = value;
   } else {
     var keys   = [env(), ...key.split(':')];
-    var obj = {};
-    obj[keys.pop()] = value;
-    var buffer = obj;
-    var obj2 = {};
-    obj2[key] = buffer;
-    while ( (key = keys.pop()) ) {
-      buffer = obj2;
+    var buffer_obj = {};
+    buffer_obj[keys.pop()] = value;
+    var buffer = buffer_obj;
+    while ((key  = keys.pop())) {
+      var inner_buffer = {};
+      inner_buffer[key] = buffer;
+      buffer = inner_buffer;
     }
 
     // Check env exist
