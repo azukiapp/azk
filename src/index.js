@@ -7,7 +7,7 @@ Q.longStackSupport = true;
 class Azk {
   static get version() {
     return require('package.json').version;
-  };
+  }
 
   static pp(...args) {
     return console.log(...args);
@@ -21,33 +21,33 @@ var _log = null;
 module.exports = {
   __esModule: true,
 
-  get default() { return Azk },
+  get default() { return Azk; },
   get pp() { return Azk.pp; },
-  get Q()  { return Q; },
-  get _()  { return _; },
-  get t()  {
+  get Q() {  return Q; },
+  get _() {  return _; },
+  get t() {
     if (!_t) {
       _t = new i18n({
         path: this.path.join(this.config('paths:azk_root'), 'shared', 'locales'),
         locale: config('locale'),
-      }).t
+      }).t;
     }
     return _t;
   },
 
   // Config options
-  get config()  { return config; },
+  get config() { return config; },
   get set_config() { return set_config; },
 
   // Promise helpers
-  get defer()   { return defer; },
-  get async()   { return async; },
+  get defer() { return defer; },
+  get async() { return async; },
 
   // Internals alias
-  get os()      { return require('os'); },
-  get path()    { return require('path'); },
-  get fs()      { return require('fs-extra'); },
-  get utils()   { return require('azk/utils'); },
+  get os() {      return require('os'); },
+  get path() {    return require('path'); },
+  get fs() {      return require('fs-extra'); },
+  get utils() {   return require('azk/utils'); },
   get version() { return Azk.version; },
 
   get lazy_require() {
@@ -68,11 +68,11 @@ module.exports = {
           func = () => {
             var mod = require(opts[0]);
             return _.isEmpty(opts[1]) ? mod : mod[opts[1]];
-          }
+          };
         }
         obj.__defineGetter__(getter, func);
       });
-    }
+    };
   },
 
   get log() {

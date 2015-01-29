@@ -6,7 +6,8 @@ describe("Azk docker module, image build @slow", function() {
   this.timeout(20000);
   var repository = config('docker:build_name') + '/buildtest';
 
-  var build = (file_path, tag = null) => {
+  var build = (file_path, tag) => {
+    tag = tag || null;
     var build_options = {
       dockerfile: path.join(h.fixture_path('build'), file_path),
       tag: `${repository}:${tag || file_path}`,

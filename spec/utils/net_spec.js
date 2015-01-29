@@ -1,5 +1,5 @@
 import h from 'spec/spec_helper';
-import { async, defer, config, Q } from 'azk';
+import { async, config, Q } from 'azk';
 import { path } from 'azk';
 import { net as net_utils } from 'azk/utils';
 var net = require('net');
@@ -39,7 +39,7 @@ describe("Azk utils.net module", function() {
       return Q
         .ninvoke(server, 'listen', port_or_path)
         .then(() => { return Q.delay(1000); });
-    }
+    };
 
     it("should wait for server", function() {
       var progress = (event) => {
@@ -47,11 +47,11 @@ describe("Azk utils.net module", function() {
         if (event.type == "try_connect" && event.attempts == 2) {
           return runServer(port);
         }
-      }
+      };
 
       var connect = () => {
         return net_utils.waitService("tcp://localhost:" + port, 2, { timeout: 100 });
-      }
+      };
 
       return async(function* () {
         yield h.expect(connect()).to.eventually.equal(false);
@@ -62,7 +62,7 @@ describe("Azk utils.net module", function() {
     it("should wait for server runing in a unix socket", function() {
       var connect = () => {
         return net_utils.waitService("unix://" + unix, 2, { timeout: 100 });
-      }
+      };
 
       return async(function* () {
         yield h.expect(connect()).to.eventually.equal(false);

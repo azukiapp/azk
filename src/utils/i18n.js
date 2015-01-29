@@ -8,6 +8,7 @@ function load(folder, locale) {
 }
 
 export class i18n {
+  /* jshint ignore:start */
   constructor(opts, ...args) {
     if (typeof(opts.dict) == "object") {
       this.dict = opts.dict;
@@ -20,6 +21,7 @@ export class i18n {
       return this.translate(...args);
     };
   }
+  /* jshint ignore:end */
 
   _find(keys) {
     var buffer = this.dict || {};

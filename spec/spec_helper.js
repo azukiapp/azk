@@ -1,6 +1,6 @@
 require('source-map-support').install();
 
-import { Q, Azk, pp, _, config, t, async } from 'azk';
+import { Q, pp, config, t } from 'azk';
 import { Client as AgentClient } from 'azk/agent/client';
 import Utils from 'azk/utils';
 

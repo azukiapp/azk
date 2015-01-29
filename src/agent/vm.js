@@ -58,7 +58,7 @@ var hdds = {
 function config_nat_interface(name, replace = false) {
   return async(function* () {
     var ssh_port  = yield Utils.net.getPort();
-    var ssh_natpf = ["--natpf2", "ssh,tcp,127.0.0.1," + ssh_port + ",,22"]
+    var ssh_natpf = ["--natpf2", "ssh,tcp,127.0.0.1," + ssh_port + ",,22"];
 
     if (replace) {
       // Remove and add
@@ -169,7 +169,7 @@ var vm = {
           info.ssh_port = port;
         }
       }
-      return _.merge(info, { installed: true, running: info.VMState == "running" });;
+      return _.merge(info, { installed: true, running: info.VMState == "running" });
     }, (err) => {
       if (err.message.match(/cannot show vm info/)) {
         return { installed: false, running: false };
@@ -347,4 +347,5 @@ var vm = {
   }
 };
 
-export { vm as VM };
+var VM = vm;
+export { VM };

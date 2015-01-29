@@ -75,6 +75,8 @@ var Utils = {
     });
   },
 
+  //jscs:disable
+  /* jshint ignore:start */
   async(obj, func, ...args) {
     return Utils.defer((_resolve, _reject, notify) => {
       if (typeof obj == "function")
@@ -87,6 +89,8 @@ var Utils = {
       return Q.async(func)(...args, notify);
     });
   },
+  /* jshint ignore:end */
+  //jscs:enable
 
   qify(klass) {
     if (_.isString(klass))
@@ -159,9 +163,9 @@ var Utils = {
     return (value || "").replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&");
   },
 
-  template(data) {
+  template(template_string, data) {
     var options = { interpolate: /(?:(?:[#|$]{|<%)[=|-]?)([\s\S]+?)(?:}|%>)/g };
-    return _.template(template, data, options);
+    return _.template(template_string, data, options);
   },
 };
 

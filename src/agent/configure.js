@@ -1,19 +1,22 @@
 import { _, t, os, Q, async, defer, log, lazy_require } from 'azk';
-import { path, config, set_config } from 'azk';
+import { config, set_config } from 'azk';
 import { UIProxy } from 'azk/cli/ui';
 import { OSNotSupported, DependencyError } from 'azk/utils/errors';
 import { net } from 'azk/utils';
 import Azk from 'azk';
 
+var qfs        = require('q-io/fs');
 var which      = require('which');   // Search for command in path
 var request    = require('request');
 var semver     = require('semver');
+var { isIPv4 } = require('net');
 
-/* global docker, Migrations, isOnline */
+/* global docker, Migrations, isOnline, exec */
 lazy_require(this, {
   docker     : ['azk/docker', 'default'],
   Migrations : ['azk/agent/migrations'],
   isOnline   : 'is-online',
+  exec       : ['child_process'],
 });
 
 var ports_tabs = {
@@ -119,6 +122,7 @@ export class Configure extends UIProxy {
 
         notify({ type: "status", keys: "configure.check_version"});
         var [response, body] = yield Q.ninvoke(request, 'get', config('urls:github:api:tags_url'), options);
+        var statusCode = response.statusCode;
 
         var tagNameGithub = body[0].name;
         var tagNameGithubParsed = semver.clean(tagNameGithub);
@@ -130,7 +134,7 @@ export class Configure extends UIProxy {
             new_version: tagNameGithubParsed
           });
         } else {
-          log.debug('AZK version `v' + tagNameGithubParsed + '` is up to date.');
+          log.debug('AZK version `v' + tagNameGithubParsed + '` is up to date.' + statusCode);
         }
       } catch (err) {
         notify({
@@ -179,16 +183,22 @@ export class Configure extends UIProxy {
       .checkPort(port, this.docker_ip)
       .then((avaibly) => {
         if (!avaibly) {
-          throw new DependencyError('port_error', { port, service, env });
+          throw new DependencyError('port_error', {
+            port: port,
+            service: service,
+            env: env
+          });
         }
       });
   }
 
   _which(command, save_key = null) {
     return Q.nfcall(which, command)
-      .then((path) => {
+      .then((fullpath) => {
         if (save_key) {
-          return { [save_key]: path };
+          var obj = {};
+          obj[save_key] = fullpath;
+          return obj;
         }
       })
       .fail(() => {
@@ -210,7 +220,7 @@ export class Configure extends UIProxy {
           exit $result;
         `;
         return this.execSh(script).then((code) => {
-          if (code != 0) {
+          if (code !== 0) {
             throw new DependencyError('ssh_keygen');
           } else {
             return code;
@@ -253,18 +263,18 @@ export class Configure extends UIProxy {
       this.docker_ip = ip;
 
       // Save configuration
-      return _.merge({
-        ['agent:vm:ip']      : ip,
-        ['agent:dns:ip']     : ip,
-        ['agent:balancer:ip']: ip,
-      }, result);
+      var obj = {};
+      obj['agent:vm:ip'] = ip;
+      obj['agent:dns:ip'] = ip;
+      obj['agent:balancer:ip'] = ip;
+      return _.merge(obj, result);
     });
   }
 
   sudo_check() {
     return this._which('sudo', 'sudo')
       .then((sudo_path) => { return sudo_path.sudo; })
-      .fail(() => { return ""; })
+      .fail(() => { return ""; });
   }
 
   // Generate file /etc/resolver/*
@@ -275,16 +285,17 @@ export class Configure extends UIProxy {
       // Creating resolver file and adding ip (with sudo)
       this.info('configure.adding_ip', { ip, file });
       ip = `${ip}${this.dns_tab}${port}`;
-      return `
-        echo "" &&
-        set -x &&
-        ${sudo_path} mkdir -p /etc/resolver 2>/dev/null &&
-        echo "# azk agent configure" | ${sudo_path} tee ${file} &&
-        echo "nameserver ${ip}" | ${sudo_path} tee -a ${file} &&
-        ${sudo_path} chown \$(id -u):\$(id -g) ${file} &&
-        set +x &&
-        echo ""
+      var result = `
+        'echo "" &&',
+        'set -x &&',
+        '${sudo_path} mkdir -p /etc/resolver 2>/dev/null &&',
+        'echo "# azk agent configure" | ${sudo_path} tee ${file} &&',
+        'echo "nameserver ${ip}" | ${sudo_path} tee -a ${file} &&',
+        '${sudo_path} chown \$(id -u):\$(id -g) ${file} &&',
+        'set +x &&',
+        'echo ""',
       `;
+      return result;
     });
   }
 
@@ -293,7 +304,7 @@ export class Configure extends UIProxy {
       var script = block(sudo_path);
       // Call interactive shell (to support sudo)
       return this.execSh(script).then((code) => {
-        if (code != 0) {
+        if (code !== 0) {
           throw new DependencyError(error_label);
         } else {
           return code;
@@ -307,7 +318,7 @@ export class Configure extends UIProxy {
     var regex   = /^\s*nameserver\s{1,}((?:[0-9]{1,3}\.){3}[0-9]{1,3})/;
     var capture = null;
     return _.reduce(lines, (nameservers, line) => {
-      if (capture = line.match(regex)) {
+      if ((capture = line.match(regex))) {
         var ip = capture[1];
         if (isIPv4(ip)) {
           nameservers.push(ip);
@@ -370,12 +381,14 @@ export class Configure extends UIProxy {
         nameservers = config('agent:dns:defaultserver');
       }
 
-      return { [cf_key]: nameservers };
+      var obj = {};
+      obj[cf_key] = nameservers;
+      return obj;
     });
   }
 
   _filderDnsServers(nameservers) {
-    return _.filter(nameservers, (server) => { return !server.match(/^127\./) });
+    return _.filter(nameservers, (server) => { return !server.match(/^127\./); });
   }
 
   _readResolverFile() {

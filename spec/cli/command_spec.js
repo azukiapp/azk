@@ -1,13 +1,11 @@
 import h from 'spec/spec_helper';
-import { _, t, path } from 'azk';
-import { Command, UI as OriginalUI } from 'azk/cli/command';
+import { _, t } from 'azk';
+import { Command } from 'azk/cli/command';
 import {
   InvalidOptionError,
   InvalidValueError,
   RequiredOptionError
 } from 'azk/utils/errors';
-
-var printf = require('printf');
 
 describe('Azk cli command class', function() {
   var outputs = [];
@@ -208,7 +206,7 @@ describe('Azk cli command class', function() {
         .addExamples([ "this a example of the use" ]);
 
       cmd.showUsage();
-      var out = _.clone(outputs)
+      var out = _.clone(outputs);
       h.expect(out).to.deep.property("[00]",
         t("commands.help.usage", 'test_help [options] {subcommand} [*command]')
       );

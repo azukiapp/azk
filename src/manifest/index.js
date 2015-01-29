@@ -35,8 +35,8 @@ var ManifestDsl = {
     this.addSystem(name, data);
   },
 
-  systems(systems) {
-    _.each(systems, (system, name) => {
+  systems(all_systems) {
+    _.each(all_systems, (system, name) => {
       this.addSystem(name, system);
     });
   },
@@ -107,7 +107,7 @@ export class Manifest {
         if (!(e instanceof ManifestError)) {
           var stack = e.stack.split('\n');
           var msg   = stack[0] + "\n" + stack[1];
-          e = new ManifestError(this.file, msg);
+          throw new ManifestError(this.file, msg);
         }
         throw e;
       }

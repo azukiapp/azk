@@ -1,5 +1,4 @@
 import h from 'spec/spec_helper';
-import { config } from 'azk';
 import { init } from 'azk/cmds/docker';
 
 h.describeSkipVm("Azk command docker, run", function() {

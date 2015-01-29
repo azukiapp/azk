@@ -28,10 +28,10 @@ var paths = {
 var dns_nameservers = function(key, defaultValue) {
   var value = envs(key);
   return _.isEmpty(value) ? defaultValue : _.invoke(value.split(','), 'trim');
-}
+};
 
 class Dynamic {
-  constructor(key) { this.key = key };
+  constructor(key) { this.key = key; }
 }
 
 // Dir name used by manifest meta
@@ -47,7 +47,7 @@ var options = mergeConfig({
       show_deprecate: (envs('AZK_HIDE_DEPRECATE') != 'true'),
     },
     paths    : {
-      azk_root,
+      azk_root: azk_root,
       data  : data_path,
       logs  : paths.logs,
       log   : path.join(paths.logs, 'azk.log'),
@@ -104,7 +104,7 @@ var options = mergeConfig({
         user       : "docker",
         password   : "tcuser",
         cpus       : envs('AZK_VM_CPUS', os.cpus().length),
-        memory     : envs('AZK_VM_MEMORY', Math.floor(os.totalmem()/1024/1024/4)),
+        memory     : envs('AZK_VM_MEMORY', Math.floor(os.totalmem() / 1024 / 1024 / 4)),
         ssh_key    : envs('AZK_AGENT_VM_KEY', path.join(paths.vm, "azkvm_rsa")),
         data_disk  : path.join(paths.vm, "azk-agent.vmdk"),
         boot_disk  : path.join(envs('AZK_LIB_PATH'), "vm", "azk.iso"),
@@ -146,19 +146,23 @@ var options = mergeConfig({
 });
 
 function env() {
-  var env = envs('NODE_ENV', 'production');
-  return env;
+  var node_env = envs('NODE_ENV', 'production');
+  return node_env;
 }
 
 export function get(key) {
-  if (key == "env") return env();
+  if (key == "env") {
+    return env();
+  }
 
   var keys   = key.split(':');
   var buffer = options[env()] || options['*'];
 
-  for(var i = 0; i < keys.length; i++) {
+  for (var i = 0; i < keys.length; i++) {
     buffer = buffer[keys[i]];
-    if (!buffer) break;
+    if (!buffer) {
+      break;
+    }
   }
 
   if (buffer instanceof Dynamic) {
@@ -166,15 +170,21 @@ export function get(key) {
   }
 
   return _.clone(buffer);
-};
+}
 
 export function set(key, value) {
   if (key == "env") {
     process.env.NODE_ENV = value;
   } else {
     var keys   = [env(), ...key.split(':')];
-    var buffer = { [keys.pop()]: value };
-    while(key  = keys.pop()) { buffer = { [key]: buffer } };
+    var obj = {};
+    obj[keys.pop()] = value;
+    var buffer = obj;
+    var obj2 = {};
+    obj2[key] = buffer;
+    while ( (key = keys.pop()) ) {
+      buffer = obj2;
+    }
 
     // Check env exist
     if (!options[env()]) {
@@ -185,4 +195,3 @@ export function set(key, value) {
   }
   return value;
 }
-

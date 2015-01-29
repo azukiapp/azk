@@ -121,7 +121,7 @@ describe("Azk utils module", function() {
 
     it("should return a error in promise scope", function() {
       var promise = defer(() => {
-        self.test();
+        self.test(); // jshint ignore:line
       });
 
       return h.expect(promise).to.eventually.rejectedWith(Error);
@@ -154,11 +154,12 @@ describe("Azk utils module", function() {
 
     it("should support a sync with bind", function() {
       this.var = 'onevalue';
-
+      /* jshint ignore:start */
       return h.expect(async(this, function* () {
         h.expect(this.var).to.equal('onevalue');
         return true;
       })).to.eventually.ok;
+      /* jshint ignore:end */
     });
   });
 });

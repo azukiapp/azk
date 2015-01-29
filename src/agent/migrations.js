@@ -25,13 +25,14 @@ var Migrations = {
           yield configure.execShWithSudo('mv_resolver', (sudo_path) => {
             // Moving resolver files and notify
             configure.info('configure.migrations.moving_resolver', { origin, target });
-            return `
+            var result = `
               echo "" &&
               set -x &&
               ${sudo_path} mv ${origin} ${target} &&
               set +x &&
               echo ""
             `;
+            return result;
           });
         }
 

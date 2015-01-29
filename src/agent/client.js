@@ -3,13 +3,15 @@ import { config, set_config } from 'azk';
 import { Agent } from 'azk/agent';
 import { AgentNotRunning } from 'azk/utils/errors';
 
+var req = require('request');
+
 var HttpClient = {
   url(path) {
     return `http:\/\/unix:${config('paths:api_socket')}:${path}` ;
   },
 
   request(method, path, opts = {}) {
-    return Q.ninvoke(request, method, _.defaults(opts, {
+    return Q.ninvoke(req, method, _.defaults(opts, {
       url : this.url(path),
       json: true,
     }));

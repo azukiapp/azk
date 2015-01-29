@@ -2,9 +2,9 @@ import { config, _, log, lazy_require } from 'azk';
 import Utils from 'azk/utils';
 
 // Composer
-import { pull  } from 'azk/docker/pull';
-import { run   } from 'azk/docker/run';
-import { build } from 'azk/docker/build';
+import { pull_func  } from 'azk/docker/pull';
+import { run_func   } from 'azk/docker/run';
+import { build_func } from 'azk/docker/build';
 
 /* global parseRepositoryTag, uuid */
 lazy_require(this, {
@@ -86,9 +86,10 @@ export class Container extends Utils.qify('dockerode/lib/container') {
     }
 
     // Mount string
-    return [config('docker:namespace'), ...(_.map(azk, (value, key) => {
+    var map_result = (_.map(azk, (value, key) => {
       return key + "." + value;
-    }))].join("_");
+    }));
+    return [config('docker:namespace'), ...map_result].join("_");
   }
 
   // Unserialize annotations from a container name
@@ -165,14 +166,14 @@ export class Docker extends Utils.qify('dockerode') {
   }
 
   pull(...args) {
-    return pull(this, ...args);
+    return pull_func(this, ...args);
   }
 
   build(...args) {
-    return build(this, ...args);
+    return build_func(this, ...args);
   }
 
   run(...args) {
-    return run(this, Container, ...args);
+    return run_func(this, Container, ...args);
   }
 }

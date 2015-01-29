@@ -4,18 +4,19 @@ import { AzkError } from 'azk/utils/errors';
 
 require('colors');
 
-var Table    = require('cli-table');
-var printf   = require('printf');
-var inquirer = require('inquirer');
-var mbars    = [];
-var tables   = {};
+var Table     = require('cli-table');
+var printf    = require('printf');
+var inquirer  = require('inquirer');
+var execShLib = require('exec-sh');
+var mbars     = [];
+var tables    = {};
 
 // Status labels
-var ok        = 'azk'.green;
-var fail      = 'azk'.red;
-var warning   = 'azk'.yellow;
-var info      = 'azk'.blue;
-var deprecate = 'azk'.cyan;
+var azk_ok        = 'azk'.green;
+var azk_fail      = 'azk'.red;
+var azk_warning   = 'azk'.yellow;
+var azk_info      = 'azk'.blue;
+var azk_deprecate = 'azk'.cyan;
 
 var UI = {
   isUI: true,
@@ -48,11 +49,12 @@ var UI = {
   },
 
   // Helpers to print status
-  ok(...args) {        this._status(ok, ...args);      },
-  info(...args) {      this._status(info, ...args);    },
-  fail(...args) {      this._status(fail, ...args);    },
-  warning(...args) {   this._status(warning, ...args); },
-  deprecate(...args) { this._status(deprecate, ...args); },
+  ok(...args) {        this._status(azk_ok, ...args);      },
+  info(...args) {      this._status(azk_info, ...args);    },
+  fail(...args) {      this._status(azk_fail, ...args);    },
+  warning(...args) {   this._status(azk_warning, ...args); },
+  deprecate(...args) { this._status(azk_deprecate, ...args); },
+
   _status(tag, second, ...args) {
     var message;
 
@@ -132,7 +134,7 @@ var UI = {
   // User interactions methods
   execSh(...args) {
     var result = (err) => { return (err) ? err.code : 0; };
-    return Q.nfcall(execSh, ...args).spread(result, result);
+    return Q.nfcall(execShLib, ...args).spread(result, result);
   },
 
   prompt(questions) {

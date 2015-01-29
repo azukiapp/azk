@@ -9,7 +9,7 @@ describe("Azk capture_io utils helper", function() {
       console.log('output to stdout');
       console.error('output to stderr');
       return 'return value';
-    })
+    });
 
     return promise.spread((result, outs) => {
       h.expect(result).to.equal('return value');
@@ -27,10 +27,10 @@ describe("Azk capture_io utils helper", function() {
         done.notify('notification');
         console.log('output in stdout');
         done.resolve(1);
-      })
+      });
 
       return done.promise;
-    }
+    };
 
     it("should capture outputs", function() {
       return capture_io(block).spread((result, outs) => {

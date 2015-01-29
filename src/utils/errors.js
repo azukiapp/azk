@@ -6,13 +6,11 @@ var SYSTEMS_CODE_ERROR  = 3;
 var IMAGES_CODE_ERROR   = 4;
 var AGENT_CODE_ERROR    = 5;
 
-export {
-  BASE_CODE_ERROR,
-  MANIFEST_CODE_ERROR,
-  SYSTEMS_CODE_ERROR,
-  IMAGES_CODE_ERROR,
-  AGENT_CODE_ERROR,
-};
+export { BASE_CODE_ERROR };
+export { MANIFEST_CODE_ERROR };
+export { SYSTEMS_CODE_ERROR };
+export { IMAGES_CODE_ERROR };
+export { AGENT_CODE_ERROR };
 
 export class AzkError extends Error {
   constructor(translation_key) {

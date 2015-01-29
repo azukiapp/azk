@@ -52,4 +52,3 @@ describe("Azk i18n module", function() {
     );
   });
 });
-

@@ -53,4 +53,5 @@ var SystemBalancer = {
 };
 
 export { SystemBalancer };
-export { SystemBalancer as Balancer };
+var Balancer = SystemBalancer;
+export { Balancer };

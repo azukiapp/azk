@@ -48,8 +48,11 @@ describe("Azk command init", function() {
       h.expect(system).to.have.deep.property("name", "example");
       h.expect(system).to.have.deep.property("image.name", "[repository]:[tag]");
       h.expect(system).to.have.deep.property("depends").and.to.eql([]);
+
+      var obj = {};
+      obj["/azk/" + name] = utils.docker.resolvePath(manifest.manifestPath);
       h.expect(system).to.have.deep.property("mounts")
-        .and.to.eql({ ["/azk/" + name]: utils.docker.resolvePath(manifest.manifestPath) });
+        .and.to.eql(obj);
       h.expect(system).to.have.deep.property("options.workdir", "/azk/" + name);
       h.expect(system).to.have.deep.property("options.command")
         .and.to.eql("# command to run app");

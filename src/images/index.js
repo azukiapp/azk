@@ -84,22 +84,23 @@ export class Image {
     });
   }
 
-  pullWithDockerRegistryDownloader(dockerode_modem, namespace, repository, repo_tag) {
-    return async(this, function* () {
-      var DockerHub   = require('docker-registry-downloader').DockerHub;
-      var Syncronizer = require('docker-registry-downloader').Syncronizer;
-      var dockerHub   = new DockerHub();
-      var syncronizer = new Syncronizer({ dockerode_modem: dockerode_modem });
-      var tag         = repo_tag;
+  // FIXME: save files inside VM or elsewhere
+  // pullWithDockerRegistryDownloader(dockerode_modem, namespace, repository, repo_tag) {
+  //   return async(this, function* () {
+  //     var DockerHub   = require('docker-registry-downloader').DockerHub;
+  //     var Syncronizer = require('docker-registry-downloader').Syncronizer;
+  //     var dockerHub   = new DockerHub();
+  //     var syncronizer = new Syncronizer({ dockerode_modem: dockerode_modem });
+  //     var tag         = repo_tag;
 
-      // get token from DOCKER HUB API
-      return dockerHub.images(namespace, repository).then(function(hubResult) {
-        // sync registry layer with local layers
-        return syncronizer.sync(hubResult, tag);
-      });
+  //     // get token from DOCKER HUB API
+  //     return dockerHub.images(namespace, repository).then(function(hubResult) {
+  //       // sync registry layer with local layers
+  //       return syncronizer.sync(hubResult, tag);
+  //     });
 
-    });
-  }
+  //   });
+  // }
 
   build(options) {
     return async(this, function* (notify) {

@@ -25,7 +25,6 @@ function capture_io(block) {
       throw err;
     };
 
-    var result;
     try {
       result = block();
     } catch (err) { return fail(err); }

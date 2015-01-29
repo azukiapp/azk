@@ -122,13 +122,13 @@ describe("Azk system class, scale set", function() {
           var icc, instances, api = manifest.system("api");
           yield api.stop();
 
-          instances = (yield system.instances())
+          instances = (yield system.instances());
           h.expect(instances).to.length(0);
 
           icc = yield api.scale(0);
           h.expect(icc).to.equal(0);
 
-          instances = (yield system.instances())
+          instances = (yield system.instances());
           h.expect(instances).to.length(0);
         });
       });

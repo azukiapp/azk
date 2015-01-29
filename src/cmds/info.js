@@ -2,9 +2,10 @@ import { _, async, lazy_require } from 'azk';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Helpers } from 'azk/cli/command';
 
-/* global Manifest */
+/* global Manifest, prettyjson */
 lazy_require(this, {
   Manifest: ['azk/manifest'],
+  prettyjson: 'prettyjson'
 });
 
 class Cmd extends InteractiveCmds {
@@ -17,9 +18,11 @@ class Cmd extends InteractiveCmds {
 
       // Mount data to show
       var data = _.reduce(manifest.systems, (data, system) => {
+        var obj = {};
+        obj[system.image.provider] = system.image.name;
         var system_data = {
           depends : system.options.depends,
-          image   : { [system.image.provider]: system.image.name },
+          image   : obj,
           command : this._format_command(system.command),
           ports   : system.ports,
         };

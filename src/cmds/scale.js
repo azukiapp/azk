@@ -46,7 +46,7 @@ class Cmd extends InteractiveCmds {
     this.ok([...keys, event.action], data);
   }
 
-  _scale(system, instances = {}, opts) {
+  _scale(system, instances = {}, opts = null) {
     var progress = (event) => {
       var type;
       var pull_progress = Helpers.newPullProgress(this);
