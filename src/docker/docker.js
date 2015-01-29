@@ -2,9 +2,9 @@ import { config, _, log, lazy_require } from 'azk';
 import Utils from 'azk/utils';
 
 // Composer
-import { pull_func  } from 'azk/docker/pull';
-import { run_func   } from 'azk/docker/run';
-import { build_func } from 'azk/docker/build';
+import { pull as pull_func  } from 'azk/docker/pull';
+import { run as run_func   } from 'azk/docker/run';
+import { build as build_func } from 'azk/docker/build';
 
 /* global parseRepositoryTag, uuid */
 lazy_require(this, {
