@@ -10,7 +10,9 @@ var getVersion = function(content) {
   // http://regex101.com/r/hH2uY1/1
   var pythonVersionRegex = /^python-(\d+\.\d+\.\d+)/gm;
   var capturePyhtonVersionRegex = pythonVersionRegex.exec(content);
-  var extractedPyhtonVersionRegex = capturePyhtonVersionRegex && capturePyhtonVersionRegex.length >= 1 && capturePyhtonVersionRegex[1];
+  var extractedPyhtonVersionRegex = capturePyhtonVersionRegex &&
+                                    capturePyhtonVersionRegex.length >= 1 &&
+                                    capturePyhtonVersionRegex[1];
   if (extractedPyhtonVersionRegex) {
     pythonVersion = semver.clean(extractedPyhtonVersionRegex);
   }

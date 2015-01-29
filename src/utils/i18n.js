@@ -2,7 +2,7 @@ require('colors');
 var path   = require('path');
 var printf = require('printf');
 
-function load(folder, locale) {
+function load(folder, locale) { // jshint ignore:line
   var file = path.join(folder, locale);
   return require(file);
 }

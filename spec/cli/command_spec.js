@@ -216,7 +216,8 @@ describe('Azk cli command class', function() {
       h.expect(out).to.deep.property("[07]", '  --flag-default, -F              Flag with default (default: true)');
       h.expect(out).to.deep.property("[08]", '  --string                        String option');
       h.expect(out).to.deep.property("[09]", '  --string-placeholder="default"  String option with placeholder');
-      h.expect(out).to.deep.property("[10]", '  --verbose, -v, -vv              Verbose mode (default: false) - multiples supported');
+      h.expect(out).to.deep.property("[10]", '  --verbose, -v, -vv              ' +
+                                             'Verbose mode (default: false) - multiples supported');
       h.expect(out).to.deep.property("[11]", '');
       h.expect(out).to.deep.property("[12]", 'subcommand:');
       h.expect(out).to.deep.property("[13]", '');

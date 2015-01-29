@@ -7,9 +7,9 @@ lazy_require(this, {
 });
 
 var blank_observer = {
-  notify()  {},
+  notify() {},
   resolve() {},
-  reject()  {},
+  reject() {},
 };
 
 var Agent = {
@@ -54,12 +54,12 @@ var Agent = {
       .stop()
       .progress(this.observer.notify)
       .then(() => {
-        try { pid.unlink(); } catch(e) {}
+        try { pid.unlink(); } catch (e) {}
         this.change_status("stopped");
         return 0;
       })
       .fail((error) => {
-        try { pid.unlink(); } catch(e) {}
+        try { pid.unlink(); } catch (e) {}
         error = error.stack || error;
         log.error('agent stop error: ' + error);
         this.change_status("error", error);
@@ -93,7 +93,7 @@ var Agent = {
     try {
       var pid = this.agentPid();
       pid.update(process.pid);
-    } catch(e){}
+    } catch (e) {}
 
     process.on('SIGTERM', gracefullExit);
     process.on('SIGINT' , gracefullExit);
