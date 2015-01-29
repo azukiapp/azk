@@ -78,7 +78,7 @@ describe('Azk cli command class', function() {
       }]);
     });
 
-    it("shuld return a nivel for boolean acc option", function() {
+    it("should return a nivel for boolean acc option", function() {
       cmd.run([]);
       h.expect(_.clone(outputs)).to.eql([{ verbose: 0, __leftover: [] }]);
       cmd.run(['--verbose']);
@@ -207,6 +207,22 @@ describe('Azk cli command class', function() {
 
       cmd.showUsage();
       var out = _.clone(outputs);
+
+      /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.      DEBUG */
+      var target = out;
+      var depth  = 2; var inspectResult = require("util").inspect(target,
+        { showHidden:!0, colors:!0, depth:depth });
+      console.log("\n",
+        ">>------------------------------------------------------\n",
+        "  ##  out\n",
+        "  ------------------------------------------------------\n",
+        "  source: ( " + __filename + " )" + "\n",
+        "  ------------------------------------------------------\n",
+        "" + inspectResult + "\n",
+        "<<------------------------------------------------------\n",
+        "");
+      /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-. /END-DEBUG */
+
       h.expect(out).to.deep.property("[00]",
         t("commands.help.usage", 'test_help [options] {subcommand} [*command]')
       );

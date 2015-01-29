@@ -76,22 +76,19 @@ var Utils = {
     });
   },
 
-  //jscs:disable
-  /* jshint ignore:start */
   async(obj, func, ...args) {
     return Utils.defer((_resolve, _reject, notify) => {
-      if (typeof obj == "function")
+      if (typeof obj == "function") {
         [func, obj] = [obj, null];
+      }
 
       if (typeof obj == "object") {
         func = func.bind(obj);
       }
 
-      return Q.async(func).apply([...args].concat(notify));
+      return Q.async(func).apply(func, [...args].concat(notify));
     });
   },
-  /* jshint ignore:end */
-  //jscs:enable
 
   qify(klass) {
     if (_.isString(klass)) {

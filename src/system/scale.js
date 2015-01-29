@@ -41,7 +41,7 @@ var Scale = {
       }
 
       if (icc !== 0) {
-        notify({ type: "scale", from, to: from + icc, system: system.name });
+        notify({ type: "scale", from: from, to: from + icc, system: system.name });
       }
 
       if (icc > 0) {
