@@ -42,7 +42,8 @@ export class Suggestion extends UIProxy {
         'https://gist.github.com/gullitmiranda/62082f2e47c364ef9617'
       ],
       export_envs: {
-        DATABASE_URL: "mysql2://#{envs.MYSQL_USER}:#{envs.MYSQL_PASS}@#{net.host}:#{net.port.data}/${envs.MYSQL_DATABASE}",
+        DATABASE_URL: "mysql2://#{envs.MYSQL_USER}:#{envs.MYSQL_PASS}@#{net.host}" +
+                      ":#{net.port.data}/${envs.MYSQL_DATABASE}",
       },
     });
   }
