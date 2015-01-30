@@ -138,8 +138,8 @@ describe('Azk generator db', function() {
       it('should has correct properties', function() {
         // main properties
         h.expect(system).to.have.property('name', 'railsMysql');
-        h.expect(system).to.have.deep.property('image.repository', 'rails');
-        h.expect(system).to.have.deep.property('image.tag', '4.1');
+        h.expect(system).to.have.deep.property('image.repository', 'azukiapp/ruby');
+        h.expect(system).to.have.deep.property('image.tag', 'latest');
 
         // __options
         h.expect(system).to.have.deep.property('options.depends').and.to.eql(['mysql']);
@@ -171,8 +171,8 @@ describe('Azk generator db', function() {
       it('should has correct properties', function() {
         // main properties
         h.expect(system).to.have.property('name', 'railsPostgres');
-        h.expect(system).to.have.deep.property('image.repository', 'rails');
-        h.expect(system).to.have.deep.property('image.tag', '4.1');
+        h.expect(system).to.have.deep.property('image.repository', 'azukiapp/ruby');
+        h.expect(system).to.have.deep.property('image.tag', 'latest');
 
         // __options
         h.expect(system).to.have.deep.property('options.depends').and.to.eql(['postgres']);

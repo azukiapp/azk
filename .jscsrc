@@ -5,7 +5,8 @@
       ".jscsrc/**",
       "data/**",
       "package/**",
-      "shared/**"
+      "shared/**",
+      "src/generator/suggestions/**"
     ],
 
     "esnext": true,
