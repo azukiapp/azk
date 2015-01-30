@@ -91,7 +91,7 @@ var Helpers = {
           }
           break;
         case "try_connect":
-          var tKey = [...keys].concat();
+          var tKey = [...keys].concat("progress");
           log.info_t(tKey, event);
           cmd.ok(tKey, event);
           break;
