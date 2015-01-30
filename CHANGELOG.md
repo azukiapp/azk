@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.9.2 - (2015-29-01)
+
+* Bug
+  * [Generators] Fixing php suggestions.
+
 ## v0.9.1 - (2015-27-01)
 
 * Bug
