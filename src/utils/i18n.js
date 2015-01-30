@@ -52,7 +52,7 @@ export class i18n {
 
     if (result) {
       try {
-        switch(typeof(result)) {
+        switch (typeof(result)) {
           case "string":
             return printf(result, ...args);
           case "object":

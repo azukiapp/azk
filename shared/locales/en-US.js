@@ -3,10 +3,11 @@ require('colors');
 var version = "Shows azk version";
 var verbose = "Sets the level of detail";
 var quiet   = "Never prompt";
-var systems_options = "Targets systems of action";
+//var systems_options = "Targets systems of action";
 var rebuild = "Force the rebuild or pull image and reprovision before starting an instance";
 var reprovision = "Force the provisioning actions before starting an instance";
 
+// jscs:disable maximumLineLength
 module.exports = {
   errors: {
     not_vm_start: "Unable to install and configure virtual machine",
@@ -46,7 +47,7 @@ module.exports = {
       },
       darwin: {
         VBoxManage : 'VirtualBox not installed. Install before continue.',
-        unfsd: 'unfs3 not installed. Reinstall `azk` or \`brew install unfs3\` before continuing.',
+        unfsd: 'unfs3 not installed. Reinstall `azk` or `brew install unfs3` before continuing.',
         network: 'networking error',
       },
       linux: {
@@ -128,7 +129,7 @@ module.exports = {
       started_dns       : "Dns service started.",
       stopping_dns      : "Stopping dns service...",
       stoped_dns        : "Dns service was stoped.",
-      progress: "Trying connect to docker (%(uri)s) (%(attempts)d/%(max)d)...",
+      progress          : "Trying connect to docker (%(uri)s) (%(attempts)d/%(max)d)...",
     },
 
     unsfd: {
@@ -362,15 +363,15 @@ module.exports = {
     scale: {
       instances   : "from " + "%(from)d".red + " to " + "%(to)d".green + " instances",
       description : "Scales (up or down) an instance of the system(s)",
-      wait_port   : "◴".magenta + " waiting start `"+ "%(system)s".blue  + "` system, try connect port %(name)s/%(protocol)s...",
-      check_image : "✓".cyan    + " checking `"     + "%(image)s".yellow + "` image...",
-      pull_image  : "⇲".blue    + " downloading `"  + "%(image)s".yellow + "` image...",
-      build_image : "⇲".blue    + " building `"     + "%(image)s".yellow + "` image...",
-      provision   : "↻".yellow  + " provisioning `" + "%(system)s".blue  + "` system...",
-      starting    : "↑".green   + " starting `"     + "%(system)s".blue  + "` system, " + "%(to)d".green + " new instances...",
-      stopping    : "↓".red     + " stopping `"     + "%(system)s".blue  + "` system, " + "%(from)d".red + " instances...",
-      scaling_up  : "↑".green   + " scaling `"      + "%(system)s".blue  + "` system %(instances)s...",
-      scaling_down: "↓".red     + " scaling `"      + "%(system)s".blue  + "` system %(instances)s...",
+      wait_port   : "◴".magenta + " waiting start `" + "%(system)s".blue  + "` system, try connect port %(name)s/%(protocol)s...",
+      check_image : "✓".cyan    + " checking `"      + "%(image)s".yellow + "` image...",
+      pull_image  : "⇲".blue    + " downloading `"   + "%(image)s".yellow + "` image...",
+      build_image : "⇲".blue    + " building `"      + "%(image)s".yellow + "` image...",
+      provision   : "↻".yellow  + " provisioning `"  + "%(system)s".blue  + "` system...",
+      starting    : "↑".green   + " starting `"      + "%(system)s".blue  + "` system, " + "%(to)d".green + " new instances...",
+      stopping    : "↓".red     + " stopping `"      + "%(system)s".blue  + "` system, " + "%(from)d".red + " instances...",
+      scaling_up  : "↑".green   + " scaling `"       + "%(system)s".blue  + "` system %(instances)s...",
+      scaling_down: "↓".red     + " scaling `"       + "%(system)s".blue  + "` system %(instances)s...",
       options: {
         remove: "Removes the instances before stop",
         verbose: verbose,
@@ -480,4 +481,5 @@ module.exports = {
       },
     },
   }
-}
+};
+// jscs:enable maximumLineLength

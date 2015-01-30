@@ -68,8 +68,27 @@ var UI = {
       message = t(second, ...args);
     }
 
-    message = message.replace(/^(.+)/gm, `${tag}: $1`);
-    this.stderr().write(message + "\n");
+    if (_.isString(message)) {
+      message = message.replace(/^(.+)/gm, `${tag}: $1`);
+      this.stderr().write(message + "\n");
+    } else {
+
+      /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.      DEBUG */
+      var target = arguments;
+      var depth  = 2; var inspectResult = require("util").inspect(target,
+        { showHidden:!0, colors:!0, depth:depth });
+      console.log("\n",
+        ">>------------------------------------------------------\n",
+        "  ##  arguments\n",
+        "  ------------------------------------------------------\n",
+        "  source: ( " + __filename + " )" + "\n",
+        "  ------------------------------------------------------\n",
+        "" + inspectResult + "\n",
+        "<<------------------------------------------------------\n",
+        "");
+      /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-. /END-DEBUG */
+
+    }
   },
 
   // TOOD: Flush log (https://github.com/flatiron/winston/issues/228)

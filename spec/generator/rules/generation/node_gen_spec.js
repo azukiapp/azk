@@ -43,7 +43,6 @@ describe('Azk generator generation node rule', function() {
     // h.expect(system).to.have.deep.property('mounts')
     //  .and.to.eql(expectedMounts);
 
-
     h.expect(system).to.have.deep.property('options.workdir', workdir);
     h.expect(system).to.have.deep.property('options.provision')
       .and.to.eql(['npm install']);
