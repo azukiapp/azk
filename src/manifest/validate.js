@@ -11,7 +11,7 @@ export class Validate {
 
     validations.forEach(function(validation) {
 
-      if(validation && validation.length > 0){
+      if (validation && validation.length > 0) {
         errors = errors.concat(validation);
       }
     });
@@ -40,8 +40,7 @@ export class Validate {
         return errors.concat(
           this._deprecate((system.image || {}), manifest, system.name, 'image', 'image.provider')
         );
-      }
-      else {
+      } else {
         return errors;
       }
     }, []);

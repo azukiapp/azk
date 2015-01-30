@@ -1,13 +1,11 @@
 import h from 'spec/spec_helper';
-import { _, t, path } from 'azk';
-import { Command, UI as OriginalUI } from 'azk/cli/command';
+import { _, t } from 'azk';
+import { Command } from 'azk/cli/command';
 import {
   InvalidOptionError,
   InvalidValueError,
   RequiredOptionError
 } from 'azk/utils/errors';
-
-var printf = require('printf');
 
 describe('Azk cli command class', function() {
   var outputs = [];
@@ -23,7 +21,7 @@ describe('Azk cli command class', function() {
     }
 
     run(...args) {
-      while(outputs.length > 0) { outputs.pop(); }
+      while (outputs.length > 0) { outputs.pop(); }
       return super(...args);
     }
   }
@@ -80,7 +78,7 @@ describe('Azk cli command class', function() {
       }]);
     });
 
-    it("shuld return a nivel for boolean acc option", function() {
+    it("should return a nivel for boolean acc option", function() {
       cmd.run([]);
       h.expect(_.clone(outputs)).to.eql([{ verbose: 0, __leftover: [] }]);
       cmd.run(['--verbose']);
@@ -96,7 +94,7 @@ describe('Azk cli command class', function() {
     var cmd = new TestCmd('test_options', UI);
     cmd
       .addOption(['--verbose', '-v'], { default: false })
-      .addOption(['--flag'   , '-f'], { default: true })
+      .addOption(['--flag'   , '-f'], { default: true });
 
     it("should render a defaults values", function() {
       cmd.run();
@@ -146,11 +144,11 @@ describe('Azk cli command class', function() {
     });
 
     it("should be raise a required option", function() {
-      var func = () => cmd.run([]);
-      h.expect(func).to.throw(RequiredOptionError, /string/);
+      var func1 = () => cmd.run([]);
+      h.expect(func1).to.throw(RequiredOptionError, /string/);
 
-      var func = () => cmd.run(['--string=value']);
-      h.expect(func).to.throw(RequiredOptionError, /sub_command/);
+      var func2 = () => cmd.run(['--string=value']);
+      h.expect(func2).to.throw(RequiredOptionError, /sub_command/);
     });
 
     it("should support valid options", function() {
@@ -208,7 +206,8 @@ describe('Azk cli command class', function() {
         .addExamples([ "this a example of the use" ]);
 
       cmd.showUsage();
-      var out = _.clone(outputs)
+      var out = _.clone(outputs);
+
       h.expect(out).to.deep.property("[00]",
         t("commands.help.usage", 'test_help [options] {subcommand} [*command]')
       );
@@ -218,7 +217,8 @@ describe('Azk cli command class', function() {
       h.expect(out).to.deep.property("[07]", '  --flag-default, -F              Flag with default (default: true)');
       h.expect(out).to.deep.property("[08]", '  --string                        String option');
       h.expect(out).to.deep.property("[09]", '  --string-placeholder="default"  String option with placeholder');
-      h.expect(out).to.deep.property("[10]", '  --verbose, -v, -vv              Verbose mode (default: false) - multiples supported');
+      h.expect(out).to.deep.property("[10]", '  --verbose, -v, -vv              ' +
+                                             'Verbose mode (default: false) - multiples supported');
       h.expect(out).to.deep.property("[11]", '');
       h.expect(out).to.deep.property("[12]", 'subcommand:');
       h.expect(out).to.deep.property("[13]", '');

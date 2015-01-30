@@ -10,9 +10,9 @@ var getVersion = function(path, content) {
     log.error('JSON.parse error [', path, ']', err.stack || err);
   }
 
-  if(parsedJson &&
-     parsedJson.require &&
-     parsedJson.require.php) {
+  if (parsedJson &&
+      parsedJson.require &&
+      parsedJson.require.php) {
     // remove garbage
     var versionCleaned = parsedJson.require.php.replace(/[^\d\.\*]/g, "");
     return semver.clean(versionCleaned);
@@ -44,7 +44,7 @@ export class Rule extends BaseRule {
     evidence.version = phpVersion;
 
     // cant find php version, will use default php v5.5.9
-    if(!phpVersion){
+    if (!phpVersion) {
       return evidence;
     }
 

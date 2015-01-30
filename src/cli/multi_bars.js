@@ -32,13 +32,15 @@ export class Multibar {
       if (this.terminates == this.bars.length) {
         this.terminate();
       }
-    }
+    };
 
     return bar;
   }
 
   clear(index) {
-    if (!this.stream.isTTY) return;
+    if (!this.stream.isTTY) {
+      return;
+    }
     this.move(index);
     this.stream.clearLine();
     this.stream.cursorTo(0);
@@ -49,7 +51,9 @@ export class Multibar {
   }
 
   move(index) {
-    if (!this.stream.isTTY) return;
+    if (!this.stream.isTTY) {
+      return;
+    }
     this.stream.moveCursor(0, index - this.cursor);
     this.cursor = index;
   }
@@ -62,4 +66,3 @@ export class Multibar {
     }
   }
 }
-

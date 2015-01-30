@@ -1,8 +1,9 @@
-import { _, async, config, lazy_require } from 'azk';
+import { async, config, lazy_require } from 'azk';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
-import { Command, Helpers } from 'azk/cli/command';
+import { Helpers } from 'azk/cli/command';
 import Azk from 'azk';
 
+/* global Client */
 lazy_require(this, {
   Client: ['azk/agent/client'],
 });
@@ -40,7 +41,7 @@ class Cmd extends InteractiveCmds {
     var data_string = this.render_normal(data);
     data_string = data_string.split("\n");
 
-    return `
+    var azk_logo = `
                ${"##########".blue}
            ${"##################".blue}
          ${"######################".blue}
@@ -57,15 +58,18 @@ class Cmd extends InteractiveCmds {
             ${"################".blue}
                ${"##########".blue}
     `;
+
+    return azk_logo;
   }
 
   render_normal(data) {
-    return `
+    var result = `
       ${"Azk".cyan}   : ${data.version.blue}
       ${"Agent".cyan} : ${data.agent_running}
       ${"Docker".cyan}: ${data.docker.Version}
       ${"Use vm".cyan}: ${data.use_vm}
     `;
+    return result;
   }
 }
 
@@ -73,4 +77,3 @@ export function init(cli) {
   (new Cmd('doctor', cli))
     .addOption(['--logo'], { default: false });
 }
-

@@ -1,13 +1,8 @@
-import { log, _, async, config, t, lazy_require } from 'azk';
-import { Command, Helpers } from 'azk/cli/command';
-import { SYSTEMS_CODE_ERROR, NotBeenImplementedError } from 'azk/utils/errors';
+import { _, async } from 'azk';
+import { SYSTEMS_CODE_ERROR } from 'azk/utils/errors';
 import { Cmd as ScaleCmd } from 'azk/cmds/scale';
 
 var open = require('open');
-
-lazy_require(this, {
-  Manifest: ['azk/manifest'],
-});
 
 var action_opts = {
   start: { instances: {}, key: "already" },
@@ -26,32 +21,32 @@ class Cmd extends ScaleCmd {
       var system, result = 0;
       systems = _.clone(systems);
 
-      while(system = systems.shift()) {
-        var ns = ["commands", action];
+      while ( (system = systems.shift()) ) {
+        var ns = ["commands", action], instances;
 
         if (action == "start") {
           // The number of instances is not set to system.name use "{}"
-          var instances = _.defaults(opts.instances[system.name], _.clone(scale_options.instances));
+          instances = _.defaults(opts.instances[system.name], _.clone(scale_options.instances));
         } else {
-          var instances =_.clone(scale_options.instances);
-        };
+          instances = _.clone(scale_options.instances);
+        }
 
         // Force start scalable = { default: 0 }
         // Only if specified
         if (!(opts.systems) && action == "start" && _.isObject(scale_options.instances)) {
-          if (system.scalable.default == 0 && !system.disabled) {
+          if (system.scalable.default === 0 && !system.disabled) {
             instances = 1;
           }
         }
 
-        this.verbose([...ns, "verbose"], system);
+        this.verbose([...ns].concat("verbose"), system);
         var icc = yield super(system, instances, opts);
 
-        if (icc == 0) {
-          this.fail([...ns, scale_options.key], system);
+        if (icc === 0) {
+          this.fail([...ns].concat(scale_options.key), system);
           result = SYSTEMS_CODE_ERROR;
         }
-      };
+      }
 
       return result;
     });
@@ -86,7 +81,7 @@ class Cmd extends ScaleCmd {
         } else {
           this.warning(`${tKey}.default_system_not_balanceable`, tOpt);
         }
-      };
+      }
 
       return result;
     })
@@ -95,7 +90,7 @@ class Cmd extends ScaleCmd {
       this.fail('commands.start.fail', error);
       return this
         .stop(manifest, systems, opts)
-        .then(() => { return error.code ? error.code : 127 });
+        .then(() => { return error.code ? error.code : 127; });
     });
   }
 
@@ -141,7 +136,7 @@ export function init(cli) {
                 .addOption(['--open', '-o'], { type: String, placeholder: "application" }),
     reload  : (new Cmd('reload [system]'  , cli))
                 .addOption(['--reprovision', '-R'], { default: true }),
-  }
+  };
 
   return cmds;
 }

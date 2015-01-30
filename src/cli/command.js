@@ -31,7 +31,7 @@ export class Command extends UIProxy {
     this.__cwd = value;
   }
 
-  initChildren(parent) { }
+  initChildren() { }
 
   __parse_name(name) {
     var names = name.split(' ');
@@ -83,7 +83,7 @@ export class Command extends UIProxy {
     return _.reduce(args, (memo, arg) => {
       // Split simple args (-afx => -a -f -x)
       if (arg.match(/^-[^-]/)) {
-        var args = _.map(arg.slice(1).split(''), (a) => { return `-${a}` });
+        var args = _.map(arg.slice(1).split(''), (a) => { return `-${a}`; });
         memo = memo.concat(args);
 
       // No options (--no-debug => --debug false )
@@ -95,7 +95,7 @@ export class Command extends UIProxy {
       } else if (arg.match(/^-{2,}.*=.*$/)) {
         memo = memo.concat(arg.split('='));
       } else {
-        memo.push(arg)
+        memo.push(arg);
       }
       return memo;
     }, []);
@@ -114,7 +114,9 @@ export class Command extends UIProxy {
         value = opts[options.name] || 0;
         value = (value === true ? 1 : value) + 1;
       } else {
-        if (_.isEmpty(value) && options.acc) return;
+        if (_.isEmpty(value) && options.acc) {
+          return;
+        }
 
         if (options.acc) {
           var actual = opts[options.name] || [];
@@ -123,7 +125,7 @@ export class Command extends UIProxy {
         }
       }
       opts[options.name] = value;
-    }
+    };
 
     // Set a default values
     _.each(this.options, (opt) => {
@@ -145,14 +147,14 @@ export class Command extends UIProxy {
         }
 
         if (previous) {
+          var value;
           try {
-            var value = previous.processValue(previous_value);
+            value = previous.processValue(previous_value);
           } catch (err) {
-            if (
-              err instanceof InvalidValueError
-              && stackable.length > 0
-              && !previous.required
-            ) {
+            if (err instanceof InvalidValueError &&
+                stackable.length > 0 &&
+                !previous.required
+              ) {
               if (previous.type == Boolean) {
                 save_value(previous, true);
               }
@@ -168,10 +170,10 @@ export class Command extends UIProxy {
           this.invalid_options(previous_value);
         }
       }
-    }
+    };
 
     args = this.fix_args(args);
-    while((!stop) && args.length > 0) {
+    while ((!stop) && args.length > 0) {
       var arg = args.shift();
       if (arg.match(/^-{1,}/)) {
         arg = arg.replace(/^-*/, '');
@@ -193,14 +195,15 @@ export class Command extends UIProxy {
   }
 
   valid_requires(opts) {
-    var filter = (opt) => { return opt.required };
+    var filter = (opt) => { return opt.required; };
     var requireds = _.filter(this.options, filter);
     requireds = requireds.concat(_.filter(this.stackable, filter));
 
     _.each(requireds, (option) => {
-      if (!opts[option.name])
+      if (!opts[option.name]) {
         throw new RequiredOptionError(option.name);
-    })
+      }
+    });
   }
 
   before_action(...args) {
@@ -262,8 +265,9 @@ export class Command extends UIProxy {
   __show_usage(prefix) {
     var usage = this.usageLine();
 
-    if (prefix)
+    if (prefix) {
       usage = printf(prefix, usage);
+    }
 
     this.tOutput("commands.help.usage", usage);
   }
@@ -294,9 +298,9 @@ export class Command extends UIProxy {
       if (opt.options && opt.options.length > 0) {
         var tKey = this.tKeyPath("options", opt.name);
         this.output();
-        this.output("%s:", t([...tKey, "name"]) || opt.name);
+        this.output("%s:", t([...tKey].concat("name")) || opt.name);
         this.output();
-        this.outputWithLabel(opt.helpValues([...tKey, "options"]), '  ');
+        this.outputWithLabel(opt.helpValues([...tKey].concat("options")), '  ');
       }
     });
   }

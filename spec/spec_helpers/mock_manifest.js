@@ -1,4 +1,4 @@
-import { fs, path, _, config, async } from 'azk';
+import { path, _, config, async } from 'azk';
 import { Generator } from 'azk/generator';
 import { Manifest } from  'azk/manifest';
 
@@ -25,7 +25,7 @@ export function extend(h) {
       // Return a new project dir
       return new Manifest(tmp);
     });
-  }
+  };
 
   h.mockManifestWithData = function(data) {
     return async(function* () {
@@ -39,7 +39,7 @@ export function extend(h) {
       // Return a new project dir
       return new Manifest(tmp);
     });
-  }
+  };
 
   h.mockManifest = function(data) {
     var default_img = config('docker:image_default');
@@ -155,6 +155,5 @@ export function extend(h) {
     }, data);
 
     return h.mockManifestWithData(data);
-  }
+  };
 }
-

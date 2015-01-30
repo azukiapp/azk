@@ -1,15 +1,15 @@
 import { _, t, log, lazy_require, config } from 'azk';
-import { AgentNotRunning } from 'azk/utils/errors';
 
 var fmt_p = t('commands.helpers.pull.bar_progress');
 var fmt_s = t('commands.helpers.pull.bar_status');
 var bar_opts = {
-    complete: '='
-  , incomplete: ' '
-  , width: 30
-  , total: 100
-}
+    complete: '=',
+    incomplete: ' ',
+    width: 30,
+    total: 100
+};
 
+/* global AgentClient, Configure */
 lazy_require(this, {
   AgentClient: ['azk/agent/client', 'Client'],
   Configure: ['azk/agent/configure', 'Configure'],
@@ -60,42 +60,48 @@ var Helpers = {
 
   vmStartProgress(cmd) {
     return (event) => {
-      if (!event) return;
+      if (!event) {
+        return;
+      }
 
-      var context = event.context || "agent"
+      var context = event.context || "agent";
       var keys    = ["status", context];
 
-      switch(event.type) {
+      switch (event.type) {
         case "status":
           // running, starting, not_running, already
-          switch(event.status) {
+          switch (event.status) {
             case "not_running":
             case "already":
-              cmd.fail([...keys, event.status], event.data);
+              cmd.fail([...keys].concat(event.status), event.data);
               break;
             case "error":
               if (event.data instanceof Error) {
-                cmd.fail(event.data.toString())
+                cmd.fail(event.data.toString());
               } else {
-                cmd.fail([...keys, event.status], event);
+                cmd.fail([...keys].concat(event.status), event);
               }
               break;
             default:
               if (event.keys) {
                 cmd[event.status || "ok"](event.keys, event.data);
               } else {
-                cmd.ok([...keys, event.status], event.data);
+                cmd.ok([...keys].concat(event.status), event.data);
               }
           }
           break;
         case "try_connect":
-          var tKey = [...keys, "progress"];
+          var tKey = [...keys].concat("progress");
           log.info_t(tKey, event);
           cmd.ok(tKey, event);
           break;
         case "ssh":
-          if (context == "stderr")
+          if (context === "stderr") {
             break;
+          } else {
+            log.debug(event);
+          }
+          break;
         default:
           log.debug(event);
       }
@@ -117,7 +123,7 @@ var Helpers = {
           var title  = `${event.id}:`;
           var bar    = bars[event.id] || cmd.newBar(mbars, fmt_p, bar_opts);
 
-          switch(status.type) {
+          switch (status.type) {
             case 'download':
               var progress = event.progressDetail;
               var tick     = progress.current - bar.curr;
@@ -133,7 +139,7 @@ var Helpers = {
         }
       }
       return event;
-    }
+    };
   },
 
   escapeCapture(callback) {
@@ -149,14 +155,16 @@ var Helpers = {
         var stopped = false;
 
         stdin.on('data', function (key) {
-          if (stopped) return false;
+          if (stopped) {
+            return false;
+          }
 
           var ch = key.toString(stdin.encoding || 'utf-8');
 
           if (escapeBuffer && ch === '~') {
             escapeBuffer = false;
             escape = true;
-          } else if(ch === '\r') {
+          } else if (ch === '\r') {
             escapeBuffer = true;
             stream.write(key);
           } else {
@@ -171,8 +179,8 @@ var Helpers = {
         });
       }
       return true;
-    }
+    };
   }
-}
+};
 
 export { Helpers };

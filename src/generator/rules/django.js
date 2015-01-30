@@ -42,7 +42,7 @@ export class Rule extends BaseRule {
     var djangoVersion = getDjangoVersion(content);
     evidence.version = djangoVersion;
 
-    if(!djangoVersion) {
+    if (!djangoVersion) {
       return null;
     }
 

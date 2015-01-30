@@ -5,7 +5,6 @@ import { Manifest } from 'azk/manifest';
 var qfs = require('q-io/fs');
 
 describe('Azk generator generation two nodes systems', function() {
-  var project = null;
   var outputs = [];
   var UI  = h.mockUI(beforeEach, outputs);
   var generator = new Generator(UI);
@@ -47,5 +46,4 @@ describe('Azk generator generation two nodes systems', function() {
     h.expect(allKeys).to.have.contains('node1');
     h.expect(allKeys).to.have.contains('node2');
   });
-
 });

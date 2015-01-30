@@ -1,4 +1,4 @@
-import { Q, _, fs, defer, config } from 'azk';
+import { Q, _, defer, config } from 'azk';
 
 var portscanner = require('portscanner');
 var url         = require('url');
@@ -34,7 +34,7 @@ var net = {
   },
 
   nameServers() {
-    if (nameservers == null) {
+    if (nameservers === null) {
       nameservers = config('agent:dns:nameservers');
       nameservers.unshift(config("agent:dns:ip"));
     }
@@ -65,7 +65,7 @@ var net = {
         var t = null;
         notify(_.merge({
           uri : uri,
-          type: 'try_connect', attempts, max, context: opts.context
+          type: 'try_connect', attempts: attempts, max: max, context: opts.context
         }, address ));
 
         client = nativeNet.connect(address, function() {
@@ -78,15 +78,17 @@ var net = {
           client.end();
 
           opts.retry_if().then((result) => {
-            if (attempts >= max || !result) return resolve(false);
+            if (attempts >= max || !result) {
+              return resolve(false);
+            }
             attempts += 1;
             connect();
           }, () => resolve(false));
         }, opts.timeout);
 
         // Ignore connect error
-        client.on('error', (error) => { return false; });
-      }
+        client.on('error', () => { return false; });
+      };
       connect();
     });
   },
@@ -97,15 +99,15 @@ var net = {
       var client   = null;
       var attempts = 1, max = retry;
       var connect  = () => {
-        notify({ type: 'try_connect', attempts, max });
+        notify({ type: 'try_connect', attempts: attempts, max: max });
 
         var timeout_func = function() {
           attempts += 1;
           connect();
-        }
+        };
 
         client = nativeNet.connect({ host, port}, function() {
-          client.on('data', function(data) {
+          client.on('data', function() {
             client.destroy();
             resolve();
           });
@@ -118,17 +120,17 @@ var net = {
         });
 
         client.on('error', (error) => {
-          if(error.code == 'ECONNREFUSED' && attempts <= max) {
+          if (error.code == 'ECONNREFUSED' && attempts <= max) {
             setTimeout(timeout_func, timeout);
           } else {
-            reject(error)
+            reject(error);
           }
         });
-      }
+      };
 
       connect();
     });
   },
-}
+};
 
 export default net;

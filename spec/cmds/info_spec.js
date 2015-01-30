@@ -39,7 +39,7 @@ describe("Azk command info, run in an", function() {
         var rx_default = RegExp("default_system:.*" + h.escapeRegExp(manifest.default_system));
         h.expect(outputs[0]).to.match(rx_default);
 
-        var rx_name = RegExp(`${h.escapeRegExp("example".yellow)}:`)
+        var rx_name = RegExp(`${h.escapeRegExp("example".yellow)}:`);
         h.expect(outputs[0]).to.match(rx_name);
 
         h.expect(outputs[0]).to.match(RegExp(config('docker:image_default')));

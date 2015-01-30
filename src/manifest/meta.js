@@ -1,6 +1,7 @@
 import { _, fs, lazy_require } from 'azk';
 import Utils from 'azk/utils';
 
+/* global mkdir, createCache */
 lazy_require(this, {
   mkdir      : ['mkdirp', 'sync'],
   createCache: ['fscache', 'createSync'],

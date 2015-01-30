@@ -1,7 +1,5 @@
 import h from 'spec/spec_helper';
-import { _, config, async, defer, Q, fs } from 'azk';
-import { System } from 'azk/system';
-import { Run } from 'azk/system/run';
+import { _, async, defer, Q } from 'azk';
 import { ImageNotAvailable } from 'azk/utils/errors';
 
 describe("Azk system class, run set", function() {
@@ -55,7 +53,7 @@ describe("Azk system class, run set", function() {
       var result  = system.runDaemon({ retry: 2, timeout: 1000, command: command });
 
       return async(this, function*() {
-        var err = yield result.fail((err) => { return err });
+        var err = yield result.fail((err) => { return err; });
         h.expect(err).to.instanceOf(Error).and.match(regex);
 
         var data = yield h.docker.findContainer(err.container.Id);
@@ -100,11 +98,11 @@ describe("Azk system class, run set", function() {
         var command = ["/bin/sh", "-c"];
         var options = { stdout: mocks.stdout, stderr: mocks.stderr };
 
-        var exitResult = yield system.runShell([...command, "rm provisioned; ls -l"], options);
+        var exitResult = yield system.runShell([...command].concat("rm provisioned; ls -l"), options);
         h.expect(exitResult).to.have.property("code", 0);
         yield system.runDaemon();
 
-        yield system.runShell([...command, "ls -l"], options);
+        yield system.runShell([...command].concat("ls -l"), options);
         h.expect(outputs).to.have.property("stdout").match(/provisioned/);
 
         h.expect(system).to.have.property("provisioned").and.not.null;
@@ -159,7 +157,9 @@ describe("Azk system class, run set", function() {
 
       it("should use a sequencial number in name", function() {
         return async(this, function* () {
-          for(var i = 0; i < 3; i++) { yield system.runDaemon(); }
+          for (var i = 0; i < 3; i++) {
+            yield system.runDaemon();
+          }
           var instances = yield system.instances({ type: "daemon" });
 
           h.expect(instances).to.length(3);
@@ -189,7 +189,7 @@ describe("Azk system class, run set", function() {
         inspect() {
           return Q.reject({});
         }
-      }
+      };
 
       before(() => {
         system = manifest.system("empty");
@@ -197,7 +197,7 @@ describe("Azk system class, run set", function() {
       });
 
       it("should raise error if image not found", function() {
-        var result = system.runShell([], { image_pull: false})
+        var result = system.runShell([], { image_pull: false});
         return h.expect(result).to.rejectedWith(ImageNotAvailable);
       });
 
@@ -209,7 +209,7 @@ describe("Azk system class, run set", function() {
             return event;
           };
 
-          var container = yield system.runDaemon().progress(progress).fail(() => {});
+          yield system.runDaemon().progress(progress).fail(() => {});
           h.expect(events).to.have.deep.property("[0]").and.eql(
             { type: "event", system: system }
           );
@@ -218,5 +218,3 @@ describe("Azk system class, run set", function() {
     });
   });
 });
-
-

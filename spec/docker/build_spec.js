@@ -1,20 +1,19 @@
-import { Q, _, config, defer, path, fs } from 'azk';
+import { _, config, path } from 'azk';
 import h from 'spec/spec_helper';
-import { DockerfileNotFound, DockerBuildError } from 'azk/utils/errors';
-
-var qfs = require('q-io/fs');
+import { DockerBuildError } from 'azk/utils/errors';
 
 describe("Azk docker module, image build @slow", function() {
   this.timeout(20000);
   var repository = config('docker:build_name') + '/buildtest';
 
-  var build = (file_path, tag = null) => {
+  var build = (file_path, tag) => {
+    tag = tag || null;
     var build_options = {
       dockerfile: path.join(h.fixture_path('build'), file_path),
       tag: `${repository}:${tag || file_path}`,
-    }
+    };
     return h.docker.build(build_options);
-  }
+  };
 
   describe('with a valid Dockerfile', function () {
     // Used to test the performance of a container

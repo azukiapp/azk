@@ -1,7 +1,7 @@
-import { Q, _, config, defer } from 'azk';
+import { _, config } from 'azk';
 import { Image } from 'azk/docker';
 import h from 'spec/spec_helper';
-import { ProvisionNotFound, ProvisionPullError } from 'azk/utils/errors';
+import { ProvisionNotFound } from 'azk/utils/errors';
 
 var image_empty = config('docker:image_empty');
 

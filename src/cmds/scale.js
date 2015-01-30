@@ -1,8 +1,9 @@
-import { log, _, async, config, t, lazy_require } from 'azk';
-import { Command, Helpers } from 'azk/cli/command';
+import { log, _, async, t, lazy_require } from 'azk';
+import { Helpers } from 'azk/cli/command';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Cmd as StatusCmd } from 'azk/cmds/status';
 
+/* global Manifest */
 lazy_require(this, {
   Manifest: ['azk/manifest'],
 });
@@ -29,7 +30,7 @@ class Cmd extends InteractiveCmds {
         var system = systems[i];
         yield this._scale(system, parseInt(opts.to || 1), opts);
       }
-    })
+    });
   }
 
   _formatAction(keys, event, system) {
@@ -37,44 +38,46 @@ class Cmd extends InteractiveCmds {
 
     var data = { image: system.image.name };
     if (event.action == "check_image") {
-      if (this.images_checked[data.image])
+      if (this.images_checked[data.image]) {
         return null;
+      }
       this.images_checked[data.image] = true;
     }
 
-    this.ok([...keys, event.action], data);
+    this.ok([...keys].concat(event.action), data);
   }
 
-  _scale(system, instances = {}, opts) {
+  _scale(system, instances = {}, opts = undefined) {
     var progress = (event) => {
+      var type;
       var pull_progress = Helpers.newPullProgress(this);
       if (event.type === "pull_msg") {
         pull_progress(event);
       } else {
         var keys = ["commands", "scale"];
-        switch(event.type) {
+        switch (event.type) {
           case "action":
             this._formatAction(keys, event, system);
             break;
           case "scale":
-            event.instances = t([...keys, "instances"], event);
+            event.instances = t([...keys].concat("instances"), event);
             if (this.name != "scale") {
-              var type = event.from > event.to ? "stopping" : "starting";
+              type = event.from > event.to ? "stopping" : "starting";
             } else {
-              var type = event.from > event.to ? "scaling_down" : "scaling_up";
+              type = event.from > event.to ? "scaling_down" : "scaling_up";
             }
 
-            this.ok([...keys, type], event);
+            this.ok([...keys].concat(type), event);
             break;
           case "wait_port":
           case "provision":
-            this.ok([...keys, event.type], event);
+            this.ok([...keys].concat(event.type), event);
             break;
           default:
             log.debug(event);
         }
       }
-    }
+    };
 
     var options = {
       build_force: opts.rebuild || false,
@@ -99,4 +102,3 @@ export function init(cli) {
   return (new Cmd('scale [system] [to]', cli))
     .addOption(['--remove', '-r'], { default: true });
 }
-

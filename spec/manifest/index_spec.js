@@ -5,7 +5,6 @@ import { ManifestError, ManifestRequiredError, SystemNotFoundError } from 'azk/u
 import h from 'spec/spec_helper';
 
 var path = require('path');
-var { createSync: createCache } = require('fscache');
 var default_img = config('docker:image_default');
 
 describe("Azk manifest class, main set", function() {
@@ -26,7 +25,7 @@ describe("Azk manifest class, main set", function() {
     });
 
     it("should find manifest in subfolder", function() {
-      var man = new Manifest(path.join(project, "src"));
+      var manifest = new Manifest(path.join(project, "src"));
       h.expect(manifest).to.have.property('file', manifest.file);
     });
 
@@ -67,10 +66,10 @@ describe("Azk manifest class, main set", function() {
         h.expect(systems).to.length(_.keys(manifest.systems).length);
         h.expect(systems).to.has.deep.property("[0]").to.equal(
           manifest.system("expand-test")
-        )
+        );
         h.expect(systems).to.has.deep.property("[8]").to.equal(
           manifest.system("example")
-        )
+        );
       });
 
       it("should raise error if get a not set system", function() {
@@ -97,21 +96,22 @@ describe("Azk manifest class, main set", function() {
 
     describe("with a tree of the requireds systems", function() {
       it("should return a systems in required order", function() {
-        h.expect(manifest.systemsInOrder()).to.eql(
-          ["expand-test", "mount-test", "ports-disable", "ports-test", "test-image-opts", "empty", "db", "api", "example"]
-        )
+        var systems = [ "expand-test", "mount-test", "ports-disable", "ports-test",
+                        "test-image-opts", "empty", "db", "api", "example"];
+
+        h.expect(manifest.systemsInOrder()).to.eql(systems);
       });
 
       it("should return a systems in required order to a system", function() {
         h.expect(manifest.systemsInOrder("example")).to.eql(
           ["db", "api", "example"]
-        )
+        );
         h.expect(manifest.systemsInOrder(["example", "api"])).to.eql(
           ["db", "api", "example"]
-        )
+        );
         h.expect(manifest.systemsInOrder(["example", "empty"])).to.eql(
           ["db", "api", "example", "empty"]
-        )
+        );
       });
 
       it("should raise if get order an unset system", function() {
@@ -134,7 +134,7 @@ describe("Azk manifest class, main set", function() {
     });
 
     it("should raise an error if manifest is required", function() {
-      var func = () => { new Manifest(project, true) };
+      var func = () => { new Manifest(project, true); };
       h.expect(func).to.throw(
         ManifestRequiredError, RegExp(h.escapeRegExp(project))
       );
@@ -170,7 +170,7 @@ describe("Azk manifest class, main set", function() {
     var mock_manifest = (data) => {
       fs.writeFileSync(file, data);
       return () => new Manifest(project);
-    }
+    };
 
     it("should raise a invalid system name", function() {
       var func = mock_manifest('system("system.1", { image: { docker: "foo" } });');

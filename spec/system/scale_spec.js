@@ -1,7 +1,5 @@
 import h from 'spec/spec_helper';
-import { config, async, Q } from 'azk';
-import { System } from 'azk/system';
-import { Scale } from 'azk/system/scale';
+import { async } from 'azk';
 import { SystemDependError, SystemNotScalable } from 'azk/utils/errors';
 
 describe("Azk system class, scale set", function() {
@@ -124,13 +122,13 @@ describe("Azk system class, scale set", function() {
           var icc, instances, api = manifest.system("api");
           yield api.stop();
 
-          instances = (yield system.instances())
+          instances = (yield system.instances());
           h.expect(instances).to.length(0);
 
           icc = yield api.scale(0);
           h.expect(icc).to.equal(0);
 
-          instances = (yield system.instances())
+          instances = (yield system.instances());
           h.expect(instances).to.length(0);
         });
       });
@@ -153,4 +151,3 @@ describe("Azk system class, scale set", function() {
     });
   });
 });
-

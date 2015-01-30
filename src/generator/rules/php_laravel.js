@@ -1,4 +1,4 @@
-import { _, log } from 'azk';
+import { log } from 'azk';
 import { BaseRule } from 'azk/generator/rules';
 var semver = require('semver');
 
@@ -10,9 +10,9 @@ var getVersion = function(path, content) {
     log.error('JSON.parse error [', path, ']', err.stack || err);
   }
 
-  if(parsedJson &&
-     parsedJson.require &&
-     parsedJson.require['laravel/framework']) {
+  if (parsedJson &&
+      parsedJson.require &&
+      parsedJson.require['laravel/framework']) {
     // remove garbage
     var versionCleaned = parsedJson.require['laravel/framework'];
     // strip non valid chars

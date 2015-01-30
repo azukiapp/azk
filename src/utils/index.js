@@ -10,12 +10,12 @@ var zlib   = require('zlib');
 var Utils = {
   __esModule: true,
 
-  get default() { return Utils },
-  get i18n()    { return i18n; },
-  get Q()       { return Q; },
-  get _()       { return _; },
-  get net()     { return require('azk/utils/net').default },
-  get docker()  { return require('azk/utils/docker').default },
+  get default() { return Utils; },
+  get i18n() {    return i18n; },
+  get Q() {       return Q; },
+  get _() {       return _; },
+  get net() {     return require('azk/utils/net').default; },
+  get docker() {  return require('azk/utils/docker').default; },
 
   envs(key, defaultValue = null) {
     return process.env[key] || (_.isFunction(defaultValue) ? defaultValue() : defaultValue);
@@ -23,8 +23,9 @@ var Utils = {
 
   mergeConfig(options) {
     _.each(options, (values, key) => {
-      if (key != '*')
+      if (key != '*') {
         options[key] = _.merge({}, options['*'], values);
+      }
     });
     return options;
   },
@@ -58,9 +59,10 @@ var Utils = {
   defer(func) {
     return Q.Promise((resolve, reject, notify) => {
       process.nextTick(() => {
+        var result;
         try {
-          resolve = _.extend(resolve, { resolve, reject, notify });
-          var result = func(resolve, reject, notify);
+          resolve = _.extend(resolve, { resolve: resolve, reject: reject, notify: notify });
+          result = func(resolve, reject, notify);
         } catch (e) {
           return reject(e);
         }
@@ -76,24 +78,26 @@ var Utils = {
 
   async(obj, func, ...args) {
     return Utils.defer((_resolve, _reject, notify) => {
-      if (typeof obj == "function")
+      if (typeof obj == "function") {
         [func, obj] = [obj, null];
+      }
 
       if (typeof obj == "object") {
         func = func.bind(obj);
       }
 
-      return Q.async(func)(...args, notify);
+      return Q.async(func).apply(func, [...args].concat(notify));
     });
   },
 
   qify(klass) {
-    if (_.isString(klass))
+    if (_.isString(klass)) {
       klass = require(klass);
+    }
 
     var newClass = function(...args) {
       klass.call(this, ...args);
-    }
+    };
 
     newClass.prototype = Object.create(klass.prototype);
 
@@ -158,9 +162,9 @@ var Utils = {
     return (value || "").replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&");
   },
 
-  template(template, data) {
+  template(template_string, data) {
     var options = { interpolate: /(?:(?:[#|$]{|<%)[=|-]?)([\s\S]+?)(?:}|%>)/g };
-    return _.template(template, data, options);
+    return _.template(template_string, data, options);
   },
 };
 

@@ -1,4 +1,4 @@
-import { _, t, path, async, Q, fs, utils } from 'azk';
+import { _, t, path, fs, utils } from 'azk';
 import { version, config } from 'azk';
 import { Image } from 'azk/images';
 import { net } from 'azk/utils';
@@ -25,7 +25,7 @@ export class System {
     this.image   = new Image(image);
 
     // Options
-    this.__options = {}
+    this.__options = {};
     this.options   = _.merge({}, this.default_options, options);
     this.options   = this._expand_template(this.options);
   }
@@ -48,7 +48,7 @@ export class System {
       depends  : [],
       envs     : {},
       scalable : false,
-    }
+    };
   }
 
   // System run operations
@@ -68,7 +68,9 @@ export class System {
   // Save provision info
   get provision_steps() {
     var steps = this.options.provision || [];
-    if (!_.isArray(steps)) steps = [];
+    if (!_.isArray(steps)) {
+      steps = [];
+    }
     return steps;
   }
 
@@ -102,7 +104,7 @@ export class System {
   }
 
   // Get options
-  get shell()             { return this.options.shell };
+  get shell() { return this.options.shell; }
   get namespace() {
     return this.manifest.namespace + '-sys.' + this.name;
   }
@@ -111,7 +113,7 @@ export class System {
   get scalable() {
     var _scalable = this.options.scalable;
 
-    if(_.isNumber(_scalable)) {
+    if (_.isNumber(_scalable)) {
       _scalable = { default: _scalable };
     } else if (!_.isObject(_scalable)) {
       _scalable = _scalable ? { } : { limit: 1 };
@@ -123,16 +125,16 @@ export class System {
   }
 
   get disabled() {
-    return this.scalable.default == 0 && this.scalable.limit == 0;
+    return this.scalable.default === 0 && this.scalable.limit === 0;
   }
 
   get wait_scale() {
     var wait = this.options.wait;
-    return _.isEmpty(wait) && wait != false ? true : wait;
+    return _.isEmpty(wait) && wait !== false ? true : wait;
   }
 
   // Ports and host
-  get http()  { return this.options.http || {} };
+  get http() { return this.options.http || {}; }
   get hosts() {
     var hostnames = this.http.domains || [config('agent:balancer:host')];
 
@@ -163,7 +165,7 @@ export class System {
     return `http://${host}${ port == 80 ? '' : ':' + port }`;
   }
 
-  backends()  { return Balancer.list(this); }
+  backends() { return Balancer.list(this); }
 
   get http_port() {
     var ports = this._parse_ports(this.ports);
@@ -250,12 +252,12 @@ export class System {
   }
 
   // Get depends info
-  get depends() { return this.options.depends };
+  get depends() { return this.options.depends; }
   get dependsInstances() {
     return _.map(this.depends, (depend) => {
       return this.manifest.system(depend, true);
     });
-  };
+  }
 
   // Docker run options generator
   daemonOptions(options = {}) {
@@ -267,24 +269,24 @@ export class System {
       var config = options.image_data.Config;
 
       // Cmd
-      if(_.isEmpty(this.options.command) && _.isEmpty(options.command)) {
+      if (_.isEmpty(this.options.command) && _.isEmpty(options.command)) {
         options.command = config.Cmd;
       }
 
       // WorkingDir
-      if(_.isEmpty(this.options.workdir) && _.isEmpty(options.workdir)) {
+      if (_.isEmpty(this.options.workdir) && _.isEmpty(options.workdir)) {
         options.workdir = config.WorkingDir;
       }
 
       // ExposedPorts
       var ports = _.reduce(options.ports, (ports, value, key) => {
-        if (value == null) { value = `${key}/tcp`; }
+        if (value === null) { value = `${key}/tcp`; }
         ports[key] = value;
         return ports;
       }, {});
 
       _.each(config.ExposedPorts, (_config, port) => {
-        var have = _.find(ports, (value, key) => {
+        var have = _.find(ports, (value) => {
           return value.match(new RegExp(`${parseInt(port)}\/(tcp|udp)$`));
         });
 
@@ -294,7 +296,7 @@ export class System {
 
     // Clear null ports
     options.ports = _.reduce(options.ports, (ports, value, key) => {
-      if (value != null) {
+      if (value !== null) {
         ports[key] = value;
       }
       return ports;
@@ -314,7 +316,8 @@ export class System {
     opts.annotations.azk.shell = (
         options.shell_type ||
         (options.interactive ? 'interactive' : 'script')
-    )
+    );
+
     _.merge(opts, {
       tty   : options.interactive ? options.stdout.isTTY : false,
       stdout: options.stdout,
@@ -343,7 +346,9 @@ export class System {
     _.each(this._parse_ports(options.ports), (data, name) => {
       if (!name.match(/\//)) {
         var env_key = `${name.toUpperCase()}_PORT`;
-        if (!envs[env_key]) envs[env_key] = data.private;
+        if (!envs[env_key]) {
+          envs[env_key] = data.private;
+        }
       }
       ports[data.name] = [data.config];
     });
@@ -396,15 +401,18 @@ export class System {
   _parse_ports(ports) {
     return _.reduce(ports, (ports, port, name) => {
       // skip disable
-      if (port == null) return ports;
+      if (port === null) {
+        return ports;
+      }
 
       port = XRegExp.exec(port, regex_port);
       port.protocol = port.protocol || "tcp";
 
       // TODO: Add support a bind ip
       var conf = { HostIp: config("agent:dns:ip") };
-      if (port.public)
+      if (port.public) {
         conf.HostPort = port.public;
+      }
 
       ports[name] = {
         config : conf,
@@ -454,11 +462,11 @@ export class System {
 
     return _.reduce(mounts, (volumes, mount, point) => {
       if (_.isString(mount)) {
-        mount = { type: 'path', value: mount }
+        mount = { type: 'path', value: mount };
       }
 
       var target = null;
-      switch(mount.type) {
+      switch (mount.type) {
         case 'path':
           target = mount.value;
           if (!target.match(/^\//)) {

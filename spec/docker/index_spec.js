@@ -1,4 +1,4 @@
-import { Q, config } from 'azk';
+import { config } from 'azk';
 import h from 'spec/spec_helper';
 
 var default_img = config('docker:image_default');
@@ -10,7 +10,7 @@ describe("Azk docker client", function() {
     return h.expect(h.docker.info())
       .to.eventually.have.property("Containers")
       .and.is.an('Number');
-  })
+  });
 
   it("should get a image", function() {
     var image = h.docker.getImage(default_img);
@@ -51,5 +51,4 @@ describe("Azk docker client", function() {
         .to.eventually.not.exist;
     });
   });
-})
-
+});

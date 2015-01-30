@@ -1,6 +1,4 @@
-import { _ } from 'azk';
 import { BaseRule } from 'azk/generator/rules';
-var semver = require('semver');
 
 var getVersion = function(content) {
   // TODO: check and return gem version (maybe usefull)
@@ -28,13 +26,11 @@ export class Rule extends BaseRule {
 
     var versions = getVersion(content);
 
-    if(versions){
+    if (versions) {
       return evidence;
-    }
-    else{
+    } else {
       return null;
     }
   }
 
 }
-

@@ -2,7 +2,6 @@ import { _, config, t } from 'azk';
 var winston = require('winston');
 
 var log = new winston.Logger();
-var sysUtil = require("util");
 
 // File log
 log.add(winston.transports.File, {
@@ -19,7 +18,7 @@ var console_opts = {
   colorize: true,
   prettyPrint: true,
   level: config('logs_level:console')
-}
+};
 if (config('env') != 'test') {
   log.add(winston.transports.Console, console_opts);
 }
@@ -27,7 +26,7 @@ if (config('env') != 'test') {
 _.each(winston.levels, (__, method) => {
   log[`${method}_t`] = function(...args) {
     return this[method](t(...args));
-  }
+  };
 });
 
 log.setConsoleLevel = (level) => {

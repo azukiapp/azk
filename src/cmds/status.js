@@ -1,8 +1,8 @@
-import { log, _, async, config, t, lazy_require } from 'azk';
+import { _, async, lazy_require } from 'azk';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
-import { Command, Helpers } from 'azk/cli/command';
-import { SYSTEMS_CODE_ERROR, NotBeenImplementedError } from 'azk/utils/errors';
+import { Helpers } from 'azk/cli/command';
 
+/* global Manifest, moment */
 lazy_require(this, {
   Manifest: ['azk/manifest'],
   moment: 'moment',
@@ -24,8 +24,12 @@ class Cmd extends InteractiveCmds {
   static status(cli, manifest, systems, opts = {}) {
     return async(cli, function* () {
       // Force types if not interactive or narrow console
-      if (cli.outputColumns() === -1) opts.text = true;
-      if (!opts.long && cli.outputColumns() < 90) opts.short = true;
+      if (cli.outputColumns() === -1) {
+        opts.text = true;
+      }
+      if (!opts.long && cli.outputColumns() < 90) {
+        opts.short = true;
+      }
 
       var table = cli.table_add('status', {
         head: Cmd._head(opts, cli.outputColumns()),
@@ -34,13 +38,15 @@ class Cmd extends InteractiveCmds {
 
       for (var system of systems) {
         var instances = yield system.instances({ type: "daemon" });
+        var hostname;
+        var ports_string;
 
         if (system.balanceable && instances.length > 0) {
-          var hostname = system.url.underline;
+          hostname = system.url.underline;
         } else {
-          var hostname = system.hostname;
+          hostname = system.hostname;
         }
-        var ports   = yield Cmd._ports_map(system, instances);
+        var ports   = Cmd._ports_map(system, instances);
         var name    = instances.length > 0 ? `${system.name}`.green : `${system.name}`.red;
         var status  = instances.length > 0 ? `↑`.green : `↓`.red;
         var counter = instances.length.toString().blue;
@@ -50,23 +56,29 @@ class Cmd extends InteractiveCmds {
         provisioned = provisioned ? moment(provisioned).fromNow() : "-";
 
         if (opts.text) {
-          var ports_string = ports.join(', ')
+          ports_string = ports.join(', ');
         } else {
           var ports_line = [];
 
-          for (var i = 0; i <= ports.length; i+=2) {
-            var _ports = ports.slice(i, i+2).join(', ');
+          for (var i = 0; i <= ports.length; i += 2) {
+            var _ports = ports.slice(i, i + 2).join(', ');
             ports_line.push(_ports);
-          };
+          }
 
-          var ports_string = ports_line.join('\n')
+          ports_string = ports_line.join('\n');
         }
 
         // Mount line values
         var line = [status, name, counter, hostname, ports_string];
-        if (opts.text || opts.short) line.shift();
-        if (!opts.short) line.push(provisioned);
-        if (opts.long) line.push(system.image.name.white);
+        if (opts.text || opts.short) {
+          line.shift();
+        }
+        if (!opts.short) {
+          line.push(provisioned);
+        }
+        if (opts.long) {
+          line.push(system.image.name.white);
+        }
 
         cli.table_push(table, line);
       }
@@ -76,25 +88,22 @@ class Cmd extends InteractiveCmds {
   }
 
   static _ports_map(system, instances) {
-    return async(function* () {
-      var instance, ports = [];
+    var instance, ports = [];
 
-      instances = _.clone(instances);
-      while(instance = instances.pop()) {
-        _.each(instance.NetworkSettings.Access, (port) => {
-          var name = system.portName(port.name);
-          ports.push(
-            `${instance.Annotations.azk.seq}-${name}:${port.port || "n/m".red}`
-          );
-        });
-      }
+    instances = _.clone(instances);
+    while ( (instance = instances.pop()) ) {
+      _.each(instance.NetworkSettings.Access, (port) => {
+        var name = system.portName(port.name);
+        ports.push(
+          `${instance.Annotations.azk.seq}-${name}:${port.port || "n/m".red}`
+        );
+      });
+    }
 
-      return _.isEmpty(ports) ? ["-"] : ports;
-    });
+    return _.isEmpty(ports) ? ["-"] : ports;
   }
 
   static _head(opts, columns_size = -1) {
-    var colors  = ["green", "blue", "yellow", "magenta", "cyan", "white"];
     var columns = [
       "System".green,
       (columns_size > 80 ? 'Instances' : 'Inst.').blue,
@@ -102,9 +111,15 @@ class Cmd extends InteractiveCmds {
       'Instances-Ports'.magenta,
     ];
 
-    if (!opts.short) columns.push('Provisioned'.cyan);
-    if (opts.long) columns.push('Image'.white);
-    if (!opts.text && !opts.short) columns.unshift('');
+    if (!opts.short) {
+      columns.push('Provisioned'.cyan);
+    }
+    if (opts.long) {
+      columns.push('Image'.white);
+    }
+    if (!opts.text && !opts.short) {
+      columns.unshift('');
+    }
 
     return columns;
   }
@@ -117,4 +132,3 @@ export function init(cli) {
     .addOption(['--long', '-l'], { default: false })
     .addOption(['--short'], { default: false });
 }
-

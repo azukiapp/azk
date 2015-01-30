@@ -1,5 +1,4 @@
-import { Q, _, config, t } from 'azk';
-import { Command, Helpers } from 'azk/cli/command';
+import { Command } from 'azk/cli/command';
 
 class HelpCmd extends Command {
   action(opts) {
@@ -9,5 +8,5 @@ class HelpCmd extends Command {
 }
 
 export function init(cli) {
-  (new HelpCmd('help [command]', cli))
+  (new HelpCmd('help [command]', cli));
 }

@@ -2,6 +2,7 @@ import { Q, async, _, lazy_require } from 'azk';
 import { SystemDependError, SystemNotScalable } from 'azk/utils/errors';
 import { Balancer } from 'azk/system/balancer';
 
+/* global docker */
 lazy_require(this, {
   docker: ['azk/docker', 'default'],
 });
@@ -39,14 +40,15 @@ var Scale = {
         return Q.reject(new SystemNotScalable(system));
       }
 
-      if (icc != 0)
-        notify({ type: "scale", from, to: from + icc, system: system.name });
+      if (icc !== 0) {
+        notify({ type: "scale", from: from, to: from + icc, system: system.name });
+      }
 
       if (icc > 0) {
         var deps_envs = yield this.checkDependsAndReturnEnvs(system, options);
         options.envs  = _.merge(deps_envs, options.envs || {});
 
-        for(var i = 0; i < icc; i++) {
+        for (var i = 0; i < icc; i++) {
           yield system.runDaemon(_.clone(options));
           options.provision_force = false;
         }
@@ -140,6 +142,6 @@ var Scale = {
       type: "daemon",
     }));
   },
-}
+};
 
 export { Scale };
