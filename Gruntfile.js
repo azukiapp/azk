@@ -145,7 +145,7 @@ module.exports = function(grunt) {
           'src/**/*.js',
           'spec/**/*.js',
         ],
-        tasks: [test_task]
+        tasks: ['hint', test_task]
       },
 
       traceur: {
@@ -157,7 +157,7 @@ module.exports = function(grunt) {
           'src/**/*.js',
           'spec/**/*.js',
         ],
-        tasks: ['clear', 'newer:traceur']
+        tasks: ['clear', 'build']
       }
     },
 
@@ -175,22 +175,26 @@ module.exports = function(grunt) {
     },
 
     jshint: {
-      all: [
-        'Gruntfile.js',
-        'src/**/*.js',
-        'spec/**/*.js',
-      ],
+      all: {
+        src: [
+          'Gruntfile.js',
+          'src/**/*.js',
+          'spec/**/*.js',
+        ]
+      },
       options: {
         jshintrc: true
       }
     },
 
     jscs: {
-      all: [
-        'Gruntfile.js',
-        'src/**/*.js',
-        'spec/**/*.js',
-      ],
+      all: {
+        src: [
+          'Gruntfile.js',
+          'src/**/*.js',
+          'spec/**/*.js',
+        ],
+      },
       options: {
         config: '.jscsrc'
       }
@@ -207,11 +211,12 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('vm-download', ['curl-dir:brace-expansion' ]);
-  grunt.registerTask('test'       , ['env:test', 'clear', 'hint', 'newer:traceur', 'mochaTest:test']);
-  grunt.registerTask('slow_test'  , ['env:test', 'clear', 'hint', 'newer:traceur', 'mochaTest:slow_test']);
+  grunt.registerTask('test'       , ['env:test', 'clear', 'build', 'mochaTest:test']);
+  grunt.registerTask('slow_test'  , ['env:test', 'clear', 'build', 'mochaTest:slow_test']);
+  grunt.registerTask('build'      , ['hint', 'newer:traceur']);
   grunt.registerTask('compile'    , ['watch:traceur']);
   grunt.registerTask('inspector'  , ['node-inspector']);
-  grunt.registerTask('hint'       , ['jshint', 'jscs']);
+  grunt.registerTask('hint'       , ['newer:jshint', 'newer:jscs']);
   grunt.registerTask('publish'    , ['env:aws', 'exec:publish_package']);
   grunt.registerTask('default'    , function() {
     key_watch(grunt);
