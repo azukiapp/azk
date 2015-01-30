@@ -67,7 +67,7 @@ describe("Azk manifest class, main set", function() {
         h.expect(systems).to.has.deep.property("[0]").to.equal(
           manifest.system("expand-test")
         );
-        h.expect(systems).to.has.deep.property("[8]").to.equal(
+        h.expect(systems).to.has.deep.property("[9]").to.equal(
           manifest.system("example")
         );
       });
@@ -97,7 +97,7 @@ describe("Azk manifest class, main set", function() {
     describe("with a tree of the requireds systems", function() {
       it("should return a systems in required order", function() {
         var systems = [ "expand-test", "mount-test", "ports-disable", "ports-test",
-                        "test-image-opts", "empty", "db", "api", "example"];
+                        "test-image-opts", "empty", "db", "api", "example-extends", "example"];
 
         h.expect(manifest.systemsInOrder()).to.eql(systems);
       });
@@ -244,7 +244,6 @@ describe("Azk manifest class, main set", function() {
     });
   });
 
-
   describe("extends from other system", function() {
     it("should inherit everything from mother system", function() {
       return h.mockManifest({ }).then((mf) => {
@@ -278,11 +277,11 @@ describe("Azk manifest class, main set", function() {
       };
 
       return h.mockManifest(data).catch(function(err) {
-          var msg  = t('manifest.extends_system_invalid',
-                      { system_source   : 'example-NOT_EXISTS',
-                        system_to_extend: 'example-extends-error' });
+        var msg  = t('manifest.extends_system_invalid',
+                    { system_source   : 'example-NOT_EXISTS',
+                      system_to_extend: 'example-extends-error' });
 
-          h.expect(err.err_message).to.equal(msg);
+        h.expect(err.err_message).to.equal(msg);
       });
     });
 
@@ -312,6 +311,5 @@ describe("Azk manifest class, main set", function() {
     });
 
   });
-
 
 });
