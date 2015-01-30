@@ -49,7 +49,7 @@ export class Rule extends BaseRule {
     }
 
     // Suggest a docker image
-    // https://registry.hub.docker.com/u/library/node/
+    // https://registry.hub.docker.com/u/azukiapp/php-fpm/
     var versionRules = {
       'php55' : '>=5.5.9 <5.6.3',
       'php56' : '<5.5.9 || >=5.6.3'
