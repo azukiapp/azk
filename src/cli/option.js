@@ -58,18 +58,16 @@ export class Option {
         return names;
       }, []);
 
+      var default_value = this.default;
       switch (this.type) {
         case String:
-          if (this.default !== null || this.placeholder !== null) {
-            names[0] += `="${this.default || this.placeholder}"`;
+          if (!_.isEmpty(default_value) || !_.isEmpty(this.placeholder)) {
+            names[0] += `="${default_value || this.placeholder}"`;
           }
           break;
         case Boolean:
-          var default_value = this.default;
-          if (this.show_default) {
-            if (default_value !== null) {
-              desc += ` (default: ${default_value ? true : false})`;
-            }
+          if (this.show_default && !_.isNull(default_value)) {
+            desc += ` (default: ${default_value ? true : false})`;
           }
           break;
       }
