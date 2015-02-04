@@ -47,7 +47,7 @@
 
 1. Install Docker:
 
-  - [Install **Docker version 1.3**][docker_ubuntu_12_04];
+  - [Install **Docker latest version**][docker_ubuntu_12_04];
   - Configure it so your user [has access to Docker][docker_root_access];
   - **Make sure that Docker is running**;
 
