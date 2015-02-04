@@ -4,3 +4,4 @@ node_modules
 /build
 .azk
 .env.json
+.awspublish-azk-docs-stage

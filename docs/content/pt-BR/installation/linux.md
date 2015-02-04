@@ -8,14 +8,17 @@
 * [Docker][docker] 1.3.0
 * Não estar rodando nenhum serviço nas portas `80` e `53`
 
-**Importante**: Se você estiver rodando algum serviço nas portas `80` e/ou `53` você deve customizar a configuração do `azk` definindo as seguintes variáveis `AZK_BALANCER_PORT` e `AZK_DNS_PORT` respectivamente, antes de executar o `azk agent start`. 
+**Importante**: Se você estiver rodando algum serviço nas portas `80` e/ou `53` você deve customizar a configuração do `azk` definindo as seguintes variáveis `AZK_BALANCER_PORT` e `AZK_DNS_PORT` respectivamente, antes de executar o `azk agent start`.
 
 ## Ubuntu Trusty 14.04 (LTS) (64-bit)
 
 1. Instale o Docker:
 
-  - [Instale **a versão 1.3 do Docker**][docker_ubuntu_14_04]
-  - Configure para que seu usuário [tenha acesso ao Docker][docker_root_access];
+>Observe que pelas instruções de instalação do Docker no [site][docker_ubuntu-trusty-1404-lts-64-bit] deles, a primeira instrução de instalação é para um pacote mantido pela Ubuntu (_docker-io_) e não para versão correta, mantida pelo Docker (_lxc-docker_).
+
+  - Instale a versão mais recento do Docker [**lxc-docker**][docker_ubuntu_14_04_maintained-package-installation]. Observe que ao final dessa sessão a Docker dispõe um `script curl` para facilitar a instalação.
+  - Inclua seu usuário local no [grupo docker][docker_root_access];
+    - Faça um _logoff_ para que as configurações de grupo de usuários sejam ativadas;
   - [Desabilite o uso de dnsmasq][docker_ubuntu_dns];
   - **Tenha certeza de que o serviço do Docker está rodando**;
 
@@ -47,7 +50,7 @@
   - [Instale **a versão 1.3 do Docker**][docker_ubuntu_12_04]
   - Configure para que seu usuário [tenha acesso ao Docker][docker_root_access];
   - **Tenha certeza de que o serviço do Docker está rodando**;
-  
+
 2. Adicionando as chaves do Azuki ao seu keychain local:
 
   ```bash

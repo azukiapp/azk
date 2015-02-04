@@ -6,7 +6,7 @@
 
 * Distributions (tested): Ubuntu 12.04/14.04 and Fedora 20
 * [Docker][docker] 1.3.0
-* Not running any services on ports `80` and `53` 
+* Not running any services on ports `80` and `53`
 
 **Important**: If you are running any service on port `80` and/or `53` you must customize the configuration of `azk` setting the following variables `AZK_BALANCER_PORT` and `AZK_DNS_PORT` respectively, before running `azk agent start`.
 
@@ -14,8 +14,11 @@
 
 1. Install Docker:
 
-  - [Install **Docker version 1.3**][docker_ubuntu_14_04];
-  - Configure it so your user [has access to Docker][docker_root_access];
+>Note that the [Docker's installation instructions][docker_ubuntu-trusty-1404-lts-64-bit], the first part is for a Ubuntu maintained package (_docker-io_) and not for correct version (_lxc-docker_), maintained by Docker.
+
+  - Install latest **Docker version** [lxc-docker][docker_ubuntu_14_04_maintained-package-installation] - Note that Docker has a `curl script` for easy installation;
+  - Include your local user on [docker group][docker_root_access];
+    - Logoff to user group settings take effect;
   - [Disable the use of dnsmasq][docker_ubuntu_dns];
   - **Make sure that Docker is running**;
 
@@ -47,7 +50,7 @@
   - [Install **Docker version 1.3**][docker_ubuntu_12_04];
   - Configure it so your user [has access to Docker][docker_root_access];
   - **Make sure that Docker is running**;
-  
+
 2. Add the Azuki keys to your local keychain:
 
   ```bash
