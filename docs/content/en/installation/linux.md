@@ -14,13 +14,11 @@
 
 1. Install Docker:
 
->Note that the [Docker's installation instructions][docker_ubuntu-trusty-1404-lts-64-bit], the first part is for a Ubuntu maintained package (_docker-io_) and not for correct version (_lxc-docker_), maintained by Docker.
+  >Note that the [Docker's installation instructions][docker_ubuntu-trusty-1404-lts-64-bit], the first part is for a Ubuntu maintained package (_docker-io_) and not for correct version (_lxc-docker_), maintained by Docker.
 
   - Install latest **Docker version** [lxc-docker][docker_ubuntu_14_04_maintained-package-installation] - Note that Docker has a `curl script` for easy installation;
-  - Include your local user on [docker group][docker_root_access];
-    - Logoff to user group settings take effect;
+  - Include your local user on [docker group][docker_root_access]; Logoff to user group settings take effect;
   - [Disable the use of dnsmasq][docker_ubuntu_dns];
-  - **Make sure that Docker is running**;
 
 2. Add the Azuki keys to your local keychain:
 
@@ -43,13 +41,15 @@
   $ sudo apt-get install azk
   ```
 
+5. You can [start agent](../getting-started/starting-agent.md) now, but, **make sure that Docker service is running**;
+
+
 ## Ubuntu Precise 12.04 (LTS) (64-bit)
 
 1. Install Docker:
 
   - [Install **Docker latest version**][docker_ubuntu_12_04];
-  - Configure it so your user [has access to Docker][docker_root_access];
-  - **Make sure that Docker is running**;
+  - Include your local user on [docker group][docker_root_access]; Logoff to user group settings take effect;
 
 2. Add the Azuki keys to your local keychain:
 
@@ -71,6 +71,9 @@
   $ sudo apt-get update
   $ sudo apt-get install azk
   ```
+
+5. You can [start agent](../getting-started/starting-agent.md) now, but, **make sure that Docker service is running**;
+
 
 ## Fedora 20
 
@@ -98,10 +101,10 @@
   $ sudo yum install azk
   ```
 
-4. Before running `azk agent`:
+4. Include your local user on [docker group][docker_root_access]; Logoff to user group settings take effect;
 
-  - Configure it so your user [has access to Docker][docker_root_access];
-  - **Make sure that Docker is running**;
+5. You can [start agent](../getting-started/starting-agent.md) now, but, **make sure that Docker service is running**;
+
 
 ## Other distributions
 
