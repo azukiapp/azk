@@ -28,3 +28,15 @@ Veja a cadeia de herança:
 - [azukiapp/ubuntu](https://github.com/azukiapp/docker-ubuntu/blob/master/Dockerfile)
 - [library/ubuntu](https://github.com/tianon/docker-brew-ubuntu-core/blob/a9da4b3cd8977c2aacafe5d9d0056cbb360f2d1c/trusty/Dockerfile)
 - [library/scratch](https://registry.hub.docker.com/u/library/scratch/)
+
+
+### Dockerfile
+
+Além de apontar para [imagens](../azkfilejs/image.html) dos registros da Docker, podemos ainda personalizar uma [imagem prória](../azkfilejs/image.html), utilizando um Dockerfile local. Dessa forma o `azk` podemos criar imagens totalmente personalizadas, com a instalação de novos componentes no sistema operacional, configuração do ambiente do container e testá-los localmente.
+
+Recomendamos que após as devidas configurações, para que facilite o trabalho em equipe, a imagem seja enviada para o Docker Registry. Dessa forma outros desenvolvedores do seu projeto terão acesso fácil ao mesmo ambiente que você.
+
+Utilize sempre um Dockerfile para se criar imagens pois isso aumenta a confiabilidade da imagem.
+
+> Atenção: nunca suba dados confidenciais em suas imagens para um Docker Registry público;
+
