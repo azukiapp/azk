@@ -26,9 +26,9 @@ export class AzkError extends Error {
   }
 }
 
-export class ImageNotExistError extends AzkError {
+export class ImageDoesNotExistError extends AzkError {
   constructor(image) {
-    super('image_not_exist');
+    super('image_does_not_exist');
     this.image = image;
   }
 }

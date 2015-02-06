@@ -174,7 +174,7 @@ var Balancer = {
     var promise = net.waitService(docker_host, 5, { timeout: 1000, context: "balancer" });
     return promise.then((success) => {
       if (!success) {
-        throw new AgentStartError(t('errors.not_connect_docker'));
+        throw new AgentStartError(t('errors.connect_docker_unavailable'));
       }
       return true;
     });
@@ -234,7 +234,7 @@ var Balancer = {
           } catch (err) {}
           return true;
         });
-      change_status("stoped_" + system_name);
+      change_status("stopped_" + system_name);
 
       // Save state
       this.running[system_name] = false;
@@ -243,7 +243,7 @@ var Balancer = {
 
   _handleChild(name, child) {
     child.on('stop', () => {
-      log.info(name + ' stoped');
+      log.info(name + ' stopped');
     });
 
     // Log child erro if exited
@@ -292,7 +292,7 @@ var Balancer = {
 
         change_status("stopping_" + sub);
         service.on('stop', () => {
-          change_status("stoped_" + sub);
+          change_status("stopped_" + sub);
           resolve();
         });
 

@@ -269,7 +269,7 @@ var vm = {
     return Tools.async_status("vm", this, function* (status_change) {
       var info = yield vm.info(vm_name);
       if (info.running) {
-        status_change("stoping");
+        status_change("stopping");
 
         if (force) {
           yield instance.stop(vm_name);
@@ -285,7 +285,7 @@ var vm = {
           }
         }
 
-        status_change("stoped");
+        status_change("stopped");
         return true;
       }
       return false;

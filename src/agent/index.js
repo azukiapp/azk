@@ -27,7 +27,7 @@ var Agent = {
       this.observer = observer;
 
       if (pid.running) {
-        this.change_status('already');
+        this.change_status('already_running');
         observer.resolve(1);
       } else {
         this.change_status('starting');
@@ -76,12 +76,12 @@ var Agent = {
   },
 
   processStateHandler() {
-    var stoping = false;
+    var stopping = false;
     var gracefullExit = () => {
-      if (!stoping) {
+      if (!stopping) {
         var catch_err = (err) => log.error('stop error' + err.stack || err);
         try {
-          stoping = true;
+          stopping = true;
           log.info('Azk agent has been killed by signal');
           this.gracefullyStop().catch(catch_err);
         } catch (err) {

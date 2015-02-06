@@ -57,7 +57,7 @@ function parseAddManifestFiles (archive, dockerfile, content) {
 
       // Check if file/folder exist
       if (!(yield qfs.exists(source))) {
-        throw new DockerBuildError('can_find_add_file_in_dockerfile', { dockerfile, source });
+        throw new DockerBuildError('cannot_find_add_file_in_dockerfile', { dockerfile, source });
       }
 
       var stats = yield qfs.stat(source);
@@ -86,7 +86,7 @@ export function build(docker, opts) {
     // Check if "Dockerfile" exist
     var dockerfile = opts.dockerfile;
     if (!(yield qfs.exists(dockerfile))) {
-      throw new DockerBuildError('can_find_dockerfile', { dockerfile });
+      throw new DockerBuildError('cannot_find_dockerfile', { dockerfile });
     }
 
     if (_.isEmpty(opts.tag)) {

@@ -21,7 +21,7 @@ export class Validate {
 
   static _have_systems(manifest) {
     if (_.isEmpty(_.keys(manifest.systems))) {
-      return [this._warning('not_systems', manifest)];
+      return [this._warning('no_system_set', manifest)];
     }
     return [];
   }

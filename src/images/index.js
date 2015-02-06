@@ -135,7 +135,7 @@ export class Image {
       }
     }
 
-    var msg = t("manifest.can_find_dockerfile", {system: this.system.name});
+    var msg = t("manifest.cannot_find_dockerfile", {system: this.system.name});
     throw new ManifestError('', msg);
   }
 

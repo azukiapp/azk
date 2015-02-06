@@ -49,7 +49,7 @@ var Unfsd = {
       log.debug("call to stop unsfd");
       if (this.child) {
         this.child.on('stop', () => {
-          change_status("stoped");
+          change_status("stopped");
           resolve();
         });
         change_status("stopping");

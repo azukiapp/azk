@@ -10,8 +10,8 @@ var reprovision = "Force the provisioning actions before starting an instance";
 // jscs:disable maximumLineLength
 module.exports = {
   errors: {
-    not_vm_start: "Unable to install and configure virtual machine",
-    not_connect_docker: "Could not initialize balancer because Docker was not available",
+    no_vm_started: "Unable to install and configure virtual machine",
+    connect_docker_unavailable: "Could not initialize balancer because Docker was not available",
     agent_not_running: "Azk agent is required but is not running (try `azk agent status`)",
     agent_start: "Azk agent start error: %(error)s",
     not_been_implemented: "This feature: `%(feature)s` has not been implemented yet",
@@ -76,7 +76,7 @@ module.exports = {
       running: "Agent is running...",
       not_running: "Agent is not running (try: `azk agent start`).",
       starting: "Agent is being started...",
-      already: "Agent is already running.",
+      already_running: "Agent is already running.",
       started: "Agent has been successfully started.",
       stopping: "Agent is being stopped...",
       stopped: "Agent has been successfully stopped.",
@@ -91,9 +91,9 @@ module.exports = {
       starting    : "Starting virtual machine...",
       started     : "Virtual machine has been successfully started.",
       // TODO: stopping
-      stoping     : "Stopping virtual machine...",
+      stopping     : "Stopping virtual machine...",
       // TODO: stopped
-      stoped      : "Virtual machine has been successfully stopped.",
+      stopped      : "Virtual machine has been successfully stopped.",
       removing    : "Removing virtual machine...",
       removed     : "Virtual machine has been successfully removed.",
       // TODO: waiting
@@ -117,24 +117,24 @@ module.exports = {
       starting_memcached: "Starting memcached service...",
       started_memcached : "Memcached service started.",
       stopping_memcached: "Stopping memcached service...",
-      stoped_memcached  : "Memcached service was stoped.",
+      stopped_memcached  : "Memcached service was stoped.",
       exited_memcached  : "Memcached service was `exited`.",
 
       starting_hipache  : "Starting http balancer service...",
       started_hipache   : "Http balancer service started.",
       stopping_hipache  : "Stopping http balancer service...",
-      stoped_hipache    : "Http balancer service was stoped.",
+      stopped_hipache    : "Http balancer service was stoped.",
       exited_hipache    : "Http balancer service was `exited`.",
 
       'starting_balancer-redirect': "Starting azk balancer redirect service...",
       'started_balancer-redirect' : "Balancer redirect started.",
       'stopping_balancer-redirect': "Stopping balancer redirect...",
-      'stoped_balancer-redirect'  : "Balancer redurect was stoped.",
+      'stopped_balancer-redirect'  : "Balancer redurect was stoped.",
 
       starting_dns      : "Starting azk dns service...",
       started_dns       : "Dns service started.",
       stopping_dns      : "Stopping dns service...",
-      stoped_dns        : "Dns service was stoped.",
+      stopped_dns        : "Dns service was stoped.",
       progress          : "Trying connect to docker (%(uri)s) (%(attempts)d/%(max)d)...",
     },
 
@@ -143,7 +143,7 @@ module.exports = {
       started  : "unsfd started in %(port)s port with file config: %(file)s.",
       stopping : "stopping unsfd...",
       // TODO: stopped
-      stoped   : "unsfd has been successfully stopped.",
+      stopped   : "unsfd has been successfully stopped.",
       mounting : "mounting the unsfd shared folder in virtual machine...",
       mounted  : "unsfd shared folder has been successfully mounted.",
     },
@@ -166,25 +166,25 @@ module.exports = {
   },
 
   manifest: {
-    balancer_depreciation : "The `balancer` option used in the `%(system)s` is deprecated, use `http` and `scalable` to replace",
+    balancer_deprecated: "The `balancer` option used in the `%(system)s` is deprecated, use `http` and `scalable` to replace",
     cannot_extends_itself : "The system `%(system)s` cannot extend itself",
-    can_find_dockerfile   : "Can't find `%(dockerfile)s` file to build a image for `%(system)s` system",
-    circular_depends      : "Circular dependency between %(system1)s and %(system2)s",
+    cannot_find_dockerfile: "Can't find `%(dockerfile)s` file to build a image for `%(system)s` system",
+    circular_dependency   : "Circular dependency between %(system1)s and %(system2)s",
     depends_not_declared  : "The `%(system)s` system depends on the `%(depend)s` system, which was not stated.",
     extends_system_invalid: "The system `%(system_source)s` for extending system `%(system_to_extend)s` cannot be found",
     image_required        : "Not image set for the `%(system)s` system",
     invalid_default       : "Unable to set the system `%(system)s` as a default because it was not declared",
-    not_found             : "no such '%s' in current project",
-    provider_invalid      : "The provider not found: `%(wrongProvider)s`.",
-    system_name_invalid   : "The system name `%(system)s` is not valid.",
-    mount_and_persistent_depreciation: [
+    mount_and_persistent_deprecated: [
       "The `%(option)s` option used in system `%(system)s` is no longer supported.",
       "You must change the %(manifest)s to use `mounts`",
       "Check http://git.io/29JW0w for further information",
     ].join("\n"),
+    not_found             : "no such '%s' in current project",
+    provider_invalid      : "The provider not found: `%(wrongProvider)s`.",
+    system_name_invalid   : "The system name `%(system)s` is not valid.",
     validate: {
       deprecated : "The `%(option)s` used in `%(system)s` is deprecated, check the documentation for `%(new_option)s`",
-      not_systems: "No system has been set yet, check the documentation",
+      no_system_set: "No system has been set yet, check the documentation",
     }
   },
 
@@ -198,7 +198,7 @@ module.exports = {
     loading_checking: "Loading settings and checking dependencies.",
     ip_question: "Enter the vm ip",
     ip_invalid: "`%(ip)s`".yellow + " is an invalid v4 ip, try again.",
-    ip_of_range: "`%(ip)s`".yellow + " is an invalid ip range, try again.",
+    ip_invalid_range: "`%(ip)s`".yellow + " is an invalid ip range, try again.",
     adding_ip: "Adding %(ip)s to %(file)s ...",
     generating_key: "Generating public/private rsa key pair to connect vm.\n",
     vm_ip_msg: ([
@@ -319,8 +319,8 @@ module.exports = {
       },
       ended: {
         removed: "finished, because the container was removed",
-        docker_end: "finished, because the docker was finalized",
-        docker_notfound: "finished, because docker not found",
+        docker_end: "finished, because docker was finalized",
+        docker_not_found: "finished, because docker not found",
       },
       examples: [
         '$ azk shell --shell /bin/bash',
@@ -345,7 +345,7 @@ module.exports = {
     },
     init: {
       description: "Initializes a project by adding the file Azkfile.js",
-      already: "'%s' already exists (try: `--force`)",
+      already_exists: "'%s' already exists (try: `--force`)",
       generated: "'%s' generated",
       github: "\nTip:\n  Adds the `.azk` in .gitignore\n  echo '.azk' >> .gitignore \n",
       not_found: "Not found a system(s), generating with example system.",
@@ -355,7 +355,7 @@ module.exports = {
     },
     start: {
       description: "Starts an instance of the system(s)",
-      already: "System `%(name)s` already started",
+      already_started: "System `%(name)s` already started",
       fail: "Due to the above error azk will stop all instances already begun.\n",
       options: {
         verbose: verbose,
@@ -437,14 +437,14 @@ module.exports = {
     },
     vm: {
       description  : "Controls a virtual machine.",
-      already      : "virtual machine already installed.",
+      already_installed  : "virtual machine already installed.",
       not_installed: "virtual machine is not installed, try `azk vm install`.",
       running      : "virtual machine running.",
       already_running : "virtual machine already running.",
       // TODO not_running
-      not_runnig   : "virtual machine is not running, try `azk vm start`.",
+      not_running  : "virtual machine is not running, try `azk vm start`.",
       error        : "vm error: %(error)s.",
-      not_requires : "this system not requires virtual machine, to try force this behavior set `AZK_USE_VM=true`",
+      not_required : "this system not requires virtual machine, to try force this behavior set `AZK_USE_VM=true`",
       options: {
         verbose : verbose,
         quiet   : quiet,

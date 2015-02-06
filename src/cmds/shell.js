@@ -102,7 +102,7 @@ class Cmd extends InteractiveCmds {
       this.fail("commands.shell.ended.docker_end");
       return { code: 127 };
     } else if (error.code === 'ECONNREFUSED') {
-      this.fail("commands.shell.ended.docker_notfound");
+      this.fail("commands.shell.ended.docker_not_found");
       return { code: 127 };
     }
     throw error;
