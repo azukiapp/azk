@@ -14,7 +14,7 @@ Inicia o `agent`.
 #### Opções:
 
 - `--daemon`      inicia em modo background
-- `--no-daemon`   inicia em modo foregroung
+- `--no-daemon`   inicia em modo foreground
 
 #### Exemplos:
 
