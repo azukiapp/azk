@@ -6,52 +6,53 @@ var glob = require('glob');
 var path = require('path');
 var fs   = require('fs');
 
-/*
--------------------
-  Court
--------------------
-
-## More generators
-- from issue #46: Adding more generators
-- Details at https://github.com/azukiapp/azk/pull/149
-
-Investigates directories looking for files that can define the systems. Suggests `docker images` that match systems requirements for each folder.
-
------------
-## Main Flow
-
-- Cmd Init():
-    var systemsData = generator.findSystems(cwd);
-
-- Generator findSystems(dir):
-    this.court.judge(dir);
-    return this.court.systems_suggestions;
-
-- Court judge(dir):
-  judge(dir) {
-    this.__root_folder = dir;
-
-    ### _investigate(dir);
-     - For each rule receives `relevantsFiles` to search
-     - Get relevant files with its `contents`
-     - For each detected file executes `rule.getEvidence()`
-
-    ### _analysis
-      - check if the `evidence` has a `replaces` array
-      - `_replacesEvidences`(): replaces other evidences on the same path (system)
-
-    ### _veredict()
-      - fills `__folder_evidences_suggestion` with found evidences grouping in folders(systems)
-      - set `system name`
-      - set `database dependencies` for `[framework,runtime]` suggestions
-      - finally converts `__folder_evidences_suggestion` to  `__systems_suggestions`
-        for the Azkfile `mustache template`
-  }
-
-- Cmd Init():
-    generator.render({ systems: systemsData }, file);
-
-*/
+/**
+  * -------------------
+  *   Court
+  * -------------------
+  *
+  * ## More generators
+  * - from issue #46: Adding more generators
+  * - Details at https://github.com/azukiapp/azk/pull/149
+  *
+  * Investigates directories looking for files that can define the systems.
+  * Suggests `docker images` that match systems requirements for each folder.
+  *
+  * -----------
+  * ## Main Flow
+  *
+  * - Cmd Init():
+  *     var systemsData = generator.findSystems(cwd);
+  *
+  * - Generator findSystems(dir):
+  *     this.court.judge(dir);
+  *     return this.court.systems_suggestions;
+  *
+  * - Court judge(dir):
+  *   judge(dir) {
+  *     this.__root_folder = dir;
+  *
+  *     ### _investigate(dir);
+  *      - For each rule receives `relevantsFiles` to search
+  *      - Get relevant files with its `contents`
+  *      - For each detected file executes `rule.getEvidence()`
+  *
+  *     ### _analysis
+  *       - check if the `evidence` has a `replaces` array
+  *       - `_replacesEvidences`(): replaces other evidences on the same path (system)
+  *
+  *     ### _veredict()
+  *       - fills `__folder_evidences_suggestion` with found evidences grouping in folders(systems)
+  *       - set `system name`
+  *       - set `database dependencies` for `[framework,runtime]` suggestions
+  *       - finally converts `__folder_evidences_suggestion` to  `__systems_suggestions`
+  *         for the Azkfile `mustache template`
+  *   }
+  *
+  * - Cmd Init():
+  *     generator.render({ systems: systemsData }, file);
+  *
+  **/
 export class Court extends UIProxy {
   constructor(rules_folder, ui) {
     super(ui);
