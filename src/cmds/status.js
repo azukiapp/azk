@@ -1,4 +1,4 @@
-import { _, async, lazy_require } from 'azk';
+import { Q, _, async, lazy_require } from 'azk';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Helpers } from 'azk/cli/command';
 
@@ -100,7 +100,7 @@ class Cmd extends InteractiveCmds {
       });
     }
 
-    return _.isEmpty(ports) ? ["-"] : ports;
+    return Q(_.isEmpty(ports) ? ["-"] : ports);
   }
 
   static _head(opts, columns_size = -1) {

@@ -9,7 +9,7 @@ var SystemBalancer = {
     if (system.balanceable) {
       return this.balancer.removeAll(system.hostname);
     }
-    return false;
+    return Q(false);
   },
 
   add(system, container) {
