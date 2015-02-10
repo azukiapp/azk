@@ -286,14 +286,14 @@ export class Configure extends UIProxy {
       this.info('configure.adding_ip', { ip, file });
       ip = `${ip}${this.dns_tab}${port}`;
       var result = `
-        'echo "" &&',
-        'set -x &&',
-        '${sudo_path} mkdir -p /etc/resolver 2>/dev/null &&',
-        'echo "# azk agent configure" | ${sudo_path} tee ${file} &&',
-        'echo "nameserver ${ip}" | ${sudo_path} tee -a ${file} &&',
-        '${sudo_path} chown \$(id -u):\$(id -g) ${file} &&',
-        'set +x &&',
-        'echo ""',
+        echo "" &&
+        set -x &&
+        ${sudo_path} mkdir -p /etc/resolver 2>/dev/null &&
+        echo "# azk agent configure" | ${sudo_path} tee ${file} &&
+        echo "nameserver ${ip}" | ${sudo_path} tee -a ${file} &&
+        ${sudo_path} chown \$(id -u):\$(id -g) ${file} &&
+        set +x &&
+        echo ""
       `;
       return result;
     });
