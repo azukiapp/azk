@@ -14,6 +14,7 @@ Inicializa um shell com o contexto da instância, ou executa um comando arbitrá
 - `--mount="", -m, -mm`   Aponta para uma montagem adicional (ex:./origin:/azk/target) - suporta múltiplas
 - `--env="", -e, -ee`     Variável de ambiente adicional - suporta múltiplas
 - `--verbose, -v`         Exibe detalhes sobre a execução do comando (padrão: falso)
+- `--silent`              Previne qualquer mensagem de log sobre a execução do comando. É útil quando é utilizada a opção `-c` e o output é utilizado de entrada para outro comando com o operador pipe `|`.
 
 #### Uso:
 
@@ -35,4 +36,9 @@ $ azk shell [system_name] -c "ls -l /"
 # Inicia um container a partir da imagem `azukiapp/azktcl:0.0.2` montando
 #  e executando o comando /bin/bash, e forçando a alocação do pseudo-tty
 $ azk shell --image azukiapp/azktcl:0.0.2 -t -c "/bin/bash"
+
+# Executa um commando dentro do container e utiliza o output como input
+# para outro comando usando o operador pipe `|`. Note a opção `--silent`
+# para evitar que `azk shell` exiba mensagens de log no output.
+azk shell --silent -c "rake routes" | grep posts
 ```
