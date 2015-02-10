@@ -9,6 +9,7 @@
 * Enhancements
   * [System] Adding support to customize DNS servers to will be used in system. #273
   * [Manifest] Adding `extends` support.
+  * [Cli] Updated messages in locales/en-US for easier understanding
 
 ## v0.9.2 - (2015-29-01)
 
