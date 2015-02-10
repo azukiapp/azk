@@ -30,6 +30,7 @@ module.exports = {
     image_not_exist: "Image from '%(image)s' not found",
     provision_not_found: "Not found '%(image)s' image",
     os_not_supported: "System not supported (see http://azk.io)",
+    run_timeout_error: "System '%(system)s' has Timed Out after %(retry)s attempts of %(timeout)s milliseconds. Review your `Azkfile.js` in order to increase the waiting time.",
 
     docker_build_error: {
       server_error: "Internal error in build `%(dockerfile)s`: %(error)",
