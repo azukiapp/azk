@@ -9,12 +9,28 @@ abs_dir() {
   if [ -z "$link" ]; then pwd; else abs_dir $link; fi
 }
 
+# Return a fixture path
 fixtures() {
   echo "${AZK_ROOT_PATH}/spec/fixtures/${1}"
 }
 
+# Copy a fixture path to a temporari path
+# and return this path
 fixtures_tmp() {
-  dir=`mktemp -d -t "azk.test.XXX"`
-  cp -rf "$(fixtures $1)"/* "$dir"
-  echo $dir
+    mask="azk.test.XXX"
+  origin="$(fixtures $1)"
+
+  # Copy as directory
+  if [ -d "$origin" ]; then
+    path=`mktemp -d -t "$mask"`
+    cp -rf $origin/* "$path"
+  # or copy a dir
+  else
+    path=`mktemp -t "$mask"`
+    rm $path
+    cp $origin "$path"
+  fi
+
+  # Return a new path
+  echo $path
 }
