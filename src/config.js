@@ -176,11 +176,11 @@ export function set(key, value) {
     process.env.NODE_ENV = value;
   } else {
     var keys   = [env(), ...key.split(':')];
-    var buffer_obj = {};
-    buffer_obj[keys.pop()] = value;
-    var buffer = buffer_obj;
-    while ((key  = keys.pop())) {
-      var inner_buffer = {};
+    var buffer = {};
+    buffer[keys.pop()] = value;
+
+    while ((key = keys.pop())) {
+      var inner_buffer  = {};
       inner_buffer[key] = buffer;
       buffer = inner_buffer;
     }

@@ -109,8 +109,7 @@ var Agent = {
     var acc_keys = 'agent:config_keys';
     _.each(configs, (value, key) => {
       set_config(key, value);
-      var accKeysList = [...config(acc_keys)].concat(key);
-      set_config(acc_keys, [...accKeysList]);
+      set_config(acc_keys, [...config(acc_keys)].concat(key));
     });
 
     // Set process name
