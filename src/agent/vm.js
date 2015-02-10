@@ -348,4 +348,4 @@ var vm = {
 };
 
 var VM = vm;
-export { VM };
+export { VM, dhcp, hostonly };

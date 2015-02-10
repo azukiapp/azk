@@ -131,7 +131,7 @@ var Server = {
   stopVM(running) {
     var vm_name = config("agent:vm:name");
     return async(this, function* () {
-      running = (running === null) ? (yield VM.isRunnig(vm_name)) : false;
+      running = yield VM.isRunnig(vm_name);
       if (running) {
         yield VM.stop(vm_name, !this.vm_started);
       }
