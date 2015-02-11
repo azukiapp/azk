@@ -15,13 +15,16 @@ export class Suggestion extends UIProxy {
     // Initial Azkfile.js suggestion
     this.suggestion = _.extend({}, example_system, {
       __type: "node.js",
-      image : { docker: "node:0.10" },
+      image : { docker: "azukiapp/node" },
       provision: [
         "npm install"
       ],
       http: true,
       scalable: { default: 2 },
       command : "npm start",
+      ports   : {
+        http: "8000"
+      },
       envs    : {
         NODE_ENV: "dev"
       }
