@@ -256,7 +256,7 @@ export class Configure extends UIProxy {
       }
 
       if (use_vm) {
-        result['docker:host'] = `https://${ip}:2376`;
+        result['docker:host'] = `http://${ip}:4243`;
       }
 
       // Save to use in configure

@@ -26,8 +26,8 @@ var Server = {
       // Virtual machine is required?
       if (this.vm_enabled && config('agent:requires_vm')) {
         yield this.installVM(true);
-        yield this.installShare();
-        yield this.mountShare();
+        // yield this.installShare();
+        // yield this.mountShare();
       }
 
       // Load balancer
@@ -43,7 +43,7 @@ var Server = {
       yield this.removeBalancer();
       if (config('agent:requires_vm')) {
         yield this.stopVM();
-        yield this.removeShare();
+        // yield this.removeShare();
       }
     });
   },
@@ -91,7 +91,7 @@ var Server = {
         // Wait for vm start
         var n = (status) => notify({ type: "status", context: "vm", status });
         n("wait");
-        var address = `tcp://${config("agent:vm:ip")}:2376`;
+        var address = `tcp://${config("agent:vm:ip")}:4243`;
         var success = yield net_utils.waitService(address, 10, { context: "vm" });
         if (!success) {
           throw new AgentStartError(t("errors.no_vm_started"));
@@ -105,22 +105,22 @@ var Server = {
         yield VM.copyFile(vm_name, key, authoried);
 
         // Get docker keys
-        var files = ['ca.pem', 'cert.pem', 'key.pem'];
-        var origin, dest, pems = config('paths:pems');
-        yield qfs.makeTree(pems);
+        // var files = ['ca.pem', 'cert.pem', 'key.pem'];
+        // var origin, dest, pems = config('paths:pems');
+        // yield qfs.makeTree(pems);
 
-        // Copy files
-        // TODO: Make downloads asyncs
-        n("docker_keys");
-        for (var i = 0; i < files.length; i++) {
-          origin = path.join("/home/docker/.docker", files[i]);
-          dest   = path.join(pems, files[i]);
-          yield VM
-            .copyVMFile(vm_name, origin, dest)
-            .fail(() => {
-              throw Error(`Erro to download file: ${origin}`);
-            });
-        }
+        // // Copy files
+        // // TODO: Make downloads asyncs
+        // n("docker_keys");
+        // for (var i = 0; i < files.length; i++) {
+        //   origin = path.join("/home/docker/.docker", files[i]);
+        //   dest   = path.join(pems, files[i]);
+        //   yield VM
+        //     .copyVMFile(vm_name, origin, dest)
+        //     .fail(() => {
+        //       throw Error(`Erro to download file: ${origin}`);
+        //     });
+        // }
       }
 
       // Mark installed
