@@ -1,5 +1,10 @@
 # Changelog
 
+## dev
+
+* Bug
+  * [Cli] Showing `azk`'s timeout errors #217 #268
+
 ## v0.9.2 - (2015-29-01)
 
 * Bug
