@@ -4,8 +4,9 @@ Aumenta/dimunui o número de instâncias da aplicação.
 
 #### Opções:
 
+	- `--quiet, -q`           Sem mensagens (default: falso)
+	- `--remove, -r`          Remove as instâncias antes de parar (padrão: verdadeiro)
     - `--verbose, -v, -vv`    Aumenta o nível de detalhes (padrão: falso) - suporta múltiplos
-    - `--remove, -r`          Remove as instâncias antes de parar (padrão: verdadeiro)
 
 #### Uso:
 
@@ -33,7 +34,7 @@ azk: ↓ scaling `node010` system from 0 to 1 instances...
 $ azk scale node010 10
 azk: ↑ scaling `node010` system from 1 to 10 instances...
 azk: ✓ checking `library/node:0.10` image...
-azk: ◴ waiting start `node010` system, try connect port http/tcp...
+azk: ◴ waiting for `node010` system to start, trying connection to port http/tcp...
 ...
 ┌───┬─────────┬───────────┬───────────────────────────┬─────────────────────────────┬──────────────┐
 │   │ System  │ Instances │ Hostname/url              │ Instances-Ports             │ Provisioned  │

@@ -4,8 +4,9 @@ Increase/decrease the number of applications instances.
 
 #### Options:
 
-    - `--verbose, -v, -vv`    Sets the level of detail (default: false) - supports multiple
-    - `--remove, -r`          Removes instances before stop (default: true)
+	- `--quiet, -q`           Never prompt (default: false)
+	- `--remove, -r`          Removes the instances before stopping (default: true)
+    - `--verbose, -v, -vv`    Sets the level of detail (default: false) - multiple supported
 
 #### Usage:
 
@@ -13,7 +14,7 @@ Increase/decrease the number of applications instances.
 
 #### Example:
 
-###### Changes node010 system instances's number to one.
+###### Changes node010 system instances number to one.
 
 ```
 $ azk scale node010 1
@@ -34,8 +35,8 @@ azk: ↓ scaling `node010` system from 0 to 1 instances...
 $ azk scale node010 8
 azk: ↑ scaling `node010` system from 1 to 8 instances...
 azk: ✓ checking `library/node:0.10` image...
-azk: ◴ waiting start `node010` system, try connect port http/tcp...
-azk: ◴ waiting start `node010` system, try connect port http/tcp...
+azk: ◴ waiting for `node010` system to start, trying connection to port http/tcp...
+azk: ◴ waiting for `node010` system to start, trying connection to port http/tcp...
 
 ┌───┬─────────┬───────────┬───────────────────────────┬────────────────────────────┬──────────────┐
 │   │ System  │ Instances │ Hostname/url              │ Instances-Ports            │ Provisioned  │
@@ -48,4 +49,4 @@ azk: ◴ waiting start `node010` system, try connect port http/tcp...
 └───┴─────────┴───────────┴───────────────────────────┴────────────────────────────┴──────────────┘
 
 ```
-Each time the user access http://node010.dev.azk.io he will be redirected to one of _node010 system 8 instances_ by `azk`'s _load balancer_.
+Each time the user accesses http://node010.dev.azk.io he will be redirected to one of _node010 system 8 instances_ by `azk`'s _load balancer_.
