@@ -196,6 +196,10 @@ export class System {
     return ports;
   }
 
+  get dns_servers() {
+    return this.options.dns_servers;
+  }
+
   // Envs
   get envs() { return this.options.envs; }
   expandExportEnvs(data) {
@@ -276,6 +280,11 @@ export class System {
       // WorkingDir
       if (_.isEmpty(this.options.workdir) && _.isEmpty(options.workdir)) {
         options.workdir = config.WorkingDir;
+      }
+
+      // DNS Servers
+      if (_.isEmpty(this.options.dns_servers) && _.isEmpty(options.dns_servers)) {
+        options.dns_servers = config.dns_servers;
       }
 
       // ExposedPorts
@@ -359,6 +368,8 @@ export class System {
       this._mounts_to_volumes(options.mounts)
     );
 
+    var dns_servers = !_.isEmpty(options.dns_servers) ? options.dns_servers : net.nameServers();
+
     var finalOptions = {
       daemon: daemon,
       ports: ports,
@@ -367,7 +378,7 @@ export class System {
       volumes: mounts,
       working_dir: options.workdir || this.workdir,
       env: envs,
-      dns: net.nameServers(),
+      dns: dns_servers,
       docker: options.docker || this.options.docker_extra || null,
       annotations: { azk: {
         type : type,
@@ -439,6 +450,7 @@ export class System {
       azk: {
         version       : version,
         default_domain: config('agent:balancer:host'),
+        default_dns   : net.nameServers(),
         balancer_port : config('agent:balancer:port'),
         balancer_ip   : config('agent:balancer:ip'),
       }
