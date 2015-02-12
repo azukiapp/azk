@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ROOT_UID=0
-LOGGED_USER=$(logname)
+LOGGED_USER=`whoami`
 HOME_DIR=/home/$LOGGED_USER
 AZK_HOME=$HOME_DIR/.azk
 
@@ -152,9 +152,7 @@ install_azk_mac_osx() {
   echo ""
 
   brew install caskroom/cask/brew-cask
-
   brew cask install virtualbox --appdir=/Applications
-
   brew install azukiapp/azk/azk
 
 }
