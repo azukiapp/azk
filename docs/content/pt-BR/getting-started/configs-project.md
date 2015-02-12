@@ -8,7 +8,7 @@ O `Azkfile.js` pode ser criado manualmente, mas para sua comodidade oferecemos o
 $ cd [path_demo]/azkdemo
 $ azk init
 
-azk: [node010] `node010` system was detected at '[path_demo]/azkdemo'.
+azk: [node010] A `node` system was detected at '[path_demo]/azkdemo'.
 azk: [node010] The image suggested was `{"docker":"node:0.10"}`.
 azk: 'Azkfile.js' generated
 ```

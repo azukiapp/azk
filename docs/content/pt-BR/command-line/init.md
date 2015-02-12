@@ -15,15 +15,15 @@ Inicializa o arquivo `Azkfile.js` baseando-se nos sistemas contidos na pasta atu
 ```
 $ azk init
 
-azk: [phpLaravel] `phpLaravel` system was detected at '/home/projects/main-project/phpLaravel'.
+azk: [phpLaravel] A `php` system was detected at '/home/projects/main-project/phpLaravel'.
 azk: [phpLaravel] The image suggested was `{"docker":"azukiapp/php-fpm:5.6"}`.
 
-azk: [django15] `django15` system was detected at '/home/projects/main-project/django15'.
+azk: [django15] A `django` system was detected at '/home/projects/main-project/django15'.
 azk: [django15] The image suggested was `{"docker":"python:2.7"}`.
 
-azk: [phpSample] `phpSample` system was detected at '/home/projects/main-project/phpSample'.
+azk: [phpSample] A `php` system was detected at '/home/projects/main-project/phpSample'.
 azk: [phpSample] The image suggested was `{"docker":"azukiapp/php-fpm"}`.
-azk: [phpSample] ! It was not possible to detect a specific version, so, the standard version was suggested instead.
+azk: [phpSample] ! It was not possible to detect the `php` specific version, so the standard version was suggested instead.
 azk: [phpSample] ! To change the image version you must edit the `Azkfile.js` file.
 azk: [phpSample] ! For more information see the documentation at http://docs.azk.io/en/images/index.html.
 azk: 'Azkfile.js' generated
