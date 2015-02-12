@@ -119,7 +119,7 @@ function config_share(name) {
       "--hostpath", "/Users",
       "--automount"
     ],
-    tudo: [
+    root: [
       "sharedfolder", "add", name,
       "--name", "Root",
       "--hostpath", "/",
@@ -130,7 +130,7 @@ function config_share(name) {
   return Q.all([
     exec.apply(null, args.sharepath),
     // exec.apply(null, args.users),
-    exec.apply(null, args.tudo),
+    exec.apply(null, args.root),
   ]);
 }
 
