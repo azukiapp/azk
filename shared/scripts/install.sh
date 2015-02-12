@@ -1,35 +1,36 @@
 #!/bin/bash
 
 ROOT_UID=0
-LOGGED_USER=`whoami`
-HOME_DIR=/home/$LOGGED_USER
-AZK_HOME=$HOME_DIR/.azk
 
 main(){
-  detect_OS
 
-  install_docker
-  install\_azk\_$OS\_$OS_VERSION
-  add_user_to_docker_group
-}
+  echo ""
+  echo "**  --------------"
+  echo "**  Installing azk"
+  echo "**  --------------"
+  echo ""
 
-detect_OS() {
-
+  # Detecting PLATFORM and ARCH
   UNAME="$(uname -a)"
-  # arch="$(uname -m)"
   case "$UNAME" in
-    Linux\ *) PLATFORM=linux ;;
-    Darwin\ *) PLATFORM=darwin ;;
-    SunOS\ *) PLATFORM=sunos ;;
+    Linux\ *)   PLATFORM=linux ;;
+    Darwin\ *)  PLATFORM=darwin ;;
+    SunOS\ *)   PLATFORM=sunos ;;
     FreeBSD\ *) PLATFORM=freebsd ;;
   esac
   case "$UNAME" in
     *x86_64*) ARCH=x64 ;;
-    *i*86*) ARCH=x86 ;;
+    *i*86*)   ARCH=x86 ;;
     *armv6l*) ARCH=arm-pi ;;
   esac
+  echo "* Platform detected: $PLATFORM, $ARCH"
 
-  echo "platform detected: $PLATFORM, $ARCH"
+  if [[ $PLATFORM == "darwin" ]]; then
+    OS="mac"
+    OS_VERSION="osx"
+    install_azk_mac_osx
+    exit 0;
+  fi
 
   if [[ $PLATFORM == "linux" ]]; then
 
@@ -38,59 +39,82 @@ detect_OS() {
       exit 1;
     fi
 
-    # get os details
+    # Detecting OS and OS_VERSION
     source /etc/os-release
     OS=$ID
     OS_VERSION=$VERSION_ID
 
-    echo "linux detected: $OS, $OS_VERSION"
+    echo "* Linux detected: $OS, $OS_VERSION"
+    echo ""
 
+    # Check if linux distribution is compatible?
     if [[ $ID != "ubuntu" && $ID != "fedora" ]]; then
       echo "Unsupported version or Linux distribution detected"
       exit 1;
     fi
 
-    if [ $UID != $ROOT_UID ]; then
+    # Check if is SUDO
+    if [[ $UID != $ROOT_UID ]]; then
       echo "You don't have sufficient privileges to run this script. Use sudo instead."
       exit 1
     fi
-  fi
 
-  if [[ $PLATFORM == "darwin" ]]; then
-    OS="mac"
-    OS_VERSION="osx"
-  fi
+    # Ubuntu 14.04
+    if [[ $ID == "ubuntu" && $OS_VERSION == "14.04" ]]; then
+      echo "deb [arch=amd64] http://repo.azukiapp.com trusty main" | sudo tee /etc/apt/sources.list.d/azuki.list
+      install_azk_ubuntu
+      add_user_to_docker_group
+    fi
 
+    # Ubuntu 12.04
+    if [[ $ID == "ubuntu" && $OS_VERSION == "12.04" ]]; then
+      echo "deb [arch=amd64] http://repo.azukiapp.com precise main" | sudo tee /etc/apt/sources.list.d/azuki.list
+      install_azk_ubuntu
+      add_user_to_docker_group
+    fi
+
+    # Fedora 20
+    if [[ $ID == "fedora" && $OS_VERSION == "20" ]]; then
+      install_azk_fedora_20
+      add_user_to_docker_group
+    fi
+
+    exit 0;
+  fi
 }
 
-install_docker() {
+check_docker_instalation() {
   echo ""
-  echo "**  --------------"
-  echo "**  install_docker --"
-  echo "**  --------------"
+  echo "**  ------------------------"
+  echo "**  check_docker_instalation"
+  echo "**  ------------------------"
   echo ""
 
   if hash docker 2>/dev/null; then
     echo ''
     echo 'docker is instaled, skipping docker installation.'
-    echo 'to update docker, run command bellow'
+    echo 'to update docker, run command bellow:'
     echo '$ curl -sSL https://get.docker.com/ubuntu/ | sudo sh'
     echo ''
   else
-    curl -sSL https://get.docker.com/ubuntu/ | sudo sh
-    echo "Docker installed."
+    echo ''
+    echo 'azk needs docker installed.'
+    echo 'to install docker run command bellow:'
+    echo '$ curl -sSL https://get.docker.com/ubuntu/ | sudo sh'
+    echo ''
+    exit 1
   fi
 }
 
 add_user_to_docker_group() {
   echo ""
   echo "**  ------------------------"
-  echo "**  add_user_to_docker_group --"
+  echo "**  add_user_to_docker_group"
   echo "**  ------------------------"
   echo ""
 
   groupadd docker
-  gpasswd -a $LOGGED_USER docker
+  gpasswd -a `whoami` docker
   service docker restart
   echo " ---------------------------------------------"
   echo " Alert: non-sudo acess to docker client has been configured but you should log out and then log in again for these changes to take effect."
@@ -98,10 +122,12 @@ add_user_to_docker_group() {
 }
 
 install_azk_ubuntu() {
+  check_docker_instalation
+
   echo ""
-  echo "**  -----------------"
-  echo "**  install_azk_ubuntu --"
-  echo "**  -----------------"
+  echo "**  ------------------"
+  echo "**  install_azk_ubuntu"
+  echo "**  ------------------"
   echo ""
 
   echo "sudo apt-key adv --keyserver keys.gnupg.net --recv-keys 022856F6D78159DF43B487D5C82CF0628592D2C9..."
@@ -115,21 +141,13 @@ install_azk_ubuntu() {
   sudo apt-get install azk -y
 }
 
-install_azk_ubuntu_14.04() {
-  echo "deb [arch=amd64] http://repo.azukiapp.com trusty main" | sudo tee /etc/apt/sources.list.d/azuki.list
-  install_azk_ubuntu
-}
-
-install_azk_ubuntu_12.04() {
-  echo "deb [arch=amd64] http://repo.azukiapp.com precise main" | sudo tee /etc/apt/sources.list.d/azuki.list
-  install_azk_ubuntu
-}
-
 install_azk_fedora_20() {
+  check_docker_instalation
+
   echo ""
-  echo "**  -----------------"
-  echo "**  install_azk_fedora_20 --"
-  echo "**  -----------------"
+  echo "**  ---------------------"
+  echo "**  install_azk_fedora_20"
+  echo "**  ---------------------"
   echo ""
 
   rpm --import 'http://repo.azukiapp.com/keys/azuki.asc'
@@ -147,14 +165,13 @@ gpgcheck=1
 install_azk_mac_osx() {
   echo ""
   echo "**  -------------------"
-  echo "**  install_azk_mac_osx --"
+  echo "**  install_azk_mac_osx"
   echo "**  -------------------"
   echo ""
 
-  brew install caskroom/cask/brew-cask
-  brew cask install virtualbox --appdir=/Applications
+  # check brew
+  # check virtualbox
   brew install azukiapp/azk/azk
-
 }
 
 main
