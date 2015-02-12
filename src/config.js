@@ -109,7 +109,7 @@ var options = mergeConfig({
         data_disk  : path.join(paths.vm, "azk-agent.vmdk"),
         boot_disk  : path.join(envs('AZK_LIB_PATH'), "vm", "azk.iso"),
         blank_disk : path.join(envs('AZK_LIB_PATH'), "vm", "azk-agent.vmdk.gz"),
-        mount_point: '/home/docker/files',
+        mount_point: '/media/sf_Root',
         authorized_key: '/home/docker/.ssh/authorized_keys',
       },
 
