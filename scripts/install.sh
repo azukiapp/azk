@@ -5,11 +5,6 @@ LOGGED_USER=$(logname)
 HOME_DIR=/home/$LOGGED_USER
 AZK_HOME=$HOME_DIR/.azk
 
-if [ $UID != $ROOT_UID ]; then
-    echo "You don't have sufficient privileges to run this script. Use sudo instead."
-    exit 1
-fi
-
 main(){
   detect_OS
 
@@ -53,6 +48,11 @@ detect_OS() {
     if [[ $ID != "ubuntu" && $ID != "fedora" ]]; then
       echo "Unsupported version or Linux distribution detected"
       exit 1;
+    fi
+
+    if [ $UID != $ROOT_UID ]; then
+      echo "You don't have sufficient privileges to run this script. Use sudo instead."
+      exit 1
     fi
   fi
 
