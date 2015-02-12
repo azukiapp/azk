@@ -26,6 +26,7 @@
    * [Overview](azkfilejs/overview.md)
    * [image](azkfilejs/image.md)
    * [depends](azkfilejs/depends.md)
+   * [dns_servers](azkfilejs/dns_servers.md)
    * [provision](azkfilejs/provision.md)
    * [workdir](azkfilejs/workdir.md)
    * [shell](azkfilejs/shell.md)
