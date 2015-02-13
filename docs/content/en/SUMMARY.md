@@ -61,7 +61,6 @@
 /** [Agent](agent/README.md)*/
 /** [Images](images/README.md)*/
 /** [FAQ](faq/README.md)*/
+* [Contributing](contributing/README.md)
 /** [Roadmap](roadmap/README.md)*/
-/** [Contributing](contribuindo/README.md)*/
-/** [Roadmap](roodmap/README.md)*/
 
