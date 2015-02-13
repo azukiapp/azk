@@ -1,4 +1,4 @@
-import { fs, config, path } from 'azk';
+import { config } from 'azk';
 import { Docker, Image, Container } from 'azk/docker/docker';
 
 var url = require('url');
@@ -18,9 +18,6 @@ module.exports = {
           protocol: protocol.substring(0, protocol.length - 1),
           host : 'http://' + opts.hostname,
           port : opts.port,
-          // ca   : fs.readFileSync(path.join(config('paths:pems'), 'ca.pem')),
-          // cert : fs.readFileSync(path.join(config('paths:pems'), 'cert.pem')),
-          // key  : fs.readFileSync(path.join(config('paths:pems'), 'key.pem')),
         };
       }
       this.connect = new Docker(opts);

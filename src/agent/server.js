@@ -1,12 +1,10 @@
-import { config, async, t, log, path } from 'azk';
+import { config, async, t, log } from 'azk';
 import { VM  }   from 'azk/agent/vm';
 import { Unfsd } from 'azk/agent/unfsd';
 import { Balancer } from 'azk/agent/balancer';
 import { net as net_utils } from 'azk/utils';
 import { AgentStartError } from 'azk/utils/errors';
 import { Api } from 'azk/agent/api';
-
-var qfs = require('q-io/fs');
 
 var Server = {
   server: null,
@@ -26,8 +24,6 @@ var Server = {
       // Virtual machine is required?
       if (this.vm_enabled && config('agent:requires_vm')) {
         yield this.installVM(true);
-        // yield this.installShare();
-        // yield this.mountShare();
       }
 
       // Load balancer
@@ -43,7 +39,6 @@ var Server = {
       yield this.removeBalancer();
       if (config('agent:requires_vm')) {
         yield this.stopVM();
-        // yield this.removeShare();
       }
     });
   },
@@ -103,24 +98,6 @@ var Server = {
         var key = config('agent:vm:ssh_key') + '.pub';
         var authoried = config('agent:vm:authorized_key');
         yield VM.copyFile(vm_name, key, authoried);
-
-        // Get docker keys
-        // var files = ['ca.pem', 'cert.pem', 'key.pem'];
-        // var origin, dest, pems = config('paths:pems');
-        // yield qfs.makeTree(pems);
-
-        // // Copy files
-        // // TODO: Make downloads asyncs
-        // n("docker_keys");
-        // for (var i = 0; i < files.length; i++) {
-        //   origin = path.join("/home/docker/.docker", files[i]);
-        //   dest   = path.join(pems, files[i]);
-        //   yield VM
-        //     .copyVMFile(vm_name, origin, dest)
-        //     .fail(() => {
-        //       throw Error(`Erro to download file: ${origin}`);
-        //     });
-        // }
       }
 
       // Mark installed

@@ -108,29 +108,15 @@ function config_net_interfaces(name, ip) {
 }
 
 function config_share(name) {
-  var args = {
-    sharepath: [
-      "guestproperty", "set", name,
-      "/VirtualBox/GuestAdd/SharedFolders/MountDir", "/media"
-    ],
-    users: [
-      "sharedfolder", "add", name,
-      "--name", "Users",
-      "--hostpath", "/Users",
-      "--automount"
-    ],
-    root: [
-      "sharedfolder", "add", name,
-      "--name", "Root",
-      "--hostpath", "/",
-      "--automount"
-    ],
-  };
+  var root = [
+    "sharedfolder", "add", name,
+    "--name", "Root",
+    "--hostpath", "/",
+    "--automount"
+  ];
 
   return Q.all([
-    exec.apply(null, args.sharepath),
-    // exec.apply(null, args.users),
-    exec.apply(null, args.root),
+    exec.apply(null, root),
   ]);
 }
 
