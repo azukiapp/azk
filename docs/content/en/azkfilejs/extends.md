@@ -1,6 +1,6 @@
 ## extends
 
-Allows inherit a system including its settings. It is necessary that "parent system" to be valid, i.e., that could be called individually. All properties described on "child system", which has the property `extends`, will override the "parent system".
+Allows a system to inherit its settings from another. It's necessary that the "parent system" is valid, i.e., that it could be started individually. All properties described in the "child system" (which has the `extends` property), will override the ones from the "parent system".
 
 #### Usage:
 
@@ -10,7 +10,7 @@ extends: 'other_base_system_name',
 
 ##### Examples:
 
-In this example the `system-ruby-child` inherits all `system-ruby-base` configurations.
+In this example, `system-ruby-child` inherits all configurations from `system-ruby-base`.
 
 ```js
 'system-ruby-base': {
@@ -30,4 +30,41 @@ In this example the `system-ruby-child` inherits all `system-ruby-base` configur
 }
 ```
 
-> Note that it we need to set `wait` and `scalable` properties to so that `system-ruby-base` could be a valid system.
+> Note that we need to set both `wait` and `scalable` properties so that `system-ruby-base` is a valid system.
+
+Another example:
+
+```js
+systems({
+  node010: {
+    depends: [],
+    image: {"docker": "node:0.10"},
+    provision: [
+      "npm install",
+    ],
+    workdir: "/azk/#{manifest.dir}",
+    shell: "/bin/bash",
+    command: "npm start",
+    wait: {"retry": 20, "timeout": 1000},
+    mounts: {
+      '/azk/#{manifest.dir}': path("."),
+    },
+    scalable: {"default": 2},
+    http: {
+      domains: [ "#{system.name}.#{azk.default_domain}" ]
+    },
+    envs: {
+      NODE_ENV: "dev",
+      SERVICE_USERNAME: "username"
+    },
+  },
+  other: {
+    extends: "node010",
+    envs: {
+      NODE_ENV: "production",
+    }, 
+  }
+});
+```
+
+> Note that the environment variable `SERVICE_USERNAME` will not be available inside the `other` system.
