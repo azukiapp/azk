@@ -1,6 +1,5 @@
 import { config, async, t, log } from 'azk';
 import { VM  }   from 'azk/agent/vm';
-import { Unfsd } from 'azk/agent/unfsd';
 import { Balancer } from 'azk/agent/balancer';
 import { net as net_utils } from 'azk/utils';
 import { AgentStartError } from 'azk/utils/errors';
@@ -49,18 +48,6 @@ var Server = {
 
   removeBalancer() {
     return Balancer.stop();
-  },
-
-  installShare() {
-    return Unfsd.start();
-  },
-
-  removeShare() {
-    return Unfsd.stop();
-  },
-
-  mountShare() {
-    return Unfsd.mount(config("agent:vm:name"));
   },
 
   installVM(start = false) {

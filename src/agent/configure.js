@@ -84,7 +84,6 @@ export class Configure extends UIProxy {
       return _.merge(
         {},
         yield this._which('VBoxManage'),
-        yield this._which('unfsd', 'paths:unfsd'),
         yield this._checkAndConfigureNetwork(),
         yield this._checkAndGenerateSSHKeys(),
         yield this._loadDnsServers()
