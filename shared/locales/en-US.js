@@ -144,7 +144,19 @@ module.exports = {
   },
 
   generator: {
-    found: "`%(__type)s` system was detected at '%(dir)s' as '%(systemName)s'",
+    found              : [
+      "",
+      "[%(systemName)s] `A %(__type)s` system was detected at '%(dir)s'.",
+      "[%(systemName)s] The image suggested was `%(image)s`.",
+    ].join("\n"),
+    foundWithoutVersion: [
+      "",
+      "[%(systemName)s] A `%(__type)s` system was detected at '%(dir)s'.",
+      "[%(systemName)s] The image suggested was `%(image)s`.",
+      "[%(systemName)s] ! It was not possible to detect the `%(__type)s` specific version, so the standard version was suggested instead.",
+      "[%(systemName)s] ! To change the image version you must edit the `Azkfile.js` file.",
+      "[%(systemName)s] ! For more information see the documentation at http://docs.azk.io/en/images/index.html.",
+    ].join("\n")
   },
 
   manifest: {
