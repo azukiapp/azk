@@ -199,27 +199,6 @@ var Run = {
         var exitCode = data.State.ExitCode;
 
         if (exitCode === 0) {
-
-          /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.      DEBUG */
-          var target = system.__options;
-          var depth  = 2; var inspectResult = require("util").inspect(target,
-            { showHidden:!0, colors:!0, depth:depth });
-          console.log("\n",
-            ">>------------------------------------------------------\n",
-            "  ##  system.__options\n",
-            "  ------------------------------------------------------\n",
-            "  source: ( " + __filename + " )" + "\n",
-            "  ------------------------------------------------------\n",
-            "" + inspectResult + "\n",
-            "<<------------------------------------------------------\n",
-            "");
-          /* -.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-. /END-DEBUG */
-          console.log('\n>>---------\n address:', address, '\n>>---------\n');
-          console.log('\n>>---------\n retry:', retry, '\n>>---------\n');
-          console.log('\n>>---------\n wait_opts:', wait_opts, '\n>>---------\n');
-          console.log('\n>>---------\n port_data:', port_data, '\n>>---------\n');
-          console.log('\n>>---------\n container:', container, '\n>>---------\n');
-
           throw new SystemRunError(
             system.name,
             container,
@@ -229,7 +208,8 @@ var Run = {
               system: system.name,
               port: port_data && port_data.port,
               retry: system.__options.wait && system.__options.wait.retry,
-              timeout: system.__options.wait && system.__options.wait.timeout
+              timeout: system.__options.wait && system.__options.wait.timeout,
+              hostname: system.url.underline,
             }))
           );
         } else {

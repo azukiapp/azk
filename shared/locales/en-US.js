@@ -31,7 +31,8 @@ module.exports = {
     provision_not_found: "Not found '%(image)s' image",
     os_not_supported: "System not supported (see http://azk.io)",
     run_timeout_error: [
-      "[timeout] Failure to reach port `%(port)s` from '%(system)s' after %(retry)s attempt[s] of %(timeout)s milliseconds.",
+      "[timeout] `azk` has timed out on `%(system)s` system.",
+      "[timeout] Failure to reach port `%(port)s` from `%(hostname)s` after %(retry)s attempt[s] of %(timeout)s milliseconds.",
       "[timeout] Make sure the start command binds port to `0.0.0.0` interface, not only to `localhost` interface.",
       "[timeout] Maybe you should review your `Azkfile.js` in order to increase the waiting time.",
     ].join("\n"),
