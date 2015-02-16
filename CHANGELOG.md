@@ -4,6 +4,11 @@
 
 * Bug
   * [Cli] Showing `azk`'s timeout errors #217 #268
+  * [Generators] Notifying when runtime system version was unidentified.
+
+* Enhancements
+  * [System] Adding support to customize DNS servers to will be used in system. #273
+  * [Manifest] Adding `extends` support.
 
 ## v0.9.2 - (2015-29-01)
 

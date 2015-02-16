@@ -35,9 +35,10 @@ var ManifestDsl = {
     this.addSystem(name, data);
   },
 
-  systems(all_systems) {
-    _.each(all_systems, (system, name) => {
-      this.addSystem(name, system);
+  systems(allSystems) {
+    this.extendsSystems(allSystems);
+    _.each(allSystems, (data, name) => {
+      this.addSystem(name, data);
     });
   },
 
@@ -126,6 +127,38 @@ export class Manifest {
     }, { });
   }
 
+  extendsSystems(allSystems) {
+    _.each(allSystems, (data, name) => {
+      if (!(data instanceof System)) {
+        if (data.extends) {
+          // validate is extends system exists
+          if (!allSystems[data.extends]) {
+            var msg = t("manifest.extends_system_invalid", { system_source: data.extends,
+              system_to_extend: name });
+            throw new ManifestError(this.file, msg);
+          }
+
+          var sourceSystem = _.cloneDeep(allSystems[data.extends]);
+          var destinationSystem = allSystems[name];
+
+          // if "depends" or "image" is null ignore these properties
+          if (destinationSystem.depends === null) {
+            delete destinationSystem.depends;
+          }
+          if (destinationSystem.image === null) {
+            delete destinationSystem.image;
+          }
+
+          // get all from sourceSystem but override with destinationSystem
+          _.assign(sourceSystem, destinationSystem);
+          allSystems[name] = sourceSystem;
+        }
+      }
+    });
+
+    return allSystems;
+  }
+
   addSystem(name, data) {
     if (!(data instanceof System)) {
       this._system_validate(name, data);
@@ -147,6 +180,10 @@ export class Manifest {
     var msg, opts;
     if (!name.match(/^[a-zA-Z0-9-]+$/)) {
       msg = t("manifest.system_name_invalid", { system: name });
+      throw new ManifestError(this.file, msg);
+    }
+    if (data.extends === name) {
+      msg = t("manifest.cannot_extends_itself", { system: name });
       throw new ManifestError(this.file, msg);
     }
     if (_.isEmpty(data.image)) {

@@ -145,19 +145,33 @@ module.exports = {
   },
 
   generator: {
-    found: "`%(__type)s` system was detected at '%(dir)s' as '%(systemName)s'",
+    found              : [
+      "",
+      "[%(systemName)s] `A %(__type)s` system was detected at '%(dir)s'.",
+      "[%(systemName)s] The image suggested was `%(image)s`.",
+    ].join("\n"),
+    foundWithoutVersion: [
+      "",
+      "[%(systemName)s] A `%(__type)s` system was detected at '%(dir)s'.",
+      "[%(systemName)s] The image suggested was `%(image)s`.",
+      "[%(systemName)s] ! It was not possible to detect the `%(__type)s` specific version, so the standard version was suggested instead.",
+      "[%(systemName)s] ! To change the image version you must edit the `Azkfile.js` file.",
+      "[%(systemName)s] ! For more information see the documentation at http://docs.azk.io/en/images/index.html.",
+    ].join("\n")
   },
 
   manifest: {
-    not_found: "no such '%s' in current project",
-    circular_depends: "Circular dependency between %(system1)s and %(system2)s",
-    image_required: "Not image set for the `%(system)s' system",
-    can_find_dockerfile: "Can't find `%(dockerfile)s` file to build a image for `%(system)s` system",
-    system_name_invalid: "The system name `%(system)s` is not valid.",
-    provider_invalid: "The provider not found: `%(wrongProvider)s`.",
-    depends_not_declared: "The `%(system)s` system depends on the `%(depend)s` system, which was not stated.",
-    balancer_depreciation: "The `balancer` option used in the `%(system)s` is deprecated, use `http` and `scalable` to replace",
-    invalid_default: "Unable to set the system `%(system)s` as a default because it was not declared",
+    balancer_depreciation : "The `balancer` option used in the `%(system)s` is deprecated, use `http` and `scalable` to replace",
+    cannot_extends_itself : "The system `%(system)s` cannot extend itself",
+    can_find_dockerfile   : "Can't find `%(dockerfile)s` file to build a image for `%(system)s` system",
+    circular_depends      : "Circular dependency between %(system1)s and %(system2)s",
+    depends_not_declared  : "The `%(system)s` system depends on the `%(depend)s` system, which was not stated.",
+    extends_system_invalid: "The system `%(system_source)s` for extending system `%(system_to_extend)s` cannot be found",
+    image_required        : "Not image set for the `%(system)s` system",
+    invalid_default       : "Unable to set the system `%(system)s` as a default because it was not declared",
+    not_found             : "no such '%s' in current project",
+    provider_invalid      : "The provider not found: `%(wrongProvider)s`.",
+    system_name_invalid   : "The system name `%(system)s` is not valid.",
     mount_and_persistent_depreciation: [
       "The `%(option)s` option used in system `%(system)s` is no longer supported.",
       "You must change the %(manifest)s to use `mounts`",

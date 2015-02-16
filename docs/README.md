@@ -59,7 +59,7 @@ azk nvm gulp deploy-stage
 azk nvm gulp deploy-prod
 ```
 
-#### to remove all file from a bucket use the s3cmd
+#### [! danger !] to remove all files from a bucket use s3cmd
 
 ```sh
 s3cmd del s3://azk-docs-stage/ --recursive --force

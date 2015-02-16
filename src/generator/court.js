@@ -301,11 +301,21 @@ export class Court extends UIProxy {
         // create a new system
         var systemSuggestion = systems[suggestion.name] = suggestion;
 
-        this.ok('generator.found', {
-          __type: evidence_suggestion.name,
-          dir: folderName,
-          systemName: suggestion.name
-        });
+        if (!evidence_suggestion.version) {
+          this.ok('generator.foundWithoutVersion', {
+            __type: evidence_suggestion.name,
+            dir: folderName,
+            systemName: suggestion.name,
+            image: JSON.stringify(systemSuggestion.image)
+          });
+        } else {
+          this.ok('generator.found', {
+            __type: evidence_suggestion.name,
+            dir: folderName,
+            systemName: suggestion.name,
+            image: JSON.stringify(systemSuggestion.image)
+          });
+        }
 
         // when in a sub-folder change `workdir`
         if (folderName !== this.__root_folder && systemSuggestion.workdir) {
