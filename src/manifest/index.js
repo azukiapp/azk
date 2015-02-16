@@ -1,4 +1,4 @@
-import { path, fs, config, _, t, lazy_require } from 'azk';
+import { path, fs, config, _, t, lazy_require, isBlank } from 'azk';
 import { System } from 'azk/system';
 import { Validate } from 'azk/manifest/validate';
 import { ManifestError, ManifestRequiredError, SystemNotFoundError } from 'azk/utils/errors';
@@ -142,10 +142,10 @@ export class Manifest {
           var destinationSystem = allSystems[name];
 
           // if "depends" or "image" is null ignore these properties
-          if (destinationSystem.depends === null) {
+          if (isBlank(destinationSystem.depends)) {
             delete destinationSystem.depends;
           }
-          if (destinationSystem.image === null) {
+          if (isBlank(destinationSystem.image)) {
             delete destinationSystem.image;
           }
 

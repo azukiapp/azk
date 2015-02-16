@@ -166,6 +166,12 @@ var Utils = {
     var options = { interpolate: /(?:(?:[#|$]{|<%)[=|-]?)([\s\S]+?)(?:}|%>)/g };
     return _.template(template_string, data, options);
   },
+
+  isBlank (obj) {
+    return _.isNull(obj) ||
+           _.isUndefined(obj) ||
+           obj === false;
+  }
 };
 
 module.exports = Utils;

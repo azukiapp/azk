@@ -1,4 +1,4 @@
-import { _, t, path, fs, utils } from 'azk';
+import { _, t, path, fs, utils, isBlank } from 'azk';
 import { version, config } from 'azk';
 import { Image } from 'azk/images';
 import { net } from 'azk/utils';
@@ -289,7 +289,9 @@ export class System {
 
       // ExposedPorts
       var ports = _.reduce(options.ports, (ports, value, key) => {
-        if (value === null) { value = `${key}/tcp`; }
+        if (isBlank(value)) {
+          value = `${key}/tcp`;
+        }
         ports[key] = value;
         return ports;
       }, {});
@@ -305,7 +307,7 @@ export class System {
 
     // Clear null ports
     options.ports = _.reduce(options.ports, (ports, value, key) => {
-      if (value !== null) {
+      if (!isBlank(value)) {
         ports[key] = value;
       }
       return ports;
@@ -412,7 +414,7 @@ export class System {
   _parse_ports(ports) {
     return _.reduce(ports, (ports, port, name) => {
       // skip disable
-      if (port === null) {
+      if (isBlank(port)) {
         return ports;
       }
 
