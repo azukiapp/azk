@@ -195,7 +195,26 @@ var Run = {
       var running = yield net.waitService(address, retry, wait_opts);
 
       if (!running) {
-        yield this.throwRunError(system, container, null, true);
+        var data = yield container.inspect();
+        var exitCode = data.State.ExitCode;
+
+        if (exitCode === 0) {
+          throw new SystemRunError(
+            system.name,
+            container,
+            data.Config.Cmd.join(' '),
+            exitCode,
+            Q(t('errors.run_timeout_error', {
+              system: system.name,
+              port: port_data && port_data.port,
+              retry: system.__options.wait && system.__options.wait.retry,
+              timeout: system.__options.wait && system.__options.wait.timeout,
+              hostname: system.url.underline,
+            }))
+          );
+        } else {
+          yield this.throwRunError(system, container, null, true);
+        }
       }
 
       return true;
