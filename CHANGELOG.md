@@ -4,6 +4,7 @@
 
 * Enhancements
   * [System] Adding support to customize DNS servers to will be used in system. #273
+  * [Manifest] Adding `extends` support.
 
 * Bug
   * [Generators] Notifying when runtime system version was unidentified.
