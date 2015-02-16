@@ -1,4 +1,4 @@
-import { _, t, Q, async, defer, config, lazy_require, log } from 'azk';
+import { _, t, Q, async, defer, config, lazy_require, log, isBlank } from 'azk';
 import { ImageNotAvailable, SystemRunError, RunCommandError } from 'azk/utils/errors';
 import { Balancer } from 'azk/system/balancer';
 import net from 'azk/utils/net';
@@ -297,7 +297,7 @@ var Run = {
         system.image.builded = new Date();
       } else {
         promise = system.image.check().then((image) => {
-          if (image === null) {
+          if (isBlank(image)) {
             throw new ImageNotAvailable(system.name, system.image.name);
           }
           return image;

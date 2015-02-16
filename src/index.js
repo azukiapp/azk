@@ -1,6 +1,6 @@
 require('traceur');
 import { get as config, set as set_config }  from 'azk/config';
-import { Q, _, i18n, defer, async } from 'azk/utils';
+import { Q, _, i18n, defer, async, isBlank } from 'azk/utils';
 
 Q.longStackSupport = true;
 
@@ -49,6 +49,7 @@ module.exports = {
   get fs() {      return require('fs-extra'); },
   get utils() {   return require('azk/utils'); },
   get version() { return Azk.version; },
+  get isBlank() { return isBlank; },
 
   get lazy_require() {
     return (obj, loads) => {

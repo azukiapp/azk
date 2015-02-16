@@ -1,4 +1,4 @@
-import { _, Q, config, async, log } from 'azk';
+import { _, Q, config, async, log, isBlank } from 'azk';
 import Utils from 'azk/utils';
 import { Tools } from 'azk/agent/tools';
 import { SSH } from 'azk/agent/ssh';
@@ -313,7 +313,7 @@ var vm = {
         yield machine.remove(vm_name).fail(fail);
 
         // Remove networking interface
-        if (info.nic1 !== null) {
+        if (!isBlank(info.nic1)) {
           yield dhcp.remove_hostonly_server(info.hostonlyadapter1).fail(fail);
           yield hostonly.remove_if(info.hostonlyadapter1).fail(fail);
         }
