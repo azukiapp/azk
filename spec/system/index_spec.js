@@ -28,6 +28,14 @@ describe("Azk system class, main set", function() {
     h.expect(system).to.have.property("default_options").to.fail;
   });
 
+  it("should merge options with dns_servers", function() {
+    system.options = _.defaults(system.default_options, {
+      dns_servers: ['208.67.222.222', '208.67.222.220']
+    });
+
+    h.expect(system).to.have.property("dns_servers").and.eql(['208.67.222.222', '208.67.222.220']);
+  });
+
   describe("with valid manifest", function() {
     var manifest, system;
 
@@ -68,6 +76,7 @@ describe("Azk system class, main set", function() {
         h.expect(provision).to.include(`manifest.project_name: ${manifest.manifestDirName}`);
         h.expect(provision).to.include(`azk.version: ${version}`);
         h.expect(provision).to.include(`azk.default_domain: ${config('agent:balancer:host')}`);
+        h.expect(provision).to.include(`azk.default_dns: ${net.nameServers().toString()}`);
         h.expect(provision).to.include(`azk.balancer_port: ${config('agent:balancer:port').toString()}`);
         h.expect(provision).to.include(`azk.balancer_ip: ${config('agent:balancer:ip')}`);
       });
@@ -239,6 +248,17 @@ describe("Azk system class, main set", function() {
           "/azk", utils.docker.resolvePath(manifest.manifestPath)
         );
         h.expect(mounts).to.have.property("/data", folder);
+      });
+
+      it("should support custom dns_servers", function() {
+        // Customized options
+        var custom  = {
+          dns_servers: ['208.67.222.222', '208.67.222.220']
+        };
+
+        var options = system.daemonOptions(custom);
+
+        h.expect(options).to.have.property("dns").and.eql(['208.67.222.222', '208.67.222.220']);
       });
 
       it("should extract options from image_data", function() {

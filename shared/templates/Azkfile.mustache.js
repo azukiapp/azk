@@ -32,6 +32,9 @@ systems({
     {{~#if shell}}
     shell: "{{&shell}}",
     {{~/if}}
+    {{~#if extends}}
+    extends: "{{&extends}}",
+    {{~/if}}
     {{~#if command}}
     command: {{&json command}},
     {{~/if}}

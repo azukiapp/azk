@@ -1,4 +1,4 @@
-import { Q, _, defer, config } from 'azk';
+import { Q, _, defer, config, isBlank } from 'azk';
 
 var portscanner = require('portscanner');
 var url         = require('url');
@@ -34,7 +34,7 @@ var net = {
   },
 
   nameServers() {
-    if (nameservers === null) {
+    if (isBlank(nameservers)) {
       nameservers = config('agent:dns:nameservers');
       nameservers.unshift(config("agent:dns:ip"));
     }

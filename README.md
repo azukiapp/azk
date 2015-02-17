@@ -2,7 +2,7 @@
 
 `azk` is a tool that assists web developers in the creation, maintenance and isolation of development environments through automation. You will be able to easily and quickly create isolated environments to many projects in almost any development stack. Automation happens by the use of simple scripts and images.
 
-[![wercker status](https://app.wercker.com/status/c771315d3c499dec99c49f49e8d1d84a/s "wercker status")](https://app.wercker.com/project/bykey/c771315d3c499dec99c49f49e8d1d84a) [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/azukiapp/azk?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/azukiapp/azk?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![wercker status](https://app.wercker.com/status/c771315d3c499dec99c49f49e8d1d84a/s/master "wercker status")](https://app.wercker.com/project/bykey/c771315d3c499dec99c49f49e8d1d84a) [![Code Climate](https://codeclimate.com/github/azukiapp/azk/badges/gpa.svg)](https://codeclimate.com/github/azukiapp/azk)
 
 ## Main features
 

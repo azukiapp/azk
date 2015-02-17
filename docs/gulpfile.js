@@ -145,4 +145,4 @@ gulp.task('deploy-stage', function(callback) {
               callback);
 });
 
-gulp.task('default', ['deploy']);
+gulp.task('default', ['build']);
