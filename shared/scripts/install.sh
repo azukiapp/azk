@@ -2,6 +2,14 @@
 
 ROOT_UID=0
 
+super() {
+  if [[ $UID != $ROOT_UID ]]; then
+    sudo "${@}"
+  else
+    exec "${@}"
+  fi
+}
+
 main(){
 
   echo ""
@@ -55,21 +63,19 @@ main(){
 
     # Check if is SUDO
     if [[ $UID != $ROOT_UID ]]; then
-      echo "Enabling sudo..."
-      sudo bash "$0"
-      exit 0;
+      super echo "sudo enabled"
     fi
 
     # Ubuntu 14.04
     if [[ $ID == "ubuntu" && $OS_VERSION == "14.04" ]]; then
-      echo "deb [arch=amd64] http://repo.azukiapp.com trusty main" | sudo tee /etc/apt/sources.list.d/azuki.list
+      echo "deb [arch=amd64] http://repo.azukiapp.com trusty main" | super tee /etc/apt/sources.list.d/azuki.list
       install_azk_ubuntu
       add_user_to_docker_group
     fi
 
     # Ubuntu 12.04
     if [[ $ID == "ubuntu" && $OS_VERSION == "12.04" ]]; then
-      echo "deb [arch=amd64] http://repo.azukiapp.com precise main" | sudo tee /etc/apt/sources.list.d/azuki.list
+      echo "deb [arch=amd64] http://repo.azukiapp.com precise main" | super tee /etc/apt/sources.list.d/azuki.list
       install_azk_ubuntu
       add_user_to_docker_group
     fi
@@ -131,15 +137,15 @@ install_azk_ubuntu() {
   echo "**  ------------------"
   echo ""
 
-  echo "sudo apt-key adv --keyserver keys.gnupg.net --recv-keys 022856F6D78159DF43B487D5C82CF0628592D2C9..."
-  sudo apt-key adv --keyserver keys.gnupg.net --recv-keys 022856F6D78159DF43B487D5C82CF0628592D2C9  1>/dev/null
+  echo "apt-key adv --keyserver keys.gnupg.net --recv-keys 022856F6D78159DF43B487D5C82CF0628592D2C9..."
+  super apt-key adv --keyserver keys.gnupg.net --recv-keys 022856F6D78159DF43B487D5C82CF0628592D2C9  1>/dev/null
 
-  echo "sudo apt-get update..."
-  sudo apt-get update 1>/dev/null
+  echo "apt-get update..."
+  super apt-get update 1>/dev/null
 
   echo ""
-  echo "sudo apt-get install azk -y..."
-  sudo apt-get install azk -y
+  echo "apt-get install azk -y..."
+  super apt-get install azk -y
 }
 
 install_azk_fedora_20() {
@@ -160,7 +166,7 @@ enabled=1
 gpgcheck=1
 " > /etc/yum.repos.d/azuki.repo
 
-  sudo yum install azk -y
+  super yum install azk -y
 }
 
 install_azk_mac_osx() {
@@ -170,9 +176,21 @@ install_azk_mac_osx() {
   echo "**  -------------------"
   echo ""
 
-  # check brew
-  # check virtualbox
-  brew install azukiapp/azk/azk
+
+  if hash VBoxManage 2>/dev/null; then
+    echo "Virtual Box detected"
+  else
+    echo "In order to use azk you must have Virtualbox instaled on Mac OS X."
+    echo "refer to: http://docs.azk.io/en/installation/mac_os_x.html"
+  fi
+
+  if hash brew 2>/dev/null; then
+    echo "In order to install azk you must have Homebrew on Mac OS X systems."
+    echo "refer to: http://docs.azk.io/en/installation/mac_os_x.html"
+    exit 1;
+  else
+    brew install azukiapp/azk/azk
+  fi
 }
 
 main

@@ -18,6 +18,7 @@ curl -L http://azk.io/install.sh > /tmp/install-azk.sh && bash /tmp/install-azk.
 wget http://azk.io/install.sh -v -O /tmp/install-azk.sh && bash /tmp/install-azk.sh
 ```
 
+
 ## Requisitos mínimos de instalação
 
 * Uma máquina com arquitetura 64 bits
