@@ -9,13 +9,13 @@ A instalação vai adicionar o comando `azk` ao path do sistema. Isso torna o co
 #### via curl
 
 ```sh
-curl -L http://azk.io/install.sh > /tmp/install-azk.sh && bash /tmp/install-azk.sh
+curl -L http://azk.io/install.sh | bash
 ```
 
 #### via wget
 
 ```sh
-wget http://azk.io/install.sh -v -O /tmp/install-azk.sh && bash /tmp/install-azk.sh
+wget http://azk.io/install.sh -v -O /tmp/install.sh && bash /tmp/install.sh
 ```
 
 

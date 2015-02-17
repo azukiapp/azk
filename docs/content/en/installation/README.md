@@ -8,14 +8,16 @@ The installation process will add the `azk` command to your system path, making 
 
 #### via curl
 
+#### via curl
+
 ```sh
-curl -L http://azk.io/install.sh > /tmp/install-azk.sh && bash /tmp/install-azk.sh
+curl -L http://azk.io/install.sh | bash
 ```
 
 #### via wget
 
 ```sh
-wget http://azk.io/install.sh -v -O /tmp/install-azk.sh && bash /tmp/install-azk.sh
+wget http://azk.io/install.sh -v -O /tmp/install.sh && bash /tmp/install.sh
 ```
 
 ## Mininum requirements

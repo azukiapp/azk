@@ -185,11 +185,11 @@ install_azk_mac_osx() {
   fi
 
   if hash brew 2>/dev/null; then
+    brew install azukiapp/azk/azk
+  else
     echo "In order to install azk you must have Homebrew on Mac OS X systems."
     echo "refer to: http://docs.azk.io/en/installation/mac_os_x.html"
     exit 1;
-  else
-    brew install azukiapp/azk/azk
   fi
 }
 
