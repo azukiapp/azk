@@ -14,7 +14,7 @@ Initializes a shell with the instance context, or executes an arbitrary command.
 - `--mount="", -m, -mm`   Points to an additional mount (ex:./origin:/azk/target) - supports multiple
 - `--env="", -e, -ee`     Additional environment variable - supports multiple
 - `--verbose, -v`         Displays details about the command execution (default: false)
-- `--silent`              Prevents any log message about the command execution. It's useful when using `-c` option and the output is used as input to another command using pipe `|` operator.
+- `--silent`              Prevents any log message about the command execution. It's useful when using the `-c` option and the output is used as input to another command using the pipe `|` operator.
 
 #### Usage:
 
@@ -39,6 +39,6 @@ $ azk shell --image azukiapp/azktcl:0.0.2 -t -c "/bin/bash"
 
 # Executes a command inside the container and uses its output as input to 
 # another command using the pipe `|` operator. Note the `--silent` option
-# to prevent that `azk shell` shows any log message in the output.
+# to prevent `azk shell` from showing any log messages in the output.
 azk shell --silent -c "rake routes" | grep posts
 ```

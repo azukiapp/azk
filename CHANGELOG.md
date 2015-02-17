@@ -4,7 +4,7 @@
 
 * Enhancements
   * Added message logs to `azk shell` command. Now, when `azk` is 
-downloading the requested image it doesn't seem to be freezed anymore. To prevent those logs use `--silent` option. It's useful when using `-c` option and the output is used as input to another command using pipe `|` operator.
+downloading the requested image it doesn't seem to be frozen anymore. To prevent those logs use the `--silent` option. It's useful when using the `-c` option and the output is used as input to another command using the pipe `|` operator.
 
 ## v0.9.2 - (2015-29-01)
 
