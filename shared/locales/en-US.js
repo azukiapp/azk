@@ -414,18 +414,15 @@ module.exports = {
       }
     },
     vm: {
-      description  : "Controls a virtual machine.",
-      already      : "virtual machine already installed.",
-      not_installed: "virtual machine is not installed, try `azk vm install`.",
-      running      : "virtual machine running.",
+      already         : "virtual machine already installed.",
       already_running : "virtual machine already running.",
+      description     : "Controls a virtual machine.",
+      error           : "vm error: %(error)s.",
       // TODO not_running
-      not_runnig   : "virtual machine is not running, try `azk vm start`.",
-      error        : "vm error: %(error)s.",
-      not_requires : "this system not requires virtual machine, to try force this behavior set `AZK_USE_VM=true`",
+      not_installed   : "virtual machine is not installed, try `azk vm install`.",
+      not_requires    : "this system not requires virtual machine, to try force this behavior set `AZK_USE_VM=true`",
+      not_runnig      : "virtual machine is not running, try `azk vm start`.",
       options: {
-        verbose : verbose,
-        quiet   : quiet,
         action: {
           name: "actions".magenta,
           options: {
@@ -437,8 +434,11 @@ module.exports = {
             remove: "Remove virtual machine but keep its contents",
           },
         },
-        force: "Tries to force virtual machine destruction. It's useful when the `remove` action doesn't work properly.",
-      }
+        force: "Attempts to force the removal of the virtual machine. It's useful when the `remove` action doesn't work properly due to some unknown problem.",
+        quiet   : quiet,
+        verbose : verbose,
+      },
+      running         : "virtual machine running."
     }
   },
 

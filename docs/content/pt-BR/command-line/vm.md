@@ -63,10 +63,10 @@ Remove a máquina virtual.
 
 #### Exemplos:
 
-##### Tenta remove a máquina virtual normalmente:
+##### Tenta remover a máquina virtual normalmente:
 
     $ azk vm remove
 
-##### Força a remoção a máquina virtual:
+##### Força a remoção da máquina virtual:
     
     $ azk vm remove --force

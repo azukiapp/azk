@@ -3,7 +3,7 @@
 ## Dev
 
 * Enhancements
-  * Adding `--force` option to `azk vm remove`. It's useful when the `azk vm remove` doesn't work properly due some unknown problem.
+  * Adding `--force` option to `azk vm remove`. It's useful when `azk vm remove` doesn't work properly due to some unknown problem.
 
 ## v0.9.0
 

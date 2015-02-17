@@ -59,7 +59,7 @@ Removes the virtual machine.
 
 #### Options:
 
-- `--force`      Tries to force virtual machine destruction. It's useful when the `remove` action doesn't work properly due some unknown problem.
+- `--force`      Attempts to force the removal of the virtual machine. It's useful when the `remove` action doesn't work properly due to some unknown problem.
 
 #### Examples:
 
@@ -67,6 +67,6 @@ Removes the virtual machine.
 
     $ azk vm remove
 
-##### Forces the destruction of the virtual machine:
+##### Attempts to force the removal of the virtual machine:
 
     $ azk vm remove --force
