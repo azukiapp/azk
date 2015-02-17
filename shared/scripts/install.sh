@@ -55,8 +55,9 @@ main(){
 
     # Check if is SUDO
     if [[ $UID != $ROOT_UID ]]; then
-      echo "You don't have sufficient privileges to run this script. Use sudo instead."
-      exit 1
+      echo "Enabling sudo..."
+      sudo bash "$0"
+      exit 0;
     fi
 
     # Ubuntu 14.04

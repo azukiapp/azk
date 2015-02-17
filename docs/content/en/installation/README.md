@@ -4,6 +4,20 @@ Installing `azk` is really simple and it has packages available for both [Linux]
 
 The installation process will add the `azk` command to your system path, making it available in your terminal application.
 
+## azk express installation
+
+#### via curl
+
+```sh
+curl -Ls http://azk.io/install.sh | bash
+```
+
+#### via wget
+
+```sh
+wget http://azk.io/install.sh -v -O install.sh && bash ./install.sh; rm -rf ./install.sh
+```
+
 ## Mininum requirements
 
 * 64-bit architecture machine
