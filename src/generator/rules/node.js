@@ -66,5 +66,4 @@ export class Rule extends BaseRule {
 
     return evidence;
   }
-
 }
