@@ -6,7 +6,7 @@ super() {
   if [[ $UID != $ROOT_UID ]]; then
     sudo "${@}"
   else
-    exec "${@}"
+    $@
   fi
 }
 
