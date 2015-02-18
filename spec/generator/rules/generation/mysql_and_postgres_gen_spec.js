@@ -111,7 +111,7 @@ describe('Azk generator db', function() {
       it('should has correct properties', function() {
         // main properties
         h.expect(system).to.have.property('name', 'postgres');
-        h.expect(system).to.have.deep.property('image.repository', 'wyaeld/postgres');
+        h.expect(system).to.have.deep.property('image.repository', 'azukiapp/postgres');
         h.expect(system).to.have.deep.property('image.tag', '9.3');
 
         // __options
