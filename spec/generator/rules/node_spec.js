@@ -96,7 +96,23 @@ describe('Azk generators Node.js rule', function() {
       '{',
       '  "name": "best-practices",',
       '  "engines": {',
-      '    "node": "v0.12.0"',
+      '    "node": "v0.11.02"',
+      '  },',
+      '  "author": "Charlie Robbins <charlie@nodejitsu.com>"',
+      '}',
+    ].join('\n');
+
+    var evidence = rule.getEvidence(packageJsonfilePath, packageJsonContent);
+    h.expect(evidence).to.have.deep.property('ruleName', 'node012');
+  });
+
+  it('should get 0.12 version when version is >= v0.12', () => {
+    var packageJsonfilePath = '/tmp/azk-test-30501680wvr4/front/package.json';
+    var packageJsonContent = [
+      '{',
+      '  "name": "best-practices",',
+      '  "engines": {',
+      '    "node": "v0.13.00"',
       '  },',
       '  "author": "Charlie Robbins <charlie@nodejitsu.com>"',
       '}',
