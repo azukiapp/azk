@@ -32,8 +32,10 @@ export class SugestionChooser extends UIProxy {
         return diff.length === 0;
       });
 
-      evidence.suggestionChoosen            = _.clone(suggestionChoosen);
-      evidence.suggestionChoosen.suggestion = _.cloneDeep(suggestionChoosen.suggestion);
+      if (suggestionChoosen) {
+        evidence.suggestionChoosen            = _.clone(suggestionChoosen);
+        evidence.suggestionChoosen.suggestion = _.cloneDeep(suggestionChoosen.suggestion);
+      }
       return evidence;
     });
   }
