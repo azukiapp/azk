@@ -90,7 +90,7 @@ describe('Azk generators Node.js rule', function() {
     h.expect(evidence).to.have.deep.property('ruleName', 'node012');
   });
 
-  it('should get 0.11 version when version is >= v0.11', () => {
+  it('should get 0.12 version when version is >= v0.11', () => {
     var packageJsonfilePath = '/tmp/azk-test-30501680wvr4/front/package.json';
     var packageJsonContent = [
       '{',
