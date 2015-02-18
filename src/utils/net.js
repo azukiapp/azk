@@ -33,9 +33,14 @@ var net = {
     return ip.replace(/^(.*)\..*$/, "$1.1");
   },
 
-  nameServers() {
+  nameServers(dns) {
+    if (dns) {
+      nameservers = dns;
+    }
     if (isBlank(nameservers)) {
       nameservers = config('agent:dns:nameservers');
+    }
+    if (!_.contains(nameservers, config("agent:dns:ip"))) {
       nameservers.unshift(config("agent:dns:ip"));
     }
     return nameservers;
