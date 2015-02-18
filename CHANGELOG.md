@@ -1,15 +1,17 @@
 # Changelog
 
-## dev
+## Dev
+
+* Enhancements
+  * Added message logs to `azk shell` command. Now, when `azk` is 
+downloading the requested image it doesn't seem to be frozen anymore. To prevent those logs use the `--silent` option. It's useful when using the `-c` option and the output is used as input to another command using the pipe `|` operator.
+  * [System] Adding support to customize DNS servers to will be used in system. #273
+  * [Manifest] Adding `extends` support.
+  * [Cli] Updated messages in locales/en-US for easier understanding
 
 * Bug
   * [Cli] Showing `azk`'s timeout errors #217 #268
   * [Generators] Notifying when runtime system version was unidentified.
-
-* Enhancements
-  * [System] Adding support to customize DNS servers to will be used in system. #273
-  * [Manifest] Adding `extends` support.
-  * [Cli] Updated messages in locales/en-US for easier understanding
 
 ## v0.9.2 - (2015-29-01)
 

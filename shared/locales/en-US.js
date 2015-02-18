@@ -310,6 +310,7 @@ module.exports = {
         remove  : "Removes shell instances after exit shell or command",
         command : "Runs a specific command",
         shell   : "The path to the shell binary",
+        silent  : "Prevents any log message about the command execution. It's useful when using the `-c` option and the output is used as input to another command using the pipe `|` operator.",
         verbose : verbose,
         quiet   : quiet,
         mount   : "Points to additional mounting (ex:./origin:/azk/target)",
