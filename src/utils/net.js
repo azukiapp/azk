@@ -33,17 +33,25 @@ var net = {
     return ip.replace(/^(.*)\..*$/, "$1.1");
   },
 
-  nameServers(dns) {
-    if (dns) {
-      nameservers = dns;
+  nameServers(options) {
+    var dns_servers;
+
+    if (options) {
+      dns_servers = options;
+    } else if (isBlank(nameservers)) {
+      dns_servers = config('agent:dns:nameservers');
+    } else {
+      dns_servers = nameservers;
     }
-    if (isBlank(nameservers)) {
-      nameservers = config('agent:dns:nameservers');
+
+    if (!_.contains(dns_servers, config("agent:dns:ip"))) {
+      dns_servers.unshift(config("agent:dns:ip"));
     }
-    if (!_.contains(nameservers, config("agent:dns:ip"))) {
-      nameservers.unshift(config("agent:dns:ip"));
+
+    if (!options) {
+      nameservers = dns_servers;
     }
-    return nameservers;
+    return dns_servers;
   },
 
   waitService(uri, retry = 15, opts = {}) {
