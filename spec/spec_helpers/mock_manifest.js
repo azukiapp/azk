@@ -67,6 +67,10 @@ export function extend(h) {
             ECHO_DATA: "data"
           }
         },
+        "example-extends": {
+          extends: "example",
+          scalable: { default: 1 },
+        },
         api: {
           depends: ["db"],
           workdir: '/azk/#{manifest.dir}',
@@ -143,6 +147,7 @@ export function extend(h) {
             "manifest.project_name: #{manifest.project_name}",
             "azk.version: #{azk.version}",
             "azk.default_domain: #{azk.default_domain}",
+            "azk.default_dns: #{azk.default_dns}",
             "azk.balancer_port: #{azk.balancer_port}",
             "azk.balancer_ip: #{azk.balancer_ip}",
           ],

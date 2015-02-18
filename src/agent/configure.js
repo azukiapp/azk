@@ -286,14 +286,14 @@ export class Configure extends UIProxy {
       this.info('configure.adding_ip', { ip, file });
       ip = `${ip}${this.dns_tab}${port}`;
       var result = `
-        'echo "" &&',
-        'set -x &&',
-        '${sudo_path} mkdir -p /etc/resolver 2>/dev/null &&',
-        'echo "# azk agent configure" | ${sudo_path} tee ${file} &&',
-        'echo "nameserver ${ip}" | ${sudo_path} tee -a ${file} &&',
-        '${sudo_path} chown \$(id -u):\$(id -g) ${file} &&',
-        'set +x &&',
-        'echo ""',
+        echo "" &&
+        set -x &&
+        ${sudo_path} mkdir -p /etc/resolver 2>/dev/null &&
+        echo "# azk agent configure" | ${sudo_path} tee ${file} &&
+        echo "nameserver ${ip}" | ${sudo_path} tee -a ${file} &&
+        ${sudo_path} chown \$(id -u):\$(id -g) ${file} &&
+        set +x &&
+        echo ""
       `;
       return result;
     });
@@ -337,13 +337,13 @@ export class Configure extends UIProxy {
       default : config('agent:vm:ip'),
       validate: (value) => {
         var data       = { ip: value };
-        var of_range   = this.t('configure.ip_of_range', data);
+        var ip_invalid_range   = this.t('configure.ip_invalid_range', data);
         var ip_invalid = this.t('configure.ip_invalid', data);
         var ranges     = [ '127.0.0.1', '0.0.0.0' ];
 
         // Check is valid ip
         if (!isIPv4(value)) { return ip_invalid; }
-        if (_.contains(ranges, value)) { return of_range; }
+        if (_.contains(ranges, value)) { return ip_invalid_range; }
 
         return true;
       }

@@ -30,7 +30,7 @@ class VmCmd extends InteractiveCmds {
 
   action(opts) {
     if (!config('agent:requires_vm')) {
-      this.fail('commands.vm.not_requires');
+      this.fail('commands.vm.not_required');
       return 1;
     }
 
@@ -93,7 +93,7 @@ class VmCmd extends InteractiveCmds {
 
   action_installed(vm_info) {
     this.require_installed(vm_info);
-    this.ok("commands.vm.already");
+    this.ok("commands.vm.already_installed");
     return Q();
   }
 

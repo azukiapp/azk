@@ -1,4 +1,4 @@
-import { _ } from 'azk';
+import { _, isBlank } from 'azk';
 import { BaseRule } from 'azk/generator/rules';
 var semver = require('semver');
 
@@ -88,7 +88,7 @@ export class Rule extends BaseRule {
     evidence.version = versions && versions.rubyVersion;
 
     // cant find node version, will use default node:latest
-    if (versions === null) {
+    if (isBlank(versions)) {
       return evidence;
     }
 

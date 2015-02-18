@@ -3,4 +3,5 @@ node_modules
 /content/_book
 /build
 .azk
-.env.json
+.env
+.awspublish-azk-docs-stage

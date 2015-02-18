@@ -1,4 +1,4 @@
-import { _, fs, async, defer, lazy_require, t, path } from 'azk';
+import { _, fs, async, defer, lazy_require, t, path, isBlank } from 'azk';
 import { ManifestError } from 'azk/utils/errors';
 import Utils from 'azk/utils';
 
@@ -65,13 +65,13 @@ export class Image {
       var image = yield this.check();
 
       // check official docker image without "library/" namespace
-      if (image === null && namespace === 'library') {
+      if (isBlank(image) && namespace === 'library') {
         this.repository = repository;
         image = yield this.check();
       }
 
       // download from registry
-      if (image === null) {
+      if (isBlank(image)) {
         this.repository = namespace + '/' + repository;
         notify({ type: "action", context: "image", action: "pull_image", data: this });
 
@@ -105,7 +105,7 @@ export class Image {
   build(options) {
     return async(this, function* (notify) {
       var image = yield this.check();
-      if (options.build_force || image === null) {
+      if (options.build_force || isBlank(image)) {
         notify({ type: 'action', context: 'image', action: 'build_image', data: this });
         image = yield docker.build({ dockerfile: this.path, tag: this.name });
       }
@@ -135,7 +135,7 @@ export class Image {
       }
     }
 
-    var msg = t("manifest.can_find_dockerfile", {system: this.system.name});
+    var msg = t("manifest.cannot_find_dockerfile", {system: this.system.name});
     throw new ManifestError('', msg);
   }
 

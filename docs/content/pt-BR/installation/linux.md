@@ -8,16 +8,17 @@
 * [Docker][docker] 1.3.0
 * Não estar rodando nenhum serviço nas portas `80` e `53`
 
-**Importante**: Se você estiver rodando algum serviço nas portas `80` e/ou `53` você deve customizar a configuração do `azk` definindo as seguintes variáveis `AZK_BALANCER_PORT` e `AZK_DNS_PORT` respectivamente, antes de executar o `azk agent start`. 
+**Importante**: Se você estiver rodando algum serviço nas portas `80` e/ou `53` você deve customizar a configuração do `azk` definindo as seguintes variáveis: `AZK_BALANCER_PORT` e `AZK_DNS_PORT` respectivamente, antes de executar o `azk agent start`.
 
 ## Ubuntu Trusty 14.04 (LTS) (64-bit)
 
 1. Instale o Docker:
 
-  - [Instale **a versão 1.3 do Docker**][docker_ubuntu_14_04]
-  - Configure para que seu usuário [tenha acesso ao Docker][docker_root_access];
+  >Observe que pelas instruções de instalação do Docker no [site][docker_ubuntu-trusty-1404-lts-64-bit] deles, a primeira instrução de instalação é para um pacote mantido pela Ubuntu (_docker-io_) e não para a versão correta, mantida pelo Docker (_lxc-docker_).
+
+  - Instale a versão mais recente do Docker [**lxc-docker**][docker_ubuntu_14_04_maintained-package-installation]. Observe que no final das instruções, eles dispõem um `script curl` para facilitar a instalação.
+  - Inclua seu usuário local no [grupo docker][docker_root_access]; Faça um _logoff_ para que as configurações de grupo de usuários sejam ativadas;
   - [Desabilite o uso de dnsmasq][docker_ubuntu_dns];
-  - **Tenha certeza de que o serviço do Docker está rodando**;
 
 2. Adicionando as chaves do Azuki ao seu keychain local:
 
@@ -40,14 +41,16 @@
   $ sudo apt-get install azk
   ```
 
+5. Você pode [iniciar o agent](../getting-started/starting-agent.md) agora, porém, **tenha certeza de que o serviço do Docker está rodando**;
+
+
 ## Ubuntu Precise 12.04 (LTS) (64-bit)
 
 1. Instale o Docker:
 
-  - [Instale **a versão 1.3 do Docker**][docker_ubuntu_12_04]
-  - Configure para que seu usuário [tenha acesso ao Docker][docker_root_access];
-  - **Tenha certeza de que o serviço do Docker está rodando**;
-  
+  - [Instale **a versão mais recente do Docker**][docker_ubuntu_12_04]
+  - Inclua seu usuário local no [grupo docker][docker_root_access]; Faça um _logoff_ para que as configurações de grupo de usuários sejam ativadas;
+
 2. Adicionando as chaves do Azuki ao seu keychain local:
 
   ```bash
@@ -68,6 +71,9 @@
   $ sudo apt-get update
   $ sudo apt-get install azk
   ```
+
+5. Você pode [iniciar o agent](../getting-started/starting-agent.md) agora, porém, **tenha certeza de que o serviço do Docker está rodando**;
+
 
 ## Fedora 20
 
@@ -95,10 +101,10 @@
   $ sudo yum install azk
   ```
 
-4. Antes de executar o `azk agent`:
+4. Inclua seu usuário local no [grupo docker][docker_root_access]; Faça um _logoff_ para que as configurações de grupo de usuários sejam ativadas;
 
-  - Configure para que seu usuário [tenha acesso ao Docker][docker_root_access];
-  - **Tenha certeza de que o serviço do Docker está rodando**;
+5. Você pode [iniciar o agent](../getting-started/starting-agent.md) agora, porém, **tenha certeza de que o serviço do Docker está rodando**;
+
 
 ## Outras distribuições
 

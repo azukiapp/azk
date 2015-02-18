@@ -1,4 +1,4 @@
-import { _, Q, config, async, log } from 'azk';
+import { _, Q, config, async, log, isBlank } from 'azk';
 import Utils from 'azk/utils';
 import { Tools } from 'azk/agent/tools';
 import { SSH } from 'azk/agent/ssh';
@@ -269,7 +269,7 @@ var vm = {
     return Tools.async_status("vm", this, function* (status_change) {
       var info = yield vm.info(vm_name);
       if (info.running) {
-        status_change("stoping");
+        status_change("stopping");
 
         if (force) {
           yield instance.stop(vm_name);
@@ -285,7 +285,7 @@ var vm = {
           }
         }
 
-        status_change("stoped");
+        status_change("stopped");
         return true;
       }
       return false;
@@ -313,7 +313,7 @@ var vm = {
         yield machine.remove(vm_name).fail(fail);
 
         // Remove networking interface
-        if (info.nic1 !== null) {
+        if (!isBlank(info.nic1)) {
           yield dhcp.remove_hostonly_server(info.hostonlyadapter1).fail(fail);
           yield hostonly.remove_if(info.hostonlyadapter1).fail(fail);
         }

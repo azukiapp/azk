@@ -67,7 +67,7 @@ describe("Azk manifest class, main set", function() {
         h.expect(systems).to.has.deep.property("[0]").to.equal(
           manifest.system("expand-test")
         );
-        h.expect(systems).to.has.deep.property("[8]").to.equal(
+        h.expect(systems).to.has.deep.property("[9]").to.equal(
           manifest.system("example")
         );
       });
@@ -97,7 +97,7 @@ describe("Azk manifest class, main set", function() {
     describe("with a tree of the requireds systems", function() {
       it("should return a systems in required order", function() {
         var systems = [ "expand-test", "mount-test", "ports-disable", "ports-test",
-                        "test-image-opts", "empty", "db", "api", "example"];
+                        "test-image-opts", "empty", "db", "api", "example-extends", "example"];
 
         h.expect(manifest.systemsInOrder()).to.eql(systems);
       });
@@ -185,21 +185,21 @@ describe("Azk manifest class, main set", function() {
 
     it("should raise a if use balancer option", function() {
       var func = mock_manifest('system("system", { image: { docker: "foo" }, balancer: { key: "value" } });');
-      var msgs = t("manifest.balancer_depreciation", { system: "system" });
+      var msgs = t("manifest.balancer_deprecated", { system: "system" });
       h.expect(func).to.throw(ManifestError).and.match(RegExp(msgs));
     });
 
     it("should raise a if use mounts_folders option", function() {
       var func = mock_manifest('system("system", { image: { docker: "foo" }, mount_folders: { key: "value" } });');
       var opts = { option: 'mount_folders', system: 'system', manifest: file };
-      var msgs = h.escapeRegExp(t("manifest.mount_and_persistent_depreciation", opts));
+      var msgs = h.escapeRegExp(t("manifest.mount_and_persistent_deprecated", opts));
       h.expect(func).to.throw(ManifestError).and.match(RegExp(msgs));
     });
 
     it("should raise a if use persistent_folders option", function() {
       var func = mock_manifest('system("system", { image: { docker: "foo" }, persistent_folders: { key: "value" } });');
       var opts = { option: 'persistent_folders', system: 'system', manifest: file };
-      var msgs = h.escapeRegExp(t("manifest.mount_and_persistent_depreciation", opts));
+      var msgs = h.escapeRegExp(t("manifest.mount_and_persistent_deprecated", opts));
       h.expect(func).to.throw(ManifestError).and.match(RegExp(msgs));
     });
 
@@ -215,7 +215,7 @@ describe("Azk manifest class, main set", function() {
       data += 'system("system2", { image: { docker: "foo" }, depends: ["system1"] });';
 
       var func = mock_manifest(data);
-      var msgs = t("manifest.circular_depends", {system1: "system1", system2: "system2"});
+      var msgs = t("manifest.circular_dependency", {system1: "system1", system2: "system2"});
       h.expect(func).to.throw(ManifestError).and.match(RegExp(msgs));
     });
 
@@ -243,4 +243,73 @@ describe("Azk manifest class, main set", function() {
       );
     });
   });
+
+  describe("extends from other system", function() {
+    it("should inherit everything from mother system", function() {
+      return h.mockManifest({ }).then((mf) => {
+        var manifest = mf;
+        var example_system         = manifest.system('example');
+        var example_extends_system = manifest.system('example-extends');
+
+        // all equal
+        h.expect(example_extends_system.options.shell)    .to.be.deep.equal(example_system.options.shell);
+        h.expect(example_extends_system.options.depends)  .to.be.deep.equal(example_system.options.depends);
+        h.expect(example_extends_system.options.envs)     .to.be.deep.equal(example_system.options.envs);
+        h.expect(example_extends_system.options.provision).to.be.deep.equal(example_system.options.provision);
+        h.expect(example_extends_system.options.workdir)  .to.be.deep.equal(example_system.options.workdir);
+        h.expect(example_extends_system.options.command)  .to.be.deep.equal(example_system.options.command);
+        h.expect(example_extends_system.options.mounts)   .to.be.deep.equal(example_system.options.mounts);
+
+        //divergent
+        h.expect(example_system.options.scalable.default)        .to.be.equal(3);
+        h.expect(example_extends_system.options.scalable.default).to.be.equal(1);
+
+      });
+    });
+
+    it("should raise an exception when trying to extend from non existent system", function() {
+      var data = {
+        systems: {
+          "example-extends-error": {
+            extends: "example-NOT_EXISTS",
+          }
+        }
+      };
+
+      return h.mockManifest(data).catch(function(err) {
+        var msg  = t('manifest.extends_system_invalid',
+                    { system_source   : 'example-NOT_EXISTS',
+                      system_to_extend: 'example-extends-error' });
+
+        h.expect(err.err_message).to.equal(msg);
+      });
+    });
+
+    describe('_system_validate', function () {
+      var project, file;
+
+      before(() => {
+        return h.tmp_dir({ prefix: "azk-test-" }).then((dir) => {
+          file = path.join(dir, file_name);
+          project = dir;
+        });
+      });
+
+      var mock_manifest = (data) => {
+        fs.writeFileSync(file, data);
+        return () => new Manifest(project);
+      };
+
+      it("should raise an exception when trying to extend from itself", function() {
+        var func = mock_manifest('system("system1", { extends: "system1" });');
+        var msg  = t('manifest.cannot_extends_itself', { system: "system1" });
+        h.expect(func).to.throw(ManifestError).and.match(
+          RegExp(h.escapeRegExp(msg))
+        );
+      });
+
+    });
+
+  });
+
 });

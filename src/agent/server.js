@@ -94,7 +94,7 @@ var Server = {
         var address = `tcp://${config("agent:vm:ip")}:2376`;
         var success = yield net_utils.waitService(address, 10, { context: "vm" });
         if (!success) {
-          throw new AgentStartError(t("errors.not_vm_start"));
+          throw new AgentStartError(t("errors.no_vm_started"));
         }
         n("initialized");
 

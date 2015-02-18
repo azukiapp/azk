@@ -20,7 +20,7 @@ class Cmd extends Command {
     var generator = new Generator(this);
 
     if (fs.existsSync(file) && !opts.force) {
-      this.fail(this.tKeyPath("already"), manifest);
+      this.fail(this.tKeyPath("already_exists"), manifest);
       return 1;
     }
 

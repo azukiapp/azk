@@ -109,10 +109,10 @@ class Cmd extends InteractiveCmds {
   }
 
   installSignals(done) {
-    var stoping = false;
+    var stopping = false;
     var gracefullExit = () => {
-      if (!stoping) {
-        stoping = true;
+      if (!stopping) {
+        stopping = true;
         if (this.child) {
           this.child.kill('SIGTERM');
         } else {
