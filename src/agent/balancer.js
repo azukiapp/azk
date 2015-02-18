@@ -171,7 +171,7 @@ var Balancer = {
 
   _waitDocker() {
     var docker_host = config("docker:host");
-    var promise = net.waitService(docker_host, 5, { timeout: 1000, context: "balancer" });
+    var promise = net.waitService(docker_host, 10, { timeout: 2000, context: "balancer" });
     return promise.then((success) => {
       if (!success) {
         throw new AgentStartError(t('errors.connect_docker_unavailable'));

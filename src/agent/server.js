@@ -1,9 +1,9 @@
-import { config, async, t, log } from 'azk';
+import { config, async, log } from 'azk';
 import { VM  }   from 'azk/agent/vm';
 import { Balancer } from 'azk/agent/balancer';
-import { net as net_utils } from 'azk/utils';
-import { AgentStartError } from 'azk/utils/errors';
 import { Api } from 'azk/agent/api';
+
+var qfs = require('q-io/fs');
 
 var Server = {
   server: null,
@@ -65,26 +65,16 @@ var Server = {
         };
 
         yield VM.init(opts);
+
+        // Set ssh key
+        notify({ type: "status", context: "vm", status: "sshkey" });
+        var file    = config('agent:vm:ssh_key') + '.pub';
+        var content = yield qfs.read(file);
+        VM.propertySet(vm_name, "/VirtualBox/D2D/SSH_KEY", content);
       }
 
       if (!running && start) {
-        yield VM.start(vm_name);
-
-        // Wait for vm start
-        var n = (status) => notify({ type: "status", context: "vm", status });
-        n("wait");
-        var address = `tcp://${config("agent:vm:ip")}:2375`;
-        var success = yield net_utils.waitService(address, 10, { context: "vm" });
-        if (!success) {
-          throw new AgentStartError(t("errors.no_vm_started"));
-        }
-        n("initialized");
-
-        // Upload key
-        n("upkey");
-        var key = config('agent:vm:ssh_key') + '.pub';
-        var authoried = config('agent:vm:authorized_key');
-        yield VM.copyFile(vm_name, key, authoried);
+        yield VM.start(vm_name, true);
       }
 
       // Mark installed

@@ -26,6 +26,37 @@ function modifyvm(name, ...options) {
   return exec("modifyvm", name, ...options);
 }
 
+var guestproperty = {
+  set(vm_name, property, value, flags = null) {
+    var args = ["guestproperty", "set", vm_name, property, value];
+    if (_.isArray(flags)) {
+      flags = flags.join(',');
+    }
+    if (_.isString(flags)) {
+      args.push("--flags", flags);
+    }
+    return exec.apply(null, args);
+  },
+
+  get(vm_name, property) {
+    return exec("guestproperty", "get", vm_name, property).then((output) => {
+      var result = vbm.parse.property_list(output);
+      return _.isEmpty(result) ? {} : result[0];
+    });
+  },
+
+  wait(vm_name, property, timeout, fail = false) {
+    var args = ["guestproperty", "wait", vm_name, property, "--timeout", timeout];
+    if (fail) {
+      args.push("--fail-on-timeout");
+    }
+    return exec.apply(null, args).then((output) => {
+      var result = vbm.parse.property_list(output);
+      return _.isEmpty(result) ? {} : result[0];
+    });
+  }
+};
+
 var hdds = {
   list() {
     return exec("list", "hdds").then((output) => {
@@ -248,7 +279,7 @@ var vm = {
   },
 
   // TODO: Move install to start
-  start(vm_name) {
+  start(vm_name, wait = false) {
     log.debug("call to start vm %s", vm_name);
     return Tools.async_status("vm", this, function* (status_change) {
       var info = yield vm.info(vm_name);
@@ -258,10 +289,38 @@ var vm = {
         // Reconfigures the interface nat all times
         yield config_nat_interface(vm_name, true);
         return instance.start(vm_name).then(() => {
-          status_change("started");
-          return true;
+          if (wait) {
+            return this.waitReady(vm_name);
+          } else {
+            status_change("started");
+            return true;
+          }
         });
       }
+      return false;
+    });
+  },
+
+  propertySet(...args) {
+    return guestproperty.set(...args);
+  },
+
+  waitReady(vm_name, timeout = '180000') {
+    log.debug("waiting for the vm `%s` becomes available", vm_name);
+    return Tools.async_status("vm", this, function* (status_change) {
+      var info = yield vm.info(vm_name);
+      var key  = "/VirtualBox/D2D/Done";
+
+      if (info.installed && info.running) {
+        var status = yield guestproperty.get(vm_name, key);
+        if (status.value != 'true') {
+          status_change("waiting");
+          yield guestproperty.wait(vm_name, key, timeout, true);
+          status_change("ready");
+          return true;
+        }
+      }
+
       return false;
     });
   },

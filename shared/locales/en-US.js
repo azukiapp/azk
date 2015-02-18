@@ -85,23 +85,20 @@ module.exports = {
     },
 
     vm: {
-      installing  : "Installing virtual machine...",
-      installed   : "Virtual machine has been successfully installed.",
-      starting    : "Starting virtual machine...",
-      started     : "Virtual machine has been successfully started.",
-      // TODO: stopping
-      stopping     : "Stopping virtual machine...",
-      // TODO: stopped
-      stopped      : "Virtual machine has been successfully stopped.",
-      removing    : "Removing virtual machine...",
-      removed     : "Virtual machine has been successfully removed.",
-      // TODO: waiting
-      wait        : "Waiting for initialization of virtual machine...",
-      initialized : "Virtual machine is ready to use.",
-      progress    : "Trying to connect to vm (%(uri)s) (%(attempts)d/%(max)d)...",
-      upkey       : "Uploading the ssh key to vm...",
-      error       : "Error in vm process: %(data)s",
-      docker_keys : "Downloading required keys to connect to docker",
+      installing : "Installing virtual machine...",
+      installed  : "Virtual machine has been successfully installed.",
+      starting   : "Starting virtual machine...",
+      started    : "Virtual machine has been successfully started.",
+      stopping   : "Stopping virtual machine...",
+      stopped    : "Virtual machine has been successfully stopped.",
+      removing   : "Removing virtual machine...",
+      removed    : "Virtual machine has been successfully removed.",
+      waiting    : "Waiting for initialization of virtual machine...",
+      ready      : "Virtual machine is ready to use.",
+      progress   : "Trying to connect to vm (%(uri)s) (%(attempts)d/%(max)d)...",
+      sshkey     : "Setting the ssh key to vm...",
+      error      : "Error in vm process: %(data)s",
+      docker_keys: "Downloading required keys to connect to docker",
     },
 
     socat: {
@@ -141,7 +138,6 @@ module.exports = {
       starting : "Starting unsfd...",
       started  : "unsfd started in %(port)s port with file config: %(file)s.",
       stopping : "Stopping unsfd...",
-      // TODO: stopped
       stopped   : "unsfd has been successfully stopped.",
       mounting : "Mounting the unsfd shared folder in virtual machine...",
       mounted  : "unsfd shared folder has been successfully mounted.",
@@ -440,7 +436,6 @@ module.exports = {
       not_installed: "Virtual machine is not installed, try `azk vm install`.",
       running      : "Virtual machine running.",
       already_running : "Virtual machine already running.",
-      // TODO not_running
       not_running  : "Virtual machine is not running, try `azk vm start`.",
       error        : "vm error: %(error)s.",
       not_required : "This system does not require a virtual machine, to try to force this behavior set `AZK_USE_VM=true`",
