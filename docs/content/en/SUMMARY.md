@@ -54,6 +54,7 @@
    * [status](command-line/status.md)
    * [stop](command-line/stop.md)
    * [version](command-line/version.md)
+   * [vm](command-line/vm.md)
    /** [Basic commands](azkfilejs/basic.md)*/
    /** [Shell](azkfilejs/shell.md)*/
    /** [Scaling](azkfilejs/escalando.md)*/

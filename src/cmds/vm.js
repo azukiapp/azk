@@ -67,7 +67,7 @@ class VmCmd extends InteractiveCmds {
     });
   }
 
-  action_start(vm_info) {
+  action_start(vm_info/*, _opts*/) {
     return async(this, function* () {
       if (vm_info.running) {
         this.fail("commands.vm.already_running");
@@ -78,10 +78,10 @@ class VmCmd extends InteractiveCmds {
     });
   }
 
-  action_stop(vm_info) {
+  action_stop(vm_info, opts) {
     return async(this, function* () {
       this.require_running(vm_info);
-      yield VM.stop(vm_info.name);
+      yield VM.stop(vm_info.name, opts.force);
     });
   }
 
@@ -97,11 +97,11 @@ class VmCmd extends InteractiveCmds {
     return Q();
   }
 
-  action_remove(vm_info) {
+  action_remove(vm_info, opts) {
     return async(this, function* () {
       this.require_installed(vm_info);
       if (vm_info.running) {
-        yield VM.stop(vm_info.name);
+        yield VM.stop(vm_info.name, opts.force);
       }
       yield VM.remove(vm_info.name);
     });
@@ -110,7 +110,8 @@ class VmCmd extends InteractiveCmds {
 
 export function init(cli) {
   if (config('agent:requires_vm')) {
-    (new VmCmd('vm {*action}', cli))
-      .setOptions('action', { options: ['ssh', 'installed', 'start', 'status', 'stop', 'remove'] });
+    (new VmCmd('vm {action}', cli))
+      .setOptions('action', { options: ['ssh', 'installed', 'start', 'status', 'stop', 'remove'] })
+      .addOption(['--force'], { default: false });
   }
 }

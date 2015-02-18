@@ -447,8 +447,6 @@ module.exports = {
       error        : "vm error: %(error)s.",
       not_required : "This system does not require a virtual machine, to try to force this behavior set `AZK_USE_VM=true`",
       options: {
-        verbose : verbose,
-        quiet   : quiet,
         action: {
           name: "actions".magenta,
           options: {
@@ -460,6 +458,13 @@ module.exports = {
             remove: "Remove virtual machine but keep its contents",
           },
         },
+        force: [
+          "Forces the removal of the virtual machine, without waiting",
+          "for a graceful shutdown. This is useful when you want to stop",
+          "a virtual machine in a removal process that is failing",
+        ].join(' '),
+        quiet   : quiet,
+        verbose : verbose,
       }
     }
   },

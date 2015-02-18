@@ -54,12 +54,13 @@
    * [status](command-line/status.md)
    * [stop](command-line/stop.md)
    * [version](command-line/version.md)
+   * [vm](command-line/vm.md)
    /** [Operações básicas](azkfilejs/basic.md)*/
    /** [Shell](azkfilejs/shell.md)*/
    /** [Escalando](azkfilejs/escalando.md)*/
 /*****************************************************/
 * [Agent](agent/README.md)
 * [Imagens](images/README.md)
-/** [FAQ](faq/README.md)*/
+* [FAQ](faq/README.md)
 * [Contribuíndo](contributing/README.md)
 /** [Roadmap](roadmap/README.md)*/
