@@ -113,7 +113,6 @@ class Cmd extends InteractiveCmds {
     return (event) => {
       var pull_progress = Helpers.newPullProgress(this);
       var escape_progress = Helpers.escapeCapture(escape);
-      var actions = ["pull_image", "build_image"];
 
       // show verbose output
       if (verbose && event.stream) {
