@@ -16,7 +16,6 @@ lazy_require(this, {
 class Cmd extends InteractiveCmds {
   action(opts) {
     var progress = Helpers.newPullProgress(this);
-
     return async(this, function* () {
       var cmd = [opts.cmd, ...opts.__leftover];
       var dir = this.cwd;
@@ -79,7 +78,7 @@ class Cmd extends InteractiveCmds {
           return false;
         };
 
-        var shell_progress = this._escapeAndPullProgress(escape, system, !opts.silent);
+        var shell_progress = this._escapeAndPullProgress(escape, system, !opts.silent, opts.verbose, options.stdout);
 
         system.runShell(cmd, options).
           progress(shell_progress).
@@ -110,10 +109,15 @@ class Cmd extends InteractiveCmds {
     throw error;
   }
 
-  _escapeAndPullProgress(escape, system, show_logs) {
+  _escapeAndPullProgress(escape, system, show_logs, verbose) {
     return (event) => {
       var pull_progress = Helpers.newPullProgress(this);
       var escape_progress = Helpers.escapeCapture(escape);
+
+      // show verbose output
+      if (verbose && event.stream) {
+        this.stdout().write('  ' + event.stream);
+      }
 
       if (event.type === "stdin_pipe") {
         escape_progress(event);

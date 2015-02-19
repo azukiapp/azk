@@ -76,12 +76,11 @@ function parseAddManifestFiles (archive, dockerfile, content) {
   });
 }
 
-export function build(docker, opts) {
+export function build(docker, options) {
   return async(function* (notify) {
-    opts = _.extend({
-      verbose: true,
-      cache: true,
-    }, opts);
+    var opts = _.extend({
+      cache: true
+    }, options);
 
     // Check if "Dockerfile" exist
     var dockerfile = opts.dockerfile;
@@ -118,6 +117,9 @@ export function build(docker, opts) {
       if (!msg.error) {
         msg.type = 'build_msg';
         msg.statusParsed = parse_stream(msg.stream);
+        if (opts.verbose && opts.stdout) {
+          opts.stdout.write('  ' + msg.stream);
+        }
         if (msg.statusParsed) {
           notify(msg);
           if (msg.statusParsed.type == "building_from") {
