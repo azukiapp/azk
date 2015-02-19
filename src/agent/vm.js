@@ -1,4 +1,4 @@
-import { _, Q, config, async, log, isBlank } from 'azk';
+import { _, Q, path, config, async, log, isBlank } from 'azk';
 import Utils from 'azk/utils';
 import { Tools } from 'azk/agent/tools';
 import { SSH } from 'azk/agent/ssh';
@@ -39,22 +39,35 @@ var guestproperty = {
   },
 
   get(vm_name, property) {
-    return exec("guestproperty", "get", vm_name, property).then((output) => {
-      var result = vbm.parse.property_list(output);
-      return _.isEmpty(result) ? {} : result[0];
-    });
+    return exec("guestproperty", "get", vm_name, property)
+      .then((output) => {
+        var result = null;
+        if (!output.match(/No value set!/)) {
+          result = vbm.parse.linebreak_list(output);
+        }
+        return _.isEmpty(result) ? {} : result[0];
+      });
   },
+
+  waitMatch: /^Name:\s*(.*?),\s*value:\s*(.*?),\s*flags:\s*(.*?)$/,
 
   wait(vm_name, property, timeout, fail = false) {
     var args = ["guestproperty", "wait", vm_name, property, "--timeout", timeout];
     if (fail) {
       args.push("--fail-on-timeout");
     }
-    return exec.apply(null, args).then((output) => {
-      var result = vbm.parse.property_list(output);
-      return _.isEmpty(result) ? {} : result[0];
-    });
-  }
+    return exec.apply(null, args)
+      .then((output) => {
+        var match = output.trim().match(this.waitMatch);
+        if (match) {
+          return {
+            Value: match[2],
+            Flags: match[3].split(',').map((token) => token.trim())
+          };
+        }
+        return {};
+      });
+  },
 };
 
 var hdds = {
@@ -290,7 +303,7 @@ var vm = {
         yield config_nat_interface(vm_name, true);
         return instance.start(vm_name).then(() => {
           if (wait) {
-            return this.waitReady(vm_name);
+            return this.waitReady(vm_name, wait);
           } else {
             status_change("started");
             return true;
@@ -301,11 +314,29 @@ var vm = {
     });
   },
 
-  propertySet(...args) {
+  getProperty(...args) {
+    return guestproperty.get(...args);
+  },
+
+  setProperty(...args) {
     return guestproperty.set(...args);
   },
 
-  waitReady(vm_name, timeout = '180000') {
+  saveScreenShot(vm_name) {
+    return async(this, function* () {
+      var info = yield vm.info(vm_name);
+      if (info.installed && info.running) {
+        var dir  = config("agent:vm:screen_path");
+        var file = path.join(dir, `${(new Date()).getTime()}.png`);
+        yield qfs.makeTree(dir);
+        yield exec('controlvm', vm_name, 'screenshotpng', file);
+        return file;
+      }
+      return null;
+    });
+  },
+
+  waitReady(vm_name, timeout) {
     log.debug("waiting for the vm `%s` becomes available", vm_name);
     return Tools.async_status("vm", this, function* (status_change) {
       var info = yield vm.info(vm_name);
@@ -313,10 +344,14 @@ var vm = {
 
       if (info.installed && info.running) {
         var status = yield guestproperty.get(vm_name, key);
-        if (status.value != 'true') {
+        if (status.Value !== "true") {
           status_change("waiting");
-          yield guestproperty.wait(vm_name, key, timeout, true);
-          status_change("ready");
+          status = yield guestproperty.wait(vm_name, key, timeout);
+          if (status.Value === "true") {
+            status_change("ready");
+            return true;
+          }
+        } else {
           return true;
         }
       }

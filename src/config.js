@@ -97,6 +97,7 @@ var options = mergeConfig({
         defaultserver: dns_nameservers('AZK_DNS_SERVERS_DEFAULTS', ['8.8.8.8', '8.8.4.4']),
       },
       vm: {
+        wait_ready : 180000,
         ip         : envs('AZK_AGENT_VM_IP'  , '192.168.50.4'),
         name       : envs('AZK_AGENT_VM_NAME', "azk-vm-" + namespace),
         user       : "docker",
@@ -104,6 +105,7 @@ var options = mergeConfig({
         cpus       : envs('AZK_VM_CPUS', os.cpus().length),
         memory     : envs('AZK_VM_MEMORY', Math.floor(os.totalmem() / 1024 / 1024 / 4)),
         ssh_key    : envs('AZK_AGENT_VM_KEY', path.join(paths.vm, "azkvm_rsa")),
+        screen_path: path.join(paths.vm, "screens"),
         data_disk  : path.join(paths.vm, "azk-agent.vmdk"),
         boot_disk  : path.join(envs('AZK_LIB_PATH'), "vm", "azk.iso"),
         blank_disk : path.join(envs('AZK_LIB_PATH'), "vm", "azk-agent.vmdk.gz"),

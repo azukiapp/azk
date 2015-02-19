@@ -5,13 +5,15 @@
 * Bug
   * [Cli] Showing `azk`'s timeout errors #217 #268
   * [Generators] Notifying when runtime system version was unidentified.
-  * We changed `azk` to use `debian2docker` instead of `boot2docker`. With `debian2docker` we have the entire Virtual Box Guest Additions installed and this should fix time sync problems.
+  * [Agent] We changed `azk` to use `debian2docker` instead of `boot2docker`. With `debian2docker` we have the entire Virtual Box Guest Additions installed and this should fix time sync problems.
 
 * Enhancements
   * [System] Adding support to customize DNS servers to will be used in system. #273
   * [Manifest] Adding `extends` support.
   * [Cli] Updated messages in locales/en-US for easier understanding
   * [file sharing] "VirtualBox Shared Folder" is the default and the only option for file sharing on OS X. The `unfs3` option was removed due its unstable behaviour.
+  * [Agent] The data disk in VM was changed from `ext4` to `brtfs`, bringing benefits of performance and reliability.
+  * [Agent] After failing in the initialization of VM is a screenshot for debugging will be saved and the path displayed to the user.
 
 ## v0.9.2 - (2015-29-01)
 

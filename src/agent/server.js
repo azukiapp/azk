@@ -2,6 +2,7 @@ import { config, async, log } from 'azk';
 import { VM  }   from 'azk/agent/vm';
 import { Balancer } from 'azk/agent/balancer';
 import { Api } from 'azk/agent/api';
+import { VmStartError } from 'azk/utils/errors';
 
 var qfs = require('q-io/fs');
 
@@ -68,13 +69,18 @@ var Server = {
 
         // Set ssh key
         notify({ type: "status", context: "vm", status: "sshkey" });
-        var file    = config('agent:vm:ssh_key') + '.pub';
+        var file    = config("agent:vm:ssh_key") + ".pub";
         var content = yield qfs.read(file);
-        VM.propertySet(vm_name, "/VirtualBox/D2D/SSH_KEY", content);
+        VM.setProperty(vm_name, "/VirtualBox/D2D/SSH_KEY", content);
       }
 
       if (!running && start) {
-        yield VM.start(vm_name, true);
+        var timeout = config("agent:vm:wait_ready");
+        var result  = yield VM.start(vm_name, timeout);
+        if (!result) {
+          var screen = yield VM.saveScreenShot(vm_name);
+          throw new VmStartError(timeout, screen);
+        }
       }
 
       // Mark installed

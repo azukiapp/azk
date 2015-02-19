@@ -37,6 +37,13 @@ module.exports = {
       "[timeout] You might want to edit your `Azkfile.js` in order to increase the maximum timeout.",
     ].join("\n"),
 
+    vm_start: [
+      "Error starting virtual machine.",
+      "After `%(timeout)s` milliseconds, azk wasn't able to connect to the virtual machine.",
+      "The virtual machine may possible be using a low memory amount, or your machine is slow.",
+      "To help you debug the problem a screenshot was saved in `%(screen)s`.",
+    ].join("\n"),
+
     docker_build_error: {
       server_error: "Internal error in build `%(dockerfile)s`: %(error)",
       not_found   : "Can't find `%(from)s` image to build `%(dockerfile)s`",
