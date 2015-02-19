@@ -110,7 +110,7 @@ class VmCmd extends InteractiveCmds {
 
 export function init(cli) {
   if (config('agent:requires_vm')) {
-    (new VmCmd('vm {action}', cli))
+    (new VmCmd('vm {*action}', cli))
       .setOptions('action', { options: ['ssh', 'installed', 'start', 'status', 'stop', 'remove'] })
       .addOption(['--force'], { default: false });
   }
