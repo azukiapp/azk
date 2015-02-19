@@ -118,7 +118,7 @@ export function build(docker, options) {
         msg.type = 'build_msg';
         msg.statusParsed = parse_stream(msg.stream);
         if (opts.verbose && opts.stdout) {
-          opts.stdout.write(msg.stream);
+          opts.stdout.write('  ' + msg.stream);
         }
         if (msg.statusParsed) {
           notify(msg);
