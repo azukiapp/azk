@@ -4,8 +4,7 @@
 
 * Enhancements
   * Adding `--force` option to `azk vm remove`. It's useful when `azk vm remove` doesn't work properly due to some unknown problem.
-  * Added message logs to `azk shell` command. Now, when `azk` is 
-downloading the requested image it doesn't seem to be frozen anymore. To prevent those logs use the `--silent` option. It's useful when using the `-c` option and the output is used as input to another command using the pipe `|` operator.
+  * Added message logs to `azk shell` command. Now, when `azk` is downloading or building the requested image it doesn't seem to be frozen anymore. To prevent those logs use the `--silent` option. It's useful when using the `-c` option and the output is used as input to another command using the pipe `|` operator.
   * [System] Adding support to customize DNS servers to will be used in system. #273
   * [Manifest] Adding `extends` support.
   * [Cli] Updated messages in locales/en-US for easier understanding
