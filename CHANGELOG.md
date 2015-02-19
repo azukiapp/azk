@@ -12,7 +12,6 @@
   * [Manifest] Adding `extends` support.
   * [Cli] Updated messages in locales/en-US for easier understanding
   * [file sharing] "VirtualBox Shared Folder" is the default and the only option for file sharing on OS X. The `unfs3` option was removed due its unstable behaviour.
-  * [Agent] The data disk in VM was changed from `ext4` to `brtfs`, bringing benefits of performance and reliability.
   * [Agent] After failing in the initialization of VM is a screenshot for debugging will be saved and the path displayed to the user.
 
 ## v0.9.2 - (2015-29-01)

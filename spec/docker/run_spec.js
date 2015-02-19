@@ -1,4 +1,4 @@
-import { Q, config, async, utils } from 'azk';
+import { Q, config, defer, async, utils } from 'azk';
 import h from 'spec/spec_helper';
 
 var default_img = config('docker:image_default');
@@ -118,7 +118,10 @@ describe("Azk docker module, run method @slow", function() {
   });
 
   it("should support run daemon mode", function() {
-    return async(function* () {
+    return async(this, function* () {
+      var timeout = 10000;
+      this.timeout(timeout);
+
       yield h.tmp_dir();
       var cmd  = ["/bin/bash", "-c", "while true; do env; sleep 1; done"];
       var opts = { daemon: true };
@@ -127,17 +130,23 @@ describe("Azk docker module, run method @slow", function() {
       var data = yield container.inspect();
       h.expect(data).to.have.deep.property("State.Running", true);
 
-      var log = "";
-      yield container.logs({stdout: true, stderr: true}).then((stream) => {
-        var stdout = {
-          write(data) { log += data.toString(); }
-        };
-        container.modem.demuxStream(stream, stdout, stdout);
-        return true;
+      yield Q.delay(timeout * 0.1);
+      var log = yield container.logs({stdout: true, stderr: true}).then((stream) => {
+        var buffer = "";
+        return defer((resolve) => {
+          var stdout = {
+            write(data) {
+              buffer += data.toString();
+              if (buffer.length > 100) { resolve(buffer); }
+            }
+          };
+          container.modem.demuxStream(stream, stdout, stdout);
+          setTimeout(() => resolve(buffer), timeout * 0.8);
+        });
       });
 
-      yield Q.delay(500);
-      h.expect(log).to.match(new RegExp(h.escapeRegExp(`AZK_NAME=${data.Name.slice(1)}`), 'm'));
+      var regex = new RegExp(h.escapeRegExp(`AZK_NAME=${data.Name.slice(1)}`), 'm');
+      h.expect(log).to.match(regex);
 
       return container.kill();
     });
