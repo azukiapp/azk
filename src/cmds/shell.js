@@ -120,7 +120,7 @@ class Cmd extends InteractiveCmds {
         this.stdout().write('  ' + event.stream);
       }
 
-      if (actions.indexOf(event.action) > -1) {
+      if (event.type === "stdin_pipe") {
         escape_progress(event);
       } else if (show_logs) {
         if (show_logs && event.type === "pull_msg") {
@@ -128,7 +128,7 @@ class Cmd extends InteractiveCmds {
         } else if (event.type === "action") {
           var keys = ["commands", "scale"];
 
-          if (event.action == "pull_image") {
+          if (actions.indexOf(event.action) > -1) {
             var data = { image: system.image.name };
             this.ok([...keys].concat(event.action), data);
           }
