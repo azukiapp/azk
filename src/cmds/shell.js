@@ -122,8 +122,9 @@ class Cmd extends InteractiveCmds {
           pull_progress(event);
         } else if (event.type === "action") {
           var keys = ["commands", "scale"];
+          var actions = ["pull_image", "build_image"];
 
-          if (event.action == "pull_image") {
+          if (actions.indexOf(event.action) > -1) {
             var data = { image: system.image.name };
             this.ok([...keys].concat(event.action), data);
           }
