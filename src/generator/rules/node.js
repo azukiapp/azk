@@ -41,7 +41,7 @@ export class Rule extends BaseRule {
       fullpath: path,
       ruleType: 'runtime',
       name    : 'node',
-      ruleName: 'node010'
+      ruleName: 'node012'
     };
 
     var nodeVersion = getVersion(path, content);
@@ -55,9 +55,9 @@ export class Rule extends BaseRule {
     // Suggest a docker image
     // https://registry.hub.docker.com/u/library/node/
     var versionRules = {
-      'node010': '<0.8.0 || >=0.10.0 <0.11.0',
       'node08' : '>=0.8.0 <0.10.0',
-      'node011': '>=0.11.0',
+      'node010': '>=0.10.0 <0.11.0',
+      'node012': '<0.8.0 || >=0.11.0',
     };
 
     evidence.ruleName = _.findKey(versionRules, (value) => {
