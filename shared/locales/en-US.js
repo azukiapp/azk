@@ -37,6 +37,13 @@ module.exports = {
       "[timeout] You might want to edit your `Azkfile.js` in order to increase the maximum timeout.",
     ].join("\n"),
 
+    vm_start: [
+      "Error starting virtual machine.",
+      "After `%(timeout)s` milliseconds, azk wasn't able to connect to the virtual machine.",
+      "The virtual machine may possible be using a low memory amount, or your machine is slow.",
+      "To help you debug the problem a screenshot was saved in `%(screen)s`.",
+    ].join("\n"),
+
     docker_build_error: {
       server_error: "Internal error in build `%(dockerfile)s`: %(error)",
       not_found   : "Can't find `%(from)s` image to build `%(dockerfile)s`",
@@ -53,7 +60,6 @@ module.exports = {
       },
       darwin: {
         VBoxManage : 'VirtualBox not installed. Install before continuing.',
-        unfsd: 'unfs3 not installed. Reinstall `azk` or `brew install unfs3` before continuing.',
         network: 'Networking error',
       },
       linux: {
@@ -86,23 +92,20 @@ module.exports = {
     },
 
     vm: {
-      installing  : "Installing virtual machine...",
-      installed   : "Virtual machine has been successfully installed.",
-      starting    : "Starting virtual machine...",
-      started     : "Virtual machine has been successfully started.",
-      // TODO: stopping
-      stopping     : "Stopping virtual machine...",
-      // TODO: stopped
-      stopped      : "Virtual machine has been successfully stopped.",
-      removing    : "Removing virtual machine...",
-      removed     : "Virtual machine has been successfully removed.",
-      // TODO: waiting
-      wait        : "Waiting for initialization of virtual machine...",
-      initialized : "Virtual machine is ready to use.",
-      progress    : "Trying to connect to vm (%(uri)s) (%(attempts)d/%(max)d)...",
-      upkey       : "Uploading the ssh key to vm...",
-      error       : "Error in vm process: %(data)s",
-      docker_keys : "Downloading required keys to connect to docker",
+      installing : "Installing virtual machine...",
+      installed  : "Virtual machine has been successfully installed.",
+      starting   : "Starting virtual machine...",
+      started    : "Virtual machine has been successfully started.",
+      stopping   : "Stopping virtual machine...",
+      stopped    : "Virtual machine has been successfully stopped.",
+      removing   : "Removing virtual machine...",
+      removed    : "Virtual machine has been successfully removed.",
+      waiting    : "Waiting for initialization of virtual machine...",
+      ready      : "Virtual machine is ready to use.",
+      progress   : "Trying to connect to vm (%(uri)s) (%(attempts)d/%(max)d)...",
+      sshkey     : "Setting the ssh key to vm...",
+      error      : "Error in vm process: %(data)s",
+      docker_keys: "Downloading required keys to connect to docker",
     },
 
     socat: {
@@ -142,7 +145,6 @@ module.exports = {
       starting : "Starting unsfd...",
       started  : "unsfd started in %(port)s port with file config: %(file)s.",
       stopping : "Stopping unsfd...",
-      // TODO: stopped
       stopped   : "unsfd has been successfully stopped.",
       mounting : "Mounting the unsfd shared folder in virtual machine...",
       mounted  : "unsfd shared folder has been successfully mounted.",
@@ -442,7 +444,6 @@ module.exports = {
       not_installed: "Virtual machine is not installed, try `azk vm install`.",
       running      : "Virtual machine running.",
       already_running : "Virtual machine already running.",
-      // TODO not_running
       not_running  : "Virtual machine is not running, try `azk vm start`.",
       error        : "vm error: %(error)s.",
       not_required : "This system does not require a virtual machine, to try to force this behavior set `AZK_USE_VM=true`",

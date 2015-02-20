@@ -16,12 +16,11 @@ var mounts = (function() {
     "/azk/data"        : persistent('data-#{system.name}'),
     "/var/lib/docker"  : persistent('docker_files-#{system.name}'),
     "/azk/#{manifest.dir}/node_modules": persistent('node_modules-#{system.name}'),
-    "/azk/#{manifest.dir}/.nvmrc" : ".nvmrc",
     "/root/.aptly.conf": path("./src/libexec/aptly.json")
   }
 
   var glob  = require('glob');
-  var itens = glob.sync("./!(lib|data|node_modules|npm-debug.log)");
+  var itens = glob.sync("./!(lib|data|node_modules|npm-debug.log|.git|.DS_Store|.azk)", { dot: true });
 
   mounts = lodash.reduce(itens, function(mount, item) {
     var key    = join("/azk", "#{manifest.dir}", item);

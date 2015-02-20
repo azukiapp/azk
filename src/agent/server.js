@@ -1,10 +1,8 @@
-import { config, async, t, log, path } from 'azk';
+import { config, async, log } from 'azk';
 import { VM  }   from 'azk/agent/vm';
-import { Unfsd } from 'azk/agent/unfsd';
 import { Balancer } from 'azk/agent/balancer';
-import { net as net_utils } from 'azk/utils';
-import { AgentStartError } from 'azk/utils/errors';
 import { Api } from 'azk/agent/api';
+import { VmStartError } from 'azk/utils/errors';
 
 var qfs = require('q-io/fs');
 
@@ -26,8 +24,6 @@ var Server = {
       // Virtual machine is required?
       if (this.vm_enabled && config('agent:requires_vm')) {
         yield this.installVM(true);
-        yield this.installShare();
-        yield this.mountShare();
       }
 
       // Load balancer
@@ -43,7 +39,6 @@ var Server = {
       yield this.removeBalancer();
       if (config('agent:requires_vm')) {
         yield this.stopVM();
-        yield this.removeShare();
       }
     });
   },
@@ -54,18 +49,6 @@ var Server = {
 
   removeBalancer() {
     return Balancer.stop();
-  },
-
-  installShare() {
-    return Unfsd.start();
-  },
-
-  removeShare() {
-    return Unfsd.stop();
-  },
-
-  mountShare() {
-    return Unfsd.mount(config("agent:vm:name"));
   },
 
   installVM(start = false) {
@@ -83,43 +66,20 @@ var Server = {
         };
 
         yield VM.init(opts);
+
+        // Set ssh key
+        notify({ type: "status", context: "vm", status: "sshkey" });
+        var file    = config("agent:vm:ssh_key") + ".pub";
+        var content = yield qfs.read(file);
+        VM.setProperty(vm_name, "/VirtualBox/D2D/SSH_KEY", content);
       }
 
       if (!running && start) {
-        yield VM.start(vm_name);
-
-        // Wait for vm start
-        var n = (status) => notify({ type: "status", context: "vm", status });
-        n("wait");
-        var address = `tcp://${config("agent:vm:ip")}:2376`;
-        var success = yield net_utils.waitService(address, 10, { context: "vm" });
-        if (!success) {
-          throw new AgentStartError(t("errors.no_vm_started"));
-        }
-        n("initialized");
-
-        // Upload key
-        n("upkey");
-        var key = config('agent:vm:ssh_key') + '.pub';
-        var authoried = config('agent:vm:authorized_key');
-        yield VM.copyFile(vm_name, key, authoried);
-
-        // Get docker keys
-        var files = ['ca.pem', 'cert.pem', 'key.pem'];
-        var origin, dest, pems = config('paths:pems');
-        yield qfs.makeTree(pems);
-
-        // Copy files
-        // TODO: Make downloads asyncs
-        n("docker_keys");
-        for (var i = 0; i < files.length; i++) {
-          origin = path.join("/home/docker/.docker", files[i]);
-          dest   = path.join(pems, files[i]);
-          yield VM
-            .copyVMFile(vm_name, origin, dest)
-            .fail(() => {
-              throw Error(`Erro to download file: ${origin}`);
-            });
+        var timeout = config("agent:vm:wait_ready");
+        var result  = yield VM.start(vm_name, timeout);
+        if (!result) {
+          var screen = yield VM.saveScreenShot(vm_name);
+          throw new VmStartError(timeout, screen);
         }
       }
 

@@ -84,7 +84,6 @@ export class Configure extends UIProxy {
       return _.merge(
         {},
         yield this._which('VBoxManage'),
-        yield this._which('unfsd', 'paths:unfsd'),
         yield this._checkAndConfigureNetwork(),
         yield this._checkAndGenerateSSHKeys(),
         yield this._loadDnsServers()
@@ -256,7 +255,7 @@ export class Configure extends UIProxy {
       }
 
       if (use_vm) {
-        result['docker:host'] = `https://${ip}:2376`;
+        result['docker:host'] = `http://${ip}:2375`;
       }
 
       // Save to use in configure

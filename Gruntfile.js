@@ -79,7 +79,7 @@ module.exports = function(grunt) {
     // Downloads
     'curl-dir': {
       'brace-expansion': {
-        src: [ 'https://s3-sa-east-1.amazonaws.com/azk/azk{.iso,-agent.vmdk.gz}' ],
+        src: [ 'https://s3-sa-east-1.amazonaws.com/azk/debian2docker/azk{.iso,-agent.vmdk.gz}' ],
         dest: lib + '/vm',
       },
     },
