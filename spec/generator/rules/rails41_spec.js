@@ -1,5 +1,5 @@
 import h from 'spec/spec_helper';
-import { Rule } from 'azk/generator/rules/rails41';
+import { Rule } from 'azk/generator/rules/rails';
 
 describe('Azk generators Rails 4.1 rule', function() {
   var outputs = [];
@@ -26,7 +26,7 @@ describe('Azk generators Rails 4.1 rule', function() {
     h.expect(evidence).to.have.deep.property('fullpath', gemfilePath);
     h.expect(evidence).to.have.deep.property('ruleType', 'framework');
     h.expect(evidence).to.have.deep.property('name'    , 'rails');
-    h.expect(evidence).to.have.deep.property('ruleName', 'rails41');
+    h.expect(evidence).to.have.deep.property('ruleName', 'rails');
     h.expect(evidence.replaces).to.include('ruby');
     h.expect(evidence.replaces).to.include('node');
     h.expect(evidence).to.have.deep.property('version' , '4.1.6');

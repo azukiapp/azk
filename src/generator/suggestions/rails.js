@@ -10,12 +10,12 @@ export class Suggestion extends UIProxy {
     this.name = 'rails';
 
     // Which rules they suggestion is valid
-    this.ruleNamesList = ['rails41'];
+    this.ruleNamesList = ['rails'];
 
     // Initial Azkfile.js suggestion
     this.suggestion = _.extend({}, example_system, {
-      __type  : 'rails 4.1',
-      image   : { docker: 'rails:4.1' },
+      __type  : 'rails',
+      image   : { docker: 'azukiapp/ruby' },
       provision: [
         'bundle install --path /azk/bundler',
         'bundle exec rake db:create',
@@ -23,7 +23,7 @@ export class Suggestion extends UIProxy {
       ],
       http    : true,
       scalable: { default: 2 },
-      command : 'bundle exec rackup config.ru --pid /tmp/rails.pid --port $HTTP_PORT',
+      command : 'bundle exec rackup config.ru --pid /tmp/rails.pid --port $HTTP_PORT --host 0.0.0.0',
       mounts  : {
         '/azk/#{manifest.dir}': {type: 'path', value: '.'},
         '/azk/bundler'        : {type: 'persistent', value: 'bundler'},

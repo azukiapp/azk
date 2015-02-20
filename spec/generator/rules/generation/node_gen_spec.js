@@ -32,7 +32,7 @@ describe('Azk generator generation node rule', function() {
     var command  = new RegExp(h.escapeRegExp('npm start'));
 
     h.expect(system).to.have.deep.property('name', project_folder_name);
-    h.expect(system).to.have.deep.property('image.name', 'node:0.10');
+    h.expect(system).to.have.deep.property('image.name', 'azukiapp/node:latest');
     h.expect(system).to.have.deep.property('depends').and.to.eql([]);
     h.expect(system).to.have.deep.property('command').and.to.match(command);
 

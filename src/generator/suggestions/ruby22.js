@@ -7,28 +7,28 @@ export class Suggestion extends UIProxy {
     super(...args);
 
     // Readable name for this suggestion
-    this.name = 'python27';
+    this.name = 'ruby22';
 
     // Which rules they suggestion is valid
-    this.ruleNamesList = ['python27'];
+    this.ruleNamesList = ['ruby22'];
 
     // Initial Azkfile.js suggestion
     this.suggestion = _.extend({}, example_system, {
-      __type  : 'python 2.7',
-      image   : { docker: 'azukiapp/python:2.7' },
+      __type  : 'ruby 2.2',
+      image   : { docker: 'azukiapp/ruby:2.2' },
       provision: [
-        'pip install --user --allow-all-external -r requirements.txt',
+        'bundle install --path /azk/bundler',
       ],
       http    : true,
       scalable: { default: 2 },
-      command : 'python server.py',
+      command : 'bundle exec rackup config.ru --pid /tmp/ruby.pid --port $HTTP_PORT --host 0.0.0.0',
       mounts  : {
-        '/azk/#{manifest.dir}': {type: 'path',       value: '.'},
-        '/azk/pythonuserbase':  {type: 'persistent', value: 'pythonuserbase'},
+        '/azk/#{manifest.dir}': {type: 'path', value: '.'},
+        '/azk/bundler'        : {type: 'persistent', value: 'bundler'},
       },
       envs    : {
-        PATH : '/azk/pythonuserbase/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
-        PYTHONUSERBASE: '/azk/pythonuserbase',
+        RUBY_ENV : 'development',
+        BUNDLE_APP_CONFIG : '/azk/bundler',
       }
     });
   }

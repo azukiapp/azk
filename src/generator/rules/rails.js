@@ -30,7 +30,7 @@ export class Rule extends BaseRule {
       fullpath: path,
       ruleType: 'framework',
       name    : 'rails',
-      ruleName: 'rails41',
+      ruleName: 'rails',
       replaces: ['ruby', 'node']
     };
 

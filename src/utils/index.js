@@ -58,8 +58,9 @@ var Utils = {
 
   defer(func) {
     return Q.Promise((resolve, reject, notify) => {
-      process.nextTick(() => {
+      setImmediate(() => {
         var result;
+
         try {
           resolve = _.extend(resolve, { resolve: resolve, reject: reject, notify: notify });
           result = func(resolve, reject, notify);

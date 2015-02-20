@@ -82,13 +82,8 @@ describe('Azk generator tool court veredict:', function() {
     var node = court.rule('node');
     h.expect(node).to.have.property('type', 'runtime');
 
-    var rails = court.rule('rails41');
+    var rails = court.rule('rails');
     h.expect(rails).to.have.property('type', 'framework');
-  });
-
-  it('should return an array with evidences on investigate() call', function() {
-    court._investigate(rootFullPath);
-    h.expect(court.__evidences).to.have.length(4);
   });
 
   it('should _replacesEvidences() replaces ruby with rails', function() {
@@ -120,7 +115,7 @@ describe('Azk generator tool court veredict:', function() {
              fullpath:'/tmp/azk-test-302101g49y9s/front/Gemfile',
              ruleType:'framework',
              name:'rails',
-             ruleName:'rails41',     <----------  [1][1]
+             ruleName:'rails',     <----------  [1][1]
              replaces:[ 'ruby', 'node' ],
              version:'4.1.6'
           },
@@ -131,7 +126,7 @@ describe('Azk generator tool court veredict:', function() {
 
     h.expect(filteredEvidences[0][0]).to.have.property('ruleName', 'node010');
     h.expect(filteredEvidences[1][0]).to.have.property('ruleName', 'postgres93');
-    h.expect(filteredEvidences[1][1]).to.have.property('ruleName', 'rails41');
+    h.expect(filteredEvidences[1][1]).to.have.property('ruleName', 'rails');
 
   });
 
