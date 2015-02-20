@@ -145,7 +145,7 @@ module.exports = function(grunt) {
           'src/**/*.js',
           'spec/**/*.js',
         ],
-        tasks: ['hint', test_task]
+        tasks: [test_task]
       },
 
       traceur: {

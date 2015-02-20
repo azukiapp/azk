@@ -24,7 +24,7 @@ ${AZK_LIB_PATH}/azk: $(SRC_JS) ${AZK_NPM_PATH}/.install
 		export AZK_NPM_PATH=${AZK_NPM_PATH} && \
 		${AZK_BIN} nvm grunt newer:traceur && touch ${AZK_LIB_PATH}/azk
 
-${AZK_NPM_PATH}/.install: package.json ${NODE}
+${AZK_NPM_PATH}/.install: npm-shrinkwrap.json package.json ${NODE}
 	@echo "task: $@"
 	@mkdir -p ${AZK_NPM_PATH}
 	@export AZK_LIB_PATH=${AZK_LIB_PATH} && \
@@ -77,7 +77,7 @@ package_clean:
 	@echo "task: $@"
 	@rm -Rf ${AZK_PACKAGE_PREFIX}/..?* ${AZK_PACKAGE_PREFIX}/.[!.]* ${AZK_PACKAGE_PREFIX}/*
 
-${PATH_NODE_MODULES}: ${PATH_USR_LIB_AZK}/package.json ${NODE_PACKAGE}
+${PATH_NODE_MODULES}: ${PATH_USR_LIB_AZK}/npm-shrinkwrap.json ${PATH_USR_LIB_AZK}/package.json ${NODE_PACKAGE}
 	@echo "task: $@"
 	@mkdir -p ${PATH_NODE_MODULES}/..
 	@cd ${PATH_USR_LIB_AZK} && ${AZK_BIN} nvm npm install --production
