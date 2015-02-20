@@ -282,11 +282,6 @@ export class System {
         options.workdir = config.WorkingDir;
       }
 
-      // DNS Servers
-      if (_.isEmpty(this.options.dns_servers) && _.isEmpty(options.dns_servers)) {
-        options.dns_servers = config.dns_servers;
-      }
-
       // ExposedPorts
       var ports = _.reduce(options.ports, (ports, value, key) => {
         if (isBlank(value)) {
@@ -349,6 +344,7 @@ export class System {
       ports: {},
       sequencies: {},
       docker: null,
+      dns_servers: this.options.dns_servers
     });
 
     // Map ports to docker configs: ports and envs
@@ -370,8 +366,13 @@ export class System {
       this._mounts_to_volumes(options.mounts)
     );
 
-    var dns_servers = !_.isEmpty(options.dns_servers) ? options.dns_servers : net.nameServers();
+    var dns_servers = [];
 
+    if (!_.isEmpty(options.dns_servers)) {
+      dns_servers = net.nameServers(options.dns_servers);
+    } else {
+      dns_servers = net.nameServers();
+    }
     var finalOptions = {
       daemon: daemon,
       ports: ports,

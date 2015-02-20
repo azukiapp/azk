@@ -16,6 +16,17 @@ describe("Azk utils.net module", function() {
     h.expect(net_utils.calculateGatewayIp('192.168.50.4')).to.equal('192.168.50.1');
   });
 
+  it('should custom nameservers', function () {
+    var custom_nameservers        = ['208.67.222.222', '208.67.222.220'];
+    var full_custom_nameservers   = [config("agent:dns:ip")].concat(custom_nameservers);
+
+    var default_nameservers       = config('agent:dns:nameservers');
+    var full_default_nameservers  = [config("agent:dns:ip")].concat(default_nameservers);
+
+    h.expect(full_custom_nameservers).to.eql(net_utils.nameServers(custom_nameservers));
+    h.expect(full_default_nameservers).to.eql(net_utils.nameServers());
+  });
+
   describe("wait for service", function() {
     var server, port, unix;
     before(() => {
