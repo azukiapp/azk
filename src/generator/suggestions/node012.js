@@ -15,7 +15,7 @@ export class Suggestion extends UIProxy {
     // Initial Azkfile.js suggestion
     this.suggestion = _.extend({}, example_system, {
       __type: "node.js",
-      image : { docker: "node:0.12" },
+      image : { docker: "azukiapp/node:0.12" },
       provision: [
         "npm install"
       ],
