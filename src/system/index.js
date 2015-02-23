@@ -282,11 +282,6 @@ export class System {
         options.workdir = config.WorkingDir;
       }
 
-      // DNS Servers
-      if (_.isEmpty(this.options.dns_servers) && _.isEmpty(options.dns_servers)) {
-        options.dns_servers = config.dns_servers;
-      }
-
       // ExposedPorts
       var ports = _.reduce(options.ports, (ports, value, key) => {
         if (isBlank(value)) {
@@ -349,6 +344,7 @@ export class System {
       ports: {},
       sequencies: {},
       docker: null,
+      dns_servers: this.options.dns_servers
     });
 
     // Map ports to docker configs: ports and envs
@@ -370,8 +366,13 @@ export class System {
       this._mounts_to_volumes(options.mounts)
     );
 
-    var dns_servers = !_.isEmpty(options.dns_servers) ? options.dns_servers : net.nameServers();
+    var dns_servers = [];
 
+    if (!_.isEmpty(options.dns_servers)) {
+      dns_servers = net.nameServers(options.dns_servers);
+    } else {
+      dns_servers = net.nameServers();
+    }
     var finalOptions = {
       daemon: daemon,
       ports: ports,
@@ -483,14 +484,14 @@ export class System {
       switch (mount.type) {
         case 'path':
           target = mount.value;
+
           if (!target.match(/^\//)) {
             target = path.resolve(this.manifest.manifestPath, target);
           }
-          // TODO: Show error if vbox true and path no match "^/Users/.*"
-          if (!(mount.options || {}).vbox) {
-            target = (fs.existsSync(target)) ?
-              utils.docker.resolvePath(target) : null;
-          }
+
+          target = (fs.existsSync(target)) ?
+            utils.docker.resolvePath(target) : null;
+
           break;
         case 'persistent':
           target = path.join(persist_base, mount.value);

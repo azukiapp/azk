@@ -107,7 +107,12 @@ export class Image {
       var image = yield this.check();
       if (options.build_force || isBlank(image)) {
         notify({ type: 'action', context: 'image', action: 'build_image', data: this });
-        image = yield docker.build({ dockerfile: this.path, tag: this.name });
+        image = yield docker.build({
+                                    dockerfile: this.path,
+                                    tag: this.name,
+                                    verbose: options.provision_verbose,
+                                    stdout: options.stdout
+                                  });
       }
       return image;
     });
@@ -135,7 +140,7 @@ export class Image {
       }
     }
 
-    var msg = t("manifest.can_find_dockerfile", {system: this.system.name});
+    var msg = t("manifest.cannot_find_dockerfile", {system: this.system.name});
     throw new ManifestError('', msg);
   }
 

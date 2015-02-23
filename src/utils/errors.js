@@ -26,9 +26,9 @@ export class AzkError extends Error {
   }
 }
 
-export class ImageNotExistError extends AzkError {
+export class ImageDoesNotExistError extends AzkError {
   constructor(image) {
-    super('image_not_exist');
+    super('image_does_not_exist');
     this.image = image;
   }
 }
@@ -203,5 +203,14 @@ export class AgentStartError extends AzkError {
 
   get error() {
     return this.__error.stack || this.__error;
+  }
+}
+
+export class VmStartError extends AzkError {
+  constructor(timeout, screen) {
+    super('vm_start');
+    this.timeout = timeout;
+    this.screen  = screen;
+    this.code = AGENT_CODE_ERROR;
   }
 }

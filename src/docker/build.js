@@ -57,7 +57,7 @@ function parseAddManifestFiles (archive, dockerfile, content) {
 
       // Check if file/folder exist
       if (!(yield qfs.exists(source))) {
-        throw new DockerBuildError('can_find_add_file_in_dockerfile', { dockerfile, source });
+        throw new DockerBuildError('cannot_find_add_file_in_dockerfile', { dockerfile, source });
       }
 
       var stats = yield qfs.stat(source);
@@ -76,17 +76,16 @@ function parseAddManifestFiles (archive, dockerfile, content) {
   });
 }
 
-export function build(docker, opts) {
+export function build(docker, options) {
   return async(function* (notify) {
-    opts = _.extend({
-      verbose: true,
-      cache: true,
-    }, opts);
+    var opts = _.extend({
+      cache: true
+    }, options);
 
     // Check if "Dockerfile" exist
     var dockerfile = opts.dockerfile;
     if (!(yield qfs.exists(dockerfile))) {
-      throw new DockerBuildError('can_find_dockerfile', { dockerfile });
+      throw new DockerBuildError('cannot_find_dockerfile', { dockerfile });
     }
 
     if (_.isEmpty(opts.tag)) {
@@ -118,6 +117,9 @@ export function build(docker, opts) {
       if (!msg.error) {
         msg.type = 'build_msg';
         msg.statusParsed = parse_stream(msg.stream);
+        if (opts.verbose && opts.stdout) {
+          opts.stdout.write('  ' + msg.stream);
+        }
         if (msg.statusParsed) {
           notify(msg);
           if (msg.statusParsed.type == "building_from") {

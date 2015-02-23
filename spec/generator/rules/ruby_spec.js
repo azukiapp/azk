@@ -36,7 +36,7 @@ describe('Azk generators Ruby rule', function() {
     ].join('\n');
 
     var evidence = rule.getEvidence(gemfilePath, gemfileContent);
-    h.expect(evidence).to.have.deep.property('ruleName', 'ruby21');
+    h.expect(evidence).to.have.deep.property('ruleName', 'ruby22');
   });
 
   it('should get latest ruby version when version is too low', () => {
@@ -47,7 +47,7 @@ describe('Azk generators Ruby rule', function() {
     ].join('\n');
 
     var evidence = rule.getEvidence(gemfilePath, gemfileContent);
-    h.expect(evidence).to.have.deep.property('ruleName', 'ruby21');
+    h.expect(evidence).to.have.deep.property('ruleName', 'ruby22');
   });
 
   it('should get 1.9 ruby version when detected', () => {
@@ -81,6 +81,17 @@ describe('Azk generators Ruby rule', function() {
 
     var evidence = rule.getEvidence(gemfilePath, gemfileContent);
     h.expect(evidence).to.have.deep.property('ruleName', 'ruby21');
+  });
+
+  it('should get 2.2 ruby version when detected', () => {
+    var gemfilePath = '/tmp/azk-test-30501680wvr4/front/Gemfile';
+    var gemfileContent = [
+      'source \'https://rubygems.org\'',
+      'ruby \'2.2.0\'',
+    ].join('\n');
+
+    var evidence = rule.getEvidence(gemfilePath, gemfileContent);
+    h.expect(evidence).to.have.deep.property('ruleName', 'ruby22');
   });
 
   it('should get jruby if detected', () => {

@@ -17,7 +17,7 @@ describe("Azk manifest class, validate set", function() {
     var err = mf.validate();
 
     h.expect(err).to.instanceof(Array);
-    h.expect(err[0]).to.have.property("key", "not_systems");
+    h.expect(err[0]).to.have.property("key", "no_system_set");
     h.expect(err[0]).to.have.property("manifest").and.eql(mf);
     h.expect(err[0]).to.have.property("level", "warning");
   });

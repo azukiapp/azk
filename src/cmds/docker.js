@@ -16,14 +16,9 @@ class Cmd extends InteractiveCmds {
         // Require agent is started
         yield Helpers.requireAgent(this);
 
-        var point = config('agent:vm:mount_point') + '.nfs';
+        var point = config('agent:vm:mount_point');
 
-        // resolver path
-        if (this.cwd.match(/^\/Users\/.*/)) {
-          _path = this.cwd;
-        } else {
-          _path = utils.docker.resolvePath(this.cwd, point);
-        }
+        _path = utils.docker.resolvePath(this.cwd, point);
 
         cmd = `azk vm ssh -t "cd ${_path}; docker ${args.join(" ")}" 2>/dev/null`;
       }

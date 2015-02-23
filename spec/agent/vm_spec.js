@@ -1,12 +1,10 @@
 import h from 'spec/spec_helper';
-import { _, async, Q, config } from 'azk';
+import { _, async, path, Q, config } from 'azk';
 import { VM, dhcp, hostonly } from 'azk/agent/vm';
 
-var os   = require('os');
-var path = require('path');
-var vbm  = require('vboxmanage');
-
 var qfs  = require('q-io/fs');
+var os   = require('os');
+var vbm  = require('vboxmanage');
 var exec = Q.nbind(vbm.command.exec, vbm.command);
 
 h.describeSkipVm("Azk agent vm", function() {
@@ -86,15 +84,31 @@ h.describeSkipVm("Azk agent vm", function() {
       });
 
       it("should start, stop and return vm status", function() {
-        this.timeout(10000);
-        return Q.async(function* () {
+        return async(this, function* () {
+          this.timeout(10000);
           h.expect(yield VM.start(opts.name)).to.ok;
           h.expect(yield VM.start(opts.name)).to.fail;
           h.expect(yield VM.isRunnig(opts.name)).to.ok;
           h.expect(yield VM.stop(opts.name, true)).to.ok;
           h.expect(yield VM.isRunnig(opts.name)).to.fail;
           h.expect(yield VM.stop(opts.name)).to.fail;
-        })();
+        });
+      });
+
+      it("should set and get guestproperty", function() {
+        return async(this, function* () {
+          var result, data = "foo", key = "bar";
+          // Set property
+          yield VM.setProperty(opts.name, key, data, "TRANSIENT");
+
+          // Get property
+          result = yield VM.getProperty(opts.name, key);
+          h.expect(result).to.eql({ Value: data });
+
+          // Get a not set
+          result = yield VM.getProperty(opts.name, "any_foo_key_not_set");
+          h.expect(result).to.eql({});
+        });
       });
     });
 
@@ -161,6 +175,14 @@ h.describeSkipVm("Azk agent vm", function() {
 
     it("should return code to execute ssh command", function() {
       return h.expect(VM.ssh(name, "exit 127")).to.eventually.equal(127);
+    });
+
+    it("should genereate a new screenshot file", function() {
+      return async(this, function* () {
+        var file = yield VM.saveScreenShot(name);
+        yield h.expect(qfs.exists(file)).to.eventually.fulfilled;
+        yield qfs.remove(file);
+      });
     });
 
     it("should copy file to vm", function() {

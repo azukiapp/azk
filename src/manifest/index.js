@@ -191,17 +191,17 @@ export class Manifest {
       throw new ManifestError(this.file, msg);
     }
     if (!_.isEmpty(data.balancer)) {
-      msg = t("manifest.balancer_depreciation", { system: name });
+      msg = t("manifest.balancer_deprecated", { system: name });
       throw new ManifestError(this.file, msg);
     }
     if (!_.isEmpty(data.mount_folders)) {
       opts = { option: 'mount_folders', system: name, manifest: this.file };
-      msg  = t("manifest.mount_and_persistent_depreciation", opts);
+      msg  = t("manifest.mount_and_persistent_deprecated", opts);
       throw new ManifestError(this.file, msg);
     }
     if (!_.isEmpty(data.persistent_folders)) {
       opts = { option: 'persistent_folders', system: name, manifest: this.file };
-      msg  = t("manifest.mount_and_persistent_depreciation", opts);
+      msg  = t("manifest.mount_and_persistent_deprecated", opts);
       throw new ManifestError(this.file, msg);
     }
   }
@@ -254,7 +254,7 @@ export class Manifest {
     var result = tsort(edges);
     if (result.error) {
       var data = result.error.message.match(/^(.*?)\s.*\s(.*)$/);
-      var msg  = t("manifest.circular_depends", {
+      var msg  = t("manifest.circular_dependency", {
         system1: data[1], system2: data[2]
       });
       throw new ManifestError(this.file, msg);

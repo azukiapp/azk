@@ -15,7 +15,7 @@ export class Suggestion extends UIProxy {
     // Initial Azkfile.js suggestion
     this.suggestion = _.extend({}, example_system, {
       __type  : 'mysql',
-      image   : { docker: 'mysql:5.6' }, //https://registry.hub.docker.com/u/library/mysql/
+      image   : { docker: 'azukiapp/mysql:5.6' }, //https://registry.hub.docker.com/u/library/mysql/
       ports:{
         data: "3306/tcp",
       },
@@ -34,7 +34,7 @@ export class Suggestion extends UIProxy {
         // set instances variables
         MYSQL_ROOT_PASSWORD: "mysecretpassword",
         MYSQL_USER: "azk",
-        MYSQL_PASSWORD: "azk",
+        MYSQL_PASS: "azk",
         MYSQL_DATABASE: "mysql_development",
       },
       export_envs_comment: [
@@ -42,8 +42,8 @@ export class Suggestion extends UIProxy {
         'https://gist.github.com/gullitmiranda/62082f2e47c364ef9617'
       ],
       export_envs: {
-        DATABASE_URL: "mysql2://#{envs.MYSQL_USER}:#{envs.MYSQL_PASSWORD}" +
-          "@#{net.host}:#{net.port.data}/${envs.MYSQL_DATABASE}",
+        DATABASE_URL: "mysql2://#{envs.MYSQL_USER}:#{envs.MYSQL_PASS}@#{net.host}" +
+                      ":#{net.port.data}/${envs.MYSQL_DATABASE}",
       },
     });
   }

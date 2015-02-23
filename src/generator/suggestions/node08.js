@@ -7,29 +7,23 @@ export class Suggestion extends UIProxy {
     super(...args);
 
     // Readable name for this suggestion
-    this.name = 'phplaravel';
+    this.name = 'node08';
 
     // Which rules they suggestion is valid
-    this.ruleNamesList = ['phplaravel'];
+    this.ruleNamesList = ['node08'];
 
     // Initial Azkfile.js suggestion
     this.suggestion = _.extend({}, example_system, {
-      __type  : 'php 5.6 laravel',
-      image   : { docker: 'azukiapp/php-fpm' },
+      __type: "node.js",
+      image : { docker: "node:0.8" },
       provision: [
-        'composer install',
+        "npm install"
       ],
-      http    : true,
-      ports: {
-        http: "80/tcp",
-      },
-      command: null,
+      http: true,
       scalable: { default: 2 },
-      mounts  : {
-        '/azk/#{manifest.dir}': {type: 'path', value: '.'}
-      },
-      docker_extra: {
-        start: { Privileged: true },
+      command : "npm start",
+      envs    : {
+        NODE_ENV: "dev"
       }
     });
   }

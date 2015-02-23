@@ -69,7 +69,7 @@ module.exports = function(grunt) {
       publish_package: {
         files: [
           {expand: true, cwd: './package/brew', src: ['*.tar.gz'], dest: './mac/', stream: true },
-          {expand: true, cwd: './package/aptly/public', src: ['**/*'], stream: true },
+          {expand: true, cwd: './package/public', src: ['./!(fedora20)/**/*'], stream: true },
           {expand: true, cwd: './package/fedora20', src: ['**/*'], dest: './fedora20/', stream: true },
           //{expand: true, cwd: './src/libexec/gpg', src: ['azuki.asc'], dest: './keys/', stream: true },
         ],
@@ -79,7 +79,7 @@ module.exports = function(grunt) {
     // Downloads
     'curl-dir': {
       'brace-expansion': {
-        src: [ 'https://s3-sa-east-1.amazonaws.com/azk/azk{.iso,-agent.vmdk.gz}' ],
+        src: [ 'https://s3-sa-east-1.amazonaws.com/azk/debian2docker/azk{.iso,-agent.vmdk.gz}' ],
         dest: lib + '/vm',
       },
     },
@@ -145,7 +145,7 @@ module.exports = function(grunt) {
           'src/**/*.js',
           'spec/**/*.js',
         ],
-        tasks: ['hint', test_task]
+        tasks: [test_task]
       },
 
       traceur: {

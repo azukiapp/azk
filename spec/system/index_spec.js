@@ -252,13 +252,11 @@ describe("Azk system class, main set", function() {
 
       it("should support custom dns_servers", function() {
         // Customized options
-        var custom  = {
-          dns_servers: ['208.67.222.222', '208.67.222.220']
-        };
+        var nameservers = ['208.67.222.222', '208.67.222.220'];
+        var custom      = { dns_servers: nameservers };
+        var options     = system.daemonOptions(custom);
 
-        var options = system.daemonOptions(custom);
-
-        h.expect(options).to.have.property("dns").and.eql(['208.67.222.222', '208.67.222.220']);
+        h.expect(options).to.have.property("dns").and.eql(net.nameServers(nameservers));
       });
 
       it("should extract options from image_data", function() {

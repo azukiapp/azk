@@ -5,7 +5,7 @@ import { Cmd as ScaleCmd } from 'azk/cmds/scale';
 var open = require('open');
 
 var action_opts = {
-  start: { instances: {}, key: "already" },
+  start: { instances: {}, key: "already_started" },
   stop:  { instances: 0 , key: "not_running" },
 };
 

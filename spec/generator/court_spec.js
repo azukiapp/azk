@@ -82,13 +82,8 @@ describe('Azk generator tool court veredict:', function() {
     var node = court.rule('node');
     h.expect(node).to.have.property('type', 'runtime');
 
-    var rails = court.rule('rails41');
+    var rails = court.rule('rails');
     h.expect(rails).to.have.property('type', 'framework');
-  });
-
-  it('should return an array with evidences on investigate() call', function() {
-    court._investigate(rootFullPath);
-    h.expect(court.__evidences).to.have.length(4);
   });
 
   it('should _replacesEvidences() replaces ruby with rails', function() {
@@ -105,7 +100,7 @@ describe('Azk generator tool court veredict:', function() {
              fullpath:'/tmp/azk-test-302101g49y9s/api/package.json',
              ruleType:'runtime',
              name:'node',
-             ruleName:'node010',     <----------  [0][0]
+             ruleName:'node012',     <----------  [0][0]
              version:'0.4.1'
           }
        ],
@@ -120,7 +115,7 @@ describe('Azk generator tool court veredict:', function() {
              fullpath:'/tmp/azk-test-302101g49y9s/front/Gemfile',
              ruleType:'framework',
              name:'rails',
-             ruleName:'rails41',     <----------  [1][1]
+             ruleName:'rails',     <----------  [1][1]
              replaces:[ 'ruby', 'node' ],
              version:'4.1.6'
           },
@@ -129,9 +124,9 @@ describe('Azk generator tool court veredict:', function() {
     */
     var filteredEvidences = _.values(court.__evidences_by_folder);
 
-    h.expect(filteredEvidences[0][0]).to.have.property('ruleName', 'node010');
+    h.expect(filteredEvidences[0][0]).to.have.property('ruleName', 'node012');
     h.expect(filteredEvidences[1][0]).to.have.property('ruleName', 'postgres93');
-    h.expect(filteredEvidences[1][1]).to.have.property('ruleName', 'rails41');
+    h.expect(filteredEvidences[1][1]).to.have.property('ruleName', 'rails');
 
   });
 
@@ -150,13 +145,13 @@ describe('Azk generator tool court veredict:', function() {
     var firstEvidence = evidence0;
     h.expect(firstEvidence).to.have.property('ruleType', 'runtime');
     h.expect(firstEvidence).to.have.property('name', 'node');
-    h.expect(firstEvidence).to.have.property('ruleName', 'node010');
+    h.expect(firstEvidence).to.have.property('ruleName', 'node012');
     h.expect(firstEvidence).to.have.property('version', '0.4.1');
 
     // first suggestion
     var firstSuggestion = evidence0.suggestionChoosen.suggestion;
     h.expect(firstSuggestion).to.have.property('name', 'api');
-    h.expect(evidence0.suggestionChoosen.ruleNamesList).to.contains('node010');
+    h.expect(evidence0.suggestionChoosen.ruleNamesList).to.contains('node012');
     h.expect(firstSuggestion).have.property('__type', 'node.js');
   });
 

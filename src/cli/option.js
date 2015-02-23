@@ -73,7 +73,7 @@ export class Option {
       }
 
       if (this.acc) {
-        desc += " - multiples supported";
+        desc += " - multiple supported";
       }
 
       return [names.join(', '), desc].join('\t');

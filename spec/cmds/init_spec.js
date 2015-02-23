@@ -21,14 +21,14 @@ describe("Azk command init", function() {
     });
 
     it("should fail", function() {
-      var message = t("commands.init.already", manifest);
+      var message = t("commands.init.already_exists", manifest);
       var code = cmd.run([]);
       h.expect(code).to.equal(1);
       h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp(message)));
     });
 
     it("should sucess if --force is passed", function() {
-      var message = t("commands.init.already", manifest);
+      var message = t("commands.init.already_exists", manifest);
       var code = cmd.run(["--force"]);
       h.expect(code).to.equal(0);
       h.expect(outputs[0]).to.not.match(RegExp(h.escapeRegExp(message)));
