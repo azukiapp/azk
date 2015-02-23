@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 * Bug
   * [Cli] Fixing timeout errors to show default values on retry and timeout
   * [Systems] Fixing parse a public port in Azkfile.js
+  * [Agent] Fixing umask in shared folder, replacing automount with script
 
 ## v0.10.0
 
