@@ -157,7 +157,7 @@ describe("Azk system class, main set", function() {
           HostIp: config('agent:dns:ip')
         }]);
         h.expect(options).to.deep.have.property("ports.443/tcp").and.eql([{
-          HostIp: config('agent:dns:ip'), HostPort: "443"
+          HostIp: config('agent:dns:ip'), HostPort: "5252"
         }]);
       });
 
