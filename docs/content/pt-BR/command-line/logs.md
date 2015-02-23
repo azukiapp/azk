@@ -5,7 +5,7 @@ Exibe o _log_ do sistema indicado.
 #### Opções:
 
 - `--follow, --tail, -f`  Exibe o log em tempo real (padrão: falso)
-- `--lines, -n`           Exibe as `n` últimas linhas do log
+- `--lines, -n`           Exibe as `n` últimas linhas do log (padrão: 'all')
 - `--timestamps`          Exibe data e hora para cada linha do log (padrão: verdadeiro)
 
 #### Uso:
