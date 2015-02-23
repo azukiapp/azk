@@ -23,20 +23,21 @@
    /** [PHP](exemplos/php.md)*/
 /*****************************************************/
 * [Azkfile.js](azkfilejs/README.md)
-   * [Overview](azkfilejs/overview.md)
-   * [image](azkfilejs/image.md)
-   * [depends](azkfilejs/depends.md)
-   * [provision](azkfilejs/provision.md)
-   * [workdir](azkfilejs/workdir.md)
-   * [shell](azkfilejs/shell.md)
    * [command](azkfilejs/command.md)
-   * [wait](azkfilejs/wait.md)
-   * [mounts](azkfilejs/mounts.md)
-   * [scalable](azkfilejs/scalable.md)
-   * [http](azkfilejs/http.md)
+   * [depends](azkfilejs/depends.md)
+   * [dns_servers](azkfilejs/dns_servers.md)
    * [envs](azkfilejs/envs.md)
    * [export_envs](azkfilejs/export_envs.md)
+   * [extends](azkfilejs/extends.md)
+   * [http](azkfilejs/http.md)
+   * [image](azkfilejs/image.md)
+   * [mounts](azkfilejs/mounts.md)
    * [ports](azkfilejs/ports.md)
+   * [provision](azkfilejs/provision.md)
+   * [scalable](azkfilejs/scalable.md)
+   * [shell](azkfilejs/shell.md)
+   * [wait](azkfilejs/wait.md)
+   * [workdir](azkfilejs/workdir.md)
 /*****************************************************/
 * [Command line](command-line/README.md)
    * [agent](command-line/agent.md)
@@ -53,14 +54,14 @@
    * [status](command-line/status.md)
    * [stop](command-line/stop.md)
    * [version](command-line/version.md)
+   * [vm](command-line/vm.md)
    /** [Basic commands](azkfilejs/basic.md)*/
    /** [Shell](azkfilejs/shell.md)*/
    /** [Scaling](azkfilejs/escalando.md)*/
 /*****************************************************/
 /** [Agent](agent/README.md)*/
-/** [Images](images/README.md)*/
+* [Images](images/README.md)
 /** [FAQ](faq/README.md)*/
+* [Contributing](contributing/README.md)
 /** [Roadmap](roadmap/README.md)*/
-/** [Contributing](contribuindo/README.md)*/
-/** [Roadmap](roodmap/README.md)*/
 

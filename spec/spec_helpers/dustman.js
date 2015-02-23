@@ -1,4 +1,4 @@
-import { Q, Azk, pp, _, config, t, defer } from 'azk';
+import { Q, _, config, t, defer } from 'azk';
 
 export function extend(Helpers) {
   var h = Helpers;
@@ -7,10 +7,10 @@ export function extend(Helpers) {
     RegExp(`${Helpers.escapeRegExp(config('docker:image_empty'))}`),
     RegExp(`${Helpers.escapeRegExp(config('docker:repository'))}`),
     RegExp(`${Helpers.escapeRegExp(config('docker:build_name'))}`),
-  ]
+  ];
   var filter_tags = (tag) => {
-    return _.some(t_regexs, (regex) => { return tag.match(regex) });
-  }
+    return _.some(t_regexs, (regex) => { return tag.match(regex); });
+  };
 
   Helpers.remove_containers = function() {
     return defer((done) => {
@@ -24,13 +24,13 @@ export function extend(Helpers) {
         }));
       });
     });
-  }
+  };
 
   Helpers.remove_images = function() {
     return defer((done) => {
       return h.docker.listImages().then((images) => {
         var tags = _.flatten(_.map(
-          images, (image) => { return image.RepoTags }
+          images, (image) => { return image.RepoTags; }
         ));
 
         tags = _.filter(tags, filter_tags);
@@ -41,7 +41,7 @@ export function extend(Helpers) {
         }));
       });
     });
-  }
+  };
 
   // Remove all containers before run
   before(function() {
@@ -51,7 +51,7 @@ export function extend(Helpers) {
       Helpers.remove_containers,
       Helpers.remove_images,
       () => console.log("\n")
-    ]
+    ];
     return funcs.reduce(Q.when, Q()).progress(progress);
   });
 }

@@ -1,4 +1,4 @@
-import { _, t, path, os } from 'azk';
+import { _, t, os } from 'azk';
 
 var BASE_CODE_ERROR     = 1;
 var MANIFEST_CODE_ERROR = 2;
@@ -6,13 +6,11 @@ var SYSTEMS_CODE_ERROR  = 3;
 var IMAGES_CODE_ERROR   = 4;
 var AGENT_CODE_ERROR    = 5;
 
-export {
-  BASE_CODE_ERROR,
-  MANIFEST_CODE_ERROR,
-  SYSTEMS_CODE_ERROR ,
-  IMAGES_CODE_ERROR  ,
-  AGENT_CODE_ERROR,
-}
+export { BASE_CODE_ERROR };
+export { MANIFEST_CODE_ERROR };
+export { SYSTEMS_CODE_ERROR };
+export { IMAGES_CODE_ERROR };
+export { AGENT_CODE_ERROR };
 
 export class AzkError extends Error {
   constructor(translation_key) {
@@ -28,9 +26,9 @@ export class AzkError extends Error {
   }
 }
 
-export class ImageNotExistError extends AzkError {
+export class ImageDoesNotExistError extends AzkError {
   constructor(image) {
-    super('image_not_exist');
+    super('image_does_not_exist');
     this.image = image;
   }
 }
@@ -72,7 +70,7 @@ export class DockerBuildError extends AzkError {
 
 export class ProvisionPullError extends AzkError {
   constructor(image, msg) {
-    super('provision_pull_error')
+    super('provision_pull_error');
     this.image = image;
     this.msg   = msg;
   }
@@ -205,5 +203,14 @@ export class AgentStartError extends AzkError {
 
   get error() {
     return this.__error.stack || this.__error;
+  }
+}
+
+export class VmStartError extends AzkError {
+  constructor(timeout, screen) {
+    super('vm_start');
+    this.timeout = timeout;
+    this.screen  = screen;
+    this.code = AGENT_CODE_ERROR;
   }
 }

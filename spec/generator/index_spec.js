@@ -155,5 +155,3 @@ describe('Azk generator tool index:', function() {
     });
   });
 });
-
-

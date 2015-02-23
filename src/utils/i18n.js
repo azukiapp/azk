@@ -2,13 +2,14 @@ require('colors');
 var path   = require('path');
 var printf = require('printf');
 
-function load(folder, locale) {
+function load(folder, locale) { // jshint ignore:line
   var file = path.join(folder, locale);
   return require(file);
 }
 
 export class i18n {
-  constructor(opts) {
+  /* jshint ignore:start */
+  constructor(opts, ...args) {
     if (typeof(opts.dict) == "object") {
       this.dict = opts.dict;
     } else if (opts.locale) {
@@ -18,15 +19,18 @@ export class i18n {
     // Alias to translate
     this.t = (...args) => {
       return this.translate(...args);
-    }
+    };
   }
+  /* jshint ignore:end */
 
   _find(keys) {
     var buffer = this.dict || {};
 
-    for(var i = 0; i < keys.length; i++) {
+    for (var i = 0; i < keys.length; i++) {
       buffer = buffer[keys[i]];
-      if (!buffer) break;
+      if (!buffer) {
+        break;
+      }
     }
 
     return buffer;
@@ -48,7 +52,7 @@ export class i18n {
 
     if (result) {
       try {
-        switch(typeof(result)) {
+        switch (typeof(result)) {
           case "string":
             return printf(result, ...args);
           case "object":
@@ -58,12 +62,13 @@ export class i18n {
         }
       } catch (err) {
         var match, label = "Translate error".red;
-
-        if (match = err.toString().match(/Error: missing key (.*)/)) {
+        match = err.toString().match(/Error: missing key (.*)/);
+        if (match) {
           return label + `: '${key}', missing: ${match[1]}`;
         }
 
-        if (match = err.toString().match(/Error: format requires a mapping/)) {
+        match = err.toString().match(/Error: format requires a mapping/);
+        if (match) {
           return label + `: '${key}', missing a mappping`;
         }
 
@@ -74,4 +79,3 @@ export class i18n {
     }
   }
 }
-

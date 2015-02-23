@@ -14,14 +14,14 @@ var mounts = (function() {
     "/azk/build"       : persistent('build-#{system.name}'),
     "/azk/lib"         : persistent('lib-#{system.name}'),
     "/azk/data"        : persistent('data-#{system.name}'),
+    "/azk/aptly"       : persistent('aptly-#{system.name}'),
     "/var/lib/docker"  : persistent('docker_files-#{system.name}'),
     "/azk/#{manifest.dir}/node_modules": persistent('node_modules-#{system.name}'),
-    "/azk/#{manifest.dir}/.nvmrc" : ".nvmrc",
     "/root/.aptly.conf": path("./src/libexec/aptly.json")
   }
 
   var glob  = require('glob');
-  var itens = glob.sync("./!(lib|data|node_modules|npm-debug.log)");
+  var itens = glob.sync("./!(lib|data|node_modules|npm-debug.log|.git|.DS_Store|.azk)", { dot: true });
 
   mounts = lodash.reduce(itens, function(mount, item) {
     var key    = join("/azk", "#{manifest.dir}", item);
@@ -86,8 +86,9 @@ systems({
 
   package: agent_system('azukiapp/fpm', {
     provision: [
-      "cd package/aptly/public",
-      "[ -L fedora20 ] || ( ln -s ../../fedora20 )",
+      "cd /azk/aptly/public",
+      "[ -L fedora20 ] && ( rm fedora20 )",
+      "ln -s /azk/azk/package/fedora20",
     ],
     shell: "/bin/bash",
     command: "aptly serve",

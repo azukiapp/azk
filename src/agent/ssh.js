@@ -1,4 +1,4 @@
-import { Q, fs, path, config, log, defer, async } from 'azk';
+import { config, log, defer } from 'azk';
 import { net } from 'azk/utils';
 
 var ssh2 = require('ssh2');
@@ -17,34 +17,40 @@ export class SSH {
       done.notify({ type: "ssh", context: "running", cmd: cmd});
 
       client.exec(cmd, (err, stream) => {
-        if (err) return done.reject(err);
+        if (err) {
+          return done.reject(err);
+        }
         stream.on('data', (data, extended) => {
           var context = extended ? extended : 'stdout';
-          done.notify({ type: "ssh", context, data });
+          done.notify({ type: "ssh", context: context, data: data });
         });
 
         stream.on('end', () => { client.end(); });
-        stream.on('exit', (code) => { client.exitcode = code });
+        stream.on('exit', (code) => { client.exitcode = code; });
       });
     });
   }
 
   escapeShell(cmd) {
-    return '"'+ cmd.replace(/(["\s'$`\\])/g, '\\$1') + '"';
+    return '"' + cmd.replace(/(["\s'$`\\])/g, '\\$1') + '"';
   }
 
   getFile(origin, dest, wait = false) {
     return this.connect(wait, (client, done) => {
       log.debug("agent vm ssh scp: %s <= %s", origin, dest);
-      done.notify({ type: "ssh", context: "scp", dest, origin});
+      done.notify({ type: "ssh", context: "scp", dest: dest, origin: origin});
 
       client.sftp((err, sftp) => {
-        if (err) return done.reject(err);
+        if (err) {
+          return done.reject(err);
+        }
         var scp = new scp2();
         scp.__sftp = sftp;
 
         scp.download(origin, dest, (err) => {
-          if (err) return done.reject(err);
+          if (err) {
+            return done.reject(err);
+          }
           done.resolve(0);
           process.nextTick(() => client.end());
         });
@@ -55,15 +61,19 @@ export class SSH {
   putFile(origin, dest, wait = false) {
     return this.connect(wait, (client, done) => {
       log.debug("agent vm ssh scp: %s => %s", origin, dest);
-      done.notify({ type: "ssh", context: "scp", origin, dest});
+      done.notify({ type: "ssh", context: "scp", origin: origin, dest: dest});
 
       client.sftp((err, sftp) => {
-        if (err) return done.reject(err);
+        if (err) {
+          return done.reject(err);
+        }
         var scp = new scp2();
         scp.__sftp = sftp;
 
         scp.upload(origin, dest, (err) => {
-          if (err) return done.reject(err);
+          if (err) {
+            return done.reject(err);
+          }
           done.resolve(0);
           process.nextTick(() => client.end());
         });
@@ -75,7 +85,6 @@ export class SSH {
     var execute = () => {
       return defer((done) => {
         var client    = new ssh2();
-        var exit_code = 0;
         var options   = {
           host: this.host,
           port: this.port,
@@ -95,7 +104,7 @@ export class SSH {
 
         client.connect(options);
       });
-    }
+    };
 
     // TODO: change timeout and attempts for a logic value
     if (wait) {

@@ -6,52 +6,53 @@ var glob = require('glob');
 var path = require('path');
 var fs   = require('fs');
 
-/*
--------------------
-  Court
--------------------
-
-## More generators
-- from issue #46: Adding more generators
-- Details at https://github.com/azukiapp/azk/pull/149
-
-Investigates directories looking for files that can define the systems. Suggests `docker images` that match systems requirements for each folder.
-
------------
-## Main Flow
-
-- Cmd Init():
-    var systemsData = generator.findSystems(cwd);
-
-- Generator findSystems(dir):
-    this.court.judge(dir);
-    return this.court.systems_suggestions;
-
-- Court judge(dir):
-  judge(dir) {
-    this.__root_folder = dir;
-
-    ### _investigate(dir);
-     - For each rule receives `relevantsFiles` to search
-     - Get relevant files with its `contents`
-     - For each detected file executes `rule.getEvidence()`
-
-    ### _analysis
-      - check if the `evidence` has a `replaces` array
-      - `_replacesEvidences`(): replaces other evidences on the same path (system)
-
-    ### _veredict()
-      - fills `__folder_evidences_suggestion` with found evidences grouping in folders(systems)
-      - set `system name`
-      - set `database dependencies` for `[framework,runtime]` suggestions
-      - finally converts `__folder_evidences_suggestion` to  `__systems_suggestions`
-        for the Azkfile `mustache template`
-  }
-
-- Cmd Init():
-    generator.render({ systems: systemsData }, file);
-
-*/
+/**
+  * -------------------
+  *   Court
+  * -------------------
+  *
+  * ## More generators
+  * - from issue #46: Adding more generators
+  * - Details at https://github.com/azukiapp/azk/pull/149
+  *
+  * Investigates directories looking for files that can define the systems.
+  * Suggests `docker images` that match systems requirements for each folder.
+  *
+  * -----------
+  * ## Main Flow
+  *
+  * - Cmd Init():
+  *     var systemsData = generator.findSystems(cwd);
+  *
+  * - Generator findSystems(dir):
+  *     this.court.judge(dir);
+  *     return this.court.systems_suggestions;
+  *
+  * - Court judge(dir):
+  *   judge(dir) {
+  *     this.__root_folder = dir;
+  *
+  *     ### _investigate(dir);
+  *      - For each rule receives `relevantsFiles` to search
+  *      - Get relevant files with its `contents`
+  *      - For each detected file executes `rule.getEvidence()`
+  *
+  *     ### _analysis
+  *       - check if the `evidence` has a `replaces` array
+  *       - `_replacesEvidences`(): replaces other evidences on the same path (system)
+  *
+  *     ### _veredict()
+  *       - fills `__folder_evidences_suggestion` with found evidences grouping in folders(systems)
+  *       - set `system name`
+  *       - set `database dependencies` for `[framework,runtime]` suggestions
+  *       - finally converts `__folder_evidences_suggestion` to  `__systems_suggestions`
+  *         for the Azkfile `mustache template`
+  *   }
+  *
+  * - Cmd Init():
+  *     generator.render({ systems: systemsData }, file);
+  *
+  **/
 export class Court extends UIProxy {
   constructor(rules_folder, ui) {
     super(ui);
@@ -77,13 +78,11 @@ export class Court extends UIProxy {
   }
 
   get rules() {
-    return [
-      ...this.__rules.runtime,
-      ...this.__rules.database,
-      ...this.__rules.framework,
-      ...this.__rules.worker,
-      ...this.__rules.task
-    ];
+    return this.__rules.runtime
+      .concat(this.__rules.database)
+      .concat(this.__rules.framework)
+      .concat(this.__rules.worker)
+      .concat(this.__rules.task);
   }
 
   get systems_suggestions() {
@@ -175,17 +174,17 @@ export class Court extends UIProxy {
     });
 
     // get evidence for each rule
-    _.forEach(relevantFiles, function(file) {
-        var basename = path.basename(file.fullpath);
-        _.forEach(this.rules, function(rule) {
-          var isRelevantFile = _.contains(rule.relevantsFiles(), basename);
-          if (isRelevantFile) {
-            var evidence = rule.getEvidence(file.fullpath, file.content);
-            if(evidence) {
-              evidences.push(evidence);
-            }
+    _.forEach (relevantFiles, function(file) {
+      var basename = path.basename(file.fullpath);
+      _.forEach(this.rules, function(rule) {
+        var isRelevantFile = _.contains(rule.relevantsFiles(), basename);
+        if (isRelevantFile) {
+          var evidence = rule.getEvidence(file.fullpath, file.content);
+          if (evidence) {
+            evidences.push(evidence);
           }
-        });
+        }
+      });
     }, this);
 
     this.__evidences = evidences;
@@ -201,7 +200,7 @@ export class Court extends UIProxy {
           // try find dependency to remove
           _.remove(evidences, function(dirItem) {
             var willRemove = _.contains(evidence.replaces, dirItem.name);
-            if(willRemove) {
+            if (willRemove) {
               log.debug('Court._replacesEvidences', {
                 name             : evidence.ruleName,
                 relevantFile     : evidence.fullpath,
@@ -249,11 +248,9 @@ export class Court extends UIProxy {
       _.forEach(evidences_suggestion, function(evidence_suggestion) {
         var folderBasename = this._folderBasename(folderName);
 
-        if( evidence_suggestion.ruleType === 'runtime'  ||
-            evidence_suggestion.ruleType === 'framework'  ) {
+        if (evidence_suggestion.ruleType === 'runtime' || evidence_suggestion.ruleType === 'framework'  ) {
           systemName = folderBasename;
-        }
-        else if( evidence_suggestion.ruleType === 'database') {
+        } else if ( evidence_suggestion.ruleType === 'database') {
           systemName = evidence_suggestion.name;
         }
         var suggestion     = evidence_suggestion.suggestionChoosen.suggestion;
@@ -273,7 +270,7 @@ export class Court extends UIProxy {
       });
 
       // include database dependency on [framework,runtime] suggestions
-      if(databaseSuggestions.length > 0 && runtimeFrameWorkSuggestions.length > 0) {
+      if (databaseSuggestions.length > 0 && runtimeFrameWorkSuggestions.length > 0) {
         _.forEach(runtimeFrameWorkSuggestions, function(system) {
           var runtimeFrameWorkSuggestions = system.suggestionChoosen.suggestion;
           var firstDatabaseName = databaseSuggestions[0].suggestionChoosen.suggestion.name;
@@ -304,14 +301,24 @@ export class Court extends UIProxy {
         // create a new system
         var systemSuggestion = systems[suggestion.name] = suggestion;
 
-        this.ok('generator.found', {
-          __type: evidence_suggestion.name,
-          dir: folderName,
-          systemName: suggestion.name
-        });
+        if (!evidence_suggestion.version) {
+          this.ok('generator.foundWithoutVersion', {
+            __type: evidence_suggestion.name,
+            dir: folderName,
+            systemName: suggestion.name,
+            image: JSON.stringify(systemSuggestion.image)
+          });
+        } else {
+          this.ok('generator.found', {
+            __type: evidence_suggestion.name,
+            dir: folderName,
+            systemName: suggestion.name,
+            image: JSON.stringify(systemSuggestion.image)
+          });
+        }
 
         // when in a sub-folder change `workdir`
-        if(folderName !== this.__root_folder && systemSuggestion.workdir) {
+        if (folderName !== this.__root_folder && systemSuggestion.workdir) {
           systemSuggestion.workdir = path.join(systemSuggestion.workdir, folderBasename);
         }
 
@@ -320,7 +327,7 @@ export class Court extends UIProxy {
           return (mount.type === 'path' && mount.value === '.');
         });
 
-        if(default_mount_path && folderName !== this.__root_folder) {
+        if (default_mount_path && folderName !== this.__root_folder) {
           var keyBackup = systemSuggestion.mounts[default_mount_path];
           keyBackup.value = './' + folderBasename;
 

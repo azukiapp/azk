@@ -1,6 +1,4 @@
 import h from 'spec/spec_helper';
-import { t, _ } from 'azk';
-import { Command, UI as OriginalUI } from 'azk/cli/command';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 
 describe('Azk cli interactive cmds class', function() {
@@ -26,7 +24,7 @@ describe('Azk cli interactive cmds class', function() {
     }
 
     run(...args) {
-      while(outputs.length > 0) { outputs.pop(); }
+      while (outputs.length > 0) { outputs.pop(); }
       return super(...args);
     }
   }

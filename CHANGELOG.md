@@ -1,4 +1,26 @@
-# Changelog
+# Change Log
+
+All notable changes to this project will be documented in this file.
+This project adheres to [Semantic Versioning](http://semver.org/).
+
+## dev
+
+## v0.10.0
+
+* Bug
+  * [Cli] Showing `azk`'s timeout errors #217 #268
+  * [Generators] Notifying when runtime system version was unidentified.
+  * [Generators] Including not found node.js suggestions #276.
+  * [Agent] We changed `azk` to use `debian2docker` instead of `boot2docker`. With `debian2docker` we have the entire Virtual Box Guest Additions installed and this should fix time sync problems.
+
+* Enhancements
+  * [Agent] Adding `--force` option to `azk vm remove`. It's useful when `azk vm remove` doesn't work properly due to some unknown problem.
+  * [Cli] Added message logs to `azk shell` command. Now, when `azk` is downloading the requested image it doesn't seem to be frozen anymore. To prevent those logs use the `--silent` option. It's useful when using the `-c` option and the output is used as input to another command using the pipe `|` operator.
+  * [System] Adding support to customize DNS servers to will be used in system. #273
+  * [Manifest] Adding `extends` support.
+  * [Cli] Updated messages in locales/en-US for easier understanding
+  * [File sharing] "VirtualBox Shared Folder" is the default and the only option for file sharing on OS X. The `unfs3` option was removed due its unstable behaviour.
+  * [Agent] After failing in the initialization of VM is a screenshot for debugging will be saved and the path displayed to the user.
 
 ## v0.9.2 - (2015-29-01)
 
@@ -24,6 +46,7 @@
   * [Cli] Correcting help on quiet and verbose #226
   * [Cli] Showing azk in lowercase at azk version command #222
   * [Cli] Sorting commands on azk --help #223
+  * [Generators] Updating suggestions, #224 #218
 
 ## v0.8.3
 

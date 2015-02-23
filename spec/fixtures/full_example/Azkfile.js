@@ -1,6 +1,7 @@
 /**
  * http://azk.io file
  */
+/* global addImage, systems, persistent, url, system, setDefault */
 
 // Global image to reuse
 addImage('base', { repository: "cevich/empty_base_image" }); // tag: latest
@@ -200,6 +201,5 @@ $ azk images [provision]
 
   - lista as imagens e o status
   -
-
 
 */

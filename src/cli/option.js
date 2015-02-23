@@ -9,8 +9,9 @@ export class Option {
       show_default: true,
     }, opts);
 
-    if (_.has(opts, 'default'))
+    if (_.has(opts, 'default')) {
       this._default = opts.default;
+    }
   }
 
   get default() {
@@ -23,7 +24,7 @@ export class Option {
 
     return _.has(this, '_default') ? value : (
       this.type == Boolean ? false : null
-    )
+    );
   }
 
   set default(value) {
@@ -44,40 +45,40 @@ export class Option {
 
   help(desc) {
     if (this.hidden !== true) {
-      var help = [];
       // Names
       var names = _.reduce(this.alias, (names, alias) => {
         if (alias.length == 1) {
           names.push('-' + alias);
-          if (this.acc) names.push('-' + alias + alias);
+          if (this.acc) {
+            names.push('-' + alias + alias);
+          }
         } else {
           names.push('--' + alias);
         }
         return names;
       }, []);
 
-      switch(this.type) {
+      var default_value = this.default;
+      switch (this.type) {
         case String:
-          if (this.default != null || this.placeholder != null) {
-            names[0] += `="${this.default || this.placeholder}"`;
+          if (!_.isEmpty(default_value) || !_.isEmpty(this.placeholder)) {
+            names[0] += `="${default_value || this.placeholder}"`;
           }
           break;
         case Boolean:
-          if (this.show_default)
-            var value = this.default;
-            if (value != null) {
-              desc += ` (default: ${value ? true : false})`;
-            }
+          if (this.show_default && !_.isNull(default_value)) {
+            desc += ` (default: ${default_value ? true : false})`;
+          }
           break;
       }
 
       if (this.acc) {
-        desc += " - multiples supported"
+        desc += " - multiple supported";
       }
 
       return [names.join(', '), desc].join('\t');
     } else {
-      return "\t"
+      return "\t";
     }
   }
 
@@ -87,20 +88,20 @@ export class Option {
 
     _.each(this.options, (opt) => {
       if (!_.contains(hidden_options, opt)) {
-        var desc = t(_.isObject(opt) ? ["commands", opt.name, "description"] : [...tKey, opt]);
+        var desc = t(_.isObject(opt) ? ["commands", opt.name, "description"] : [...tKey].concat(opt));
         help.push(this.__optionName(opt) + '\t' + desc);
-      };
+      }
     });
 
     return help;
   }
 
   __optionName(opt) {
-    return _.isObject(opt) ? opt.name : opt
+    return _.isObject(opt) ? opt.name : opt;
   }
 
   processValue(value) {
-    switch(this.type) {
+    switch (this.type) {
       case String:
         if (_.isArray(this.options)) {
           var options = _.map(this.options, this.__optionName);
@@ -112,8 +113,9 @@ export class Option {
       case Number:
         return value.match(/^-?[\d|.|,]*$/) ? Number(value) : null;
       default:
-        if (!_.contains(boolean_opts, value))
+        if (!_.contains(boolean_opts, value)) {
           throw new InvalidValueError(this.name, value);
+        }
         return (value == "true" || value == 1) ? true : false;
     }
   }

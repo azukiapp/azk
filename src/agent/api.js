@@ -41,7 +41,9 @@ var Api = {
     return qfs
       .exists(socket)
       .then((exist) => {
-        if (exist) return qfs.remove(socket);
+        if (exist) {
+          return qfs.remove(socket);
+        }
       });
   },
 
@@ -52,6 +54,6 @@ var Api = {
       });
     });
   }
-}
+};
 
-export { Api }
+export { Api };

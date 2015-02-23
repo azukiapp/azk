@@ -10,7 +10,7 @@ export class Rule extends BaseRule {
     return ['index.php'];
   }
 
-  getEvidence(path, content) {
+  getEvidence(path) {
     var evidence = {
       fullpath: path,
       ruleType: 'runtime',

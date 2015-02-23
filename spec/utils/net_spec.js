@@ -1,5 +1,5 @@
 import h from 'spec/spec_helper';
-import { async, defer, config, Q } from 'azk';
+import { async, config, Q } from 'azk';
 import { path } from 'azk';
 import { net as net_utils } from 'azk/utils';
 var net = require('net');
@@ -14,6 +14,17 @@ describe("Azk utils.net module", function() {
   it("should calculate net ips from a ip", function() {
     h.expect(net_utils.calculateNetIp('192.168.50.4')).to.equal('192.168.50.0/24');
     h.expect(net_utils.calculateGatewayIp('192.168.50.4')).to.equal('192.168.50.1');
+  });
+
+  it('should custom nameservers', function () {
+    var custom_nameservers        = ['208.67.222.222', '208.67.222.220'];
+    var full_custom_nameservers   = [config("agent:dns:ip")].concat(custom_nameservers);
+
+    var default_nameservers       = config('agent:dns:nameservers');
+    var full_default_nameservers  = [config("agent:dns:ip")].concat(default_nameservers);
+
+    h.expect(full_custom_nameservers).to.eql(net_utils.nameServers(custom_nameservers));
+    h.expect(full_default_nameservers).to.eql(net_utils.nameServers());
   });
 
   describe("wait for service", function() {
@@ -39,7 +50,7 @@ describe("Azk utils.net module", function() {
       return Q
         .ninvoke(server, 'listen', port_or_path)
         .then(() => { return Q.delay(1000); });
-    }
+    };
 
     it("should wait for server", function() {
       var progress = (event) => {
@@ -47,11 +58,11 @@ describe("Azk utils.net module", function() {
         if (event.type == "try_connect" && event.attempts == 2) {
           return runServer(port);
         }
-      }
+      };
 
       var connect = () => {
         return net_utils.waitService("tcp://localhost:" + port, 2, { timeout: 100 });
-      }
+      };
 
       return async(function* () {
         yield h.expect(connect()).to.eventually.equal(false);
@@ -62,7 +73,7 @@ describe("Azk utils.net module", function() {
     it("should wait for server runing in a unix socket", function() {
       var connect = () => {
         return net_utils.waitService("unix://" + unix, 2, { timeout: 100 });
-      }
+      };
 
       return async(function* () {
         yield h.expect(connect()).to.eventually.equal(false);

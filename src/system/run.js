@@ -1,8 +1,9 @@
-import { _, t, Q, async, defer, config, lazy_require, log } from 'azk';
+import { _, t, Q, async, defer, config, lazy_require, log, isBlank } from 'azk';
 import { ImageNotAvailable, SystemRunError, RunCommandError } from 'azk/utils/errors';
 import { Balancer } from 'azk/system/balancer';
 import net from 'azk/utils/net';
 
+/* global MemoryStream, docker */
 lazy_require(this, {
   MemoryStream: 'memorystream',
   docker: ['azk/docker', 'default']
@@ -19,8 +20,12 @@ var Run = {
         provision_verbose: false,
       });
 
-      if (_.isEmpty(steps)) return null;
-      if ((!options.provision_force) && system.provisioned) return null;
+      if (_.isEmpty(steps)) {
+        return null;
+      }
+      if ((!options.provision_force) && system.provisioned) {
+        return null;
+      }
       log.debug('provision steps', steps);
 
       // provision command (require /bin/sh)
@@ -42,7 +47,7 @@ var Run = {
 
       notify({ type: "provision", system: system.name });
       var exitResult = yield system.runShell(cmd, options);
-      if (exitResult.code != 0) {
+      if (exitResult.code !== 0) {
         throw new RunCommandError(system.name, cmd.join(' '), output);
       }
       // save the date provisioning
@@ -74,12 +79,12 @@ var Run = {
         container: container,
         containerId: container.Id,
         removed: options.remove,
-      }
+      };
     });
   },
 
   runDaemon(system, options = {}) {
-    return async(this, function* (notify) {
+    return async(this, function* () {
       // TODO: add instances and dependencies options
       // Prepare options
       var image = yield this._check_image(system, options);
@@ -137,7 +142,7 @@ var Run = {
         instances = yield system.instances();
       }
 
-      while (container = instances.pop()) {
+      while ( (container = instances.pop()) ) {
         container = docker.getContainer(container.Id);
 
         // Remove from balancer
@@ -151,8 +156,9 @@ var Run = {
           yield container.stop();
         }
         notify({ type: "stopped", id: container.Id });
-        if (options.remove)
+        if (options.remove) {
           yield container.remove();
+        }
       }
 
       return true;
@@ -162,10 +168,11 @@ var Run = {
   // Wait for container/system available
   _wait_available(system, port_data, container, retry, timeout) {
     return async(this, function* (notify) {
+      var host;
       if (config('agent:requires_vm')) {
-        var host = config('agent:vm:ip');
+        host = config('agent:vm:ip');
       } else {
-        var host = port_data.gateway;
+        host = port_data.gateway;
       }
 
       // Wait for available
@@ -188,7 +195,26 @@ var Run = {
       var running = yield net.waitService(address, retry, wait_opts);
 
       if (!running) {
-        yield this.throwRunError(system, container, null, true);
+        var data = yield container.inspect();
+        var exitCode = data.State.ExitCode;
+
+        if (exitCode === 0) {
+          throw new SystemRunError(
+            system.name,
+            container,
+            data.Config.Cmd.join(' '),
+            exitCode,
+            Q(t('errors.run_timeout_error', {
+              system: system.name,
+              port: port_data && port_data.port,
+              retry: system.__options.wait && system.__options.wait.retry,
+              timeout: system.__options.wait && system.__options.wait.timeout,
+              hostname: system.url.underline,
+            }))
+          );
+        } else {
+          yield this.throwRunError(system, container, null, true);
+        }
       }
 
       return true;
@@ -204,10 +230,10 @@ var Run = {
           var acc = '';
           var stdout = {
             write(data) { acc += data.toString(); }
-          }
+          };
           container.modem.demuxStream(stream, stdout, stdout);
-          stream.on('end', () => { resolve(acc) });
-          setTimeout(() => { reject(new Error("timeout")) }, 4000);
+          stream.on('end', () => { resolve(acc); });
+          setTimeout(() => { reject(new Error("timeout")); }, 4000);
         });
       });
 
@@ -234,25 +260,24 @@ var Run = {
 
   // Check and pull image
   _check_image(system, options) {
-    var promise;
-
     options = _.defaults(options, {
       image_pull: true,
     });
 
     return async(function* () {
+      var promise;
       if ((options.build_force || options.image_pull) && !system.image.builded) {
         if (system.image.provider === 'docker') {
           promise = system.image.pull(options);
-        } else if(system.image.provider === 'dockerfile'){
+        } else if (system.image.provider === 'dockerfile') {
           promise = system.image.build(options);
         }
 
         // save the date provisioning
         system.image.builded = new Date();
       } else {
-        var promise = system.image.check().then((image) => {
-          if (image == null) {
+        promise = system.image.check().then((image) => {
+          if (isBlank(image)) {
             throw new ImageNotAvailable(system.name, system.image.name);
           }
           return image;
@@ -292,7 +317,9 @@ var Run = {
 
     // Include dead containers
     var query_options = {};
-    if (options.include_dead) query_options.all = true ;
+    if (options.include_dead) {
+      query_options.all = true;
+    }
 
     return docker.azkListContainers(query_options).then((containers) => {
       var instances = _.filter(containers, (container) => {
@@ -301,12 +328,12 @@ var Run = {
           azk.mid == system.manifest.namespace &&
           azk.sys == system.name &&
           ( options.type == "*" || azk.type == options.type )
-        )
+        );
       });
 
-      return _.sortBy(instances, (instance) => { return instance.Annotations.azk.seq });
+      return _.sortBy(instances, (instance) => { return instance.Annotations.azk.seq; });
     });
   },
-}
+};
 
-export { Run }
+export { Run };

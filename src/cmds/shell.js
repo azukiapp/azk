@@ -1,7 +1,8 @@
-import { _, path, config, t, async, defer, lazy_require } from 'azk';
+import { _, t, async, defer, lazy_require } from 'azk';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
-import { Command, Helpers } from 'azk/cli/command';
+import { Helpers } from 'azk/cli/command';
 
+/* global Manifest, docker */
 lazy_require(this, {
   Manifest() {
     return require('azk/manifest').Manifest;
@@ -13,29 +14,30 @@ lazy_require(this, {
 });
 
 class Cmd extends InteractiveCmds {
-  action(opts, extras) {
+  action(opts) {
     var progress = Helpers.newPullProgress(this);
-
     return async(this, function* () {
       var cmd = [opts.cmd, ...opts.__leftover];
       var dir = this.cwd;
-      var env = {};
+      var manifest, system;
 
       yield Helpers.requireAgent(this);
 
       if (opts.image) {
         // Arbitrary image
-        var manifest = Manifest.makeFake(dir, opts.image);
-        var system   = manifest.systemDefault;
+        manifest = Manifest.makeFake(dir, opts.image);
+        system   = manifest.systemDefault;
       } else {
-        var manifest = new Manifest(dir, true);
+        manifest = new Manifest(dir, true);
         Helpers.manifestValidate(this, manifest);
 
-        var system   = manifest.systemDefault;
-        if (opts.system) system = manifest.system(opts.system, true);
+        system   = manifest.systemDefault;
+        if (opts.system) {
+          system = manifest.system(opts.system, true);
+        }
       }
 
-      var tty_default = opts.t || !_.isString(opts.command)
+      var tty_default = opts.t || !_.isString(opts.command);
       var tty = (opts.T) ? (opts.t || false) : tty_default;
 
       var stdin = this.stdin();
@@ -48,7 +50,7 @@ class Cmd extends InteractiveCmds {
         stderr : this.stderr(),
         stdin  : stdin,
         workdir: opts.cwd || null,
-      }
+      };
 
       // Support extra envs, ports and mount volumes
       options.envs   = this._parse_option(opts.env  , /.+=.+/, '=', 'invalid_env');
@@ -56,7 +58,7 @@ class Cmd extends InteractiveCmds {
         return { type: (opts[2] ? opts[1] : 'path'), value: (opts[2] ? opts[2] : opts[1]) };
       });
 
-      var cmd = [opts.shell || system.shell];
+      cmd = [opts.shell || system.shell];
       if (opts.command) {
         cmd.push("-c");
         cmd.push(opts.command);
@@ -76,8 +78,10 @@ class Cmd extends InteractiveCmds {
           return false;
         };
 
+        var shell_progress = this._escapeAndPullProgress(escape, system, !opts.silent, opts.verbose, options.stdout);
+
         system.runShell(cmd, options).
-          progress(Helpers.escapeCapture(escape)).
+          progress(shell_progress).
           then(resolver, reject);
       });
 
@@ -93,21 +97,49 @@ class Cmd extends InteractiveCmds {
     if (error.statusCode) {
       if (error.statusCode === 404 && error.reason === "no such container") {
         this.fail("commands.shell.ended.removed");
-        return { code: 127 }
+        return { code: 127 };
       }
     } else if (error.code === 'ECONNRESET') {
       this.fail("commands.shell.ended.docker_end");
-      return { code: 127 }
+      return { code: 127 };
     } else if (error.code === 'ECONNREFUSED') {
-      this.fail("commands.shell.ended.docker_notfound");
-      return { code: 127 }
+      this.fail("commands.shell.ended.docker_not_found");
+      return { code: 127 };
     }
     throw error;
   }
 
+  _escapeAndPullProgress(escape, system, show_logs, verbose) {
+    return (event) => {
+      var pull_progress = Helpers.newPullProgress(this);
+      var escape_progress = Helpers.escapeCapture(escape);
+
+      // show verbose output
+      if (verbose && event.stream) {
+        this.stdout().write('  ' + event.stream);
+      }
+
+      if (event.type === "stdin_pipe") {
+        escape_progress(event);
+      } else if (show_logs) {
+        if (show_logs && event.type === "pull_msg") {
+          pull_progress(event);
+        } else if (event.type === "action") {
+          var keys = ["commands", "scale"];
+          var actions = ["pull_image", "build_image"];
+
+          if (actions.indexOf(event.action) > -1) {
+            var data = { image: system.image.name };
+            this.ok([...keys].concat(event.action), data);
+          }
+        }
+      }
+    };
+  }
+
   _parse_option(option, regex, split, fail, format = null) {
     var result = {};
-    for(var j = 0; j < option.length; j++) {
+    for (var j = 0; j < option.length; j++) {
       var opt = option[j];
       if (opt.match(regex)) {
         opt = opt.split(split);
@@ -133,5 +165,7 @@ export function init(cli) {
     .addOption(['--mount', '-m'], { type: String, acc: true, default: [] })
     .addOption(['--env', '-e'], { type: String, acc: true, default: [] })
     .addOption(['--verbose', '-v'])
+    .addOption(['--silent'])
     .addExamples(t("commands.shell.examples"))
+  ;
 }

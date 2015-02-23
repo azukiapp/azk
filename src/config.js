@@ -28,10 +28,10 @@ var paths = {
 var dns_nameservers = function(key, defaultValue) {
   var value = envs(key);
   return _.isEmpty(value) ? defaultValue : _.invoke(value.split(','), 'trim');
-}
+};
 
 class Dynamic {
-  constructor(key) { this.key = key };
+  constructor(key) { this.key = key; }
 }
 
 // Dir name used by manifest meta
@@ -56,11 +56,9 @@ var options = mergeConfig({
       azk_meta          : path.join(data_path, azk_dir, "shared", "Azkfile.js"),
       pems              : path.join(paths.vm , '.docker'),
       agent_pid         : path.join(paths.run, 'agent.pid'),
-      unfsd_pid         : path.join(paths.run, 'unfsd.pid'),
       memcached_pid     : path.join(paths.run, 'memcachedjs.pid'),
       hipache_pid       : path.join(paths.run, 'hipache.pid'),
       agent_socket      : path.join(paths.run, 'agent.socket'),
-      unfsd_file        : path.join(paths.run, 'exports'),
       balancer_file     : path.join(paths.run, 'hipache.json'),
       memcached_socket  : path.join(paths.run, 'memcachedjs.socket'),
       api_socket        : path.join(paths.run, 'api.socket'),
@@ -99,17 +97,19 @@ var options = mergeConfig({
         defaultserver: dns_nameservers('AZK_DNS_SERVERS_DEFAULTS', ['8.8.8.8', '8.8.4.4']),
       },
       vm: {
+        wait_ready : 180000,
         ip         : envs('AZK_AGENT_VM_IP'  , '192.168.50.4'),
         name       : envs('AZK_AGENT_VM_NAME', "azk-vm-" + namespace),
         user       : "docker",
-        password   : "tcuser",
+        password   : "live",
         cpus       : envs('AZK_VM_CPUS', os.cpus().length),
-        memory     : envs('AZK_VM_MEMORY', Math.floor(os.totalmem()/1024/1024/4)),
+        memory     : envs('AZK_VM_MEMORY', Math.floor(os.totalmem() / 1024 / 1024 / 4)),
         ssh_key    : envs('AZK_AGENT_VM_KEY', path.join(paths.vm, "azkvm_rsa")),
+        screen_path: path.join(paths.vm, "screens"),
         data_disk  : path.join(paths.vm, "azk-agent.vmdk"),
         boot_disk  : path.join(envs('AZK_LIB_PATH'), "vm", "azk.iso"),
         blank_disk : path.join(envs('AZK_LIB_PATH'), "vm", "azk-agent.vmdk.gz"),
-        mount_point: '/home/docker/files',
+        mount_point: '/media/sf_Root',
         authorized_key: '/home/docker/.ssh/authorized_keys',
       },
 
@@ -146,19 +146,22 @@ var options = mergeConfig({
 });
 
 function env() {
-  var env = envs('NODE_ENV', 'production');
-  return env;
+  return envs('NODE_ENV', 'production');
 }
 
 export function get(key) {
-  if (key == "env") return env();
+  if (key == "env") {
+    return env();
+  }
 
   var keys   = key.split(':');
   var buffer = options[env()] || options['*'];
 
-  for(var i = 0; i < keys.length; i++) {
+  for (var i = 0; i < keys.length; i++) {
     buffer = buffer[keys[i]];
-    if (!buffer) break;
+    if (!buffer) {
+      break;
+    }
   }
 
   if (buffer instanceof Dynamic) {
@@ -166,15 +169,21 @@ export function get(key) {
   }
 
   return _.clone(buffer);
-};
+}
 
 export function set(key, value) {
   if (key == "env") {
     process.env.NODE_ENV = value;
   } else {
     var keys   = [env(), ...key.split(':')];
-    var buffer = { [keys.pop()]: value };
-    while(key  = keys.pop()) { buffer = { [key]: buffer } };
+    var buffer = {};
+    buffer[keys.pop()] = value;
+
+    while ((key = keys.pop())) {
+      var inner_buffer  = {};
+      inner_buffer[key] = buffer;
+      buffer = inner_buffer;
+    }
 
     // Check env exist
     if (!options[env()]) {
@@ -185,4 +194,3 @@ export function set(key, value) {
   }
   return value;
 }
-

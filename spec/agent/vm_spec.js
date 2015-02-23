@@ -1,13 +1,10 @@
 import h from 'spec/spec_helper';
-import { _, async, Q, config } from 'azk';
-import { VM } from 'azk/agent/vm';
-import { net } from 'azk/utils';
-
-var os   = require('os');
-var path = require('path');
-var vbm  = require('vboxmanage');
+import { _, async, path, Q, config } from 'azk';
+import { VM, dhcp, hostonly } from 'azk/agent/vm';
 
 var qfs  = require('q-io/fs');
+var os   = require('os');
+var vbm  = require('vboxmanage');
 var exec = Q.nbind(vbm.command.exec, vbm.command);
 
 h.describeSkipVm("Azk agent vm", function() {
@@ -24,7 +21,7 @@ h.describeSkipVm("Azk agent vm", function() {
   // Setups
   var remove_disk = function(file) {
     return exec("closemedium", "disk", file).fail(() => {});
-  }
+  };
 
   var remove = function() {
     this.timeout(0);
@@ -37,60 +34,118 @@ h.describeSkipVm("Azk agent vm", function() {
       yield remove_disk(opts.data);
       yield remove_disk(opts.data + ".tmp");
     })();
-  }
+  };
 
   after(remove);
-  before(remove);
 
   // Tests
   it("should return installed", function() {
-    return h.expect(VM.isInstalled(opts.name)).to.eventually.fail
+    return h.expect(VM.isInstalled(opts.name)).to.eventually.fail;
   });
 
   describe("with have a vm", function() {
-    var info = null;
+    var install_vm = () => {
+      return async(this, function *() {
+        if (this.timeout) {
+          this.timeout(0);
+        }
+        yield remove.apply(this);
+        return h.expect(VM.init(opts)).to.eventually.fulfilled;
+      });
+    };
 
-    before(function() {
-      this.timeout(0);
-      return h.expect(VM.init(opts).then(function(i) {
-        info = i;
-      })).to.eventually.fulfilled
+    describe("and have a info about vm", function() {
+      // Install vm and save state
+      var info = {};
+      before(() => { return install_vm().then((i => info = i)); });
+
+      it("should configure cpus", function() {
+        h.expect(info).has.property("ostype").and.match(/Linux.*64/);
+        h.expect(info).has.property("cpus", os.cpus().length);
+        h.expect(info).has.property("memory", Math.floor(os.totalmem() / 1024 / 1024 / 4));
+      });
+
+      it("should configure network", function() {
+        h.expect(info).has.property("nic1", "hostonly");
+        h.expect(info).has.property("cableconnected1", true);
+        h.expect(info).has.property("hostonlyadapter1").and.match(/vboxnet/);
+
+        h.expect(info).has.property("nic2", "nat");
+        h.expect(info).has.property("cableconnected2", true);
+      });
+
+      it("should forwarding ssh port", function() {
+        var portrange = config("agent:portrange_start");
+        h.expect(info.ssh_port).to.above(portrange - 1);
+      });
+
+      it("should connect boot and data disks", function() {
+        h.expect(info).has.property("SATA-1-0", opts.data);
+      });
+
+      it("should start, stop and return vm status", function() {
+        return async(this, function* () {
+          this.timeout(10000);
+          h.expect(yield VM.start(opts.name)).to.ok;
+          h.expect(yield VM.start(opts.name)).to.fail;
+          h.expect(yield VM.isRunnig(opts.name)).to.ok;
+          h.expect(yield VM.stop(opts.name, true)).to.ok;
+          h.expect(yield VM.isRunnig(opts.name)).to.fail;
+          h.expect(yield VM.stop(opts.name)).to.fail;
+        });
+      });
+
+      it("should set and get guestproperty", function() {
+        return async(this, function* () {
+          var result, data = "foo", key = "bar";
+          // Set property
+          yield VM.setProperty(opts.name, key, data, "TRANSIENT");
+
+          // Get property
+          result = yield VM.getProperty(opts.name, key);
+          h.expect(result).to.eql({ Value: data });
+
+          // Get a not set
+          result = yield VM.getProperty(opts.name, "any_foo_key_not_set");
+          h.expect(result).to.eql({});
+        });
+      });
     });
 
-    it("should configure cpus", function() {
-      h.expect(info).has.property("ostype").and.match(/Linux.*64/);
-      h.expect(info).has.property("cpus", os.cpus().length);
-      h.expect(info).has.property("memory", Math.floor(os.totalmem()/1024/1024/4));
-    });
+    it("should add and remove dhcp server and hostonly network", function() {
+      var _tools = {
+        netinfo() {
+          return Q.all([hostonly.list(), dhcp.list_servers()]);
+        },
+        filter_dhcp(list, VBoxNetworkName) {
+          return _.find(list, (server) => server.NetworkName == VBoxNetworkName);
+        },
+        filter_hostonly(list, name) {
+          return _.find(list, (net) => net.Name == name);
+        }
+      };
 
-    it("should configure network", function() {
-      h.expect(info).has.property("nic1", "hostonly");
-      h.expect(info).has.property("cableconnected1", true);
-      h.expect(info).has.property("hostonlyadapter1").and.match(/vboxnet/);
+      return async(this, function* () {
+        // Install vm and get infos
+        var info = yield install_vm.apply(this);
+        var data = yield _tools.netinfo();
 
-      h.expect(info).has.property("nic2", "nat");
-      h.expect(info).has.property("cableconnected2", true);
-    });
+        // Check for vmbox networking
+        var net  = _tools.filter_hostonly(data[0], info.hostonlyadapter1);
+        h.expect(net).to.have.property('Name', info.hostonlyadapter1);
 
-    it("should forwarding ssh port", function() {
-      var portrange = config("agent:portrange_start");
-      h.expect(info.ssh_port).to.above(portrange - 1);
-    });
+        // Check for dhcp server
+        var VBoxNetworkName = net.VBoxNetworkName;
+        var server = _tools.filter_dhcp(data[1], VBoxNetworkName);
+        h.expect(server).to.have.property('lowerIPAddress', opts.ip);
+        h.expect(server).to.have.property('upperIPAddress', opts.ip);
 
-    it("should connect boot and data disks", function() {
-      h.expect(info).has.property("SATA-1-0", opts.data);
-    });
-
-    it("should start, stop and return vm status", function() {
-      this.timeout(10000);
-      return Q.async(function* () {
-        h.expect(yield VM.start(opts.name)).to.ok
-        h.expect(yield VM.start(opts.name)).to.fail
-        h.expect(yield VM.isRunnig(opts.name)).to.ok
-        h.expect(yield VM.stop(opts.name, true)).to.ok
-        h.expect(yield VM.isRunnig(opts.name)).to.fail
-        h.expect(yield VM.stop(opts.name)).to.fail
-      })();
+        // Removing vm, network and dhcp server
+        yield remove.apply(this);
+        data = yield _tools.netinfo();
+        h.expect(_tools.filter_hostonly(data[0], info.hostonlyadapter1)).to.empty;
+        h.expect(_tools.filter_dhcp(data[1], VBoxNetworkName)).to.empty;
+      });
     });
   });
 
@@ -102,7 +157,7 @@ h.describeSkipVm("Azk agent vm", function() {
       if (event.type == "ssh" && (event.context == "stdout" || event.context == "stderr")) {
         data += event.data.toString();
       }
-    }
+    };
 
     beforeEach(() => data = "");
 
@@ -122,6 +177,14 @@ h.describeSkipVm("Azk agent vm", function() {
       return h.expect(VM.ssh(name, "exit 127")).to.eventually.equal(127);
     });
 
+    it("should genereate a new screenshot file", function() {
+      return async(this, function* () {
+        var file = yield VM.saveScreenShot(name);
+        yield h.expect(qfs.exists(file)).to.eventually.fulfilled;
+        yield qfs.remove(file);
+      });
+    });
+
     it("should copy file to vm", function() {
       return async(this, function* () {
         var code;
@@ -136,4 +199,3 @@ h.describeSkipVm("Azk agent vm", function() {
     });
   });
 });
-

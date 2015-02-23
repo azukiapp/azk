@@ -1,7 +1,8 @@
-import { log, _, async, defer, config, Q, t, lazy_require } from 'azk';
+import { _, async, defer, Q, lazy_require } from 'azk';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
-import { Command, Helpers } from 'azk/cli/command';
+import { Helpers } from 'azk/cli/command';
 
+/* global Manifest, docker */
 lazy_require(this, {
   Manifest() {
     return require('azk/manifest').Manifest;
@@ -35,7 +36,7 @@ class Cmd extends InteractiveCmds {
           output.write(buffer);
         }
       }
-    }
+    };
   }
 
   connect(system, color, instances, options) {
@@ -46,7 +47,7 @@ class Cmd extends InteractiveCmds {
       var stderr = this.make_out(process.stderr, name);
 
       return container.logs(options).then((stream) => {
-        return defer((resolve, reject) => {
+        return defer((resolve) => {
           container.modem.demuxStream(stream, stdout, stderr);
           stream.on('end', resolve);
         });
@@ -93,4 +94,3 @@ export function init(cli) {
     .addOption(['--lines', '-n'], { type: Number, default: "all" })
     .addOption(['--timestamps'], { default: true });
 }
-

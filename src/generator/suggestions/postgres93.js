@@ -15,7 +15,7 @@ export class Suggestion extends UIProxy {
     // Initial Azkfile.js suggestion
     this.suggestion = _.extend({}, example_system, {
       __type  : 'postgres',
-      image   : { docker: 'wyaeld/postgres:9.3' },
+      image   : { docker: 'azukiapp/postgres:9.3' },
       ports:{
         data: "5432/tcp",
       },
@@ -41,7 +41,8 @@ export class Suggestion extends UIProxy {
         'https://gist.github.com/gullitmiranda/62082f2e47c364ef9617'
       ],
       export_envs: {
-        DATABASE_URL: "postgres://#{envs.POSTGRESQL_USER}:#{envs.POSTGRESQL_PASS}@#{net.host}:#{net.port.data}/${envs.POSTGRESQL_DB}",
+        DATABASE_URL: "postgres://#{envs.POSTGRESQL_USER}:#{envs.POSTGRESQL_PASS}" +
+          "@#{net.host}:#{net.port.data}/${envs.POSTGRESQL_DB}",
       },
     });
   }

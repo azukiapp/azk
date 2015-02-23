@@ -1,11 +1,10 @@
-import { config, path, fs, utils } from 'azk';
+import { config, path, fs } from 'azk';
 import h from 'spec/spec_helper';
 import { Generator } from 'azk/generator';
 import { Manifest } from 'azk/manifest';
 var qfs = require('q-io/fs');
 
 describe('Azk generator db', function() {
-  var project = null;
   var outputs = [];
   var UI  = h.mockUI(beforeEach, outputs);
   var generator = new Generator(UI);
@@ -83,13 +82,13 @@ describe('Azk generator db', function() {
 
       it('should has correct properties', function() {
         // main properties
-        h.expect(system).to.have.property('name','mysql');
-        h.expect(system).to.have.deep.property('image.repository', 'mysql');
+        h.expect(system).to.have.property('name', 'mysql');
+        h.expect(system).to.have.deep.property('image.repository', 'azukiapp/mysql');
         h.expect(system).to.have.deep.property('image.tag', '5.6');
 
         // __options
         h.expect(system).to.have.deep.property('options.depends').and.to.eql([]);
-        h.expect(system).to.have.deep.property('options.shell','/bin/bash');
+        h.expect(system).to.have.deep.property('options.shell', '/bin/bash');
         h.expect(system).to.have.deep.property('options.wait.retry', 25);
         h.expect(system).to.have.deep.property('options.wait.timeout', 1000);
         h.expect(system).to.not.have.deep.property('options.workdir');
@@ -111,13 +110,13 @@ describe('Azk generator db', function() {
 
       it('should has correct properties', function() {
         // main properties
-        h.expect(system).to.have.property('name','postgres');
-        h.expect(system).to.have.deep.property('image.repository', 'wyaeld/postgres');
+        h.expect(system).to.have.property('name', 'postgres');
+        h.expect(system).to.have.deep.property('image.repository', 'azukiapp/postgres');
         h.expect(system).to.have.deep.property('image.tag', '9.3');
 
         // __options
         h.expect(system).to.have.deep.property('options.depends').and.to.eql([]);
-        h.expect(system).to.have.deep.property('options.shell','/bin/bash');
+        h.expect(system).to.have.deep.property('options.shell', '/bin/bash');
         h.expect(system).to.have.deep.property('options.wait.retry', 20);
         h.expect(system).to.have.deep.property('options.wait.timeout', 1000);
         h.expect(system).to.not.have.deep.property('options.workdir');
@@ -138,13 +137,13 @@ describe('Azk generator db', function() {
 
       it('should has correct properties', function() {
         // main properties
-        h.expect(system).to.have.property('name','railsMysql');
-        h.expect(system).to.have.deep.property('image.repository', 'rails');
-        h.expect(system).to.have.deep.property('image.tag', '4.1');
+        h.expect(system).to.have.property('name', 'railsMysql');
+        h.expect(system).to.have.deep.property('image.repository', 'azukiapp/ruby');
+        h.expect(system).to.have.deep.property('image.tag', 'latest');
 
         // __options
         h.expect(system).to.have.deep.property('options.depends').and.to.eql(['mysql']);
-        h.expect(system).to.have.deep.property('options.shell','/bin/bash');
+        h.expect(system).to.have.deep.property('options.shell', '/bin/bash');
         h.expect(system).to.have.deep.property('options.wait.retry', 20);
         h.expect(system).to.have.deep.property('options.wait.timeout', 1000);
 
@@ -171,13 +170,13 @@ describe('Azk generator db', function() {
 
       it('should has correct properties', function() {
         // main properties
-        h.expect(system).to.have.property('name','railsPostgres');
-        h.expect(system).to.have.deep.property('image.repository', 'rails');
-        h.expect(system).to.have.deep.property('image.tag', '4.1');
+        h.expect(system).to.have.property('name', 'railsPostgres');
+        h.expect(system).to.have.deep.property('image.repository', 'azukiapp/ruby');
+        h.expect(system).to.have.deep.property('image.tag', 'latest');
 
         // __options
         h.expect(system).to.have.deep.property('options.depends').and.to.eql(['postgres']);
-        h.expect(system).to.have.deep.property('options.shell','/bin/bash');
+        h.expect(system).to.have.deep.property('options.shell', '/bin/bash');
         h.expect(system).to.have.deep.property('options.wait.retry', 20);
         h.expect(system).to.have.deep.property('options.wait.timeout', 1000);
 

@@ -4,11 +4,11 @@ import { net } from 'azk/utils';
 import { Tools } from 'azk/agent/tools';
 import { AgentStartError } from 'azk/utils/errors';
 
-var url     = require('url');
 var forever = require('forever-monitor');
 var MemoryStream    = require('memorystream');
 var MemcachedDriver = require('memcached');
 
+/* global Manifest, Client */
 lazy_require(this, {
   Manifest: ['azk/manifest'],
   Client  : ['azk/agent/client'],
@@ -48,8 +48,8 @@ var Balancer = {
 
   addBackend(hosts, backend) {
     return async(this, function* () {
-      for(var host of (_.isArray(hosts) ? hosts : [hosts])) {
-        var key = 'frontend:' + host
+      for (var host of (_.isArray(hosts) ? hosts : [hosts])) {
+        var key = 'frontend:' + host;
         var entries = yield this.getBackends(host);
         entries = this._removeEntry(entries, backend);
         entries.push(backend);
@@ -60,7 +60,7 @@ var Balancer = {
 
   removeBackend(hosts, backend) {
     return async(this, function* () {
-      for(var host of (_.isArray(hosts) ? hosts : [hosts])) {
+      for (var host of (_.isArray(hosts) ? hosts : [hosts])) {
         var key = 'frontend:' + host;
         var entries = yield this.getBackends(host);
         entries = this._removeEntry(entries, backend);
@@ -71,10 +71,10 @@ var Balancer = {
 
   // Balancer service and subsystems controll
   start(vm_enabled = true) {
-    return Tools.async_status("balancer", this, function* (change_status) {
+    return Tools.async_status("balancer", this, function* () {
       if (!this.isRunnig()) {
         var socket = config('paths:memcached_socket');
-        var ip     = net.calculateGatewayIp(config("agent:vm:ip"))
+        var ip     = net.calculateGatewayIp(config("agent:vm:ip"));
         var port   = yield net.getPort();
 
         if (vm_enabled) {
@@ -90,7 +90,7 @@ var Balancer = {
     });
   },
 
-  start_dns(ip, port) {
+  start_dns() {
     return this._run_system('dns', {
       wait: false,
     });
@@ -126,7 +126,9 @@ var Balancer = {
 
     // Remove socket before start
     // TODO: replace by q-io
-    if (fs.existsSync(socket)) fs.unlinkSync(socket);
+    if (fs.existsSync(socket)) {
+      fs.unlinkSync(socket);
+    }
 
     return this._start_service(name, cmd, pid).then((child) => {
       this.memcached = child;
@@ -159,7 +161,7 @@ var Balancer = {
   },
 
   _removeEntry(entries, backend) {
-    return _.filter(entries, (entry) => { return entry != backend });
+    return _.filter(entries, (entry) => { return entry != backend; });
   },
 
   _getSystem(system) {
@@ -169,10 +171,10 @@ var Balancer = {
 
   _waitDocker() {
     var docker_host = config("docker:host");
-    var promise = net.waitService(docker_host, 5, { timeout: 1000, context: "balancer" });
+    var promise = net.waitService(docker_host, 10, { timeout: 2000, context: "balancer" });
     return promise.then((success) => {
       if (!success) {
-        throw new AgentStartError(t('errors.not_connect_docker'));
+        throw new AgentStartError(t('errors.connect_docker_unavailable'));
       }
       return true;
     });
@@ -181,7 +183,9 @@ var Balancer = {
   // TODO: check if system is running
   _run_system(system_name, options = {}) {
     return Tools.async_status("balancer", this, function* (change_status) {
-      if (this.running[system_name]) return true;
+      if (this.running[system_name]) {
+        return true;
+      }
       var system = this._getSystem(system_name);
 
       // Wait docker
@@ -210,7 +214,9 @@ var Balancer = {
 
   _stop_system(system_name, change_status) {
     return async(this, function* () {
-      if (!this.running[system_name]) return false;
+      if (!this.running[system_name]) {
+        return false;
+      }
 
       var system = this._getSystem(system_name);
 
@@ -225,10 +231,10 @@ var Balancer = {
           try {
             log.error(err);
             change_status("error", err);
-          } catch(err) {}
+          } catch (err) {}
           return true;
         });
-      change_status("stoped_" + system_name);
+      change_status("stopped_" + system_name);
 
       // Save state
       this.running[system_name] = false;
@@ -237,12 +243,12 @@ var Balancer = {
 
   _handleChild(name, child) {
     child.on('stop', () => {
-      log.info(name + ' stoped');
+      log.info(name + ' stopped');
     });
 
     // Log child erro if exited
     child.on('exit:code', (code) => {
-      if (code && code != 0) {
+      if (code && code !== 0) {
         log.error(name + ' exit code: ' + code);
       }
     });
@@ -261,7 +267,7 @@ var Balancer = {
       max : 1,
       silent : true,
       pidFile: pid
-    }
+    };
 
     return Tools.defer_status("balancer", (resolve, reject, change_status) => {
       // Log and notify
@@ -286,7 +292,7 @@ var Balancer = {
 
         change_status("stopping_" + sub);
         service.on('stop', () => {
-          change_status("stoped_" + sub);
+          change_status("stopped_" + sub);
           resolve();
         });
 
@@ -320,13 +326,12 @@ var Balancer = {
       },
       http: { port, bind },
       driver: ["memcached://" + memcached_socket]
-    }
+    };
 
     // set content
     fs.writeFileSync(file, JSON.stringify(data, null, '  '));
     return file;
   }
-}
+};
 
-export { Balancer }
-
+export { Balancer };

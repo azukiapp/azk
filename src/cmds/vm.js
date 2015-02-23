@@ -1,8 +1,8 @@
-import { Q, _, config, async, t, lazy_require } from 'azk';
+import { Q, config, async, lazy_require } from 'azk';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
-import { Command, Helpers } from 'azk/cli/command';
-import { net } from 'azk/utils';
+import { Helpers } from 'azk/cli/command';
 
+/* global VM, Server */
 lazy_require(this, {
   VM: ['azk/agent/vm'],
   Server: ['azk/agent/server'],
@@ -10,7 +10,7 @@ lazy_require(this, {
 
 class RequiredError extends Error {
   constructor(key) {
-    this.key = key
+    this.key = key;
   }
 }
 
@@ -30,7 +30,7 @@ class VmCmd extends InteractiveCmds {
 
   action(opts) {
     if (!config('agent:requires_vm')) {
-      this.fail('commands.vm.not_requires');
+      this.fail('commands.vm.not_required');
       return 1;
     }
 
@@ -58,16 +58,16 @@ class VmCmd extends InteractiveCmds {
       yield Helpers.requireAgent(this);
 
       var ssh_url  = `${config('agent:vm:user')}@${config('agent:vm:ip')}`;
-      var ssh_opts = "StrictHostKeyChecking=no -o LogLevel=quiet -o UserKnownHostsFile=/dev/null"
+      var ssh_opts = "StrictHostKeyChecking=no -o LogLevel=quiet -o UserKnownHostsFile=/dev/null";
       var args     = opts.__leftover.join(`" "`);
-      var script   = `ssh -i ${config('agent:vm:ssh_key')} -o ${ssh_opts} ${ssh_url} "${args}"`
+      var script   = `ssh -i ${config('agent:vm:ssh_key')} -o ${ssh_opts} ${ssh_url} "${args}"`;
 
       this.info(script);
       return this.execSh(script);
     });
   }
 
-  action_start(vm_info) {
+  action_start(vm_info/*, _opts*/) {
     return async(this, function* () {
       if (vm_info.running) {
         this.fail("commands.vm.already_running");
@@ -78,32 +78,30 @@ class VmCmd extends InteractiveCmds {
     });
   }
 
-  action_stop(vm_info) {
+  action_stop(vm_info, opts) {
     return async(this, function* () {
       this.require_running(vm_info);
-      yield VM.stop(vm_info.name);
+      yield VM.stop(vm_info.name, opts.force);
     });
   }
 
   action_status(vm_info) {
-    return async(this, function* () {
-      this.require_running(vm_info);
-      this.ok("commands.vm.running");
-    });
+    this.require_running(vm_info);
+    this.ok("commands.vm.running");
+    return Q();
   }
 
   action_installed(vm_info) {
-    return async(this, function* () {
-      this.require_installed(vm_info);
-      this.ok("commands.vm.already");
-    });
+    this.require_installed(vm_info);
+    this.ok("commands.vm.already_installed");
+    return Q();
   }
 
-  action_remove(vm_info) {
+  action_remove(vm_info, opts) {
     return async(this, function* () {
       this.require_installed(vm_info);
       if (vm_info.running) {
-        yield VM.stop(vm_info.name);
+        yield VM.stop(vm_info.name, opts.force);
       }
       yield VM.remove(vm_info.name);
     });
@@ -113,7 +111,7 @@ class VmCmd extends InteractiveCmds {
 export function init(cli) {
   if (config('agent:requires_vm')) {
     (new VmCmd('vm {*action}', cli))
-      .setOptions('action', { options: ['ssh', 'installed', 'start', 'status', 'stop', 'remove'] });
+      .setOptions('action', { options: ['ssh', 'installed', 'start', 'status', 'stop', 'remove'] })
+      .addOption(['--force'], { default: false });
   }
 }
-

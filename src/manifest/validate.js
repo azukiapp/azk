@@ -11,7 +11,7 @@ export class Validate {
 
     validations.forEach(function(validation) {
 
-      if(validation && validation.length > 0){
+      if (validation && validation.length > 0) {
         errors = errors.concat(validation);
       }
     });
@@ -21,7 +21,7 @@ export class Validate {
 
   static _have_systems(manifest) {
     if (_.isEmpty(_.keys(manifest.systems))) {
-      return [this._warning('not_systems', manifest)];
+      return [this._warning('no_system_set', manifest)];
     }
     return [];
   }
@@ -40,8 +40,7 @@ export class Validate {
         return errors.concat(
           this._deprecate((system.image || {}), manifest, system.name, 'image', 'image.provider')
         );
-      }
-      else {
+      } else {
         return errors;
       }
     }, []);

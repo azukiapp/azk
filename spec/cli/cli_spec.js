@@ -2,11 +2,7 @@ var path = require('path');
 import h from 'spec/spec_helper';
 import { t }  from 'azk';
 import { Cli, Command } from 'azk/cli/cli';
-import {
-  InvalidOptionError,
-  InvalidValueError,
-  RequiredOptionError
-} from 'azk/utils/errors';
+import { InvalidValueError } from 'azk/utils/errors';
 
 describe('Azk cli module', function() {
   var outputs = [];
@@ -37,5 +33,3 @@ describe('Azk cli module', function() {
     );
   });
 });
-
-

@@ -1,4 +1,4 @@
-import { _, path, config } from 'azk';
+import { path, config } from 'azk';
 import { utils as Utils } from 'azk';
 
 class docker {

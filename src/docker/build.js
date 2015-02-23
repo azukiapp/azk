@@ -1,14 +1,13 @@
-import { _, t, Q, fs, async, defer, config, lazy_require, log, path } from 'azk';
+import { _, Q, async, lazy_require, path } from 'azk';
 import { DockerBuildError } from 'azk/utils/errors';
 
 var archiver = require('archiver');
 var qfs      = require('q-io/fs');
 
+/* global JStream, XRegExp */
 lazy_require(this, {
-  parseRepositoryTag: ['dockerode/lib/util'],
-  docker: ['azk/docker', 'default'],
-  uuid: 'node-uuid',
   JStream: 'jstream',
+  XRegExp: ['xregexp', 'XRegExp']
 });
 
 var msg_regex = {
@@ -17,7 +16,7 @@ var msg_regex = {
   building_run        : new XRegExp('RUN (.*)'),
   building_cmd        : new XRegExp('CMD (.*)'),
   building_complete   : new XRegExp('Successfully built (?<IMAGE_ID>.*)'),
-}
+};
 
 function parse_stream(msg) {
   var result = {};
@@ -25,10 +24,10 @@ function parse_stream(msg) {
     var match  = XRegExp.exec(msg, regex);
 
     if (match) {
-      result['type'   ] = type;
-      result['command'] = match[0];
-      result['value'  ] = match[1];
-      result['input'  ] = match.input;
+      result.type = type;
+      result.command = match[0];
+      result.value = match[1];
+      result.input = match.input;
 
       _.each(regex.xregexp.captureNames, function(key) {
         if (match[key]) {
@@ -42,14 +41,14 @@ function parse_stream(msg) {
 }
 
 function parseAddManifestFiles (archive, dockerfile, content) {
-  return async(function* (notify) {
+  return async(function* () {
     var base_dir = path.dirname(dockerfile);
 
     // https://regex101.com/r/yT1jF9/1
     var dockerfileRegex = /^ADD\s+([^\s]+)\s+([^\s]+)$/gmi;
     var isUrlRegex      = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/gmi;
     var capture = null;
-    while( (capture = dockerfileRegex.exec(content)) ){
+    while ( (capture = dockerfileRegex.exec(content)) ) {
       var source = path.join(base_dir, capture[1]);
       var isUrl  = isUrlRegex.test(capture[1]);
 
@@ -58,7 +57,7 @@ function parseAddManifestFiles (archive, dockerfile, content) {
 
       // Check if file/folder exist
       if (!(yield qfs.exists(source))) {
-        throw new DockerBuildError('can_find_add_file_in_dockerfile', { dockerfile, source });
+        throw new DockerBuildError('cannot_find_add_file_in_dockerfile', { dockerfile, source });
       }
 
       var stats = yield qfs.stat(source);
@@ -77,17 +76,16 @@ function parseAddManifestFiles (archive, dockerfile, content) {
   });
 }
 
-export function build(docker, opts) {
+export function build(docker, options) {
   return async(function* (notify) {
-    opts = _.extend({
-      verbose: true,
-      cache: true,
-    }, opts);
+    var opts = _.extend({
+      cache: true
+    }, options);
 
     // Check if "Dockerfile" exist
     var dockerfile = opts.dockerfile;
     if (!(yield qfs.exists(dockerfile))) {
-      throw new DockerBuildError('can_find_dockerfile', { dockerfile });
+      throw new DockerBuildError('cannot_find_dockerfile', { dockerfile });
     }
 
     if (_.isEmpty(opts.tag)) {
@@ -119,6 +117,9 @@ export function build(docker, opts) {
       if (!msg.error) {
         msg.type = 'build_msg';
         msg.statusParsed = parse_stream(msg.stream);
+        if (opts.verbose && opts.stdout) {
+          opts.stdout.write('  ' + msg.stream);
+        }
         if (msg.statusParsed) {
           notify(msg);
           if (msg.statusParsed.type == "building_from") {

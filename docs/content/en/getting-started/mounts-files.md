@@ -1,7 +1,5 @@
 # Mapping files
 
-Se observarmos o `Azkfile.js` gerado, é possível notar uma entrada no sistema `azkdemo` chamada `mounts`:
-
 If we look at the generated `Azkfile.js`, you can see an entry in the `azkdemo` system called `mounts`:
 
 !INCLUDE "../../common/getting-started/mounts_example.md"

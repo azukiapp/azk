@@ -1,16 +1,16 @@
-import { _, Q, config, defer, log, path, lazy_require, set_config } from 'azk';
+import { _, config, defer, log, lazy_require, set_config } from 'azk';
 import { Pid } from 'azk/utils/pid';
-import { AgentStartError } from 'azk/utils/errors';
 
+/* global Server */
 lazy_require(this, {
   Server: ['azk/agent/server'],
 });
 
 var blank_observer = {
-  notify()  {},
+  notify() {},
   resolve() {},
-  reject()  {},
-}
+  reject() {},
+};
 
 var Agent = {
   observer: blank_observer,
@@ -27,7 +27,7 @@ var Agent = {
       this.observer = observer;
 
       if (pid.running) {
-        this.change_status('already');
+        this.change_status('already_running');
         observer.resolve(1);
       } else {
         this.change_status('starting');
@@ -47,19 +47,19 @@ var Agent = {
     return pid.kill();
   },
 
-  gracefullyStop(opts = {}) {
+  gracefullyStop() {
     var pid = this.agentPid();
     this.change_status("stopping");
     return Server
       .stop()
       .progress(this.observer.notify)
       .then(() => {
-        try { pid.unlink(); } catch(e) {}
+        try { pid.unlink(); } catch (e) {}
         this.change_status("stopped");
         return 0;
       })
       .fail((error) => {
-        try { pid.unlink(); } catch(e) {}
+        try { pid.unlink(); } catch (e) {}
         error = error.stack || error;
         log.error('agent stop error: ' + error);
         this.change_status("error", error);
@@ -76,24 +76,24 @@ var Agent = {
   },
 
   processStateHandler() {
-    var stoping = false;
-    var gracefullExit = (signal) => {
-      if (!stoping) {
+    var stopping = false;
+    var gracefullExit = () => {
+      if (!stopping) {
         var catch_err = (err) => log.error('stop error' + err.stack || err);
         try {
-          stoping = true;
+          stopping = true;
           log.info('Azk agent has been killed by signal');
           this.gracefullyStop().catch(catch_err);
         } catch (err) {
           catch_err(err);
         }
       }
-    }
+    };
 
     try {
       var pid = this.agentPid();
       pid.update(process.pid);
-    } catch(e){}
+    } catch (e) {}
 
     process.on('SIGTERM', gracefullExit);
     process.on('SIGINT' , gracefullExit);
@@ -109,7 +109,7 @@ var Agent = {
     var acc_keys = 'agent:config_keys';
     _.each(configs, (value, key) => {
       set_config(key, value);
-      set_config(acc_keys, [...config(acc_keys), key]);
+      set_config(acc_keys, [...config(acc_keys)].concat(key));
     });
 
     // Set process name
@@ -122,6 +122,6 @@ var Agent = {
       log.info("agent start with pid: " + process.pid);
     });
   },
-}
+};
 
 export { Agent };

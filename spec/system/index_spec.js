@@ -1,10 +1,8 @@
 import h from 'spec/spec_helper';
-import { _, path, Q, async, defer, utils } from 'azk';
+import { _, path, utils } from 'azk';
 import { config, version } from 'azk';
 import { System } from 'azk/system';
-import { Manifest } from 'azk/manifest';
 import { net } from 'azk/utils';
-import { ImageNotAvailable } from 'azk/utils/errors';
 
 describe("Azk system class, main set", function() {
   var system;
@@ -28,6 +26,14 @@ describe("Azk system class, main set", function() {
     h.expect(system).to.have.property("workdir", "/");
     h.expect(system).to.have.property("scalable").and.eql({ default: 1, limit: 1 });
     h.expect(system).to.have.property("default_options").to.fail;
+  });
+
+  it("should merge options with dns_servers", function() {
+    system.options = _.defaults(system.default_options, {
+      dns_servers: ['208.67.222.222', '208.67.222.220']
+    });
+
+    h.expect(system).to.have.property("dns_servers").and.eql(['208.67.222.222', '208.67.222.220']);
   });
 
   describe("with valid manifest", function() {
@@ -70,6 +76,7 @@ describe("Azk system class, main set", function() {
         h.expect(provision).to.include(`manifest.project_name: ${manifest.manifestDirName}`);
         h.expect(provision).to.include(`azk.version: ${version}`);
         h.expect(provision).to.include(`azk.default_domain: ${config('agent:balancer:host')}`);
+        h.expect(provision).to.include(`azk.default_dns: ${net.nameServers().toString()}`);
         h.expect(provision).to.include(`azk.balancer_port: ${config('agent:balancer:port').toString()}`);
         h.expect(provision).to.include(`azk.balancer_ip: ${config('agent:balancer:ip')}`);
       });
@@ -103,7 +110,7 @@ describe("Azk system class, main set", function() {
 
     it("should return a depends systems", function() {
       var depends = system.dependsInstances;
-      var names = _.map(depends, (system) => { return system.name });
+      var names = _.map(depends, (system) => { return system.name; });
       h.expect(names).to.eql(["db", "api"]);
     });
 
@@ -117,7 +124,7 @@ describe("Azk system class, main set", function() {
 
     describe("call to daemonOptions", function() {
       var options;
-      before(() => { options = system.daemonOptions() });
+      before(() => { options = system.daemonOptions(); });
 
       it("should return default docker options", function() {
         h.expect(options).to.have.property("daemon", true);
@@ -228,7 +235,7 @@ describe("Azk system class, main set", function() {
         );
 
         h.expect(options).to.have.property("working_dir", "/azk");
-        h.expect(options).to.have.property("volumes")
+        h.expect(options).to.have.property("volumes");
         h.expect(options).to.have.deep.property("annotations.azk.seq", 2);
         h.expect(options).to.have.property("env").and.eql({
           ECHO_DATA    : "data",
@@ -241,6 +248,15 @@ describe("Azk system class, main set", function() {
           "/azk", utils.docker.resolvePath(manifest.manifestPath)
         );
         h.expect(mounts).to.have.property("/data", folder);
+      });
+
+      it("should support custom dns_servers", function() {
+        // Customized options
+        var nameservers = ['208.67.222.222', '208.67.222.220'];
+        var custom      = { dns_servers: nameservers };
+        var options     = system.daemonOptions(custom);
+
+        h.expect(options).to.have.property("dns").and.eql(net.nameServers(nameservers));
       });
 
       it("should extract options from image_data", function() {
@@ -270,7 +286,7 @@ describe("Azk system class, main set", function() {
     describe("call to shellOptions", function() {
       var options;
       before(() => {
-        var custom = { stdout: {} }
+        var custom = { stdout: {} };
         options = system.shellOptions(custom);
       });
 
@@ -317,4 +333,4 @@ describe("Azk system class, main set", function() {
       });
     });
   });
-})
+});

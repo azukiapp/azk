@@ -10,16 +10,16 @@ var getVersion = function(path, content) {
     log.error('JSON.parse error [', path, ']', err.stack || err);
   }
 
-  if(parsedJson &&
-     parsedJson.engine) {
+  if (parsedJson &&
+      parsedJson.engine) {
     // remove garbage
     var versionCleaned = parsedJson.engine.replace(/[^\d\.]/g, "");
     return semver.clean(versionCleaned);
   }
 
-  if(parsedJson &&
-     parsedJson.engines &&
-     parsedJson.engines.node) {
+  if (parsedJson &&
+      parsedJson.engines &&
+      parsedJson.engines.node) {
     return semver.clean(parsedJson.engines.node);
   }
 
@@ -41,23 +41,23 @@ export class Rule extends BaseRule {
       fullpath: path,
       ruleType: 'runtime',
       name    : 'node',
-      ruleName: 'node010'
+      ruleName: 'node012'
     };
 
     var nodeVersion = getVersion(path, content);
     evidence.version = nodeVersion;
 
     // cant find node version, will use default node:latest
-    if(!nodeVersion){
+    if (!nodeVersion) {
       return evidence;
     }
 
     // Suggest a docker image
     // https://registry.hub.docker.com/u/library/node/
     var versionRules = {
-      'node010': '<0.8.0 || >=0.10.0 <0.11.0',
       'node08' : '>=0.8.0 <0.10.0',
-      'node011': '>=0.11.0',
+      'node010': '>=0.10.0 <0.11.0',
+      'node012': '<0.8.0 || >=0.11.0',
     };
 
     evidence.ruleName = _.findKey(versionRules, (value) => {
@@ -66,5 +66,4 @@ export class Rule extends BaseRule {
 
     return evidence;
   }
-
 }

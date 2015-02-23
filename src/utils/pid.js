@@ -1,4 +1,4 @@
-import { Q, fs, path, defer } from 'azk';
+import { Q, fs } from 'azk';
 
 export class Pid {
   constructor(file) {

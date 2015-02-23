@@ -1,7 +1,8 @@
-import { _, Q, async, lazy_require } from 'azk';
+import { async, lazy_require } from 'azk';
 import { config } from 'azk';
 var qfs = require('q-io/fs');
 
+/* global Meta, VM */
 lazy_require(this, {
   Meta : ['azk/manifest/meta'],
   VM   : ['azk/agent/vm'],
@@ -12,7 +13,7 @@ var Migrations = {
   migrations: [
     // update domain and namespace
     function(configure) {
-      return async(this, function* (notify) {
+      return async(this, function* () {
         // Notify about the upgrading
         configure.info('configure.migrations.changing_domain', { origin, target });
 
@@ -24,13 +25,14 @@ var Migrations = {
           yield configure.execShWithSudo('mv_resolver', (sudo_path) => {
             // Moving resolver files and notify
             configure.info('configure.migrations.moving_resolver', { origin, target });
-            return `
+            var result = `
               echo "" &&
               set -x &&
               ${sudo_path} mv ${origin} ${target} &&
               set +x &&
               echo ""
             `;
+            return result;
           });
         }
 
@@ -64,9 +66,9 @@ var Migrations = {
         notify({ type: "status", keys: "configure.migrations.alert"});
 
         // Run migrations
-        for(var i = 0; i < be_run.length; i++) {
+        for (var i = 0; i < be_run.length; i++) {
           yield be_run[i].apply(this.migrations, [configure]);
-          last_run++
+          last_run++;
           meta.set(meta_tag, last_run);
         }
       } else {
@@ -77,6 +79,6 @@ var Migrations = {
       return {};
     });
   }
-}
+};
 
-export { Migrations }
+export { Migrations };

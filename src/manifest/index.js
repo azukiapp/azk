@@ -1,4 +1,4 @@
-import { path, fs, config, _, t, lazy_require } from 'azk';
+import { path, fs, config, _, t, lazy_require, isBlank } from 'azk';
 import { System } from 'azk/system';
 import { Validate } from 'azk/manifest/validate';
 import { ManifestError, ManifestRequiredError, SystemNotFoundError } from 'azk/utils/errors';
@@ -9,10 +9,10 @@ var file_name = config('manifest');
 var check     = require('syntax-error');
 var tsort     = require('gaia-tsort');
 
+/* global parent, runInNewContext */
 lazy_require(this, {
   parent         : ['parentpath', 'sync'],
   runInNewContext: ['vm'],
-  createScript   : ['vm'],
 });
 
 var ManifestDsl = {
@@ -23,11 +23,11 @@ var ManifestDsl = {
 
   // Mounts
   path(folder, options = {}) {
-    return { type: 'path', value: folder, options: options }
+    return { type: 'path', value: folder, options: options };
   },
 
   persistent(name, options = {}) {
-    return { type: 'persistent', value: name, options: options }
+    return { type: 'persistent', value: name, options: options };
   },
 
   // Systems
@@ -35,9 +35,10 @@ var ManifestDsl = {
     this.addSystem(name, data);
   },
 
-  systems(systems) {
-    _.each(systems, (system, name) => {
-      this.addSystem(name, system);
+  systems(allSystems) {
+    this.extendsSystems(allSystems);
+    _.each(allSystems, (data, name) => {
+      this.addSystem(name, data);
     });
   },
 
@@ -57,15 +58,17 @@ var ManifestDsl = {
   setDefault(name) {
     this.default = name;
   },
-}
+};
 
 export class Manifest {
   constructor(cwd, file = null, required = false) {
-    if (typeof file == "boolean")
+    if (typeof file == "boolean") {
       [required, file] = [file, null];
+    }
 
-    if (required && !cwd)
+    if (required && !cwd) {
       throw new Error("Manifest class require a project path");
+    }
 
     this.images   = {};
     this.systems  = {};
@@ -73,8 +76,9 @@ export class Manifest {
     this._default = null;
     this.file     = file || Manifest.find_manifest(cwd);
 
-    if (required && !this._exist())
-      throw new ManifestRequiredError(cwd)
+    if (required && !this._exist()) {
+      throw new ManifestRequiredError(cwd);
+    }
 
     // Create cache for application status
     if (_.isEmpty(this.cache_dir) && this._exist()) {
@@ -82,8 +86,9 @@ export class Manifest {
     }
     this.meta = new Meta(this);
 
-    if (this._exist())
+    if (this._exist()) {
       this.parse();
+    }
   }
 
   // Validate
@@ -103,7 +108,7 @@ export class Manifest {
         if (!(e instanceof ManifestError)) {
           var stack = e.stack.split('\n');
           var msg   = stack[0] + "\n" + stack[1];
-          e = new ManifestError(this.file, msg);
+          throw new ManifestError(this.file, msg);
         }
         throw e;
       }
@@ -111,14 +116,47 @@ export class Manifest {
     this.systemsInOrder();
   }
 
-  static createDslContext(target, source, file) {
+  static createDslContext(target) {
     return _.reduce(ManifestDsl, (context, func, name) => {
-      if (_.isFunction(func))
+      if (_.isFunction(func)) {
         context[name] = func.bind(target);
-      else
+      } else {
         context[name] = func;
+      }
       return context;
     }, { });
+  }
+
+  extendsSystems(allSystems) {
+    _.each(allSystems, (data, name) => {
+      if (!(data instanceof System)) {
+        if (data.extends) {
+          // validate is extends system exists
+          if (!allSystems[data.extends]) {
+            var msg = t("manifest.extends_system_invalid", { system_source: data.extends,
+              system_to_extend: name });
+            throw new ManifestError(this.file, msg);
+          }
+
+          var sourceSystem = _.cloneDeep(allSystems[data.extends]);
+          var destinationSystem = allSystems[name];
+
+          // if "depends" or "image" is null ignore these properties
+          if (isBlank(destinationSystem.depends)) {
+            delete destinationSystem.depends;
+          }
+          if (isBlank(destinationSystem.image)) {
+            delete destinationSystem.image;
+          }
+
+          // get all from sourceSystem but override with destinationSystem
+          _.assign(sourceSystem, destinationSystem);
+          allSystems[name] = sourceSystem;
+        }
+      }
+    });
+
+    return allSystems;
   }
 
   addSystem(name, data) {
@@ -130,33 +168,40 @@ export class Manifest {
     }
 
     this.systems[name] = data;
-    if (!this._default) this._default = name;
+    if (!this._default) {
+      this._default = name;
+    }
 
     return this;
   }
 
   // TODO: refactoring to use validate
   _system_validate(name, data) {
+    var msg, opts;
     if (!name.match(/^[a-zA-Z0-9-]+$/)) {
-      var msg = t("manifest.system_name_invalid", { system: name });
+      msg = t("manifest.system_name_invalid", { system: name });
+      throw new ManifestError(this.file, msg);
+    }
+    if (data.extends === name) {
+      msg = t("manifest.cannot_extends_itself", { system: name });
       throw new ManifestError(this.file, msg);
     }
     if (_.isEmpty(data.image)) {
-      var msg = t("manifest.image_required", { system: name });
+      msg = t("manifest.image_required", { system: name });
       throw new ManifestError(this.file, msg);
     }
     if (!_.isEmpty(data.balancer)) {
-      var msg = t("manifest.balancer_depreciation", { system: name });
+      msg = t("manifest.balancer_deprecated", { system: name });
       throw new ManifestError(this.file, msg);
     }
     if (!_.isEmpty(data.mount_folders)) {
-      var opts = { option: 'mount_folders', system: name, manifest: this.file }
-      var msg  = t("manifest.mount_and_persistent_depreciation", opts);
+      opts = { option: 'mount_folders', system: name, manifest: this.file };
+      msg  = t("manifest.mount_and_persistent_deprecated", opts);
       throw new ManifestError(this.file, msg);
     }
     if (!_.isEmpty(data.persistent_folders)) {
-      var opts = { option: 'persistent_folders', system: name, manifest: this.file }
-      var msg  = t("manifest.mount_and_persistent_depreciation", opts);
+      opts = { option: 'persistent_folders', system: name, manifest: this.file };
+      msg  = t("manifest.mount_and_persistent_deprecated", opts);
       throw new ManifestError(this.file, msg);
     }
   }
@@ -164,8 +209,9 @@ export class Manifest {
   system(name, isRequired = false) {
     var sys = this.systems[name];
 
-    if (isRequired && !sys)
+    if (isRequired && !sys) {
       throw new SystemNotFoundError(this.file, name);
+    }
 
     return sys;
   }
@@ -198,7 +244,7 @@ export class Manifest {
             var msg = t("manifest.depends_not_declared", {
               system: name,
               depend: depend,
-            })
+            });
             throw new ManifestError(this.file, msg);
           }
         });
@@ -208,7 +254,7 @@ export class Manifest {
     var result = tsort(edges);
     if (result.error) {
       var data = result.error.message.match(/^(.*?)\s.*\s(.*)$/);
-      var msg  = t("manifest.circular_depends", {
+      var msg  = t("manifest.circular_dependency", {
         system1: data[1], system2: data[2]
       });
       throw new ManifestError(this.file, msg);
@@ -226,7 +272,7 @@ export class Manifest {
   }
 
   __putNodesInPath(graph, path, node_id) {
-    var node = _.find(graph, (node) => { return node.id == node_id });
+    var node = _.find(graph, (node) => { return node.id == node_id; });
     if (!_.isEmpty(node)) {
       path = _.reduce(node.parents, (path, parent) => {
         return this.__putNodesInPath(graph, path, parent);
@@ -266,6 +312,10 @@ export class Manifest {
     }
 
     this._default = nameOrSystem;
+  }
+
+  get default() {
+    return this._default;
   }
 
   get systemDefault() {
