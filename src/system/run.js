@@ -207,8 +207,8 @@ var Run = {
             Q(t('errors.run_timeout_error', {
               system: system.name,
               port: port_data && port_data.port,
-              retry: system.__options.wait && system.__options.wait.retry,
-              timeout: system.__options.wait && system.__options.wait.timeout,
+              retry: retry,
+              timeout: timeout,
               hostname: system.url.underline,
             }))
           );

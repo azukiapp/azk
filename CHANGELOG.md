@@ -5,6 +5,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## dev
 
+* Bug
+  * [Cli] Fixing timeout errors to show default values on retry and timeout #288
+
 ## v0.10.0
 
 * Bug
