@@ -156,8 +156,7 @@ function config_share(name) {
     yield exec(
       "sharedfolder", "add", name,
       "--name", "Root",
-      "--hostpath", "/",
-      "--automount"
+      "--hostpath", "/"
     );
 
     yield exec(
@@ -445,7 +444,40 @@ var vm = {
 
   copyVMFile(name, origin, target) {
     return this.make_ssh(name).then((ssh) => { return ssh.getFile(origin, target); });
-  }
+  },
+
+  mount(vm_name, share, point, opts = {}) {
+    _.defaults(opts, {
+      umask: "0000",
+      gid  : "vboxsf",
+    });
+
+    // object to arrya of the key=value
+    opts = _.reduce(opts, (acc, value, key) => {
+      acc.push(`${key}=${value}`); return acc;
+    }, []);
+
+    var mount = `sudo mount -t vboxsf -o ${opts.join(',')} ${share} ${point}`;
+    var check = `mount | grep "${point}\\s" &>/dev/null`;
+    var cmd   = [
+      `[ -d "${point}" ] || { sudo mkdir -p ${point}; }`,
+      "{ " + check + " || " + mount + "; }",
+    ].join("; ");
+
+    var stderr = "";
+    var progress = (event) => {
+      if (event.type == "ssh" && event.context == "stderr") {
+        stderr += event.data.toString();
+      }
+      return event;
+    };
+
+    return VM.ssh(vm_name, cmd).progress(progress).then((code) => {
+      if (code !== 0) {
+        throw new Error('not mount share files, error:\n' + stderr);
+      }
+    });
+  },
 };
 
 var VM = vm;
