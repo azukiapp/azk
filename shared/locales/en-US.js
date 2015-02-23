@@ -441,7 +441,7 @@ module.exports = {
     vm: {
       description  : "Controls a virtual machine.",
       already_installed  : "Virtual machine already installed.",
-      not_installed: "Virtual machine is not installed, try `azk vm install`.",
+      not_installed: "Virtual machine is not installed.",
       running      : "Virtual machine running.",
       already_running : "Virtual machine already running.",
       not_running  : "Virtual machine is not running, try `azk vm start`.",
