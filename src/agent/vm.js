@@ -152,16 +152,20 @@ function config_net_interfaces(name, ip) {
 }
 
 function config_share(name) {
-  var root = [
-    "sharedfolder", "add", name,
-    "--name", "Root",
-    "--hostpath", "/",
-    "--automount"
-  ];
+  return async(this, function* () {
+    yield exec(
+      "sharedfolder", "add", name,
+      "--name", "Root",
+      "--hostpath", "/",
+      "--automount"
+    );
 
-  return Q.all([
-    exec.apply(null, root),
-  ]);
+    yield exec(
+      "setextradata", name,
+      "VBoxInternal2/SharedFoldersEnableSymlinksCreate/Root",
+      "1"
+    );
+  });
 }
 
 function config_disks(name, boot, data) {

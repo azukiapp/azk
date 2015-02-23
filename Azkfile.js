@@ -14,6 +14,7 @@ var mounts = (function() {
     "/azk/build"       : persistent('build-#{system.name}'),
     "/azk/lib"         : persistent('lib-#{system.name}'),
     "/azk/data"        : persistent('data-#{system.name}'),
+    "/azk/aptly"       : persistent('aptly-#{system.name}'),
     "/var/lib/docker"  : persistent('docker_files-#{system.name}'),
     "/azk/#{manifest.dir}/node_modules": persistent('node_modules-#{system.name}'),
     "/root/.aptly.conf": path("./src/libexec/aptly.json")
@@ -85,8 +86,9 @@ systems({
 
   package: agent_system('azukiapp/fpm', {
     provision: [
-      "cd package/aptly/public",
-      "[ -L fedora20 ] || ( ln -s ../../fedora20 )",
+      "cd /azk/aptly/public",
+      "[ -L fedora20 ] && ( rm fedora20 )",
+      "ln -s /azk/azk/package/fedora20",
     ],
     shell: "/bin/bash",
     command: "aptly serve",

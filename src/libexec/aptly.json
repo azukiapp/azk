@@ -1,5 +1,5 @@
 {
-  "rootDir": "/azk/azk/package/aptly",
+  "rootDir": "/azk/aptly",
   "downloadConcurrency": 4,
   "downloadSpeedLimit": 0,
   "architectures": ["amd64"],
