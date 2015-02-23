@@ -6,7 +6,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## dev
 
 * Bug
-  * [Cli] Fixing timeout errors to show default values on retry and timeout #288
+  * [Cli] Fixing timeout errors to show default values on retry and timeout
+  * [Systems] Fixing parse a public port in Azkfile.js
 
 ## v0.10.0
 
