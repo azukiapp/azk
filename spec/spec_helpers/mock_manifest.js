@@ -114,7 +114,7 @@ export function extend(h) {
           ports: {
             test_tcp: "80/tcp",
             test_udp: "53/udp",
-            test_public: "443:443/tcp",
+            test_public: "5252:443/tcp",
           },
         },
         'ports-disable': {

@@ -14,7 +14,7 @@ Checks if the virtual machine is installed.
 #### Example:
 
     $ azk vm installed
-    azk: virtual machine is not installed, try `azk vm install`.
+    azk: Virtual machine is not installed.
 
 _______________
 ### azk vm start

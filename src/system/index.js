@@ -8,7 +8,7 @@ import { Balancer } from 'azk/system/balancer';
 
 var XRegExp = require('xregexp').XRegExp;
 var regex_port = new XRegExp(
-  "(?<private>[0-9]{1,})(:(?<public>[0-9]{1,})){0,1}(/(?<protocol>tcp|udp)){0,1}", "x"
+  "(?<public>[0-9]{1,})(:(?<private>[0-9]{1,})){0,1}(/(?<protocol>tcp|udp)){0,1}", "x"
 );
 
 export class System {
@@ -424,7 +424,12 @@ export class System {
 
       // TODO: Add support a bind ip
       var conf = { HostIp: config("agent:dns:ip") };
-      if (port.public) {
+      if (_.isEmpty(port.private)) {
+        port.private = port.public;
+        port.public  = null;
+      }
+
+      if (!_.isEmpty(port.public)) {
         conf.HostPort = port.public;
       }
 
