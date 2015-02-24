@@ -8,7 +8,7 @@
 * [Docker][docker] 1.3.0
 * Não estar rodando nenhum serviço nas portas `80` e `53`
 
-**Importante**: Se você estiver rodando algum serviço nas portas `80` e/ou `53` você deve customizar a configuração do `azk` definindo as seguintes variáveis: `AZK_BALANCER_PORT` e `AZK_DNS_PORT` respectivamente, antes de executar o `azk agent start`.
+**Importante**: Se você estiver rodando algum serviço nas portas `80` e/ou `53` você deve customizar a configuração do `azk` definindo as seguintes variáveis `AZK_BALANCER_PORT` e `AZK_DNS_PORT` respectivamente, antes de executar o `azk agent start`.
 
 ## Ubuntu Trusty 14.04 (LTS) (64-bit)
 
@@ -48,8 +48,9 @@
 
 1. Instale o Docker:
 
-  - [Instale **a versão mais recente do Docker**][docker_ubuntu_12_04]
-  - Inclua seu usuário local no [grupo docker][docker_root_access]; Faça um _logoff_ para que as configurações de grupo de usuários sejam ativadas;
+  - [Instale **a versão 1.3 do Docker**][docker_ubuntu_12_04]
+  - Configure para que seu usuário [tenha acesso ao Docker][docker_root_access];
+  - **Tenha certeza de que o serviço do Docker está rodando**;
 
 2. Adicionando as chaves do Azuki ao seu keychain local:
 
@@ -112,4 +113,3 @@ Em breve...
 
 !INCLUDE "../getting-started/banner.md"
 !INCLUDE "../../links.md"
-
