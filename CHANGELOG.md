@@ -5,6 +5,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## dev
 
+## v0.10.2 - (2015-24-02)
+
+* Bug
+  * [Package] Force permissions to azk/bin in package
+
 ## v0.10.1 - (2015-23-02)
 
 * Bug
