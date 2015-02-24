@@ -5,12 +5,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## dev
 
+## v0.10.1 - (2015-23-02)
+
 * Bug
   * [Cli] Fixing timeout errors to show default values on retry and timeout
   * [Systems] Fixing parse a public port in Azkfile.js
   * [Agent] Fixing umask in shared folder, replacing automount with script
 
-## v0.10.0
+## v0.10.0 - (2015-23-02)
 
 * Bug
   * [Cli] Showing `azk`'s timeout errors #217 #268
