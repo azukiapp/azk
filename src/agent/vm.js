@@ -450,9 +450,10 @@ var vm = {
     _.defaults(opts, {
       umask: "0000",
       gid  : "vboxsf",
+      uid  : config("agent:vm:user"),
     });
 
-    // object to arrya of the key=value
+    // object to array of the key=value
     opts = _.reduce(opts, (acc, value, key) => {
       acc.push(`${key}=${value}`); return acc;
     }, []);
@@ -460,9 +461,11 @@ var vm = {
     var mount = `sudo mount -t vboxsf -o ${opts.join(',')} ${share} ${point}`;
     var check = `mount | grep "${point}\\s" &>/dev/null`;
     var cmd   = [
-      `[ -d "${point}" ] || { sudo mkdir -p ${point}; }`,
-      "{ " + check + " || " + mount + "; }",
-    ].join("; ");
+      `if sudo modprobe vboxguest &> /dev/null && sudo modprobe vboxsf &> /dev/null; then`,
+      `  [ -d "${point}" ] || { sudo mkdir -p ${point}; } ;`,
+      "  { " + check + " || " + mount + "; } ;",
+      "fi"
+    ].join(" ");
 
     var stderr = "";
     var progress = (event) => {
