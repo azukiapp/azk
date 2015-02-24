@@ -56,6 +56,7 @@ var Server = {
     return async(this, function* (notify) {
       var installed = yield VM.isInstalled(vm_name);
       var running   = (installed) ? yield VM.isRunnig(vm_name) : false;
+      var vm_notify = (status) => notify({ type: "status", context: "vm", status });
 
       if (!installed) {
         var opts = {
@@ -68,7 +69,7 @@ var Server = {
         yield VM.init(opts);
 
         // Set ssh key
-        notify({ type: "status", context: "vm", status: "sshkey" });
+        vm_notify("sshkey");
         var file    = config("agent:vm:ssh_key") + ".pub";
         var content = yield qfs.read(file);
         VM.setProperty(vm_name, "/VirtualBox/D2D/SSH_KEY", content);
@@ -82,6 +83,11 @@ var Server = {
           throw new VmStartError(timeout, screen);
         }
       }
+
+      // Mount shared
+      vm_notify("mounting");
+      yield VM.mount(vm_name, "Root", config("agent:vm:mount_point"));
+      vm_notify("mounted");
 
       // Mark installed
       this.vm_started = true;
