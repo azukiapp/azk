@@ -40,13 +40,13 @@ ${NODE}:
 
 clean:
 	@echo "task: $@"
-	@find ${AZK_LIB_PATH} -maxdepth 1 -not -name "lib" | egrep -v '\/vm$' | xargs rm -Rf
+	@find ${AZK_LIB_PATH} -maxdepth 1 -not -name "lib" | egrep -v '\/vm$$' | xargs rm -Rf
 	@rm -Rf ${AZK_NPM_PATH}/..?* ${AZK_NPM_PATH}/.[!.]* ${AZK_NPM_PATH}/*
 	@rm -Rf ${NVM_DIR}/..?* ${NVM_DIR}/.[!.]* ${NVM_DIR}/*
 
 clean_fast:
 	@echo "task: $@"
-	@find ${AZK_LIB_PATH} -maxdepth 1 -not -name "lib" | egrep -v '\/(nvm|vm)$' | xargs rm -Rf
+	@find ${AZK_LIB_PATH} -maxdepth 1 -not -name "lib" | egrep -v '\/(nvm|vm)$$' | xargs rm -Rf
 
 bootstrap: ${AZK_LIB_PATH}/azk
 
