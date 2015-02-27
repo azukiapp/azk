@@ -10,15 +10,15 @@ abs_dir() {
 }
 
 # Return a fixture path
-fixtures() {
+spec.fixtures() {
   echo "${AZK_ROOT_PATH}/spec/fixtures/${1}"
 }
 
 # Copy a fixture path to a temporari path
 # and return this path
-fixtures_tmp() {
+spec.fixtures_tmp() {
     mask="azk.test.XXX"
-  origin="$(fixtures $1)"
+  origin="$(spec.fixtures $1)"
 
   # Copy as directory
   if [ -d "$origin" ]; then
