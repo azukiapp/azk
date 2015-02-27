@@ -187,7 +187,13 @@ module.exports = function(grunt) {
         'cmd': 'grunt aws_s3:publish_package'
       },
       'integration-test': {
-        'cmd': './lib/bats/bin/bats `find spec/integration -name \'*.bats\'`'
+        cmd: function() {
+          var filter = 'find spec/integration -name \'*.bats\'';
+          if (test_grep) {
+            filter = 'grep -Rl "' + test_grep + '" spec/integration';
+          }
+          return './lib/bats/bin/bats `' + filter + '`';
+        }
       }
     },
 
