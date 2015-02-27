@@ -192,7 +192,7 @@ module.exports = function(grunt) {
           if (test_grep) {
             filter = 'grep -Rl "' + test_grep + '" spec/integration';
           }
-          return './lib/bats/bin/bats `' + filter + '`';
+          return lib + '/bats/bin/bats `' + filter + '`';
         }
       }
     },
