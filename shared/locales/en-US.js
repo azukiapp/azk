@@ -258,9 +258,6 @@ module.exports = {
         daemon: "Runs azk agent in background mode",
       }
     },
-    configs: {
-      description: "Shows azk configs values",
-    },
     docker: {
       options: {
         verbose: verbose,
