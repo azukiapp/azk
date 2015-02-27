@@ -1,6 +1,6 @@
 flunk() {
   { if [ "$#" -eq 0 ]; then cat -
-    else echo "$@"
+    else echo -e "$@"
     fi
   }
   return 1
@@ -8,7 +8,7 @@ flunk() {
 
 assert_success() {
   if [ "$status" -ne 0 ]; then
-    flunk "command failed with exit status $status"
+    flunk "command failed with exit status ${status}\\noutput: ${output}"
   elif [ "$#" -gt 0 ]; then
     assert_output "$1"
   fi
@@ -31,9 +31,10 @@ assert_equal() {
 }
 
 assert_match() {
-  if [ ! $(echo "${2}" | grep -- "${1}") ]; then
+  out="${2:-${output}}"
+  if [ ! $(echo "${out}" | grep -- "${1}") ]; then
     { echo "expected match: $1"
-      echo "actual: $2"
+      echo "actual: $out"
     } | flunk
   fi
 }
