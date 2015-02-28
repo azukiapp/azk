@@ -250,7 +250,7 @@ module.exports = function(grunt) {
   grunt.registerTask('inspector'  , ['node-inspector']);
   grunt.registerTask('hint'       , ['newer:jshint', 'newer:jscs']);
   grunt.registerTask('publish'    , ['env:aws', 'exec:publish_package']);
-  grunt.registerTask('integration', ['watch:integration']);
+  grunt.registerTask('integration', ['build', 'exec:integration-test']);
   grunt.registerTask('default'    , function() {
     key_watch(grunt);
     return grunt.task.run(['watch:spec']);
