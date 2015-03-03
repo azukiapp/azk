@@ -27,6 +27,7 @@ build:
         name: make
         code: |
           make clean
+          make dependencies
           make
 
     - script:
@@ -54,3 +55,8 @@ build:
         name: run all slow tests
         code: |
           bin/azk nvm grunt slow_test
+
+    - script:
+        name: run integration tests
+        code: |
+          bin/azk nvm grunt integration

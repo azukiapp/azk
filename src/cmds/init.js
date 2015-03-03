@@ -14,6 +14,10 @@ lazy_require(this, {
 
 class Cmd extends Command {
   action(opts) {
+    if (opts.filename) {
+      return this.showFilename();
+    }
+
     var manifest = config("manifest");
     var cwd  = opts.path || this.cwd;
     var file = path.join(cwd, manifest);
@@ -42,9 +46,14 @@ class Cmd extends Command {
 
     return 0;
   }
+
+  showFilename() {
+    this.output(config('manifest'));
+  }
 }
 
 export function init(cli) {
   return new Cmd('init [path]', cli)
-    .addOption(['--force', '-f'], { default: false });
+    .addOption(['--force', '-f'], { default: false })
+    .addOption(['--filename'], { default: false });
 }

@@ -44,11 +44,16 @@ clean:
 	@rm -Rf ${AZK_NPM_PATH}/..?* ${AZK_NPM_PATH}/.[!.]* ${AZK_NPM_PATH}/*
 	@rm -Rf ${NVM_DIR}/..?* ${NVM_DIR}/.[!.]* ${NVM_DIR}/*
 
-clean_fast:
+fast_clean:
 	@echo "task: $@"
 	@find ${AZK_LIB_PATH} -maxdepth 1 -not -name "lib" | egrep -v '\/(nvm|vm)$$' | xargs rm -Rf
 
 bootstrap: ${AZK_LIB_PATH}/azk
+
+dependencies: ${AZK_LIB_PATH}/bats
+
+${AZK_LIB_PATH}/bats:
+	@git clone https://github.com/sstephenson/bats ${AZK_LIB_PATH}/bats
 
 # PACKAGE
 AZK_PACKAGE_PATH:=${AZK_ROOT_PATH}/package
@@ -101,7 +106,7 @@ $(abspath $(2)/$(3)): $(abspath $(1)/$(3))
 		if [ -d "$$@" ]; then \
 			touch $$@; \
 		else \
-		  mkdir -p $$@; \
+			mkdir -p $$@; \
 		fi \
 	fi
 	@[ -d $$< ] || cp -f $$< $$@
@@ -140,4 +145,4 @@ ${PATH_MAC_PACKAGE}: ${AZK_PACKAGE_PREFIX}
 
 package_build: bootstrap ${AZK_LIB_PATH}/azk $(FILES_TARGETS) $(FILES_JS_TARGETS) ${PATH_NODE_MODULES}
 
-.PHONY: bootstrap clean package package_brew package_mac package_deb package_rpm package_build package_clean copy_files
+.PHONY: bootstrap clean fast_clean package package_brew package_mac package_deb package_rpm package_build package_clean copy_files fix_permissions creating_symbolic_links dependencies

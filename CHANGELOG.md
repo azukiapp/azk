@@ -5,6 +5,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## dev
 
+* Enhancements
+  * [code] Adding support to "integration testing"
+
 ## v0.10.2 - (2015-24-02)
 
 * Bug
