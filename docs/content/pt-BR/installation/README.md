@@ -6,16 +6,18 @@ A instalação vai adicionar o comando `azk` ao path do sistema. Isso torna o co
 
 ## Instalação expressa do azk
 
+A forma mais fácil de instalar o `azk` é utilizar o script abaixo. Ele vai identificar o sistema operacional que está usando e, se for compatível, realizar todos os processos de instalação.
+
 #### via curl
 
 ```sh
-curl -Ls http://azk.io/install.sh | sudo bash
+curl -Ls http://azk.io/install.sh | bash
 ```
 
 #### via wget
 
 ```sh
-wget http://azk.io/install.sh -v -O install.sh && sudo bash ./install.sh; rm -rf ./install.sh
+wget -qO- http://azk.io/install.sh | bash
 ```
 
 ## Requisitos mínimos de instalação
