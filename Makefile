@@ -28,6 +28,7 @@ ${AZK_NPM_PATH}/.install: npm-shrinkwrap.json package.json ${NODE}
 	@echo "task: $@"
 	@mkdir -p ${AZK_NPM_PATH}
 	@export AZK_LIB_PATH=${AZK_LIB_PATH} && \
+		${AZK_BIN} nvm npm install npm -g && \
 		${AZK_BIN} nvm npm install && \
 		touch ${AZK_NPM_PATH}/.install
 
