@@ -289,7 +289,9 @@ var Run = {
         return event;
       });
 
-      return image.inspect();
+      if (!isBlank(image)) {
+        return image.inspect();
+      }
     });
   },
 

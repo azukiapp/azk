@@ -333,7 +333,8 @@ module.exports = {
         pulling: 'Pulling repository %s...',
         bar_progress: '  :title [:bar] :percent :progress',
         bar_status: '  :title :msg',
-        pull_ended  : "✓".blue + " completed download of `" + "%(image)s".yellow + "`",
+        pull_start  : "⇲".blue    + " pulling %(left_to_download_count)s/%(total_registry_layers)s layers. %(left_to_download_size)s left to download.\n",
+        pull_ended  : "✓".blue    + " completed download of `" + "%(image)s".yellow + "`",
       }
     },
     init: {

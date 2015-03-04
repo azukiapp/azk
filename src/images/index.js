@@ -1,4 +1,4 @@
-import { _, fs, async, defer, lazy_require, t, path, isBlank } from 'azk';
+import { _, fs, async, defer, lazy_require, t, path, isBlank, log } from 'azk';
 import { ManifestError } from 'azk/utils/errors';
 import Utils from 'azk/utils';
 
@@ -75,32 +75,76 @@ export class Image {
         this.repository = namespace + '/' + repository;
         notify({ type: "action", context: "image", action: "pull_image", data: this });
 
-        //yield this.pullWithDockerRegistryDownloader(docker.modem, namespace, repository, this.tag);
+        var registry_result = null;
 
-        // old implementation of pull
-        image = yield docker.pull(this.repository, this.tag, _.isObject(stdout) ? stdout : null);
+        // get size and layers count
+        try {
+          registry_result = yield this.pullWithDockerRegistryDownloader(
+            docker.modem,
+            namespace,
+            repository,
+            this.tag,
+            options.stdout);
+        } catch (err) {
+          log.error(err);
+        }
+
+        // docker pull
+        image = yield docker.pull(
+          this.repository,
+          this.tag,
+          _.isObject(stdout) ? stdout : null,
+          registry_result);
+
       }
       return yield this.check();
     });
   }
 
-  // FIXME: save files inside VM or elsewhere
-  // pullWithDockerRegistryDownloader(dockerode_modem, namespace, repository, repo_tag) {
-  //   return async(this, function* () {
-  //     var DockerHub   = require('docker-registry-downloader').DockerHub;
-  //     var Syncronizer = require('docker-registry-downloader').Syncronizer;
-  //     var dockerHub   = new DockerHub();
-  //     var syncronizer = new Syncronizer({ dockerode_modem: dockerode_modem });
-  //     var tag         = repo_tag;
+  pullWithDockerRegistryDownloader(dockerode_modem, namespace, repository, repo_tag, stdout) {
+    return async(this, function* () {
 
-  //     // get token from DOCKER HUB API
-  //     return dockerHub.images(namespace, repository).then(function(hubResult) {
-  //       // sync registry layer with local layers
-  //       return syncronizer.sync(hubResult, tag);
-  //     });
+      var DockerHub   = require('docker-registry-downloader').DockerHub;
+      var Syncronizer = require('docker-registry-downloader').Syncronizer;
+      var dockerHub   = new DockerHub();
+      var prettyBytes = require('pretty-bytes');
 
-  //   });
-  // }
+      var syncronizer = new Syncronizer(
+        // docker socket
+        {
+          dockerode_modem: dockerode_modem
+        },
+        // request_options
+        {
+          timeout: 10000,
+          maxAttempts: 3,
+          retryDelay: 500
+        }
+      );
+      var tag = repo_tag;
+
+      // get token from Docker Hub
+      var hubResult = yield dockerHub.images(namespace, repository);
+
+      // Check what layer we do not have locally
+      var getLayersDiff_result      = yield syncronizer.getLayersDiff(hubResult, tag);
+      var registry_layers_ids       = getLayersDiff_result.registry_layers_ids;
+      var non_existent_locally_ids  = getLayersDiff_result.non_existent_locally_ids;
+      var non_existent_locally_size = yield syncronizer.getSizes(hubResult, non_existent_locally_ids);
+
+      stdout.write(t('commands.helpers.pull.pull_start', {
+                    left_to_download_count : non_existent_locally_ids.length,
+                    total_registry_layers  : registry_layers_ids.length,
+                    left_to_download_size  : prettyBytes(non_existent_locally_size),
+                  }));
+
+      return {
+        registry_layers_ids_count      : registry_layers_ids.length,
+        non_existent_locally_ids_count : non_existent_locally_ids.length,
+        total_layer_size_left          : non_existent_locally_size
+      };
+    });
+  }
 
   build(options) {
     return async(this, function* (notify) {

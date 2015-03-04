@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 * Enhancements
   * [code] Adding support to "integration testing"
+  * [Cli] Integrate docker-registry-downloader with azk
 
 ## v0.10.2 - (2015-24-02)
 
