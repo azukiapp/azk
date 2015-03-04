@@ -12,11 +12,7 @@ super() {
 
 main(){
 
-  echo ""
-  echo "**  --------------"
-  echo "**  Installing azk"
-  echo "**  --------------"
-  echo ""
+  echo "1. Checking platform"
 
   # Detecting PLATFORM and ARCH
   UNAME="$(uname -a)"
@@ -31,7 +27,7 @@ main(){
     *i*86*)   ARCH=x86 ;;
     *armv6l*) ARCH=arm-pi ;;
   esac
-  echo "* Platform detected: $PLATFORM, $ARCH"
+  echo "==> Platform detected: $PLATFORM, $ARCH"
 
   if [[ $PLATFORM == "darwin" ]]; then
     OS="mac"
@@ -43,7 +39,7 @@ main(){
   if [[ $PLATFORM == "linux" ]]; then
 
     if [[ $ARCH != "x64" ]]; then
-      echo "Unsupported architecture. Sorry, your Linux must be x64."
+      echo "* ERROR: Unsupported architecture. Sorry, your Linux must be x64."
       exit 1;
     fi
 
@@ -52,12 +48,11 @@ main(){
     OS=$ID
     OS_VERSION=$VERSION_ID
 
-    echo "* Linux detected: $OS, $OS_VERSION"
-    echo ""
+    echo "==> Linux detected: $OS, $OS_VERSION"
 
     # Check if linux distribution is compatible?
     if [[ $ID != "ubuntu" && $ID != "fedora" ]]; then
-      echo "Unsupported version or Linux distribution detected"
+      echo "* ERROR: Unsupported version or Linux distribution detected"
       exit 1;
     fi
 
@@ -81,8 +76,8 @@ main(){
     fi
 
     # Fedora 20
-    if [[ $ID == "fedora" && $OS_VERSION == "20" ]]; then
-      install_azk_fedora_20
+    if [[ $ID == "fedora" && ( $OS_VERSION == "20" || $OS_VERSION == "21" ) ]]; then
+      install_azk_fedora
       add_user_to_docker_group
     fi
 
@@ -90,52 +85,40 @@ main(){
   fi
 }
 
-check_docker_instalation() {
-  echo ""
-  echo "**  ------------------------"
-  echo "**  check_docker_instalation"
-  echo "**  ------------------------"
-  echo ""
+check_docker_installation() {
+  echo "2. Checking Docker Installation"
 
   if hash docker 2>/dev/null; then
-    echo ''
-    echo 'docker is instaled, skipping docker installation.'
-    echo 'to update docker, run command bellow:'
-    echo '$ curl -sSL https://get.docker.com/ubuntu/ | sudo sh'
-    echo ''
+    echo '> docker is instaled, skipping docker installation.'
+    if [[ $ID == "ubuntu" ]]; then
+      echo '> to update docker, run command bellow:'
+      echo '> $ curl -sSL https://get.docker.com/ubuntu/ | sudo sh'
+    fi
   else
-    echo ''
-    echo 'azk needs docker installed.'
-    echo 'to install docker run command bellow:'
-    echo '$ curl -sSL https://get.docker.com/ubuntu/ | sudo sh'
-    echo ''
+    echo '* ERROR: azk needs docker to be installed.'
+    if [[ $ID == "ubuntu" ]]; then
+      echo '*  to install docker run command bellow:'
+      echo '*  $ curl -sSL https://get.docker.com/ubuntu/ | sudo sh'
+    fi
     exit 1
   fi
 }
 
 add_user_to_docker_group() {
-  echo ""
-  echo "**  ------------------------"
-  echo "**  add_user_to_docker_group"
-  echo "**  ------------------------"
-  echo ""
+  echo "4. Adding current user to docker user group"
 
-  groupadd docker
-  gpasswd -a `whoami` docker
-  service docker restart
-  echo " ---------------------------------------------"
-  echo " Alert: non-sudo acess to docker client has been configured but you should log out and then log in again for these changes to take effect."
-  echo " ---------------------------------------------"
+  super groupadd docker
+  super gpasswd -a `whoami` docker
+  super service docker restart
+  echo "* Alert: Log out required"
+  echo "*  non-sudo acess to docker client has been configured "
+  echo "*  but you should log out and then log in again for these changes to take effect."
 }
 
 install_azk_ubuntu() {
-  check_docker_instalation
+  check_docker_installation
 
-  echo ""
-  echo "**  ------------------"
-  echo "**  install_azk_ubuntu"
-  echo "**  ------------------"
-  echo ""
+  echo "3. Installing azk"
 
   echo "apt-key adv --keyserver keys.gnupg.net --recv-keys 022856F6D78159DF43B487D5C82CF0628592D2C9..."
   super apt-key adv --keyserver keys.gnupg.net --recv-keys 022856F6D78159DF43B487D5C82CF0628592D2C9  1>/dev/null
@@ -143,52 +126,46 @@ install_azk_ubuntu() {
   echo "apt-get update..."
   super apt-get update 1>/dev/null
 
-  echo ""
   echo "apt-get install azk -y..."
   super apt-get install azk -y
 }
 
-install_azk_fedora_20() {
-  check_docker_instalation
+install_azk_fedora() {
+  check_docker_installation
 
-  echo ""
-  echo "**  ---------------------"
-  echo "**  install_azk_fedora_20"
-  echo "**  ---------------------"
-  echo ""
+  echo "3. Installing azk"
 
-  rpm --import 'http://repo.azukiapp.com/keys/azuki.asc'
+  super rpm --import 'http://repo.azukiapp.com/keys/azuki.asc'
 
   echo "[azuki]
 name=azk
 baseurl=http://repo.azukiapp.com/fedora20
 enabled=1
 gpgcheck=1
-" > /etc/yum.repos.d/azuki.repo
+" | super tee /etc/yum.repos.d/azuki.repo
 
   super yum install azk -y
 }
 
 install_azk_mac_osx() {
-  echo ""
-  echo "**  -------------------"
-  echo "**  install_azk_mac_osx"
-  echo "**  -------------------"
-  echo ""
 
 
+  echo "2. Checking for VirtualBox installation"
   if hash VBoxManage 2>/dev/null; then
-    echo "Virtual Box detected"
+    echo "==> Virtual Box detected"
   else
-    echo "In order to use azk you must have Virtualbox instaled on Mac OS X."
-    echo "refer to: http://docs.azk.io/en/installation/mac_os_x.html"
+    echo "* WARNING: Virtualbox not found"
+    echo "*  In order to use azk you must have Virtualbox instaled on Mac OS X."
+    echo "*  refer to: http://docs.azk.io/en/installation/mac_os_x.html"
   fi
 
   if hash brew 2>/dev/null; then
+    echo "3. Installing azk"
     brew install azukiapp/azk/azk
   else
-    echo "In order to install azk you must have Homebrew on Mac OS X systems."
-    echo "refer to: http://docs.azk.io/en/installation/mac_os_x.html"
+    echo "* ERROR: Homebrew not found"
+    echo "*  In order to install azk you must have Homebrew on Mac OS X systems."
+    echo "*  refer to: http://docs.azk.io/en/installation/mac_os_x.html"
     exit 1;
   fi
 }
