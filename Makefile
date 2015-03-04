@@ -28,7 +28,6 @@ ${AZK_NPM_PATH}/.install: npm-shrinkwrap.json package.json ${NODE}
 	@echo "task: $@"
 	@mkdir -p ${AZK_NPM_PATH}
 	@export AZK_LIB_PATH=${AZK_LIB_PATH} && \
-		${AZK_BIN} nvm npm install npm -g && \
 		${AZK_BIN} nvm npm install && \
 		touch ${AZK_NPM_PATH}/.install
 
@@ -37,7 +36,8 @@ ${NODE}:
 	@export NVM_DIR=${NVM_DIR} && \
 		mkdir -p ${NVM_DIR} && \
 		. ${NVM_BIN_PATH} && \
-		nvm install $(NODE_VERSION)
+		nvm install $(NODE_VERSION) \
+		nvm use $(NODE_VERSION) && npm install npm -g
 
 clean:
 	@echo "task: $@"
@@ -97,7 +97,8 @@ ${NODE_PACKAGE}:
 	@export NVM_DIR=${PATH_AZK_NVM} && \
 		mkdir -p ${PATH_AZK_NVM} && \
 		. ${NVM_BIN_PATH} && \
-		nvm install $(NODE_VERSION)
+		nvm install $(NODE_VERSION) \
+		nvm use $(NODE_VERSION) && npm install npm -g
 
 define COPY_FILES
 $(abspath $(2)/$(3)): $(abspath $(1)/$(3))
