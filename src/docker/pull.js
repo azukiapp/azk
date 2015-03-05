@@ -44,28 +44,24 @@ export function pull(docker, repository, tag, stdout, registry_result) {
   });
 
   var bar = null;
-  var registry_layers_ids_count = 0;
-  // var non_existent_locally_ids_count = 0;
-  // var total_layer_size_left = 0;
   var will_show_simple_progress_bar = false;
 
   if (!_.isNull(registry_result)) {
     will_show_simple_progress_bar = true;
-    registry_layers_ids_count      = registry_result.registry_layers_ids_count;
-    // non_existent_locally_ids_count = registry_result.non_existent_locally_ids_count;
-    // total_layer_size_left          = registry_result.total_layer_size_left;
   }
 
   if (will_show_simple_progress_bar) {
     var ProgressBar = require('progress');
-    var progressMessage = ' [:bar] :percent';
+    var progressMessage = '  [:bar] :percent';
     bar = new ProgressBar(progressMessage, {
       complete: '=',
       incomplete: ' ',
-      width: 23,
-      total: registry_layers_ids_count + 1
+      width: 47,
+      total: registry_result.total_layer_size_left
     });
   }
+
+  var last_download_current = 0;
 
   return promise.then((stream) => {
     return defer((resolve, reject, notify) => {
@@ -84,11 +80,19 @@ export function pull(docker, repository, tag, stdout, registry_result) {
           } else {
             msg.statusParsed = parse_status(msg.status);
 
-            if ( will_show_simple_progress_bar &&
-                msg.statusParsed &&
-                msg.statusParsed.type === 'download_complete') {
-              // show a simple progress-bar
-              bar.tick(1);
+            if (  will_show_simple_progress_bar &&
+                  msg.statusParsed &&
+                  msg.statusParsed.type === 'download_complete') {
+              // layer download has finished
+              last_download_current = 0;
+            } else if (  will_show_simple_progress_bar &&
+                         msg.statusParsed &&
+                         msg.statusParsed.type === 'download') {
+              // calculate chunk comparing with the last current progress
+              var download_chunk = msg.progressDetail.current - last_download_current;
+              bar.tick(download_chunk);
+              // save last current progress
+              last_download_current = msg.progressDetail.current;
             } else if (!will_show_simple_progress_bar && msg.statusParsed) {
               // show messages from docker remote pull
               notify(msg);
