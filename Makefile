@@ -87,10 +87,16 @@ package_clean:
 	@echo "task: $@"
 	@rm -Rf ${AZK_PACKAGE_PREFIX}/..?* ${AZK_PACKAGE_PREFIX}/.[!.]* ${AZK_PACKAGE_PREFIX}/*
 
-${PATH_NODE_MODULES}: ${PATH_USR_LIB_AZK}/npm-shrinkwrap.json ${PATH_USR_LIB_AZK}/package.json ${NODE_PACKAGE}
+${PATH_NODE_MODULES}: ${PATH_USR_LIB_AZK}/npm-shrinkwrap.json ${NODE_PACKAGE}
 	@echo "task: $@"
-	@mkdir -p ${PATH_NODE_MODULES}/..
 	@cd ${PATH_USR_LIB_AZK} && ${AZK_BIN} nvm npm install --production
+
+${PATH_USR_LIB_AZK}/npm-shrinkwrap.json: ${PATH_USR_LIB_AZK}/package.json
+	@echo "task: $@"
+	@ln -s ${AZK_NPM_PATH} ${PATH_NODE_MODULES}
+	@ls -l ${PATH_USR_LIB_AZK}
+	@cd ${PATH_USR_LIB_AZK} && ${AZK_BIN} nvm npm shrinkwrap
+	@rm ${PATH_NODE_MODULES}
 
 ${NODE_PACKAGE}:
 	@echo "task: $@"
@@ -115,7 +121,7 @@ $(abspath $(2)/$(3)): $(abspath $(1)/$(3))
 endef
 
 # copy regular files
-FILES_FILTER  = npm-shrinkwrap.json package.json bin shared .nvmrc CHANGELOG.md LICENSE README.md
+FILES_FILTER  = package.json bin shared .nvmrc CHANGELOG.md LICENSE README.md
 FILES_ALL     = $(shell cd ${AZK_ROOT_PATH} && find $(FILES_FILTER) -print 2>/dev/null)
 FILES_TARGETS = $(foreach file,$(addprefix $(PATH_USR_LIB_AZK)/, $(FILES_ALL)),$(abspath $(file)))
 $(foreach file,$(FILES_ALL),$(eval $(call COPY_FILES,$(AZK_ROOT_PATH),$(PATH_USR_LIB_AZK),$(file))))
