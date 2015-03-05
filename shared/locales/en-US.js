@@ -330,11 +330,12 @@ module.exports = {
     },
     helpers: {
       pull: {
-        pulling: 'Pulling repository %s...',
-        bar_progress: '  :title [:bar] :percent :progress',
-        bar_status: '  :title :msg',
-        pull_start  : "⇲".blue    + " pulling %(left_to_download_count)s/%(total_registry_layers)s layers. %(left_to_download_size)s left to download.\n",
-        pull_ended  : "✓".blue    + " completed download of `" + "%(image)s".yellow + "`",
+        pulling       : 'Pulling repository %s...',
+        bar_progress  : '  :title [:bar] :percent :progress',
+        bar_status    : '  :title :msg',
+        pull_start    : "⇲".blue    + " pulling %(left_to_download_count)s/%(total_registry_layers)s layers. %(left_to_download_size)s left to download.",
+        pull_ended    : "✓".blue    + " completed download of `" + "%(image)s".yellow + "`\n",
+        already_being : "⇲".yellow  + " image already being pulled. Please wait...",
       }
     },
     init: {

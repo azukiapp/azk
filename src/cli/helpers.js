@@ -1,13 +1,5 @@
-import { _, t, log, lazy_require, config } from 'azk';
-
-var fmt_p = t('commands.helpers.pull.bar_progress');
-var fmt_s = t('commands.helpers.pull.bar_status');
-var bar_opts = {
-    complete: '=',
-    incomplete: ' ',
-    width: 30,
-    total: 100
-};
+import { _, /*t,*/ log, lazy_require, config } from 'azk';
+var ProgressBar = require('progress');
 
 /* global AgentClient, Configure */
 lazy_require(this, {
@@ -109,36 +101,56 @@ var Helpers = {
   },
 
   newPullProgress(cmd) {
-    var mbars = cmd.newMultiBars();
-    var bars  = {};
+    return (msg) => {
+      if (msg.type === "pull_msg") {
 
-    return (event) => {
-      if (event.type === "pull_msg") {
-        if (event.end) {
-          cmd.output("\n");
-          cmd.ok('commands.helpers.pull.pull_ended', event);
-          return false;
-        } else if (!_.isEmpty(event.id)) {
-          var status = event.statusParsed;
-          var title  = `${event.id}:`;
-          var bar    = bars[event.id] || cmd.newBar(mbars, fmt_p, bar_opts);
-
-          switch (status.type) {
-            case 'download':
-              var progress = event.progressDetail;
-              var tick     = progress.current - bar.curr;
-              bar.total    = progress.total + 1;
-              bar.tick(tick, { title, progress: event.progress });
-              break;
-            default:
-              bar.tick(bar.curr, { title, fmt: fmt_s, msg: event.status });
-          }
-
-          bars[event.id] = bar;
+        // pull end
+        if (msg.end) {
+          cmd.ok('commands.helpers.pull.pull_ended', msg);
           return false;
         }
+
+        // show pull progress bar
+        var status = msg.statusParsed;
+        switch (status.type) {
+          case 'pulling_repository':
+            // i.e. ⇲ pulling 5/14 layers. 22.42 MB left to download.
+            var prettyBytes = require('pretty-bytes');
+            cmd.ok('commands.helpers.pull.pull_start', {
+              left_to_download_count : msg.registry_result.non_existent_locally_ids_count,
+              total_registry_layers  : msg.registry_result.registry_layers_ids_count,
+              left_to_download_size  : prettyBytes(msg.registry_result.total_layer_size_left),
+            });
+
+            // create progress bar
+            this.bar = new ProgressBar('       [:bar] :percent  ', {
+              complete: '=',
+              incomplete: ' ',
+              width: 47,
+              total: msg.registry_result.total_layer_size_left
+            });
+            this.last_download_current = 0;
+            break;
+
+          case 'download_complete':
+            this.last_download_current = 0;
+            break;
+
+          case 'download':
+            // calculate chunk comparing with the last current progress
+            var download_chunk = msg.progressDetail.current - this.last_download_current;
+            this.bar.tick(download_chunk);
+            // save last current progress
+            this.last_download_current = msg.progressDetail.current;
+            break;
+
+          case 'pulling_another':
+            cmd.ok('commands.helpers.pull.already_being', msg);
+            break;
+        }
+        return false;
       }
-      return event;
+      return msg;
     };
   },
 

@@ -83,8 +83,7 @@ export class Image {
             docker.modem,
             namespace,
             repository,
-            this.tag,
-            options.stdout);
+            this.tag);
         } catch (err) {
           log.error(err);
         }
@@ -101,13 +100,12 @@ export class Image {
     });
   }
 
-  pullWithDockerRegistryDownloader(dockerode_modem, namespace, repository, repo_tag, stdout) {
+  pullWithDockerRegistryDownloader(dockerode_modem, namespace, repository, repo_tag) {
     return async(this, function* () {
 
       var DockerHub   = require('docker-registry-downloader').DockerHub;
       var Syncronizer = require('docker-registry-downloader').Syncronizer;
       var dockerHub   = new DockerHub();
-      var prettyBytes = require('pretty-bytes');
 
       var syncronizer = new Syncronizer(
         // docker socket
@@ -131,12 +129,6 @@ export class Image {
       var registry_layers_ids       = getLayersDiff_result.registry_layers_ids;
       var non_existent_locally_ids  = getLayersDiff_result.non_existent_locally_ids;
       var non_existent_locally_size = yield syncronizer.getSizes(hubResult, non_existent_locally_ids);
-
-      stdout.write(t('commands.helpers.pull.pull_start', {
-                    left_to_download_count : non_existent_locally_ids.length,
-                    total_registry_layers  : registry_layers_ids.length,
-                    left_to_download_size  : prettyBytes(non_existent_locally_size),
-                  }));
 
       return {
         registry_layers_ids_count      : registry_layers_ids.length,
