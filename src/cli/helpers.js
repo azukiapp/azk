@@ -1,5 +1,4 @@
 import { _, /*t,*/ log, lazy_require, config } from 'azk';
-var ProgressBar = require('progress');
 
 /* global AgentClient, Configure */
 lazy_require(this, {
@@ -102,55 +101,63 @@ var Helpers = {
 
   newPullProgress(cmd) {
     return (msg) => {
-      if (msg.type === "pull_msg") {
+      if (msg.type !== "pull_msg") {
+        return msg;
+      }
 
-        // pull end
-        if (msg.end) {
-          cmd.ok('commands.helpers.pull.pull_ended', msg);
-          return false;
-        }
-
-        // show pull progress bar
-        var status = msg.statusParsed;
-        switch (status.type) {
-          case 'pulling_repository':
-            // i.e. ⇲ pulling 5/14 layers. 22.42 MB left to download.
-            var prettyBytes = require('pretty-bytes');
-            cmd.ok('commands.helpers.pull.pull_start', {
-              left_to_download_count : msg.registry_result.non_existent_locally_ids_count,
-              total_registry_layers  : msg.registry_result.registry_layers_ids_count,
-              left_to_download_size  : prettyBytes(msg.registry_result.total_layer_size_left),
-            });
-
-            // create progress bar
-            this.bar = new ProgressBar('       [:bar] :percent  ', {
-              complete: '=',
-              incomplete: ' ',
-              width: 47,
-              total: msg.registry_result.total_layer_size_left
-            });
-            this.last_download_current = 0;
-            break;
-
-          case 'download_complete':
-            this.last_download_current = 0;
-            break;
-
-          case 'download':
-            // calculate chunk comparing with the last current progress
-            var download_chunk = msg.progressDetail.current - this.last_download_current;
-            this.bar.tick(download_chunk);
-            // save last current progress
-            this.last_download_current = msg.progressDetail.current;
-            break;
-
-          case 'pulling_another':
-            cmd.ok('commands.helpers.pull.already_being', msg);
-            break;
-        }
+      // pull end
+      if (msg.end) {
+        cmd.ok('commands.helpers.pull.pull_ended', msg);
         return false;
       }
-      return msg;
+
+      // manual message, not parsed
+      if (msg.traslation) {
+        cmd.ok(msg.traslation, msg.data);
+        return false;
+      }
+
+      // parsed messages
+      // show pull progress bar
+      var status = msg.statusParsed;
+      // console.log(status.type);
+      switch (status.type) {
+        case 'pulling_repository':
+          // i.e. ⇲ pulling 5/14 layers. 22.42 MB left to download.
+          var prettyBytes = require('pretty-bytes');
+          cmd.ok('commands.helpers.pull.pull_start', {
+            left_to_download_count : msg.registry_result.non_existent_locally_ids_count,
+            total_registry_layers  : msg.registry_result.registry_layers_ids_count,
+            left_to_download_size  : prettyBytes(msg.registry_result.total_layer_size_left),
+          });
+
+          // create progress bar
+          this.bar = cmd.createProgressBar('       [:bar] :percent  ', {
+            complete: '=',
+            incomplete: ' ',
+            width: 47,
+            total: msg.registry_result.total_layer_size_left
+          });
+          this.last_download_current = 0;
+          break;
+
+        case 'download_complete':
+          this.last_download_current = 0;
+          break;
+
+        case 'download':
+          // calculate chunk comparing with the last current progress
+          var download_chunk = msg.progressDetail.current - this.last_download_current;
+          this.bar.tick(download_chunk);
+          // save last current progress
+          this.last_download_current = msg.progressDetail.current;
+          break;
+
+        case 'pulling_another':
+          cmd.ok('commands.helpers.pull.already_being', msg);
+          break;
+      }
+      return false;
     };
   },
 

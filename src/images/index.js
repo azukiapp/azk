@@ -79,7 +79,7 @@ export class Image {
 
         // get size and layers count
         try {
-          registry_result = yield this.pullWithDockerRegistryDownloader(
+          registry_result = yield this.getDownloadInfo(
             docker.modem,
             namespace,
             repository,
@@ -100,8 +100,8 @@ export class Image {
     });
   }
 
-  pullWithDockerRegistryDownloader(dockerode_modem, namespace, repository, repo_tag) {
-    return async(this, function* () {
+  getDownloadInfo(dockerode_modem, namespace, repository, repo_tag) {
+    return async(this, function* (notify) {
 
       var DockerHub   = require('docker-registry-downloader').DockerHub;
       var Syncronizer = require('docker-registry-downloader').Syncronizer;
@@ -125,16 +125,27 @@ export class Image {
       var hubResult = yield dockerHub.images(namespace, repository);
 
       // Check what layer we do not have locally
+      notify({  type       : "pull_msg",
+                traslation : "commands.helpers.pull.pull_getLayersDiff",
+                data       : registry_infos });
+
       var getLayersDiff_result      = yield syncronizer.getLayersDiff(hubResult, tag);
       var registry_layers_ids       = getLayersDiff_result.registry_layers_ids;
       var non_existent_locally_ids  = getLayersDiff_result.non_existent_locally_ids;
-      var non_existent_locally_size = yield syncronizer.getSizes(hubResult, non_existent_locally_ids);
 
-      return {
+      var registry_infos = {
         registry_layers_ids_count      : registry_layers_ids.length,
-        non_existent_locally_ids_count : non_existent_locally_ids.length,
-        total_layer_size_left          : non_existent_locally_size
+        non_existent_locally_ids_count : non_existent_locally_ids.length
       };
+
+      notify({  type       : "pull_msg",
+                traslation : "commands.helpers.pull.pull_getSizes",
+                data       : registry_infos });
+
+      var total_layer_size_left = yield syncronizer.getSizes(hubResult, non_existent_locally_ids);
+      registry_infos.total_layer_size_left = total_layer_size_left;
+
+      return registry_infos;
     });
   }
 

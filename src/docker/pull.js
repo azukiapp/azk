@@ -58,10 +58,7 @@ export function pull(docker, repository, tag, stdout, registry_result) {
           } else {
             // parse message
             msg.statusParsed = parse_status(msg.status);
-            notify(msg);
-            if (stdout) {
-              stdout.write(msg.status + "\n");
-            }
+            notify(msg); // -> cli.helpers.newPullProgress
           }
         } catch (e) {}
       });
