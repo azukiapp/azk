@@ -7,6 +7,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 * Enhancements
   * [code] Adding support to "integration testing"
+  * [Package] Adding update npm after install node
+  * [Package] Fixing of usage npm-sheringwrap in package
 
 ## v0.10.2 - (2015-24-02)
 
