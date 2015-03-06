@@ -13,8 +13,8 @@ all: bootstrap
 
 # BOOTSTRAP
 NVM_DIR := ${AZK_LIB_PATH}/nvm
-NODE_VERSION := $(shell cat ./.nvmrc)
-NODE = ${NVM_DIR}/${NODE_VERSION}/bin/node
+NVM_NODE_VERSION := $(shell cat ${AZK_ROOT_PATH}/.nvmrc)
+NODE = ${NVM_DIR}/${NVM_NODE_VERSION}/bin/node
 
 SRC_JS = $(shell cd ${AZK_ROOT_PATH} && find ./src -name '*.*' -print 2>/dev/null)
 
@@ -32,12 +32,12 @@ ${AZK_NPM_PATH}/.install: npm-shrinkwrap.json package.json ${NODE}
 		touch ${AZK_NPM_PATH}/.install
 
 ${NODE}:
-	@echo "task: $@"
+	@echo "task: $@: ${NVM_NODE_VERSION}"
 	@export NVM_DIR=${NVM_DIR} && \
 		mkdir -p ${NVM_DIR} && \
 		. ${NVM_BIN_PATH} && \
-		nvm install $(NODE_VERSION) \
-		nvm use $(NODE_VERSION) && npm install npm -g
+		nvm install $(NVM_NODE_VERSION) && \
+		nvm use $(NVM_NODE_VERSION) && npm install npm -g
 
 clean:
 	@echo "task: $@"
@@ -64,7 +64,7 @@ PATH_USR_BIN:=${AZK_PACKAGE_PREFIX}/usr/bin
 PATH_NODE_MODULES:=${PATH_USR_LIB_AZK}/node_modules
 PATH_AZK_LIB:=${PATH_USR_LIB_AZK}/lib
 PATH_AZK_NVM:=${PATH_AZK_LIB}/nvm
-NODE_PACKAGE = ${PATH_AZK_NVM}/${NODE_VERSION}/bin/node
+NODE_PACKAGE = ${PATH_AZK_NVM}/${NVM_NODE_VERSION}/bin/node
 PATH_MAC_PACKAGE = ${AZK_PACKAGE_PATH}/azk_${AZK_VERSION}.tar.gz
 
 # Build package folders tree
@@ -94,7 +94,6 @@ ${PATH_NODE_MODULES}: ${PATH_USR_LIB_AZK}/npm-shrinkwrap.json ${NODE_PACKAGE}
 ${PATH_USR_LIB_AZK}/npm-shrinkwrap.json: ${PATH_USR_LIB_AZK}/package.json
 	@echo "task: $@"
 	@ln -s ${AZK_NPM_PATH} ${PATH_NODE_MODULES}
-	@ls -l ${PATH_USR_LIB_AZK}
 	@cd ${PATH_USR_LIB_AZK} && ${AZK_BIN} nvm npm shrinkwrap
 	@rm ${PATH_NODE_MODULES}
 
@@ -103,8 +102,8 @@ ${NODE_PACKAGE}:
 	@export NVM_DIR=${PATH_AZK_NVM} && \
 		mkdir -p ${PATH_AZK_NVM} && \
 		. ${NVM_BIN_PATH} && \
-		nvm install $(NODE_VERSION) \
-		nvm use $(NODE_VERSION) && npm install npm -g
+		nvm install $(NVM_NODE_VERSION) && \
+		nvm use $(NVM_NODE_VERSION) && npm install npm -g
 
 define COPY_FILES
 $(abspath $(2)/$(3)): $(abspath $(1)/$(3))
