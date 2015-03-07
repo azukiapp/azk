@@ -1,5 +1,4 @@
 import { _, Q, t, defer } from 'azk';
-import { Multibar } from 'azk/cli/multi_bars';
 import { AzkError } from 'azk/utils/errors';
 
 require('colors');
@@ -8,7 +7,6 @@ var Table     = require('cli-table');
 var printf    = require('printf');
 var inquirer  = require('inquirer');
 var execShLib = require('exec-sh');
-var mbars     = [];
 var tables    = {};
 
 // Status labels
@@ -79,13 +77,9 @@ var UI = {
     }, 500);
   },
 
-  newMultiBars() {
-    mbars.push(new Multibar());
-    return mbars.length - 1;
-  },
-
-  newBar(mbar, ...args) {
-    return mbars[mbar].newBar(...args);
+  createProgressBar(...args) {
+    var ProgressBar = require('progress');
+    return new ProgressBar(...args);
   },
 
   stdout() {

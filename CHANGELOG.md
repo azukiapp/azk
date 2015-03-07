@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 * Enhancements
   * [code] Adding support to "integration testing"
+  * [Cli] New output when pulling images: show total count and size of layers to downloaded. Shows only a single progress bar with total download status. Integrate docker-registry-downloader with azk. #234 #119
 
 ## v0.10.2 - (2015-24-02)
 
