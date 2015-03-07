@@ -130,14 +130,6 @@ var Helpers = {
             total_registry_layers  : msg.registry_result.registry_layers_ids_count,
             left_to_download_size  : prettyBytes(msg.registry_result.total_layer_size_left),
           });
-
-          // create progress bar
-          this.bar = cmd.createProgressBar('       [:bar] :percent  ', {
-            complete: '=',
-            incomplete: ' ',
-            width: 47,
-            total: msg.registry_result.total_layer_size_left
-          });
           this.last_download_current = 0;
           break;
 
@@ -148,6 +140,17 @@ var Helpers = {
         case 'download':
           // calculate chunk comparing with the last current progress
           var download_chunk = msg.progressDetail.current - this.last_download_current;
+
+          if (_.isUndefined(this.bar)) {
+            // create progress bar
+            this.bar = cmd.createProgressBar('       [:bar] :percent  ', {
+              complete: '=',
+              incomplete: ' ',
+              width: 47,
+              total: msg.registry_result.total_layer_size_left
+            });
+          }
+
           this.bar.tick(download_chunk);
           // save last current progress
           this.last_download_current = msg.progressDetail.current;
