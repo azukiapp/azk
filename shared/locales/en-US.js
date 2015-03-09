@@ -163,7 +163,8 @@ module.exports = {
   manifest: {
     balancer_deprecated   : "The `balancer` option used in the `%(system)s` is deprecated, use `http` and `scalable` instead",
     cannot_extends_itself : "The system `%(system)s` cannot extend itself",
-    cannot_find_dockerfile: "Can't find `%(dockerfile)s` file to build an image for `%(system)s` system",
+    cannot_find_dockerfile: "Can't find Dockerfile in `%(dockerfile)s` path to build an image for `%(system)s` system",
+    cannot_find_dockerfile_path: "Can't find `%(dockerfile)s` path to build an image for `%(system)s` system",
     circular_dependency   : "Circular dependency between %(system1)s and %(system2)s",
     depends_not_declared  : "The `%(system)s` system depends on the `%(depend)s` system, which was not declared.",
     extends_system_invalid: "The system `%(system_source)s` for extending system `%(system_to_extend)s` cannot be found",
@@ -177,6 +178,7 @@ module.exports = {
     not_found             : "No such '%s' in current project",
     provider_invalid      : "The provider was not found: `%(wrongProvider)s`.",
     system_name_invalid   : "The system name `%(system)s` is not valid.",
+    required_path         : "Manifest class require a project path",
     validate: {
       deprecated : "The `%(option)s` used in `%(system)s` is deprecated, check the documentation for `%(new_option)s`",
       no_system_set: "No system has been set yet, check the documentation",

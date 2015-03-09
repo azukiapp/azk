@@ -84,24 +84,6 @@ export class Image {
     });
   }
 
-  // FIXME: save files inside VM or elsewhere
-  // pullWithDockerRegistryDownloader(dockerode_modem, namespace, repository, repo_tag) {
-  //   return async(this, function* () {
-  //     var DockerHub   = require('docker-registry-downloader').DockerHub;
-  //     var Syncronizer = require('docker-registry-downloader').Syncronizer;
-  //     var dockerHub   = new DockerHub();
-  //     var syncronizer = new Syncronizer({ dockerode_modem: dockerode_modem });
-  //     var tag         = repo_tag;
-
-  //     // get token from DOCKER HUB API
-  //     return dockerHub.images(namespace, repository).then(function(hubResult) {
-  //       // sync registry layer with local layers
-  //       return syncronizer.sync(hubResult, tag);
-  //     });
-
-  //   });
-  // }
-
   build(options) {
     return async(this, function* (notify) {
       var image = yield this.check();
@@ -123,25 +105,37 @@ export class Image {
     this.tag   = Utils.calculateHash(dockerfile);
   }
 
-  _findDockerfile(dockerfile_path, require_file = false) {
-    var exists = fs.existsSync(dockerfile_path);
+  _findDockerfile(dockerfile_path) {
+    var msg;
 
-    if (exists) {
-      var stats = fs.statSync(dockerfile_path);
-      var isDirectory = stats.isDirectory();
+    if (this.system.hasOwnProperty('manifest') && this.system.manifest.cwd) {
+      var dockerfile_cwd = path.resolve(this.system.manifest.cwd, dockerfile_path);
+      var exists = fs.existsSync(dockerfile_cwd);
 
-      if (!isDirectory) {
-        return dockerfile_path;
-      } else if (isDirectory && !require_file) {
+      if (exists) {
+        var stats = fs.statSync(dockerfile_cwd);
+        var isDirectory = stats.isDirectory();
 
-        // it is a folder - try find the manifesto
-        dockerfile_path = path.join(dockerfile_path, 'Dockerfile');
-        return this._findDockerfile(dockerfile_path, true);
+        if (isDirectory) {
+          // it is a folder - try find the manifest
+          dockerfile_cwd = path.join(dockerfile_cwd, 'Dockerfile');
+          exists = fs.existsSync(dockerfile_cwd);
+
+          if (!exists) {
+            var translate_options = { system: this.system.name, dockerfile: dockerfile_path };
+            msg = t("manifest.cannot_find_dockerfile", translate_options);
+            throw new ManifestError('', msg);
+          }
+        }
+
+        return dockerfile_cwd;
       }
+      msg = t("manifest.cannot_find_dockerfile_path", { system: this.system.name, dockerfile: dockerfile_path });
+      throw new ManifestError('', msg);
+    } else {
+      msg = t("manifest.required_path");
+      throw new Error(msg);
     }
-
-    var msg = t("manifest.cannot_find_dockerfile", {system: this.system.name});
-    throw new ManifestError('', msg);
   }
 
   get path() {
