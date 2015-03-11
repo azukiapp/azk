@@ -392,6 +392,8 @@ export class Configure extends UIProxy {
 
   _readResolverFile() {
     var file = "/etc/resolv.conf";
-    return qfs.read(file).then(this._parseNameserver);
+    return qfs.read(file)
+      .then(this._parseNameserver)
+      .fail(() => { return []; });
   }
 }
