@@ -1,4 +1,4 @@
-import { _ } from 'azk';
+import { _, log } from 'azk';
 import { DownloadPart } from 'azk/cli/download_part';
 // var ProgressBar = require('progress');
 
@@ -18,6 +18,8 @@ export class SmartProgressBar {
     this._layers_count = layers_count;
     this._bars_per_layers = this._calculate_bars_per_layers();
     this._percentage_tick = this._calculate_percentage_tick();
+
+    log.debug('\n>>---------\n SmartProgressBar:', this, '\n>>---------\n');
   }
 
   _calculate_bars_per_layers() {
@@ -30,6 +32,11 @@ export class SmartProgressBar {
 
   receiveMessage(msg, msg_type) {
     var current_download_part = this.getPart(msg);
+
+    if (msg_type === 'download_complete') {
+      return current_download_part.setComplete();
+    }
+
     if (!current_download_part) {
       var downloadPart = new DownloadPart(msg, this._bars_per_layers, this._progress_bar);
       this._download_parts.push(downloadPart);
@@ -37,9 +44,6 @@ export class SmartProgressBar {
       current_download_part.update(msg);
     }
 
-    if (msg_type === 'download_complete') {
-      current_download_part.setComplete();
-    }
   }
 
   getPart(msg) {

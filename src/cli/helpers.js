@@ -1,4 +1,5 @@
 import { _, /*t,*/ log, lazy_require, config } from 'azk';
+import { SmartProgressBar } from 'azk/cli/smart_progress_bar';
 
 /* global AgentClient, Configure */
 lazy_require(this, {
@@ -100,8 +101,6 @@ var Helpers = {
   },
 
   newPullProgress(cmd) {
-    var prettyBytes = require('pretty-bytes');
-
     return (msg) => {
       if (msg.type !== "pull_msg") {
         return msg;
@@ -123,92 +122,36 @@ var Helpers = {
         this.last_download_current = {};
       }
 
-      // parsed messages
-      // show pull progress bar
+      // parse messages by type
       var status = msg.statusParsed;
       switch (status.type) {
         case 'download_complete':
-          this.bar && this.bar.tick(1);
-          // if (msg.id && this.last_download_current[msg.id]) {
-          //   console.log('finished', msg.id);
-          //   delete this.last_download_current[msg.id];
-          // }
+          this.smartProgressBar && this.smartProgressBar.receiveMessage(msg, status.type);
           break;
 
         case 'download':
-
-          // // console.log('\n>>------------\n msg.id:', msg.id, '\n<<------------\n');
-          // // console.log('\n>>------------\n this.last_download_current[msg.id]:',
-          // //  this.last_download_current[msg.id], '\n<<------------\n');
-
-          // // calculate chunk comparing with the last current progress
-          // if (msg.id && this.last_download_current[msg.id]) {
-          //   download_chunk = msg.progressDetail.current - this.last_download_current[msg.id];
-          // } else if (!this.last_download_current[msg.id]) {
-          //   this.last_download_current[msg.id] = 0;
-          //   download_chunk = msg.progressDetail.current;
-
-          //   console.log('\n>>------------\n msg.progressDetail:', msg.id,
-          //     prettyBytes(msg.progressDetail.total), '\n<<------------\n');
-          // }
-
-          // // console.log('\n>>------------\n download_chunk:', download_chunk, '\n<<------------\n');
-
           if (_.isUndefined(this.bar)) {
-            // i.e. ⇲ pulling 5/14 layers. 22.42 MB left to download.
+            // show message: ⇲ pulling 5/14 layers.
             cmd.ok('commands.helpers.pull.pull_start', {
               left_to_download_count : msg.registry_result.non_existent_locally_ids_count,
               total_registry_layers  : msg.registry_result.registry_layers_ids_count,
-              left_to_download_size  : prettyBytes(msg.registry_result.total_layer_size_left),
             });
 
-            // create progress bar
+            // create a new progress-bar
             this.bar = cmd.createProgressBar('     [:bar] :percent  ', {
               complete: '=',
               incomplete: ' ',
               width: 50,
-              total: msg.registry_result.non_existent_locally_ids_count * 100
+              total: 50
             });
+
+            // control progress-bar with SmartProgressBar
+            this.smartProgressBar = new SmartProgressBar(
+              50,
+              msg.registry_result.non_existent_locally_ids_count,
+              this.bar);
           }
-
-          // console.log('\n>>------------\n this.bar:', this.bar, '\n<<------------\n');
-
-          // var isOverflow = this.bar.curr + download_chunk >= this.bar.total;
-
-          // if (isOverflow) {
-
-          //   /****** DEBUG ******************************************************************/
-          //   /******************************************************************************/
-          //   var debugSource = this.last_download_current;
-          //   var util = require('util');
-          //   var scrubbed = util.inspect(debugSource, {
-          //     showHidden: true,
-          //     depth: 3,
-          //     colors: true
-          //   });
-
-          //   console.log(
-          //     '\n>>------------------------------------------------------\n' +
-          //     '  source: ( ' + __filename + ' )'                             +
-          //     '\n  ------------------------------------------------------\n' +
-          //     '  $ this.last_download_current'                                                     +
-          //     '\n  ------------------------------------------------------\n' +
-          //        scrubbed                                                    +
-          //     '\n<<------------------------------------------------------\n'
-          //   );
-
-          //   /******************************************************************************/
-          //   /****** \DEBUG ***************************************************************/
-
-          // }
-
-          // if (download_chunk > 0 && !isOverflow) {
-          //   this.bar.tick(download_chunk);
-          // }
-          // // save last current progress
-          // if (msg.id) {
-          //   this.last_download_current[msg.id] = msg.progressDetail.current;
-          // }
+          this.smartProgressBar.receiveMessage(msg, status.type);
           break;
 
         case 'pulling_another':

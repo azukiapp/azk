@@ -1,4 +1,4 @@
-// import { _ } from 'azk';
+import { log } from 'azk';
 
 export class DownloadPart {
   constructor(msg, representing_bars, progress_bar) {
@@ -16,6 +16,8 @@ export class DownloadPart {
 
     // get current size from message
     this.update(msg);
+
+    log.debug('\n>>---------\n DownloadPart:', this, '\n>>---------\n');
   }
 
   getTotalPercentage() {
@@ -23,11 +25,19 @@ export class DownloadPart {
   }
 
   update(msg) {
+    var current_after_last_tick, ticks_to_be_called;
+
+    // get current size from progressDetail docker remote message
     this.current_downloaded_size = msg.progressDetail.current;
 
-    var current_after_last_tick = this.current_downloaded_size - this._last_tick_current;
-    var ticks_to_be_called = current_after_last_tick / this._part_size;
+    // current chunk
+    current_after_last_tick = this.current_downloaded_size - this._last_tick_current;
+
+    // calculate percentual bar tick
+    ticks_to_be_called = current_after_last_tick / this._part_size;
     this._progress_bar.tick(ticks_to_be_called);
+
+    // save _last_tick_current to get chunk on next round
     this._last_tick_current = this.current_downloaded_size;
   }
 
