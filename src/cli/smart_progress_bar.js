@@ -1,25 +1,18 @@
 import { _ } from 'azk';
+import { DownloadPart } from 'azk/cli/download_part';
 // var ProgressBar = require('progress');
-
-class DownloadPart {
-  constructor(msg) {
-    this.id = msg.id;
-    this.current_downloaded_size = msg.progressDetail.current;
-    this.total_downloaded_size = msg.progressDetail.total;
-  }
-
-  getTotalPercentage() {
-    return this.current_downloaded_size / this.total_downloaded_size;
-  }
-
-  update(msg) {
-    this.current_downloaded_size = msg.progressDetail.current;
-  }
-}
 
 export class SmartProgressBar {
 
-  constructor(bar_count, layers_count) {
+  /**
+   * manages a progress bar without knowing total size previously
+   * @param  {number} bar_count    total bars in progress bar
+   * @param  {number} layers_count total layers left do download
+   * @param  {object} progress_bar the progress bar
+   */
+  constructor(bar_count, layers_count, progress_bar) {
+    this._progress_bar = progress_bar;
+
     this._download_parts = [];
     this._bar_count = bar_count;
     this._layers_count = layers_count;
@@ -35,13 +28,17 @@ export class SmartProgressBar {
     return 1.0 / this._bars_per_layers;
   }
 
-  receiveMessage(msg) {
+  receiveMessage(msg, msg_type) {
     var current_download_part = this.getPart(msg);
     if (!current_download_part) {
-      var downloadPart = new DownloadPart(msg);
+      var downloadPart = new DownloadPart(msg, this._bars_per_layers, this._progress_bar);
       this._download_parts.push(downloadPart);
     } else {
       current_download_part.update(msg);
+    }
+
+    if (msg_type === 'download_complete') {
+      current_download_part.setComplete();
     }
   }
 

@@ -2,12 +2,17 @@ import h from 'spec/spec_helper';
 import { _ } from 'azk';
 import { SmartProgressBar } from 'azk/cli/smart_progress_bar';
 
-describe('SmartProgressBar', function() {
+describe('SmartProgressBar progressbar', function() {
 
-  var smartProgressBar;
+  var smartProgressBar, fake_progress_bar;
 
   beforeEach(function () {
-    smartProgressBar = new SmartProgressBar(50, 10);
+    fake_progress_bar = { total_ticks: 0 };
+    fake_progress_bar.tick = function(number) {
+      this.total_ticks += number;
+    };
+
+    smartProgressBar = new SmartProgressBar(50, 10, fake_progress_bar);
   });
 
   it('should SmartProgressBar be instantiated', function() {
@@ -91,16 +96,6 @@ describe('SmartProgressBar', function() {
     smartProgressBar.receiveMessage(msg);
     h.expect(smartProgressBar.getPart(msg).current_downloaded_size)
       .to.be.equal(300);
-
   });
-
-  // it('should emit a tick when _percentage_tick is reach', function() {
-  //   var msg = { id: 'abcd', progressDetail: { current: 200, total  : 2000 } };
-
-  //   smartProgressBar.receiveMessage(msg);
-
-  //   var download_part1 = smartProgressBar.getPart(msg);
-  //   h.expect(download_part1.getTotalPercentage()).to.be.equal(0.10);
-  // });
 
 });
