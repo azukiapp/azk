@@ -48,7 +48,7 @@ describe('SmartProgressBar progressbar', function() {
       }
     };
 
-    smartProgressBar.receiveMessage(msg);
+    smartProgressBar.receiveMessage(msg, 'download');
 
     var part1 = smartProgressBar.getPart(msg);
     h.expect(part1.id).to.be.equal('abcd');
@@ -65,7 +65,7 @@ describe('SmartProgressBar progressbar', function() {
       }
     };
 
-    smartProgressBar.receiveMessage(msg);
+    smartProgressBar.receiveMessage(msg, 'download');
 
     var download_part1 = smartProgressBar.getPart(msg);
     h.expect(download_part1.getTotalPercentage()).to.be.equal(0.10);
@@ -80,7 +80,7 @@ describe('SmartProgressBar progressbar', function() {
       }
     };
 
-    smartProgressBar.receiveMessage(msg);
+    smartProgressBar.receiveMessage(msg, 'download');
 
     var download_part1 = smartProgressBar.getPart(msg);
     h.expect(download_part1.getTotalPercentage()).to.be.equal(0.10);
@@ -88,12 +88,12 @@ describe('SmartProgressBar progressbar', function() {
 
   it('should update downloaded_part when receives same message', function() {
     var msg = { id: 'abcd', progressDetail: { current: 200, total  : 2000 } };
-    smartProgressBar.receiveMessage(msg);
+    smartProgressBar.receiveMessage(msg, 'download');
     h.expect(smartProgressBar.getPart(msg).current_downloaded_size)
       .to.be.equal(200);
 
     msg = { id: 'abcd', progressDetail: { current: 300, total  : 2000 } };
-    smartProgressBar.receiveMessage(msg);
+    smartProgressBar.receiveMessage(msg, 'download');
     h.expect(smartProgressBar.getPart(msg).current_downloaded_size)
       .to.be.equal(300);
   });

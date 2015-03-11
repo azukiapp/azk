@@ -336,7 +336,7 @@ module.exports = {
         pull_getLayersDiff : "⇲".blue    + " comparing registry layers and local layers...",
         pull_layers_left      : "⇲".blue    + " %(non_existent_locally_ids_count)s layers left to download.",
         pull_start         : "⇲".blue    + " pulling %(left_to_download_count)s/%(total_registry_layers)s layers.",
-        pull_ended         : "\n✓".blue    + " completed download of `" + "%(image)s".yellow + "`\n",
+        pull_ended         : "\n" + "✓".blue    + " completed download of `" + "%(image)s".yellow + "`\n",
         already_being      : "⇲".yellow  + " image already being pulled. Please wait...",
       }
     },

@@ -1,9 +1,9 @@
 import { log } from 'azk';
 
 export class DownloadPart {
-  constructor(msg, representing_bars, progress_bar) {
+  constructor(msg, representing_bars, tick_calback) {
     // set progress bar link
-    this._progress_bar         = progress_bar;
+    this._tick_calback         = tick_calback;
 
     // get info from docker remote message
     this.id                    = msg.id;
@@ -35,7 +35,7 @@ export class DownloadPart {
 
     // calculate percentual bar tick
     ticks_to_be_called = current_after_last_tick / this._part_size;
-    this._progress_bar.tick(ticks_to_be_called);
+    this._tick_calback(ticks_to_be_called);
 
     // save _last_tick_current to get chunk on next round
     this._last_tick_current = this.current_downloaded_size;

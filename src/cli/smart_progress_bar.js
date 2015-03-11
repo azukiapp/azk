@@ -18,6 +18,7 @@ export class SmartProgressBar {
     this._layers_count = layers_count;
     this._bars_per_layers = this._calculate_bars_per_layers();
     this._percentage_tick = this._calculate_percentage_tick();
+    this._download_finished_count = 0;
 
     log.debug('\n>>---------\n SmartProgressBar:', this, '\n>>---------\n');
   }
@@ -33,17 +34,39 @@ export class SmartProgressBar {
   receiveMessage(msg, msg_type) {
     var current_download_part = this.getPart(msg);
 
-    if (msg_type === 'download_complete') {
-      return current_download_part.setComplete();
+    if (_.isUndefined(current_download_part)) {
+      current_download_part = new DownloadPart(msg,
+        this._bars_per_layers,
+        this._internal_tick.bind(this));
+
+      this._download_parts.push(current_download_part);
     }
 
-    if (!current_download_part) {
-      var downloadPart = new DownloadPart(msg, this._bars_per_layers, this._progress_bar);
-      this._download_parts.push(downloadPart);
-    } else {
+    if (msg_type === 'download_complete') {
+      // prevent maximum layers downloaded overflow
+      if (this._download_finished_count < this._layers_count) {
+        this._download_finished_count++;
+      }
+      // set layer to 100% and tick
+      current_download_part.setComplete();
+    } else if (msg_type === 'download') {
+      // update and tick
       current_download_part.update(msg);
     }
 
+  }
+
+  _internal_tick(tick_value) {
+
+    // prevent progress-bar overflow
+    if (this._progress_bar.curr + tick_value > this._bar_count) {
+      return;
+    }
+
+    this._progress_bar.tick(tick_value, {
+      layers_left : this._download_finished_count,
+      layers_total: this._layers_count,
+    });
   }
 
   getPart(msg) {

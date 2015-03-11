@@ -118,8 +118,8 @@ var Helpers = {
         return false;
       }
 
-      if (!this.last_download_current) {
-        this.last_download_current = {};
+      if (!_.isNumber(this.non_existent_locally_ids_count)) {
+        this.non_existent_locally_ids_count = msg.registry_result.non_existent_locally_ids_count;
       }
 
       // parse messages by type
@@ -138,7 +138,7 @@ var Helpers = {
             });
 
             // create a new progress-bar
-            this.bar = cmd.createProgressBar('     [:bar] :percent  ', {
+            this.bar = cmd.createProgressBar('     [:bar] :percent :layers_left/:layers_total ', {
               complete: '=',
               incomplete: ' ',
               width: 50,
@@ -148,7 +148,7 @@ var Helpers = {
             // control progress-bar with SmartProgressBar
             this.smartProgressBar = new SmartProgressBar(
               50,
-              msg.registry_result.non_existent_locally_ids_count,
+              this.non_existent_locally_ids_count,
               this.bar);
           }
           this.smartProgressBar.receiveMessage(msg, status.type);
