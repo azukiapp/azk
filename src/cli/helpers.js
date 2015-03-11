@@ -100,6 +100,8 @@ var Helpers = {
   },
 
   newPullProgress(cmd) {
+    var prettyBytes = require('pretty-bytes');
+
     return (msg) => {
       if (msg.type !== "pull_msg") {
         return msg;
@@ -117,43 +119,96 @@ var Helpers = {
         return false;
       }
 
+      if (!this.last_download_current) {
+        this.last_download_current = {};
+      }
+
       // parsed messages
       // show pull progress bar
       var status = msg.statusParsed;
-      // console.log(status.type);
       switch (status.type) {
-        case 'pulling_repository':
-          // i.e. ⇲ pulling 5/14 layers. 22.42 MB left to download.
-          var prettyBytes = require('pretty-bytes');
-          cmd.ok('commands.helpers.pull.pull_start', {
-            left_to_download_count : msg.registry_result.non_existent_locally_ids_count,
-            total_registry_layers  : msg.registry_result.registry_layers_ids_count,
-            left_to_download_size  : prettyBytes(msg.registry_result.total_layer_size_left),
-          });
-          this.last_download_current = 0;
-          break;
-
         case 'download_complete':
-          this.last_download_current = 0;
+          this.bar && this.bar.tick(1);
+          // if (msg.id && this.last_download_current[msg.id]) {
+          //   console.log('finished', msg.id);
+          //   delete this.last_download_current[msg.id];
+          // }
           break;
 
         case 'download':
-          // calculate chunk comparing with the last current progress
-          var download_chunk = msg.progressDetail.current - this.last_download_current;
+
+          // // console.log('\n>>------------\n msg.id:', msg.id, '\n<<------------\n');
+          // // console.log('\n>>------------\n this.last_download_current[msg.id]:',
+          // //  this.last_download_current[msg.id], '\n<<------------\n');
+
+          // // calculate chunk comparing with the last current progress
+          // if (msg.id && this.last_download_current[msg.id]) {
+          //   download_chunk = msg.progressDetail.current - this.last_download_current[msg.id];
+          // } else if (!this.last_download_current[msg.id]) {
+          //   this.last_download_current[msg.id] = 0;
+          //   download_chunk = msg.progressDetail.current;
+
+          //   console.log('\n>>------------\n msg.progressDetail:', msg.id,
+          //     prettyBytes(msg.progressDetail.total), '\n<<------------\n');
+          // }
+
+          // // console.log('\n>>------------\n download_chunk:', download_chunk, '\n<<------------\n');
 
           if (_.isUndefined(this.bar)) {
+            // i.e. ⇲ pulling 5/14 layers. 22.42 MB left to download.
+            cmd.ok('commands.helpers.pull.pull_start', {
+              left_to_download_count : msg.registry_result.non_existent_locally_ids_count,
+              total_registry_layers  : msg.registry_result.registry_layers_ids_count,
+              left_to_download_size  : prettyBytes(msg.registry_result.total_layer_size_left),
+            });
+
             // create progress bar
-            this.bar = cmd.createProgressBar('       [:bar] :percent  ', {
+            this.bar = cmd.createProgressBar('     [:bar] :percent  ', {
               complete: '=',
               incomplete: ' ',
-              width: 47,
-              total: msg.registry_result.total_layer_size_left
+              width: 50,
+              total: msg.registry_result.non_existent_locally_ids_count * 100
             });
           }
 
-          this.bar.tick(download_chunk);
-          // save last current progress
-          this.last_download_current = msg.progressDetail.current;
+          // console.log('\n>>------------\n this.bar:', this.bar, '\n<<------------\n');
+
+          // var isOverflow = this.bar.curr + download_chunk >= this.bar.total;
+
+          // if (isOverflow) {
+
+          //   /****** DEBUG ******************************************************************/
+          //   /******************************************************************************/
+          //   var debugSource = this.last_download_current;
+          //   var util = require('util');
+          //   var scrubbed = util.inspect(debugSource, {
+          //     showHidden: true,
+          //     depth: 3,
+          //     colors: true
+          //   });
+
+          //   console.log(
+          //     '\n>>------------------------------------------------------\n' +
+          //     '  source: ( ' + __filename + ' )'                             +
+          //     '\n  ------------------------------------------------------\n' +
+          //     '  $ this.last_download_current'                                                     +
+          //     '\n  ------------------------------------------------------\n' +
+          //        scrubbed                                                    +
+          //     '\n<<------------------------------------------------------\n'
+          //   );
+
+          //   /******************************************************************************/
+          //   /****** \DEBUG ***************************************************************/
+
+          // }
+
+          // if (download_chunk > 0 && !isOverflow) {
+          //   this.bar.tick(download_chunk);
+          // }
+          // // save last current progress
+          // if (msg.id) {
+          //   this.last_download_current[msg.id] = msg.progressDetail.current;
+          // }
           break;
 
         case 'pulling_another':
