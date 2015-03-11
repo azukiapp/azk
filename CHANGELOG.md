@@ -7,7 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 * Enhancements
   * [code] Adding support to "integration testing"
-  * [Cli] New output when pulling images: show total count and size of layers to downloaded. Shows only a single progress bar with total download status. Integrate docker-registry-downloader with azk. #234 #119
+  * [Cli] New output when pulling images: show total layers count to download. Shows only a single progress bar with total download status. Integrate docker-registry-downloader with azk. #234 #119 #317
   * [Package] Adding update npm after install node
   * [Package] Fixing of usage npm-sheringwrap in package
 
