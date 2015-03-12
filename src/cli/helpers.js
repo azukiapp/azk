@@ -1,4 +1,5 @@
 import { _, /*t,*/ log, lazy_require, config } from 'azk';
+import { SmartProgressBar } from 'azk/cli/smart_progress_bar';
 
 /* global AgentClient, Configure */
 lazy_require(this, {
@@ -117,43 +118,40 @@ var Helpers = {
         return false;
       }
 
-      // parsed messages
-      // show pull progress bar
-      var status = msg.statusParsed;
-      // console.log(status.type);
-      switch (status.type) {
-        case 'pulling_repository':
-          // i.e. ⇲ pulling 5/14 layers. 22.42 MB left to download.
-          var prettyBytes = require('pretty-bytes');
-          cmd.ok('commands.helpers.pull.pull_start', {
-            left_to_download_count : msg.registry_result.non_existent_locally_ids_count,
-            total_registry_layers  : msg.registry_result.registry_layers_ids_count,
-            left_to_download_size  : prettyBytes(msg.registry_result.total_layer_size_left),
-          });
-          this.last_download_current = 0;
-          break;
+      if (!_.isNumber(this.non_existent_locally_ids_count)) {
+        this.non_existent_locally_ids_count = msg.registry_result.non_existent_locally_ids_count;
+      }
 
+      // parse messages by type
+      var status = msg.statusParsed;
+      switch (status.type) {
         case 'download_complete':
-          this.last_download_current = 0;
+          this.smartProgressBar && this.smartProgressBar.receiveMessage(msg, status.type);
           break;
 
         case 'download':
-          // calculate chunk comparing with the last current progress
-          var download_chunk = msg.progressDetail.current - this.last_download_current;
-
           if (_.isUndefined(this.bar)) {
-            // create progress bar
-            this.bar = cmd.createProgressBar('       [:bar] :percent  ', {
+            // show message: ⇲ pulling 5/14 layers.
+            cmd.ok('commands.helpers.pull.pull_start', {
+              left_to_download_count : msg.registry_result.non_existent_locally_ids_count,
+              total_registry_layers  : msg.registry_result.registry_layers_ids_count,
+            });
+
+            // create a new progress-bar
+            this.bar = cmd.createProgressBar('     [:bar] :percent :layers_left/:layers_total ', {
               complete: '=',
               incomplete: ' ',
-              width: 47,
-              total: msg.registry_result.total_layer_size_left
+              width: 50,
+              total: 50
             });
-          }
 
-          this.bar.tick(download_chunk);
-          // save last current progress
-          this.last_download_current = msg.progressDetail.current;
+            // control progress-bar with SmartProgressBar
+            this.smartProgressBar = new SmartProgressBar(
+              50,
+              this.non_existent_locally_ids_count,
+              this.bar);
+          }
+          this.smartProgressBar.receiveMessage(msg, status.type);
           break;
 
         case 'pulling_another':

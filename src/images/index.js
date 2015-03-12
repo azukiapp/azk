@@ -137,14 +137,6 @@ export class Image {
         registry_layers_ids_count      : registry_layers_ids.length,
         non_existent_locally_ids_count : non_existent_locally_ids.length
       };
-
-      notify({  type       : "pull_msg",
-                traslation : "commands.helpers.pull.pull_getSizes",
-                data       : registry_infos });
-
-      var total_layer_size_left = yield syncronizer.getSizes(hubResult, non_existent_locally_ids);
-      registry_infos.total_layer_size_left = total_layer_size_left;
-
       return registry_infos;
     });
   }
