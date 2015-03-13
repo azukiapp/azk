@@ -41,7 +41,9 @@
   $ sudo apt-get install azk
   ```
 
-5. You can [start the azk agent](../getting-started/starting-agent.md) now, but, **make sure that the Docker service is running**;
+5. Reboot your machine;
+
+6. You can [start the azk agent](../getting-started/starting-agent.md) now, but, **make sure that the Docker service is running**;
 
 
 ## Ubuntu Precise 12.04 (LTS) (64-bit)
@@ -50,9 +52,15 @@
 
   - [Install **Docker's latest version**][docker_ubuntu_12_04];
   - Include your local user in the [docker group][docker_root_access]; Logoff for user group settings to take effect;
+  - [Disable the use of dnsmasq by NetworkManager][docker_ubuntu_dns];
+  - Ensure dnsmasq won't start at login:
+
+    ``` bash
+    $ sudo update-rc.d -f dnsmasq remove
+    ```
 
 2. Add the Azuki keys to your local keychain:
-
+  
   ```bash
   $ sudo apt-key adv --keyserver keys.gnupg.net \
     --recv-keys 022856F6D78159DF43B487D5C82CF0628592D2C9
@@ -72,7 +80,9 @@
   $ sudo apt-get install azk
   ```
 
-5. You can [start the azk agent](../getting-started/starting-agent.md) now, but, **make sure that the Docker service is running**;
+5. Reboot your machine;
+
+6. You can [start the azk agent](../getting-started/starting-agent.md) now, but, **make sure that the Docker service is running**;
 
 
 ## Fedora 20
