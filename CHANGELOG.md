@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 * Bug
   * [Agent] Fixing agent does not start when not connected to internet. #312
+  * [Cli] Checking namservers every time you start a container.
 
 * Enhancements
   * [code] Adding support to "integration testing"

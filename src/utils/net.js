@@ -1,10 +1,15 @@
-import { Q, _, defer, config, isBlank } from 'azk';
+import { Q, _, defer, fs } from 'azk';
+import { config, set_config } from 'azk';
+import { envDefaultArray, isBlank } from 'azk/utils';
 
 var portscanner = require('portscanner');
 var url         = require('url');
 var nativeNet   = require('net');
-var portrange   = config("agent:portrange_start");
-var nameservers = null;
+
+var { isIPv4 }  = require('net');
+
+var portrange = config("agent:portrange_start");
+var cache_key = "agent:dns:file_cache";
 
 var net = {
   getPort(host = 'localhost') {
@@ -33,13 +38,29 @@ var net = {
     return ip.replace(/^(.*)\..*$/, "$1.1");
   },
 
-  nameServers(options) {
+  nameServers(custom_dns_servers, options={}) {
     var dns_servers;
+    var nameservers     = config(cache_key);
+    var env_dns_servers = envDefaultArray('AZK_DNS_SERVERS', []);
 
-    if (options) {
-      dns_servers = options;
+    if (custom_dns_servers && !_.isArray(custom_dns_servers)) {
+      options = custom_dns_servers || {};
+      custom_dns_servers = null;
+    }
+
+    if (!_.isEmpty(env_dns_servers)) {
+      // env AZK_DNS_SERVERS
+      dns_servers = env_dns_servers;
+    } else if (custom_dns_servers) {
+      // custom_dns_servers (i.g. from Azkfile.js)
+      dns_servers = custom_dns_servers;
     } else if (isBlank(nameservers)) {
-      dns_servers = config('agent:dns:nameservers');
+      var resolv = this._readResolverFile(options.resolv_path);
+      dns_servers = this.filterDnsServers(resolv);
+
+      if (_.isEmpty(dns_servers)) {
+        dns_servers = config('agent:dns:defaultserver');
+      }
     } else {
       dns_servers = nameservers;
     }
@@ -48,10 +69,39 @@ var net = {
       dns_servers.unshift(config("agent:dns:ip"));
     }
 
-    if (!options) {
-      nameservers = dns_servers;
+    if (!custom_dns_servers) {
+      set_config(cache_key, dns_servers);
     }
+
     return dns_servers;
+  },
+
+  filterDnsServers(nameservers) {
+    return _.filter(nameservers, (server) => { return !server.match(/^127\./); });
+  },
+
+  _readResolverFile(file = "/etc/resolv.conf") {
+    var data;
+    if (file) {
+      data = fs.readFileSync(file).toString();
+      data = this.parseNameserver(data);
+    }
+    return data ? data : [];
+  },
+
+  parseNameserver(content) {
+    var lines   = content.split('\n');
+    var regex   = /^\s*nameserver\s{1,}((?:[0-9]{1,3}\.){3}[0-9]{1,3})/;
+    var capture = null;
+    return _.reduce(lines, (nameservers, line) => {
+      if ((capture = line.match(regex))) {
+        var ip = capture[1];
+        if (isIPv4(ip)) {
+          nameservers.push(ip);
+        }
+      }
+      return nameservers;
+    }, []);
   },
 
   waitService(uri, retry = 15, opts = {}) {

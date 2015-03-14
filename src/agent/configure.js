@@ -2,7 +2,7 @@ import { _, t, os, Q, async, defer, log, lazy_require } from 'azk';
 import { config, set_config } from 'azk';
 import { UIProxy } from 'azk/cli/ui';
 import { OSNotSupported, DependencyError } from 'azk/utils/errors';
-import { net } from 'azk/utils';
+import { net, envDefaultArray } from 'azk/utils';
 import Azk from 'azk';
 
 var qfs        = require('q-io/fs');
@@ -240,7 +240,7 @@ export class Configure extends UIProxy {
       // File exist? Get content
       if (exist) {
         var content = yield qfs.read(file);
-        ip = this._parseNameserver(content)[0];
+        ip = net.parseNameserver(content)[0];
       }
 
       // Not exist or invalid content
@@ -312,21 +312,6 @@ export class Configure extends UIProxy {
     });
   }
 
-  _parseNameserver(content) {
-    var lines   = content.split('\n');
-    var regex   = /^\s*nameserver\s{1,}((?:[0-9]{1,3}\.){3}[0-9]{1,3})/;
-    var capture = null;
-    return _.reduce(lines, (nameservers, line) => {
-      if ((capture = line.match(regex))) {
-        var ip = capture[1];
-        if (isIPv4(ip)) {
-          nameservers.push(ip);
-        }
-      }
-      return nameservers;
-    }, []);
-  }
-
   // TODO: improve to get a free network ip ranges
   // TODO: filter others /etc/resolver/* azk files
   _getNetworkIp() {
@@ -368,32 +353,11 @@ export class Configure extends UIProxy {
   }
 
   _loadDnsServers() {
-    return async(this, function* () {
-      var cf_key = 'agent:dns:nameservers';
-      var nameservers = this._filderDnsServers(config(cf_key));
+    var cf_key = 'agent:dns:global';
+    var nameservers = envDefaultArray('AZK_DNS_SERVERS', net.filterDnsServers(config(cf_key)));
 
-      if (_.isEmpty(nameservers)) {
-        nameservers = this._filderDnsServers(yield this._readResolverFile());
-      }
-
-      if (_.isEmpty(nameservers)) {
-        nameservers = config('agent:dns:defaultserver');
-      }
-
-      var obj = {};
-      obj[cf_key] = nameservers;
-      return obj;
-    });
-  }
-
-  _filderDnsServers(nameservers) {
-    return _.filter(nameservers, (server) => { return !server.match(/^127\./); });
-  }
-
-  _readResolverFile() {
-    var file = "/etc/resolv.conf";
-    return qfs.read(file)
-      .then(this._parseNameserver)
-      .fail(() => { return []; });
+    var obj = {};
+    obj[cf_key] = nameservers;
+    return obj;
   }
 }

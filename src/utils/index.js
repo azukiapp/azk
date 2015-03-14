@@ -18,7 +18,9 @@ var Utils = {
   get docker() {  return require('azk/utils/docker').default; },
 
   envs(key, defaultValue = null) {
-    return process.env[key] || (_.isFunction(defaultValue) ? defaultValue() : defaultValue);
+    var value = process.env[key];
+    if (value === 'undefined') { value = undefined; }
+    return value || (_.isFunction(defaultValue) ? defaultValue() : defaultValue);
   },
 
   mergeConfig(options) {
@@ -168,10 +170,15 @@ var Utils = {
     return _.template(template_string, data, options);
   },
 
-  isBlank (obj) {
+  isBlank(obj) {
     return _.isNull(obj) ||
            _.isUndefined(obj) ||
            obj === false;
+  },
+
+  envDefaultArray(key, defaultValue) {
+    var value = Utils.envs(key);
+    return (!value || _.isEmpty(value)) ? defaultValue : _.invoke(value.split(','), 'trim');
   }
 };
 
