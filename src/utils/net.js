@@ -83,8 +83,12 @@ var net = {
   _readResolverFile(file = "/etc/resolv.conf") {
     var data;
     if (file) {
-      data = fs.readFileSync(file).toString();
-      data = this.parseNameserver(data);
+      try {
+        data = fs.readFileSync(file).toString();
+        data = this.parseNameserver(data);
+      } catch (err) {
+        data = null;
+      }
     }
     return data ? data : [];
   },
