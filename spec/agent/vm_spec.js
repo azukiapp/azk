@@ -1,6 +1,7 @@
 import h from 'spec/spec_helper';
 import { _, async, path, Q, config } from 'azk';
 import { VM, dhcp, hostonly } from 'azk/agent/vm';
+import { net } from 'azk/utils';
 
 var qfs  = require('q-io/fs');
 var os   = require('os');
@@ -16,6 +17,13 @@ h.describeSkipVm("Azk agent vm", function() {
     ip  : "192.168.51.4",
     boot: config("agent:vm:boot_disk"),
     data: data_test,
+  };
+
+  var net_opts = {
+    ip: opts.ip,
+    gateway: net.calculateGatewayIp(opts.ip),
+    network: net.calculateNetIp(opts.ip),
+    netmask: "255.255.255.0",
   };
 
   // Setups
@@ -44,20 +52,30 @@ h.describeSkipVm("Azk agent vm", function() {
   });
 
   describe("with have a vm", function() {
-    var install_vm = () => {
-      return async(this, function *() {
-        if (this.timeout) {
-          this.timeout(0);
-        }
-        yield remove.apply(this);
-        return h.expect(VM.init(opts)).to.eventually.fulfilled;
-      });
+    var aux_tools = {
+      install_vm(options = {}) {
+        options = _.merge({}, opts, options);
+        return async(this, function *() {
+          if (this.timeout) { this.timeout(0); }
+          yield remove.apply(this);
+          return h.expect(VM.init(options)).to.eventually.fulfilled;
+        });
+      },
+      netinfo() {
+        return Q.all([hostonly.list(), dhcp.list_servers()]);
+      },
+      filter_dhcp(list, VBoxNetworkName) {
+        return _.find(list, (server) => server.NetworkName == VBoxNetworkName);
+      },
+      filter_hostonly(list, name) {
+        return _.find(list, (net) => net.Name == name);
+      },
     };
 
     describe("and have a info about vm", function() {
       // Install vm and save state
       var info = {};
-      before(() => { return install_vm().then((i => info = i)); });
+      before(() => { return aux_tools.install_vm.apply(this).then((i => info = i)); });
 
       it("should configure cpus", function() {
         h.expect(info).has.property("ostype").and.match(/Linux.*64/);
@@ -113,38 +131,63 @@ h.describeSkipVm("Azk agent vm", function() {
     });
 
     it("should add and remove dhcp server and hostonly network", function() {
-      var _tools = {
-        netinfo() {
-          return Q.all([hostonly.list(), dhcp.list_servers()]);
-        },
-        filter_dhcp(list, VBoxNetworkName) {
-          return _.find(list, (server) => server.NetworkName == VBoxNetworkName);
-        },
-        filter_hostonly(list, name) {
-          return _.find(list, (net) => net.Name == name);
-        }
-      };
-
       return async(this, function* () {
         // Install vm and get infos
-        var info = yield install_vm.apply(this);
-        var data = yield _tools.netinfo();
+        var info = yield aux_tools.install_vm.apply(this, [{ dhcp: true }]);
+        var data = yield aux_tools.netinfo();
 
         // Check for vmbox networking
-        var net  = _tools.filter_hostonly(data[0], info.hostonlyadapter1);
+        var net  = aux_tools.filter_hostonly(data[0], info.hostonlyadapter1);
         h.expect(net).to.have.property('Name', info.hostonlyadapter1);
+        h.expect(net).to.have.property('IPAddress'  , net_opts.gateway);
+        h.expect(net).to.have.property('NetworkMask', net_opts.netmask);
 
         // Check for dhcp server
         var VBoxNetworkName = net.VBoxNetworkName;
-        var server = _tools.filter_dhcp(data[1], VBoxNetworkName);
+        var server = aux_tools.filter_dhcp(data[1], VBoxNetworkName);
         h.expect(server).to.have.property('lowerIPAddress', opts.ip);
         h.expect(server).to.have.property('upperIPAddress', opts.ip);
 
         // Removing vm, network and dhcp server
         yield remove.apply(this);
-        data = yield _tools.netinfo();
-        h.expect(_tools.filter_hostonly(data[0], info.hostonlyadapter1)).to.empty;
-        h.expect(_tools.filter_dhcp(data[1], VBoxNetworkName)).to.empty;
+        data = yield aux_tools.netinfo();
+        h.expect(aux_tools.filter_hostonly(data[0], info.hostonlyadapter1)).to.empty;
+        h.expect(aux_tools.filter_dhcp(data[1], VBoxNetworkName)).to.empty;
+      });
+    });
+
+    it("should add/remove hostonly network without dhcp server", function() {
+      return async(this, function* () {
+        // Install vm and get infos
+        var info = yield aux_tools.install_vm.apply(this);
+        var data = yield aux_tools.netinfo();
+
+        // Check for vmbox networking
+        var net  = aux_tools.filter_hostonly(data[0], info.hostonlyadapter1);
+        h.expect(net).to.have.property('Name', info.hostonlyadapter1);
+        h.expect(net).to.have.property('IPAddress'  , net_opts.gateway);
+        h.expect(net).to.have.property('NetworkMask', net_opts.netmask);
+
+        // Networking configure guest ip
+        var result, key_base = "/VirtualBox/D2D/eth0";
+        result = yield VM.getProperty(opts.name, `${key_base}/address`);
+        h.expect(result).to.eql({ Value: net_opts.ip });
+        result = yield VM.getProperty(opts.name, `${key_base}/netmask`);
+        h.expect(result).to.eql({ Value: net_opts.netmask });
+        result = yield VM.getProperty(opts.name, `${key_base}/network`);
+        h.expect(result).to.eql({ Value: net_opts.network });
+
+        // Check if dhcp server is disabled
+        var VBoxNetworkName = net.VBoxNetworkName;
+        h.expect(aux_tools.filter_dhcp(data[1], VBoxNetworkName)).to.empty;
+
+        // Removing vm and network interface
+        var events   = [];
+        var progress = (event) => events.push(event);
+        yield remove.apply(this).progress(progress);
+        data = yield aux_tools.netinfo();
+        h.expect(aux_tools.filter_hostonly(data[0], info.hostonlyadapter1)).to.empty;
+        h.expect(events).to.length(2);
       });
     });
   });

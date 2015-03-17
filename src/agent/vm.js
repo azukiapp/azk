@@ -70,6 +70,18 @@ var guestproperty = {
   },
 };
 
+hostonly.getByName = function(name) {
+  return this.list().then((list) => {
+    return _.find(list, (net) => net.Name == name);
+  });
+};
+
+dhcp.getByNetworkName = function(name) {
+  return this.list_servers().then((list) => {
+    return _.find(list, (server) => server.NetworkName == name);
+  });
+};
+
 var hdds = {
   list() {
     return exec("list", "hdds").then((output) => {
@@ -128,7 +140,7 @@ function config_dhcp(net, getway, net_mask, ip) {
   });
 }
 
-function config_net_interfaces(name, ip) {
+function config_net_interfaces(name, ip, use_dhcp) {
   return async(function* () {
     var result = yield exec("hostonlyif", "create");
     var inter  = result.match(/Interface '(.*)?'/)[1];
@@ -141,13 +153,25 @@ function config_net_interfaces(name, ip) {
     ]);
 
     // Configure dhcp server
-    var getway   = Utils.net.calculateGatewayIp(ip);
-    var net_mask = "255.255.255.0";
+    var gateway = Utils.net.calculateGatewayIp(ip);
+    var network = Utils.net.calculateNetIp(ip);
+    var netmask = "255.255.255.0";
 
     // nat interfance
     yield config_nat_interface(name);
-    yield hostonly.configure_if(inter, getway, net_mask);
-    yield config_dhcp(inter, getway, net_mask, ip);
+    yield hostonly.configure_if(inter, gateway, netmask);
+
+    // dhcp server
+    if (use_dhcp) {
+      yield config_dhcp(inter, gateway, netmask, ip);
+    } else {
+      var key_base = "/VirtualBox/D2D/eth0";
+      return Q.all([
+        guestproperty.set(name, `${key_base}/address`, ip),
+        guestproperty.set(name, `${key_base}/netmask`, netmask),
+        guestproperty.set(name, `${key_base}/network`, network),
+      ]);
+    }
   });
 }
 
@@ -228,7 +252,11 @@ var vm = {
     });
   },
 
-  init(opts) {
+  init(opts = {}) {
+    opts = _.defaults(opts, {
+      dhcp: false,
+    });
+
     return Tools.async_status("vm", this, function* (status_change) {
       var name = opts.name;
       if (yield this.isInstalled(name)) {
@@ -265,7 +293,7 @@ var vm = {
       }
 
       yield modifyvm(name, cmd);
-      yield config_net_interfaces(name, opts.ip);
+      yield config_net_interfaces(name, opts.ip, opts.dhcp);
       yield config_disks(name, opts.boot, opts.data);
       yield config_share(name);
 
@@ -414,7 +442,11 @@ var vm = {
 
         // Remove networking interface
         if (!isBlank(info.nic1)) {
-          yield dhcp.remove_hostonly_server(info.hostonlyadapter1).fail(fail);
+          var net    = yield hostonly.getByName(info.hostonlyadapter1);
+          var server = yield dhcp.getByNetworkName(net.VBoxNetworkName);
+          if (!_.isEmpty(server)) {
+            yield dhcp.remove_hostonly_server(info.hostonlyadapter1).fail(fail);
+          }
           yield hostonly.remove_if(info.hostonlyadapter1).fail(fail);
         }
 
