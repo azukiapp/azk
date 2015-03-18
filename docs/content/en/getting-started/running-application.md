@@ -14,6 +14,12 @@ If all went as expected now you can access [http://azkdemo.dev.azk.io](http://az
 
 ![Figure 1-1](../resources/images/start_1.png)
 
+> **Important**: If you get an error "Webpage is not available", you might have to restart your computer so it can recognize the azk.dev.io DNS resolver. You can confirm this by running: 
+
+> ```$ scutil --dns```
+
+> And checking that the output does not include dev.azk.io. More information can be found here.
+
 Note that when you refresh the page a few times the `instance id` is changed to another value. This happens because there is a load balancer that points to one of two instances of the site.
 
 In the output of `azk status` we can check that there are two instances of the azkdemo system:

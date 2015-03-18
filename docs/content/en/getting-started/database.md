@@ -4,7 +4,26 @@ Our demo application shows a simple visit counter, but, before that, you need to
 
 Installing and configuring a database in `azk` is very simple. First you must edit the `Azkfile.js` file and add a new entry in `systems` referring to the database. In this case we will use __redis__:
 
-!INCLUDE "../../common/getting-started/add_database.md"
+```js
+systems({
+  // **THIS IS WHAT WE HAD PREVIOUSLY:**
+  azkdemo: {
+    // ...
+    envs: {
+      // set instances variables
+      NODE_ENV: "dev",
+    },
+  },
+  // **ADD THE FOLLOWING, OUTSIDE OF THE AZKDEMO SYSTEM:**
+  // Adds the "redis" system
+  redis: {
+    image: { docker: "redis" },
+    export_envs: {
+      "DATABASE_URL": "redis://#{net.host}:#{net.port[6379]}"
+    }
+  }
+});
+```
 
 Once this is done it's possible to start the new system and have access to the database:
 
