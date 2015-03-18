@@ -348,7 +348,7 @@ export class Configure extends UIProxy {
   _generateSuggestionIp(ip) {
     if (_.isEmpty(this._suggestion_ips)) {
       var ranges = _.range(50, 255).concat(_.range(10, 50 ), _.range(0 , 10 ));
-      this._suggestion_ips = _.map(ranges, (i) => `192.168.${i}.2`);
+      this._suggestion_ips = _.map(ranges, (i) => `192.168.${i}.4`);
     }
     this.info("configure.find_suggestions_ips");
     return _.find(this._suggestion_ips, (new_ip) => {
