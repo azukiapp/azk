@@ -1,5 +1,6 @@
-import { _, config, defer, log, lazy_require, set_config } from 'azk';
+import { Q, _, config, defer, log, lazy_require, set_config } from 'azk';
 import { Pid } from 'azk/utils/pid';
+import { AgentStopError } from 'azk/utils/errors';
 
 /* global Server */
 lazy_require(this, {
@@ -14,6 +15,7 @@ var blank_observer = {
 
 var Agent = {
   observer: blank_observer,
+  stopping: false,
 
   change_status(status, data = null) {
     this.observer.notify({ type: "status", status, pid: process.pid, data: data });
@@ -42,9 +44,13 @@ var Agent = {
     });
   },
 
+  // TODO: Capture agent error and show
   stop() {
+    if (this.stopping) { return Q(); }
     var pid = this.agentPid();
-    return pid.kill();
+    return pid.killAndWait().fail(() => {
+      throw new AgentStopError();
+    });
   },
 
   gracefullyStop() {
@@ -76,18 +82,19 @@ var Agent = {
   },
 
   processStateHandler() {
-    var stopping = false;
     var gracefullExit = () => {
-      if (!stopping) {
-        var catch_err = (err) => log.error('stop error' + err.stack || err);
-        try {
-          stopping = true;
-          log.info('Azk agent has been killed by signal');
-          this.gracefullyStop().catch(catch_err);
-        } catch (err) {
-          catch_err(err);
+      return () => {
+        if (!this.stopping) {
+          var catch_err = (err) => log.error('stop error' + err.stack || err);
+          try {
+            this.stopping = true;
+            log.info('Azk agent has been killed by signal');
+            this.gracefullyStop().catch(catch_err);
+          } catch (err) {
+            catch_err(err);
+          }
         }
-      }
+      };
     };
 
     try {
@@ -95,9 +102,9 @@ var Agent = {
       pid.update(process.pid);
     } catch (e) {}
 
-    process.on('SIGTERM', gracefullExit);
-    process.on('SIGINT' , gracefullExit);
-    process.on('SIGQUIT', gracefullExit);
+    process.on('SIGTERM', gracefullExit('SIGTERM'));
+    process.on('SIGINT' , gracefullExit('SIGINT'));
+    process.on('SIGQUIT', gracefullExit('SIGQUIT'));
     process.on('SIGUSR2', () => {
       log.info('clear observer');
       this.observer = blank_observer;
