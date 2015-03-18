@@ -24,8 +24,12 @@ export class Meta {
     this.__cache = value;
   }
 
+  get cache_dir() {
+    return this.options.cache_dir;
+  }
+
   clean() {
-    var path = this.options.cache_dir;
+    var path = this.cache_dir;
     if (fs.existsSync(path)) {
       this.__cache = null;
       return fs.removeSync(path);
@@ -34,7 +38,7 @@ export class Meta {
 
   get cache() {
     if (!this.__cache) {
-      var cache_dir = this.options.cache_dir;
+      var cache_dir = this.cache_dir;
       mkdir(cache_dir);
       this.__cache = createCache(cache_dir);
     }
