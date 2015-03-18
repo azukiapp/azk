@@ -32,18 +32,24 @@ h.describeSkipVm("Azk agent vm", function() {
   };
 
   var remove = function() {
-    this.timeout(0);
-    return Q.async(function* () {
-      if (yield qfs.exists(opts.data)) {
-        yield qfs.remove(opts.data);
+    return async(this, function* () {
+      var info = yield VM.info(opts.name);
+      this.timeout(0);
+
+      if (info.installed) {
+        yield VM.stop(opts.name);
+        yield VM.remove(opts.name);
       }
-      yield VM.stop(opts.name);
-      yield VM.remove(opts.name);
+
       yield remove_disk(opts.data);
       yield remove_disk(opts.data + ".tmp");
-    })();
+
+      yield qfs.remove(opts.data).fail(() => null);
+      yield qfs.remove(opts.data + ".tmp").fail(() => null);
+    });
   };
 
+  before(remove);
   after(remove);
 
   // Tests
@@ -98,7 +104,7 @@ h.describeSkipVm("Azk agent vm", function() {
       });
 
       it("should connect boot and data disks", function() {
-        h.expect(info).has.property("SATA-1-0", opts.data);
+        h.expect(info).has.property("SATA-1-0", opts.data + ".link");
       });
 
       it("should start, stop and return vm status", function() {

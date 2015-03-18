@@ -192,6 +192,8 @@ function config_share(name) {
 }
 
 function config_disks(name, boot, data) {
+  var use_link = true;
+
   var storage_opts = [
     "storagectl"   , name  ,
     "--name"       , "SATA",
@@ -208,13 +210,15 @@ function config_disks(name, boot, data) {
     "--medium"     , boot  ,
   ];
 
+  var data_link   = `${data}.link`;
+  var data_origin = path.join("./", path.basename(data));
   var storage_data = [
     "storageattach", name  ,
     "--storagectl" , "SATA",
     "--port"       , "1"   ,
     "--device"     , "0"   ,
     "--type"       , "hdd" ,
-    "--medium"     , data  ,
+    "--medium"     , use_link ? data_link : data,
   ];
 
   return async(function* () {
@@ -222,6 +226,11 @@ function config_disks(name, boot, data) {
       var file = data + ".tmp";
       yield Utils.unzip(config("agent:vm:blank_disk"), file);
       yield hdds.clonehd(file, data);
+    }
+
+    if (use_link) {
+      yield qfs.remove(data_link).fail(() => {});
+      yield qfs.symbolicLink(data_link, data_origin, 'file');
     }
 
     yield exec.apply(null, storage_opts);
@@ -425,30 +434,29 @@ var vm = {
       var info = yield vm.info(vm_name);
 
       if (info.name == vm_name) {
-        var fail = (error) => {
-          status_change("error", error.stack || error);
-        };
-
         status_change("removing");
 
-        // Removing disk
-        if (!_.isEmpty(info['SATA-1-0'])) {
-          yield exec("storagectl", vm_name, "--name", "SATA", "--remove").fail(fail);
-          yield exec("closemedium", "disk", info['SATA-1-0']).fail(fail);
+        // Removing disk if it's not a link (old disk style)
+        var is_link = yield qfs.isSymbolicLink(info['SATA-1-0']);
+        if (!is_link) {
+          yield exec("storagectl", vm_name, "--name", "SATA", "--remove");
+          yield exec("closemedium", "disk", info['SATA-1-0']);
+        }
+
+        // Remove networking interface
+        if (!isBlank(info.hostonlyadapter1)) {
+          var net    = yield hostonly.getByName(info.hostonlyadapter1);
+          var server = yield dhcp.getByNetworkName(net.VBoxNetworkName);
+          if (!_.isEmpty(net)) {
+            if (!_.isEmpty(server)) {
+              yield dhcp.remove_hostonly_server(info.hostonlyadapter1);
+            }
+            yield hostonly.remove_if(info.hostonlyadapter1);
+          }
         }
 
         // Remove vm
-        yield machine.remove(vm_name).fail(fail);
-
-        // Remove networking interface
-        if (!isBlank(info.nic1)) {
-          var net    = yield hostonly.getByName(info.hostonlyadapter1);
-          var server = yield dhcp.getByNetworkName(net.VBoxNetworkName);
-          if (!_.isEmpty(server)) {
-            yield dhcp.remove_hostonly_server(info.hostonlyadapter1).fail(fail);
-          }
-          yield hostonly.remove_if(info.hostonlyadapter1).fail(fail);
-        }
+        yield machine.remove(vm_name);
 
         status_change("removed");
       }

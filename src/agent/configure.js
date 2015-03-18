@@ -445,7 +445,8 @@ export class Configure extends UIProxy {
   }
 
   _getDockerIp() {
-    // 2: docker0    inet 10.0.42.1/16 scope global docker0\       valid_lft forever preferred_lft forever
+    // 2: docker0    inet 10.0.42.1/16 scope global docker0
+    //        valid_lft forever preferred_lft forever
     var regex = /docker0.*inet\s(.*?)\//;
     var cmd   = "/sbin/ip -o addr show";
 
