@@ -41,16 +41,23 @@
   $ sudo apt-get install azk
   ```
 
-5. Você pode [iniciar o agent](../getting-started/starting-agent.md) agora, porém, **tenha certeza de que o serviço do Docker está rodando**;
+5. Reinicie sua máquina;
+
+6. Você pode [iniciar o agent](../getting-started/starting-agent.md) agora, porém, **tenha certeza de que o serviço do Docker está rodando**;
 
 
 ## Ubuntu Precise 12.04 (LTS) (64-bit)
 
 1. Instale o Docker:
 
-  - [Instale **a versão 1.3 do Docker**][docker_ubuntu_12_04]
-  - Configure para que seu usuário [tenha acesso ao Docker][docker_root_access];
-  - **Tenha certeza de que o serviço do Docker está rodando**;
+  - [Instale ** a versão mais recente do Docker**][docker_ubuntu_12_04]
+  - Configure para que seu usuário [tenha acesso ao Docker][docker_root_access]; Faça logoff para que as alterações tenham efeito;
+  - [Desabilite o uso do dnsmasq pelo NetworkManager][docker_ubuntu_dns];
+  - Garanta que o dnsmasq não será iniciado automaticamente após o login:
+
+    ``` bash
+    $ sudo update-rc.d -f dnsmasq remove
+    ```
 
 2. Adicionando as chaves do Azuki ao seu keychain local:
 
@@ -73,7 +80,9 @@
   $ sudo apt-get install azk
   ```
 
-5. Você pode [iniciar o agent](../getting-started/starting-agent.md) agora, porém, **tenha certeza de que o serviço do Docker está rodando**;
+5. Reinicie sua máquina;
+
+6. Você pode [iniciar o agent](../getting-started/starting-agent.md) agora, porém, **tenha certeza de que o serviço do Docker está rodando**;
 
 
 ## Fedora 20
