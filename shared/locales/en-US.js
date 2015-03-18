@@ -192,8 +192,6 @@ module.exports = {
     loaded: "Settings loaded successfully.",
     loading_checking: "Loading settings and checking dependencies.",
     ip_question: "Enter the vm ip",
-    ip_invalid: "`%(ip)s`".yellow + " is an invalid v4 ip, try again.",
-    ip_invalid_range: "`%(ip)s`".yellow + " is an invalid ip range, try again.",
     adding_ip: "Adding %(ip)s to %(file)s ...",
     generating_key: "Generating public/private rsa key pair to connect to vm.\n",
     vm_ip_msg: ([
@@ -209,11 +207,18 @@ module.exports = {
     check_version_error: 'Checking version: [ %(error_message)s ]!',
     clean_containers: "Clearing %(count)d lost containers",
     migrations: {
-      alert: "azk updated, checking update procedures...",
-      changing_domain: "Changing domain upgrading, (issue: #255)",
-      moving_resolver: "Moving %(origin)s to %(target)s ...",
-      renaming_vm: "Renaming VirtualBox machine %(old_name)s to %(new_name)s",
-    }
+      alert             : "azk updated, checking update procedures...",
+      changing_domain   : "Changing domain upgrading, (issue: #255)",
+      moving_resolver   : "Moving %(origin)s to %(target)s ...",
+      renaming_vm       : "Renaming VirtualBox machine %(old_name)s to %(new_name)s",
+    },
+    find_suggestions_ips: "Suggesting a new ip...",
+    errors: {
+      invalid_current_ip: 'Current ip `%(ip)s` conflict with network interface `%(inter_name)s inet %(inter_ip)s`',
+      ip_invalid : "`%(ip)s`".yellow + " is an invalid v4 ip, try again.",
+      ip_loopback: "`%(ip)s`".yellow + " conflict with loopback network",
+      ip_conflict: "`%(ip)s`".yellow + " conflict with network interface `%(inter_name)s inet %(inter_ip)s`",
+    },
   },
 
   commands: {

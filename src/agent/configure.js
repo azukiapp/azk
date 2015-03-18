@@ -11,12 +11,15 @@ var request    = require('request');
 var semver     = require('semver');
 var { isIPv4 } = require('net');
 
-/* global docker, Migrations, isOnline, exec */
+/* global docker, Migrations, isOnline, exec, Netmask, hostonly, VM */
 lazy_require(this, {
   docker     : ['azk/docker', 'default'],
   Migrations : ['azk/agent/migrations'],
   isOnline   : 'is-online',
   exec       : ['child_process'],
+  Netmask    : ['netmask'],
+  hostonly   : ['azk/agent/vm'],
+  VM         : ['azk/agent/vm'],
 });
 
 var ports_tabs = {
@@ -233,30 +236,21 @@ export class Configure extends UIProxy {
   _checkAndConfigureNetwork(use_vm = true) {
     return async(this, function* () {
       var file   = config('agent:balancer:file_dns');
-      var exist  = yield qfs.exists(file);
       var ip     = null;
       var result = {};
 
       // File exist? Get content
+      var exist = yield qfs.exists(file);
       if (exist) {
         var content = yield qfs.read(file);
         ip = this._parseNameserver(content)[0];
       }
 
-      // Not exist or invalid content
-      if (_.isEmpty(ip)) {
-        if (use_vm) {
-          this.warning('configure.vm_ip_msg');
-          ip = yield this._getNetworkIp();
-        } else {
-          ip = yield this._getDockerIp();
-        }
-        yield this._generateResolverFile(ip, file);
-      }
+      // Check ip or generate a new one
+      if (use_vm) { this._interfaces = yield this._getInterfacesIps(); }
+      ip = yield this._checkAndSaveIp(ip, file, use_vm);
 
-      if (use_vm) {
-        result['docker:host'] = `http://${ip}:2375`;
-      }
+      if (use_vm) { result['docker:host'] = `http://${ip}:2375`; }
 
       // Save to use in configure
       this.docker_ip = ip;
@@ -267,6 +261,30 @@ export class Configure extends UIProxy {
       obj['agent:dns:ip'] = ip;
       obj['agent:balancer:ip'] = ip;
       return _.merge(obj, result);
+    });
+  }
+
+  _checkAndSaveIp(ip, file, use_vm) {
+    return async(this, function* () {
+      // Not exist or invalid content
+      var conflict = use_vm ? this._conflictInterface(ip) : null;
+      if (_.isEmpty(ip) || !_.isEmpty(conflict)) {
+        if (use_vm) {
+          if (!_.isEmpty(conflict)) {
+            var fail_data = { ip, inter_name: conflict.name, inter_ip: conflict.ip };
+            this.fail('configure.errors.invalid_current_ip', fail_data);
+          } else {
+            this.warning('configure.vm_ip_msg');
+          }
+          var suggestion = this._generateSuggestionIp(ip);
+          ip = yield this._getNetworkIp(suggestion);
+        } else {
+          ip = yield this._getDockerIp();
+        }
+        yield this._generateResolverFile(ip, file);
+      }
+
+      return ip;
     });
   }
 
@@ -327,22 +345,94 @@ export class Configure extends UIProxy {
     }, []);
   }
 
-  // TODO: improve to get a free network ip ranges
+  _generateSuggestionIp(ip) {
+    if (_.isEmpty(this._suggestion_ips)) {
+      var ranges = _.range(50, 255).concat(_.range(10, 50 ), _.range(0 , 10 ));
+      this._suggestion_ips = _.map(ranges, (i) => `192.168.${i}.2`);
+    }
+    this.info("configure.find_suggestions_ips");
+    return _.find(this._suggestion_ips, (new_ip) => {
+      if (new_ip != ip) {
+        var conflict = this._conflictInterface(new_ip);
+        if (_.isEmpty(conflict)) { return true; }
+        var info_data = { ip: new_ip, inter_name: conflict.name, inter_ip: conflict.ip };
+        this.info("configure.errors.ip_conflict", info_data);
+      }
+    });
+  }
+
+  _conflictInterface(ip) {
+    if (_.isEmpty(ip)) { return null; }
+    var block = new Netmask(net.calculateNetIp(ip));
+    return _.find(this._interfaces, (network) => {
+      return block.contains(network.ip);
+    });
+  }
+
+  _getVMHostonlyInterface() {
+    return VM.info(config("agent:vm:name")).then((info) => {
+      if (info.installed) {
+        return info.hostonlyadapter1;
+      }
+      return null;
+    });
+  }
+
+  _getInterfacesIps() {
+    return async(this, function* () {
+      var hostonly_interface = yield this._getVMHostonlyInterface();
+      // System interfaces
+      var system_interfaces = _.reduce(os.networkInterfaces(), (acc, ips, name) => {
+        if (name != hostonly_interface) {
+          var ip = _.find(ips, (ip) => {
+            return ip.family == 'IPv4';
+          });
+          if (ip) { acc.push({ name: name, ip: ip.address }); }
+        }
+        return acc;
+      }, []);
+
+      // VirtualBox interfaces
+      var vbox_interfaces = _.reduce(yield hostonly.list(), (acc, inter) => {
+        var ip = inter.IPAddress;
+        if (inter.Name != hostonly_interface) {
+          acc.push({ name: inter.Name, ip });
+        }
+        return acc;
+      }, []);
+
+      return system_interfaces.concat(vbox_interfaces);
+    });
+  }
+
   // TODO: filter others /etc/resolver/* azk files
-  _getNetworkIp() {
+  _getNetworkIp(suggestion) {
     var question = {
       name    : 'ip',
       message : 'configure.ip_question',
-      default : config('agent:vm:ip'),
+      // default : config('agent:vm:ip'),
+      default: suggestion,
       validate: (value) => {
-        var data       = { ip: value };
-        var ip_invalid_range   = this.t('configure.ip_invalid_range', data);
-        var ip_invalid = this.t('configure.ip_invalid', data);
-        var ranges     = [ '127.0.0.1', '0.0.0.0' ];
+        var data     = { ip: value };
+        var invalids = {
+          ip      : () => this.t('configure.errors.ip_invalid', data),
+          loopback: () => this.t('configure.errors.ip_loopback', data),
+          conflict: (conflict) => {
+            var t_data = { ip: value, inter_name: conflict.name, inter_ip: conflict.ip };
+            return this.t('configure.errors.ip_conflict', t_data);
+          },
+        };
 
         // Check is valid ip
-        if (!isIPv4(value)) { return ip_invalid; }
-        if (_.contains(ranges, value)) { return ip_invalid_range; }
+        if (!isIPv4(value) || value === '0.0.0.0') { return invalids.ip(); }
+
+        // Conflict loopback
+        var lpblock = new Netmask('127.0.0.0/8');
+        if (lpblock.contains(value)) { return invalids.loopback(); }
+
+        // Conflict other interfaces
+        var conflict = this._conflictInterface(value);
+        if (!_.isEmpty(conflict)) { return invalids.conflict(conflict); }
 
         return true;
       }
