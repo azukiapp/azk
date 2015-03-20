@@ -5,6 +5,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## dev
 
+* Bug
+  - [Parse] Fixing running azk command in subfolder using dockfile, issue #250.
+
 * Enhancements
   * [code] Adding support to "integration testing"
   * [Cli] New output when pulling images: show total layers count to download. Shows only a single progress bar with total download status. Integrate docker-registry-downloader with azk. #234 #119 #317

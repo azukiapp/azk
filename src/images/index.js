@@ -162,25 +162,37 @@ export class Image {
     this.tag   = Utils.calculateHash(dockerfile);
   }
 
-  _findDockerfile(dockerfile_path, require_file = false) {
-    var exists = fs.existsSync(dockerfile_path);
+  _findDockerfile(dockerfile_path) {
+    var msg;
 
-    if (exists) {
-      var stats = fs.statSync(dockerfile_path);
-      var isDirectory = stats.isDirectory();
+    if (this.system.hasOwnProperty('manifest') && this.system.manifest.cwd) {
+      var dockerfile_cwd = path.resolve(this.system.manifest.cwd, dockerfile_path);
+      var exists = fs.existsSync(dockerfile_cwd);
 
-      if (!isDirectory) {
-        return dockerfile_path;
-      } else if (isDirectory && !require_file) {
+      if (exists) {
+        var stats = fs.statSync(dockerfile_cwd);
+        var isDirectory = stats.isDirectory();
 
-        // it is a folder - try find the manifesto
-        dockerfile_path = path.join(dockerfile_path, 'Dockerfile');
-        return this._findDockerfile(dockerfile_path, true);
+        if (isDirectory) {
+          // it is a folder - try find the manifest
+          dockerfile_cwd = path.join(dockerfile_cwd, 'Dockerfile');
+          exists = fs.existsSync(dockerfile_cwd);
+
+          if (!exists) {
+            var translate_options = { system: this.system.name, dockerfile: dockerfile_path };
+            msg = t("manifest.cannot_find_dockerfile", translate_options);
+            throw new ManifestError('', msg);
+          }
+        }
+
+        return dockerfile_cwd;
       }
+      msg = t("manifest.cannot_find_dockerfile_path", { system: this.system.name, dockerfile: dockerfile_path });
+      throw new ManifestError('', msg);
+    } else {
+      msg = t("manifest.required_path");
+      throw new Error(msg);
     }
-
-    var msg = t("manifest.cannot_find_dockerfile", {system: this.system.name});
-    throw new ManifestError('', msg);
   }
 
   get path() {

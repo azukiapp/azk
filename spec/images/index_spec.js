@@ -1,4 +1,4 @@
-import { config } from 'azk';
+import { config, t } from 'azk';
 import { Image } from 'azk/images';
 import h from 'spec/spec_helper';
 import { ManifestError } from 'azk/utils/errors';
@@ -54,21 +54,68 @@ describe("Azk image class", function() {
     });
 
     describe("with a dockerfile", function() {
-      var system = { image_name_suggest: 'suggest' };
+      var manifest_path = path.join(h.fixture_path('build'));
+      var system = {
+        name: 'dockerfile_test',
+        image_name_suggest: 'suggest',
+        manifest: { cwd: manifest_path }
+      };
+
       it("should parse in the short form", function() {
-        var dockerfile = path.join(h.fixture_path('build'));
+        var dockerfile = './';
         var img = new Image({ dockerfile, system });
+
         h.expect(img).to.have.property("provider", "dockerfile");
-        h.expect(img).to.have.property("path", path.join(dockerfile, 'Dockerfile'));
+        h.expect(img).to.have.property("path", path.join(manifest_path, 'Dockerfile'));
       });
 
       it("should parse with the hashes", function() {
-        var dockerfile = path.join(h.fixture_path('build'), 'DockerfileInvalid');
+        var dockerfile = 'DockerfileInvalid';
         var img = new Image({ provider: "dockerfile", path: dockerfile, system });
+
         h.expect(img).to.have.property("provider", "dockerfile");
-        h.expect(img).to.have.property("path", dockerfile);
+        h.expect(img).to.have.property("path", path.join(manifest_path, dockerfile));
         h.expect(img).to.have.property("name").and.match(/suggest/);
       });
+
+      it('should raise exception if Dockerfile not exists', function () {
+        var dockerfile = path.join(manifest_path, "empty");
+        var func = () => new Image({ provider: "dockerfile", path: dockerfile, system });
+
+        var translate_options = { system: system.name, dockerfile: dockerfile };
+        var msg = t("manifest.cannot_find_dockerfile", translate_options);
+        var msg_regex  = new RegExp(h.escapeRegExp(msg));
+
+        h.expect(func).to.throw(ManifestError, msg_regex);
+      });
+
+      it('should raise exception if path not exist', function () {
+        var dockerfile = path.join(manifest_path, 'notfound');
+        var func = () => new Image({ provider: "dockerfile", path: dockerfile, system });
+
+        var translate_options = { system: system.name, dockerfile: dockerfile };
+        var msg = t("manifest.cannot_find_dockerfile_path", translate_options);
+        var msg_regex  = new RegExp(h.escapeRegExp(msg));
+
+        h.expect(func).to.throw(ManifestError, msg_regex);
+      });
+
+      it("should raise an error if manifest is required", function() {
+        var dockerfile = './';
+        var old_system = {
+          name: 'dockerfile_test',
+          image_name_suggest: 'suggest',
+        };
+        var func = () => new Image({ dockerfile, old_system });
+
+        var msg = t("manifest.required_path");
+        var msg_regex  = new RegExp(h.escapeRegExp(msg));
+
+        h.expect(func).to.throw(
+          Error, msg_regex
+        );
+      });
+
     });
 
     describe("by another image", function() {
