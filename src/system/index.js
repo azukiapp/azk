@@ -267,6 +267,9 @@ export class System {
   daemonOptions(options = {}) {
     // Merge ports
     options.ports = _.merge({}, this.ports, options.ports);
+    options.ports_order = _.map(options.ports, (port, name) => {
+      return !_.isEmpty(port) && name;
+    });
 
     // Load configs from image
     if (options.image_data) {
@@ -296,7 +299,10 @@ export class System {
           return value.match(new RegExp(`${parseInt(port)}\/(tcp|udp)$`));
         });
 
-        if (!have) { options.ports[port] = port; }
+        if (!have) {
+          options.ports[port] = port;
+          options.ports_order.push( port );
+        }
       });
     }
 
@@ -342,6 +348,7 @@ export class System {
       mounts: {},
       envs: {},
       ports: {},
+      ports_order: [],
       sequencies: {},
       docker: null,
       dns_servers: this.options.dns_servers
@@ -350,7 +357,13 @@ export class System {
     // Map ports to docker configs: ports and envs
     var envs  = _.merge({}, this.envs, this._envs_from_file(), options.envs);
     var ports = {};
-    _.each(this._parse_ports(options.ports), (data, name) => {
+    var parsed_ports = this._parse_ports(options.ports);
+
+    var ports_orderly = _.compact(_.map(options.ports_order, (key) => {
+      return parsed_ports[key];
+    }));
+
+    _.each(parsed_ports, (data, name) => {
       if (!name.match(/\//)) {
         var env_key = `${name.toUpperCase()}_PORT`;
         if (!envs[env_key]) {
@@ -376,6 +389,7 @@ export class System {
     var finalOptions = {
       daemon: daemon,
       ports: ports,
+      ports_orderly: ports_orderly,
       stdout: options.stdout,
       command: options.command || this.command,
       volumes: mounts,
@@ -435,6 +449,7 @@ export class System {
 
       ports[name] = {
         config : conf,
+        key    : name,
         name   : port.private + "/" + port.protocol,
         private: port.private
       };

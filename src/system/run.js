@@ -103,12 +103,15 @@ var Run = {
       var container  = yield docker.run(system.image.name, command, docker_opt);
 
       if (options.wait) {
+        var first_tcp = _.find((docker_opt.ports_orderly || []), (data) => {
+          return /\/tcp/.test(data.name);
+        });
 
         // TODO: support to wait udp protocol
         var data = yield container.inspect();
         var port_data = _.chain(data.NetworkSettings.Access)
           .filter((port) => {
-            return port.protocol == 'tcp';
+            return port.protocol == 'tcp' && port.name == first_tcp.private;
           })
           .find()
           .value();

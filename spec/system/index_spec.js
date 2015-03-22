@@ -162,25 +162,63 @@ describe("Azk system class, main set", function() {
       });
 
       it("should merge system ports with image ports", function() {
-        var system  = manifest.system('db');
+        var system  = manifest.system('ports-fixed');
         return system.image.check().then((image) => {
           return image.inspect().then((image_data) => {
             var options = system.daemonOptions({ image_data });
 
-            h.expect(options).to.deep.have.property("ports.5000/tcp").and.eql([{
-              HostIp: config('agent:dns:ip')
-            }]);
             h.expect(options).to.deep.have.property("ports.80/tcp").and.eql([{
               HostIp: config('agent:dns:ip')
             }]);
-            h.expect(options).to.deep.have.property("ports.53/tcp").and.eql([{
+            h.expect(options).to.deep.have.property("ports.81/tcp").and.eql([{
+              HostIp: config('agent:dns:ip'), HostPort: "81"
+            }]);
+            h.expect(options).to.deep.have.property("ports.53/udp").and.eql([{
               HostIp: config('agent:dns:ip')
+            }]);
+            h.expect(options).to.deep.have.property("ports.443/tcp").and.eql([{
+              HostIp: config('agent:dns:ip'), HostPort: "5252"
             }]);
           });
         });
       });
 
-      it("should disable image ports with option `disable'", function() {
+      it("should orderly and merged system ports with image ports", function() {
+        var system  = manifest.system('ports-fixed');
+        return system.image.check().then((image) => {
+          return image.inspect().then((image_data) => {
+            var options = system.daemonOptions({ image_data });
+            h.expect(options).to.deep.have.property("ports_orderly.0.name").and.eql('81/tcp');
+            h.expect(options).to.deep.have.property("ports_orderly.1.name").and.eql('443/tcp');
+            h.expect(options).to.deep.have.property("ports_orderly.2.name").and.eql('53/udp');
+            h.expect(options).to.deep.have.property("ports_orderly.3.name").and.eql('80/tcp');
+          });
+        });
+      });
+
+      it("should merge ports system without override", function() {
+        var system  = manifest.system('ports-fixed');
+        return system.image.check().then((image) => {
+          return image.inspect().then((image_data) => {
+            var options = system.daemonOptions({ image_data });
+
+            h.expect(options).to.deep.have.property("ports.80/tcp").and.eql([{
+              HostIp: config('agent:dns:ip')
+            }]);
+            h.expect(options).to.deep.have.property("ports.81/tcp").and.eql([{
+              HostIp: config('agent:dns:ip'), HostPort: "81"
+            }]);
+            h.expect(options).to.deep.have.property("ports.53/udp").and.eql([{
+              HostIp: config('agent:dns:ip')
+            }]);
+            h.expect(options).to.deep.have.property("ports.443/tcp").and.eql([{
+              HostIp: config('agent:dns:ip'), HostPort: "5252"
+            }]);
+          });
+        });
+      });
+
+      it("should disable image ports with option `disable`", function() {
         var system = manifest.system('ports-disable');
         return system.image.check().then((image) => {
           return image.inspect().then((image_data) => {
@@ -201,7 +239,7 @@ describe("Azk system class, main set", function() {
             "6379/tcp": "6379/tcp",
           }
         };
-        var system  = manifest.system('ports-test');
+        var system  = manifest.system('ports-fixed');
         var options = system.daemonOptions(custom);
 
         h.expect(options).to.deep.have.property("ports.8080/tcp").and.eql([{

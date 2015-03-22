@@ -14,6 +14,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Agent] Changing dhcp-client configs (adding timeout) in order to avoid network-dependent services tree to fail;
   * [Agent] Making VirtualBox data disk deattach/remove process more reliable;
   * [Agent] Now `azk agent stop` waits for agent real stop;
+  * [Balancer] Fixing conflict at the port to be expected by the wait, issue #309;
 
 * Enhancements
   * [code] Adding support to "integration testing"
