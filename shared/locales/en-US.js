@@ -45,6 +45,7 @@ module.exports = {
     ].join("\n"),
 
     docker_build_error: {
+      command_error: "  Error in building `%(dockerfile)s`:\n%(output)s\n",
       server_error: "Internal error in build `%(dockerfile)s`: %(error)",
       not_found   : "Can't find `%(from)s` image to build `%(dockerfile)s`",
       can_find_dockerfile: "Can't find `%(dockerfile)s` file",
