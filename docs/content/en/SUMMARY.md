@@ -59,9 +59,9 @@
    /** [Shell](azkfilejs/shell.md)*/
    /** [Scaling](azkfilejs/escalando.md)*/
 /*****************************************************/
-/** [Agent](agent/README.md)*/
+* [Agent](agent/README.md)
 * [Images](images/README.md)
-/** [FAQ](faq/README.md)*/
 * [Contributing](contributing/README.md)
+* [FAQ](faq/README.md)
+* [Troubleshooting](troubleshooting/README.md)
 /** [Roadmap](roadmap/README.md)*/
-
