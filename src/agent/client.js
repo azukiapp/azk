@@ -46,7 +46,13 @@ var Client = {
   },
 
   stop(opts) {
-    return Agent.stop(opts);
+    return defer((_resolve, _reject, notify) => {
+      notify({ type: "status", status: "stopping" });
+      return Agent.stop(opts).then((result) => {
+        if (result) { notify({ type: "status", status: "stopped" }); }
+        return { agent: result };
+      });
+    });
   },
 
   configs() {

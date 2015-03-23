@@ -206,6 +206,12 @@ export class AgentStartError extends AzkError {
   }
 }
 
+export class AgentStopError extends AzkError {
+  constructor() {
+    super('agent_stop');
+  }
+}
+
 export class VmStartError extends AzkError {
   constructor(timeout, screen) {
     super('vm_start');

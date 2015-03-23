@@ -55,6 +55,7 @@
     "memorystream": "^0.2.0",
     "mkdirp": "^0.5.0",
     "moment": "^2.8.1",
+    "netmask": "^1.0.5",
     "node-uuid": "^1.4.1",
     "open": "0.0.5",
     "parentpath": "^0.2.0",

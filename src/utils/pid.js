@@ -1,4 +1,4 @@
-import { Q, fs } from 'azk';
+import { defer, Q, fs } from 'azk';
 
 export class Pid {
   constructor(file) {
@@ -42,6 +42,25 @@ export class Pid {
       fs.unlinkSync(this.file);
       this.pid = null;
     }
+  }
+
+  killAndWait() {
+    return defer((resolve, reject) => {
+      if (this.running) {
+        this.kill();
+        var interval     = 100;
+        var retries      = (3 * 60 * 1000) / interval;
+        var long_polling = setInterval(() => {
+          if (retries-- && this.running) { return; }
+          if (this.running) { return reject(); }
+
+          clearInterval(long_polling);
+          resolve(true);
+        }, interval);
+      } else {
+        resolve(true);
+      }
+    });
   }
 
   kill() {

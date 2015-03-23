@@ -94,7 +94,7 @@ var options = mergeConfig({
       },
       vm: {
         wait_ready : 180000,
-        ip         : envs('AZK_AGENT_VM_IP'  , '192.168.50.4'),
+        ip         : new Dynamic("agent:vm:ip"),
         name       : envs('AZK_AGENT_VM_NAME', "azk-vm-" + namespace),
         user       : "docker",
         password   : "live",
