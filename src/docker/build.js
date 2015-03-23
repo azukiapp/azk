@@ -113,6 +113,7 @@ export function build(docker, options) {
 
     // Parse json stream
     var from = null;
+    var output = '';
     stream.pipe(new JStream()).on('data', (msg) => {
       if (!msg.error) {
         msg.type = 'build_msg';
@@ -126,11 +127,18 @@ export function build(docker, options) {
             from = msg.statusParsed.FROM;
           }
         }
-      } else if (msg.error.match(/image .* not found/)) {
-        done.reject(new DockerBuildError('not_found', { dockerfile, from: from }));
+        output += msg.stream;
+      } else {
+        output += msg.error;
+
+        if (msg.error.match(/image .* not found/)) {
+          done.reject(new DockerBuildError('not_found', { dockerfile, from: from }));
+        } else if (msg.error.match(/returned a non-zero code/)) {
+          output = output.replace(/^(.*)/gm, '    $1');
+          done.reject(new DockerBuildError('command_error', { dockerfile, output: output }));
+        }
       }
     });
-
     return done.promise;
   });
 }
