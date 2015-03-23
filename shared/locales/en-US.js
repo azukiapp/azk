@@ -14,6 +14,7 @@ module.exports = {
     connect_docker_unavailable: "Could not initialize balancer because docker was not available",
     agent_not_running: "azk agent is required but is not running (try `azk agent status`)",
     agent_start: "azk agent start error: %(error)s",
+    agent_stop:  "azk agent stop error (try `azk agent status`)",
     not_been_implemented: "This feature: `%(feature)s` has not been implemented yet",
     system_not_found: "System `%(system)s` not found in `%(manifest)s`",
     manifest_required: "Manifest is required, but was not found in `%(cwd)s`",
@@ -45,6 +46,7 @@ module.exports = {
     ].join("\n"),
 
     docker_build_error: {
+      command_error: "  Error in building `%(dockerfile)s`:\n%(output)s\n",
       server_error: "Internal error in build `%(dockerfile)s`: %(error)",
       not_found   : "Can't find `%(from)s` image to build `%(dockerfile)s`",
       can_find_dockerfile: "Can't find `%(dockerfile)s` file",
@@ -163,7 +165,8 @@ module.exports = {
   manifest: {
     balancer_deprecated   : "The `balancer` option used in the `%(system)s` is deprecated, use `http` and `scalable` instead",
     cannot_extends_itself : "The system `%(system)s` cannot extend itself",
-    cannot_find_dockerfile: "Can't find `%(dockerfile)s` file to build an image for `%(system)s` system",
+    cannot_find_dockerfile: "Can't find Dockerfile in `%(dockerfile)s` path to build an image for `%(system)s` system",
+    cannot_find_dockerfile_path: "Can't find `%(dockerfile)s` path to build an image for `%(system)s` system",
     circular_dependency   : "Circular dependency between %(system1)s and %(system2)s",
     depends_not_declared  : "The `%(system)s` system depends on the `%(depend)s` system, which was not declared.",
     extends_system_invalid: "The system `%(system_source)s` for extending system `%(system_to_extend)s` cannot be found",
@@ -177,6 +180,7 @@ module.exports = {
     not_found             : "No such '%s' in current project",
     provider_invalid      : "The provider was not found: `%(wrongProvider)s`.",
     system_name_invalid   : "The system name `%(system)s` is not valid.",
+    required_path         : "Manifest class require a project path",
     validate: {
       deprecated : "The `%(option)s` used in `%(system)s` is deprecated, check the documentation for `%(new_option)s`",
       no_system_set: "No system has been set yet, check the documentation",
@@ -192,8 +196,6 @@ module.exports = {
     loaded: "Settings loaded successfully.",
     loading_checking: "Loading settings and checking dependencies.",
     ip_question: "Enter the vm ip",
-    ip_invalid: "`%(ip)s`".yellow + " is an invalid v4 ip, try again.",
-    ip_invalid_range: "`%(ip)s`".yellow + " is an invalid ip range, try again.",
     adding_ip: "Adding %(ip)s to %(file)s ...",
     generating_key: "Generating public/private rsa key pair to connect to vm.\n",
     vm_ip_msg: ([
@@ -209,11 +211,18 @@ module.exports = {
     check_version_error: 'Checking version: [ %(error_message)s ]!',
     clean_containers: "Clearing %(count)d lost containers",
     migrations: {
-      alert: "azk updated, checking update procedures...",
-      changing_domain: "Changing domain upgrading, (issue: #255)",
-      moving_resolver: "Moving %(origin)s to %(target)s ...",
-      renaming_vm: "Renaming VirtualBox machine %(old_name)s to %(new_name)s",
-    }
+      alert             : "azk updated, checking update procedures...",
+      changing_domain   : "Changing domain upgrading, (issue: #255)",
+      moving_resolver   : "Moving %(origin)s to %(target)s ...",
+      renaming_vm       : "Renaming VirtualBox machine %(old_name)s to %(new_name)s",
+    },
+    find_suggestions_ips: "Suggesting a new ip...",
+    errors: {
+      invalid_current_ip: 'Current ip `%(ip)s` conflict with network interface `%(inter_name)s inet %(inter_ip)s`',
+      ip_invalid : "`%(ip)s`".yellow + " is an invalid v4 ip, try again.",
+      ip_loopback: "`%(ip)s`".yellow + " conflict with loopback network",
+      ip_conflict: "`%(ip)s`".yellow + " conflict with network interface `%(inter_name)s inet %(inter_ip)s`",
+    },
   },
 
   commands: {

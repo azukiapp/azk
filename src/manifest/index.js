@@ -67,7 +67,7 @@ export class Manifest {
     }
 
     if (required && !cwd) {
-      throw new Error("Manifest class require a project path");
+      throw new Error(t("manifest.required_path"));
     }
 
     this.images   = {};

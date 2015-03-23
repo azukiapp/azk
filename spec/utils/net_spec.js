@@ -1,8 +1,11 @@
 import h from 'spec/spec_helper';
-import { async, config, Q } from 'azk';
+import { async, Q } from 'azk';
+import { config, set_config } from 'azk';
 import { path } from 'azk';
-import { net as net_utils } from 'azk/utils';
+import { net as net_utils, envDefaultArray } from 'azk/utils';
 var net = require('net');
+
+var cache_key = "agent:dns:file_cache";
 
 describe("Azk utils.net module", function() {
   it("should get a free port", function() {
@@ -16,15 +19,53 @@ describe("Azk utils.net module", function() {
     h.expect(net_utils.calculateGatewayIp('192.168.50.4')).to.equal('192.168.50.1');
   });
 
-  it('should custom nameservers', function () {
-    var custom_nameservers        = ['208.67.222.222', '208.67.222.220'];
-    var full_custom_nameservers   = [config("agent:dns:ip")].concat(custom_nameservers);
+  describe('with nameservers', function() {
+    var name_servers_options = {
+      resolv_path: path.join(h.fixture_path('etc'), 'resolv.conf')
+    };
+    var env_dns_servers;
 
-    var default_nameservers       = config('agent:dns:nameservers');
-    var full_default_nameservers  = [config("agent:dns:ip")].concat(default_nameservers);
+    before(() => {
+      env_dns_servers = process.env.AZK_DNS_SERVERS;
+      set_config(cache_key, null);
+    });
 
-    h.expect(full_custom_nameservers).to.eql(net_utils.nameServers(custom_nameservers));
-    h.expect(full_default_nameservers).to.eql(net_utils.nameServers());
+    afterEach(() => {
+      process.env.AZK_DNS_SERVERS = env_dns_servers;
+      set_config(cache_key, null);
+    });
+
+    it('should custom', function () {
+      var custom_nameservers        = ['208.67.222.222', '208.67.222.220'];
+      var full_custom_nameservers   = [ config("agent:dns:ip") ].concat(custom_nameservers);
+
+      h.expect(full_custom_nameservers).to.eql(net_utils.nameServers(custom_nameservers, name_servers_options));
+      h.expect(full_custom_nameservers).isNull;
+    });
+
+    it('should env AZK_DNS_SERVERS', function() {
+      process.env.AZK_DNS_SERVERS = '123.123.123.123,321.321.321.321';
+
+      var dns_servers = envDefaultArray('AZK_DNS_SERVERS', []);
+      var full_dns_servers   = [ config("agent:dns:ip") ].concat(dns_servers);
+
+      h.expect(full_dns_servers).to.eql(net_utils.nameServers(name_servers_options));
+    });
+
+    it('should dns_servers of resolv.conf', function() {
+      var dns_servers = ['189.38.95.95', '189.38.95.96'];
+      var full_dns_servers   = [ config("agent:dns:ip") ].concat(dns_servers);
+
+      h.expect(full_dns_servers).to.eql(net_utils.nameServers(name_servers_options));
+    });
+    it('should default', function () {
+      var name_servers_options = { resolv_path: false };
+      var default_nameservers       = config('agent:dns:defaultserver');
+      var full_default_nameservers  = [ config("agent:dns:ip") ].concat(default_nameservers);
+
+      h.expect(full_default_nameservers).to.eql(net_utils.nameServers(name_servers_options));
+      h.expect(full_default_nameservers).to.eql(config(cache_key));
+    });
   });
 
   describe("wait for service", function() {

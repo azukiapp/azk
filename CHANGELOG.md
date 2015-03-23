@@ -5,11 +5,28 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## dev
 
+* Bug
+  * [Manifest] Fixing running azk command in subfolder using dockfile, issue #250;
+  * [Agent] Fixing agent does not start when not connected to internet. #312;
+  * [Cli] Checking namservers every time you start a container;
+  * [Dockerfile] Fixing does not show the error when the Dockerfile not build, issue #303;
+  * [Agent] Adding support to swap in order to stand heavy load memory cases;
+  * [Agent] Changing dhcp-client configs (adding timeout) in order to avoid network-dependent services tree to fail;
+  * [Agent] Making VirtualBox data disk deattach/remove process more reliable;
+  * [Agent] Now `azk agent stop` waits for agent real stop;
+
 * Enhancements
   * [code] Adding support to "integration testing"
   * [Cli] New output when pulling images: show total layers count to download. Shows only a single progress bar with total download status. Integrate docker-registry-downloader with azk. #234 #119 #317
   * [Package] Adding update npm after install node
   * [Package] Fixing of usage npm-sheringwrap in package
+  * [code] Adding support to "integration testing";
+  * [Cli] New output when pulling images: show total count and size of layers to downloaded. Shows only a single progress bar with total download status. Integrate docker-registry-downloader with azk. #234 #119;
+  * [Package] Adding update npm after install node;
+  * [Package] Fixing of usage npm-sheringwrap in package;
+  * [agent] Using VM static ip (set via guestproperty) instead of VirtualBox DHCP servers;
+  * [agent] Adding verification of ip conflicts with existent networks interfaces;
+  * [agent] Suggesting an altertive ip in case of a conflict;
 
 ## v0.10.2 - (2015-24-02)
 
