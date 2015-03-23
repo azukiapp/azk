@@ -6,7 +6,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## dev
 
 * Bug
-  - [Parse] Fixing running azk command in subfolder using dockfile, issue #250.
+  * [Parse] Fixing running azk command in subfolder using dockfile, issue #250.
+  * [Agent] Fixing agent does not start when not connected to internet. #312
+  * [Cli] Checking namservers every time you start a container.
 
 * Enhancements
   * [code] Adding support to "integration testing"
