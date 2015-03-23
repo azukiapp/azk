@@ -26,11 +26,13 @@ Ao executar o azk no Mac, você não precisa instalar o Docker manualmente já q
 
 ##### Qual a diferença do azk para o docker-compose (Fig)?
 
+O `azk`:
+
 - Não é um orquestrador focado apenas em Docker, apesar de suportar somente Docker no momento;
 - Conta com um balanceador de carga http integrado, o que facilita testes de "stateless" das suas aplicações web;
-- Possui um serviço de DNS integrado, que ajuda a lidar com várias aplicações sem necessidade de ficar lembrando em qual porta do `localhost` você as levantou. Incluindo suporte ao Linux por meio da lib: [libnss-resolver](https://github.com/azukiapp/libnss-resolver);
-- Possui o conceito de provisionamento, que permite que sejam executados comandos antés da criação do container de forma automática, sem que seja necessária a alteração da imagem original, idéal para executar instalação de dependências e migrações de bancos de dados;
-- Possibilita a criação de um arquivo de manifesto mais avançado, o `Azkfile.js`, este é feito com uma DSL Javascript que torna sua criação bem flexível;
+- Possui um serviço de DNS integrado, que ajuda a lidar com várias aplicações sem necessidade de ficar lembrando em qual porta do `localhost` você as levantou. Também inclui suporte ao Linux por meio da lib: [libnss-resolver](https://github.com/azukiapp/libnss-resolver);
+- Possui o conceito de provisionamento, que permite que sejam executados comandos antes da criação do container de forma automática, sem que seja necessária a alteração da imagem original. Ideal para executar a instalação de dependências, ou migrações de bancos de dados, por exemplo;
+- Possibilita a criação de um arquivo de manifesto mais avançado, chamado de `Azkfile.js`, feito com uma DSL Javascript que torna sua criação bem flexível.
 
 ##### Qual a diferença do azk para o Vagrant, ou Chef?
 
@@ -42,7 +44,7 @@ Explicando de uma forma sucinta:
 
 O `azk`, assim como o Docker, se sobrepõe ao Vagrant e ao Chef em certos aspectos. Com ele é possível definir como as aplicações/serviços que compõem o seu projeto se relacionam, e como o seu projeto deve ser executado. Isso é feito dentro do `Azkfile.js`, de uma forma clara e sucinta para facilitar a comunicação entre desenvolvimento e operações (DevOps), e tornar todo o processo de deployment algo transparente para ambos os times. Além disso, especificamente pelo uso de containers, testar as aplicações em desenvolvimento e produção se torna algo muito mais confiável e diminui as chances do famoso "mas funciona na minha máquina".
 
-Por fim o `azk` foca em uma abordagem descrição da arquitetura do ponto de vista funcional, ou seja você descreve os vários "micro-serviços" que compõe sua arquitetura, no lugar de uma abordagem de arquitetura de sistemas como no `Vagrant` onde o foco na descrição de máquina virtuais;
+Por fim o `azk` foca em uma abordagem de descrição da arquitetura do ponto de vista funcional, ou seja você descreve os vários "micro-serviços" que compõem sua arquitetura. Isso é diferente da abordagem de arquitetura de sistemas, como no `Vagrant`, onde o foco é na descrição de máquina virtuais;
 
 ##### Meu programa está legal com azk. Existe alguma forma de fazer deploy do meu ambiente?
 
@@ -59,8 +61,9 @@ As sugestões feitas pelo comando `azk init` são testadas pela equipe do `azk`.
 ##### A imagem sugerida pelo azk não está do jeito que eu gostaria, como devo proceder?
 
 Você pode encontrar imagens prontas em:
-- [Repositório de imagens do Azuki](http://images.azk.io/)
-- [Repositório de imagens do Docker](https://registry.hub.docker.com/u/azukiapp)
+- [Repositório de imagens da Azuki](http://images.azk.io/)
+- [Repositório de imagens da Azuki no Docker Hub](https://registry.hub.docker.com/u/azukiapp)
+- [Docker Hub](https://registry.hub.docker.com/)
 
 ##### Não acho a imagem que gostaria no Docker Hub, o que faço agora?
 
@@ -70,7 +73,7 @@ Além disso, faz sentido utilizar seu próprio Dockerfile caso:
 
 - Você saiba os requisitos exatos e únicos do ambiente de desenvolvimento necessário para sua aplicação;
 - Você queira adicionar funcionalidades específicas do seu projeto a imagens existentes;
-- Você precisa otimizar o tamanho de uma imagem comparado ao que está disponível atualmente;
+- Você precisa otimizar o tamanho de uma imagem comparado ao que está disponível atualmente.
 
 ##### Por que quando eu mudo de pastas não vejo mais os sistemas levantados com o comando `azk status`?
 
@@ -94,7 +97,7 @@ Para deletar uma imagem, basta executar:
 $ adocker rmi azukiapp/node:0.10
 ```
 
-Ao listar as imagens algumas imagens podem aparecer com o nome `<node>` esta são imagens "perdidas". Elas acabam "perdidas"por uma serie de fatores, entre eles podem estar um container que ainda estava em execução quando uma nova versão foi removida, para remover todas de uma única vez faça:
+Ao listar as imagens, algumas podem aparecer com o nome `<none>`. Estas são imagens "perdidas". Isso acontece por uma série de razões, entre elas podem estar um container que ainda estava em execução quando uma nova versão foi removida, por exemplo. Para remover todas de uma única vez faça:
 
 ```sh
 adocker rmi --force `adocker images | grep "<none>" | awk '{ print $3 }'`

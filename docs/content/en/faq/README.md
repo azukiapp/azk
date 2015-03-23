@@ -26,19 +26,25 @@ When running azk on Mac, you do not need to manually install Docker since we tak
 
 ##### What's the difference between azk and docker-compose (Fig)?
 
-- `azk` is not only focused in Docker, although it only supports it for the moment.
-- `azk` has an integrated load balancer.
-- `azk` has an integrated DNS with [libnss-resolver](https://github.com/azukiapp/libnss-resolver), allowing the user to access custom URLs and not just localhost.
-- `azk` has the concept of provisioning, which allows commands to be executed automatically after the creation of the container, without changing the original image.
-- The `Azkfile.js` is built using JavaScript with its own structure.
+`azk`:
+
+- Is not only focused in Docker, although it only supports it for the moment;
+- Has an integrated http load balancer, which makes it easier to test if your application is "stateless";
+- Has an integrated DNS service which helps when developing multiple applications without having to remember which `localhost` port they're using. Also including Linux support with the lib: [libnss-resolver](https://github.com/azukiapp/libnss-resolver);
+- Has the concept of provisioning, which allows commands to be executed automatically before the creation of the container, without changing the original image. This is suitable for installing dependencies or migrating databases, for example;
+- Uses a more robust manifest file, called `Azkfile.js`, which is built using a DSL JavaScript that makes its creation more flexible.
 
 ##### What's the difference between azk and Vagrant, or Chef?
 
 Explaining in a succint way:
+
 - `Vagrant` provides a way to describe and generate identical virtual machines (or even containers more recently). It can work together with a software configuration tool (eg Chef) to continue a machine setup process, after the system installation is complete.
+
 - `Chef`, as mentioned above, is a tool for software configuration. It will help automate the process of setting up a machine, after it is started. For example, it can help with configuration files, installed programs, users, among other features. Chef, like other similar projects, also helps in the orchestration process to send changes in a system to specific machines.
 
 azk, and Docker as well, both overlap with Vagrant and Chef in certain aspects. With azk you can define how applications/services that make up your project relate, and how your project should be executed. This is done within the `Azkfile.js`, in a clear and succinct way to facilitate communication between development and operations (DevOps), and make the whole deployment process something transparent to both teams. In addition, particularly because of the use of containers, testing applications in development and production becomes something much more reliable and reduces the chances of the famous "but it works on my machine".
+
+Finally, `azk` focuses on the approach of describing a system's architecture from a functional point of view, which means you describe the various "micro-services" that make up the whole system. This is different from a systems architecture approach, such as `Vagrant`, where the focus is on the description of virtual machines;
 
 ##### My program is working fine with azk. Is there any way to deploy my environment?
 
@@ -46,7 +52,7 @@ We are working on a deployment solution. Stay tuned. ;)
 
 ##### Inside the Azkfile.js, what's the difference between image, provision and command?
 
-The `image` property defines which docker binary image is going to be used as the starting point for the system setup. `provision` is executed the first time the system is raised, and` command` defines how to start the system so that it is exposed to the user, or to another system.
+The `image` property defines which docker binary image is going to be used as the starting point for the system setup. `provision` is executed once before the system is started, and` command` defines how to start the system so that it is exposed to the user or to another system.
 
 ##### Why should I use the images suggested by `azk init`?
 
@@ -56,7 +62,8 @@ The suggestions made by the command `azk init` are tested by the `azk` team. The
 
 You can find other images in:
 - [Azuki images repository](http://images.azk.io/)
-- [Docker Hub images](https://registry.hub.docker.com/)
+- [Azuki images repository in Docker Hub](https://registry.hub.docker.com/u/azukiapp)
+- [Docker Hub](https://registry.hub.docker.com/)
 
 ##### I cannot find the image I want in the Docker Hub, what do I do now?
 
@@ -64,8 +71,8 @@ In this case, the alternative is to create your own Dockerfile to build your ima
 
 In addition, it makes sense to use your own Dockerfile if:
 
-- You know the exact, and unique, requirements of the development environment required for your application.
-- You want to add specific dependencies of your project to existing images.
+- You know the exact, and unique, requirements of the development environment required for your application;
+- You want to add specific dependencies of your project to existing images;
 - You need to optimize the size of an image compared to what is currently available.
 
 ##### Why is it that when I change folders I can no longer see the systems raised with the `azk status` command?
@@ -81,26 +88,24 @@ To answer this question, it's worth reading more about micro-services in this gr
 You can list the images you have using the command:
 
 ```sh
-# Mac
 $ adocker images
-
-# Linux
-$ docker images
 ```
 
 To delete an image, just run:
 
 ```sh
-# Mac
 $ adocker rmi azukiapp/node:0.10
-
-# Linux
-$ docker rmi azukiapp/node:0.10
 ```
 
-##### How do I create an application (node, ruby, rails, etc.), without having the language or framework installed on my machine?
+By listing the images, some of them may appear with the name `<none>`. These are "lost" images. This may happen for a number of reasons, among them it could be that a container was still running when a new version was removed, for example. To remove all at once run:
 
-You can create a container using the image of the language/framework that you want, access it using the command `azk shell [system]`, and create your application inside.
+```sh
+adocker rmi --force `adocker images | grep "<none>" | awk '{ print $3 }'`
+```
+
+##### How do I create an application (npm, rails, etc.), without having the language or framework installed on my machine?
+
+You can create a container using the image of the language/framework that you want, access it using the command `azk shell --image [docker-registry-image]`, and create your application inside.
 
 Example of generating a rails application:
 
@@ -109,6 +114,13 @@ $ azk shell --image azukiapp/ruby --shell /bin/bash
 # gem install rails --no-rdoc --no-ri
 # rails new my-app
 # exit
+```
+
+Afterwards you can create a `Azkfile.js` by accessing the application folder:
+
+```sh
+$ cd my-app
+$ azk init
 ```
 
 ##### I'm having completion and encoding problems when running `azk shell`. How do I fix it?
