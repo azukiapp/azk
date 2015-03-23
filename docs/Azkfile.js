@@ -5,7 +5,7 @@
 // Adds the systems that shape your system
 systems({
   'docs-azk': {
-    image: "node:0.10",
+    image: { docker: "node:0.10" },
 
     // Steps to execute before running instances
     provision: [
@@ -14,11 +14,11 @@ systems({
     ],
     workdir: "/azk/#{manifest.dir}",
     shell: "/bin/bash",
-    command: "node node_modules/.bin/gitbook serve --port $HTTP_PORT content",
-    wait: {"retry": 20, "timeout": 1000},
+    command: "node_modules/.bin/gitbook serve --port $HTTP_PORT content",
+    wait: {"retry": 20, "timeout": 2000},
     mounts: {
       '/azk/#{manifest.dir}': path("."),
-      '/azk/bundler': persistent("bundler"),
+      '/azk/node_modules': persistent("node_modules"),
     },
     scalable: {"default": 1},
     http: {

@@ -1,7 +1,6 @@
 # Troubleshooting
 
 1. [I can't access any URL *.azk.dev.io](README.html#i-cant-access-any-url-azkdevio)
-1. [`azk agent start` doesn't connect to docker](README.html#azk-agent-start-doesnt-connect-to-docker)
 1. [I'm experiencing slowness when running an application with azk in my Mac. What might be the cause?](README.html#im-experiencing-slowness-when-running-an-application-with-azk-in-my-mac-what-might-be-the-cause)
 
 ##### I can't access any URL *.azk.dev.io
@@ -42,32 +41,8 @@ During the instalation process, azk creates a file inside `/etc/resolver/` calle
    ```sh
    sudo pfctl -f /etc/pf.conf; sudo pfctl -e
    ```
-   
+
 Thanks to [pow](https://github.com/basecamp/pow/wiki/Troubleshooting#dns) for the troubleshooting tips. :)
-
-##### `azk agent start` doesn't connect to docker
-
-In case you make changes to azk's VM through VirtualBox, some errors might happen the next time you try to execute `azk`. For example, it may give you an error message regarding the state of the VM being "Saved", "Running", or simply not connect to docker. To solve this issue:
-
-- Remove azk's VM:
-
-`azk vm remove`
-
-- List VirtualBox dhcp services:
-
-`VBoxManage list dhcpservers`
-
-- Remove them:
-
-`VBoxManage dhcpserver remove --netname [NetworkName]`
-
-- List the configured network interfaces:
-
-`VBoxManage list hostonlyifs`
-
-- Remove them:
-
-`VBoxManage hostonlyif remove [Name]`
 
 ##### I'm experiencing slowness when running an application with azk in my Mac. What might be the cause?
 
