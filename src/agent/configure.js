@@ -282,7 +282,7 @@ export class Configure extends UIProxy {
   _checkAndSaveIp(nameserver, file, use_vm, services_ports) {
     return async(this, function* () {
       // Not exist or invalid content
-      var ip = _.isObject(nameserver) ? null : nameserver.ip;
+      var ip = _.isObject(nameserver) ? nameserver.ip : null;
       var conflict  = use_vm ? net.conflictInterface(ip, this._interfaces) : null;
       var unmatched_dns_port = nameserver.port !== services_ports.dns;
       if (_.isEmpty(ip) || !_.isEmpty(conflict) || unmatched_dns_port) {
