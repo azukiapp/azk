@@ -81,30 +81,31 @@ var net = {
   },
 
   _readResolverFile(file = "/etc/resolv.conf") {
-    var data;
+    var data = null;
     if (file) {
       try {
-        data = fs.readFileSync(file).toString();
-        data = this.parseNameserver(data);
-      } catch (err) {
-        data = null;
-      }
+        var content = fs.readFileSync(file).toString();
+        data = this.parseNameserver(content);
+        data = _.map(data, (nameserver) => nameserver.ip);
+      } catch (err) { }
     }
     return data ? data : [];
   },
 
+  // Regex: https://regex101.com/r/qK0aS1/1
   parseNameserver(content) {
     var lines   = content.split('\n');
-    var regex   = /^\s*nameserver\s{1,}((?:[0-9]{1,3}\.){3}[0-9]{1,3})/;
+    var regex   = /^\s*nameserver\s{1,}((?:\d{1,3}\.){3}\d{1,3})(?:[:|\.]?(\d{1,5}))?$/;
     var capture = null;
-    return _.reduce(lines, (nameservers, line) => {
+    return _.reduce(lines, (acc, line) => {
       if ((capture = line.match(regex))) {
-        var ip = capture[1];
+        var ip   = capture[1];
+        var port = capture[2] || "53";
         if (isIPv4(ip)) {
-          nameservers.push(ip);
+          acc.push({ ip, port });
         }
       }
-      return nameservers;
+      return acc;
     }, []);
   },
 

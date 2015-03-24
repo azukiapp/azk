@@ -61,8 +61,9 @@ module.exports = {
         mv_resolver: "Upgrading domains error, moving files was not possible",
       },
       darwin: {
-        VBoxManage : 'VirtualBox not installed. Install before continuing.',
-        network: 'Networking error',
+        VBoxManage     : 'VirtualBox not installed. Install before continuing.',
+        network        : 'Networking error',
+        custom_dns_port: 'Sorry, but Mac OS X supports only port `53` as `AZK_DNS_PORT`',
       },
       linux: {
         port_error: [
@@ -218,7 +219,8 @@ module.exports = {
     },
     find_suggestions_ips: "Suggesting a new ip...",
     errors: {
-      invalid_current_ip: 'Current ip `%(ip)s` conflict with network interface `%(inter_name)s inet %(inter_ip)s`',
+      unmatched_dns_port: 'The current dns port `%(old)s` set in `%(file)s` differs from env var `AZK_DNS_PORT=%(new)s`',
+      invalid_current_ip: 'Current ip `%(ip)s` conflicts with network interface `%(inter_name)s inet %(inter_ip)s`',
       ip_invalid : "`%(ip)s`".yellow + " is an invalid v4 ip, try again.",
       ip_loopback: "`%(ip)s`".yellow + " conflict with loopback network",
       ip_conflict: "`%(ip)s`".yellow + " conflict with network interface `%(inter_name)s inet %(inter_ip)s`",

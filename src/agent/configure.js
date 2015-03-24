@@ -60,14 +60,17 @@ export class Configure extends UIProxy {
         yield this._checkAzkVersion();
         yield Migrations.run(this);
 
+        var ports = {
+          dns: yield this._checkPorts('agent:dns:port', 'dns', 'AZK_DNS_PORT'),
+          balancer: yield this._checkPorts('agent:balancer:port', 'balancer', 'AZK_BALANCER_PORT'),
+        };
+
         return _.merge(
-          {},
+          { 'agent:dns:port': ports.dns, 'agent:balancer:port': ports.balancer },
           yield this._checkDockerSocket(socket),
-          yield this._checkAndConfigureNetwork(false),
+          yield this._checkAndConfigureNetwork(ports, false),
           yield this._loadDnsServers(),
-          yield this._cleanContainers(),
-          yield this._checkPorts('agent:balancer:port', 'balancer', 'AZK_BALANCER_PORT'),
-          yield this._checkPorts('agent:dns:port', 'dns', 'AZK_DNS_PORT')
+          yield this._cleanContainers()
         );
       })
       .fail((err) => {
@@ -84,10 +87,19 @@ export class Configure extends UIProxy {
       yield this._checkAzkVersion();
       yield Migrations.run(this);
 
+      var ports = {
+        dns: config('agent:dns:port'),
+        balancer: config('agent:balancer:port'),
+      };
+
+      if (os.platform() === 'darwin' && ports.dns !== '53') {
+        throw new DependencyError('custom_dns_port');
+      }
+
       return _.merge(
-        {},
+        { 'agent:dns:port': ports.dns, 'agent:balancer:port': ports.balancer },
         yield this._which('VBoxManage'),
-        yield this._checkAndConfigureNetwork(),
+        yield this._checkAndConfigureNetwork(ports),
         yield this._checkAndGenerateSSHKeys(),
         yield this._loadDnsServers()
       );
@@ -179,8 +191,8 @@ export class Configure extends UIProxy {
       });
   }
 
-  _checkPorts(confKey, service, env) {
-    var port = config(confKey);
+  _checkPorts(configKey, service, env) {
+    var port = config(configKey);
     return net
       .checkPort(port, this.docker_ip)
       .then((avaibly) => {
@@ -191,6 +203,7 @@ export class Configure extends UIProxy {
             env: env
           });
         }
+        return port;
       });
   }
 
@@ -233,22 +246,23 @@ export class Configure extends UIProxy {
   }
 
   // Check vm ip is configurat
-  _checkAndConfigureNetwork(use_vm = true) {
+  _checkAndConfigureNetwork(services_ports, use_vm = true) {
     return async(this, function* () {
       var file   = config('agent:balancer:file_dns');
       var ip     = null;
-      var result = {};
+      var result = {}, nameserver = null;
 
       // File exist? Get content
       var exist = yield qfs.exists(file);
       if (exist) {
-        var content = yield qfs.read(file);
-        ip = net.parseNameserver(content)[0];
+        var content     = yield qfs.read(file);
+        var nameservers = net.parseNameserver(content);
+        if (!_.isEmpty(nameservers)) { nameserver = nameservers[0]; }
       }
 
       // Check ip or generate a new one
       if (use_vm) { this._interfaces = yield this._getInterfacesIps(); }
-      ip = yield this._checkAndSaveIp(ip, file, use_vm);
+      ip = yield this._checkAndSaveIp(nameserver, file, use_vm, services_ports);
 
       if (use_vm) { result['docker:host'] = `http://${ip}:2375`; }
 
@@ -264,15 +278,21 @@ export class Configure extends UIProxy {
     });
   }
 
-  _checkAndSaveIp(ip, file, use_vm) {
+  _checkAndSaveIp(nameserver, file, use_vm, services_ports) {
     return async(this, function* () {
       // Not exist or invalid content
-      var conflict = use_vm ? this._conflictInterface(ip) : null;
-      if (_.isEmpty(ip) || !_.isEmpty(conflict)) {
+      var ip = _.isObject(nameserver) ? null : nameserver.ip;
+      var conflict  = use_vm ? this._conflictInterface(ip) : null;
+      var unmatched_dns_port = nameserver.port !== services_ports.dns;
+      if (_.isEmpty(ip) || !_.isEmpty(conflict) || unmatched_dns_port) {
         if (use_vm) {
+          var fail_data;
           if (!_.isEmpty(conflict)) {
-            var fail_data = { ip, inter_name: conflict.name, inter_ip: conflict.ip };
+            fail_data = { ip, inter_name: conflict.name, inter_ip: conflict.ip };
             this.fail('configure.errors.invalid_current_ip', fail_data);
+          } else if (unmatched_dns_port) {
+            fail_data = { file, old: nameserver.port, new: services_ports.dns };
+            this.fail('configure.errors.unmatched_dns_port', fail_data);
           } else {
             this.warning('configure.vm_ip_msg');
           }
@@ -281,7 +301,7 @@ export class Configure extends UIProxy {
         } else {
           ip = yield this._getDockerIp();
         }
-        yield this._generateResolverFile(ip, file);
+        yield this._generateResolverFile(ip, services_ports.dns, file);
       }
 
       return ip;
@@ -295,10 +315,9 @@ export class Configure extends UIProxy {
   }
 
   // Generate file /etc/resolver/*
-  _generateResolverFile(ip, file) {
+  _generateResolverFile(ip, port, file) {
     // TODO: Fixing is not root and not have a sudo
     return this.execShWithSudo('network', (sudo_path) => {
-      var port = config('agent:dns:port');
       // Creating resolver file and adding ip (with sudo)
       this.info('configure.adding_ip', { ip, file });
       ip = `${ip}${this.dns_tab}${port}`;
