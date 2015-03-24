@@ -437,10 +437,13 @@ var vm = {
         status_change("removing");
 
         // Removing disk if it's not a link (old disk style)
-        var is_link = yield qfs.isSymbolicLink(info['SATA-1-0']);
-        if (!is_link) {
-          yield exec("storagectl", vm_name, "--name", "SATA", "--remove");
-          yield exec("closemedium", "disk", info['SATA-1-0']);
+        var disk_file = info['SATA-1-0'];
+        if (!_.isEmpty(disk_file)) {
+          var is_link = yield qfs.isSymbolicLink(disk_file);
+          if (!is_link) {
+            yield exec("storagectl", vm_name, "--name", "SATA", "--remove");
+            yield exec("closemedium", "disk", disk_file);
+          }
         }
 
         // Remove networking interface
