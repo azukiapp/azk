@@ -76,7 +76,7 @@ describe("Azk system class, run set", function() {
         var options    = {
           command : ["/bin/bash", "-c", "sleep 2;" + "socat TCP4-LISTEN:$HTTP_PORT,fork EXEC:`pwd`/src/bashttpd"],
           ports: {
-            http: '81:81/tcp'
+            http: '31275:31275/tcp'
           }
         };
 

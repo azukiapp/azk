@@ -117,11 +117,11 @@ export function extend(h) {
             test_public: "5252:443/tcp",
           },
         },
-        'ports-fixed': {
+        'ports-static': {
           image: { docker: default_img },
           ports: {
-            test_fixed_tcp: "81:81/tcp",
-            test_public: "5252:443/tcp",
+            81: "81:81/tcp",
+            443: "5252:443/tcp",
           },
         },
         'ports-disable': {

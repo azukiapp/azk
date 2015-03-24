@@ -162,7 +162,7 @@ describe("Azk system class, main set", function() {
       });
 
       it("should merge system ports with image ports", function() {
-        var system  = manifest.system('ports-fixed');
+        var system  = manifest.system('ports-static');
         return system.image.check().then((image) => {
           return image.inspect().then((image_data) => {
             var options = system.daemonOptions({ image_data });
@@ -184,7 +184,7 @@ describe("Azk system class, main set", function() {
       });
 
       it("should orderly and merged system ports with image ports", function() {
-        var system  = manifest.system('ports-fixed');
+        var system  = manifest.system('ports-static');
         return system.image.check().then((image) => {
           return image.inspect().then((image_data) => {
             var options = system.daemonOptions({ image_data });
@@ -197,7 +197,7 @@ describe("Azk system class, main set", function() {
       });
 
       it("should merge ports system without override", function() {
-        var system  = manifest.system('ports-fixed');
+        var system  = manifest.system('ports-static');
         return system.image.check().then((image) => {
           return image.inspect().then((image_data) => {
             var options = system.daemonOptions({ image_data });
@@ -239,7 +239,7 @@ describe("Azk system class, main set", function() {
             "6379/tcp": "6379/tcp",
           }
         };
-        var system  = manifest.system('ports-fixed');
+        var system  = manifest.system('ports-static');
         var options = system.daemonOptions(custom);
 
         h.expect(options).to.deep.have.property("ports.8080/tcp").and.eql([{
