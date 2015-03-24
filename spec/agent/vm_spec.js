@@ -11,19 +11,11 @@ var exec = Q.nbind(vbm.command.exec, vbm.command);
 h.describeSkipVm("Azk agent vm", function() {
   var data_path = config("agent:vm:data_disk");
   var data_test = path.join(path.dirname(data_path), "test-" + path.basename(data_path));
-
+  var net_opts  = {};
   var opts = {
     name: "test-" + config("agent:vm:name"),
-    ip  : "192.168.51.4",
     boot: config("agent:vm:boot_disk"),
     data: data_test,
-  };
-
-  var net_opts = {
-    ip: opts.ip,
-    gateway: net.calculateGatewayIp(opts.ip),
-    network: net.calculateNetIp(opts.ip),
-    netmask: "255.255.255.0",
   };
 
   // Setups
@@ -49,7 +41,21 @@ h.describeSkipVm("Azk agent vm", function() {
     });
   };
 
-  before(remove);
+  before(() => {
+    return async(this, function* () {
+      yield remove.apply(this);
+
+      var interfaces = yield net.getInterfacesIps();
+      opts.ip = yield net.generateSuggestionIp(null, interfaces);
+
+      _.merge(net_opts, {
+        ip: opts.ip,
+        gateway: net.calculateGatewayIp(opts.ip),
+        network: net.calculateNetIp(opts.ip),
+        netmask: "255.255.255.0",
+      });
+    });
+  });
   after(remove);
 
   // Tests
@@ -215,10 +221,10 @@ h.describeSkipVm("Azk agent vm", function() {
     });
 
     it("should execute a ssh command", function() {
-      var result = VM.ssh(name, "uptime").progress(progress);
+      var result = VM.ssh(name, "sleep 0.5; uptime").progress(progress);
       return result.then(function(code) {
-        h.expect(code).to.equal(0);
         h.expect(data).to.match(/load average/);
+        h.expect(code).to.equal(0);
       });
     });
 
