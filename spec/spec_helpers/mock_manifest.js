@@ -110,11 +110,18 @@ export function extend(h) {
           image: { docker: default_img },
         },
         'ports-test': {
-          image: { docker: config("docker:image_empty") },
+          image: { docker: default_img },
           ports: {
             test_tcp: "80/tcp",
             test_udp: "53/udp",
             test_public: "5252:443/tcp",
+          },
+        },
+        'ports-static': {
+          image: { docker: default_img },
+          ports: {
+            81: "81:81/tcp",
+            443: "5252:443/tcp",
           },
         },
         'ports-disable': {

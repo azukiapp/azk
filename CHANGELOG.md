@@ -14,6 +14,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Agent] Changing dhcp-client configs (adding timeout) in order to avoid network-dependent services tree to fail;
   * [Agent] Making VirtualBox data disk deattach/remove process more reliable;
   * [Agent] Now `azk agent stop` waits for agent real stop;
+  * [Balancer] Fixing conflict at the port to be expected by the wait, issue #309;
+  * [Agent] Fixing bug that could cause DNS and HTTP Balancer ports configuration to be ignored;
 
 * Enhancements
   * [code] Adding support to "integration testing"
@@ -27,6 +29,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [agent] Using VM static ip (set via guestproperty) instead of VirtualBox DHCP servers;
   * [agent] Adding verification of ip conflicts with existent networks interfaces;
   * [agent] Suggesting an altertive ip in case of a conflict;
+  * [Agent] Adding tests to verify DNS port exchange between Agent instances and rewrite `/etc/resolver/dev.azk.io` file;
 
 ## v0.10.2 - (2015-24-02)
 

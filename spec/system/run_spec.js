@@ -73,9 +73,16 @@ describe("Azk system class, run set", function() {
 
     it("should run and wait for port", function() {
       return async(function* () {
-        var command   = ["/bin/bash", "-c", "sleep 2; " + system.raw_command];
-        var container = yield system.runDaemon({ command: command });
-        var data      = yield container.inspect();
+        var options    = {
+          command : ["/bin/bash", "-c", "sleep 2;" + "socat TCP4-LISTEN:$HTTP_PORT,fork EXEC:`pwd`/src/bashttpd"],
+          ports: {
+            http: '31275:31275/tcp'
+          }
+        };
+
+        var container  = yield system.runDaemon(options);
+        var data       = yield container.inspect();
+
         h.expect(data).to.have.deep.property('Annotations.azk.sys', system.name);
         h.expect(data).to.have.deep.property('State.ExitCode', 0);
         h.expect(data).to.have.deep.property('State.Running').and.ok;

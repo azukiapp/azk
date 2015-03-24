@@ -67,7 +67,7 @@ describe("Azk manifest class, main set", function() {
         h.expect(systems).to.has.deep.property("[0]").to.equal(
           manifest.system("expand-test")
         );
-        h.expect(systems).to.has.deep.property("[9]").to.equal(
+        h.expect(systems).to.has.deep.property("[10]").to.equal(
           manifest.system("example")
         );
       });
@@ -96,7 +96,7 @@ describe("Azk manifest class, main set", function() {
 
     describe("with a tree of the requireds systems", function() {
       it("should return a systems in required order", function() {
-        var systems = [ "expand-test", "mount-test", "ports-disable", "ports-test",
+        var systems = [ "expand-test", "mount-test", "ports-disable", "ports-fixed", "ports-test",
                         "test-image-opts", "empty", "db", "api", "example-extends", "example"];
 
         h.expect(manifest.systemsInOrder()).to.eql(systems);
