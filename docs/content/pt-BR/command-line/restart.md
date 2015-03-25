@@ -1,6 +1,6 @@
 ## azk restart
 
-Pára todas as instâncias dos sistemas especificados no `Azkfile.js` atual, ou aquele especificado, e inicia eles novamente. Mantém o número de instâncias atual, porém, caso ocorra algum erro durante a reinicialização, todos os sistemas serão derrubados.
+Para todas as instâncias dos sistemas especificados no `Azkfile.js` atual, ou aquele especificado, e inicia eles novamente. Mantém o número atual de instâncias, porém, caso ocorra algum erro durante a reinicialização, todos os sistemas serão derrubados.
 
 #### Opções:
 
