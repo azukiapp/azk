@@ -40,6 +40,7 @@ class Cmd extends InteractiveCmds {
         return data;
       }, {
         manifest: manifest.file,
+        manifest_id: manifest.namespace,
         cache_dir: manifest.cache_dir,
         default_system: manifest.systemDefault.name,
         systems: {}

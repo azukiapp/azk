@@ -26,10 +26,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Cli] New output when pulling images: show total count and size of layers to downloaded. Shows only a single progress bar with total download status. Integrate docker-registry-downloader with azk. #234 #119;
   * [Package] Adding update npm after install node;
   * [Package] Fixing of usage npm-sheringwrap in package;
-  * [agent] Using VM static ip (set via guestproperty) instead of VirtualBox DHCP servers;
-  * [agent] Adding verification of ip conflicts with existent networks interfaces;
-  * [agent] Suggesting an altertive ip in case of a conflict;
+  * [Agent] Using VM static ip (set via guestproperty) instead of VirtualBox DHCP servers;
+  * [Agent] Adding verification of ip conflicts with existent networks interfaces;
+  * [Agent] Suggesting an altertive ip in case of a conflict;
   * [Agent] Adding tests to verify DNS port exchange between Agent instances and rewrite `/etc/resolver/dev.azk.io` file;
+  * [Cli] Adding `manifest_id` on return of the command `azk info`, issue #323
 
 ## v0.10.2 - (2015-24-02)
 

@@ -33,6 +33,9 @@ describe("Azk command info, run in an", function() {
         var rx_manifest = RegExp("manifest:.*" + h.escapeRegExp(manifest.file));
         h.expect(outputs[0]).to.match(rx_manifest);
 
+        var rx_manifest_id = RegExp("manifest_id:.*" + h.escapeRegExp(manifest.namespace));
+        h.expect(outputs[0]).to.match(rx_manifest_id);
+
         var rx_cache = RegExp("cache_dir:.*" + h.escapeRegExp(manifest.cache_dir));
         h.expect(outputs[0]).to.match(rx_cache);
 
