@@ -14,7 +14,7 @@
 1. [Como crio uma aplicação (node, ruby, rails, etc), sem ter a linguagem ou framework instalados na minha máquina?](README.html#como-crio-uma-aplicao-node-ruby-rails-etc-sem-ter-a-linguagem-ou-framework-instalados-na-minha-mquina)
 1. [Estou com problemas de completion e encoding dentro do azk shell. Como resolvo?](README.html#estou-com-problemas-de-completion-e-encoding-dentro-do-azk-shell-como-resolvo)
 
-##### Quais os requisitos para utilizar o azk?
+#### Quais os requisitos para utilizar o azk?
 
 Linux:
 - Docker
@@ -24,7 +24,7 @@ Mac:
 
 Ao executar o azk no Mac, você não precisa instalar o Docker manualmente já que nós cuidamos disso. Nesse caso você tem acesso ao docker no terminal através do comando `adocker`. Pelo fato do Linux não precisar de uma máquina virtual para executar o azk, a performance nele é superior a alcançada no Mac.
 
-##### Qual a diferença do azk para o docker-compose (Fig)?
+#### Qual a diferença do azk para o docker-compose (Fig)?
 
 O `azk`:
 
@@ -34,7 +34,7 @@ O `azk`:
 - Possui o conceito de provisionamento, que permite que sejam executados comandos antes da criação do container de forma automática, sem que seja necessária a alteração da imagem original. Ideal para executar a instalação de dependências, ou migrações de bancos de dados, por exemplo;
 - Possibilita a criação de um arquivo de manifesto mais avançado, chamado de `Azkfile.js`, feito com uma DSL Javascript que torna sua criação bem flexível.
 
-##### Qual a diferença do azk para o Vagrant, ou Chef?
+#### Qual a diferença do azk para o Vagrant, ou Chef?
 
 Explicando de uma forma sucinta:
 
@@ -46,26 +46,26 @@ O `azk`, assim como o Docker, se sobrepõe ao Vagrant e ao Chef em certos aspect
 
 Por fim o `azk` foca em uma abordagem de descrição da arquitetura do ponto de vista funcional, ou seja você descreve os vários "micro-serviços" que compõem sua arquitetura. Isso é diferente da abordagem de arquitetura de sistemas, como no `Vagrant`, onde o foco é na descrição de máquina virtuais;
 
-##### Meu programa está legal com azk. Existe alguma forma de fazer deploy do meu ambiente?
+#### Meu programa está legal com azk. Existe alguma forma de fazer deploy do meu ambiente?
 
 Estamos trabalhando numa solução de deploy. Aguardem. ;)
 
-##### Dentro do Azkfile.js, qual a diferença entre image, provision e command?
+#### Dentro do Azkfile.js, qual a diferença entre image, provision e command?
 
 O `image` define qual será a imagem binária do Docker que será utilizada como ponto de partida para montagem do sistema. O `provision` é executado uma vez antes do sistema ser levantando e o `command` define a forma de levantar o sistema para que ele seja exposto para o usuário, ou outro sistema.
 
-##### Por que devo utilizar as imagens sugeridas pelo `azk init`?
+#### Por que devo utilizar as imagens sugeridas pelo `azk init`?
 
 As sugestões feitas pelo comando `azk init` são testadas pela equipe do `azk`. Elas seguem nossos padrões de qualidade para assegurar a integração e estabilidade com a nossa ferramenta, além de terem os Dockerfile's disponíveis para que você possa verificar tudo que está sendo instalado no sistema.
 
-##### A imagem sugerida pelo azk não está do jeito que eu gostaria, como devo proceder?
+#### A imagem sugerida pelo azk não está do jeito que eu gostaria, como devo proceder?
 
 Você pode encontrar imagens prontas em:
 - [Repositório de imagens da Azuki](http://images.azk.io/)
 - [Repositório de imagens da Azuki no Docker Hub](https://registry.hub.docker.com/u/azukiapp)
 - [Docker Hub](https://registry.hub.docker.com/)
 
-##### Não acho a imagem que gostaria no Docker Hub, o que faço agora?
+#### Não acho a imagem que gostaria no Docker Hub, o que faço agora?
 
 Nesse caso, a alternativa é criar o seu próprio Dockerfile para fazer o build da sua imagem, seguindo as instruções em:  https://docs.docker.com/reference/builder
 
@@ -75,15 +75,15 @@ Além disso, faz sentido utilizar seu próprio Dockerfile caso:
 - Você queira adicionar funcionalidades específicas do seu projeto a imagens existentes;
 - Você precisa otimizar o tamanho de uma imagem comparado ao que está disponível atualmente.
 
-##### Por que quando eu mudo de pastas não vejo mais os sistemas levantados com o comando `azk status`?
+#### Por que quando eu mudo de pastas não vejo mais os sistemas levantados com o comando `azk status`?
 
 O comando `azk status` e seus irmãos (`start, stop, restart` e etc.) são relativos ao `Azkfile.js` da pasta atual ou pastas ascendentes (assim como o `.gitignore`, por exemplo). Quando se muda de pasta o `azk` entende que se deseja trabalhar em outro sistema. Por isso para que possamos executar um `azk stop` num sistema em que tenha sido executado o `azk start`, precisamos voltar a sua pasta.
 
-##### Qual a vantagem de se utilizar vários sistemas, cada um num container separado?
+#### Qual a vantagem de se utilizar vários sistemas, cada um num container separado?
 
 Para responder essa questão, vale a pena ler sobre micro-serviços nesse ótimo artigo: http://martinfowler.com/articles/microservices.html
 
-##### Já utilizei várias imagens com o azk que não utilizo mais. Elas estão ocupando muito espaço em disco. Como faço para limpar?
+#### Já utilizei várias imagens com o azk que não utilizo mais. Elas estão ocupando muito espaço em disco. Como faço para limpar?
 
 Você pode listar as imagens utilizando o comando:
 
@@ -103,7 +103,7 @@ Ao listar as imagens, algumas podem aparecer com o nome `<none>`. Estas são ima
 adocker rmi --force `adocker images | grep "<none>" | awk '{ print $3 }'`
 ```
 
-##### Como crio uma aplicação (npm, rails, etc), sem ter a linguagem ou framework instalados na minha máquina?
+#### Como crio uma aplicação (npm, rails, etc), sem ter a linguagem ou framework instalados na minha máquina?
 
 Você pode criar um container utilizando a imagem da linguagem/framework que você quiser, acessá-lo utilizando o comando `azk shell --image [docker-registry-image]`, e criar sua aplicação dentro dele.
 
@@ -123,7 +123,7 @@ $ cd my-app
 $ azk init
 ```
 
-##### Estou com problemas de completion e encoding dentro do `azk shell`. Como resolvo?
+#### Estou com problemas de completion e encoding dentro do `azk shell`. Como resolvo?
 
 Por padrão, quando um `azk shell` é executado, o `/bin/sh` é utilizado para o terminal. Isto é feito porque não são todas as imagens que tem o `/bin/bash` instalado.
 

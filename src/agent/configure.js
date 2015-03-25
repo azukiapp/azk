@@ -11,15 +11,13 @@ var request    = require('request');
 var semver     = require('semver');
 var { isIPv4 } = require('net');
 
-/* global docker, Migrations, isOnline, exec, Netmask, hostonly, VM */
+/* global docker, Migrations, isOnline, exec, Netmask */
 lazy_require(this, {
   docker     : ['azk/docker', 'default'],
   Migrations : ['azk/agent/migrations'],
   isOnline   : 'is-online',
   exec       : ['child_process'],
   Netmask    : ['netmask'],
-  hostonly   : ['azk/agent/vm'],
-  VM         : ['azk/agent/vm'],
 });
 
 var ports_tabs = {
@@ -60,15 +58,20 @@ export class Configure extends UIProxy {
         yield this._checkAzkVersion();
         yield Migrations.run(this);
 
+        var dns_key = 'agent:dns:port';
+        var balancer_key = 'agent:balancer:port';
+
         var ports = {
-          dns: yield this._checkPorts('agent:dns:port', 'dns', 'AZK_DNS_PORT'),
-          balancer: yield this._checkPorts('agent:balancer:port', 'balancer', 'AZK_BALANCER_PORT'),
+          dns: config(dns_key),
+          balancer: config(balancer_key),
         };
 
         return _.merge(
           { 'agent:dns:port': ports.dns, 'agent:balancer:port': ports.balancer },
           yield this._checkDockerSocket(socket),
           yield this._checkAndConfigureNetwork(ports, false),
+          yield this._checkPorts(ports.dns, dns_key, 'dns', 'AZK_DNS_PORT'),
+          yield this._checkPorts(ports.balancer, balancer_key, 'balancer', 'AZK_BALANCER_PORT'),
           yield this._loadDnsServers(),
           yield this._cleanContainers()
         );
@@ -191,8 +194,7 @@ export class Configure extends UIProxy {
       });
   }
 
-  _checkPorts(configKey, service, env) {
-    var port = config(configKey);
+  _checkPorts(port, configKey, service, env) {
     return net
       .checkPort(port, this.docker_ip)
       .then((avaibly) => {
@@ -203,7 +205,7 @@ export class Configure extends UIProxy {
             env: env
           });
         }
-        return port;
+        return { [configKey]: port };
       });
   }
 
@@ -261,7 +263,10 @@ export class Configure extends UIProxy {
       }
 
       // Check ip or generate a new one
-      if (use_vm) { this._interfaces = yield this._getInterfacesIps(); }
+      if (use_vm) {
+        var vm_name = config("agent:vm:name");
+        this._interfaces = yield net.getInterfacesIps(vm_name);
+      }
       ip = yield this._checkAndSaveIp(nameserver, file, use_vm, services_ports);
 
       if (use_vm) { result['docker:host'] = `http://${ip}:2375`; }
@@ -281,22 +286,25 @@ export class Configure extends UIProxy {
   _checkAndSaveIp(nameserver, file, use_vm, services_ports) {
     return async(this, function* () {
       // Not exist or invalid content
-      var ip = _.isObject(nameserver) ? null : nameserver.ip;
-      var conflict  = use_vm ? this._conflictInterface(ip) : null;
-      var unmatched_dns_port = nameserver.port !== services_ports.dns;
+      var dns_port = _.isObject(nameserver) ? nameserver.port : null;
+      var unmatched_dns_port = dns_port !== services_ports.dns;
+
+      var ip       = _.isObject(nameserver) ? nameserver.ip   : null;
+      var conflict  = use_vm ? net.conflictInterface(ip, this._interfaces) : null;
+
       if (_.isEmpty(ip) || !_.isEmpty(conflict) || unmatched_dns_port) {
         if (use_vm) {
           var fail_data;
           if (!_.isEmpty(conflict)) {
             fail_data = { ip, inter_name: conflict.name, inter_ip: conflict.ip };
             this.fail('configure.errors.invalid_current_ip', fail_data);
-          } else if (unmatched_dns_port) {
+          } else if (!_.isEmpty(dns_port) && unmatched_dns_port) {
             fail_data = { file, old: nameserver.port, new: services_ports.dns };
             this.fail('configure.errors.unmatched_dns_port', fail_data);
           } else {
             this.warning('configure.vm_ip_msg');
           }
-          var suggestion = this._generateSuggestionIp(ip);
+          var suggestion = net.generateSuggestionIp(ip, this._interfaces);
           ip = yield this._getNetworkIp(suggestion);
         } else {
           ip = yield this._getDockerIp();
@@ -349,67 +357,6 @@ export class Configure extends UIProxy {
     });
   }
 
-  // TODO: improve to get a free network ip ranges
-  _generateSuggestionIp(ip) {
-    if (_.isEmpty(this._suggestion_ips)) {
-      var ranges = _.range(50, 255).concat(_.range(10, 50 ), _.range(0 , 10 ));
-      this._suggestion_ips = _.map(ranges, (i) => `192.168.${i}.4`);
-    }
-    this.info("configure.find_suggestions_ips");
-    return _.find(this._suggestion_ips, (new_ip) => {
-      if (new_ip != ip) {
-        var conflict = this._conflictInterface(new_ip);
-        if (_.isEmpty(conflict)) { return true; }
-        var info_data = { ip: new_ip, inter_name: conflict.name, inter_ip: conflict.ip };
-        this.info("configure.errors.ip_conflict", info_data);
-      }
-    });
-  }
-
-  _conflictInterface(ip) {
-    if (_.isEmpty(ip)) { return null; }
-    var block = new Netmask(net.calculateNetIp(ip));
-    return _.find(this._interfaces, (network) => {
-      return block.contains(network.ip);
-    });
-  }
-
-  _getVMHostonlyInterface() {
-    return VM.info(config("agent:vm:name")).then((info) => {
-      if (info.installed) {
-        return info.hostonlyadapter1;
-      }
-      return null;
-    });
-  }
-
-  _getInterfacesIps() {
-    return async(this, function* () {
-      var hostonly_interface = yield this._getVMHostonlyInterface();
-      // System interfaces
-      var system_interfaces = _.reduce(os.networkInterfaces(), (acc, ips, name) => {
-        if (name != hostonly_interface) {
-          var ip = _.find(ips, (ip) => {
-            return ip.family == 'IPv4';
-          });
-          if (ip) { acc.push({ name: name, ip: ip.address }); }
-        }
-        return acc;
-      }, []);
-
-      // VirtualBox interfaces
-      var vbox_interfaces = _.reduce(yield hostonly.list(), (acc, inter) => {
-        var ip = inter.IPAddress;
-        if (inter.Name != hostonly_interface) {
-          acc.push({ name: inter.Name, ip });
-        }
-        return acc;
-      }, []);
-
-      return system_interfaces.concat(vbox_interfaces);
-    });
-  }
-
   // TODO: filter others /etc/resolver/* azk files
   _getNetworkIp(suggestion) {
     var question = {
@@ -436,7 +383,7 @@ export class Configure extends UIProxy {
         if (lpblock.contains(value)) { return invalids.loopback(); }
 
         // Conflict other interfaces
-        var conflict = this._conflictInterface(value);
+        var conflict = net.conflictInterface(value, this._interfaces);
         if (!_.isEmpty(conflict)) { return invalids.conflict(conflict); }
 
         return true;

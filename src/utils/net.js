@@ -1,12 +1,20 @@
-import { Q, _, defer, fs } from 'azk';
+import { Q, _, async, defer, fs, lazy_require } from 'azk';
 import { config, set_config } from 'azk';
 import { envDefaultArray, isBlank } from 'azk/utils';
 
 var portscanner = require('portscanner');
 var url         = require('url');
 var nativeNet   = require('net');
+var os          = require('os');
 
 var { isIPv4 }  = require('net');
+
+/* global Netmask, hostonly, VM */
+lazy_require(this, {
+  Netmask    : ['netmask'],
+  hostonly   : ['azk/agent/vm'],
+  VM         : ['azk/agent/vm'],
+});
 
 var portrange = config("agent:portrange_start");
 var cache_key = "agent:dns:file_cache";
@@ -107,6 +115,67 @@ var net = {
       }
       return acc;
     }, []);
+  },
+
+  // TODO: improve to get a free network ip ranges
+  generateSuggestionIp(ip, interfaces, info = () => {}) {
+    if (_.isEmpty(this._suggestion_ips)) {
+      var ranges = _.range(50, 255).concat(_.range(10, 50 ), _.range(0 , 10 ));
+      this._suggestion_ips = _.map(ranges, (i) => `192.168.${i}.4`);
+    }
+    info("configure.find_suggestions_ips");
+    return _.find(this._suggestion_ips, (new_ip) => {
+      if (new_ip != ip) {
+        var conflict = this.conflictInterface(new_ip, interfaces);
+        if (_.isEmpty(conflict)) { return true; }
+        var info_data = { ip: new_ip, inter_name: conflict.name, inter_ip: conflict.ip };
+        info("configure.errors.ip_conflict", info_data);
+      }
+    });
+  },
+
+  conflictInterface(ip, interfaces) {
+    if (_.isEmpty(ip)) { return null; }
+    var block = new Netmask(net.calculateNetIp(ip));
+    return _.find(interfaces, (network) => {
+      return block.contains(network.ip);
+    });
+  },
+
+  getInterfacesIps(vm_name) {
+    return async(this, function* () {
+      var hostonly_interface = vm_name ? yield this._getVMHostonlyInterface(vm_name) : null;
+      // System interfaces
+      var system_interfaces = _.reduce(os.networkInterfaces(), (acc, ips, name) => {
+        if (name != hostonly_interface) {
+          var ip = _.find(ips, (ip) => {
+            return ip.family == 'IPv4';
+          });
+          if (ip) { acc.push({ name: name, ip: ip.address }); }
+        }
+        return acc;
+      }, []);
+
+      // VirtualBox interfaces
+      var vbox_interfaces = _.reduce(yield hostonly.list(), (acc, inter) => {
+        var ip = inter.IPAddress;
+        if (inter.Name != hostonly_interface) {
+          acc.push({ name: inter.Name, ip });
+        }
+        return acc;
+      }, []);
+
+      return system_interfaces.concat(vbox_interfaces);
+    });
+  },
+
+  _getVMHostonlyInterface(vm_name) {
+    return VM.info(vm_name).then((info) => {
+      if (info.installed) {
+        return info.hostonlyadapter1;
+      }
+      return null;
+    });
   },
 
   waitService(uri, retry = 15, opts = {}) {
