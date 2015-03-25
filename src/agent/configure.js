@@ -58,15 +58,20 @@ export class Configure extends UIProxy {
         yield this._checkAzkVersion();
         yield Migrations.run(this);
 
+        var dns_key = 'agent:dns:port';
+        var balancer_key = 'agent:balancer:port';
+
         var ports = {
-          dns: yield this._checkPorts('agent:dns:port', 'dns', 'AZK_DNS_PORT'),
-          balancer: yield this._checkPorts('agent:balancer:port', 'balancer', 'AZK_BALANCER_PORT'),
+          dns: config(dns_key),
+          balancer: config(balancer_key),
         };
 
         return _.merge(
           { 'agent:dns:port': ports.dns, 'agent:balancer:port': ports.balancer },
           yield this._checkDockerSocket(socket),
           yield this._checkAndConfigureNetwork(ports, false),
+          yield this._checkPorts(ports.dns, dns_key, 'dns', 'AZK_DNS_PORT'),
+          yield this._checkPorts(ports.balancer, balancer_key, 'balancer', 'AZK_BALANCER_PORT'),
           yield this._loadDnsServers(),
           yield this._cleanContainers()
         );
@@ -189,8 +194,7 @@ export class Configure extends UIProxy {
       });
   }
 
-  _checkPorts(configKey, service, env) {
-    var port = config(configKey);
+  _checkPorts(port, configKey, service, env) {
     return net
       .checkPort(port, this.docker_ip)
       .then((avaibly) => {
@@ -201,7 +205,7 @@ export class Configure extends UIProxy {
             env: env
           });
         }
-        return port;
+        return { [configKey]: port };
       });
   }
 
