@@ -2,8 +2,9 @@
 
 Especifica alguns comandos para serem executados antes que o sistema esteja pronto para executar o `command`.
 
-Esta sessão exsite para oportunidade de executar comandos que dependam dos arquivos do projeto e desta forma não poderiam ser
-executados no momento da criação da imagem. Coisas como instalação de dependências ou execução de migrations.
+Esta sessão existe para dar uma oportunidade de executar comandos que dependam dos arquivos do projeto e desta
+forma não poderiam ser executados no momento da criação da imagem. Coisas como instalação de dependências ou
+execução de migrations.
 
 _Obs_: É importante notar que esse não é o local para customização das imagens e qualquer informação que necessite ser persistida deve ser feita em pastas montadas.
 
@@ -54,5 +55,5 @@ node_system: {
 ```
 
 É importante observar que em ambos os casos (__rails__ e __node.js__), estamos utilizando pastas
-persistentes para "guarda" as dependencias e não pastas do "sistemas" que seriam perdidas após
+persistentes para a "guarda" das dependencias e não pastas do "sistemas" que seriam perdidas após
 a execução dos comandos do `provision`.
