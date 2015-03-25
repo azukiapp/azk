@@ -5,32 +5,39 @@
 // pre
 // pos
 
-// pre(function(context) {
+// pre(function(context, next) {
 //   context.Azkfile.files   // Arquivos e diretÃ³rios que estÃ£o juntos com o Azkfile.js
 //   context.Azkfile.systems // Sistemas atuais do Azkfile
 //   context.systems         // O equivalente ao system ali de baixo
 //   // if (context.Azkfile.files) {
 //   //   context.systems.ngrok
 //   // }
+//   next();
 // });
 
 questions({
-  ngrok_key: question("Qual sua chave do ngrok", { }),
+  ngrok_depends: question("Qual sistema o ngrok depende?", { default: '' }),
+  ngrok_key: question("Qual sua chave do ngrok", { default: 'cobra' }),
   image_version: question("azukiapp/ngrok", { default: 'latest' }),
 });
 
-// systems({
-//   ngrok: {
-//     image: { docker: "azukiapp/ngrok:#{question.image_version}" },
-//     envs: {
-//       NGROK_KEY: "#{question.ngrok_key}",
-//     }
-//   }
-// });
+systems({
+  ngrok: {
+    image: { docker: "azukiapp/ngrok:#{question.image_version}" },
+    envs: {
+      NGROK_KEY: "#{question.ngrok_key}",
+    },
+    mounts: {
+      '/azk/#{system.name}': '.'
+    },
+    depends: ['#{question.ngrok_depends}'],
+  }
+});
 
-// pos(function(context) {
-//   add_env("NGROK_KEY", context.questions.ngrok); // .env
-// });
+pos(function(context, next) {
+  add_env("NGROK_KEY", context.question.ngrok_key); // .env
+  next();
+});
 
 // $ azk add ngrok https://gist.github.com/XYASJAHS
 // $ azk add ngrok ./ngrok.js

@@ -34,6 +34,7 @@
     "archiver": "^0.13.1",
     "babel-runtime": "^5.1.11",
     "bluebird": "^2.9.25",
+    "babel-runtime": "^5.1.9",
     "child-process-promise": "^1.0.0",
     "chokidar": "^1.0.1",
     "cli-router": "^0.3.3",
