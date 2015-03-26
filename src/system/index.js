@@ -149,6 +149,7 @@ export class System {
     }
 
     hostnames = _.map(hostnames, function(hostname) {
+      if (_.isArray(hostname)) { hostname = hostname[0]; }
       return hostname.toLowerCase();
     });
 

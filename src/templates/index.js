@@ -18,6 +18,7 @@ class Question extends UIProxy {
   constructor(ui, msg, options, validate) {
     super(ui);
     this.msg = msg;
+    this.depends = {};
     if (_.isFunction(options)) {
       this.validate = options;
     } else {
@@ -27,7 +28,6 @@ class Question extends UIProxy {
   }
 
   run() {
-    console.log(this.options);
     var question = {
       message : this.msg,
       type    : this.options.type || 'input',
@@ -40,6 +40,8 @@ class Question extends UIProxy {
 }
 
 var TemplateDsl = {
+  console: console,
+
   question(...args) {
     return new Question(this, ...args);
   },
@@ -76,6 +78,7 @@ export class Template extends UIProxy {
     this.answers = {};
     this.systems = {};
     this.envs = {};
+    this.depends = {};
     this.parse();
   }
 
@@ -161,6 +164,9 @@ export class Template extends UIProxy {
           return manifest.systems;
         }
       },
+      get depends() {
+        return self.depends;
+      },
       get question() {
         return self.answers;
       },
@@ -206,7 +212,7 @@ export class Template extends UIProxy {
       var systems = yield this._processSystems(this.answers);
       yield this._processPos(context);
       yield this._persistEnvs(manifest);
-      return systems;
+      return { systems: systems, depends: context.depends };
     });
   }
 }

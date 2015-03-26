@@ -1,4 +1,5 @@
 // import { _, async, config, fs, path, lazy_require, log } from 'azk';
+import { _ } from 'azk';
 import { async, lazy_require, path } from 'azk';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Helpers } from 'azk/cli/command';
@@ -26,15 +27,22 @@ class Cmd extends InteractiveCmds {
       Helpers.manifestValidate(this, manifest);
 
       // TOOD: Get template from a url
-      var template = yield Template.fetch(opts.template, this);
-      var systems = yield template.process(manifest);
+      var template    = yield Template.fetch(opts.template, this);
+      var proc_result = yield template.process(manifest);
 
       var tmpFile = path.join('/tmp', 'tmp_Azkfile.js');
-      generator.render({ systems: systems }, tmpFile);
+      generator.render({ systems: proc_result.systems }, tmpFile);
 
       var AzkParser = require('azk-parser');
       var azkParserCli = new AzkParser.AzkParserCli();
-      return yield azkParserCli.add(path.join(manifest.manifestPath, 'Azkfile.js'), tmpFile);
+      var file = path.join(manifest.manifestPath, 'Azkfile.js');
+      var result = yield azkParserCli.add(file, tmpFile, proc_result.depends);
+
+      _.each(proc_result.systems, (system, name) => {
+        this.ok(this.tKeyPath('system_add'), { system: name, file: manifest._file_relative() });
+      })
+
+      return result;
     });
   }
 }

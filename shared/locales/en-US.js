@@ -389,6 +389,9 @@ module.exports = {
         already_being      : "⇲".yellow  + " image already being pulled. Please wait...",
       }
     },
+    add: {
+      system_add: "System `%(system)s` was added to `%(file)s.`",
+    },
     init: {
       description: "Initializes a project by adding the file Azkfile.js",
       already_exists: "'%s' already exists (try: `--force`)",
