@@ -72,6 +72,7 @@ var test_package_system = function(image){
     },
     envs: {
       AZK_DATA_PATH: "/azk/data",
+      AZK_BALANCER_HOST: "linux_dev.azk.io",
       LOG: "file", // Log docker to file
     },
     docker_extra: {

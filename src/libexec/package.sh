@@ -44,7 +44,7 @@ azk_shell() {
     rpm)
       fpm_extra_options=" \
         --depends \"docker-io\" \
-        --depends \"libnss-resolver >= 0.2.1\" \
+        --depends \"libnss-resolver >= 0.3.0\" \
         --rpm-use-file-permissions \
         --rpm-user root --rpm-group root \
       "
@@ -52,7 +52,7 @@ azk_shell() {
     deb)
       fpm_extra_options=" \
         --depends \"lxc-docker\" \
-        --depends \"libnss-resolver (>= 0.2.1)\" \
+        --depends \"libnss-resolver (>= 0.3.0)\" \
         --deb-user root --deb-group root \
       "
       ;;
