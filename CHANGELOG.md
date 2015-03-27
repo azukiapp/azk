@@ -5,6 +5,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## dev
 
+## v0.11.0 - (2015-25-03)
+
 * Bug
   * [Manifest] Fixing running azk command in subfolder using dockfile, issue #250;
   * [Agent] Fixing agent does not start when not connected to internet. #312;
