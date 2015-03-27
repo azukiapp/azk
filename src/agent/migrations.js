@@ -2,9 +2,9 @@ import { async, lazy_require } from 'azk';
 import { config } from 'azk';
 var qfs = require('q-io/fs');
 
-/* global Meta, VM */
+/* global meta, VM */
 lazy_require(this, {
-  Meta : ['azk/manifest/meta'],
+  meta : ['azk'],
   VM   : ['azk/agent/vm'],
 });
 
@@ -53,15 +53,13 @@ var Migrations = {
     return async(this, function* (notify) {
       // Meta options
       var meta_tag  = "last_migration";
-      var cache_dir = config('paths:azk_meta');
 
       // Initialize meta
-      var meta      = new Meta({ cache_dir });
       var last_run  = parseInt(meta.getOrSet(meta_tag, -1));
       var be_run    = this.migrations.slice(last_run + 1);
 
       // Azk agent was set up at least once?
-      if (yield qfs.exists(cache_dir) && be_run.length > 0) {
+      if (yield qfs.exists(meta.cache_dir) && be_run.length > 0) {
         // Warns on the run of migrations
         notify({ type: "status", keys: "configure.migrations.alert"});
 

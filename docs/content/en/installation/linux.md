@@ -19,6 +19,12 @@
   - Install **Docker's latest version** [lxc-docker][docker_ubuntu_14_04_maintained-package-installation] - Docker has a `curl script` for easy installation;
   - Include your local user in the [docker group][docker_root_access]; Logoff for user group settings to take effect;
   - [Disable the use of dnsmasq][docker_ubuntu_dns];
+  - Stop dnsmasq and ensure it won't start at login:
+
+    ``` bash
+    $ sudo /etc/init.d/dnsmasq stop
+    $ sudo update-rc.d -f dnsmasq remove
+    ```
 
 2. Add the Azuki keys to your local keychain:
 
@@ -50,9 +56,16 @@
 
   - [Install **Docker's latest version**][docker_ubuntu_12_04];
   - Include your local user in the [docker group][docker_root_access]; Logoff for user group settings to take effect;
+  - [Disable the use of dnsmasq by NetworkManager][docker_ubuntu_dns];
+  - Stop dnsmasq and ensure it won't start at login:
+
+    ``` bash
+    $ sudo /etc/init.d/dnsmasq stop
+    $ sudo update-rc.d -f dnsmasq remove
+    ```
 
 2. Add the Azuki keys to your local keychain:
-
+  
   ```bash
   $ sudo apt-key adv --keyserver keys.gnupg.net \
     --recv-keys 022856F6D78159DF43B487D5C82CF0628592D2C9
@@ -112,4 +125,3 @@ Coming soon...
 
 !INCLUDE "../getting-started/banner.md"
 !INCLUDE "../../links.md"
-

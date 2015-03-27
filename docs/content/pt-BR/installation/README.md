@@ -4,6 +4,22 @@ A instalação do `azk` é realmente muito simples e esta disponível através d
 
 A instalação vai adicionar o comando `azk` ao path do sistema. Isso torna o comando `azk` disponível no terminal.
 
+## Instalação expressa do azk
+
+A forma mais fácil de instalar o `azk` é utilizar o script abaixo. Ele vai identificar o sistema operacional que está usando e, se for compatível, realizar todos os processos de instalação.
+
+#### via curl
+
+```sh
+curl -Ls http://azk.io/install.sh | bash
+```
+
+#### via wget
+
+```sh
+wget -qO- http://azk.io/install.sh | bash
+```
+
 ## Requisitos mínimos de instalação
 
 * Uma máquina com arquitetura 64 bits

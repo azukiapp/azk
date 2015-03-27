@@ -1,13 +1,15 @@
 ## mounts
 
-Configure which folders will be internalized to the container or persisted internally by `azk`.
+Configure which folders will be internalized to the container or persisted internally by `azk`. 
+
+For Linux, information persisted internally is saved inside `~/.azk/data/persistent_folders`. For Mac, the information is kept inside your virtual machine. Using the same parameter with the `persistent` option allows you to share data across applications.
 
 #### Usage:
 
   ```js
   mounts: {
-    'PASTA_INTERNA': path('LOCAL_PATH'),
-    'PASTA_INTERNA': persistent('FOLDER_ID'),
+    'INTERNAL_FOLDER': path('LOCAL_PATH'),
+    'INTERNAL_FOLDER': persistent('FOLDER_ID'),
   },
   ```
 

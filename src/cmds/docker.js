@@ -3,24 +3,24 @@ import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Helpers } from 'azk/cli/command';
 
 class Cmd extends InteractiveCmds {
-  run_docker() {
+  run_docker(opts) {
     return async(this, function* () {
       var cmd, _path;
-      var args = _.map(process.argv.slice(3), (arg) => {
-        return arg.match(/^.* .*$/) ? `\\"${arg}\\"` : arg;
+      var args = _.map([opts.dockerargs, ...opts.__leftover], (arg) => {
+        return arg.replace(/'/g, "'\"'\"'");
       });
 
       if (!config('agent:requires_vm')) {
-        cmd = `/bin/sh -c "docker ${args.join(" ")}"`;
+        args = _.map(args, (arg) => arg.match(/^.* .*$/) ? `"${arg}"` : arg);
+        cmd  = `/bin/sh -c 'docker ${args.join(" ")}'`;
       } else {
         // Require agent is started
         yield Helpers.requireAgent(this);
 
         var point = config('agent:vm:mount_point');
-
         _path = utils.docker.resolvePath(this.cwd, point);
-
-        cmd = `azk vm ssh -t "cd ${_path}; docker ${args.join(" ")}" 2>/dev/null`;
+        args  = _.map(args, (arg) => arg.match(/^.* .*$/) ? `\\"${arg}\\"` : arg);
+        cmd   = `azk vm ssh -t 'cd ${_path}; docker ${args.join(" ")}'`;
       }
 
       log.debug("docker options: %s", cmd);

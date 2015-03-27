@@ -5,6 +5,33 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## dev
 
+## v0.11.0 - (2015-25-03)
+
+* Bug
+  * [Manifest] Fixing running azk command in subfolder using dockfile, issue #250;
+  * [Agent] Fixing agent does not start when not connected to internet. #312;
+  * [Cli] Checking namservers every time you start a container;
+  * [Dockerfile] Fixing does not show the error when the Dockerfile doesn't build, issue #303;
+  * [Agent] Adding support to swap in order to endure heavy load memory cases;
+  * [Agent] Changing dhcp-client configs (adding timeout) in order to avoid network-dependent services tree to fail;
+  * [Agent] Making VirtualBox data disk detach/remove process more reliable;
+  * [Agent] Now `azk agent stop` waits for agent real stop;
+  * [Balancer] Fixing conflict at the port to be expected by the wait, issue #309;
+  * [Agent] Fixing bug that could cause DNS and HTTP Balancer ports configuration to be ignored;
+
+* Enhancements
+  * [code] Adding support to "integration testing"
+  * [Cli] New output when pulling images: show total layers count to download. Shows only a single progress bar with total download status. Integrate docker-registry-downloader with azk. #234 #119 #317
+  * [Package] Adding update npm after installing node;
+  * [Package] Fixing of usage npm-sheringwrap in package
+  * [Cli] New output when pulling images: showing total counter and size of layers to be downloaded.. Shows only a single progress bar with total download status. Integrate docker-registry-downloader with azk. #234 #119;
+  * [Package] Fixing usage of npm-sheringwrap in package;
+  * [Agent] Using VM static ip (set via guestproperty) instead of VirtualBox DHCP servers;
+  * [Agent] Adding verification of ip conflicts with existing networks interfaces;
+  * [Agent] Suggesting an alternative ip in case of conflict;
+  * [Agent] Adding tests to verify DNS port exchange between Agent instances and rewrite `/etc/resolver/dev.azk.io` file;
+  * [Cli] Adding `manifest_id` on return of the command `azk info`, issue #323
+
 ## v0.10.2 - (2015-24-02)
 
 * Bug

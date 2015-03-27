@@ -6,7 +6,7 @@
 [docker_ubuntu_14_04_maintained-package-installation]: https://docs.docker.com/installation/ubuntulinux/#docker-maintained-package-installation
 [docker_ubuntu-trusty-1404-lts-64-bit]: https://docs.docker.com/installation/ubuntulinux/#ubuntu-trusty-1404-lts-64-bit
 [docker_ubuntu_12_04]: https://docs.docker.com/installation/ubuntulinux/#ubuntu-precise-1204-lts-64-bit
-[docker_ubuntu_dns]: https://docs.docker.com/installation/ubuntulinux/#docker-and-local-dns-server-warnings
+[docker_ubuntu_dns]: https://docs.docker.com/installation/ubuntulinux/#configure-a-dns-server-for-use-by-docker
 [docker_root_access]: https://docs.docker.com/installation/ubuntulinux/#giving-non-root-access
 [postgres]: http://www.postgresql.org/
 [redis]: http://redis.io/

@@ -8,7 +8,7 @@
 * [Docker][docker] 1.3.0
 * Não estar rodando nenhum serviço nas portas `80` e `53`
 
-**Importante**: Se você estiver rodando algum serviço nas portas `80` e/ou `53` você deve customizar a configuração do `azk` definindo as seguintes variáveis: `AZK_BALANCER_PORT` e `AZK_DNS_PORT` respectivamente, antes de executar o `azk agent start`.
+**Importante**: Se você estiver rodando algum serviço nas portas `80` e/ou `53` você deve customizar a configuração do `azk` definindo as seguintes variáveis `AZK_BALANCER_PORT` e `AZK_DNS_PORT` respectivamente, antes de executar o `azk agent start`.
 
 ## Ubuntu Trusty 14.04 (LTS) (64-bit)
 
@@ -19,6 +19,12 @@
   - Instale a versão mais recente do Docker [**lxc-docker**][docker_ubuntu_14_04_maintained-package-installation]. Observe que no final das instruções, eles dispõem um `script curl` para facilitar a instalação.
   - Inclua seu usuário local no [grupo docker][docker_root_access]; Faça um _logoff_ para que as configurações de grupo de usuários sejam ativadas;
   - [Desabilite o uso de dnsmasq][docker_ubuntu_dns];
+  - Pare o serviço do dnsmasq e garanta que ele não será iniciado automaticamente após o login:
+
+    ``` bash
+    $ sudo /etc/init.d/dnsmasq stop
+    $ sudo update-rc.d -f dnsmasq remove
+    ```
 
 2. Adicionando as chaves do Azuki ao seu keychain local:
 
@@ -48,8 +54,15 @@
 
 1. Instale o Docker:
 
-  - [Instale **a versão mais recente do Docker**][docker_ubuntu_12_04]
-  - Inclua seu usuário local no [grupo docker][docker_root_access]; Faça um _logoff_ para que as configurações de grupo de usuários sejam ativadas;
+  - [Instale ** a versão mais recente do Docker**][docker_ubuntu_12_04]
+  - Configure para que seu usuário [tenha acesso ao Docker][docker_root_access]; Faça logoff para que as alterações tenham efeito;
+  - [Desabilite o uso do dnsmasq pelo NetworkManager][docker_ubuntu_dns];
+  - Pare o serviço do dnsmasq e garanta que ele não será iniciado automaticamente após o login:
+
+    ``` bash
+    $ sudo /etc/init.d/dnsmasq stop
+    $ sudo update-rc.d -f dnsmasq remove
+    ```
 
 2. Adicionando as chaves do Azuki ao seu keychain local:
 
@@ -112,4 +125,3 @@ Em breve...
 
 !INCLUDE "../getting-started/banner.md"
 !INCLUDE "../../links.md"
-

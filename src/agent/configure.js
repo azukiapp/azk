@@ -2,7 +2,7 @@ import { _, t, os, Q, async, defer, log, lazy_require } from 'azk';
 import { config, set_config } from 'azk';
 import { UIProxy } from 'azk/cli/ui';
 import { OSNotSupported, DependencyError } from 'azk/utils/errors';
-import { net } from 'azk/utils';
+import { net, envDefaultArray } from 'azk/utils';
 import Azk from 'azk';
 
 var qfs        = require('q-io/fs');
@@ -11,12 +11,13 @@ var request    = require('request');
 var semver     = require('semver');
 var { isIPv4 } = require('net');
 
-/* global docker, Migrations, isOnline, exec */
+/* global docker, Migrations, isOnline, exec, Netmask */
 lazy_require(this, {
   docker     : ['azk/docker', 'default'],
   Migrations : ['azk/agent/migrations'],
   isOnline   : 'is-online',
   exec       : ['child_process'],
+  Netmask    : ['netmask'],
 });
 
 var ports_tabs = {
@@ -57,14 +58,22 @@ export class Configure extends UIProxy {
         yield this._checkAzkVersion();
         yield Migrations.run(this);
 
+        var dns_key = 'agent:dns:port';
+        var balancer_key = 'agent:balancer:port';
+
+        var ports = {
+          dns: config(dns_key),
+          balancer: config(balancer_key),
+        };
+
         return _.merge(
-          {},
+          { 'agent:dns:port': ports.dns, 'agent:balancer:port': ports.balancer },
           yield this._checkDockerSocket(socket),
-          yield this._checkAndConfigureNetwork(false),
+          yield this._checkAndConfigureNetwork(ports, false),
+          yield this._checkPorts(ports.dns, dns_key, 'dns', 'AZK_DNS_PORT'),
+          yield this._checkPorts(ports.balancer, balancer_key, 'balancer', 'AZK_BALANCER_PORT'),
           yield this._loadDnsServers(),
-          yield this._cleanContainers(),
-          yield this._checkPorts('agent:balancer:port', 'balancer', 'AZK_BALANCER_PORT'),
-          yield this._checkPorts('agent:dns:port', 'dns', 'AZK_DNS_PORT')
+          yield this._cleanContainers()
         );
       })
       .fail((err) => {
@@ -81,10 +90,19 @@ export class Configure extends UIProxy {
       yield this._checkAzkVersion();
       yield Migrations.run(this);
 
+      var ports = {
+        dns: config('agent:dns:port'),
+        balancer: config('agent:balancer:port'),
+      };
+
+      if (os.platform() === 'darwin' && ports.dns !== '53') {
+        throw new DependencyError('custom_dns_port');
+      }
+
       return _.merge(
-        {},
+        { 'agent:dns:port': ports.dns, 'agent:balancer:port': ports.balancer },
         yield this._which('VBoxManage'),
-        yield this._checkAndConfigureNetwork(),
+        yield this._checkAndConfigureNetwork(ports),
         yield this._checkAndGenerateSSHKeys(),
         yield this._loadDnsServers()
       );
@@ -176,8 +194,7 @@ export class Configure extends UIProxy {
       });
   }
 
-  _checkPorts(confKey, service, env) {
-    var port = config(confKey);
+  _checkPorts(port, configKey, service, env) {
     return net
       .checkPort(port, this.docker_ip)
       .then((avaibly) => {
@@ -188,6 +205,7 @@ export class Configure extends UIProxy {
             env: env
           });
         }
+        return { [configKey]: port };
       });
   }
 
@@ -230,33 +248,28 @@ export class Configure extends UIProxy {
   }
 
   // Check vm ip is configurat
-  _checkAndConfigureNetwork(use_vm = true) {
+  _checkAndConfigureNetwork(services_ports, use_vm = true) {
     return async(this, function* () {
       var file   = config('agent:balancer:file_dns');
-      var exist  = yield qfs.exists(file);
       var ip     = null;
-      var result = {};
+      var result = {}, nameserver = null;
 
       // File exist? Get content
+      var exist = yield qfs.exists(file);
       if (exist) {
-        var content = yield qfs.read(file);
-        ip = this._parseNameserver(content)[0];
+        var content     = yield qfs.read(file);
+        var nameservers = net.parseNameserver(content);
+        if (!_.isEmpty(nameservers)) { nameserver = nameservers[0]; }
       }
 
-      // Not exist or invalid content
-      if (_.isEmpty(ip)) {
-        if (use_vm) {
-          this.warning('configure.vm_ip_msg');
-          ip = yield this._getNetworkIp();
-        } else {
-          ip = yield this._getDockerIp();
-        }
-        yield this._generateResolverFile(ip, file);
-      }
-
+      // Check ip or generate a new one
       if (use_vm) {
-        result['docker:host'] = `http://${ip}:2375`;
+        var vm_name = config("agent:vm:name");
+        this._interfaces = yield net.getInterfacesIps(vm_name);
       }
+      ip = yield this._checkAndSaveIp(nameserver, file, use_vm, services_ports);
+
+      if (use_vm) { result['docker:host'] = `http://${ip}:2375`; }
 
       // Save to use in configure
       this.docker_ip = ip;
@@ -270,6 +283,39 @@ export class Configure extends UIProxy {
     });
   }
 
+  _checkAndSaveIp(nameserver, file, use_vm, services_ports) {
+    return async(this, function* () {
+      // Not exist or invalid content
+      var dns_port = _.isObject(nameserver) ? nameserver.port : null;
+      var unmatched_dns_port = dns_port !== services_ports.dns;
+
+      var ip       = _.isObject(nameserver) ? nameserver.ip   : null;
+      var conflict  = use_vm ? net.conflictInterface(ip, this._interfaces) : null;
+
+      if (_.isEmpty(ip) || !_.isEmpty(conflict) || unmatched_dns_port) {
+        if (use_vm) {
+          var fail_data;
+          if (!_.isEmpty(conflict)) {
+            fail_data = { ip, inter_name: conflict.name, inter_ip: conflict.ip };
+            this.fail('configure.errors.invalid_current_ip', fail_data);
+          } else if (!_.isEmpty(dns_port) && unmatched_dns_port) {
+            fail_data = { file, old: nameserver.port, new: services_ports.dns };
+            this.fail('configure.errors.unmatched_dns_port', fail_data);
+          } else {
+            this.warning('configure.vm_ip_msg');
+          }
+          var suggestion = net.generateSuggestionIp(ip, this._interfaces);
+          ip = yield this._getNetworkIp(suggestion);
+        } else {
+          ip = yield this._getDockerIp();
+        }
+        yield this._generateResolverFile(ip, services_ports.dns, file);
+      }
+
+      return ip;
+    });
+  }
+
   sudo_check() {
     return this._which('sudo', 'sudo')
       .then((sudo_path) => { return sudo_path.sudo; })
@@ -277,10 +323,9 @@ export class Configure extends UIProxy {
   }
 
   // Generate file /etc/resolver/*
-  _generateResolverFile(ip, file) {
+  _generateResolverFile(ip, port, file) {
     // TODO: Fixing is not root and not have a sudo
     return this.execShWithSudo('network', (sudo_path) => {
-      var port = config('agent:dns:port');
       // Creating resolver file and adding ip (with sudo)
       this.info('configure.adding_ip', { ip, file });
       ip = `${ip}${this.dns_tab}${port}`;
@@ -312,37 +357,34 @@ export class Configure extends UIProxy {
     });
   }
 
-  _parseNameserver(content) {
-    var lines   = content.split('\n');
-    var regex   = /^\s*nameserver\s{1,}((?:[0-9]{1,3}\.){3}[0-9]{1,3})/;
-    var capture = null;
-    return _.reduce(lines, (nameservers, line) => {
-      if ((capture = line.match(regex))) {
-        var ip = capture[1];
-        if (isIPv4(ip)) {
-          nameservers.push(ip);
-        }
-      }
-      return nameservers;
-    }, []);
-  }
-
-  // TODO: improve to get a free network ip ranges
   // TODO: filter others /etc/resolver/* azk files
-  _getNetworkIp() {
+  _getNetworkIp(suggestion) {
     var question = {
       name    : 'ip',
       message : 'configure.ip_question',
-      default : config('agent:vm:ip'),
+      // default : config('agent:vm:ip'),
+      default: suggestion,
       validate: (value) => {
-        var data       = { ip: value };
-        var ip_invalid_range   = this.t('configure.ip_invalid_range', data);
-        var ip_invalid = this.t('configure.ip_invalid', data);
-        var ranges     = [ '127.0.0.1', '0.0.0.0' ];
+        var data     = { ip: value };
+        var invalids = {
+          ip      : () => this.t('configure.errors.ip_invalid', data),
+          loopback: () => this.t('configure.errors.ip_loopback', data),
+          conflict: (conflict) => {
+            var t_data = { ip: value, inter_name: conflict.name, inter_ip: conflict.ip };
+            return this.t('configure.errors.ip_conflict', t_data);
+          },
+        };
 
         // Check is valid ip
-        if (!isIPv4(value)) { return ip_invalid; }
-        if (_.contains(ranges, value)) { return ip_invalid_range; }
+        if (!isIPv4(value) || value === '0.0.0.0') { return invalids.ip(); }
+
+        // Conflict loopback
+        var lpblock = new Netmask('127.0.0.0/8');
+        if (lpblock.contains(value)) { return invalids.loopback(); }
+
+        // Conflict other interfaces
+        var conflict = net.conflictInterface(value, this._interfaces);
+        if (!_.isEmpty(conflict)) { return invalids.conflict(conflict); }
 
         return true;
       }
@@ -355,7 +397,8 @@ export class Configure extends UIProxy {
   }
 
   _getDockerIp() {
-    // 2: docker0    inet 10.0.42.1/16 scope global docker0\       valid_lft forever preferred_lft forever
+    // 2: docker0    inet 10.0.42.1/16 scope global docker0
+    //        valid_lft forever preferred_lft forever
     var regex = /docker0.*inet\s(.*?)\//;
     var cmd   = "/sbin/ip -o addr show";
 
@@ -368,30 +411,11 @@ export class Configure extends UIProxy {
   }
 
   _loadDnsServers() {
-    return async(this, function* () {
-      var cf_key = 'agent:dns:nameservers';
-      var nameservers = this._filderDnsServers(config(cf_key));
+    var cf_key = 'agent:dns:global';
+    var nameservers = envDefaultArray('AZK_DNS_SERVERS', net.filterDnsServers(config(cf_key)));
 
-      if (_.isEmpty(nameservers)) {
-        nameservers = this._filderDnsServers(yield this._readResolverFile());
-      }
-
-      if (_.isEmpty(nameservers)) {
-        nameservers = config('agent:dns:defaultserver');
-      }
-
-      var obj = {};
-      obj[cf_key] = nameservers;
-      return obj;
-    });
-  }
-
-  _filderDnsServers(nameservers) {
-    return _.filter(nameservers, (server) => { return !server.match(/^127\./); });
-  }
-
-  _readResolverFile() {
-    var file = "/etc/resolv.conf";
-    return qfs.read(file).then(this._parseNameserver);
+    var obj = {};
+    obj[cf_key] = nameservers;
+    return obj;
   }
 }

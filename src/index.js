@@ -39,6 +39,12 @@ module.exports = {
   get config() { return config; },
   get set_config() { return set_config; },
 
+  // Global azk meta data
+  get meta() {
+    var cache_dir = this.config('paths:azk_meta');
+    return new (require('azk/manifest/meta').Meta)({ cache_dir });
+  },
+
   // Promise helpers
   get defer() { return defer; },
   get async() { return async; },

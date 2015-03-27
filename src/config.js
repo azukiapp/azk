@@ -25,11 +25,6 @@ var paths = {
   vm  : path.join(data_path, 'vm'),
 };
 
-var dns_nameservers = function(key, defaultValue) {
-  var value = envs(key);
-  return _.isEmpty(value) ? defaultValue : _.invoke(value.split(','), 'trim');
-};
-
 class Dynamic {
   constructor(key) { this.key = key; }
 }
@@ -93,12 +88,13 @@ var options = mergeConfig({
       dns: {
         ip  : new Dynamic("agent:dns:ip"),
         port: envs('AZK_DNS_PORT', '53'),
-        nameservers  : dns_nameservers('AZK_DNS_SERVERS', []),
-        defaultserver: dns_nameservers('AZK_DNS_SERVERS_DEFAULTS', ['8.8.8.8', '8.8.4.4']),
+        global: [],
+        nameservers  : [],
+        defaultserver: ['8.8.8.8', '8.8.4.4'],
       },
       vm: {
         wait_ready : 180000,
-        ip         : envs('AZK_AGENT_VM_IP'  , '192.168.50.4'),
+        ip         : new Dynamic("agent:vm:ip"),
         name       : envs('AZK_AGENT_VM_NAME', "azk-vm-" + namespace),
         user       : "docker",
         password   : "live",

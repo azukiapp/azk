@@ -1,13 +1,5 @@
-import { _, t, log, lazy_require, config } from 'azk';
-
-var fmt_p = t('commands.helpers.pull.bar_progress');
-var fmt_s = t('commands.helpers.pull.bar_status');
-var bar_opts = {
-    complete: '=',
-    incomplete: ' ',
-    width: 30,
-    total: 100
-};
+import { _, /*t,*/ log, lazy_require, config } from 'azk';
+import { SmartProgressBar } from 'azk/cli/smart_progress_bar';
 
 /* global AgentClient, Configure */
 lazy_require(this, {
@@ -109,36 +101,64 @@ var Helpers = {
   },
 
   newPullProgress(cmd) {
-    var mbars = cmd.newMultiBars();
-    var bars  = {};
-
-    return (event) => {
-      if (event.type === "pull_msg") {
-        if (event.end) {
-          cmd.output("\n");
-          cmd.ok('commands.helpers.pull.pull_ended', event);
-          return false;
-        } else if (!_.isEmpty(event.id)) {
-          var status = event.statusParsed;
-          var title  = `${event.id}:`;
-          var bar    = bars[event.id] || cmd.newBar(mbars, fmt_p, bar_opts);
-
-          switch (status.type) {
-            case 'download':
-              var progress = event.progressDetail;
-              var tick     = progress.current - bar.curr;
-              bar.total    = progress.total + 1;
-              bar.tick(tick, { title, progress: event.progress });
-              break;
-            default:
-              bar.tick(bar.curr, { title, fmt: fmt_s, msg: event.status });
-          }
-
-          bars[event.id] = bar;
-          return false;
-        }
+    return (msg) => {
+      if (msg.type !== "pull_msg") {
+        return msg;
       }
-      return event;
+
+      // pull end
+      if (msg.end) {
+        cmd.ok('commands.helpers.pull.pull_ended', msg);
+        return false;
+      }
+
+      // manual message, not parsed
+      if (msg.traslation) {
+        cmd.ok(msg.traslation, msg.data);
+        return false;
+      }
+
+      if (!_.isNumber(this.non_existent_locally_ids_count)) {
+        this.non_existent_locally_ids_count = msg.registry_result.non_existent_locally_ids_count;
+      }
+
+      // parse messages by type
+      var status = msg.statusParsed;
+      switch (status.type) {
+        case 'download_complete':
+          this.smartProgressBar && this.smartProgressBar.receiveMessage(msg, status.type);
+          break;
+
+        case 'download':
+          if (_.isUndefined(this.bar)) {
+            // show message: ⇲ pulling 5/14 layers.
+            cmd.ok('commands.helpers.pull.pull_start', {
+              left_to_download_count : msg.registry_result.non_existent_locally_ids_count,
+              total_registry_layers  : msg.registry_result.registry_layers_ids_count,
+            });
+
+            // create a new progress-bar
+            this.bar = cmd.createProgressBar('     [:bar] :percent :layers_left/:layers_total ', {
+              complete: '=',
+              incomplete: ' ',
+              width: 50,
+              total: 50
+            });
+
+            // control progress-bar with SmartProgressBar
+            this.smartProgressBar = new SmartProgressBar(
+              50,
+              this.non_existent_locally_ids_count,
+              this.bar);
+          }
+          this.smartProgressBar.receiveMessage(msg, status.type);
+          break;
+
+        case 'pulling_another':
+          cmd.ok('commands.helpers.pull.already_being', msg);
+          break;
+      }
+      return false;
     };
   },
 

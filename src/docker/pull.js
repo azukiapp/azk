@@ -36,33 +36,29 @@ function parse_status(msg) {
   return result;
 }
 
-export function pull(docker, repository, tag, stdout) {
+export function pull(docker, repository, tag, stdout, registry_result) {
   var image   = `${repository}:${tag}`;
   var promise = docker.createImage({
     fromImage: repository,
     tag: tag,
   });
-
   return promise.then((stream) => {
     return defer((resolve, reject, notify) => {
       stream.on('data', (data) => {
-        // TODO: add support chucks
         try {
-          var msg  = JSON.parse(data.toString());
-          msg.type = "pull_msg";
+          var msg             = JSON.parse(data.toString());
+          msg.type            = "pull_msg";
+          msg.registry_result = registry_result;
+
           if (msg.error) {
             if (msg.error.match(/404/) || msg.error.match(/not found$/)) {
               return reject(new ProvisionNotFound(image));
             }
             reject(new ProvisionPullError(image, msg.error));
           } else {
+            // parse message
             msg.statusParsed = parse_status(msg.status);
-            if (msg.statusParsed) {
-              notify(msg);
-            }
-            if (stdout) {
-              stdout.write(msg.status + "\n");
-            }
+            notify(msg); // -> cli.helpers.newPullProgress
           }
         } catch (e) {}
       });

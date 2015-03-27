@@ -73,6 +73,23 @@ describe("Azk docker module, image build @slow", function() {
         });
     });
 
+    it("should raise error for a invalid step", function() {
+      var events = [];
+      return build('DockerfileBuildError')
+        .progress((event) => {
+          events.push(event);
+        })
+        .then(() => {
+          // test for Docker 1.2
+          h.expect(events).to.be.length(1);
+          h.expect(events[0].statusParsed).to.be.deep.equal({});
+        })
+        .catch(function(rejection) {
+          // test for Docker 1.4
+          h.expect(rejection.translation_key).to.equal('docker_build_error.command_error');
+        });
+    });
+
     it("should raise error for not found from", function() {
       return h.expect(build('DockerfileFrom404')).to.be.rejectedWith(DockerBuildError, /not_found/);
     });

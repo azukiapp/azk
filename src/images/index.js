@@ -1,4 +1,4 @@
-import { _, fs, async, defer, lazy_require, t, path, isBlank } from 'azk';
+import { _, fs, async, defer, lazy_require, t, path, isBlank, log } from 'azk';
 import { ManifestError } from 'azk/utils/errors';
 import Utils from 'azk/utils';
 
@@ -75,32 +75,71 @@ export class Image {
         this.repository = namespace + '/' + repository;
         notify({ type: "action", context: "image", action: "pull_image", data: this });
 
-        //yield this.pullWithDockerRegistryDownloader(docker.modem, namespace, repository, this.tag);
+        var registry_result = null;
 
-        // old implementation of pull
-        image = yield docker.pull(this.repository, this.tag, _.isObject(stdout) ? stdout : null);
+        // get size and layers count
+        try {
+          registry_result = yield this.getDownloadInfo(
+            docker.modem,
+            namespace,
+            repository,
+            this.tag);
+        } catch (err) {
+          log.error(err);
+        }
+
+        // docker pull
+        image = yield docker.pull(
+          this.repository,
+          this.tag,
+          _.isObject(stdout) ? stdout : null,
+          registry_result);
+
       }
       return yield this.check();
     });
   }
 
-  // FIXME: save files inside VM or elsewhere
-  // pullWithDockerRegistryDownloader(dockerode_modem, namespace, repository, repo_tag) {
-  //   return async(this, function* () {
-  //     var DockerHub   = require('docker-registry-downloader').DockerHub;
-  //     var Syncronizer = require('docker-registry-downloader').Syncronizer;
-  //     var dockerHub   = new DockerHub();
-  //     var syncronizer = new Syncronizer({ dockerode_modem: dockerode_modem });
-  //     var tag         = repo_tag;
+  getDownloadInfo(dockerode_modem, namespace, repository, repo_tag) {
+    return async(this, function* (notify) {
 
-  //     // get token from DOCKER HUB API
-  //     return dockerHub.images(namespace, repository).then(function(hubResult) {
-  //       // sync registry layer with local layers
-  //       return syncronizer.sync(hubResult, tag);
-  //     });
+      var DockerHub   = require('docker-registry-downloader').DockerHub;
+      var Syncronizer = require('docker-registry-downloader').Syncronizer;
+      var dockerHub   = new DockerHub();
 
-  //   });
-  // }
+      var syncronizer = new Syncronizer(
+        // docker socket
+        {
+          dockerode_modem: dockerode_modem
+        },
+        // request_options
+        {
+          timeout: 10000,
+          maxAttempts: 3,
+          retryDelay: 500
+        }
+      );
+      var tag = repo_tag;
+
+      // get token from Docker Hub
+      var hubResult = yield dockerHub.images(namespace, repository);
+
+      // Check what layer we do not have locally
+      notify({  type       : "pull_msg",
+                traslation : "commands.helpers.pull.pull_getLayersDiff",
+                data       : registry_infos });
+
+      var getLayersDiff_result      = yield syncronizer.getLayersDiff(hubResult, tag);
+      var registry_layers_ids       = getLayersDiff_result.registry_layers_ids;
+      var non_existent_locally_ids  = getLayersDiff_result.non_existent_locally_ids;
+
+      var registry_infos = {
+        registry_layers_ids_count      : registry_layers_ids.length,
+        non_existent_locally_ids_count : non_existent_locally_ids.length
+      };
+      return registry_infos;
+    });
+  }
 
   build(options) {
     return async(this, function* (notify) {
@@ -123,25 +162,37 @@ export class Image {
     this.tag   = Utils.calculateHash(dockerfile);
   }
 
-  _findDockerfile(dockerfile_path, require_file = false) {
-    var exists = fs.existsSync(dockerfile_path);
+  _findDockerfile(dockerfile_path) {
+    var msg;
 
-    if (exists) {
-      var stats = fs.statSync(dockerfile_path);
-      var isDirectory = stats.isDirectory();
+    if (this.system.hasOwnProperty('manifest') && this.system.manifest.cwd) {
+      var dockerfile_cwd = path.resolve(this.system.manifest.cwd, dockerfile_path);
+      var exists = fs.existsSync(dockerfile_cwd);
 
-      if (!isDirectory) {
-        return dockerfile_path;
-      } else if (isDirectory && !require_file) {
+      if (exists) {
+        var stats = fs.statSync(dockerfile_cwd);
+        var isDirectory = stats.isDirectory();
 
-        // it is a folder - try find the manifesto
-        dockerfile_path = path.join(dockerfile_path, 'Dockerfile');
-        return this._findDockerfile(dockerfile_path, true);
+        if (isDirectory) {
+          // it is a folder - try find the manifest
+          dockerfile_cwd = path.join(dockerfile_cwd, 'Dockerfile');
+          exists = fs.existsSync(dockerfile_cwd);
+
+          if (!exists) {
+            var translate_options = { system: this.system.name, dockerfile: dockerfile_path };
+            msg = t("manifest.cannot_find_dockerfile", translate_options);
+            throw new ManifestError('', msg);
+          }
+        }
+
+        return dockerfile_cwd;
       }
+      msg = t("manifest.cannot_find_dockerfile_path", { system: this.system.name, dockerfile: dockerfile_path });
+      throw new ManifestError('', msg);
+    } else {
+      msg = t("manifest.required_path");
+      throw new Error(msg);
     }
-
-    var msg = t("manifest.cannot_find_dockerfile", {system: this.system.name});
-    throw new ManifestError('', msg);
   }
 
   get path() {

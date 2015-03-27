@@ -158,6 +158,20 @@ module.exports = function(grunt) {
           'spec/**/*.js',
         ],
         tasks: ['clear', 'build']
+      },
+
+      'integration': {
+        options: {
+          atBegin: true,
+        },
+        files: [
+          'Gruntfile.js',
+          'src/**/*.js',
+          'spec/**/*.js',
+          'spec/integration/**/*.bats',
+          'spec/integration/**/*.bash',
+        ],
+        tasks: ['build', 'clear', 'exec:integration-test']
       }
     },
 
@@ -171,6 +185,15 @@ module.exports = function(grunt) {
       },
       'publish_package': {
         'cmd': 'grunt aws_s3:publish_package'
+      },
+      'integration-test': {
+        cmd: function() {
+          var filter = 'find spec/integration -name \'*.bats\'';
+          if (test_grep) {
+            filter = 'grep -Rl "' + test_grep + '" spec/integration';
+          }
+          return lib + '/bats/bin/bats `' + filter + '`';
+        }
       }
     },
 
@@ -220,13 +243,14 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('vm-download', ['curl-dir:brace-expansion' ]);
-  grunt.registerTask('test'       , ['env:test', 'clear', 'build', 'mochaTest:test']);
-  grunt.registerTask('slow_test'  , ['env:test', 'clear', 'build', 'mochaTest:slow_test']);
+  grunt.registerTask('test'       , ['env:test', 'build', 'clear', 'mochaTest:test']);
+  grunt.registerTask('slow_test'  , ['env:test', 'build', 'clear', 'mochaTest:slow_test']);
   grunt.registerTask('build'      , ['hint', 'newer:traceur']);
   grunt.registerTask('compile'    , ['watch:traceur']);
   grunt.registerTask('inspector'  , ['node-inspector']);
   grunt.registerTask('hint'       , ['newer:jshint', 'newer:jscs']);
   grunt.registerTask('publish'    , ['env:aws', 'exec:publish_package']);
+  grunt.registerTask('integration', ['build', 'exec:integration-test']);
   grunt.registerTask('default'    , function() {
     key_watch(grunt);
     return grunt.task.run(['watch:spec']);

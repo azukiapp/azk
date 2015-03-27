@@ -32,6 +32,11 @@ class Cmd extends InteractiveCmds {
         agent_running: agent.agent ? "up".green : "down".red,
       };
 
+      if (require_vm && agent.agent) {
+        var ip = config('agent:vm:ip');
+        data.use_vm = data.use_vm + ', ip: ' + ip.yellow;
+      }
+
       var render = opts.logo ? this.render_with_logo : this.render_normal;
       this.output(render.apply(this, [data]));
     });

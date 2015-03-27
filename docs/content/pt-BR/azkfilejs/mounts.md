@@ -2,6 +2,8 @@
 
 Configura quais pastas serão internalizadas ao container ou persistidas internamente pelo `azk`.
 
+Utilizando Linux, a informação persistida internamente é salva dentro de `~/.azk/data/persistent_folders`. No Mac, a informação se encontra no disco de dados da sua máquina virtual. Ao utilizar o mesmo parâmetro com a opção `persistent`, é possível compartilhar informações (por exemplo, um banco de dados) entre aplicações.
+
 #### Uso:
 
   ```js

@@ -1,6 +1,6 @@
 ## azk stop
 
-Pára todas instâncias dos sistemas especificados no `Azkfile.js` atual, ou aquele especificado.
+Para todas as instâncias dos sistemas especificados no `Azkfile.js` atual, ou aquele especificado.
 
 #### Options:
 

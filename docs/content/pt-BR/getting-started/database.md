@@ -4,7 +4,27 @@ Nossa aplicação de demonstração mostra um simples contador de visitas, poré
 
 Instalar e configurar um banco de dados no `azk` é muito simples. Primeiro você deve editar o arquivo `Azkfile.js` e adicionar uma nova entrada em `systems` referente ao banco de dados. Nesse caso vamos utilizar o __redis__:
 
-!INCLUDE "../../common/getting-started/add_database.md"
+```js
+systems({
+  // **ISSO ERA O QUE TÍNHAMOS ANTERIORMENTE:**
+  azkdemo: {
+    // ...
+    envs: {
+      // set instances variables
+      NODE_ENV: "dev",
+    },
+  },
+  // **ADICIONE O SEGUINTE, FORA DO SISTEMA AZKDEMO:**
+  // Adds the "redis" system
+  redis: {
+    image: { docker: "redis" },
+    export_envs: {
+      "DATABASE_URL": "redis://#{net.host}:#{net.port[6379]}"
+    }
+  }
+});
+```
+
 
 Feito isso já é possível levantar o novo sistema e ter acesso ao banco de dados:
 

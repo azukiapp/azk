@@ -8,6 +8,20 @@ This guide will walk you through the first steps with `azk`, demonstrating the b
 
 For your convenience we have a [sample project](https://github.com/azukiapp/azkdemo). It is relatively simple, but you can use it to test and understand the main features of `azk`.
 
-To get a copy of the project, download [this file](https://github.com/azukiapp/azkdemo/archive/master.zip) and extract it in your project folder. You can also [clone this github repository](https://github.com/azukiapp/azkdemo).
+There are two ways to get a copy of the project:
+
+*By cloning the repository:*
+
+```sh
+$ git clone https://github.com/azukiapp/azkdemo
+```
+
+*By downloading the project as a compressed file:*
+
+```sh
+$ curl -L https://github.com/azukiapp/azkdemo/archive/master.zip -o azkdemo.zip
+$ unzip azkdemo.zip
+$ mv azkdemo-master azkdemo
+```
 
 > ** Note **: All commands `cd [path_demo]/azkdemo` in this guide, take into account that `[path_demo]/` is the path where the file above was extracted, be careful to always point to the correct path. ;)
