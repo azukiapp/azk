@@ -138,6 +138,9 @@ export function build(docker, options) {
         } else if (msg.error.match(/returned a non-zero code/)) {
           output = output.replace(/^(.*)/gm, '    $1');
           done.reject(new DockerBuildError('command_error', { dockerfile, output: output }));
+        } else {
+          output = output.replace(/^(.*)/gm, '    $1');
+          done.reject(new DockerBuildError('unexpected_error', { dockerfile, output: output }));
         }
       }
     });

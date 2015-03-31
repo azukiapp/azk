@@ -51,6 +51,7 @@ module.exports = {
       not_found   : "Can't find `%(from)s` image to build `%(dockerfile)s`",
       can_find_dockerfile: "Can't find `%(dockerfile)s` file",
       can_find_add_file_in_dockerfile: "Can't find `%(source)s` file to ADD in `%(dockerfile)s`",
+      unexpected_error: 'An unexpected error occurred in the build `%(dockerfile)s:\n%(output)s\n'
     },
 
     dependencies: {
