@@ -241,6 +241,8 @@ var Run = {
       });
 
       return promise.then((log) => {
+        // distinguish system log output
+        log = log.replace(/^/gm, ' .' + system.name + ' [log] >  ');
         var raise = () => {
           throw new SystemRunError(
             system.name,
