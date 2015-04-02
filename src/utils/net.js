@@ -9,11 +9,12 @@ var os          = require('os');
 
 var { isIPv4 }  = require('net');
 
-/* global Netmask, hostonly, VM */
+/* global Netmask, hostonly, VM, isOnline */
 lazy_require(this, {
   Netmask    : ['netmask'],
   hostonly   : ['azk/agent/vm'],
   VM         : ['azk/agent/vm'],
+  isOnline   : 'is-online',
 });
 
 var portrange = config("agent:portrange_start");
@@ -268,6 +269,17 @@ var net = {
       connect();
     });
   },
+
+  isOnlineCheck() {
+    return defer(function (resolve, reject) {
+      isOnline(function (err, result) {
+        if (err) {
+          return reject(err);
+        }
+        resolve(result);
+      });
+    });
+  }
 };
 
 export default net;

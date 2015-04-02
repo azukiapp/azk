@@ -26,6 +26,19 @@ export class AzkError extends Error {
   }
 }
 
+export class NoInternetConnection extends AzkError {
+  constructor() {
+    super('no_internet_connection');
+  }
+}
+
+export class LostInternetConnection extends AzkError {
+  constructor(output) {
+    super('lost_internet_connection');
+    this.output  = output;
+  }
+}
+
 export class ImageDoesNotExistError extends AzkError {
   constructor(image) {
     super('image_does_not_exist');
