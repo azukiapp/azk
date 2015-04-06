@@ -5,6 +5,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## dev
 
+* Bug
+  * [Docker] Fixing flag `--pull` to force pull of docker image not working`;
+
 ## v0.11.0 - (2015-25-03)
 
 * Bug
