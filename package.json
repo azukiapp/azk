@@ -4,7 +4,7 @@
   "description": "Orchestrate development environments with agility and automation",
   "main": "index.js",
   "scripts": {
-    "test": "./bin/azk nvm grunt test"
+    "test": "./bin/azk nvm gulp test"
   },
   "repository": {
     "type": "git",
@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "archiver": "^0.13.1",
+    "babel-runtime": "^5.1.8",
     "child-process-promise": "^1.0.0",
     "cli-table": "git+https://github.com/gullitmiranda/cli-table#master",
     "colors": "^0.6.2",
@@ -81,6 +82,7 @@
     "xregexp": "^2.0.0"
   },
   "devDependencies": {
+    "azk-dev": "0.0.11",
     "chai": "^1.9.1",
     "chai-as-promised": "^4.1.1",
     "chai-things": "^0.2.0",
@@ -98,6 +100,7 @@
     "grunt-newer": "^0.7.0",
     "grunt-notify": "^0.4.1",
     "grunt-traceur": "0.2.9",
+    "gulp": "^3.8.11",
     "keypress": "~0.2.1",
     "load-grunt-tasks": "^0.6.0",
     "mocha": "^1.21.4",
