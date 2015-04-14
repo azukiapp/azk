@@ -78,7 +78,7 @@ export class Tracker {
   }
 
   generateRandomId() {
-    return calculateHash(String(Math.floor(Date.now() * Math.random()))).substring(0, 8);
+    return calculateHash(String(Math.floor(Date.now() * Math.random()))).slice(0, 8);
   }
 
   askPermission(cb) {
