@@ -22,7 +22,7 @@ ${AZK_LIB_PATH}/azk: $(SRC_JS) ${AZK_NPM_PATH}/.install
 	@echo "task: $@"
 	@export AZK_LIB_PATH=${AZK_LIB_PATH} && \
 		export AZK_NPM_PATH=${AZK_NPM_PATH} && \
-		${AZK_BIN} nvm grunt newer:traceur && touch ${AZK_LIB_PATH}/azk
+		${AZK_BIN} nvm gulp babel && touch ${AZK_LIB_PATH}/azk
 
 ${AZK_NPM_PATH}/.install: npm-shrinkwrap.json package.json ${NODE}
 	@echo "task: $@"
@@ -44,10 +44,6 @@ clean:
 	@find ${AZK_LIB_PATH} -maxdepth 1 -not -name "lib" | egrep -v '\/vm$$' | xargs rm -Rf
 	@rm -Rf ${AZK_NPM_PATH}/..?* ${AZK_NPM_PATH}/.[!.]* ${AZK_NPM_PATH}/*
 	@rm -Rf ${NVM_DIR}/..?* ${NVM_DIR}/.[!.]* ${NVM_DIR}/*
-
-fast_clean:
-	@echo "task: $@"
-	@find ${AZK_LIB_PATH} -maxdepth 1 -not -name "lib" | egrep -v '\/(nvm|vm)$$' | xargs rm -Rf
 
 bootstrap: ${AZK_LIB_PATH}/azk
 
