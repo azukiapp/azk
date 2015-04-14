@@ -2,8 +2,7 @@ import { _, async, lazy_require } from 'azk';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Helpers } from 'azk/cli/command';
 
-/* global Manifest, moment */
-lazy_require(this, {
+var lazy = lazy_require({
   Manifest: ['azk/manifest'],
   moment: 'moment',
 });
@@ -13,7 +12,7 @@ class Cmd extends InteractiveCmds {
     return async(this, function* () {
       yield Helpers.requireAgent(this);
 
-      var manifest = new Manifest(this.cwd, true);
+      var manifest = new lazy.Manifest(this.cwd, true);
       Helpers.manifestValidate(this, manifest);
       var systems  = manifest.getSystemsByName(opts.system);
 
@@ -53,7 +52,7 @@ class Cmd extends InteractiveCmds {
 
         // Provisioned
         var provisioned = system.provisioned;
-        provisioned = provisioned ? moment(provisioned).fromNow() : "-";
+        provisioned = provisioned ? lazy.moment(provisioned).fromNow() : "-";
 
         if (opts.text) {
           ports_string = ports.join(', ');

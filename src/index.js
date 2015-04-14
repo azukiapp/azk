@@ -1,4 +1,3 @@
-require('traceur');
 import { get as config, set as set_config }  from 'azk/config';
 import { Q, _, defer, async, isBlank } from 'azk/utils';
 import { I18n } from 'i18n-cli';
@@ -51,36 +50,15 @@ module.exports = {
   get async() { return async; },
 
   // Internals alias
-  get os() {      return require('os'); },
-  get path() {    return require('path'); },
-  get fs() {      return require('fs-extra'); },
-  get utils() {   return require('azk/utils'); },
+  get os     () { return require('os'); },
+  get path   () { return require('path'); },
+  get fs     () { return require('fs-extra'); },
+  get utils  () { return require('azk/utils'); },
   get version() { return Azk.version; },
   get isBlank() { return isBlank; },
 
   get lazy_require() {
-    return (obj, loads) => {
-      var _ = this._;
-      _.each(loads, (func, getter) => {
-        if (!_.isFunction(func)) {
-          var opts = func;
-
-          // Only name module support
-          if (_.isString(opts)) {
-            opts = [opts];
-          } else if (_.isEmpty(opts[1])) {
-            opts[1] = getter;
-          }
-
-          // Require function
-          func = () => {
-            var mod = require(opts[0]);
-            return _.isEmpty(opts[1]) ? mod : mod[opts[1]];
-          };
-        }
-        obj.__defineGetter__(getter, func);
-      });
-    };
+    return require('azk/utils').lazy_require;
   },
 
   get log() {

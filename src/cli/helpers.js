@@ -1,15 +1,14 @@
 import { _, /*t,*/ log, lazy_require, config } from 'azk';
 import { SmartProgressBar } from 'azk/cli/smart_progress_bar';
 
-/* global AgentClient, Configure */
-lazy_require(this, {
+var lazy = lazy_require({
   AgentClient: ['azk/agent/client', 'Client'],
   Configure: ['azk/agent/configure', 'Configure'],
 });
 
 var Helpers = {
   requireAgent(cli) {
-    return AgentClient
+    return lazy.AgentClient
       .status()
       .then((status) => {
         if (!status.agent && !cli.non_interactive) {
@@ -28,13 +27,13 @@ var Helpers = {
         }
       })
       .then(() => {
-        return AgentClient.require();
+        return lazy.AgentClient.require();
       });
   },
 
   configure(cli) {
     cli.ok('configure.loading_checking');
-    return (new Configure(cli))
+    return (new lazy.Configure(cli))
       .run()
       .then((configs) => {
         cli.ok('configure.loaded');

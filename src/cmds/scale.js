@@ -3,8 +3,7 @@ import { Helpers } from 'azk/cli/command';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Cmd as StatusCmd } from 'azk/cmds/status';
 
-/* global Manifest */
-lazy_require(this, {
+var lazy = lazy_require({
   Manifest: ['azk/manifest'],
 });
 
@@ -13,7 +12,7 @@ class Cmd extends InteractiveCmds {
     return async(this, function* () {
       yield Helpers.requireAgent(this);
 
-      var manifest = new Manifest(this.cwd, true);
+      var manifest = new lazy.Manifest(this.cwd, true);
       Helpers.manifestValidate(this, manifest);
       var systems = manifest.getSystemsByName(opts.system);
 

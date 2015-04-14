@@ -6,15 +6,14 @@ import { pull as pull_func  } from 'azk/docker/pull';
 import { run as run_func   } from 'azk/docker/run';
 import { build as build_func } from 'azk/docker/build';
 
-/* global parseRepositoryTag, uuid */
-lazy_require(this, {
+var lazy = lazy_require({
   parseRepositoryTag: ['dockerode/lib/util'],
   uuid: 'node-uuid',
 });
 
 export class Image extends Utils.qify('dockerode/lib/image') {
   static parseRepositoryTag(...args) {
-    return parseRepositoryTag(...args);
+    return lazy.parseRepositoryTag(...args);
   }
 }
 
@@ -82,7 +81,7 @@ export class Container extends Utils.qify('dockerode/lib/container') {
 
     // Unique id generator
     if (!azk.uid) {
-      azk.uid = uuid.v1().replace(/-/g, "").slice(0, 10);
+      azk.uid = lazy.uuid.v1().replace(/-/g, "").slice(0, 10);
     }
 
     // Mount string

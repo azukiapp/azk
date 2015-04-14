@@ -51,7 +51,7 @@ export function run(docker, Container, image, cmd, opts = { }) {
   var name = opts.name || Container.serializeAnnotations(annotations);
   var envs = _.merge(Container.envsFromAnnotations(annotations), {
     AZK_NAME: name,
-    AZK_ENV: config('docker:namespace').split('.')[1],
+    AZK_ENV : config('docker:namespace').split('.')[1],
   });
   opts.env = _.merge(envs, opts.env || {});
 

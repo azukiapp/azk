@@ -8,8 +8,7 @@ var forever = require('forever-monitor');
 var MemoryStream    = require('memorystream');
 var MemcachedDriver = require('memcached');
 
-/* global Manifest, Client */
-lazy_require(this, {
+var lazy = lazy_require({
   Manifest: ['azk/manifest'],
   Client  : ['azk/agent/client'],
 });
@@ -165,7 +164,7 @@ var Balancer = {
   },
 
   _getSystem(system) {
-    var manifest = new Manifest(config('paths:shared'), true);
+    var manifest = new lazy.Manifest(config('paths:shared'), true);
     return manifest.system(system, true);
   },
 
@@ -277,7 +276,7 @@ var Balancer = {
       var child = forever.start(cmd, options);
       child.on('exit', () => {
         reject();
-        Client.stop();
+        lazy.Client.stop();
       });
       child.on('start', () => resolve(child));
 

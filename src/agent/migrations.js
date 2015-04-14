@@ -2,8 +2,7 @@ import { async, lazy_require } from 'azk';
 import { config } from 'azk';
 var qfs = require('q-io/fs');
 
-/* global meta, VM */
-lazy_require(this, {
+var lazy = lazy_require({
   meta : ['azk'],
   VM   : ['azk/agent/vm'],
 });
@@ -41,7 +40,7 @@ var Migrations = {
           var old_name = "azk-vm-azk.dev";
           var new_name = config("agent:vm:name");
           configure.info('configure.migrations.renaming_vm', { old_name, new_name });
-          yield VM.rename(old_name, new_name);
+          yield lazy.VM.rename(old_name, new_name);
         }
 
         return true;
@@ -55,11 +54,11 @@ var Migrations = {
       var meta_tag  = "last_migration";
 
       // Initialize meta
-      var last_run  = parseInt(meta.getOrSet(meta_tag, -1));
+      var last_run  = parseInt(lazy.meta.getOrSet(meta_tag, -1));
       var be_run    = this.migrations.slice(last_run + 1);
 
       // Azk agent was set up at least once?
-      if (yield qfs.exists(meta.cache_dir) && be_run.length > 0) {
+      if (yield qfs.exists(lazy.meta.cache_dir) && be_run.length > 0) {
         // Warns on the run of migrations
         notify({ type: "status", keys: "configure.migrations.alert"});
 
@@ -67,11 +66,11 @@ var Migrations = {
         for (var i = 0; i < be_run.length; i++) {
           yield be_run[i].apply(this.migrations, [configure]);
           last_run++;
-          meta.set(meta_tag, last_run);
+          lazy.meta.set(meta_tag, last_run);
         }
       } else {
         // Saves all migrations were performed
-        meta.set(meta_tag, this.migrations.length - 1);
+        lazy.meta.set(meta_tag, this.migrations.length - 1);
       }
 
       return {};

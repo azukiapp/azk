@@ -2,8 +2,7 @@ import { Q, async, _, lazy_require } from 'azk';
 import { SystemDependError, SystemNotScalable } from 'azk/utils/errors';
 import { Balancer } from 'azk/system/balancer';
 
-/* global docker */
-lazy_require(this, {
+var lazy = lazy_require({
   docker: ['azk/docker', 'default'],
 });
 
@@ -114,7 +113,7 @@ var Scale = {
     return async(this, function* () {
       var ports = {}, envs = {};
       if (instances.length > 0) {
-        var data = yield docker.getContainer(instances[0].Id).inspect();
+        var data = yield lazy.docker.getContainer(instances[0].Id).inspect();
         _.each(data.NetworkSettings.Access, (port) => {
           ports[port.name] = port.port;
         });
