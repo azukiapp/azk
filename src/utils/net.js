@@ -9,8 +9,6 @@ var os          = require('os');
 
 var { isIPv4 }  = require('net');
 
-<<<<<<< HEAD
-/* global Netmask, hostonly, VM, isOnline */
 var lazy = lazy_require({
   Netmask    : ['netmask'],
   hostonly   : ['azk/agent/vm'],
