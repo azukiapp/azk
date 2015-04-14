@@ -3,6 +3,7 @@ import { async, defer, lazy_require } from 'azk';
 import { ManifestError, NoInternetConnection, LostInternetConnection } from 'azk/utils/errors';
 import { net } from 'azk/utils';
 import Utils from 'azk/utils';
+import { Tracker } from 'azk/utils/tracker';
 
 var Syncronizer = require('docker-registry-downloader').Syncronizer;
 
@@ -258,4 +259,48 @@ export class Image {
 
     return provider;
   }
+
+  //
+  // Tracker
+  //
+  _track(event_type_name) {
+    return async(this, function* () {
+      var tracker = new Tracker();
+
+      // get event_type
+      tracker.addData({
+        event_type: event_type_name,
+        manifest_id: this.system.manifest.namespace
+      });
+
+      // rescue session id
+      tracker.meta_info = {
+        agent_session_id: tracker.loadAgentSessionId(),
+        command_id      : tracker.loadCommandId(),
+      };
+
+      var repo_full_name = this.repository;
+      if (this.tag) {
+        repo_full_name = repo_full_name + ':' + this.tag;
+      }
+
+      // get repository only if it is public
+      var image_part = {
+        images: {
+          type: this.provider
+        }
+      };
+      if (this.provider === 'docker') {
+        image_part.images.name = repo_full_name;
+      }
+      tracker.addData(image_part);
+
+      // track
+      var tracker_result = yield tracker.track('images', tracker.data);
+      if (tracker_result !== 0) {
+        log.error('ERROR tracker_result:', tracker_result);
+      }
+    });
+  }
+
 }
