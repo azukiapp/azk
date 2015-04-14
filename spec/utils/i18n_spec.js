@@ -44,7 +44,7 @@ describe("Azk i18n module", function() {
 
   it("should support a load dictionary", function() {
     var i = new i18n({
-        path: path.join(config('paths:azk_root'), 'shared', 'locales'),
+      path: path.join(config('paths:azk_root'), 'shared', 'locales'),
       locale: 'en-US'
     });
     h.expect(i.t("test.i18n_test")).to.equal(

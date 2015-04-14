@@ -57,7 +57,7 @@ describe('Azk generator tool index:', function() {
     it('should generate with a valid format', function() {
       var extra = _.merge({}, default_data, {
         systems: {
-           front: { envs: { 'F-O_O': 'BAR'}, scalable: { default: 3 }}
+          front: { envs: { 'F-O_O': 'BAR'}, scalable: { default: 3 }}
         }
       });
 

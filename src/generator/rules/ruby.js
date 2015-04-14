@@ -59,7 +59,7 @@ var getVersion = function(content) {
       rubyVersion: rubyVersion,
       rubyEngine: rubyEngine,
       rubyEngineVersion: rubyEngineVersion
-   };
+    };
   } else {
     return null;
   }
