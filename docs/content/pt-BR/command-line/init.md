@@ -1,6 +1,6 @@
 ## azk init
 
-Inicializa o arquivo `Azkfile.js` baseando-se nos sistemas contidos na pasta atual.
+Inicializa o arquivo `Azkfile.js` e sugere uma configuração inicial, baseando-se nos sistemas contidos na pasta atual.
 
 #### Opções:
 

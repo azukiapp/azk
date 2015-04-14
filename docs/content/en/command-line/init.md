@@ -1,6 +1,6 @@
 ## azk init
 
-Initializes the `Azkfile.js` file based on systems contained within current folder.
+Initializes the `Azkfile.js` file, and suggests an initial configuration based on systems contained within the current folder.
 
 #### Options:
 
@@ -21,4 +21,3 @@ azk: `php` system was detected at 'azkfile-init-examples/phpSample' as 'phpSampl
 azk: `phplaravel` system was detected at 'azkfile-init-examples/phpLaravel' as 'phpLaravel'
 azk: `django` system was detected at 'azkfile-init-examples/django15' as 'django15'
 ```
-
