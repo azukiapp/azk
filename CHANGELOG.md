@@ -5,6 +5,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## dev
 
+* Enhancements
+  * [Docker] Check and show error message in the pull of docker images, #299.
+
 ## v0.11.0 - (2015-25-03)
 
 * Bug

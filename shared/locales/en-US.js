@@ -11,6 +11,8 @@ var reprovision = "Force the provisioning actions before starting an instance";
 module.exports = {
   errors: {
     no_vm_started: "Unable to install and configure virtual machine",
+    no_internet_connection: "\nNo internet connection!",
+    lost_internet_connection: "\nLost internet connection:\n%(output)s",
     connect_docker_unavailable: "Could not initialize balancer because docker was not available",
     agent_not_running: "azk agent is required but is not running (try `azk agent status`)",
     agent_start: "azk agent start error: %(error)s",

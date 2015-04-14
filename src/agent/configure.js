@@ -1,4 +1,4 @@
-import { _, t, os, Q, async, defer, log, lazy_require } from 'azk';
+import { _, t, os, Q, async, log, lazy_require } from 'azk';
 import { config, set_config } from 'azk';
 import { UIProxy } from 'azk/cli/ui';
 import { OSNotSupported, DependencyError } from 'azk/utils/errors';
@@ -11,11 +11,10 @@ var request    = require('request');
 var semver     = require('semver');
 var { isIPv4 } = require('net');
 
-/* global docker, Migrations, isOnline, exec, Netmask */
+/* global docker, Migrations, exec, Netmask */
 lazy_require(this, {
   docker     : ['azk/docker', 'default'],
   Migrations : ['azk/agent/migrations'],
-  isOnline   : 'is-online',
   exec       : ['child_process'],
   Netmask    : ['netmask'],
 });
@@ -109,22 +108,11 @@ export class Configure extends UIProxy {
     });
   }
 
-  isOnlineCheck() {
-    return defer(function (resolve, reject) {
-      isOnline(function (err, result) {
-        if (err) {
-          return reject(err);
-        }
-        resolve(result);
-      });
-    });
-  }
-
   _checkAzkVersion() {
     return async(this, function* (notify) {
       try {
         // check connectivity
-        var currentOnline = yield this.isOnlineCheck();
+        var currentOnline = yield net.isOnlineCheck();
 
         if ( !currentOnline ) {
           log.debug('isOnline == false');
