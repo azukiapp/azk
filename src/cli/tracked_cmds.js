@@ -23,13 +23,9 @@ export class TrackedCmds extends Command {
       command_name = command_name + ' ' + args[0].__leftover.join(' ');
     }
 
-    // AGENT START and agent startchild
+    // create agent_session_id - > agent start or agent startchild
     var startchild_daemon = opts.daemon && opts.action === 'startchild';
     var starting_no_daemon = !opts.daemon && opts.action === 'start';
-
-    // /**/console.log('\n>>---------\n starting_daemon:\n', startchild_daemon, '\n>>---------\n');/*-debug-*/
-    // /**/console.log('\n>>---------\n starting_no_daemon:\n', starting_no_daemon, '\n>>---------\n');/*-debug-*/
-
     if (startchild_daemon || starting_no_daemon) {
       // generate session id and merges meta info
       this.tracker.meta_info = {
