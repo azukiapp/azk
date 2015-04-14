@@ -11,8 +11,8 @@ var Utils = {
   get default() { return Utils; },
   get Q      () { return Q; },
   get _      () { return _; },
-  get net    () { return require('azk/utils/net').default; },
-  get docker () { return require('azk/utils/docker').default; },
+  get net    () { return require('azk/utils/net'); },
+  get docker () { return require('azk/utils/docker'); },
 
   lazy_require(loads) {
     var lazy = {};
@@ -116,25 +116,26 @@ var Utils = {
     });
   },
 
-  qify(klass) {
-    if (_.isString(klass)) {
-      klass = require(klass);
+  qify(Klass) {
+    if (_.isString(Klass)) {
+      Klass = require(Klass);
     }
 
-    var newClass = function(...args) {
-      klass.call(this, ...args);
+    var NewClass = function(...args) {
+      Klass.call(this, ...args);
     };
 
-    newClass.prototype = Object.create(klass.prototype);
+    NewClass.prototype = Object.create(Klass.prototype);
+    NewClass.prototype.constructor = Klass;
 
-    _.each(_.methods(klass.prototype), (method) => {
-      var original = klass.prototype[method];
-      newClass.prototype[method] = function(...args) {
+    _.each(_.methods(Klass.prototype), (method) => {
+      var original = Klass.prototype[method];
+      NewClass.prototype[method] = function(...args) {
         return Q.nbind(original, this)(...args);
       };
     });
 
-    return newClass;
+    return NewClass;
   },
 
   qifyModule(mod) {
