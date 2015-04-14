@@ -68,7 +68,7 @@ h.describeSkipVm("Azk agent vm", function() {
       install_vm(options = {}) {
         options = _.merge({}, opts, options);
         return async(this, function *() {
-          if (this.timeout) { this.timeout(0); }
+          if (this.timeout) { this.timeout(10000); }
           yield remove.apply(this);
           return h.expect(VM.init(options)).to.eventually.fulfilled;
         });
@@ -87,7 +87,9 @@ h.describeSkipVm("Azk agent vm", function() {
     describe("and have a info about vm", function() {
       // Install vm and save state
       var info = {};
-      before(() => { return aux_tools.install_vm.apply(this).then((i => info = i)); });
+      before(function() {
+        return aux_tools.install_vm.apply(this).then((i => info = i));
+      });
 
       it("should configure cpus", function() {
         h.expect(info).has.property("ostype").and.match(/Linux.*64/);
@@ -115,7 +117,7 @@ h.describeSkipVm("Azk agent vm", function() {
 
       it("should start, stop and return vm status", function() {
         return async(this, function* () {
-          this.timeout(10000);
+          this.timeout(15000);
           h.expect(yield VM.start(opts.name)).to.ok;
           h.expect(yield VM.start(opts.name)).to.fail;
           h.expect(yield VM.isRunnig(opts.name)).to.ok;
