@@ -2,6 +2,7 @@ import { _, t, Q, async, defer, config, lazy_require, log, isBlank } from 'azk';
 import { ImageNotAvailable, SystemRunError, RunCommandError } from 'azk/utils/errors';
 import { Balancer } from 'azk/system/balancer';
 import net from 'azk/utils/net';
+import { Tracker } from 'azk/utils/tracker';
 
 /* global MemoryStream, docker */
 lazy_require(this, {
@@ -341,6 +342,48 @@ var Run = {
       return _.sortBy(instances, (instance) => { return instance.Annotations.azk.seq; });
     });
   },
+
+  //
+  // Tracker
+  //
+  _track(system) {
+    /**/console.log('\n>>---------\n system:\n',
+     require('util').inspect(system, { showHidden: false, depth: null, colors: true }), '\n>>---------\n');/*-debug-*/
+    new Tracker();
+    process.exit(0);
+    // return async(this, function* () {
+    //   var tracker = new Tracker();
+    //
+    //   // rescue session id
+    //   tracker.meta_info = {
+    //     agent_session_id: tracker.loadAgentSessionId(),
+    //     command_id      : tracker.loadCommandId(),
+    //   };
+    //
+    //   var repo_full_name = this.repository;
+    //   if (this.tag) {
+    //     repo_full_name = repo_full_name + ':' + this.tag;
+    //   }
+    //
+    //   tracker.addData({
+    //     event_type: event_type,
+    //     //    state: 'ok' || 'error',
+    //     //    reason: '‘......’',
+    //     //    manifest_id: '’azk_12371892’'
+    //     images: {
+    //       type: 'docker',
+    //       name: repo_full_name
+    //     },
+    //   });
+    //
+    //   // track
+    //   var tracker_result = yield tracker.track('images', tracker.data);
+    //   if (tracker_result !== 0) {
+    //     log.error('ERROR tracker_result:', tracker_result);
+    //   }
+    // });
+  }
+
 };
 
 export { Run };

@@ -1,6 +1,7 @@
 import { log, _, async } from 'azk';
 import { Tracker } from 'azk/utils/tracker';
 import { Command } from 'azk/cli/command';
+// import { Helpers } from 'azk/cli/command';
 
 export class TrackedCmds extends Command {
 
@@ -11,6 +12,12 @@ export class TrackedCmds extends Command {
   }
 
   before_action(opts, ...args) {
+
+    // Helpers.askPermissionToTrack(this)
+    //   .then(function (result) {
+    //     /**/console.log('\n>>---------\n result:\n', result, '\n>>---------\n');/*-debug-*/
+    //   });
+
     // TRACKER
     this.tracker = new Tracker();
 
