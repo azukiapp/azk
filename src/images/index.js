@@ -75,7 +75,7 @@ export class Image {
       }
 
       // download from registry
-      if (isBlank(image)) {
+      if (isBlank(image) || options.build_force) {
         this.repository = namespace + '/' + repository;
         notify({ type: "action", context: "image", action: "pull_image", data: this });
 
