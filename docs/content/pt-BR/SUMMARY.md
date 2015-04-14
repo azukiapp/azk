@@ -18,9 +18,9 @@
 /*****************************************************/
 * [Começando uma aplicação do zero](starting-from-scratch/README.md)
    * [Node.js](starting-from-scratch/nodejs.md)*
-   * [Rails](starting-from-scratch/rails.md)*
-   * [Django](starting-from-scratch/django.md)*
-   * [Laravel](starting-from-scratch/laravel.md)*
+   * [Rails](starting-from-scratch/ruby-rails.md)*
+   * [Django](starting-from-scratch/python-django.md)*
+   * [Laravel](starting-from-scratch/php-laravel.md)*
 /*****************************************************/
 /** [Exemplos](exemplos/README.md)*/
    /** [Rails](exemplos/rails.md)*/
