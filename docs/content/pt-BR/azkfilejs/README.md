@@ -6,6 +6,8 @@ O **Azkfile.js** é a espinha dorsal do funcionamento do `azk`. Sua principal fu
 
 Como sugere a extensão `.js` o **Azkfile.js** é escrito em JavaScript, mas nenhum conhecimento avançado de JavaScript é necessário para edita-lo. Sua lógica é realmente simples e basicamente descreve como o `azk` deve prover o ambiente para executar os sistemas que formam sua aplicação.
 
+Todas as propriedades disponíveis no **Azkfile.js** e suas descrições podem ser encontradas na [seção Referência](../reference/azkfilejs/README.md).
+
 # Exemplo completo de Azkfile.js
 
 Obs: este é um exemplo de `Azkfile.js` com todas as opções, mas não é um `Azkfile.js` que descreve uma aplicação valida. Utilize apenas como referência.
