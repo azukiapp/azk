@@ -28,7 +28,7 @@
 /*****************************************************/
 * [Imagens](images/README.md)
 /*****************************************************/
-* [Contribuíndo](contributing/README.md)
+* [Contribuindo](contributing/README.md)
 /*****************************************************/
 * [Referência](reference/README.md)
    * [Azkfile.js](reference/azkfilejs/README.md)
