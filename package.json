@@ -83,7 +83,8 @@
     "xregexp": "^2.0.0"
   },
   "devDependencies": {
-    "azk-dev": "0.0.11",
+    "azk-dev": "0.0.12",
+    "babel": "^5.1.8",
     "chai": "^1.9.1",
     "chai-as-promised": "^4.1.1",
     "chai-things": "^0.2.0",

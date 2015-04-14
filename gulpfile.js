@@ -2,6 +2,7 @@
 var azk_gulp = require('azk-dev/gulp')({
   cwd  : __dirname,
   src  : { src: "./src", dest: "./lib/azk" },
+  mocha: { timeout: 10000 },
   lint: [ "bin/**/*.js" ],
 });
 
