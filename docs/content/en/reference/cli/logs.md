@@ -14,4 +14,4 @@ Displays system _logs_.
 
 #### Example:
 
-![Figure 1-1](../resources/images/logs.png)
+![Figure 1-1](../../resources/images/logs.png)

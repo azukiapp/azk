@@ -26,7 +26,7 @@ Inicia o `agent`.
 
     $ azk agent start --no-daemon
 
-![Figure 1-1](../resources/images/agent_start.png)
+![Figure 1-1](../../resources/images/agent_start.png)
 
 _______________
 ### azk agent stop

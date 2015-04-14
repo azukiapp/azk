@@ -8,4 +8,4 @@ _Alias_ para realizar a chamada do docker no escopo de configuração do `azk`.
 
 #### Exemplo:
 
-![Figure 1-1](../resources/images/docker_info.png)
+![Figure 1-1](../../resources/images/docker_info.png)

@@ -12,4 +12,4 @@ Displays information about the systems listed in `Azkfile.js`.
 
 #### Example:
 
-![Figure 1-1](../resources/images/azk_info.png)
+![Figure 1-1](../../resources/images/azk_info.png)

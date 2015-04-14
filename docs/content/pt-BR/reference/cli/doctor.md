@@ -12,4 +12,4 @@ Mostra uma análise da saúde do `azk`.
 
 #### Exemplo:
 
-![Figure 1-1](../resources/images/doctor.png)
+![Figure 1-1](../../resources/images/doctor.png)

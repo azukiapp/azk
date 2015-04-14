@@ -14,4 +14,4 @@ Exibe o _log_ do sistema indicado.
 
 #### Exemplo:
 
-![Figure 1-1](../resources/images/logs.png)
+![Figure 1-1](../../resources/images/logs.png)

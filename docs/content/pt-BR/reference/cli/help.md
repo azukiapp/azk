@@ -8,4 +8,4 @@ Exibe informações de ajuda sobre um comando especifico.
 
 #### Exemplo:
 
-![Figure 1-1](../resources/images/azk_help.png)
+![Figure 1-1](../../resources/images/azk_help.png)

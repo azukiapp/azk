@@ -29,4 +29,4 @@ envs: {
 
 > __Important__: This is not the recommended way to expose sensitive information such as passwords. It is recommended that each developer uses a .env file in the root of the project and that this file is ignored in version control.
 
-!INCLUDE "../../links.md"
+!INCLUDE "../../../links.md"
