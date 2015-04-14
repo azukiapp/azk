@@ -3,6 +3,7 @@ import { async, defer, lazy_require } from 'azk';
 import { ManifestError, NoInternetConnection, LostInternetConnection } from 'azk/utils/errors';
 import { net } from 'azk/utils';
 import Utils from 'azk/utils';
+import { Tracker } from 'azk/utils/tracker';
 
 var Syncronizer = require('docker-registry-downloader').Syncronizer;
 
@@ -102,8 +103,48 @@ export class Image {
           output = err.toString();
           throw new LostInternetConnection('  ' + output);
         }
+
+        yield this._track('pull');
+
       }
-      return yield this.check();
+      return this.check();
+    });
+  }
+
+  //
+  // Tracker
+  //
+  _track(event_type) {
+    return async(this, function* () {
+      var tracker = new Tracker();
+
+      // rescue session id
+      tracker.meta_info = {
+        agent_session_id: tracker.loadAgentSessionId(),
+        command_id      : tracker.loadCommandId(),
+      };
+
+      var repo_full_name = this.repository;
+      if (this.tag) {
+        repo_full_name = repo_full_name + ':' + this.tag;
+      }
+
+      tracker.addData({
+        event_type: event_type,
+        //    state: 'ok' || 'error',
+        //    reason: '‘......’',
+        //    manifest_id: '’azk_12371892’'
+        images: {
+          type: 'docker',
+          name: repo_full_name
+        },
+      });
+
+      // track
+      var tracker_result = yield tracker.track('images', tracker.data);
+      if (tracker_result !== 0) {
+        log.error('ERROR tracker_result:', tracker_result);
+      }
     });
   }
 
@@ -158,6 +199,7 @@ export class Image {
                                     stdout: options.stdout
                                   });
       }
+      yield this._track('build');
       return image;
     });
   }

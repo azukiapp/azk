@@ -1,5 +1,5 @@
 import Azk from 'azk';
-import { _, config, async, log, fs } from 'azk';
+import { _, config, async, log, fs, path } from 'azk';
 import { calculateHash } from 'azk/utils';
 var os = require('os');
 var osName = require('os-name');
@@ -22,11 +22,11 @@ export class Tracker {
     this.totalmem  = this.totalmem  || Math.floor(os.totalmem() / 1024 / 1024);
     this.os_name   = this.os_name   || osName();
 
-    this._initializeDefaultInfo();
+    this._data     = this._initializeDefaultInfo();
   }
 
   _initializeDefaultInfo() {
-    this._data = {
+    return {
       // keen addons
       "keen" : {
         "addons" : [{
@@ -63,7 +63,7 @@ export class Tracker {
       if (data_to_add) {
         this.addData(data_to_add);
       }
-      /**/console.log('\n>>---------\n this._data:\n',
+      /**/console.log('\n>>---------\n this._data: ' + subject + ' \n',
         require('util').inspect(this._data, { showHidden: false, depth: null, colors: true }), '\n>>---------\n');/*-debug-*/
 
       var tracking_result = yield this.insight.track(subject, this._data);
@@ -97,46 +97,66 @@ export class Tracker {
     this._data.meta = _.merge({}, this._data.meta, value);
   }
 
-  // Session ID
-  loadAgentSessionId() {
-    // load tracker_info_data from /home/${USER}/.azk/data/run/agent-session-id
-    var agent_session_id;
-    var tracker_info_file_path = config('paths:agent_session_id');
+  loadRandomIdForKey(key) {
+    // load tracker_info_data from /home/${USER}/.azk/data/analytics/[key]
+    var key_value;
+    var tracker_info_file_path = path.join(config('paths:analytics'), key);
 
     try {
       if (fs.existsSync(tracker_info_file_path)) {
-        agent_session_id = fs.readFileSync(tracker_info_file_path).toString();
+        key_value = fs.readFileSync(tracker_info_file_path).toString();
       }
     } catch (err) {
-      log.error('ERROR: loadAgentSessionId:', err);
+      log.error('ERROR: loadRandomIdForKey:', err);
       log.error(err.stack);
     }
 
     // set meta content
-    this._data.meta.agent_session_id = agent_session_id;
+    this._data.meta[key] = key_value;
 
-    return agent_session_id;
+    return key_value;
   }
 
-  saveAgentSessionId() {
-    // generate new session_id
-    var new_session_id = this.generateRandomId();
-    this._data.meta.agent_session_id = new_session_id;
+  saveRandomIdForKey(key) {
+    // generate new id
+    var new_id = this.generateRandomId();
+    this._data.meta[key] = new_id;
 
-    // agent_session_id
-    var agent_session_id = new_session_id;
+    var analytics_path = config('paths:analytics');
 
-    // save agent_session_id to /home/${USER}/.azk/data/run/agent-session-id
-    var tracker_info_file_path = config('paths:agent_session_id');
+    // check if dir exists
+    var dirExists = fs.existsSync(analytics_path);
+    if (!dirExists) {
+      fs.mkdirSync(analytics_path);
+    }
+
+    // save agent_session_id to /home/${USER}/.azk/data/analytics/[key]
+    var tracker_info_file_path = path.join(analytics_path, key);
 
     try {
-      fs.writeFileSync(tracker_info_file_path, agent_session_id);
+      fs.writeFileSync(tracker_info_file_path, new_id);
     } catch (err) {
-      log.error('ERROR: saveAgentSessionId:', err);
+      log.error('ERROR: saveRandomIdForKey:', err);
       log.error(err.stack);
     }
 
-    return new_session_id;
+    return new_id;
+  }
+
+  saveAgentSessionId() {
+    return this.saveRandomIdForKey('agent_session_id');
+  }
+
+  loadAgentSessionId() {
+    return this.loadRandomIdForKey('agent_session_id');
+  }
+
+  saveCommandId() {
+    return this.saveRandomIdForKey('command_id');
+  }
+
+  loadCommandId() {
+    return this.loadRandomIdForKey('command_id');
   }
 
 }

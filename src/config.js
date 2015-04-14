@@ -58,7 +58,7 @@ var options = mergeConfig({
       memcached_socket  : path.join(paths.run, 'memcachedjs.socket'),
       api_socket        : path.join(paths.run, 'api.socket'),
       persistent_folders: persistent_folders,
-      agent_session_id  : path.join(paths.run, 'agent-session-id'),
+      analytics         : path.join(data_path, azk_dir, "analytics"),
     },
     logs_level: {
       console: (envs('AZK_DEBUG') ? 'debug' : 'warn'),

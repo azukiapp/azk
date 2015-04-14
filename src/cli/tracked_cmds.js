@@ -15,7 +15,7 @@ export class TrackedCmds extends Command {
     this.tracker = new Tracker();
 
     // generate command id
-    var new_command_id = this.tracker.generateRandomId();
+    var new_command_id = this.tracker.saveCommandId();
 
     var command_name = this.name;
     // if command and sub command
