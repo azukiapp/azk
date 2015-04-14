@@ -22,7 +22,7 @@
   - Stop dnsmasq and ensure it won't start at login:
 
     ``` bash
-    $ sudo /etc/init.d/dnsmasq stop
+    $ sudo service dnsmasq stop
     $ sudo update-rc.d -f dnsmasq remove
     ```
 
@@ -60,7 +60,7 @@
   - Stop dnsmasq and ensure it won't start at login:
 
     ``` bash
-    $ sudo /etc/init.d/dnsmasq stop
+    $ sudo service dnsmasq stop
     $ sudo update-rc.d -f dnsmasq remove
     ```
 

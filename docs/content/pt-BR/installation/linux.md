@@ -22,7 +22,7 @@
   - Pare o serviço do dnsmasq e garanta que ele não será iniciado automaticamente após o login:
 
     ``` bash
-    $ sudo /etc/init.d/dnsmasq stop
+    $ sudo service dnsmasq stop
     $ sudo update-rc.d -f dnsmasq remove
     ```
 
@@ -60,7 +60,7 @@
   - Pare o serviço do dnsmasq e garanta que ele não será iniciado automaticamente após o login:
 
     ``` bash
-    $ sudo /etc/init.d/dnsmasq stop
+    $ sudo service dnsmasq stop
     $ sudo update-rc.d -f dnsmasq remove
     ```
 
