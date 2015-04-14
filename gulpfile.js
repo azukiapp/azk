@@ -1,7 +1,11 @@
-// gulpfile.js
+// Lib path
+var path = require('path');
+var lib  = process.env.AZK_LIB_PATH || 'lib';
+
 var azk_gulp = require('azk-dev/gulp')({
   cwd  : __dirname,
-  src  : { src: "./src", dest: "./lib/azk" },
+  src  : { src: "./src" , dest: path.join(lib, "/azk") },
+  spec : { src: "./spec", dest: path.join(lib, "/spec") },
   mocha: { timeout: 10000 },
   lint: [ "bin/**/*.js" ],
 });
