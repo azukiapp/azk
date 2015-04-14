@@ -36,7 +36,7 @@ describe("Azk docker module, image build @slow", function() {
         });
     });
 
-    it("should parse progress mensagens", function() {
+    it("should parse progress messages", function() {
       var events = [];
       return build('Dockerfile')
         .progress((event) => events.push(event))

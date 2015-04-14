@@ -44,15 +44,17 @@ function parseAddManifestFiles (archive, dockerfile, content) {
   return async(function* () {
     var base_dir = path.dirname(dockerfile);
 
-    // https://regex101.com/r/yT1jF9/1
-    var dockerfileRegex = /^ADD\s+([^\s]+)\s+([^\s]+)$/gmi;
-    var isUrlRegex      = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/gmi;
+    // https://regex101.com/r/yT1jF9/2
+    var dockerfileRegex = /^(?:ADD|COPY)\s+([^\s]+)\s+([^\s]+)$/gmi;
+    // https://regex101.com/r/aC1xZ3/4
+    var isUrlRegex      = /\b(?:(?:https?|ftp|file|ircs?):\/\/|www\.|ftp\.)[-A-Z0-9+&@#/%=~_|$?!:,.;]*[A-Z0-9+&@#/%=~_|$]/gmi;
     var capture = null;
     while ( (capture = dockerfileRegex.exec(content)) ) {
       var source = path.join(base_dir, capture[1]);
       var isUrl  = isUrlRegex.test(capture[1]);
 
       // keep urls
+      // TODO: support url download
       if (isUrl) { continue; }
 
       // Check if file/folder exist
@@ -136,6 +138,9 @@ export function build(docker, options) {
         } else if (msg.error.match(/returned a non-zero code/)) {
           output = output.replace(/^(.*)/gm, '    $1');
           done.reject(new DockerBuildError('command_error', { dockerfile, output: output }));
+        } else {
+          output = output.replace(/^(.*)/gm, '    $1');
+          done.reject(new DockerBuildError('unexpected_error', { dockerfile, output: output }));
         }
       }
     });
