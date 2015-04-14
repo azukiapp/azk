@@ -1,6 +1,7 @@
 require('traceur');
 import { get as config, set as set_config }  from 'azk/config';
-import { Q, _, i18n, defer, async, isBlank } from 'azk/utils';
+import { Q, _, defer, async, isBlank } from 'azk/utils';
+import { I18n } from 'i18n-cli';
 
 Q.longStackSupport = true;
 
@@ -27,7 +28,7 @@ module.exports = {
   get _() {  return _; },
   get t() {
     if (!_t) {
-      _t = new i18n({
+      _t = new I18n({
         path: this.path.join(this.config('paths:azk_root'), 'shared', 'locales'),
         locale: config('locale'),
       }).t;

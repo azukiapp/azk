@@ -46,6 +46,7 @@
     "glob": "^3.2.9",
     "handlebars": "2.0.0-alpha.4",
     "hipache": "git+https://github.com/hipache/hipache#master",
+    "i18n-cli": "0.0.3",
     "inquirer": "^0.8.0",
     "is-online": "^3.0.0",
     "jstream": "^0.2.7",

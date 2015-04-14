@@ -1,5 +1,3 @@
-import { i18n } from 'azk/utils/i18n';
-
 var { join, basename, dirname } = require('path');
 var crypto = require('crypto');
 var Q      = require('q');
@@ -11,7 +9,6 @@ var Utils = {
   __esModule: true,
 
   get default() { return Utils; },
-  get i18n() {    return i18n; },
   get Q() {       return Q; },
   get _() {       return _; },
   get net() {     return require('azk/utils/net').default; },
