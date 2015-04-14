@@ -16,6 +16,12 @@
    * [Mapeando arquivos](getting-started/mounts-files.md)
    * [Persistindo informações](getting-started/persisting-data.md)
 /*****************************************************/
+* [Começando uma aplicação do zero](starting-from-scratch/README.md)
+   * [Node.js](starting-from-scratch/nodejs.md)*
+   * [Rails](starting-from-scratch/rails.md)*
+   * [Django](starting-from-scratch/django.md)*
+   * [Laravel](starting-from-scratch/laravel.md)*
+/*****************************************************/
 /** [Exemplos](exemplos/README.md)*/
    /** [Rails](exemplos/rails.md)*/
    /** [node.js](exemplos/nodejs.md)*/
