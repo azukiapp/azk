@@ -1,6 +1,6 @@
-import { Command } from 'azk/cli/command';
+import { TrackedCmds } from 'azk/cli/tracked_cmds';
 
-export class InteractiveCmds extends Command {
+export class InteractiveCmds extends TrackedCmds {
   constructor(...args) {
     this._verbose_nivel = 0;
     this.non_interactive = false;

@@ -63,10 +63,11 @@ export class Tracker {
       if (data_to_add) {
         this.addData(data_to_add);
       }
-      log.debug('track.data:', this._data);
+      /**/console.log('\n>>---------\n this._data:\n',
+        require('util').inspect(this._data, { showHidden: false, depth: null, colors: true }), '\n>>---------\n');/*-debug-*/
 
       var tracking_result = yield this.insight.track(subject, this._data);
-      log.debug('track.result:', tracking_result);
+      /**/console.log('\n>>---------\n tracking_result:\n', tracking_result, '\n>>---------\n');/*-debug-*/
 
       return tracking_result;
     });

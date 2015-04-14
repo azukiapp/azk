@@ -207,7 +207,12 @@ export class Command extends UIProxy {
   }
 
   before_action(...args) {
-    return this.action(...args);
+    var action_result = this.action(...args);
+    return this.after_action(action_result, ...args);
+  }
+
+  after_action(action_result) {
+    return action_result;
   }
 
   run(args = [], opts = null) {
