@@ -6,11 +6,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## dev
 
 * Bug
-  * [Dockerfile] Fixing `azk build` does not support `COPY` in Dockerfile, issue #341.
+  * [Dockerfile] Fixing `azk build` does not support `COPY` in Dockerfile, issue #341;
   * [Docker] Fixing flag `--pull` to force pull of docker image not working`;
 
 * Enhancements
-  * [Docker] Check and show error message in the pull of docker images, #299.
+  * [Docker] Check and show error message in the pull of docker images, #299;
+  * [Installation] Installation script (`install.sh`) now disables dnsmasq;
+  * [Systems] Distinguish azk error from sub-system log error;
 
 ## v0.11.0 - (2015-25-03)
 
