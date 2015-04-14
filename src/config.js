@@ -58,6 +58,7 @@ var options = mergeConfig({
       memcached_socket  : path.join(paths.run, 'memcachedjs.socket'),
       api_socket        : path.join(paths.run, 'api.socket'),
       persistent_folders: persistent_folders,
+      agent_session_id  : path.join(paths.run, 'agent-session-id'),
     },
     logs_level: {
       console: (envs('AZK_DEBUG') ? 'debug' : 'warn'),
@@ -75,6 +76,12 @@ var options = mergeConfig({
         timeout: 1000,
         retry: 10,
       }
+    },
+    tracker: {
+      projectId: '5526968d672e6c5a0d0ebec6',
+      // jscs:disable maximumLineLength
+      writeKey:  '5dbce13e376070e36eec0c7dd1e7f42e49f39b4db041f208054617863832309c14a797409e12d976630c3a4b479004f26b362506e82a46dd54df0c977a7378da280c05ae733c97abb445f58abb56ae15f561ac9ad774cea12c3ad8628d896c39f6e702f6b035541fc1a562997cb05768',
+      // jscs:enable maximumLineLength
     },
     agent: {
       requires_vm: requires_vm,
