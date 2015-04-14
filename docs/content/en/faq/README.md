@@ -11,7 +11,7 @@
 1. [Why is it that when I change folders I can no longer see the systems raised with the `azk status` command?](README.html#why-is-it-that-when-i-change-folders-i-can-no-longer-see-the-systems-raised-with-the-azk-status-command)
 1. [What is the advantage of using multiple systems, each in a separate container?](README.html#what-is-the-advantage-of-using-multiple-systems-each-in-a-separate-container)
 1. [I have used several images with azk that I do not use any more. They are taking up too much disk space, how do I delete them?](README.html#i-have-used-several-images-with-azk-that-i-do-not-use-any-more-they-are-taking-up-too-much-disk-space-how-do-i-delete-them)
-1. [How do I create an application (node, ruby, rails, etc.), without having the language or framework installed on my machine?](README.html#how-do-i-create-an-application-node-ruby-rails-etc-without-having-the-language-or-framework-installed-on-my-machine)
+1. [How do I create an application (npm, rails, etc.), without having the language or framework installed on my machine?](README.html#how-do-i-create-an-application-npm-rails-etc-without-having-the-language-or-framework-installed-on-my-machine)
 1. [I'm having completion and encoding problems when running `azk shell`. How do I fix it?](README.html#im-having-completion-and-encoding-problems-when-running-azk-shell-how-do-i-fix-it)
 
 #### What are the requirements for using azk?
