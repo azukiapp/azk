@@ -9,6 +9,7 @@ var lazy = lazy_require({
 
 class RequiredError extends Error {
   constructor(key) {
+    super();
     this.key = key;
   }
 }

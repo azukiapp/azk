@@ -2,10 +2,11 @@ import { Command } from 'azk/cli/command';
 
 export class InteractiveCmds extends Command {
   constructor(...args) {
+    super(...args);
+
     this._verbose_nivel = 0;
     this.non_interactive = false;
 
-    super(...args);
     this.addOption(['--verbose', '-v'], { default: false, acc: true });
     this.addOption(['--quiet'  , '-q'], { default: false } );
   }
@@ -17,7 +18,7 @@ export class InteractiveCmds extends Command {
       this.non_interactive = true;
     }
 
-    return super(opts, ...args);
+    return super.before_action(opts, ...args);
   }
 
   verbose() {

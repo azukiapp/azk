@@ -22,7 +22,7 @@ describe('Azk cli command class', function() {
 
     run(...args) {
       while (outputs.length > 0) { outputs.pop(); }
-      return super(...args);
+      return super.run(...args);
     }
   }
 

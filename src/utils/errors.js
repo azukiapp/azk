@@ -14,6 +14,7 @@ export { AGENT_CODE_ERROR };
 
 export class AzkError extends Error {
   constructor(translation_key) {
+    super();
     this.translation_key = translation_key;
   }
 

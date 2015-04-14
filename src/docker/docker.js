@@ -23,7 +23,7 @@ export class Container extends Utils.qify('dockerode/lib/container') {
   }
 
   inspect(...args) {
-    return super(...args).then((data) => {
+    return super.inspect(...args).then((data) => {
       data.Annotations = Container.unserializeAnnotations(data.Name);
       data.NetworkSettings = Container.parsePortsFromNetwork(data.NetworkSettings);
       return data;

@@ -40,7 +40,7 @@ class Cmd extends ScaleCmd {
         }
 
         this.verbose([...ns].concat("verbose"), system);
-        var icc = yield super(system, instances, opts);
+        var icc = yield super.async(system, instances, opts);
 
         if (icc === 0) {
           this.fail([...ns].concat(scale_options.key), system);

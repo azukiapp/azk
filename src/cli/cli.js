@@ -44,7 +44,7 @@ export class Cli extends Command {
 
   showUsage(command = null) {
     if (!command) {
-      return super();
+      return super.showUsage();
     }
 
     var cmd = this.commands[command];
