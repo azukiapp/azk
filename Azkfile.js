@@ -89,7 +89,7 @@ systems({
     provision: [
       "cd /azk/aptly/public",
       "[ -L fedora20 ] && ( rm fedora20 )",
-      "ln -s /azk/azk/package/fedora20",
+      "ln -s /azk/#{manifest.dir}/package/fedora20",
     ],
     shell: "/bin/bash",
     command: "aptly serve",
