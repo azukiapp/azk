@@ -1,7 +1,7 @@
 import { log, _, async } from 'azk';
 import { Tracker } from 'azk/utils/tracker';
 import { Command } from 'azk/cli/command';
-// import { Helpers } from 'azk/cli/command';
+import { Helpers } from 'azk/cli/command';
 
 export class TrackedCmds extends Command {
 
@@ -13,10 +13,12 @@ export class TrackedCmds extends Command {
 
   before_action(opts, ...args) {
 
-    // Helpers.askPermissionToTrack(this)
-    //   .then(function (result) {
-    //     /**/console.log('\n>>---------\n result:\n', result, '\n>>---------\n');/*-debug-*/
-    //   });
+    // FIXME: transformar load e save em promises
+    // FIXME: transformar askPermissionToTrack em promise
+    Helpers.askPermissionToTrack(this)
+      .then(function (result) {
+        /**/console.log('\n>>---------\n result:\n', result, '\n>>---------\n');/*-debug-*/
+      });
 
     // TRACKER
     this.tracker = new Tracker();
@@ -25,9 +27,12 @@ export class TrackedCmds extends Command {
     var new_command_id = this.tracker.saveCommandId();
 
     var command_name = this.name;
-    // if command and sub command
-    if (args[0].__leftover && args[0].__leftover.length > 0) {
-      command_name = command_name + ' ' + args[0].__leftover.join(' ');
+    // if command is 'agent' then get sub-command
+    var should_get_agent_action = args[0].__leftover &&
+       args[0].__leftover.length > 0 &&
+       command_name === 'agent';
+    if (should_get_agent_action) {
+      command_name = command_name + ' ' + args[0].__leftover[0];
     }
 
     // create agent_session_id - > agent start or agent startchild

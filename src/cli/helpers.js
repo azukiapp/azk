@@ -33,6 +33,12 @@ var Helpers = {
       });
   },
 
+  checkPermission() {
+    // return async(this, function* () {
+    return false;
+    // });
+  },
+
   askPermissionToTrack(cli) {
 
     var tracker = new Tracker();
@@ -40,16 +46,18 @@ var Helpers = {
     cli = cli;
     /**/console.log('\n>>---------\n trackerPremission:\n', trackerPremission, '\n>>---------\n');/*-debug-*/
 
-    return this
-      .checkPermission()
-      // optIn === user has accepted
-      .then((optIn) => {
-        if (optIn) {
-          return optIn;
-        } else {
-          return this.askPermission();
-        }
-      });
+    // FIXME: transformar checkPermission em promise
+    var optIn = this.checkPermission();
+    /**/console.log('\n>>---------\n optIn:\n', optIn, '\n>>---------\n');/*-debug-*/
+    // .then((optIn) => {
+    // // optIn === user has accepted
+    //   /**/console.log('\n>>---------\n optIn:\n', optIn, '\n>>---------\n');/*-debug-*/
+    //   // if (optIn) {
+    //   //   return optIn;
+    //   // } else {
+    //   //   return this.askPermission();
+    //   // }
+    // });
 
     // check if is saved
 

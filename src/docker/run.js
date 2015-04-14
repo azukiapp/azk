@@ -157,6 +157,55 @@ export function run(docker, Container, image, cmd, opts = { }) {
       }
     }
 
+    yield _track(optsc);
+
     return container;
   });
 }
+
+var _track = function (optsc) {
+  /*
+  { // do docker
+        event_type: 'start' || ‘stop’,
+        action: ‘daemon’ || ‘shell’,
+        state: 'ok' || 'error',
+        reason: ‘......’,
+        manifest_id: ’azk_12371892’
+        images: {
+          type: ‘docker’ || ‘dockerfile’,
+          name: 'azukiapp/node:'
+        },
+      }
+
+      >>---------
+       optsc:
+       { Image: 'azukiapp/node:0.12',
+        Cmd: [ '/bin/bash', '-c', 'npm start' ],
+        AttachStdin: false,
+        AttachStdout: true,
+        AttachStderr: true,
+        Tty: false,
+        OpenStdin: false,
+        Volumes: { '/azk/two_systems/node012': {} },
+        ExposedPorts: { '5000/tcp': {} },
+        Env:
+         [ 'AZK_TYPE=daemon',
+           'AZK_MID=c288eb2835',
+           'AZK_SYS=node012',
+           'AZK_SEQ=2',
+           'AZK_UID=fa333030e2',
+           'AZK_NAME=dev.azk.io_type.daemon_mid.c288eb2835_sys.node012_seq.2_uid.fa333030e2',
+           'AZK_ENV=azk',
+           'NODE_ENV=dev',
+           'HTTP_PORT=5000' ],
+        WorkingDir: '/azk/two_systems/node012',
+        name: 'dev.azk.io_type.daemon_mid.c288eb2835_sys.node012_seq.2_uid.fa333030e2' }
+      >>---------
+
+      event_type: 'start node012',
+
+   */
+
+  /**/console.log('\n>>---------\n optsc:\n', require('util').inspect(optsc,
+   { showHidden: false, depth: null, colors: true }), '\n>>---------\n');/*-debug-*/
+};

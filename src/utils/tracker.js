@@ -159,4 +159,12 @@ export class Tracker {
     return this.loadRandomIdForKey('command_id');
   }
 
+  saveTrackerPremission() {
+    return this.saveRandomIdForKey('tracker_permission');
+  }
+
+  loadTrackerPremission() {
+    return this.loadRandomIdForKey('tracker_permission');
+  }
+
 }
