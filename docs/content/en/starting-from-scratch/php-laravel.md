@@ -1,6 +1,6 @@
-# Laravel
+# PHP / Laravel
 
-### Generating a laravel application
+### Generating a Laravel application
 
 ```sh
 $ azk shell --image azukiapp/php-fpm --shell /bin/bash

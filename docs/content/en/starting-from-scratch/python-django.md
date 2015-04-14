@@ -1,6 +1,6 @@
-# Django
+# Python / Django
 
-### Generating a django application
+### Generating a Django application
 
 ```sh
 $ azk shell --image azukiapp/python --shell /bin/bash

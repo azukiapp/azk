@@ -1,6 +1,6 @@
-# Rails
+# Ruby on Rails
 
-### Generating a rails application
+### Generating a Rails application
 
 ```sh
 $ azk shell --image azukiapp/ruby --shell /bin/bash
