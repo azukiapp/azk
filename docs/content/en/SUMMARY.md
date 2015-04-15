@@ -22,6 +22,11 @@
    * [Python / Django](starting-from-scratch/python-django.md)*
    * [Ruby on Rails](starting-from-scratch/ruby-rails.md)*
 /*****************************************************/
+* [Adding services](adding-services/README.md)
+   * [Running our application](adding-services/running-our-application.md)*
+   * [Mailcatcher](adding-services/mailcatcher.md)*
+   * [ngrok](adding-services/ngrok.md)*
+/*****************************************************/
 /** [Examples](exemplos/README.md)*/
    /** [Rails](exemplos/rails.md)*/
    /** [node.js](exemplos/nodejs.md)*/
