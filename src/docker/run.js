@@ -1,4 +1,4 @@
-import { _, async, config, log } from 'azk';
+import { _, async, config } from 'azk';
 import { Tracker } from 'azk/utils/tracker';
 
 function new_resize(container) {
@@ -137,13 +137,17 @@ export function run(docker, Container, image, cmd, opts = { }) {
     yield container.start(_.merge(start_opts, docker_opts.start || {}));
 
     //track
-    var imageObj = (image.indexOf('azkbuild') === -1) ? {type: 'docker', name: image} : {type: 'dockerfile'};
-    yield _track({
-      event_type: annotations.azk.type,
-      action: 'run',
-      manifest_id: annotations.azk.mid,
-      image: imageObj
-    });
+    try {
+      var imageObj = (image.indexOf('azkbuild') === -1) ? {type: 'docker', name: image} : {type: 'dockerfile'};
+      yield _track({
+        event_type: annotations.azk.type,
+        action: 'run',
+        manifest_id: annotations.azk.mid,
+        image: imageObj
+      });
+    } catch (err) {
+      Tracker.logAnalyticsError(err);
+    }
 
     c_notify("started");
 
@@ -175,7 +179,6 @@ export function run(docker, Container, image, cmd, opts = { }) {
 
 var _track = function (options = {}) {
   return async(this, function* () {
-
     var shouldTrack = yield Tracker.checkTrackingPermission();
     if (!shouldTrack) {
       return;
@@ -187,9 +190,6 @@ var _track = function (options = {}) {
     tracker.addData(options);
 
     // track
-    var tracker_result = yield tracker.track('container', tracker.data);
-    if (tracker_result !== 0) {
-      log.error('ERROR tracker_result:', tracker_result);
-    }
+    yield tracker.track('container', tracker.data);
   });
 };

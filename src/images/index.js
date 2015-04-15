@@ -106,6 +106,7 @@ export class Image {
 
         yield this._track('pull');
       }
+
       return this.check();
     });
   }
@@ -297,10 +298,7 @@ export class Image {
       tracker.addData(image_part);
 
       // track
-      var tracker_result = yield tracker.track('image', tracker.data);
-      if (tracker_result !== 0) {
-        log.error('ERROR tracker_result:', tracker_result);
-      }
+      yield tracker.track('image', tracker.data);
     });
   }
 

@@ -36,12 +36,17 @@ var Helpers = {
   askPermissionToTrack(cli) {
     return async(this, function* () {
 
-      var trackerPermission = yield Tracker.loadTrackerPermission();
+      // generate new user id
+      var trackerUserId     = yield Tracker.loadTrackerUserId();
+      if (typeof trackerUserId === 'undefined') {
+        yield tracker.saveTrackerUserId();
+      }
 
-      var tracker = new Tracker();
-      yield tracker.loadMetadata();
+      // check if user already answered
+      var trackerPermission = yield Tracker.loadTrackerPermission(); // Boolean
 
-      if (typeof trackerPermission === 'undefined') {
+      var should_ask_permission = (typeof trackerPermission === 'undefined');
+      if (should_ask_permission) {
         var question = {
           type    : 'confirm',
           name    : 'track_ask',
@@ -50,17 +55,13 @@ var Helpers = {
         };
 
         var answers = yield cli.prompt(question);
+        var tracker = new Tracker();
         yield tracker.saveTrackerPermission(answers.track_ask.toString());
 
         return answers.track_ask;
       }
 
-      var trackerUserId     = yield Tracker.loadTrackerUserId();
-      if (typeof trackerUserId === 'undefined') {
-        yield tracker.saveTrackerUserId();
-      }
-
-      return trackerPermission === 'true';
+      return trackerPermission;
     });
   },
 

@@ -38,7 +38,6 @@ export class Tracker {
             "output" : "meta.ip_geo_info"
           }],
 
-          //
           // Two time-related properties are included in your
           //  event automatically. The properties “keen.timestamp”
           //  and “keen.created_at” are set at the time your event
@@ -50,9 +49,8 @@ export class Tracker {
           //  - keen.io/docs/event-data-modeling/event-data-intro/#id9
           //
           // > (new Date(2011, 10, 11, 9, 11, 11, 111)).toISOString()
-          // '2011-11-11T11:11:11.111Z'
-
-          'timestamp': (new Date(2011, 10, 11, 9, 11, 11, 111)).toISOString(),
+          //    '2011-11-11T11:11:11.111Z'
+          'timestamp': (new Date()).toISOString(),
         },
         meta: {
           "ip_address"      : "${keen.ip}",
@@ -81,11 +79,22 @@ export class Tracker {
       if (data_to_add) {
         this.addData(data_to_add);
       }
-      /**/console.log('\n>>---------\n this._data: ' + subject + ' \n',
-        require('util').inspect(this._data, { showHidden: false, depth: null, colors: true }), '\n>>---------\n');/*-debug-*/
 
+      Tracker.logAnalyticsData({
+        eventCollection: subject,
+        data: this._data
+      });
+
+      // track data with insight
       var tracking_result = yield this.insight.track(subject, this._data);
-      /**/console.log('\n>>---------\n tracking_result:\n', tracking_result, '\n>>---------\n');/*-debug-*/
+
+      if (tracking_result !== 0) {
+        Tracker.logAnalyticsError({stack:'[Tracker push failed:] ' + tracking_result});
+        Tracker.logAnalyticsData({
+          eventCollection: subject,
+          data: this._data
+        });
+      }
 
       return tracking_result;
     });
@@ -211,6 +220,23 @@ export class Tracker {
     return Helpers.askPermissionToTrack(cli).then(function (result) {
       return result;
     });
+  }
+
+  static logAnalyticsError(err) {
+    if (process.env.ANALYTICS_ERRORS === '1') {
+      console.log('\n>>---------\n\n [Analytics:tracking:error]\n\n');
+      console.log(err.stack);
+    }
+  }
+
+  static logAnalyticsData(analytics_data) {
+    if (process.env.ANALYTICS_DATA === '1') {
+      console.log('\n>>---------\n\n [Analytics:tracking:data]\n\n', require('util').inspect(analytics_data,
+      { showHidden: false, depth: null, colors: true }), '\n>>---------\n');
+    }
+    if (process.env.ANALYTICS_DATA === '2') {
+      console.log('[Analytics:tracking] >', analytics_data.eventCollection, analytics_data.data.event_type);
+    }
   }
 
 }
