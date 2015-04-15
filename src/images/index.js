@@ -292,17 +292,17 @@ export class Image {
 
       // get repository only if it is public
       var image_part = {
-        images: {
+        image: {
           type: this.provider
         }
       };
       if (this.provider === 'docker') {
-        image_part.images.name = repo_full_name;
+        image_part.image.name = repo_full_name;
       }
       tracker.addData(image_part);
 
       // track
-      var tracker_result = yield tracker.track('images', tracker.data);
+      var tracker_result = yield tracker.track('image', tracker.data);
       if (tracker_result !== 0) {
         log.error('ERROR tracker_result:', tracker_result);
       }

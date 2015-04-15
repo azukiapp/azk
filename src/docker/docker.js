@@ -1,5 +1,6 @@
-import { config, _, log, lazy_require } from 'azk';
+import { async, config, _, log, lazy_require } from 'azk';
 import Utils from 'azk/utils';
+import { Tracker } from 'azk/utils/tracker';
 
 // Composer
 import { pull as pull_func  } from 'azk/docker/pull';
@@ -25,9 +26,77 @@ export class Container extends Utils.qify('dockerode/lib/container') {
 
   inspect(...args) {
     return super(...args).then((data) => {
+      // setup container data
       data.Annotations = Container.unserializeAnnotations(data.Name);
       data.NetworkSettings = Container.parsePortsFromNetwork(data.NetworkSettings);
+
+      // track data
+      var imageObj;
+      if (data.Config.Image.indexOf('azkbuild') === -1) {
+        imageObj = {type: 'docker', name: data.Config.Image};
+      } else {
+        imageObj = {type: 'dockerfile'};
+      }
+
+      this._tracking_data = {
+        event_type: data.Annotations && data.Annotations.azk.type,
+        action: 'run',
+        manifest_id: data.Annotations && data.Annotations.azk.mid,
+        image: imageObj
+      };
+
       return data;
+    });
+  }
+
+  stop(...args) {
+    return super(...args).then((data) => {
+      this._tracking_data.action = 'stop';
+      return this._track().then(function () {
+        return data;
+      });
+    });
+  }
+
+  remove(...args) {
+    return super(...args).then((data) => {
+      this._tracking_data.action = 'remove';
+      return this._track().then(function () {
+        return data;
+      });
+    });
+  }
+
+  kill(...args) {
+    return super(...args).then((data) => {
+      return this._track().then(function () {
+        return data;
+      });
+    });
+  }
+
+  _track() {
+    return async(this, function* () {
+
+      var shouldTrack = yield Tracker.checkTrackingPermission();
+      if (!shouldTrack) {
+        return;
+      }
+
+      var tracker = new Tracker();
+      // rescue session id
+      tracker.meta_info = {
+        agent_session_id: yield tracker.loadAgentSessionId(),
+        command_id      : yield tracker.loadCommandId(),
+      };
+
+      tracker.addData(this._tracking_data);
+
+      // track
+      var tracker_result = yield tracker.track('container', tracker.data);
+      if (tracker_result !== 0) {
+        log.error('ERROR tracker_result:', tracker_result);
+      }
     });
   }
 

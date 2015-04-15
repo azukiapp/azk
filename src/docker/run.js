@@ -1,4 +1,4 @@
-import { _, async, config } from 'azk';
+import { _, async, config, log } from 'azk';
 import { Tracker } from 'azk/utils/tracker';
 
 function new_resize(container) {
@@ -15,9 +15,6 @@ function new_resize(container) {
 }
 
 export function run(docker, Container, image, cmd, opts = { }) {
-
-  /**/console.log('\n>>---------\n arguments:\n', require('util').inspect(arguments,
-  { showHidden: false, depth: null, colors: true }), '\n>>---------\n');/*-debug-*/
 
   var container   = null;
   var docker_opts = opts.docker || { start: {}, create: {} };
@@ -139,13 +136,13 @@ export function run(docker, Container, image, cmd, opts = { }) {
 
     yield container.start(_.merge(start_opts, docker_opts.start || {}));
 
-    /**/console.log('\n>>---------\n opts.env:\n', require('util').inspect(opts.env,
-    { showHidden: false, depth: null, colors: true }), '\n>>---------\n');/*-debug-*/
-
-    //track FIXME
+    //track
+    var imageObj = (image.indexOf('azkbuild') === -1) ? {type: 'docker', name: image} : {type: 'dockerfile'};
     yield _track({
       event_type: annotations.azk.type,
-      action: daemon
+      action: 'run',
+      manifest_id: annotations.azk.mid,
+      image: imageObj
     });
 
     c_notify("started");
@@ -177,38 +174,14 @@ export function run(docker, Container, image, cmd, opts = { }) {
 }
 
 var _track = function (options = {}) {
-
-  // action
-  //  cmd.daemon == true
-
   return async(this, function* () {
 
     var shouldTrack = yield Tracker.checkTrackingPermission();
     if (!shouldTrack) {
       return;
-
     }
 
     var tracker = new Tracker();
-
-    //  { // do docker
-    //      >> event_type: 'run' || ‘shell’,
-    //      action: ‘daemon’ || ‘shell’,
-    //      >> state: 'ok' || 'error',
-    //      >> reason: ‘......’,
-    //      manifest_id: ’azk_12371892’
-    //      images: {
-    //        type: ‘docker’ || ‘dockerfile’,
-    //        name: 'azukiapp/node:'
-    //      },
-    //    }
-
-    // get event_type
-    //  tracker.addData({
-    //    event_type: event_type_name,
-    //    manifest_id: this.system.manifest.namespace
-    //  });
-
     // rescue session id
     tracker.meta_info = {
       agent_session_id: yield tracker.loadAgentSessionId(),
@@ -220,10 +193,7 @@ var _track = function (options = {}) {
     // track
     var tracker_result = yield tracker.track('container', tracker.data);
     if (tracker_result !== 0) {
-      console.log('ERROR tracker_result:', tracker_result);
+      log.error('ERROR tracker_result:', tracker_result);
     }
   });
-
-  // /**/console.log('\n>>---------\n [ASK ME] optsc:\n', require('util').inspect(optsc,
-  //  { showHidden: false, depth: null, colors: true }), '\n>>---------\n');/*-debug-*/
 };

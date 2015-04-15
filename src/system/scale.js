@@ -1,4 +1,4 @@
-import { Q, async, _, lazy_require } from 'azk';
+import { Q, async, _, lazy_require, log } from 'azk';
 import { calculateHash } from 'azk/utils';
 import { SystemDependError, SystemNotScalable } from 'azk/utils/errors';
 import { Balancer } from 'azk/system/balancer';
@@ -101,7 +101,7 @@ var Scale = {
       // track
       var tracker_result = yield tracker.track('system', tracker.data);
       if (tracker_result !== 0) {
-        console.log('ERROR tracker_result:', tracker_result);
+        log.error('ERROR tracker_result:', tracker_result);
       }
     });
   },
