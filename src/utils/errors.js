@@ -12,14 +12,14 @@ export { SYSTEMS_CODE_ERROR };
 export { IMAGES_CODE_ERROR };
 export { AGENT_CODE_ERROR };
 
-
 function copyOwnFrom(target, source) {
-    Object.getOwnPropertyNames(source).forEach(function(propName) {
-        Object.defineProperty(target, propName,
-            Object.getOwnPropertyDescriptor(source, propName));
-    });
-    return target;
-};
+  Object.getOwnPropertyNames(source).forEach(function(propName) {
+    Object.defineProperty(target, propName,
+      Object.getOwnPropertyDescriptor(source, propName)
+    );
+  });
+  return target;
+}
 
 function AzkError(translation_key) {
   var superInstance = Error.apply(null, [translation_key]);
@@ -35,7 +35,7 @@ AzkError.prototype = Object.create(Error.prototype);
 AzkError.prototype.constructor = AzkError;
 AzkError.prototype.toString = function() {
   return t('errors.' + this.translation_key, this);
-}
+};
 
 export { AzkError };
 

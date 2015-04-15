@@ -104,7 +104,7 @@ var options = mergeConfig({
         screen_path: path.join(paths.vm, "screens"),
         data_disk  : path.join(paths.vm, "azk-agent.vmdk"),
         boot_disk  : path.join(envs('AZK_LIB_PATH'), "vm", envs('AZK_ISO_VERSION'), "azk.iso"),
-        blank_disk : path.join(envs('AZK_LIB_PATH'), "vm", envs('AZK_ISO_VERSION'),"azk-agent.vmdk.gz"),
+        blank_disk : path.join(envs('AZK_LIB_PATH'), "vm", envs('AZK_ISO_VERSION'), "azk-agent.vmdk.gz"),
         mount_point: '/media/sf_Root',
         authorized_key: '/home/docker/.ssh/authorized_keys',
       },
