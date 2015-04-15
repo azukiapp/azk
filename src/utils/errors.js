@@ -12,20 +12,32 @@ export { SYSTEMS_CODE_ERROR };
 export { IMAGES_CODE_ERROR };
 export { AGENT_CODE_ERROR };
 
-export class AzkError extends Error {
-  constructor(translation_key) {
-    super();
-    this.translation_key = translation_key;
-  }
 
-  get message() {
+function copyOwnFrom(target, source) {
+    Object.getOwnPropertyNames(source).forEach(function(propName) {
+        Object.defineProperty(target, propName,
+            Object.getOwnPropertyDescriptor(source, propName));
+    });
+    return target;
+};
+
+function AzkError(translation_key) {
+  var superInstance = Error.apply(null, [translation_key]);
+  copyOwnFrom(this, superInstance);
+  this.translation_key = translation_key;
+
+  this.__defineGetter__('message', function() {
     return this.toString();
-  }
-
-  toString() {
-    return t('errors.' + this.translation_key, this);
-  }
+  });
 }
+
+AzkError.prototype = Object.create(Error.prototype);
+AzkError.prototype.constructor = AzkError;
+AzkError.prototype.toString = function() {
+  return t('errors.' + this.translation_key, this);
+}
+
+export { AzkError };
 
 export class NoInternetConnection extends AzkError {
   constructor() {
