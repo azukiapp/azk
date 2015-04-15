@@ -56,6 +56,13 @@ var Helpers = {
 
         var answers = yield cli.prompt(question);
         var tracker = new Tracker();
+
+        if (answers.track_ask) {
+          cli.ok('analytics.ask_tracker_message_optIn');
+        } else {
+          cli.ok('analytics.ask_tracker_message_optOut', {command: 'azk agent start --tracking'});
+        }
+
         yield tracker.saveTrackerPermission(answers.track_ask.toString());
 
         return answers.track_ask;

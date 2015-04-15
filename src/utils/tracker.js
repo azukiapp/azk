@@ -142,7 +142,9 @@ export class Tracker {
   saveData(key, value) {
     return async(this, function* () {
       // generate new id
-      this._data.meta[key] = value;
+      if (this._data && this._data.meta) {
+        this._data.meta[key] = value;
+      }
 
       var analytics_path = config('paths:analytics');
 
