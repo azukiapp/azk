@@ -3,6 +3,8 @@
 ![MailCatcher](../resources/images/mailcatcher.png)
 > Screenshot from [MailCatcher's GitHub page](https://github.com/sj26/mailcatcher/)
 
+> Note: You can check the final result on the branch [mailcatcher-final](https://github.com/azukiapp/azkdemo-services/tree/mailcatcher-final) from the project [azkdemo-services](https://github.com/azukiapp/azkdemo-services/).
+
 MailCatcher is an open-source project that runs an SMTP server that catches any message sent to it, and displays it in a nice web interface. If you noticed we already have a "Send email" link that we can click, but it does nothing. What we'll do is add a method that when that button is clicked, will send out an email that will go to MailCatcher, and then we can easily inspect it afterwards.
 
 Let's start by adding our MailCatcher system to the Azkfile.js. Open it and under the `redis` system add the following:
@@ -106,7 +108,7 @@ We'll use the [nodemailer](https://github.com/andris9/Nodemailer) and the [nodem
 app.get('/mail', require('./send_email.js'));
 ```
 
-Our route is now ready to send out an email. Now let's link the "Send email" text to the `/mail` route. Open the `views/home/index.ejs` file and the following `script` right under the `jquery` script tag:
+Our route is now ready to send out an email. Now let's link the "Send email" text to the `/mail` route. Open the `views/home/index.ejs` file and add the following `script` right under the `jquery` script tag:
 
 ```html
     <script>
@@ -155,3 +157,5 @@ And if you open the URL for our MailCatcher application, you should be able to s
 ![MailCatcher email](../resources/images/azk-services-4.png)
 
 And that's it! In the next section we'll cover how to add `ngrok` to your application so you can test webhooks. :)
+
+> Note: You can check the final result on the branch [mailcatcher-final](https://github.com/azukiapp/azkdemo-services/tree/mailcatcher-final) from the project [azkdemo-services](https://github.com/azukiapp/azkdemo-services/).

@@ -31,4 +31,4 @@ Now if you open the URL http://azkdemo-services.dev.azk.io, you should see:
 
 ![azkdemo-start](../resources/images/azk-services-1.png)
 
-Now, let's start by adding MailCatcher to our application. :)
+With our application working, let's start by adding MailCatcher to it. :)
