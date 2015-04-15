@@ -18,11 +18,13 @@ describe("Azk Tracker", function() {
   it.skip("should track forking", function(done) {
     // FIXME: mock trackerAzk.track
     trackerAzk = new Tracker();
-    trackerAzk.track('TEST_FROM_AZK_USING_FORK', { key: 'value' })
-      .then(function (is_ok) {
-        h.expect(is_ok).to.equal(0);
-        done();
-      });
+    trackerAzk.loadMetadata().then(function () {
+      trackerAzk.track('TEST_FROM_AZK_USING_FORK', { key: 'value' })
+        .then(function (is_ok) {
+          h.expect(is_ok).to.equal(0);
+          done();
+        });
+    });
   });
 
   it.skip("should track without forking", function(done) {

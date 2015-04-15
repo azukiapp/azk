@@ -80,6 +80,7 @@ var Scale = {
       }
 
       var tracker = new Tracker();
+      yield tracker.loadMetadata();
 
       var manifest_id = system.manifest.namespace;
 

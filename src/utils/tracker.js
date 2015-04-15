@@ -16,13 +16,9 @@ export class Tracker {
     }, opts);
 
     this.insight = new InsightKeenIo(opts);
-    this._initializeDefaultInfo().then(function (result_data) {
-      /**/console.log('\n>>---------\n result_data:\n', result_data, '\n>>---------\n');/*-debug-*/
-      this._data = result_data;
-    }.bind(this));
   }
 
-  _initializeDefaultInfo() {
+  loadMetadata() {
     return async(this, function* () {
       var cpu_obj    = os.cpus();
       var cpu_info   = cpu_obj[0].model;
@@ -31,7 +27,7 @@ export class Tracker {
       var totalmem   = Math.floor(os.totalmem() / 1024 / 1024);
       var os_name    = osName();
 
-      return {
+      this._data = {
         // keen addons
         "keen" : {
           "addons" : [{

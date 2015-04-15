@@ -182,6 +182,7 @@ var _track = function (options = {}) {
     }
 
     var tracker = new Tracker();
+    yield tracker.loadMetadata();
 
     tracker.addData(options);
 

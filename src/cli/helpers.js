@@ -39,6 +39,7 @@ var Helpers = {
       var trackerPermission = yield Tracker.loadTrackerPermission();
 
       var tracker = new Tracker();
+      yield tracker.loadMetadata();
 
       if (typeof trackerPermission === 'undefined') {
         var question = {

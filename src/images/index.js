@@ -272,6 +272,7 @@ export class Image {
       }
 
       var tracker = new Tracker();
+      yield tracker.loadMetadata();
 
       // get event_type
       tracker.addData({

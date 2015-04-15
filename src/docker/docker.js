@@ -84,6 +84,8 @@ export class Container extends Utils.qify('dockerode/lib/container') {
       }
 
       var tracker = new Tracker();
+      yield tracker.loadMetadata();
+
       tracker.addData(this._tracking_data);
 
       // track

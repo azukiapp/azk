@@ -20,6 +20,7 @@ export class TrackedCmds extends Command {
 
       // TRACKER
       this.tracker = new Tracker();
+      yield this.tracker.loadMetadata();
 
       // generate command id
       yield this.tracker.saveCommandId();
