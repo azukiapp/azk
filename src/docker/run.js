@@ -1,4 +1,5 @@
 import { _, async, config } from 'azk';
+import { Tracker } from 'azk/utils/tracker';
 
 function new_resize(container) {
   return function() {
@@ -137,6 +138,16 @@ export function run(docker, Container, image, cmd, opts = { }) {
     };
 
     yield container.start(_.merge(start_opts, docker_opts.start || {}));
+
+    /**/console.log('\n>>---------\n opts.env:\n', require('util').inspect(opts.env,
+    { showHidden: false, depth: null, colors: true }), '\n>>---------\n');/*-debug-*/
+
+    //track FIXME
+    yield _track({
+      event_type: annotations.azk.type,
+      action: daemon
+    });
+
     c_notify("started");
 
     if (!daemon) {
@@ -161,61 +172,58 @@ export function run(docker, Container, image, cmd, opts = { }) {
       }
     }
 
-    yield _track(optsc);
-
     return container;
   });
 }
 
-var _track = function (optsc) {
+var _track = function (options = {}) {
 
-  // var shouldTrack = yield Tracker.checkTrackingPermission();
-  // if (!shouldTrack) {
-  //   return;
-  // }
+  // action
+  //  cmd.daemon == true
 
-  /*
-  { // do docker
-        event_type: 'start' || ‘stop’,
-        action: ‘daemon’ || ‘shell’,
-        state: 'ok' || 'error',
-        reason: ‘......’,
-        manifest_id: ’azk_12371892’
-        images: {
-          type: ‘docker’ || ‘dockerfile’,
-          name: 'azukiapp/node:'
-        },
-      }
+  return async(this, function* () {
 
-      >>---------
-       optsc:
-       { Image: 'azukiapp/node:0.12',
-        Cmd: [ '/bin/bash', '-c', 'npm start' ],
-        AttachStdin: false,
-        AttachStdout: true,
-        AttachStderr: true,
-        Tty: false,
-        OpenStdin: false,
-        Volumes: { '/azk/two_systems/node012': {} },
-        ExposedPorts: { '5000/tcp': {} },
-        Env:
-         [ 'AZK_TYPE=daemon',
-           'AZK_MID=c288eb2835',
-           'AZK_SYS=node012',
-           'AZK_SEQ=2',
-           'AZK_UID=fa333030e2',
-           'AZK_NAME=dev.azk.io_type.daemon_mid.c288eb2835_sys.node012_seq.2_uid.fa333030e2',
-           'AZK_ENV=azk',
-           'NODE_ENV=dev',
-           'HTTP_PORT=5000' ],
-        WorkingDir: '/azk/two_systems/node012',
-        name: 'dev.azk.io_type.daemon_mid.c288eb2835_sys.node012_seq.2_uid.fa333030e2' }
-      >>---------
+    var shouldTrack = yield Tracker.checkTrackingPermission();
+    if (!shouldTrack) {
+      return;
 
-      event_type: 'start node012',
+    }
 
-   */
+    var tracker = new Tracker();
 
-  /**/console.log('\n>>---------\n [ASK ME] optsc:\n', require('util').inspect(optsc,
-   { showHidden: false, depth: null, colors: true }), '\n>>---------\n');/*-debug-*/
+    //  { // do docker
+    //      >> event_type: 'run' || ‘shell’,
+    //      action: ‘daemon’ || ‘shell’,
+    //      >> state: 'ok' || 'error',
+    //      >> reason: ‘......’,
+    //      manifest_id: ’azk_12371892’
+    //      images: {
+    //        type: ‘docker’ || ‘dockerfile’,
+    //        name: 'azukiapp/node:'
+    //      },
+    //    }
+
+    // get event_type
+    //  tracker.addData({
+    //    event_type: event_type_name,
+    //    manifest_id: this.system.manifest.namespace
+    //  });
+
+    // rescue session id
+    tracker.meta_info = {
+      agent_session_id: yield tracker.loadAgentSessionId(),
+      command_id      : yield tracker.loadCommandId(),
+    };
+
+    tracker.addData(options);
+
+    // track
+    var tracker_result = yield tracker.track('container', tracker.data);
+    if (tracker_result !== 0) {
+      console.log('ERROR tracker_result:', tracker_result);
+    }
+  });
+
+  // /**/console.log('\n>>---------\n [ASK ME] optsc:\n', require('util').inspect(optsc,
+  //  { showHidden: false, depth: null, colors: true }), '\n>>---------\n');/*-debug-*/
 };
