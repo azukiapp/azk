@@ -4,6 +4,11 @@ import { Command } from 'azk/cli/command';
 
 export class TrackedCmds extends Command {
 
+  constructor(...args) {
+    super(...args);
+    this._command_tracked = false;
+  }
+
   addTrackData(key, data) {
     var obj = {};
     obj[key] = data;
@@ -44,7 +49,7 @@ export class TrackedCmds extends Command {
       yield this.tracker.loadMetadata();
 
       // generate command id
-      yield this.tracker.saveCommandId();
+      yield Tracker.saveCommandId();
 
       var command_name = this.name;
       // if command is 'agent' then get sub-command
@@ -61,7 +66,7 @@ export class TrackedCmds extends Command {
       if (startchild_daemon || starting_no_daemon) {
         // generate session id and merges meta info
         this.tracker.meta_info = {
-          agent_session_id: yield this.tracker.saveAgentSessionId()
+          agent_session_id: yield Tracker.saveAgentSessionId()
         };
       }
       this.tracker.addData({
@@ -78,6 +83,9 @@ export class TrackedCmds extends Command {
 
   after_action_tracker(action_result, opts, ...args) {
     return async(this, function* () {
+      if (this._command_tracked) { return true; }
+      this._command_tracked = true;
+
       // an error ocurred on before_action and there is no this.tracker
       var no_tracker_created = typeof this.tracker === 'undefined';
 

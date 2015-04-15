@@ -5,21 +5,21 @@ import { Tracker } from 'azk/utils/tracker';
 
 describe("Azk Tracker", function() {
 
-  var trackerAzk;
+  var tracker;
 
   beforeEach(function () {
-    trackerAzk = new Tracker({ use_fork: false });
+    tracker = new Tracker({ use_fork: false });
   });
 
   it("should instantiate Tracker", function() {
-    return h.expect(trackerAzk).to.not.be.undefined;
+    return h.expect(tracker).to.not.be.undefined;
   });
 
   it.skip("should track forking", function(done) {
-    // FIXME: mock trackerAzk.track
-    trackerAzk = new Tracker();
-    trackerAzk.loadMetadata().then(function () {
-      trackerAzk.track('TEST_FROM_AZK_USING_FORK', { key: 'value' })
+    // FIXME: mock tracker.track
+    tracker = new Tracker();
+    tracker.loadMetadata().then(function () {
+      tracker.track('TEST_FROM_AZK_USING_FORK', { key: 'value' })
         .then(function (is_ok) {
           h.expect(is_ok).to.equal(0);
           done();
@@ -28,8 +28,8 @@ describe("Azk Tracker", function() {
   });
 
   it.skip("should track without forking", function(done) {
-    // FIXME: mock trackerAzk.track
-    trackerAzk.track('TEST_FROM_AZK', { key: 'value' })
+    // FIXME: mock tracker.track
+    tracker.track('TEST_FROM_AZK', { key: 'value' })
       .then(function (results) {
         h.expect(results[0].created).to.equal(true);
         done();
@@ -37,23 +37,24 @@ describe("Azk Tracker", function() {
   });
 
   it("should generateRandomId", function() {
-    var new_hash = trackerAzk.generateRandomId();
+    var new_hash = Tracker.generateRandomId();
     h.expect(new_hash.length).to.equal(8);
   });
 
   it("should save and load session id", function(done) {
     this.timeout(1000);
-    trackerAzk.saveAgentSessionId()
-      .then(trackerAzk.loadAgentSessionId())
+    Tracker.saveAgentSessionId()
+      .then(Tracker.loadAgentSessionId())
       .then(function (session_id) {
+        /**/console.log('\n>>---------\n session_id:\n', session_id, '\n>>---------\n');/*-debug-*/
         h.expect(session_id.length).to.equal(8);
         done();
       });
   });
 
   it("should add data to be tracked", function() {
-    trackerAzk.addData({ key: 'value' });
-    var data = trackerAzk.data;
+    tracker.addData({ key: 'value' });
+    var data = tracker.data;
     h.expect(data.key).to.not.be.undefined;
   });
 

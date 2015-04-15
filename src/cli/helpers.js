@@ -39,7 +39,7 @@ var Helpers = {
       // generate new user id
       var trackerUserId     = yield Tracker.loadTrackerUserId();
       if (typeof trackerUserId === 'undefined') {
-        yield tracker.saveTrackerUserId();
+        yield Tracker.saveTrackerUserId();
       }
 
       // check if user already answered
@@ -55,7 +55,7 @@ var Helpers = {
         };
 
         var answers = yield cli.prompt(question);
-        var tracker = new Tracker();
+        // var tracker = new Tracker();
 
         if (answers.track_ask) {
           cli.ok('analytics.ask_tracker_message_optIn');
@@ -63,7 +63,7 @@ var Helpers = {
           cli.ok('analytics.ask_tracker_message_optOut', {command: 'azk agent start --tracking'});
         }
 
-        yield tracker.saveTrackerPermission(answers.track_ask.toString());
+        yield Tracker.saveTrackerPermission(answers.track_ask.toString());
 
         return answers.track_ask;
       }

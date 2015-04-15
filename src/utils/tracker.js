@@ -1,5 +1,5 @@
 import Azk from 'azk';
-import { _, config, async, log, path } from 'azk';
+import { _, config, async, path } from 'azk';
 import { calculateHash } from 'azk/utils';
 var os = require('os');
 var osName = require('os-name');
@@ -104,10 +104,6 @@ export class Tracker {
     this._data = _.merge({}, this._data, data);
   }
 
-  _generateRandomId() {
-    return calculateHash(String(Math.floor(Date.now() * Math.random()))).slice(0, 8);
-  }
-
   get data() {
     return this._data;
   }
@@ -120,9 +116,13 @@ export class Tracker {
     this._data.meta = _.merge({}, this._data.meta, value);
   }
 
+  static generateRandomId() {
+    return calculateHash(String(Math.floor(Date.now() * Math.random()))).slice(0, 8);
+  }
+
   static loadData(key) {
     return async(function* () {
-      // load tracker_info_data from /home/${USER}/.azk/data/analytics/[key]
+      // load tracker_info_data from ~/.azk/data/.azk/analytics/[key]
       var key_value;
       var tracker_info_file_path = path.join(config('paths:analytics'), key);
 
@@ -131,21 +131,18 @@ export class Tracker {
           key_value = yield qfs.read(tracker_info_file_path);
         }
       } catch (err) {
-        log.error('ERROR: loadRandomIdForKey:', err);
-        log.error(err.stack);
+        console.log('ERROR: loadRandomIdForKey:', err);
+        console.log(err.stack);
       }
 
       return key_value;
     });
   }
 
-  saveData(key, value) {
+  static saveData(key, value) {
     return async(this, function* () {
-      // generate new id
-      if (this._data && this._data.meta) {
-        this._data.meta[key] = value;
-      }
 
+      // generate new id
       var analytics_path = config('paths:analytics');
 
       // check if dir exists
@@ -154,41 +151,41 @@ export class Tracker {
         yield qfs.makeDirectory(analytics_path);
       }
 
-      // save agent_session_id to /home/${USER}/.azk/data/analytics/[key]
+      // save agent_session_id to  ~/.azk/data/.azk/analytics/[key]
       var tracker_info_file_path = path.join(analytics_path, key);
 
       try {
         yield qfs.write(tracker_info_file_path, value);
       } catch (err) {
-        log.error('ERROR: saveRandomIdForKey:', err);
-        log.error(err.stack);
+        console.log('ERROR: saveRandomIdForKey:', err);
+        console.log(err.stack);
       }
 
       return value;
     });
   }
 
-  saveAgentSessionId() {
-    var new_id = this._generateRandomId();
-    return this.saveData('agent_session_id', new_id);
+  static saveAgentSessionId() {
+    var new_id = Tracker.generateRandomId();
+    return Tracker.saveData('agent_session_id', new_id);
   }
 
   static loadAgentSessionId() {
     return Tracker.loadData('agent_session_id');
   }
 
-  saveCommandId() {
-    var new_id = this._generateRandomId();
-    return this.saveData('command_id', new_id);
+  static saveCommandId() {
+    var new_id = Tracker.generateRandomId();
+    return Tracker.saveData('command_id', new_id);
   }
 
   static loadCommandId() {
     return Tracker.loadData('command_id');
   }
 
-  saveTrackerUserId() {
-    var user_id = this._generateRandomId();
-    return this.saveData('tracker_user_id', user_id);
+  static saveTrackerUserId() {
+    var user_id = Tracker.generateRandomId();
+    return Tracker.saveData('tracker_user_id', user_id);
   }
 
   static loadTrackerUserId() {
@@ -197,8 +194,8 @@ export class Tracker {
     });
   }
 
-  saveTrackerPermission(answer) {
-    return this.saveData('tracker_permission', answer);
+  static saveTrackerPermission(answer) {
+    return Tracker.saveData('tracker_permission', answer);
   }
 
   static loadTrackerPermission() {
@@ -240,5 +237,7 @@ export class Tracker {
       console.log('[Analytics:tracking] >', analytics_data.eventCollection, analytics_data.data.event_type);
     }
   }
-
 }
+
+var default_tracker = new Tracker();
+export default default_tracker;
