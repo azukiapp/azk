@@ -36,7 +36,23 @@ export class Tracker {
               "ip" : "meta.ip_address"
             },
             "output" : "meta.ip_geo_info"
-          }]
+          }],
+
+          //
+          // Two time-related properties are included in your
+          //  event automatically. The properties “keen.timestamp”
+          //  and “keen.created_at” are set at the time your event
+          //  is recorded. You have the ability to overwrite the
+          //  keen.timestamp property. This could be useful, for example,
+          //  if you are backfilling historical data.
+          //  Be sure to use ISO-8601 Format.
+          //
+          //  - keen.io/docs/event-data-modeling/event-data-intro/#id9
+          //
+          // > (new Date(2011, 10, 11, 9, 11, 11, 111)).toISOString()
+          // '2011-11-11T11:11:11.111Z'
+
+          'timestamp': (new Date(2011, 10, 11, 9, 11, 11, 111)).toISOString(),
         },
         meta: {
           "ip_address"      : "${keen.ip}",
