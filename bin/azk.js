@@ -1,7 +1,12 @@
 #!/usr/bin/env node
 
 // Load source-map to support transpiled files
-require('source-map-support').install();
+require('source-map-support').install({
+  // Disable source-map
+  // retrieveSourceMap: function(source) {
+  //   return null;
+  // }
+});
 
 // Process exit events
 process.once("azk:command:exit", function(code) {

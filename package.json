@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "archiver": "^0.13.1",
-    "babel-runtime": "^5.1.8",
+    "babel-runtime": "^5.1.9",
     "child-process-promise": "^1.0.0",
     "cli-table": "git+https://github.com/gullitmiranda/cli-table#master",
     "colors": "^0.6.2",
@@ -82,8 +82,8 @@
     "xregexp": "^2.0.0"
   },
   "devDependencies": {
-    "azk-dev": "0.0.12",
-    "babel": "^5.1.8",
+    "azk-dev": "0.0.14",
+    "babel": "^5.1.9",
     "fixture-stdout": "^0.2.1",
     "grunt": "^0.4.4",
     "grunt-aws-s3": "^0.9.4",
