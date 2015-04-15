@@ -8,6 +8,9 @@ NVM_BIN_PATH:=${AZK_ROOT_PATH}/src/libexec/nvm.sh
 
 AZK_BIN:=${AZK_ROOT_PATH}/bin/azk
 
+# Load dependencies versions
+include .dependencies
+
 # default target
 all: bootstrap
 
@@ -15,8 +18,13 @@ all: bootstrap
 NVM_DIR := ${AZK_LIB_PATH}/nvm
 NVM_NODE_VERSION := $(shell cat ${AZK_ROOT_PATH}/.nvmrc)
 NODE = ${NVM_DIR}/${NVM_NODE_VERSION}/bin/node
+VM_DISKS_DIR := ${AZK_LIB_PATH}/vm/${AZK_ISO_VERSION}
 
 SRC_JS = $(shell cd ${AZK_ROOT_PATH} && find ./src -name '*.*' -print 2>/dev/null)
+
+teste_envs:
+	@echo ${LIBNSS_RESOLVER_VERSION}
+	@echo ${AZK_ISO_VERSION}
 
 ${AZK_LIB_PATH}/azk: $(SRC_JS) ${AZK_NPM_PATH}/.install
 	@echo "task: $@"
@@ -45,12 +53,22 @@ clean:
 	@rm -Rf ${AZK_NPM_PATH}/..?* ${AZK_NPM_PATH}/.[!.]* ${AZK_NPM_PATH}/*
 	@rm -Rf ${NVM_DIR}/..?* ${NVM_DIR}/.[!.]* ${NVM_DIR}/*
 
-bootstrap: ${AZK_LIB_PATH}/azk
+bootstrap: ${AZK_LIB_PATH}/azk ${AZK_LIB_PATH}/azk dependencies
 
-dependencies: ${AZK_LIB_PATH}/bats
+dependencies: ${AZK_LIB_PATH}/bats ${VM_DISKS_DIR}/azk.iso ${VM_DISKS_DIR}/azk-agent.vmdk.gz
+
+S3_URL=https://s3-sa-east-1.amazonaws.com/repo.azukiapp.com/vm_disks/${AZK_ISO_VERSION}
+${VM_DISKS_DIR}/azk.iso:
+	@echo Downloading: ${S3_URL}/azk.iso ...
+	@mkdir -p ${VM_DISKS_DIR}
+	@curl ${S3_URL}/azk.iso -o ${VM_DISKS_DIR}/azk.iso
+
+${VM_DISKS_DIR}/azk-agent.vmdk.gz:
+	@echo Downloading: ${S3_URL}/azk-agent.vmdk.gz ...
+	@curl ${S3_URL}/azk-agent.vmdk.gz -o ${VM_DISKS_DIR}/azk-agent.vmdk.gz
 
 ${AZK_LIB_PATH}/bats:
-	@git clone https://github.com/sstephenson/bats ${AZK_LIB_PATH}/bats
+	@git clone -b ${BATS_VERSION} https://github.com/sstephenson/bats ${AZK_LIB_PATH}/bats
 
 # PACKAGE
 AZK_PACKAGE_PATH:=${AZK_ROOT_PATH}/package
@@ -64,7 +82,7 @@ NODE_PACKAGE = ${PATH_AZK_NVM}/${NVM_NODE_VERSION}/bin/node
 PATH_MAC_PACKAGE = ${AZK_PACKAGE_PATH}/azk_${AZK_VERSION}.tar.gz
 
 # Build package folders tree
-package_brew: package_build fix_permissions ${PATH_AZK_LIB}/vm ${PATH_MAC_PACKAGE}
+package_brew: package_build fix_permissions ${PATH_AZK_LIB}/${AZK_ISO_VERSION}/vm ${PATH_MAC_PACKAGE}
 package_mac:
 	@export AZK_PACKAGE_PATH=${AZK_PACKAGE_PATH}/brew && \
 		mkdir -p $$AZK_PACKAGE_PATH && \
@@ -116,7 +134,7 @@ $(abspath $(2)/$(3)): $(abspath $(1)/$(3))
 endef
 
 # copy regular files
-FILES_FILTER  = package.json bin shared .nvmrc CHANGELOG.md LICENSE README.md
+FILES_FILTER  = package.json bin shared .nvmrc CHANGELOG.md LICENSE README.md .dependencies
 FILES_ALL     = $(shell cd ${AZK_ROOT_PATH} && find $(FILES_FILTER) -print 2>/dev/null)
 FILES_TARGETS = $(foreach file,$(addprefix $(PATH_USR_LIB_AZK)/, $(FILES_ALL)),$(abspath $(file)))
 $(foreach file,$(FILES_ALL),$(eval $(call COPY_FILES,$(AZK_ROOT_PATH),$(PATH_USR_LIB_AZK),$(file))))
@@ -140,8 +158,8 @@ creating_symbolic_links:
 	@ln -sf ../lib/azk/bin/azk ${PATH_USR_BIN}/azk
 	@ln -sf ../lib/azk/bin/adocker ${PATH_USR_BIN}/adocker
 
-${PATH_AZK_LIB}/vm: ${AZK_LIB_PATH}/vm
-	@cp -r ${AZK_LIB_PATH}/vm ${PATH_AZK_LIB}/vm
+${PATH_AZK_LIB}/${AZK_ISO_VERSION}/vm: ${AZK_LIB_PATH}/vm
+	@cp -r ${VM_DISKS_DIR} ${PATH_AZK_LIB}/${AZK_ISO_VERSION}/vm
 
 ${PATH_MAC_PACKAGE}: ${AZK_PACKAGE_PREFIX}
 	@cd ${PATH_USR_LIB_AZK}/.. && tar -czf ${PATH_MAC_PACKAGE} ./

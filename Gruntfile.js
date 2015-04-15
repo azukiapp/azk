@@ -43,14 +43,6 @@ module.exports = function(grunt) {
       },
     },
 
-    // Downloads
-    'curl-dir': {
-      'brace-expansion': {
-        src: [ 'https://s3-sa-east-1.amazonaws.com/azk/debian2docker/azk{.iso,-agent.vmdk.gz}' ],
-        dest: lib + '/vm',
-      },
-    },
-
     watch: {
       'integration': {
         options: {
@@ -92,7 +84,6 @@ module.exports = function(grunt) {
     process.stdout.write('\u001B[2J\u001B[0;0f');
   });
 
-  grunt.registerTask('vm-download', ['curl-dir:brace-expansion' ]);
   grunt.registerTask('publish'    , ['env:aws', 'exec:publish_package']);
   grunt.registerTask('integration', ['exec:integration-test']);
 };

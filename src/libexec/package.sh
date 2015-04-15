@@ -18,6 +18,8 @@ LICENSE="Apache 2.0"
 VENDOR="Azuki (http://azukiapp.com)"
 MAINTAINER="Everton Ribeiro <everton@azukiapp.com>"
 
+source $AZK_ROOT_PATH/.dependencies
+
 usage() {
   echo
   echo "$0 [deb|rpm]"
@@ -44,7 +46,7 @@ azk_shell() {
     rpm)
       fpm_extra_options=" \
         --depends \"docker-io\" \
-        --depends \"libnss-resolver >= 0.3.0\" \
+        --depends \"libnss-resolver >= $(LIBNSS_RESOLVER_VERSION)\" \
         --rpm-use-file-permissions \
         --rpm-user root --rpm-group root \
       "
@@ -52,7 +54,7 @@ azk_shell() {
     deb)
       fpm_extra_options=" \
         --depends \"lxc-docker\" \
-        --depends \"libnss-resolver (>= 0.3.0)\" \
+        --depends \"libnss-resolver (>= $(LIBNSS_RESOLVER_VERSION))\" \
         --deb-user root --deb-group root \
       "
       ;;
