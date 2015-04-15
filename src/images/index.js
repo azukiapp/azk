@@ -265,6 +265,12 @@ export class Image {
   //
   _track(event_type_name) {
     return async(this, function* () {
+
+      var shouldTrack = yield Tracker.checkTrackingPermission();
+      if (!shouldTrack) {
+        return;
+      }
+
       var tracker = new Tracker();
 
       // get event_type
@@ -275,8 +281,8 @@ export class Image {
 
       // rescue session id
       tracker.meta_info = {
-        agent_session_id: tracker.loadAgentSessionId(),
-        command_id      : tracker.loadCommandId(),
+        agent_session_id: yield tracker.loadAgentSessionId(),
+        command_id      : yield tracker.loadCommandId(),
       };
 
       var repo_full_name = this.repository;

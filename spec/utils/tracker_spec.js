@@ -39,10 +39,14 @@ describe("Azk Tracker", function() {
     h.expect(new_hash.length).to.equal(8);
   });
 
-  it("should save and load session id", function() {
-    trackerAzk.saveAgentSessionId();
-    var session_id = trackerAzk.loadAgentSessionId();
-    h.expect(session_id.length).to.equal(8);
+  it("should save and load session id", function(done) {
+    this.timeout(1000);
+    trackerAzk.saveAgentSessionId()
+      .then(trackerAzk.loadAgentSessionId())
+      .then(function (session_id) {
+        h.expect(session_id.length).to.equal(8);
+        done();
+      });
   });
 
   it("should add data to be tracked", function() {

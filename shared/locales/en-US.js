@@ -9,6 +9,9 @@ var reprovision = "Force the provisioning actions before starting an instance";
 
 // jscs:disable maximumLineLength
 module.exports = {
+  analytics: {
+    ask_tracker_message: "Do you want to be tracked?",
+  },
   errors: {
     no_vm_started: "Unable to install and configure virtual machine",
     no_internet_connection: "\nNo internet connection!",

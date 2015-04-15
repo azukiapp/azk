@@ -1,16 +1,18 @@
 import Azk from 'azk';
-import { _, config, async, log, fs, path } from 'azk';
+import { _, config, async, log, path } from 'azk';
 import { calculateHash } from 'azk/utils';
 var os = require('os');
 var osName = require('os-name');
 var InsightKeenIo = require('insight-keen-io');
+var qfs   = require('q-io/fs');
 
 export class Tracker {
 
   constructor(opts) {
     opts = _.merge({}, {
       projectId: config('tracker:projectId'),
-      writeKey: config('tracker:writeKey')
+      writeKey: config('tracker:writeKey'),
+      use_fork: true
     }, opts);
 
     this.insight = new InsightKeenIo(opts);
@@ -77,12 +79,8 @@ export class Tracker {
     this._data = _.merge({}, this._data, data);
   }
 
-  generateRandomId() {
+  _generateRandomId() {
     return calculateHash(String(Math.floor(Date.now() * Math.random()))).slice(0, 8);
-  }
-
-  askPermission(cb) {
-    this.insight.askPermission('Do you accept?', cb);
   }
 
   get data() {
@@ -97,74 +95,95 @@ export class Tracker {
     this._data.meta = _.merge({}, this._data.meta, value);
   }
 
-  loadRandomIdForKey(key) {
-    // load tracker_info_data from /home/${USER}/.azk/data/analytics/[key]
-    var key_value;
-    var tracker_info_file_path = path.join(config('paths:analytics'), key);
+  static loadData(key) {
+    return async(function* () {
+      // load tracker_info_data from /home/${USER}/.azk/data/analytics/[key]
+      var key_value;
+      var tracker_info_file_path = path.join(config('paths:analytics'), key);
 
-    try {
-      if (fs.existsSync(tracker_info_file_path)) {
-        key_value = fs.readFileSync(tracker_info_file_path).toString();
+      try {
+        if (yield qfs.exists(tracker_info_file_path)) {
+          key_value = yield qfs.read(tracker_info_file_path);
+        }
+      } catch (err) {
+        log.error('ERROR: loadRandomIdForKey:', err);
+        log.error(err.stack);
       }
-    } catch (err) {
-      log.error('ERROR: loadRandomIdForKey:', err);
-      log.error(err.stack);
-    }
 
-    // set meta content
-    this._data.meta[key] = key_value;
-
-    return key_value;
+      return key_value;
+    });
   }
 
-  saveRandomIdForKey(key) {
-    // generate new id
-    var new_id = this.generateRandomId();
-    this._data.meta[key] = new_id;
+  saveData(key, value) {
+    return async(this, function* () {
+      // generate new id
+      this._data.meta[key] = value;
 
-    var analytics_path = config('paths:analytics');
+      var analytics_path = config('paths:analytics');
 
-    // check if dir exists
-    var dirExists = fs.existsSync(analytics_path);
-    if (!dirExists) {
-      fs.mkdirSync(analytics_path);
-    }
+      // check if dir exists
+      var dirExists = yield qfs.exists(analytics_path);
+      if (!dirExists) {
+        yield qfs.makeDirectory(analytics_path);
+      }
 
-    // save agent_session_id to /home/${USER}/.azk/data/analytics/[key]
-    var tracker_info_file_path = path.join(analytics_path, key);
+      // save agent_session_id to /home/${USER}/.azk/data/analytics/[key]
+      var tracker_info_file_path = path.join(analytics_path, key);
 
-    try {
-      fs.writeFileSync(tracker_info_file_path, new_id);
-    } catch (err) {
-      log.error('ERROR: saveRandomIdForKey:', err);
-      log.error(err.stack);
-    }
+      try {
+        yield qfs.write(tracker_info_file_path, value);
+      } catch (err) {
+        log.error('ERROR: saveRandomIdForKey:', err);
+        log.error(err.stack);
+      }
 
-    return new_id;
+      return value;
+    });
   }
 
   saveAgentSessionId() {
-    return this.saveRandomIdForKey('agent_session_id');
+    var new_id = this._generateRandomId();
+    return this.saveData('agent_session_id', new_id);
   }
 
   loadAgentSessionId() {
-    return this.loadRandomIdForKey('agent_session_id');
+    return Tracker.loadData('agent_session_id');
   }
 
   saveCommandId() {
-    return this.saveRandomIdForKey('command_id');
+    var new_id = this._generateRandomId();
+    return this.saveData('command_id', new_id);
   }
 
   loadCommandId() {
-    return this.loadRandomIdForKey('command_id');
+    return Tracker.loadData('command_id');
   }
 
-  saveTrackerPremission() {
-    return this.saveRandomIdForKey('tracker_permission');
+  saveTrackerPermission(answer) {
+    return this.saveData('tracker_permission', answer);
   }
 
-  loadTrackerPremission() {
-    return this.loadRandomIdForKey('tracker_permission');
+  static loadTrackerPermission() {
+    return Tracker.loadData('tracker_permission').then(function (result) {
+      if (typeof result === 'string') {
+        return result === 'true';
+      }
+      return result;
+    });
+  }
+
+  static checkTrackingPermission() {
+    return Tracker.loadTrackerPermission().then(function (result) {
+      return result;
+    });
+  }
+
+  // use with CLI
+  static askPermissionToTrack(cli) {
+    var Helpers = require('azk/cli/command').Helpers;
+    return Helpers.askPermissionToTrack(cli).then(function (result) {
+      return result;
+    });
   }
 
 }

@@ -1,4 +1,4 @@
-import { _, /*t,*/ log, lazy_require, config } from 'azk';
+import { _, /*t,*/ log, lazy_require, config, async } from 'azk';
 import { SmartProgressBar } from 'azk/cli/smart_progress_bar';
 import { Tracker } from 'azk/utils/tracker';
 
@@ -33,58 +33,28 @@ var Helpers = {
       });
   },
 
-  checkPermission() {
-    // return async(this, function* () {
-    return false;
-    // });
-  },
-
   askPermissionToTrack(cli) {
+    return async(this, function* () {
 
-    var tracker = new Tracker();
-    var trackerPremission = tracker.loadTrackerPremission();
-    cli = cli;
-    /**/console.log('\n>>---------\n trackerPremission:\n', trackerPremission, '\n>>---------\n');/*-debug-*/
+      var trackerPremission = yield Tracker.loadTrackerPermission();
 
-    // FIXME: transformar checkPermission em promise
-    var optIn = this.checkPermission();
-    /**/console.log('\n>>---------\n optIn:\n', optIn, '\n>>---------\n');/*-debug-*/
-    // .then((optIn) => {
-    // // optIn === user has accepted
-    //   /**/console.log('\n>>---------\n optIn:\n', optIn, '\n>>---------\n');/*-debug-*/
-    //   // if (optIn) {
-    //   //   return optIn;
-    //   // } else {
-    //   //   return this.askPermission();
-    //   // }
-    // });
+      var tracker = new Tracker();
+      if (typeof trackerPremission === 'undefined') {
+        var question = {
+          type    : 'confirm',
+          name    : 'track_ask',
+          message : 'analytics.ask_tracker_message',
+          default : 'Y'
+        };
 
-    // check if is saved
+        var answers = yield cli.prompt(question);
+        yield tracker.saveTrackerPermission(answers.track_ask.toString());
 
-    // ask user
-    // save
+        return answers.track_ask;
+      }
 
-    // return AgentClient
-    //   .status()
-    //   .then((status) => {
-    //     if (!status.agent && !cli.non_interactive) {
-    //       var question = {
-    //         type    : 'confirm',
-    //         name    : 'start',
-    //         message : 'commands.agent.start_before',
-    //         default : 'Y'
-    //       };
-    //
-    //       return cli.prompt(question)
-    //         .then((answers) => {
-    //           var cmd = "azk agent start";
-    //           return answers.start ? cli.execSh(cmd) : false;
-    //         });
-    //     }
-    //   })
-    //   .then(() => {
-    //     return AgentClient.require();
-    //   });
+      return trackerPremission === 'true';
+    });
   },
 
   configure(cli) {

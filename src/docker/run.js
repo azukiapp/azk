@@ -14,6 +14,10 @@ function new_resize(container) {
 }
 
 export function run(docker, Container, image, cmd, opts = { }) {
+
+  /**/console.log('\n>>---------\n arguments:\n', require('util').inspect(arguments,
+  { showHidden: false, depth: null, colors: true }), '\n>>---------\n');/*-debug-*/
+
   var container   = null;
   var docker_opts = opts.docker || { start: {}, create: {} };
 
@@ -164,6 +168,12 @@ export function run(docker, Container, image, cmd, opts = { }) {
 }
 
 var _track = function (optsc) {
+
+  // var shouldTrack = yield Tracker.checkTrackingPermission();
+  // if (!shouldTrack) {
+  //   return;
+  // }
+
   /*
   { // do docker
         event_type: 'start' || ‘stop’,
@@ -206,6 +216,6 @@ var _track = function (optsc) {
 
    */
 
-  /**/console.log('\n>>---------\n optsc:\n', require('util').inspect(optsc,
+  /**/console.log('\n>>---------\n [ASK ME] optsc:\n', require('util').inspect(optsc,
    { showHidden: false, depth: null, colors: true }), '\n>>---------\n');/*-debug-*/
 };
