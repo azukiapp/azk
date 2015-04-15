@@ -22,7 +22,7 @@ export class TrackedCmds extends Command {
       this.tracker = new Tracker();
 
       // generate command id
-      var new_command_id = yield this.tracker.saveCommandId();
+      yield this.tracker.saveCommandId();
 
       var command_name = this.name;
       // if command is 'agent' then get sub-command
@@ -43,12 +43,6 @@ export class TrackedCmds extends Command {
           agent_session_id: yield this.tracker.saveAgentSessionId()
         };
       }
-
-      // rescue session id
-      this.tracker.meta_info = {
-        agent_session_id: yield this.tracker.loadAgentSessionId(),
-        command_id      : new_command_id
-      };
 
       this.tracker.addData({
         event_type: command_name,

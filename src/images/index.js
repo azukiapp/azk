@@ -279,12 +279,6 @@ export class Image {
         manifest_id: this.system.manifest.namespace
       });
 
-      // rescue session id
-      tracker.meta_info = {
-        agent_session_id: yield tracker.loadAgentSessionId(),
-        command_id      : yield tracker.loadCommandId(),
-      };
-
       var repo_full_name = this.repository;
       if (this.tag) {
         repo_full_name = repo_full_name + ':' + this.tag;

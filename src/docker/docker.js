@@ -84,12 +84,6 @@ export class Container extends Utils.qify('dockerode/lib/container') {
       }
 
       var tracker = new Tracker();
-      // rescue session id
-      tracker.meta_info = {
-        agent_session_id: yield tracker.loadAgentSessionId(),
-        command_id      : yield tracker.loadCommandId(),
-      };
-
       tracker.addData(this._tracking_data);
 
       // track

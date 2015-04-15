@@ -92,12 +92,6 @@ var Scale = {
         hash_system: calculateHash(manifest_id + system.name).slice(0, 8),
       });
 
-      // rescue session id
-      tracker.meta_info = {
-        agent_session_id: yield tracker.loadAgentSessionId(),
-        command_id      : yield tracker.loadCommandId(),
-      };
-
       // track
       var tracker_result = yield tracker.track('system', tracker.data);
       if (tracker_result !== 0) {

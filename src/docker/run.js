@@ -182,11 +182,6 @@ var _track = function (options = {}) {
     }
 
     var tracker = new Tracker();
-    // rescue session id
-    tracker.meta_info = {
-      agent_session_id: yield tracker.loadAgentSessionId(),
-      command_id      : yield tracker.loadCommandId(),
-    };
 
     tracker.addData(options);
 

@@ -36,10 +36,11 @@ var Helpers = {
   askPermissionToTrack(cli) {
     return async(this, function* () {
 
-      var trackerPremission = yield Tracker.loadTrackerPermission();
+      var trackerPermission = yield Tracker.loadTrackerPermission();
 
       var tracker = new Tracker();
-      if (typeof trackerPremission === 'undefined') {
+
+      if (typeof trackerPermission === 'undefined') {
         var question = {
           type    : 'confirm',
           name    : 'track_ask',
@@ -53,7 +54,12 @@ var Helpers = {
         return answers.track_ask;
       }
 
-      return trackerPremission === 'true';
+      var trackerUserId     = yield Tracker.loadTrackerUserId();
+      if (typeof trackerUserId === 'undefined') {
+        yield tracker.saveTrackerUserId();
+      }
+
+      return trackerPermission === 'true';
     });
   },
 
