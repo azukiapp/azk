@@ -1,4 +1,4 @@
-import { Q, config, async, lazy_require } from 'azk';
+import { Q, config, async, lazy_require, log } from 'azk';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Helpers } from 'azk/cli/command';
 
@@ -62,7 +62,7 @@ class VmCmd extends InteractiveCmds {
       var args     = opts.__leftover.join(`" "`);
       var script   = `ssh -i ${config('agent:vm:ssh_key')} -o ${ssh_opts} ${ssh_url} "${args}"`;
 
-      this.info(script);
+      log.debug(script);
       return this.execSh(script);
     });
   }
