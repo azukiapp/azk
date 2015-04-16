@@ -1,12 +1,19 @@
 #!/usr/bin/env node
 
+if (process.env.AZK_PROFILE_REQUIRES) {
+  require('azk/utils/require_debug');
+}
+
 // Load source-map to support transpiled files
-require('source-map-support').install({
-  // Disable source-map
-  // retrieveSourceMap: function(source) {
-  //   return null;
-  // }
-});
+var map_opts = {};
+if (process.env.AZK_DISABLE_SOURCE_MAP) {
+  map_opts = {
+    retrieveSourceMap: function() {
+      return null;
+    }
+  };
+}
+require('source-map-support').install(map_opts);
 
 // Process exit events
 process.once("azk:command:exit", function(code) {
