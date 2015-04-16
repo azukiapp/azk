@@ -2,7 +2,6 @@ import { _, t, log, config, lazy_require } from 'azk';
 import { defer, async } from 'azk';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Helpers } from 'azk/cli/command';
-import { default as tracker } from 'azk/utils/tracker';
 
 var channel = require('postal').channel("agent");
 
@@ -54,7 +53,7 @@ class Cmd extends InteractiveCmds {
             }
 
             // Generate a new tracker agent session id
-            tracker.generateNewAgentSessionId();
+            this.tracker.generateNewAgentSessionId();
 
             // Spaw daemon
             if (opts.daemon) {
@@ -67,35 +66,35 @@ class Cmd extends InteractiveCmds {
       process.chdir(config('paths:azk_root'));
 
       // use VM?
-      var require_vm = config("agent:requires_vm");
-      if (require_vm) {
-        var vm_data = {
-          cpus: config("agent:vm:cpus"),
-          memory: config("agent:vm:memory")
-        };
-      }
-      // Track agent start
-      // var agent = yield Client.status();
-      // var docker_version = require_vm && !agent.agent ? "down" : yield this.docker.version();
       var subscription = channel.subscribe("started", (/* data, envelope */) => {
+        var vm_data = {};
+
+        if (config("agent:requires_vm")) {
+          vm_data = {
+            cpus: config("agent:vm:cpus"),
+            memory: config("agent:vm:memory")
+          };
+        }
 
         console.log('agent tracking starting...');
 
-        tracker.addData({
-          // FIXME: get docker info and docker version
-          // Error: Config docker:host to be set by configure
-          // docker: {
-          //   version: docker_version
-          // },
-          vm: vm_data
-        });
+        subscription.unsubscribe();
 
-        // /**/console.log('\n>>---------\n tracker.data:\n', require('util').inspect(tracker.data,
-        //  { showHidden: false, depth: null, colors: true }), '\n>>---------\n');/*-debug-*/
+        // Track agent start
+        this.docker.version().then((result) => {
+          console.log('vm_data', vm_data);
+          console.log("docker version", result);
 
-        tracker.track('agent').then(function () {
-          console.log('agent tracked');
-          subscription.unsubscribe();
+          this.trackerEvent.addData({
+            vm: vm_data,
+            docker: {
+              version: result
+            }
+          });
+
+          return this.sendTrackerData();
+        }).fail((error) => {
+          console.log(error);
         });
       });
 

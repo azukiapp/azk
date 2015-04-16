@@ -139,7 +139,7 @@ export function run(docker, Container, image, cmd, opts = { }) {
     //track
     try {
       var imageObj = (image.indexOf('azkbuild') === -1) ? {type: 'docker', name: image} : {type: 'dockerfile'};
-      yield _track({
+      yield tracker.sendEvent("container", {
         event_type: annotations.azk.type,
         action: 'run',
         manifest_id: annotations.azk.mid,
@@ -176,15 +176,3 @@ export function run(docker, Container, image, cmd, opts = { }) {
     return container;
   });
 }
-
-var _track = function (options = {}) {
-  return async(this, function* () {
-    var shouldTrack = tracker.loadTrackerPermission();
-    if (!shouldTrack) { return Q(false); }
-
-    tracker.addData(options);
-
-    // track
-    yield tracker.track('container', tracker.data);
-  });
-};

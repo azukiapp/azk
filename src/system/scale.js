@@ -76,24 +76,14 @@ var Scale = {
   // Tracker
   //
   _track(event_type_name, system, from, to) {
-    return async(this, function* () {
-
-      var shouldTrack = tracker.loadTrackerPermission();
-      if (!shouldTrack) { return Q(false); }
-
-      var manifest_id = system.manifest.namespace;
-
-      // get event_type
-      tracker.addData({
+    return tracker.sendEvent("image", (event) => {
+      event.addData({
         event_type: event_type_name,
         manifest_id: manifest_id,
         from_num_containers: from,
         to_num_containers: to,
         hash_system: calculateHash(manifest_id + system.name).slice(0, 8),
       });
-
-      // track
-      yield tracker.track('system');
     });
   },
 

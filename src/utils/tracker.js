@@ -7,37 +7,18 @@ var os = require('os');
 var osName = require('os-name');
 var InsightKeenIo = require('insight-keen-io');
 
-export class Tracker {
-
-  constructor(opts, ids_keys) {
-    opts = _.merge({}, {
-      projectId: config('tracker:projectId'),
-      writeKey : config('tracker:writeKey'),
-      use_fork : true,
-    }, opts);
-
-    this.ids_keys = ids_keys;
-    this.insight  = new InsightKeenIo(opts);
-    this.loadMetadata();
-  }
-
-  loadMetadata() {
-    var cpu_obj   = os.cpus();
-    var cpu_info  = cpu_obj[0].model;
-    var cpu_count = cpu_obj.length;
-    var arch_type = os.arch();
-    var totalmem  = Math.floor(os.totalmem() / 1024 / 1024);
-    var os_name   = osName();
-
-    this._data = {
-      // keen addons
-      "keen" : {
+export class TrackerEvent {
+  constructor(collection, tracker) {
+    this.collection = collection;
+    this.tracker    = tracker;
+    this._data      = {
+      "keen": {
         "addons" : [{
           "name" : "keen:ip_to_geo",
-          "input" : {
+          "input": {
             "ip" : "meta.ip_address"
           },
-          "output" : "meta.ip_geo_info"
+          "output": "meta.ip_geo_info"
         }],
 
         // Two time-related properties are included in your
@@ -52,52 +33,15 @@ export class Tracker {
         //
         // > (new Date(2011, 10, 11, 9, 11, 11, 111)).toISOString()
         //    '2011-11-11T11:11:11.111Z'
-        'timestamp': (new Date()).toISOString(),
+        "timestamp": (new Date()).toISOString(),
       },
-      "meta": {
-        "ip_address"      : "${keen.ip}",
-        "agent_session_id": this.loadAgentSessionId(),
-        "command_id"      : this.generateRandomId('command_id'),
-        "user_id"         : this.loadTrackerUserId(),
-        "azk_version"     : Azk.version,
-
-        // device config
-        "device_info": {
-          "os"          : os_name,
-          "proc_arch"   : arch_type,
-          "total_memory": totalmem,
-          "cpu_info"    : cpu_info,
-          "cpu_count"   : cpu_count
-        }
-      }
+      "meta": {}
     };
   }
 
-  track(subject, data_to_add = null) {
-    return async(this, function* () {
-
-      // mergin meta info inside incoming event data
-      if (data_to_add) {
-        this.addData(data_to_add);
-      }
-
-      this.logAnalyticsData({
-        eventCollection: subject,
-        data: this._data
-      });
-
-      // track data with insight
-      var tracking_result = yield this.insight.track(subject, this._data);
-
-      if (tracking_result !== 0) {
-        this.logAnalyticsError({stack:'[Tracker => Keen.io - failed:] ' + tracking_result.toString()});
-        this.logAnalyticsData({
-          eventCollection: subject,
-          data: this._data
-        });
-      }
-
-      return tracking_result;
+  final() {
+    return _.merge({}, this._data, {
+      "meta": this.tracker.meta
     });
   }
 
@@ -105,16 +49,73 @@ export class Tracker {
     this._data = _.merge({}, this._data, data);
   }
 
-  get data() {
-    return this._data;
+  send(extra_func = null) {
+    return async(this, function* () {
+      if (!this.tracker.loadTrackerPermission()) { return false };
+
+      if (_.isFunction(extra_func)) {
+        extra_func(this);
+      }
+
+      var final_data = this.final();
+      this.tracker.logAnalyticsData({
+        eventCollection: this.collection,
+        data: final_data
+      });
+
+      // track data with insight
+      var tracking_result = yield this.tracker.insight.track(this.collection, final_data);
+
+      if (tracking_result !== 0) {
+        this.tracker.logAnalyticsError({stack:'[Tracker => Keen.io - failed:] ' + tracking_result.toString()});
+        this.tracker.logAnalyticsData({
+          eventCollection: this.collection,
+          data: final_data
+        });
+      }
+
+      return tracking_result;
+    });
+  }
+}
+
+export class Tracker {
+
+  constructor(opts, ids_keys) {
+    opts = _.merge({}, {
+      projectId: config('tracker:projectId'),
+      writeKey : config('tracker:writeKey'),
+      use_fork : true,
+    }, opts);
+
+    this.ids_keys = ids_keys;
+    this.insight  = new InsightKeenIo(opts);
+    this.meta     = {
+      "ip_address"      : "${keen.ip}",
+      "agent_session_id": this.loadAgentSessionId(),
+      "command_id"      : this.generateRandomId('command_id'),
+      "user_id"         : this.loadTrackerUserId(),
+      "azk_version"     : Azk.version,
+
+      // device config
+      "device_info": {
+        "os"          : osName(),
+        "proc_arch"   : os.arch(),
+        "total_memory": Math.floor(os.totalmem() / 1024 / 1024),
+        "cpu_info"    : os.cpus()[0].model,
+        "cpu_count"   : os.cpus().length
+      }
+    };
   }
 
-  get meta_info() {
-    return this._data.meta;
+  newEvent(collection, data = {}) {
+    var event = new TrackerEvent(collection, this);
+    event.addData(data);
+    return event;
   }
 
-  set meta_info(value) {
-    this._data.meta = _.merge({}, this._data.meta, value);
+  sendEvent(...args) {
+    return this.newEvent(...args).send();
   }
 
   generateRandomId(label) {

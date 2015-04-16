@@ -29,80 +29,31 @@ export class Container extends Utils.qify('dockerode/lib/container') {
       // setup container data
       data.Annotations = Container.unserializeAnnotations(data.Name);
       data.NetworkSettings = Container.parsePortsFromNetwork(data.NetworkSettings);
-
-      // Tracker
-      try {
-        // TODO: do not track data on "docker run" command
-        var imageObj;
-
-        if (data.Config.Image.indexOf('azkbuild') === -1) {
-          imageObj = {type: 'docker', name: data.Config.Image};
-        } else {
-          imageObj = {type: 'dockerfile'};
-        }
-
-        tracker.addData({
-          event_type: data.Annotations && data.Annotations.azk.type,
-          action: 'run',
-          manifest_id: data.Annotations && data.Annotations.azk.mid,
-          image: imageObj
-        });
-      } catch (err) {
-        tracker.logAnalyticsError(err);
-      }
-
       return data;
     });
   }
 
   stop(...args) {
     return super(...args).then((data) => {
-      tracker.addData({action: 'stop'});
-      return this._track()
-      .then(function () {
-        return data;
-      })
-      .catch(function (err) {
-        tracker.logAnalyticsError(err);
-      });
-
+      return this._track(data, 'stop');
     });
   }
 
   remove(...args) {
     return super(...args).then((data) => {
-      tracker.addData({action: 'remove'});
-      return this._track()
-      .then(function () {
-        return data;
-      })
-      .catch(function (err) {
-        tracker.logAnalyticsError(err);
-      });
+      return this._track(data, 'remove');
     });
   }
 
   kill(...args) {
     return super(...args).then((data) => {
-      tracker.addData({action: 'kill'});
-      return this._track()
-      .then(function () {
-        return data;
-      })
-      .catch(function (err) {
-        tracker.logAnalyticsError(err);
-      });
+      return this._track(data, 'kill');
     });
   }
 
-  _track() {
-    return async(this, function* () {
-      var shouldTrack = tracker.loadTrackerPermission();
-      if (!shouldTrack) { return Q(false); }
-
-      // track
-      yield tracker.track('container');
-    });
+  _track(data, action) {
+    var event_data = { action: action, id: this.Id };
+    return tracker.newEvent("container", event_data).then(() => data);
   }
 
   static parsePorts(ports) {

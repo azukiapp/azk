@@ -269,13 +269,9 @@ export class Image {
   // Tracker
   //
   _track(event_type_name) {
-    return async(this, function* () {
-
-      var shouldTrack = tracker.loadTrackerPermission();
-      if (!shouldTrack) { return Q(false); }
-
+    return tracker.sendEvent("image", (event) => {
       // get event_type
-      tracker.addData({
+      event.addData({
         event_type: event_type_name,
         manifest_id: this.system.manifest.namespace
       });
@@ -299,10 +295,7 @@ export class Image {
       }
 
       // add image object to tracker data
-      tracker.addData(image_part);
-
-      // track
-      yield tracker.track('image');
+      event.addData(image_part);
     });
   }
 
