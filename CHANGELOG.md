@@ -10,6 +10,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Docker] Fixing flag `--pull` to force pull of docker image not working`;
 
 * Enhancements
+  * [Code] Replacing [`traceur`](https://github.com/google/traceur-compiler) with [`babel`](https://babeljs.io/) for transpiling JS files from ES6 to ES5 (Node.js limitation).
+  * [Code] Replacing the task system grunt at gulp;
+  * [Kernel] Moving `i18n` module to a npm package;
   * [Docker] Check and show error message in the pull of docker images, #299;
   * [Installation] Installation script (`install.sh`) now disables dnsmasq;
   * [Systems] Distinguish azk error from sub-system log error;
