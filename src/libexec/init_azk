@@ -1,7 +1,6 @@
 #!/bin/bash
 
 echo "Configure azk in this machine"
-make -e fast_clean
 make -e
 
 echo "Starting azk agent"
