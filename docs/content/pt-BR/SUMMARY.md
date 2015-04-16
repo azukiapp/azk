@@ -80,4 +80,5 @@
 /*****************************************************/
 * [FAQ](faq/README.md)
 * [Troubleshooting](troubleshooting/README.md)
+* [Termos de Uso](terms-of-use/README.md)
 /** [Roadmap](roadmap/README.md)*/
