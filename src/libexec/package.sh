@@ -22,7 +22,7 @@ source $AZK_ROOT_PATH/.dependencies
 
 usage() {
   echo
-  echo "$0 [deb|rpm]"
+  echo "$0 {deb|rpm} [--clean]"
   echo
   echo "    Uses fpm to build a package"
   echo
@@ -41,6 +41,10 @@ azk_shell() {
   fpm_extra_options=""
   pkg_type="$1"
   PKG="${PKG}"
+
+  if [[ $# == 2 ]] && [[ $2 == "--clean" ]]; then
+    CLEAN=true
+  fi
 
   case $pkg_type in
     rpm)
@@ -78,6 +82,9 @@ azk_shell() {
   prefix="usr"
   destdir="/azk/${THIS_FOLDER}/package/${pkg_type}"
   mkdir -p package/${pkg_type}
+
+  [[ ! -z $CLEAN ]] && azk_shell package "make -e clean"
+
   azk_shell package "make -e package_linux"
 
 # package!

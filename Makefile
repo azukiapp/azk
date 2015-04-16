@@ -92,10 +92,10 @@ package_mac:
 package_linux: package_build creating_symbolic_links fix_permissions
 package_deb:
 	@mkdir -p package
-	@./src/libexec/package.sh deb
+	@./src/libexec/package.sh deb --clean
 package_rpm:
 	@mkdir -p package
-	@./src/libexec/package.sh rpm
+	@./src/libexec/package.sh rpm --clean
 
 package_clean:
 	@echo "task: $@"
@@ -159,6 +159,7 @@ creating_symbolic_links:
 	@ln -sf ../lib/azk/bin/adocker ${PATH_USR_BIN}/adocker
 
 ${PATH_AZK_LIB}/${AZK_ISO_VERSION}/vm: ${AZK_LIB_PATH}/vm
+	@mkdir -p ${PATH_AZK_LIB}/${AZK_ISO_VERSION}/vm
 	@cp -r ${VM_DISKS_DIR} ${PATH_AZK_LIB}/${AZK_ISO_VERSION}/vm
 
 ${PATH_MAC_PACKAGE}: ${AZK_PACKAGE_PREFIX}
