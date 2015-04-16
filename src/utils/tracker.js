@@ -147,6 +147,7 @@ export class Tracker {
   }
 
   loadTrackerPermission() {
+    if (config('tracker:disable')) { return false; }
     return azkMeta.get(this.ids_keys.permission);
   }
 

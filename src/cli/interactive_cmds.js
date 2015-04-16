@@ -2,10 +2,10 @@ import { TrackedCmds } from 'azk/cli/tracked_cmds';
 
 export class InteractiveCmds extends TrackedCmds {
   constructor(...args) {
+    super(...args);
     this._verbose_nivel = 0;
     this.non_interactive = false;
 
-    super(...args);
     this.addOption(['--verbose', '-v'], { default: false, acc: true });
     this.addOption(['--quiet'  , '-q'], { default: false } );
   }
