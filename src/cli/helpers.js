@@ -1,4 +1,4 @@
-import { _, /*t,*/ log, lazy_require, config } from 'azk';
+import { _, log, lazy_require, config, async } from 'azk';
 import { SmartProgressBar } from 'azk/cli/smart_progress_bar';
 
 /* global AgentClient, Configure */
@@ -30,6 +30,37 @@ var Helpers = {
       .then(() => {
         return AgentClient.require();
       });
+  },
+
+  askPermissionToTrack(cli) {
+    return async(this, function* () {
+      // check if user already answered
+      var trackerPermission = cli.tracker.loadTrackerPermission(); // Boolean
+
+      var should_ask_permission = (typeof trackerPermission === 'undefined');
+      if (should_ask_permission) {
+        var question = {
+          type    : 'confirm',
+          name    : 'track_ask',
+          message : 'analytics.question',
+          default : 'Y'
+        };
+
+        var answers = yield cli.prompt(question);
+        cli.tracker.saveTrackerPermission(answers.track_ask);
+
+        if (answers.track_ask) {
+          cli.ok('analytics.message_optIn');
+          yield cli.tracker.sendEvent("tracker", { event_type: "accepted" });
+        } else {
+          cli.ok('analytics.message_optOut', {command: 'azk config track-toggle'});
+        }
+
+        return answers.track_ask;
+      }
+
+      return trackerPermission;
+    });
   },
 
   configure(cli) {

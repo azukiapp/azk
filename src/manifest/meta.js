@@ -55,12 +55,17 @@ export class Meta {
   }
 
   get(key, defaultValue) {
-    return this.cache.getSync(key) || defaultValue;
+    var value = this.cache.getSync(key);
+    return value !== undefined ? value : defaultValue;
   }
 
   set(key, value) {
     this.cache.putSync(key, value);
     return this;
+  }
+
+  del(key) {
+    return this.cache.delSync(key);
   }
 }
 
@@ -83,5 +88,9 @@ export class FakeCache {
 
   putSync(key, value) {
     this.values[this.keyCalc(key)] = value;
+  }
+
+  delSync(key) {
+    delete this.values[this.keyCalc(key)];
   }
 }

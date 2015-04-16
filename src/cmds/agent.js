@@ -3,6 +3,8 @@ import { defer, async } from 'azk';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Helpers } from 'azk/cli/command';
 
+var channel = require('postal').channel("agent");
+
 /* global Client, spawn, net */
 lazy_require(this, {
   Client: [ 'azk/agent/client' ],
@@ -11,6 +13,11 @@ lazy_require(this, {
 });
 
 class Cmd extends InteractiveCmds {
+
+  get docker() {
+    return require('azk/docker').default;
+  }
+
   action(opts) {
     return this
       .callAgent(opts)
@@ -45,6 +52,9 @@ class Cmd extends InteractiveCmds {
               yield cmd_vm.action({ action: 'remove', fail: () => {} });
             }
 
+            // Generate a new tracker agent session id
+            this.tracker.generateNewAgentSessionId();
+
             // Spaw daemon
             if (opts.daemon) {
               return this.spawChild(opts);
@@ -54,6 +64,32 @@ class Cmd extends InteractiveCmds {
 
       // Changing directory for security
       process.chdir(config('paths:azk_root'));
+
+      // use VM?
+      var subscription = channel.subscribe("started", (/* data, envelope */) => {
+        var vm_data = {};
+
+        if (config("agent:requires_vm")) {
+          vm_data = {
+            cpus: config("agent:vm:cpus"),
+            memory: config("agent:vm:memory")
+          };
+        }
+
+        subscription.unsubscribe();
+
+        // Track agent start
+        this.docker.version().then((result) => {
+          this.trackerEvent.addData({
+            vm: vm_data,
+            docker: {
+              version: result
+            }
+          });
+
+          return this.sendTrackerData();
+        });
+      });
 
       // Call action in agent
       var promise = Client[opts.action](opts).progress(progress);

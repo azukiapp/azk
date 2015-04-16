@@ -3,6 +3,7 @@ import { async, defer, lazy_require } from 'azk';
 import { ManifestError, NoInternetConnection, LostInternetConnection } from 'azk/utils/errors';
 import { net } from 'azk/utils';
 import Utils from 'azk/utils';
+import { default as tracker } from 'azk/utils/tracker';
 
 var Syncronizer = require('docker-registry-downloader').Syncronizer;
 
@@ -102,8 +103,10 @@ export class Image {
           output = err.toString();
           throw new LostInternetConnection('  ' + output);
         }
+
+        yield this._track('pull');
       }
-      return yield this.check();
+      return this.check();
     });
   }
 
@@ -158,6 +161,7 @@ export class Image {
                                     stdout: options.stdout
                                   });
       }
+      yield this._track('build');
       return image;
     });
   }
@@ -255,4 +259,39 @@ export class Image {
 
     return provider;
   }
+
+  //
+  // Tracker
+  //
+  _track(event_type_name) {
+    return tracker.sendEvent("image", (trackerEvent) => {
+      // get event_type
+      trackerEvent.addData({
+        event_type: event_type_name,
+        manifest_id: this.system.manifest.namespace
+      });
+
+      // build repo name as `[repo]:[tag]`
+      var repo_full_name = this.repository;
+      if (this.tag) {
+        repo_full_name = repo_full_name + ':' + this.tag;
+      }
+
+      // set default image type
+      var image_part = {
+        image: {
+          type: this.provider
+        }
+      };
+
+      // get repository only if it is public
+      if (this.provider === 'docker') {
+        image_part.image.name = repo_full_name;
+      }
+
+      // add image object to tracker data
+      trackerEvent.addData(image_part);
+    });
+  }
+
 }

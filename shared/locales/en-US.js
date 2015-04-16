@@ -9,6 +9,24 @@ var reprovision = "Force the provisioning actions before starting an instance";
 
 // jscs:disable maximumLineLength
 module.exports = {
+  analytics: {
+    question: [
+      '=========================================================================\n'.grey,
+      '  We\'re constantly looking for ways to make'.yellow,
+      ' azk '.red,
+      'better!\n'.yellow,
+      '  May we anonymously report usage statistics to improve the tool over time? \n'.yellow,
+      '  More info: https://github.com/azukiapp/azk and https://docs.azk.io/en/terms-of-use\n'.yellow,
+      ' =========================================================================\n'.grey,
+    ].join(''),
+    message_optIn: [
+      'cool! thanks for helping us make azk better :)'.green,
+    ].join(' '),
+    message_optOut: [
+      'Don\'t worry, it\'s ok. Please, feel free to run `%(command)s` if you change your mind.\n'.grey,
+      'You can always find that command in the `azk help`'.grey,
+    ].join(''),
+  },
   errors: {
     no_vm_started: "Unable to install and configure virtual machine",
     no_internet_connection: "\nNo internet connection!",
@@ -445,6 +463,22 @@ module.exports = {
         long: "Show all columns",
         text: "Show in text mode",
       }
+    },
+    config: {
+      description: "Controls azk configuration options",
+      options: {
+        verbose : verbose,
+        quiet   : quiet,
+        action: {
+          name: "actions".magenta,
+          options: {
+            'track-status': "Displays tracking status",
+            'track-toggle': "Toggles tracking behavior on/off",
+          }
+        }
+      },
+      'tracking-false': 'currently azk is not tracking any data',
+      'tracking-true' : 'currently azk is tracking data, more info: https://github.com/azukiapp/azk and https://docs.azk.io/en/terms-of-use',
     },
     vm: {
       description  : "Controls a virtual machine.",
