@@ -122,7 +122,7 @@ Let's open our ngrok URL: http://azkdemo-services-ngrok.dev.azk.io
 
 ![ngrok's neat web interface](../resources/images/azk-services-5.png)
 
-Awesome, ngrok is working and we can already check it's admin interface that lets us analyze and replay connections. One thing we still can't do is actually see our URL that ngrok created for us as a public endpoint. So let's fix that.
+Awesome, ngrok is working and we can already check its admin interface that lets us analyze and replay connections. One thing we still can't do is actually see our URL that ngrok created for us as a public endpoint. So let's fix that.
 
 First of all, create a new folder called "logs" in your project directory:
 
@@ -163,7 +163,10 @@ Now what we can do is pipe any log files created inside the ngrok system to our 
 }
 ```
 
-The `mounts` parameter will first define which folder and its contents created inside our system (`ngrok` in this case) we want to pipe it to outside, and the `path` options will define where that information will be available.
+The `mounts` parameter will define:
+
+- `'ngrok/logs'`: this is the folder and its contents created inside our system (`ngrok` in this case) that we want to pipe to outside.
+- `path("./logs)"`: the `path` options will define where that information will be available in our project directory. In this case, the `./logs` folder we created in the previous step.
 
 Let's restart our system to update it with these changes:
 

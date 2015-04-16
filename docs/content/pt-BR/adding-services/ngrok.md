@@ -163,7 +163,10 @@ Agora, o que nós podemos fazer é "sincronizar" todos os arquivos de log criado
 }
 ```
 
-O parâmetro `mounts` irá primeiro definir qual pasta e seu conteúdo, criadas dentro de nosso sistema (`ngrok` neste caso) queremos "sincronizar", e a parâmetro `path` vai definir onde esses arquivos estarão disponíveis.
+ O parâmetro `mounts` irá definir:
+
+- `'ngrok/logs'`: a pasta e seu conteúdo, criadas dentro de nosso sistema (`ngrok` neste caso) que queremos "sincronizar".
+- `path("./logs)"`: o parâmetro `path` vai definir onde esses arquivos estarão disponíveis dentro da pasta do nosso projeto. Nesse caso, os arquivos estarão na pasta `./logs` que criamos no passo anterior.
 
 Vamos reiniciar o nosso sistema para atualizá-lo com essas alterações:
 
