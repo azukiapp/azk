@@ -4,14 +4,13 @@ import { ManifestError, NoInternetConnection, LostInternetConnection } from 'azk
 import { net } from 'azk/utils';
 import Utils from 'azk/utils';
 
-var Syncronizer = require('docker-registry-downloader').Syncronizer;
-
 var AVAILABLE_PROVIDERS = ["docker", "dockerfile"];
 var default_tag      = "latest";
 
 var lazy = lazy_require({
   DImage: ['azk/docker', 'Image'],
   docker: ['azk/docker', 'default'],
+  Syncronizer: ['docker-registry-downloader'],
 });
 
 export class Image {
@@ -116,7 +115,7 @@ export class Image {
         retryDelay: 500
       };
 
-      var syncronizer = new Syncronizer(docker_socket, request_options);
+      var syncronizer = new lazy.Syncronizer(docker_socket, request_options);
       var tag = repo_tag;
 
       // get token from Docker Hub
