@@ -16,11 +16,11 @@ module.exports = {
       ' azk '.red,
       'better!\n'.yellow,
       '  May we anonymously report usage statistics to improve the tool over time? \n'.yellow,
-      '  More info: https://github.com/azukiapp/azk and https://docs.azk.io/en/terms-of-use\n'.yellow,
+      '  More info: https://github.com/azukiapp/azk and http://docs.azk.io/en/terms-of-use\n'.yellow,
       ' =========================================================================\n'.grey,
     ].join(''),
     message_optIn: [
-      'cool! thanks for helping us make azk better :)'.green,
+      'cool! Thanks for helping us make azk better :)'.green,
     ].join(' '),
     message_optOut: [
       'Don\'t worry, it\'s ok. Please, feel free to run `%(command)s` if you change your mind.\n'.grey,
@@ -478,7 +478,7 @@ module.exports = {
         }
       },
       'tracking-false': 'currently azk is not tracking any data',
-      'tracking-true' : 'currently azk is tracking data, more info: https://github.com/azukiapp/azk and https://docs.azk.io/en/terms-of-use',
+      'tracking-true' : 'currently azk is tracking data, more info: https://github.com/azukiapp/azk and http://docs.azk.io/en/terms-of-use',
     },
     vm: {
       description  : "Controls a virtual machine.",

@@ -76,13 +76,13 @@ To run azk tests, `azk agent` must be running:
 $ azk agent start
 ...
 azk: Agent has been successfully started.
-$ azk nvm gulp test
+$ azk nvm npm test
 ```
 
 ##### All tests including "slow" ones
 
 ```bash
-$ azk nvm gulp test --slow
+azk nvm npm run test:slow
 ```
 
 ##### All tests excluding "slow" ones

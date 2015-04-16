@@ -4,7 +4,8 @@
   "description": "Orchestrate development environments with agility and automation",
   "main": "index.js",
   "scripts": {
-    "test": "./bin/azk nvm gulp test"
+    "test": "gulp test",
+    "test:slow": "gulp test --slow"
   },
   "repository": {
     "type": "git",
