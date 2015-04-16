@@ -1,6 +1,39 @@
-# Atualizando a partir do azk <= 0.5.1
+# Atualizando o azk
 
-Infelizmente para usuários que testaram e utilizaram o `azk` em versões anteriores a `0.6.0` o processo de atualização não é simples devido a incompatibilidade do modelo de instalação anterior com a instalação por pacotes.
+1. [Atualizando a partir do azk >= 0.6.0](upgrading.html#atualizando-a-partir-do-azk--060)
+1. [Atualizando a partir do azk <= 0.5.1](upgrading.html#atualizando-a-partir-do-azk--051)
+
+## Atualizando a partir do azk >= 0.6.0
+
+Uma vez que o `azk` tenha sido instalado por pacotes o processo de atualização se torna realmente simples:
+
+### Mac OS X
+
+```bash
+$ azk agent stop
+$ brew upgrade azukiapp/azk/azk
+```
+
+### Linux
+
+Ubuntu:
+
+```bash
+$ azk agent stop
+$ sudo apt-get update
+$ sudo apt-get upgrade azk
+```
+
+Fedora:
+
+```bash
+$ azk agent stop
+$ sudo yum upgrade azk
+```
+
+## Atualizando a partir do azk <= 0.5.1
+
+Para usuários que testaram e utilizaram o `azk` em versões anteriores a `0.6.0` o processo de atualização não é simples devido a incompatibilidade do modelo de instalação anterior com a instalação por pacotes.
 
 Antes de seguir para uma nova instalação do `azk` é preciso seguir alguns passos de remoção da versões anteriores:
 
@@ -60,33 +93,4 @@ Antes de seguir para uma nova instalação do `azk` é preciso seguir alguns pas
   * [Linux](linux.md#requisitos)
   * [Mac OS X](mac_os_x.md#requisitos)
 
-# Atualizando a partir do azk >= 0.6.0
-
-Uma vez que o `azk` tenha sido instalado por pacotes o processo de atualização se torna realmente simples:
-
-## Mac OS X
-
-```bash
-$ azk agent stop
-$ brew upgrade azukiapp/azk/azk
-```
-
-## Linux
-
-Ubuntu:
-
-```bash
-$ azk agent stop
-$ sudo apt-get update
-$ sudo apt-get upgrade azk
-```
-
-Fedora:
-
-```bash
-$ azk agent stop
-$ sudo yum upgrade azk
-```
-
 !INCLUDE "../../links.md"
-

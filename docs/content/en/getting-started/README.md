@@ -1,6 +1,6 @@
 # Getting started
 
-Before you begin, make sure you have [azk installed](../ installation / README.md).
+Before you begin, make sure you have [azk installed](../installation/README.md).
 
 This guide will walk you through the first steps with `azk`, demonstrating the basics of its main features.
 

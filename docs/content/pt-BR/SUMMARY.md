@@ -16,19 +16,24 @@
    * [Mapeando arquivos](getting-started/mounts-files.md)
    * [Persistindo informações](getting-started/persisting-data.md)
 /*****************************************************/
+* [Azkfile.js](azkfilejs/README.md)
+/*****************************************************/
 * [Começando uma aplicação do zero](starting-from-scratch/README.md)
    * [Node.js](starting-from-scratch/nodejs.md)*
    * [PHP / Laravel](starting-from-scratch/php-laravel.md)*
    * [Python / Django](starting-from-scratch/python-django.md)*
    * [Ruby on Rails](starting-from-scratch/ruby-rails.md)*
 /*****************************************************/
+* [Adicionando serviços](adding-services/README.md)
+   * [Executando nossa aplicação](adding-services/running-our-application.md)*
+   * [Mailcatcher](adding-services/mailcatcher.md)*
+   * [ngrok](adding-services/ngrok.md)*
+/*****************************************************/
 /** [Exemplos](exemplos/README.md)*/
    /** [Rails](exemplos/rails.md)*/
    /** [node.js](exemplos/nodejs.md)*/
    /** [Python](exemplos/python.md)*/
    /** [PHP](exemplos/php.md)*/
-/*****************************************************/
-* [Azkfile.js](azkfilejs/README.md)
 /*****************************************************/
 * [Agent](agent/README.md)
 /*****************************************************/
