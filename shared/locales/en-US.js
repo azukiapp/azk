@@ -16,7 +16,7 @@ module.exports = {
       ' azk '.red,
       'better!\n'.yellow,
       '  May we anonymously report usage statistics to improve the tool over time? \n'.yellow,
-      '  More info: https://github.com/azukiapp/azk & http://azk.io\n'.yellow,
+      '  More info: https://github.com/azukiapp/azk and https://docs.azk.io/en/terms-of-use\n'.yellow,
       ' =========================================================================\n'.grey,
     ].join(''),
     message_optIn: [
@@ -464,23 +464,21 @@ module.exports = {
         text: "Show in text mode",
       }
     },
-    tracking: {
-      description: "Controls tracking information.",
+    config: {
+      description: "Controls azk configuration options",
       options: {
         verbose : verbose,
         quiet   : quiet,
         action: {
           name: "actions".magenta,
           options: {
-            status: "Check tracking status",
-            toggle: "Changes tracking behavior",
+            'track-status': "Displays tracking status",
+            'track-toggle': "Toggles tracking behavior on/off",
           }
         }
       },
-      status: {
-        false: 'currently azk is not tracking any data',
-        true: 'currently azk is tracking, more info: https://github.com/azukiapp/azk & http://azk.io',
-      },
+      'tracking-false': 'currently azk is not tracking any data',
+      'tracking-true' : 'currently azk is tracking data, more info: https://github.com/azukiapp/azk and https://docs.azk.io/en/terms-of-use',
     },
     vm: {
       description  : "Controls a virtual machine.",

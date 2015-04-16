@@ -53,7 +53,7 @@ var Helpers = {
           cli.ok('analytics.message_optIn');
           yield cli.tracker.sendEvent("tracker", { event_type: "accepted" });
         } else {
-          cli.ok('analytics.message_optOut', {command: 'azk tracking enable'});
+          cli.ok('analytics.message_optOut', {command: 'azk config track-toggle'});
         }
 
         return answers.track_ask;
