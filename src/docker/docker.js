@@ -1,4 +1,4 @@
-import { async, config, _, log, lazy_require, Q } from 'azk';
+import { config, _, log, lazy_require } from 'azk';
 import Utils from 'azk/utils';
 import { default as tracker } from 'azk/utils/tracker';
 
@@ -52,8 +52,8 @@ export class Container extends Utils.qify('dockerode/lib/container') {
   }
 
   _track(data, action) {
-    var event_data = { action: action, id: this.Id };
-    return tracker.newEvent("container", event_data).then(() => data);
+    var event_data = { event_type: action, id: this.Id };
+    return tracker.sendEvent("container", event_data).then(() => data);
   }
 
   static parsePorts(ports) {

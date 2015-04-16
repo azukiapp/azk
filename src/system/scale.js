@@ -76,8 +76,10 @@ var Scale = {
   // Tracker
   //
   _track(event_type_name, system, from, to) {
-    return tracker.sendEvent("image", (event) => {
-      event.addData({
+    var manifest_id = system.manifest.namespace;
+
+    return tracker.sendEvent("image", (trackerEvent) => {
+      trackerEvent.addData({
         event_type: event_type_name,
         manifest_id: manifest_id,
         from_num_containers: from,

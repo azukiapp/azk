@@ -1,6 +1,5 @@
-import { _, /*t,*/ log, lazy_require, config, async } from 'azk';
+import { _, log, lazy_require, config, async } from 'azk';
 import { SmartProgressBar } from 'azk/cli/smart_progress_bar';
-import { default as tracker } from 'azk/utils/tracker';
 
 /* global AgentClient, Configure */
 lazy_require(this, {
@@ -36,7 +35,7 @@ var Helpers = {
   askPermissionToTrack(cli) {
     return async(this, function* () {
       // check if user already answered
-      var trackerPermission = tracker.loadTrackerPermission(); // Boolean
+      var trackerPermission = cli.tracker.loadTrackerPermission(); // Boolean
 
       var should_ask_permission = (typeof trackerPermission === 'undefined');
       if (should_ask_permission) {
@@ -48,14 +47,14 @@ var Helpers = {
         };
 
         var answers = yield cli.prompt(question);
+        cli.tracker.saveTrackerPermission(answers.track_ask);
 
         if (answers.track_ask) {
           cli.ok('analytics.message_optIn');
+          yield cli.tracker.sendEvent("tracker", { event_type: "accepted" });
         } else {
-          cli.ok('analytics.message_optOut', {command: 'azk agent start --tracking'});
+          cli.ok('analytics.message_optOut', {command: 'azk tracking enable'});
         }
-
-        tracker.saveTrackerPermission(answers.track_ask.toString());
 
         return answers.track_ask;
       }

@@ -1,4 +1,4 @@
-import { _, async, config, Q } from 'azk';
+import { _, async, config } from 'azk';
 import { default as tracker } from 'azk/utils/tracker';
 
 function new_resize(container) {
@@ -140,8 +140,8 @@ export function run(docker, Container, image, cmd, opts = { }) {
     try {
       var imageObj = (image.indexOf('azkbuild') === -1) ? {type: 'docker', name: image} : {type: 'dockerfile'};
       yield tracker.sendEvent("container", {
-        event_type: annotations.azk.type,
-        action: 'run',
+        event_type: 'run',
+        container_type: annotations.azk.type,
         manifest_id: annotations.azk.mid,
         image: imageObj
       });

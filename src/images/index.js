@@ -1,12 +1,7 @@
-<<<<<<< HEAD
 import { _, fs, t, path, isBlank } from 'azk';
 import { async, defer, lazy_require } from 'azk';
 import { ManifestError, NoInternetConnection, LostInternetConnection } from 'azk/utils/errors';
 import { net } from 'azk/utils';
-=======
-import { _, fs, async, defer, lazy_require, t, path, isBlank, log, Q } from 'azk';
-import { ManifestError } from 'azk/utils/errors';
->>>>>>> [tracking] Adding postal
 import Utils from 'azk/utils';
 import { default as tracker } from 'azk/utils/tracker';
 
@@ -269,9 +264,9 @@ export class Image {
   // Tracker
   //
   _track(event_type_name) {
-    return tracker.sendEvent("image", (event) => {
+    return tracker.sendEvent("image", (trackerEvent) => {
       // get event_type
-      event.addData({
+      trackerEvent.addData({
         event_type: event_type_name,
         manifest_id: this.system.manifest.namespace
       });
@@ -295,7 +290,7 @@ export class Image {
       }
 
       // add image object to tracker data
-      event.addData(image_part);
+      trackerEvent.addData(image_part);
     });
   }
 

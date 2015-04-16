@@ -51,7 +51,7 @@ export class TrackerEvent {
 
   send(extra_func = null) {
     return async(this, function* () {
-      if (!this.tracker.loadTrackerPermission()) { return false };
+      if (!this.tracker.loadTrackerPermission()) { return false; }
 
       if (_.isFunction(extra_func)) {
         extra_func(this);
@@ -114,8 +114,13 @@ export class Tracker {
     return event;
   }
 
-  sendEvent(...args) {
-    return this.newEvent(...args).send();
+  sendEvent(collection, data = {}) {
+    var extra_func = null;
+    if (_.isFunction(data)) {
+      extra_func = data;
+      data = {};
+    }
+    return this.newEvent(collection, data).send(extra_func);
   }
 
   generateRandomId(label) {
@@ -125,7 +130,7 @@ export class Tracker {
   generateNewAgentSessionId() {
     var id = this.generateRandomId(this.ids_keys.agent_id);
     azkMeta.set(this.ids_keys.agent_id, id);
-    this._data.meta.agent_session_id = id;
+    this.meta.agent_session_id = id;
     return id;
   }
 
@@ -147,12 +152,6 @@ export class Tracker {
 
   checkTrackingPermission() {
     return this.loadTrackerPermission();
-  }
-
-  // use with CLI
-  askPermissionToTrack(cli) {
-    var Helpers = require('azk/cli/command').Helpers;
-    return Helpers.askPermissionToTrack(cli);
   }
 
   logAnalyticsError(err) {

@@ -76,15 +76,10 @@ class Cmd extends InteractiveCmds {
           };
         }
 
-        console.log('agent tracking starting...');
-
         subscription.unsubscribe();
 
         // Track agent start
         this.docker.version().then((result) => {
-          console.log('vm_data', vm_data);
-          console.log("docker version", result);
-
           this.trackerEvent.addData({
             vm: vm_data,
             docker: {
@@ -93,8 +88,6 @@ class Cmd extends InteractiveCmds {
           });
 
           return this.sendTrackerData();
-        }).fail((error) => {
-          console.log(error);
         });
       });
 

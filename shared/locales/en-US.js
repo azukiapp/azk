@@ -464,6 +464,24 @@ module.exports = {
         text: "Show in text mode",
       }
     },
+    tracking: {
+      description: "Controls tracking information.",
+      options: {
+        verbose : verbose,
+        quiet   : quiet,
+        action: {
+          name: "actions".magenta,
+          options: {
+            status: "Check tracking status",
+            toggle: "Changes tracking behavior",
+          }
+        }
+      },
+      status: {
+        false: 'currently azk is not tracking any data',
+        true: 'currently azk is tracking, more info: https://github.com/azukiapp/azk & http://azk.io',
+      },
+    },
     vm: {
       description  : "Controls a virtual machine.",
       already_installed  : "Virtual machine already installed.",
