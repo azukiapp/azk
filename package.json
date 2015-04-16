@@ -84,15 +84,13 @@
   "devDependencies": {
     "azk-dev": "0.0.14",
     "babel": "^5.1.9",
+    "concurrent-transform": "^1.0.0",
+    "dotenv": "^1.1.0",
     "fixture-stdout": "^0.2.1",
-    "grunt": "^0.4.4",
-    "grunt-aws-s3": "^0.9.4",
-    "grunt-cli": "^0.1.13",
-    "grunt-contrib-watch": "^0.6.1",
-    "grunt-env": "^0.4.1",
-    "grunt-exec": "^0.4.6",
     "gulp": "^3.8.11",
-    "load-grunt-tasks": "^0.6.0",
+    "gulp-awspublish": "^1.0.6",
+    "gulp-if": "^1.2.5",
+    "gulp-rename": "^1.2.2",
     "tmp": "0.0.23"
   }
 }
