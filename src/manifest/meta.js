@@ -55,7 +55,8 @@ export class Meta {
   }
 
   get(key, defaultValue) {
-    return this.cache.getSync(key) || defaultValue;
+    var value = this.cache.getSync(key);
+    return value !== undefined ? value : defaultValue;
   }
 
   set(key, value) {
