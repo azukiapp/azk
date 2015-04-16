@@ -2,6 +2,7 @@ import h from 'spec/spec_helper';
 import { async } from 'azk';
 
 describe("Azk system class, balancer set", function() {
+  this.timeout(10000);
   var manifest, system;
 
   before(function() {
@@ -32,6 +33,7 @@ describe("Azk system class, balancer set", function() {
   });
 
   it("should remove daemon instances from balancer", function() {
+    this.timeout(10000);
     return async(this, function* () {
       var backends = yield system.backends();
 

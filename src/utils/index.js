@@ -1,5 +1,3 @@
-import { i18n } from 'azk/utils/i18n';
-
 var { join, basename, dirname } = require('path');
 var crypto = require('crypto');
 var Q      = require('q');
@@ -11,11 +9,36 @@ var Utils = {
   __esModule: true,
 
   get default() { return Utils; },
-  get i18n() {    return i18n; },
-  get Q() {       return Q; },
-  get _() {       return _; },
-  get net() {     return require('azk/utils/net').default; },
-  get docker() {  return require('azk/utils/docker').default; },
+  get Q      () { return Q; },
+  get _      () { return _; },
+  get net    () { return require('azk/utils/net'); },
+  get docker () { return require('azk/utils/docker'); },
+
+  lazy_require(loads) {
+    var lazy = {};
+    var _ = this._;
+    _.each(loads, (func, getter) => {
+      if (!_.isFunction(func)) {
+        var opts = func;
+
+        // Only name module support
+        if (_.isString(opts)) {
+          opts = [opts];
+        } else if (_.isEmpty(opts[1])) {
+          opts[1] = getter;
+        }
+
+        // Require function
+        func = () => {
+          var mod = require(opts[0]);
+          return _.isEmpty(opts[1]) ? mod : mod[opts[1]];
+        };
+      }
+      lazy.__defineGetter__(getter, func);
+    });
+
+    return lazy;
+  },
 
   envs(key, defaultValue = null) {
     var value = process.env[key];
@@ -93,25 +116,26 @@ var Utils = {
     });
   },
 
-  qify(klass) {
-    if (_.isString(klass)) {
-      klass = require(klass);
+  qify(Klass) {
+    if (_.isString(Klass)) {
+      Klass = require(Klass);
     }
 
-    var newClass = function(...args) {
-      klass.call(this, ...args);
+    var NewClass = function(...args) {
+      Klass.call(this, ...args);
     };
 
-    newClass.prototype = Object.create(klass.prototype);
+    NewClass.prototype = Object.create(Klass.prototype);
+    NewClass.prototype.constructor = Klass;
 
-    _.each(_.methods(klass.prototype), (method) => {
-      var original = klass.prototype[method];
-      newClass.prototype[method] = function(...args) {
+    _.each(_.methods(Klass.prototype), (method) => {
+      var original = Klass.prototype[method];
+      NewClass.prototype[method] = function(...args) {
         return Q.nbind(original, this)(...args);
       };
     });
 
-    return newClass;
+    return NewClass;
   },
 
   qifyModule(mod) {

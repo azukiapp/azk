@@ -2,15 +2,9 @@ import { _, async, defer, Q, lazy_require } from 'azk';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Helpers } from 'azk/cli/command';
 
-/* global Manifest, docker */
-lazy_require(this, {
-  Manifest() {
-    return require('azk/manifest').Manifest;
-  },
-
-  docker() {
-    return require('azk/docker').default;
-  }
+var lazy = lazy_require({
+  Manifest: ['azk/manifest'],
+  docker: ['azk/docker', 'default'],
 });
 
 class Cmd extends InteractiveCmds {
@@ -18,7 +12,7 @@ class Cmd extends InteractiveCmds {
     return async(this, function* () {
       yield Helpers.requireAgent(this);
 
-      var manifest = new Manifest(this.cwd, true);
+      var manifest = new lazy.Manifest(this.cwd, true);
       var systems  = manifest.getSystemsByName(opts.system);
 
       yield this.logs(manifest, systems, opts);
@@ -42,7 +36,7 @@ class Cmd extends InteractiveCmds {
   connect(system, color, instances, options) {
     return _.map(instances, (instance) => {
       var name = `${system.name}${instance.Annotations.azk.seq}`[color];
-      var container = docker.getContainer(instance.Id);
+      var container = lazy.docker.getContainer(instance.Id);
       var stdout = this.make_out(process.stdout, name);
       var stderr = this.make_out(process.stderr, name);
 

@@ -1,15 +1,9 @@
 import { _, config, fs, path, lazy_require, log } from 'azk';
 import { Command } from 'azk/cli/command';
 
-/* global Generator, example_system */
-lazy_require(this, {
-  Generator() {
-    return require('azk/generator').Generator;
-  },
-
-  example_system() {
-    return require('azk/generator').example_system;
-  }
+var lazy = lazy_require({
+  Generator: ['azk/generator'],
+  example_system: ['azk/generator'],
 });
 
 class Cmd extends Command {
@@ -21,7 +15,7 @@ class Cmd extends Command {
     var manifest = config("manifest");
     var cwd  = opts.path || this.cwd;
     var file = path.join(cwd, manifest);
-    var generator = new Generator(this);
+    var generator = new lazy.Generator(this);
 
     if (fs.existsSync(file) && !opts.force) {
       this.fail(this.tKeyPath("already_exists"), manifest);
@@ -33,7 +27,7 @@ class Cmd extends Command {
 
     if (_.isEmpty(systemsData)) {
       this.fail(this.tKeyPath("not_found"));
-      systemsData = { [example_system.name]: example_system };
+      systemsData = { [lazy.example_system.name]: lazy.example_system };
     }
 
     generator.render({ systems: systemsData }, file);

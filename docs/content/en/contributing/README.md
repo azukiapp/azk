@@ -23,7 +23,7 @@ Errors are reported by creating new [issues] on [github]. Please, before creatin
 
 ## Contributing to the source code
 
-`azk`'s code is written in [node.js]. It uses several features of ES6 and since they are not yet available in a stable version, the code goes through a _compilation_ step for it to be correctly interpreted by the current version of [node.js]. We use [Google Traceur] which provides many features from ES6 (see: [traceur compat-table]). During the transformation from ES6 code to ES5, we always set the `source-map` to on. This allows the generated code to show errors correctly pointing to the original source code (prior to processing).
+`azk`'s code is written in [node.js]. It uses several features of ES6 and since they are not yet available in a stable version, the code goes through a _compilation_ step for it to be correctly interpreted by the current version of [node.js]. We use [babeljs] which provides many features from ES6 (see: [babeljs compat-table]). During the transformation from ES6 code to ES5, we always set the `source-map` to on. This allows the generated code to show errors correctly pointing to the original source code (prior to processing).
 
 
 ### Implementation details
@@ -55,10 +55,20 @@ We use `.jshintrc` and `.jscsrc` configured with 'esnext` enabled, i.e. with var
 - **jscs**: http://jscs.info/overview.html
 - **jshint**: http://jshint.com/install/index.html
 
+### Task tool
+
+For `azk`'s development, we use [gulp] to coordinate the tasks of day-to-day development, such as:
+
+- Tranpspile the `es5` files to `es6` with [babeljs];
+- Check the code quality with `jshint` and `jscs`;
+- Run a "watch" for file modification and perform the tasks above automatically;
+
+Among other tasks that can be found with: `azk nvm gulp help`
+
 
 ### Testing
 
-azk uses [mocha] as the testing framework. [grunt] coordinates the necessary tasks for daily use.
+azk uses [mocha] as the testing framework. [gulp] coordinates the necessary tasks for daily use.
 
 To run azk tests, `azk agent` must be running:
 
@@ -66,19 +76,19 @@ To run azk tests, `azk agent` must be running:
 $ azk agent start
 ...
 azk: Agent has been successfully started.
-$ azk nvm grunt test
+$ azk nvm gulp test
 ```
 
 ##### All tests including "slow" ones
 
 ```bash
-$ azk nvm grunt slow_test
+$ azk nvm gulp test --slow
 ```
 
 ##### All tests excluding "slow" ones
 
 ```bash
-$ azk nvm grunt test
+$ azk nvm gulp test --invert --grep="@slow"
 ```
 
 ##### Filtering tests
@@ -86,7 +96,7 @@ $ azk nvm grunt test
 We can filter the tests to solve specific parts.
 
 ```bash
-$ azk nvm grunt [test|slow_text] --grep="Azk command init run"
+$ azk nvm gulp test --grep="Azk command init run"
 ```
 
 
@@ -138,16 +148,15 @@ When making a commit, use the following pattern:
 $ git commit -m "[my new feature] Fixing some system tests #9283"
 ```
 
-
 [mocha]: http://visionmedia.github.io/mocha/
-[grunt]: http://gruntjs.com/
+[gulp]: http://gulpjs.com/
 [github]: https://github.com/azukiapp/azk
 [issues]: https://github.com/azukiapp/azk/issues
 [pull requests]: https://github.com/azukiapp/azk/pulls
 [gitter]: https://gitter.im/azukiapp/azk
 [git flow]: http://jeffkreeftmeijer.com/2010/why-arent-you-using-git-flow/
 [Forking Workflow]: https://www.atlassian.com/git/tutorials/comparing-workflows/forking-workflow
-[Google Traceur]: https://github.com/google/traceur-compiler
-[traceur compat-table]: http://kangax.github.io/compat-table/es6/#tr
+[babeljs]: http://babeljs.io
+[babeljs compat-table]: https://babeljs.io/docs/learn-es6/
 [node.js]: http://nodejs.org/
 [Q]: https://github.com/kriskowal/q/wiki/API-Reference#generators

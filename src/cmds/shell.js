@@ -2,15 +2,9 @@ import { _, t, async, defer, lazy_require } from 'azk';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Helpers } from 'azk/cli/command';
 
-/* global Manifest, docker */
-lazy_require(this, {
-  Manifest() {
-    return require('azk/manifest').Manifest;
-  },
-
-  docker() {
-    return require('azk/docker').default;
-  }
+var lazy = lazy_require({
+  Manifest: ['azk/manifest'],
+  docker: ['azk/docker', 'default'],
 });
 
 class Cmd extends InteractiveCmds {
@@ -25,10 +19,10 @@ class Cmd extends InteractiveCmds {
 
       if (opts.image) {
         // Arbitrary image
-        manifest = Manifest.makeFake(dir, opts.image);
+        manifest = lazy.Manifest.makeFake(dir, opts.image);
         system   = manifest.systemDefault;
       } else {
-        manifest = new Manifest(dir, true);
+        manifest = new lazy.Manifest(dir, true);
         Helpers.manifestValidate(this, manifest);
 
         system   = manifest.systemDefault;
@@ -71,7 +65,7 @@ class Cmd extends InteractiveCmds {
         var escape = (key, container) => {
           if (key === ".") {
             process.nextTick(() => {
-              docker.getContainer(container).stop({ t: 5000 }).fail(reject);
+              lazy.docker.getContainer(container).stop({ t: 5000 }).fail(reject);
             });
             return true;
           }

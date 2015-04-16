@@ -40,18 +40,18 @@ describe("Azk utils module", function() {
   });
 
   describe("in a class with async method", function() {
-    class FooBar {
-      constructor(name) { this.name = name; }
-      getAsyncName(callback) {
-        setImmediate( () => {
-          if (this.name) {
-            callback(null, this.name);
-          } else {
-            callback(new Error());
-          }
-        });
-      }
-    }
+    var FooBar = function(name) {
+      this.name = name;
+    };
+    FooBar.prototype.getAsyncName = function(callback) {
+      setImmediate( () => {
+        if (this.name) {
+          callback(null, this.name);
+        } else {
+          callback(new Error());
+        }
+      });
+    };
 
     var OtherBar = utils.qify(FooBar);
 

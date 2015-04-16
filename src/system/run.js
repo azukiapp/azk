@@ -3,8 +3,7 @@ import { ImageNotAvailable, SystemRunError, RunCommandError } from 'azk/utils/er
 import { Balancer } from 'azk/system/balancer';
 import net from 'azk/utils/net';
 
-/* global MemoryStream, docker */
-lazy_require(this, {
+var lazy = lazy_require({
   MemoryStream: 'memorystream',
   docker: ['azk/docker', 'default']
 });
@@ -36,7 +35,7 @@ var Run = {
       if (!options.provision_verbose) {
         options = _.clone(options);
         options.shell_type = "provision";
-        options.stdout = new MemoryStream();
+        options.stdout = new lazy.MemoryStream();
         options.stderr = options.stdout;
         options.stdout.on('data', (data) => {
           output += data.toString();
@@ -68,7 +67,7 @@ var Run = {
 
       yield this._check_image(system, options);
       var docker_opt = system.shellOptions(options);
-      var container  = yield docker.run(system.image.name, command, docker_opt);
+      var container  = yield lazy.docker.run(system.image.name, command, docker_opt);
       var data       = yield container.inspect();
 
       // Remove before run
@@ -100,7 +99,7 @@ var Run = {
 
       var docker_opt = system.daemonOptions(options);
       var command    = docker_opt.command;
-      var container  = yield docker.run(system.image.name, command, docker_opt);
+      var container  = yield lazy.docker.run(system.image.name, command, docker_opt);
 
       if (options.wait) {
         var first_tcp = _.find((docker_opt.ports_orderly || []), (data) => {
@@ -146,7 +145,7 @@ var Run = {
       }
 
       while ( (container = instances.pop()) ) {
-        container = docker.getContainer(container.Id);
+        container = lazy.docker.getContainer(container.Id);
 
         // Remove from balancer
         yield Balancer.remove(system, container);
@@ -328,7 +327,7 @@ var Run = {
       query_options.all = true;
     }
 
-    return docker.azkListContainers(query_options).then((containers) => {
+    return lazy.docker.azkListContainers(query_options).then((containers) => {
       var instances = _.filter(containers, (container) => {
         var azk = container.Annotations.azk;
         return (

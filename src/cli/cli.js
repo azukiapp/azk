@@ -2,10 +2,9 @@ import { _, lazy_require } from 'azk';
 import { Command, Option } from 'azk/cli/command';
 import { InvalidValueError } from 'azk/utils/errors';
 
-/* global glob, path */
-lazy_require(this, {
+var path = require('path');
+var lazy = lazy_require({
   glob: ['glob', 'sync'],
-  path: 'path',
 });
 
 export { Command };
@@ -24,7 +23,7 @@ export class Cli extends Command {
   }
 
   __load_cmds(cwd) {
-    var cmds = glob("*.js", { cwd: cwd });
+    var cmds = lazy.glob("*.js", { cwd: cwd });
     _.each(cmds, (cmd) => {
       require(path.join(cwd, cmd)).init(this);
     });
@@ -45,7 +44,7 @@ export class Cli extends Command {
 
   showUsage(command = null) {
     if (!command) {
-      return super();
+      return super.showUsage();
     }
 
     var cmd = this.commands[command];

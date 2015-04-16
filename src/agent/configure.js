@@ -11,8 +11,7 @@ var request    = require('request');
 var semver     = require('semver');
 var { isIPv4 } = require('net');
 
-/* global docker, Migrations, exec, Netmask */
-lazy_require(this, {
+var lazy = lazy_require({
   docker     : ['azk/docker', 'default'],
   Migrations : ['azk/agent/migrations'],
   exec       : ['child_process'],
@@ -55,7 +54,7 @@ export class Configure extends UIProxy {
       var socket = config('docker:socket');
       return async(this, function* () {
         yield this._checkAzkVersion();
-        yield Migrations.run(this);
+        yield lazy.Migrations.run(this);
 
         var dns_key = 'agent:dns:port';
         var balancer_key = 'agent:balancer:port';
@@ -87,7 +86,7 @@ export class Configure extends UIProxy {
   _checksForRequiresVm() {
     return async(this, function* () {
       yield this._checkAzkVersion();
-      yield Migrations.run(this);
+      yield lazy.Migrations.run(this);
 
       var ports = {
         dns: config('agent:dns:port'),
@@ -156,12 +155,12 @@ export class Configure extends UIProxy {
   }
 
   _cleanContainers() {
-    return docker
+    return lazy.docker
       .azkListContainers()
       .then((containers) => {
         this.warning('configure.clean_containers', { count: containers.length });
         var removes = _.map(containers, (container) => {
-          return docker
+          return lazy.docker
             .getContainer(container.Id)
             .remove({ force: true });
         });
@@ -175,7 +174,7 @@ export class Configure extends UIProxy {
     var host = `unix://${socket}`;
     set_config('docker:host', host);
 
-    return docker
+    return lazy.docker
       .info()
       .then(() => {
         return { 'docker:host': host };
@@ -367,7 +366,7 @@ export class Configure extends UIProxy {
         if (!isIPv4(value) || value === '0.0.0.0') { return invalids.ip(); }
 
         // Conflict loopback
-        var lpblock = new Netmask('127.0.0.0/8');
+        var lpblock = new lazy.Netmask('127.0.0.0/8');
         if (lpblock.contains(value)) { return invalids.loopback(); }
 
         // Conflict other interfaces
@@ -390,7 +389,7 @@ export class Configure extends UIProxy {
     var regex = /docker0.*inet\s(.*?)\//;
     var cmd   = "/sbin/ip -o addr show";
 
-    return Q.nfcall(exec, cmd)
+    return Q.nfcall(lazy.exec, cmd)
       .spread((stdout) => {
         var match = stdout.match(regex);
         if (match) { return match[1]; }

@@ -9,6 +9,9 @@ var printf = require('printf');
 export { Option, UI, Helpers };
 export class Command extends UIProxy {
   constructor(name, user_interface) {
+    // Parent or interface
+    super(user_interface);
+
     this.stackable = [];
     this.commands  = {};
     this.options   = {};
@@ -16,8 +19,6 @@ export class Command extends UIProxy {
     this.__cwd     = null;
     this.examples  = [];
 
-    // Parent or interface
-    super(user_interface);
     if (this.parent) {
       this.parent.initChildren(this);
     }

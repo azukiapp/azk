@@ -13,13 +13,13 @@ export class TrackedCmds extends Command {
 
   before_action(opts, ...args) {
     return this.before_action_tracker(opts, ...args).then(() => {
-      return super(opts, ...args);
+      return super.before_action(opts, ...args);
     });
   }
 
   after_action(...args) {
     return this.sendTrackerData().then(() => {
-      return super(...args);
+      return super.after_action(...args);
     });
   }
 

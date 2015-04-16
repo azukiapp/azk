@@ -18,9 +18,11 @@ LICENSE="Apache 2.0"
 VENDOR="Azuki (http://azukiapp.com)"
 MAINTAINER="Everton Ribeiro <everton@azukiapp.com>"
 
+source $AZK_ROOT_PATH/.dependencies
+
 usage() {
   echo
-  echo "$0 [deb|rpm]"
+  echo "$0 {deb|rpm} [--clean]"
   echo
   echo "    Uses fpm to build a package"
   echo
@@ -40,11 +42,15 @@ azk_shell() {
   pkg_type="$1"
   PKG="${PKG}"
 
+  if [[ $# == 2 ]] && [[ $2 == "--clean" ]]; then
+    CLEAN=true
+  fi
+
   case $pkg_type in
     rpm)
       fpm_extra_options=" \
         --depends \"docker-io\" \
-        --depends \"libnss-resolver >= 0.3.0\" \
+        --depends \"libnss-resolver >= ${LIBNSS_RESOLVER_VERSION})\" \
         --rpm-use-file-permissions \
         --rpm-user root --rpm-group root \
       "
@@ -52,7 +58,7 @@ azk_shell() {
     deb)
       fpm_extra_options=" \
         --depends \"lxc-docker\" \
-        --depends \"libnss-resolver (>= 0.3.0)\" \
+        --depends \"libnss-resolver (>= ${LIBNSS_RESOLVER_VERSION}))\" \
         --deb-user root --deb-group root \
       "
       ;;
@@ -76,6 +82,9 @@ azk_shell() {
   prefix="usr"
   destdir="/azk/${THIS_FOLDER}/package/${pkg_type}"
   mkdir -p package/${pkg_type}
+
+  [[ ! -z $CLEAN ]] && azk_shell package "make -e clean"
+
   azk_shell package "make -e package_linux"
 
 # package!

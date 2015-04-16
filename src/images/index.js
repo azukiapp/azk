@@ -5,15 +5,13 @@ import { net } from 'azk/utils';
 import Utils from 'azk/utils';
 import { default as tracker } from 'azk/utils/tracker';
 
-var Syncronizer = require('docker-registry-downloader').Syncronizer;
-
 var AVAILABLE_PROVIDERS = ["docker", "dockerfile"];
 var default_tag      = "latest";
 
-/* global DImage, docker */
-lazy_require(this, {
+var lazy = lazy_require({
   DImage: ['azk/docker', 'Image'],
   docker: ['azk/docker', 'default'],
+  Syncronizer: ['docker-registry-downloader'],
 });
 
 export class Image {
@@ -47,7 +45,7 @@ export class Image {
   check() {
     return defer((_resolve, _reject, notify) => {
       notify({ type: "action", context: "image", action: "check_image" });
-      return docker.findImage(this.name);
+      return lazy.docker.findImage(this.name);
     });
   }
 
@@ -91,14 +89,14 @@ export class Image {
         // get size and layers count
         try {
           registry_result = yield this.getDownloadInfo(
-            docker.modem,
+            lazy.docker.modem,
             namespace,
             repository,
             this.tag);
 
           output = _.isObject(stdout) && stdout;
           // docker pull
-          image = yield docker.pull(this.repository, this.tag, output, registry_result);
+          image = yield lazy.docker.pull(this.repository, this.tag, output, registry_result);
         } catch (err) {
           output = err.toString();
           throw new LostInternetConnection('  ' + output);
@@ -120,7 +118,7 @@ export class Image {
         retryDelay: 500
       };
 
-      var syncronizer = new Syncronizer(docker_socket, request_options);
+      var syncronizer = new lazy.Syncronizer(docker_socket, request_options);
       var tag = repo_tag;
 
       // get token from Docker Hub
@@ -154,7 +152,7 @@ export class Image {
       var image = yield this.check();
       if (options.build_force || isBlank(image)) {
         notify({ type: 'action', context: 'image', action: 'build_image', data: this });
-        image = yield docker.build({
+        image = yield lazy.docker.build({
                                     dockerfile: this.path,
                                     tag: this.name,
                                     verbose: options.provision_verbose,
@@ -213,7 +211,7 @@ export class Image {
       return;
     }
 
-    var imageParsed = DImage.parseRepositoryTag(value);
+    var imageParsed = lazy.DImage.parseRepositoryTag(value);
     this.repository = imageParsed.repository;
     this.tag        = imageParsed.tag || default_tag;
   }

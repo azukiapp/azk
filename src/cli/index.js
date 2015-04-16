@@ -28,7 +28,7 @@ class CmdCli extends Cli {
       log.setConsoleLevel(opts.log);
     }
 
-    return super(opts, parent_opts);
+    return super.action(opts, parent_opts);
   }
 }
 

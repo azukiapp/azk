@@ -2,8 +2,7 @@ import { _, async, lazy_require } from 'azk';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Helpers } from 'azk/cli/command';
 
-/* global Manifest, prettyjson */
-lazy_require(this, {
+var lazy = lazy_require({
   Manifest: ['azk/manifest'],
   prettyjson: 'prettyjson'
 });
@@ -14,7 +13,7 @@ class Cmd extends InteractiveCmds {
 
       // Requirements
       yield Helpers.requireAgent(this);
-      var manifest = new Manifest(this.cwd, true);
+      var manifest = new lazy.Manifest(this.cwd, true);
 
       // Mount data to show
       var data = _.reduce(manifest.systems, (data, system) => {
@@ -47,7 +46,7 @@ class Cmd extends InteractiveCmds {
       });
 
       // Show result
-      this.output(prettyjson.render(data, {
+      this.output(lazy.prettyjson.render(data, {
         noColor: opts.colored ? false : true,
         dashColor: "magenta",
         stringColor: "blue",

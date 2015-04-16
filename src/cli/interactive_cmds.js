@@ -3,6 +3,7 @@ import { TrackedCmds } from 'azk/cli/tracked_cmds';
 export class InteractiveCmds extends TrackedCmds {
   constructor(...args) {
     super(...args);
+
     this._verbose_nivel = 0;
     this.non_interactive = false;
 
@@ -17,7 +18,7 @@ export class InteractiveCmds extends TrackedCmds {
       this.non_interactive = true;
     }
 
-    return super(opts, ...args);
+    return super.before_action(opts, ...args);
   }
 
   verbose() {

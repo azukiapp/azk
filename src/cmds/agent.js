@@ -3,13 +3,13 @@ import { defer, async } from 'azk';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Helpers } from 'azk/cli/command';
 
-var channel = require('postal').channel("agent");
-
-/* global Client, spawn, net */
-lazy_require(this, {
-  Client: [ 'azk/agent/client' ],
-  spawn: ['child-process-promise'],
-  net: 'net',
+var lazy = lazy_require({
+  Client : [ 'azk/agent/client' ],
+  spawn  : ['child-process-promise'],
+  net    : 'net',
+  channel: function() {
+    return require('postal').channel("agent");
+  }
 });
 
 class Cmd extends InteractiveCmds {
@@ -40,7 +40,7 @@ class Cmd extends InteractiveCmds {
 
         case 'start':
           // And no running
-          var status = yield Client.status();
+          var status = yield lazy.Client.status();
           if (!status.agent) {
             // Check and load configures
             this.warning('status.agent.wait');
@@ -66,7 +66,7 @@ class Cmd extends InteractiveCmds {
       process.chdir(config('paths:azk_root'));
 
       // use VM?
-      var subscription = channel.subscribe("started", (/* data, envelope */) => {
+      var subscription = lazy.channel.subscribe("started", (/* data, envelope */) => {
         var vm_data = {};
 
         if (config("agent:requires_vm")) {
@@ -92,7 +92,7 @@ class Cmd extends InteractiveCmds {
       });
 
       // Call action in agent
-      var promise = Client[opts.action](opts).progress(progress);
+      var promise = lazy.Client[opts.action](opts).progress(progress);
       return promise.then((result) => {
         if (opts.action != "status") {
           return result;
@@ -114,7 +114,7 @@ class Cmd extends InteractiveCmds {
     return defer((resolve) => {
       this.installSignals(resolve);
       log.debug('fork process to start agent in daemon');
-      spawn("azk", args, opts)
+      lazy.spawn("azk", args, opts)
         .progress((child) => {
           this.child = child;
 
@@ -166,7 +166,7 @@ class Cmd extends InteractiveCmds {
     return defer((resolve, reject) => {
       if (waitpipe) {
         try {
-          var pipe = new net.Socket({ fd: 3 });
+          var pipe = new lazy.net.Socket({ fd: 3 });
           pipe.on('data', (buf) => {
             var configs = JSON.parse(buf.toString('utf8'));
             pipe.end();

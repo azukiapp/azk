@@ -4,24 +4,23 @@ import { DockerBuildError } from 'azk/utils/errors';
 var archiver = require('archiver');
 var qfs      = require('q-io/fs');
 
-/* global JStream, XRegExp */
-lazy_require(this, {
+var lazy = lazy_require({
   JStream: 'jstream',
   XRegExp: ['xregexp', 'XRegExp']
 });
 
 var msg_regex = {
-  building_from       : new XRegExp('FROM (?<FROM>.*)'),
-  building_maintainer : new XRegExp('MAINTAINER (?<MAINTAINER>.*)'),
-  building_run        : new XRegExp('RUN (.*)'),
-  building_cmd        : new XRegExp('CMD (.*)'),
-  building_complete   : new XRegExp('Successfully built (?<IMAGE_ID>.*)'),
+  get building_from      () { return new lazy.XRegExp('FROM (?<FROM>.*)'); },
+  get building_maintainer() { return new lazy.XRegExp('MAINTAINER (?<MAINTAINER>.*)'); },
+  get building_run       () { return new lazy.XRegExp('RUN (.*)'); },
+  get building_cmd       () { return new lazy.XRegExp('CMD (.*)'); },
+  get building_complete  () { return new lazy.XRegExp('Successfully built (?<IMAGE_ID>.*)'); },
 };
 
 function parse_stream(msg) {
   var result = {};
   _.find(msg_regex, (regex, type) => {
-    var match  = XRegExp.exec(msg, regex);
+    var match  = lazy.XRegExp.exec(msg, regex);
 
     if (match) {
       result.type = type;
@@ -116,7 +115,7 @@ export function build(docker, options) {
     // Parse json stream
     var from = null;
     var output = '';
-    stream.pipe(new JStream()).on('data', (msg) => {
+    stream.pipe(new lazy.JStream()).on('data', (msg) => {
       if (!msg.error) {
         msg.type = 'build_msg';
         msg.statusParsed = parse_stream(msg.stream);

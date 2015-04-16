@@ -2,14 +2,14 @@ import { Q, config, async, lazy_require, log } from 'azk';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Helpers } from 'azk/cli/command';
 
-/* global VM, Server */
-lazy_require(this, {
+var lazy = lazy_require({
   VM: ['azk/agent/vm'],
   Server: ['azk/agent/server'],
 });
 
 class RequiredError extends Error {
   constructor(key) {
+    super();
     this.key = key;
   }
 }
@@ -37,7 +37,7 @@ class VmCmd extends InteractiveCmds {
     return async(this, function* () {
       var action  = opts.action;
       var vm_name = config("agent:vm:name");
-      var vm_info = yield VM.info(vm_name);
+      var vm_info = yield lazy.VM.info(vm_name);
 
       var promise = this[`action_${action}`](vm_info, opts);
       promise = promise.progress(Helpers.vmStartProgress(this));
@@ -74,14 +74,14 @@ class VmCmd extends InteractiveCmds {
         return 1;
       }
       this.require_installed(vm_info);
-      yield Server.installVM(true, false);
+      yield lazy.Server.installVM(true, false);
     });
   }
 
   action_stop(vm_info, opts) {
     return async(this, function* () {
       this.require_running(vm_info);
-      yield VM.stop(vm_info.name, opts.force);
+      yield lazy.VM.stop(vm_info.name, opts.force);
     });
   }
 
@@ -101,9 +101,9 @@ class VmCmd extends InteractiveCmds {
     return async(this, function* () {
       this.require_installed(vm_info);
       if (vm_info.running) {
-        yield VM.stop(vm_info.name, opts.force);
+        yield lazy.VM.stop(vm_info.name, opts.force);
       }
-      yield VM.remove(vm_info.name);
+      yield lazy.VM.remove(vm_info.name);
     });
   }
 }
