@@ -38,6 +38,8 @@ var Helpers = {
 
       var should_ask_permission = (typeof trackerPermission === 'undefined');
       if (should_ask_permission) {
+        if (!cli.isInteractive()) { return false; }
+
         var question = {
           type    : 'confirm',
           name    : 'track_ask',
