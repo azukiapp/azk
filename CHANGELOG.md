@@ -11,6 +11,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 * Enhancements
   * [Docker] Check and show error message in the pull of docker images, #299;
+  * [Tracking] Ask user if he accept to be anonymously tracked; Send anonymously info to keen-io; New command `azk tracking status` to see and `azk tracking toggle` to change tracking status;
   * [Installation] Installation script (`install.sh`) now disables dnsmasq;
   * [Systems] Distinguish azk error from sub-system log error;
 
