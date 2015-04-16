@@ -1,6 +1,6 @@
 import { _, /*t,*/ log, lazy_require, config, async } from 'azk';
 import { SmartProgressBar } from 'azk/cli/smart_progress_bar';
-import { Tracker } from 'azk/utils/tracker';
+import { default as tracker } from 'azk/utils/tracker';
 
 /* global AgentClient, Configure */
 lazy_require(this, {
@@ -35,22 +35,15 @@ var Helpers = {
 
   askPermissionToTrack(cli) {
     return async(this, function* () {
-
-      // generate new user id
-      var trackerUserId     = yield Tracker.loadTrackerUserId();
-      if (typeof trackerUserId === 'undefined') {
-        yield Tracker.saveTrackerUserId();
-      }
-
       // check if user already answered
-      var trackerPermission = yield Tracker.loadTrackerPermission(); // Boolean
+      var trackerPermission = tracker.loadTrackerPermission(); // Boolean
 
       var should_ask_permission = (typeof trackerPermission === 'undefined');
       if (should_ask_permission) {
         var question = {
           type    : 'confirm',
           name    : 'track_ask',
-          message : 'analytics.ask_tracker_message',
+          message : 'analytics.question',
           default : 'Y'
         };
 
@@ -58,12 +51,12 @@ var Helpers = {
         // var tracker = new Tracker();
 
         if (answers.track_ask) {
-          cli.ok('analytics.ask_tracker_message_optIn');
+          cli.ok('analytics.message_optIn');
         } else {
-          cli.ok('analytics.ask_tracker_message_optOut', {command: 'azk agent start --tracking'});
+          cli.ok('analytics.message_optOut', {command: 'azk agent start --tracking'});
         }
 
-        yield Tracker.saveTrackerPermission(answers.track_ask.toString());
+        tracker.saveTrackerPermission(answers.track_ask.toString());
 
         return answers.track_ask;
       }

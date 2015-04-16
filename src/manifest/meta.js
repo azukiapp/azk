@@ -62,6 +62,10 @@ export class Meta {
     this.cache.putSync(key, value);
     return this;
   }
+
+  del(key) {
+    return this.cache.delSync(key);
+  }
 }
 
 export class FakeCache {
@@ -83,5 +87,9 @@ export class FakeCache {
 
   putSync(key, value) {
     this.values[this.keyCalc(key)] = value;
+  }
+
+  delSync(key) {
+    delete this.values[this.keyCalc(key)];
   }
 }

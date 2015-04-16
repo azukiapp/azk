@@ -1,5 +1,5 @@
 import { _, async } from 'azk';
-import { Tracker } from 'azk/utils/tracker';
+import { default as tracker } from 'azk/utils/tracker';
 import { Command } from 'azk/cli/command';
 
 export class TrackedCmds extends Command {
@@ -7,6 +7,7 @@ export class TrackedCmds extends Command {
   constructor(...args) {
     super(...args);
     this._command_tracked = false;
+    this.tracker = tracker;
   }
 
   addTrackData(key, data) {
@@ -21,7 +22,7 @@ export class TrackedCmds extends Command {
       return super(opts, ...args);
     })
     .catch(function (err) {
-      Tracker.logAnalyticsError(err);
+      this.tracker.logAnalyticsError(err);
       return super(opts, ...args);
     });
   }
@@ -32,45 +33,20 @@ export class TrackedCmds extends Command {
       return super(action_result, opts, ...args);
     })
     .catch(function (err) {
-      Tracker.logAnalyticsError(err);
+      this.tracker.logAnalyticsError(err);
       return super(action_result, opts, ...args);
     });
   }
 
   before_action_tracker(opts, ...args) {
     return async(this, function* () {
-      var shouldTrack = yield Tracker.askPermissionToTrack(this);
+      var shouldTrack = this.tracker.askPermissionToTrack(this);
       if (!shouldTrack) {
         return super(opts, ...args);  // do not track
       }
 
-      // TRACKER
-      this.tracker = new Tracker();
-      yield this.tracker.loadMetadata();
-
-      // generate command id
-      yield Tracker.saveCommandId();
-
-      var command_name = this.name;
-      // if command is 'agent' then get sub-command
-      var should_get_agent_action = args[0].__leftover &&
-         args[0].__leftover.length > 0 &&
-         command_name === 'agent';
-
-      if (should_get_agent_action) {
-        command_name = command_name + ' ' + args[0].__leftover[0];
-      }
-      // create agent_session_id - > agent start or agent startchild
-      var startchild_daemon = opts.daemon && opts.action === 'startchild';
-      var starting_no_daemon = !opts.daemon && opts.action === 'start';
-      if (startchild_daemon || starting_no_daemon) {
-        // generate session id and merges meta info
-        this.tracker.meta_info = {
-          agent_session_id: yield Tracker.saveAgentSessionId()
-        };
-      }
       this.tracker.addData({
-        event_type: command_name,
+        event_type: this.name,
         command_opts: _.pick(opts, [
           'verbose',
           'quiet',
@@ -86,13 +62,10 @@ export class TrackedCmds extends Command {
       if (this._command_tracked) { return true; }
       this._command_tracked = true;
 
-      // an error ocurred on before_action and there is no this.tracker
-      var no_tracker_created = typeof this.tracker === 'undefined';
-
       // check if user accepted to be tracked
-      var shouldTrack = yield Tracker.askPermissionToTrack(this);
+      var shouldTrack = yield this.tracker.askPermissionToTrack(this);
 
-      if (!shouldTrack || no_tracker_created) {
+      if (!shouldTrack) {
         // exit
         return super(action_result, args, opts); // do not track
       }

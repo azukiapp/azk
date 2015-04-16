@@ -10,7 +10,7 @@ var reprovision = "Force the provisioning actions before starting an instance";
 // jscs:disable maximumLineLength
 module.exports = {
   analytics: {
-    ask_tracker_message: [
+    question: [
       '=========================================================================\n'.grey,
       '  We\'re constantly looking for ways to make'.yellow,
       ' azk '.red,
@@ -19,10 +19,10 @@ module.exports = {
       '  More info: https://github.com/azukiapp/azk & http://azk.io\n'.yellow,
       ' =========================================================================\n'.grey,
     ].join(''),
-    ask_tracker_message_optIn: [
+    message_optIn: [
       'cool! thanks for helping us make azk better :)'.green,
     ].join(' '),
-    ask_tracker_message_optOut: [
+    message_optOut: [
       'Don\'t worry, it\'s ok. Please, feel free to run `%(command)s` if you change your mind.\n'.grey,
       'You can always find that command in the `azk help`'.grey,
     ].join(''),

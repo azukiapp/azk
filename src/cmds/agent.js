@@ -3,6 +3,8 @@ import { defer, async } from 'azk';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Helpers } from 'azk/cli/command';
 
+var channel = postal.channel("agent");
+
 /* global Client, spawn, net */
 lazy_require(this, {
   Client: [ 'azk/agent/client' ],
@@ -44,6 +46,9 @@ class Cmd extends InteractiveCmds {
               var cmd_vm = this.parent.commands.vm;
               yield cmd_vm.action({ action: 'remove', fail: () => {} });
             }
+
+            // Generate a new tracker agent session id
+            this.tracker.generateNewAgentSessionId();
 
             // Spaw daemon
             if (opts.daemon) {
