@@ -1,9 +1,14 @@
+<<<<<<< HEAD
 import { _, fs, t, path, isBlank } from 'azk';
 import { async, defer, lazy_require } from 'azk';
 import { ManifestError, NoInternetConnection, LostInternetConnection } from 'azk/utils/errors';
 import { net } from 'azk/utils';
+=======
+import { _, fs, async, defer, lazy_require, t, path, isBlank, log, Q } from 'azk';
+import { ManifestError } from 'azk/utils/errors';
+>>>>>>> [tracking] Adding postal
 import Utils from 'azk/utils';
-import { Tracker } from 'azk/utils/tracker';
+import { default as tracker } from 'azk/utils/tracker';
 
 var Syncronizer = require('docker-registry-downloader').Syncronizer;
 
@@ -106,7 +111,6 @@ export class Image {
 
         yield this._track('pull');
       }
-
       return this.check();
     });
   }
@@ -267,13 +271,8 @@ export class Image {
   _track(event_type_name) {
     return async(this, function* () {
 
-      var shouldTrack = yield Tracker.checkTrackingPermission();
-      if (!shouldTrack) {
-        return;
-      }
-
-      var tracker = new Tracker();
-      yield tracker.loadMetadata();
+      var shouldTrack = tracker.loadTrackerPermission();
+      if (!shouldTrack) { return Q(false); }
 
       // get event_type
       tracker.addData({
@@ -281,24 +280,29 @@ export class Image {
         manifest_id: this.system.manifest.namespace
       });
 
+      // build repo name as `[repo]:[tag]`
       var repo_full_name = this.repository;
       if (this.tag) {
         repo_full_name = repo_full_name + ':' + this.tag;
       }
 
-      // get repository only if it is public
+      // set default image type
       var image_part = {
         image: {
           type: this.provider
         }
       };
+
+      // get repository only if it is public
       if (this.provider === 'docker') {
         image_part.image.name = repo_full_name;
       }
+
+      // add image object to tracker data
       tracker.addData(image_part);
 
       // track
-      yield tracker.track('image', tracker.data);
+      yield tracker.track('image');
     });
   }
 

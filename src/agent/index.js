@@ -2,6 +2,8 @@ import { Q, _, config, defer, log, lazy_require, set_config } from 'azk';
 import { Pid } from 'azk/utils/pid';
 import { AgentStopError } from 'azk/utils/errors';
 
+var channel = require('postal').channel("agent");
+
 /* global Server */
 lazy_require(this, {
   Server: ['azk/agent/server'],
@@ -123,9 +125,10 @@ var Agent = {
     process.title = 'azk-agent ' + config('namespace');
     this.processStateHandler();
 
-    // Start server and subsistems
+    // Start server and subsystems
     return Server.start().then(() => {
       this.change_status("started");
+      channel.publish("started", {});
       log.info("agent start with pid: " + process.pid);
     });
   },

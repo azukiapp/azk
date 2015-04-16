@@ -62,6 +62,7 @@
     "os-name": "^1.0.3",
     "parentpath": "^0.2.0",
     "portscanner": "^1.0.0",
+    "postal": "^1.0.2",
     "pretty-bytes": "^1.0.3",
     "prettyjson": "^1.0.0",
     "printf": "^0.2.0",

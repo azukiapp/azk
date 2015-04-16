@@ -48,7 +48,6 @@ var Helpers = {
         };
 
         var answers = yield cli.prompt(question);
-        // var tracker = new Tracker();
 
         if (answers.track_ask) {
           cli.ok('analytics.message_optIn');

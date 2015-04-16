@@ -2,7 +2,7 @@ import { Q, async, _, lazy_require } from 'azk';
 import { calculateHash } from 'azk/utils';
 import { SystemDependError, SystemNotScalable } from 'azk/utils/errors';
 import { Balancer } from 'azk/system/balancer';
-import { Tracker } from 'azk/utils/tracker';
+import { default as tracker } from 'azk/utils/tracker';
 
 /* global docker */
 lazy_require(this, {
@@ -65,7 +65,7 @@ var Scale = {
       try {
         yield this._track('scale', system, from, to);
       } catch (err) {
-        Tracker.logAnalyticsError(err);
+        tracker.logAnalyticsError(err);
       }
 
       return icc;
@@ -78,13 +78,8 @@ var Scale = {
   _track(event_type_name, system, from, to) {
     return async(this, function* () {
 
-      var shouldTrack = yield Tracker.checkTrackingPermission();
-      if (!shouldTrack) {
-        return;
-      }
-
-      var tracker = new Tracker();
-      yield tracker.loadMetadata();
+      var shouldTrack = tracker.loadTrackerPermission();
+      if (!shouldTrack) { return Q(false); }
 
       var manifest_id = system.manifest.namespace;
 
@@ -98,7 +93,7 @@ var Scale = {
       });
 
       // track
-      yield tracker.track('system', tracker.data);
+      yield tracker.track('system');
     });
   },
 

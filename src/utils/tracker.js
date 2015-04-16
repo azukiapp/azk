@@ -1,12 +1,11 @@
 import Azk from 'azk';
-import { _, config, async, path } from 'azk';
+import { _, config, async } from 'azk';
 import { meta as azkMeta } from 'azk';
 import { calculateHash } from 'azk/utils';
 
 var os = require('os');
 var osName = require('os-name');
 var InsightKeenIo = require('insight-keen-io');
-var qfs   = require('q-io/fs');
 
 export class Tracker {
 
@@ -55,7 +54,7 @@ export class Tracker {
         //    '2011-11-11T11:11:11.111Z'
         'timestamp': (new Date()).toISOString(),
       },
-      meta: {
+      "meta": {
         "ip_address"      : "${keen.ip}",
         "agent_session_id": this.loadAgentSessionId(),
         "command_id"      : this.generateRandomId('command_id'),
@@ -64,11 +63,11 @@ export class Tracker {
 
         // device config
         "device_info": {
-          os          : os_name,
-          proc_arch   : arch_type,
-          total_memory: totalmem,
-          cpu_info    : cpu_info,
-          cpu_count   : cpu_count
+          "os"          : os_name,
+          "proc_arch"   : arch_type,
+          "total_memory": totalmem,
+          "cpu_info"    : cpu_info,
+          "cpu_count"   : cpu_count
         }
       }
     };
@@ -91,7 +90,7 @@ export class Tracker {
       var tracking_result = yield this.insight.track(subject, this._data);
 
       if (tracking_result !== 0) {
-        this.logAnalyticsError({stack:'[Tracker push failed:] ' + tracking_result});
+        this.logAnalyticsError({stack:'[Tracker => Keen.io - failed:] ' + tracking_result.toString()});
         this.logAnalyticsData({
           eventCollection: subject,
           data: this._data
@@ -134,7 +133,7 @@ export class Tracker {
   }
 
   loadTrackerUserId() {
-    return azkMeta.getOrSet(this.ids_keys.user_id, this.generateRandomId(this.ids_keys.agent_id));
+    return azkMeta.getOrSet(this.ids_keys.user_id, this.generateRandomId(this.ids_keys.user_id));
   }
 
   saveTrackerPermission(answer) {
@@ -158,7 +157,11 @@ export class Tracker {
   logAnalyticsError(err) {
     if (process.env.ANALYTICS_ERRORS === '1') {
       console.log('\n>>---------\n\n [Analytics:tracking:error]\n\n');
-      console.log(err.stack);
+      if (err.stack) {
+        console.log(err.stack);
+      } else {
+        console.log(err);
+      }
     }
   }
 
@@ -166,9 +169,14 @@ export class Tracker {
     if (process.env.ANALYTICS_DATA === '1') {
       console.log('\n>>---------\n\n [Analytics:tracking:data]\n\n', require('util').inspect(analytics_data,
       { showHidden: false, depth: null, colors: true }), '\n>>---------\n');
-    }
-    if (process.env.ANALYTICS_DATA === '2') {
+    } else if (process.env.ANALYTICS_DATA === '2') {
       console.log('[Analytics:tracking] >', analytics_data.eventCollection, analytics_data.data.event_type);
+    } else if (process.env.ANALYTICS_DATA === '3') {
+      console.log('[track] >', analytics_data.eventCollection, ':', analytics_data.data.event_type);
+      console.log('        >', analytics_data.data.meta.agent_session_id);
+      console.log('        >', analytics_data.data.meta.command_id);
+      console.log('        >', analytics_data.data.meta.user_id);
+      console.log('');
     }
   }
 }

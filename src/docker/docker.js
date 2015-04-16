@@ -1,6 +1,6 @@
-import { async, config, _, log, lazy_require } from 'azk';
+import { async, config, _, log, lazy_require, Q } from 'azk';
 import Utils from 'azk/utils';
-import { Tracker } from 'azk/utils/tracker';
+import { default as tracker } from 'azk/utils/tracker';
 
 // Composer
 import { pull as pull_func  } from 'azk/docker/pull';
@@ -34,8 +34,6 @@ export class Container extends Utils.qify('dockerode/lib/container') {
       try {
         // TODO: do not track data on "docker run" command
         var imageObj;
-        this._tracking_data = {};
-        this._tracking_data.action = {};
 
         if (data.Config.Image.indexOf('azkbuild') === -1) {
           imageObj = {type: 'docker', name: data.Config.Image};
@@ -43,14 +41,14 @@ export class Container extends Utils.qify('dockerode/lib/container') {
           imageObj = {type: 'dockerfile'};
         }
 
-        this._tracking_data = {
+        tracker.addData({
           event_type: data.Annotations && data.Annotations.azk.type,
           action: 'run',
           manifest_id: data.Annotations && data.Annotations.azk.mid,
           image: imageObj
-        };
+        });
       } catch (err) {
-        Tracker.logAnalyticsError(err);
+        tracker.logAnalyticsError(err);
       }
 
       return data;
@@ -59,13 +57,13 @@ export class Container extends Utils.qify('dockerode/lib/container') {
 
   stop(...args) {
     return super(...args).then((data) => {
-      this._tracking_data.action = 'stop';
+      tracker.addData({action: 'stop'});
       return this._track()
       .then(function () {
         return data;
       })
       .catch(function (err) {
-        Tracker.logAnalyticsError(err);
+        tracker.logAnalyticsError(err);
       });
 
     });
@@ -73,44 +71,37 @@ export class Container extends Utils.qify('dockerode/lib/container') {
 
   remove(...args) {
     return super(...args).then((data) => {
-      this._tracking_data.action = 'remove';
+      tracker.addData({action: 'remove'});
       return this._track()
       .then(function () {
         return data;
       })
       .catch(function (err) {
-        Tracker.logAnalyticsError(err);
+        tracker.logAnalyticsError(err);
       });
     });
   }
 
   kill(...args) {
     return super(...args).then((data) => {
-      this._tracking_data.action = 'kill';
+      tracker.addData({action: 'kill'});
       return this._track()
       .then(function () {
         return data;
       })
       .catch(function (err) {
-        Tracker.logAnalyticsError(err);
+        tracker.logAnalyticsError(err);
       });
     });
   }
 
   _track() {
     return async(this, function* () {
-      var shouldTrack = yield Tracker.checkTrackingPermission();
-      if (!shouldTrack) {
-        return;
-      }
-
-      var tracker = new Tracker();
-      yield tracker.loadMetadata();
-
-      tracker.addData(this._tracking_data);
+      var shouldTrack = tracker.loadTrackerPermission();
+      if (!shouldTrack) { return Q(false); }
 
       // track
-      yield tracker.track('container', tracker.data);
+      yield tracker.track('container');
     });
   }
 

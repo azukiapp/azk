@@ -4042,6 +4042,18 @@
         }
       }
     },
+    "postal": {
+      "version": "1.0.2",
+      "from": "postal@>=1.0.2 <2.0.0",
+      "resolved": "https://registry.npmjs.org/postal/-/postal-1.0.2.tgz",
+      "dependencies": {
+        "lodash": {
+          "version": "3.6.0",
+          "from": "lodash@>=3.0.0 <4.0.0",
+          "resolved": "https://registry.npmjs.org/lodash/-/lodash-3.6.0.tgz"
+        }
+      }
+    },
     "pretty-bytes": {
       "version": "1.0.3",
       "from": "https://registry.npmjs.org/pretty-bytes/-/pretty-bytes-1.0.3.tgz",

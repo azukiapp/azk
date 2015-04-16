@@ -1,5 +1,5 @@
-import { _, async, config } from 'azk';
-import { Tracker } from 'azk/utils/tracker';
+import { _, async, config, Q } from 'azk';
+import { default as tracker } from 'azk/utils/tracker';
 
 function new_resize(container) {
   return function() {
@@ -146,7 +146,7 @@ export function run(docker, Container, image, cmd, opts = { }) {
         image: imageObj
       });
     } catch (err) {
-      Tracker.logAnalyticsError(err);
+      tracker.logAnalyticsError(err);
     }
 
     c_notify("started");
@@ -179,13 +179,8 @@ export function run(docker, Container, image, cmd, opts = { }) {
 
 var _track = function (options = {}) {
   return async(this, function* () {
-    var shouldTrack = yield Tracker.checkTrackingPermission();
-    if (!shouldTrack) {
-      return;
-    }
-
-    var tracker = new Tracker();
-    yield tracker.loadMetadata();
+    var shouldTrack = tracker.loadTrackerPermission();
+    if (!shouldTrack) { return Q(false); }
 
     tracker.addData(options);
 

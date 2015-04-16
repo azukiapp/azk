@@ -2,8 +2,9 @@ import { _, t, log, config, lazy_require } from 'azk';
 import { defer, async } from 'azk';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Helpers } from 'azk/cli/command';
+import { default as tracker } from 'azk/utils/tracker';
 
-var channel = postal.channel("agent");
+var channel = require('postal').channel("agent");
 
 /* global Client, spawn, net */
 lazy_require(this, {
@@ -13,6 +14,11 @@ lazy_require(this, {
 });
 
 class Cmd extends InteractiveCmds {
+
+  get docker() {
+    return require('azk/docker').default;
+  }
+
   action(opts) {
     return this
       .callAgent(opts)
@@ -48,7 +54,7 @@ class Cmd extends InteractiveCmds {
             }
 
             // Generate a new tracker agent session id
-            this.tracker.generateNewAgentSessionId();
+            tracker.generateNewAgentSessionId();
 
             // Spaw daemon
             if (opts.daemon) {
@@ -59,6 +65,39 @@ class Cmd extends InteractiveCmds {
 
       // Changing directory for security
       process.chdir(config('paths:azk_root'));
+
+      // use VM?
+      var require_vm = config("agent:requires_vm");
+      if (require_vm) {
+        var vm_data = {
+          cpus: config("agent:vm:cpus"),
+          memory: config("agent:vm:memory")
+        };
+      }
+      // Track agent start
+      // var agent = yield Client.status();
+      // var docker_version = require_vm && !agent.agent ? "down" : yield this.docker.version();
+      var subscription = channel.subscribe("started", (/* data, envelope */) => {
+
+        console.log('agent tracking starting...');
+
+        tracker.addData({
+          // FIXME: get docker info and docker version
+          // Error: Config docker:host to be set by configure
+          // docker: {
+          //   version: docker_version
+          // },
+          vm: vm_data
+        });
+
+        // /**/console.log('\n>>---------\n tracker.data:\n', require('util').inspect(tracker.data,
+        //  { showHidden: false, depth: null, colors: true }), '\n>>---------\n');/*-debug-*/
+
+        tracker.track('agent').then(function () {
+          console.log('agent tracked');
+          subscription.unsubscribe();
+        });
+      });
 
       // Call action in agent
       var promise = Client[opts.action](opts).progress(progress);
