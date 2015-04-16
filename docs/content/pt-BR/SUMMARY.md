@@ -60,6 +60,7 @@
      * [workdir](reference/azkfilejs/workdir.md)
    * [Linha de comando](reference/cli/README.md)
      * [agent](reference/cli/agent.md)
+     * [config](reference/cli/config.md)
      * [docker](reference/cli/docker.md)
      * [doctor](reference/cli/doctor.md)
      * [help](reference/cli/help.md)
