@@ -1,4 +1,5 @@
 import h from 'spec/spec_helper';
+import { async } from 'azk';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 
 describe('Azk cli interactive cmds class', function() {
@@ -33,8 +34,9 @@ describe('Azk cli interactive cmds class', function() {
     var cmd = new TestCmd('test_options', UI);
 
     it('should true', function () {
-      cmd.run(['--quiet']);
-      h.expect(outputs).to.eql([{ verbose: 0, __leftover: [], quiet: true}]);
+      return cmd.run(['--quiet']).then(() => {
+        h.expect(outputs).to.eql([{ verbose: 0, __leftover: [], quiet: true}]);
+      });
     });
   });
 
@@ -42,15 +44,17 @@ describe('Azk cli interactive cmds class', function() {
     var cmd = new TestCmd('test_options', UI);
 
     it("should run with verbose outputs", function() {
-      cmd.run([]);
-      h.expect(outputs).to.eql([{ verbose: 0, __leftover: [], quiet: false }]);
-      cmd.run(['--verbose']);
-      h.expect(outputs).to.eql(['nivel-1', { verbose: 1, __leftover: [], quiet: false }]);
-      cmd.run(['--verbose', '-vv']);
-      h.expect(outputs).to.eql([
-        'nivel-1', 'nivel-2', 'nivel-3',
-        { verbose: 3, __leftover: [], quiet: false },
-      ]);
+      return async(this, function* () {
+        yield cmd.run([]);
+        h.expect(outputs).to.eql([{ verbose: 0, __leftover: [], quiet: false }]);
+        yield cmd.run(['--verbose']);
+        h.expect(outputs).to.eql(['nivel-1', { verbose: 1, __leftover: [], quiet: false }]);
+        yield cmd.run(['--verbose', '-vv']);
+        h.expect(outputs).to.eql([
+          'nivel-1', 'nivel-2', 'nivel-3',
+          { verbose: 3, __leftover: [], quiet: false },
+        ]);
+      });
     });
   });
 });
