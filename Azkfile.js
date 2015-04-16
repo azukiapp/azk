@@ -47,6 +47,7 @@ var agent_system = function(image, extras) {
       AZK_LIB_PATH : "/azk/lib",
       AZK_NAMESPACE: "azk.linux",
       AZK_PACKAGE_PATH: "/azk/build",
+      AZK_BALANCER_HOST: "linux.azk.io",
       AZK_BALANCER_PORT: 8080,
       LOG: "file",
       EXTRA_SCRIPT: "/azk/#{manifest.dir}/src/libexec/init_azk",
