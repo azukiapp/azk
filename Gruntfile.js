@@ -63,15 +63,6 @@ module.exports = function(grunt) {
       'publish_package': {
         'cmd': 'grunt aws_s3:publish_package'
       },
-      'integration-test': {
-        cmd: function() {
-          var filter = 'find spec/integration -name \'*.bats\'';
-          if (test_grep) {
-            filter = 'grep -Rl "' + test_grep + '" spec/integration';
-          }
-          return lib + '/bats/bin/bats `' + filter + '`';
-        }
-      }
     },
 
   });
@@ -85,5 +76,4 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('publish'    , ['env:aws', 'exec:publish_package']);
-  grunt.registerTask('integration', ['exec:integration-test']);
 };

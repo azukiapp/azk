@@ -18,7 +18,7 @@ msg_node="${label} \[.*\] A \`node\` system was detected at '.*'."
 
   run azk info --quiet
   assert_success
-  assert_match ".*example.*:" "${lines[4]}"
+  assert_match ".*example.*:" "${lines[5]}"
 
   assert [ -e "$app_path/$azk_manifest" ]
 }
@@ -35,7 +35,7 @@ msg_node="${label} \[.*\] A \`node\` system was detected at '.*'."
 
   run azk info
   assert_success
-  assert_match ".*azktest.*:" "${lines[4]}"
+  assert_match ".*azktest.*:" "${lines[5]}"
 
   assert [ -e "$app_path/$azk_manifest" ]
 }
