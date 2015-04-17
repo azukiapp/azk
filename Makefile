@@ -82,7 +82,7 @@ NODE_PACKAGE = ${PATH_AZK_NVM}/${NVM_NODE_VERSION}/bin/node
 PATH_MAC_PACKAGE = ${AZK_PACKAGE_PATH}/azk_${AZK_VERSION}.tar.gz
 
 # Build package folders tree
-package_brew: package_build fix_permissions ${PATH_AZK_LIB}/${AZK_ISO_VERSION}/vm ${PATH_MAC_PACKAGE}
+package_brew: package_build fix_permissions ${PATH_AZK_LIB}/vm/${AZK_ISO_VERSION} ${PATH_MAC_PACKAGE}
 package_mac:
 	@export AZK_PACKAGE_PATH=${AZK_PACKAGE_PATH}/brew && \
 		mkdir -p $$AZK_PACKAGE_PATH && \
@@ -159,9 +159,9 @@ creating_symbolic_links:
 	@ln -sf ../lib/azk/bin/azk ${PATH_USR_BIN}/azk
 	@ln -sf ../lib/azk/bin/adocker ${PATH_USR_BIN}/adocker
 
-${PATH_AZK_LIB}/${AZK_ISO_VERSION}/vm: ${AZK_LIB_PATH}/vm
-	@mkdir -p ${PATH_AZK_LIB}/${AZK_ISO_VERSION}/vm
-	@cp -r ${VM_DISKS_DIR} ${PATH_AZK_LIB}/${AZK_ISO_VERSION}/vm
+${PATH_AZK_LIB}/vm/${AZK_ISO_VERSION}: ${AZK_LIB_PATH}/vm
+	@mkdir -p ${PATH_AZK_LIB}/vm/${AZK_ISO_VERSION}
+	@cp -r ${VM_DISKS_DIR} ${PATH_AZK_LIB}/vm
 
 ${PATH_MAC_PACKAGE}: ${AZK_PACKAGE_PREFIX}
 	@cd ${PATH_USR_LIB_AZK}/.. && tar -czf ${PATH_MAC_PACKAGE} ./

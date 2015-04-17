@@ -24,6 +24,7 @@ class Azk < Formula
   def install
     prefix.install Dir['*']
     prefix.install Dir['.nvmrc']
+    prefix.install Dir['.dependencies']
   end
 end
 
