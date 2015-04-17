@@ -89,13 +89,14 @@ package_mac:
 		make -e package_brew
 
 # Alias to create a distro package
+LINUX_CLEAN:="--clean"
 package_linux: package_build creating_symbolic_links fix_permissions
 package_deb:
 	@mkdir -p package
-	@./src/libexec/package.sh deb --clean
+	@./src/libexec/package.sh deb ${LINUX_CLEAN}
 package_rpm:
 	@mkdir -p package
-	@./src/libexec/package.sh rpm --clean
+	@./src/libexec/package.sh rpm ${LINUX_CLEAN}
 
 package_clean:
 	@echo "task: $@"

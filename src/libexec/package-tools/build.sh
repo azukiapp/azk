@@ -5,17 +5,22 @@ if [[ $# != 1 ]]; then
     exit 1
 fi
 
-# TODO: Improve how ensure the script is being run at project root
-if [[ ! -e Azkfile.js ]]; then
-    echo "Run this script in the project root"
-    exit 2
-fi
-
 set -x
 
-export PATH=`pwd`/bin:$PATH
-DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+# Get azk root path
+abs_dir() {
+  cd "${1%/*}"; link=`readlink ${1##*/}`;
+  if [ -z "$link" ]; then pwd; else abs_dir $link; fi
+}
+
+export AZK_ROOT_PATH=`cd \`abs_dir ${BASH_SOURCE:-$0}\`/../../..; pwd`
+export AZK_BUILD_TOOLS_PATH=${AZK_ROOT_PATH}/src/libexec/package-tools
+
+export PATH=${AZK_ROOT_PATH}/bin:$PATH
 SECRET_KEY=$1
+
+# Go to azk path
+cd $AZK_ROOT_PATH
 
 source .dependencies
 
@@ -26,6 +31,7 @@ quiet() {
 setup() {
     quiet rm -Rf azk-agent-start.log package
     make clean && make
+    make
 }
 
 tear_down() {
@@ -51,8 +57,7 @@ step_fail() { echo "[ FAIL ]"; }
 start_agent() {
     quiet azk agent stop
     sleep 3
-    AZK_VM_MEMORY=3072 azk agent start --no-daemon > azk-agent-start.log 2>&1 &
-    until tail -1 azk-agent-start.log | grep 'Agent has been successfully started.' > /dev/null 2>&1; do sleep 5; done
+    AZK_VM_MEMORY=3072 azk agent start
 }
 
 generate_packages(){
@@ -64,7 +69,7 @@ generate_packages(){
     step_done $?
 
     step "Creating rpm package"
-    make package_rpm
+    make package_rpm LINUX_CLEAN=
     step_done $?
 
     step "Creating mac package"
@@ -90,23 +95,23 @@ generate_packages
 azk shell package -c "rm -Rf /azk/aptly/*"
 
 step "Creating Ubuntu 12.04 repository"
-azk shell package -c "package-tools/ubuntu/generate.sh ${LIBNSS_RESOLVER_VERSION} precise ${SECRET_KEY}"
-package-tools/ubuntu/test.sh precise
+azk shell package -c "src/libexec/package-tools/ubuntu/generate.sh ${LIBNSS_RESOLVER_VERSION} precise ${SECRET_KEY}"
+${AZK_BUILD_TOOLS_PATH}/ubuntu/test.sh precise
 step_done $?
 
 step "Creating Ubuntu 14.04 repository"
-azk shell package -c "package-tools/ubuntu/generate.sh ${LIBNSS_RESOLVER_VERSION} trusty ${SECRET_KEY}"
-package-tools/ubuntu/test.sh trusty
+azk shell package -c "src/libexec/package-tools/ubuntu/generate.sh ${LIBNSS_RESOLVER_VERSION} trusty ${SECRET_KEY}"
+${AZK_BUILD_TOOLS_PATH}/ubuntu/test.sh trusty
 step_done $?
 
 step "Creating Fedora 20 repository"
-azk shell package -c "package-tools/fedora/generate.sh fedora20 ${SECRET_KEY}"
-package-tools/fedora/test.sh fedora20
+azk shell package -c "src/libexec/package-tools/fedora/generate.sh fedora20 ${SECRET_KEY}"
+${AZK_BUILD_TOOLS_PATH}/fedora/test.sh fedora20
 step_done $?
 
 step "Creating Mac repository"
-package-tools/mac/generate.sh
-package-tools/mac/test.sh
+${AZK_BUILD_TOOLS_PATH}/mac/generate.sh
+${AZK_BUILD_TOOLS_PATH}/mac/test.sh
 step_done $?
 
 tear_down

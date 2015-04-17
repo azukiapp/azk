@@ -5,14 +5,7 @@ if [[ $# != 1 ]]; then
     exit 1
 fi
 
-if [[ ! -e Azkfile.js ]]; then
-    echo "Run this script in the project root"
-    exit 2
-fi
-
 set -x
-
-export PATH=`pwd`/bin:$PATH
 
 BASE_DIR=$( echo $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd ) | sed s#$( pwd )/##g )
 export VERSION=$( azk version | awk '{ print $2 }' )

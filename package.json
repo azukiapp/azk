@@ -6,7 +6,8 @@
   "scripts": {
     "test": "gulp test",
     "test:slow": "gulp test --slow",
-    "azk:publish": "gulp publish"
+    "azk:package": "./src/libexec/package-tools/build.sh",
+    "azk:package:publish": "gulp publish"
   },
   "repository": {
     "type": "git",

@@ -7,7 +7,6 @@ fi
 
 set -x
 
-export PATH=`pwd`/bin:$PATH
 export DISTRO=$1
 
 rpm --import http://repo.azukiapp.com/keys/azuki.asc

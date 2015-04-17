@@ -32,4 +32,4 @@ aptly repo show -with-packages ${REPO} | grep "libnss-resolver_${LIBNSS_RESOLVER
 aptly snapshot create ${REPO}-${VERSION} from repo ${REPO}
 aptly snapshot list | grep "${REPO}-${VERSION}"
 aptly publish snapshot ${REPO}-${VERSION}
-cp -R ${DIR}/../../../aptly/public package/
+cp -R /azk/aptly/public package/

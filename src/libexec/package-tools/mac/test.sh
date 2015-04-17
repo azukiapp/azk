@@ -1,13 +1,7 @@
 #! /bin/bash
 
-if [[ ! -e Azkfile.js ]]; then
-    echo "Run this script in the project root"
-    exit 2
-fi
-
 set -x
 
-export PATH=`pwd`/bin:$PATH
 export VERSION=$( azk version | awk '{ print $2 }' )
 
 BASE_DIR=$( pwd )
