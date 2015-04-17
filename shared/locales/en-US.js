@@ -23,8 +23,8 @@ module.exports = {
       'cool! Thanks for helping us make azk better :)'.green,
     ].join(' '),
     message_optOut: [
-      'Don\'t worry, it\'s ok. Please, feel free to run `%(command)s` if you change your mind.\n'.grey,
-      'You can always find that command in the `azk help`'.grey,
+      'No problem! If you change your mind and want to help us improve azk, just run `%(command)s`\n'.grey,
+      'You can always find that command in `azk help`'.grey,
     ].join(''),
   },
   errors: {

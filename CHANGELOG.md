@@ -5,6 +5,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## dev
 
+## v0.12.0 - (2015-16-04)
+
 * Bug
   * [Dockerfile] Fixing `azk build` does not support `COPY` in Dockerfile, issue #341;
   * [Docker] Fixing flag `--pull` to force pull of docker image not working`;

@@ -15,7 +15,7 @@ var gulp = azk_gulp.gulp;
 
 // Load envs from .env files
 var dotenv = require('dotenv');
-dotenv.load();
+dotenv.load({ silent: true });
 
 var integration_src = [
   'src/**/*.js',
