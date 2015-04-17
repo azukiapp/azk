@@ -9,11 +9,11 @@ var os          = require('os');
 
 var { isIPv4 }  = require('net');
 
-/* global Netmask, hostonly, VM */
-lazy_require(this, {
+var lazy = lazy_require({
   Netmask    : ['netmask'],
   hostonly   : ['azk/agent/vm'],
   VM         : ['azk/agent/vm'],
+  isOnline   : 'is-online',
 });
 
 var portrange = config("agent:portrange_start");
@@ -136,7 +136,7 @@ var net = {
 
   conflictInterface(ip, interfaces) {
     if (_.isEmpty(ip)) { return null; }
-    var block = new Netmask(net.calculateNetIp(ip));
+    var block = new lazy.Netmask(net.calculateNetIp(ip));
     return _.find(interfaces, (network) => {
       return block.contains(network.ip);
     });
@@ -157,7 +157,7 @@ var net = {
       }, []);
 
       // VirtualBox interfaces
-      var vbox_interfaces = _.reduce(yield hostonly.list(), (acc, inter) => {
+      var vbox_interfaces = _.reduce(yield lazy.hostonly.list(), (acc, inter) => {
         var ip = inter.IPAddress;
         if (inter.Name != hostonly_interface) {
           acc.push({ name: inter.Name, ip });
@@ -170,7 +170,7 @@ var net = {
   },
 
   _getVMHostonlyInterface(vm_name) {
-    return VM.info(vm_name).then((info) => {
+    return lazy.VM.info(vm_name).then((info) => {
       if (info.installed) {
         return info.hostonlyadapter1;
       }
@@ -268,6 +268,17 @@ var net = {
       connect();
     });
   },
+
+  isOnlineCheck() {
+    return defer(function (resolve, reject) {
+      lazy.isOnline(function (err, result) {
+        if (err) {
+          return reject(err);
+        }
+        resolve(result);
+      });
+    });
+  }
 };
 
 export default net;

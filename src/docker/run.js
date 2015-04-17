@@ -1,4 +1,5 @@
 import { _, async, config } from 'azk';
+import { default as tracker } from 'azk/utils/tracker';
 
 function new_resize(container) {
   return function() {
@@ -14,6 +15,7 @@ function new_resize(container) {
 }
 
 export function run(docker, Container, image, cmd, opts = { }) {
+
   var container   = null;
   var docker_opts = opts.docker || { start: {}, create: {} };
 
@@ -51,7 +53,7 @@ export function run(docker, Container, image, cmd, opts = { }) {
   var name = opts.name || Container.serializeAnnotations(annotations);
   var envs = _.merge(Container.envsFromAnnotations(annotations), {
     AZK_NAME: name,
-     AZK_ENV: config('docker:namespace').split('.')[1],
+    AZK_ENV : config('docker:namespace').split('.')[1],
   });
   opts.env = _.merge(envs, opts.env || {});
 
@@ -133,6 +135,20 @@ export function run(docker, Container, image, cmd, opts = { }) {
     };
 
     yield container.start(_.merge(start_opts, docker_opts.start || {}));
+
+    //track
+    try {
+      var imageObj = (image.indexOf('azkbuild') === -1) ? {type: 'docker', name: image} : {type: 'dockerfile'};
+      yield tracker.sendEvent("container", {
+        event_type: 'run',
+        container_type: annotations.azk.type,
+        manifest_id: annotations.azk.mid,
+        image: imageObj
+      });
+    } catch (err) {
+      tracker.logAnalyticsError(err);
+    }
+
     c_notify("started");
 
     if (!daemon) {

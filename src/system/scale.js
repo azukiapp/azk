@@ -1,9 +1,10 @@
 import { Q, async, _, lazy_require } from 'azk';
+import { calculateHash } from 'azk/utils';
 import { SystemDependError, SystemNotScalable } from 'azk/utils/errors';
 import { Balancer } from 'azk/system/balancer';
+import { default as tracker } from 'azk/utils/tracker';
 
-/* global docker */
-lazy_require(this, {
+var lazy = lazy_require({
   docker: ['azk/docker', 'default'],
 });
 
@@ -57,7 +58,33 @@ var Scale = {
         yield system.stop(containers, options);
       }
 
+      var to = from + icc;
+
+      // Tracker
+      try {
+        yield this._track('scale', system, from, to);
+      } catch (err) {
+        tracker.logAnalyticsError(err);
+      }
+
       return icc;
+    });
+  },
+
+  //
+  // Tracker
+  //
+  _track(event_type_name, system, from, to) {
+    var manifest_id = system.manifest.namespace;
+
+    return tracker.sendEvent("image", (trackerEvent) => {
+      trackerEvent.addData({
+        event_type: event_type_name,
+        manifest_id: manifest_id,
+        from_num_containers: from,
+        to_num_containers: to,
+        hash_system: calculateHash(manifest_id + system.name).slice(0, 8),
+      });
     });
   },
 
@@ -114,7 +141,7 @@ var Scale = {
     return async(this, function* () {
       var ports = {}, envs = {};
       if (instances.length > 0) {
-        var data = yield docker.getContainer(instances[0].Id).inspect();
+        var data = yield lazy.docker.getContainer(instances[0].Id).inspect();
         _.each(data.NetworkSettings.Access, (port) => {
           ports[port.name] = port.port;
         });

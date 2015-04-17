@@ -16,52 +16,70 @@
    * [Mounting files](getting-started/mounts-files.md)
    * [Persisting data](getting-started/persisting-data.md)
 /*****************************************************/
+* [Azkfile.js](azkfilejs/README.md)
+/*****************************************************/
+* [Starting an application from scratch](starting-from-scratch/README.md)
+   * [Node.js](starting-from-scratch/nodejs.md)*
+   * [PHP / Laravel](starting-from-scratch/php-laravel.md)*
+   * [Python / Django](starting-from-scratch/python-django.md)*
+   * [Ruby on Rails](starting-from-scratch/ruby-rails.md)*
+/*****************************************************/
+* [Adding services](adding-services/README.md)
+   * [Running our application](adding-services/running-our-application.md)*
+   * [Mailcatcher](adding-services/mailcatcher.md)*
+   * [ngrok](adding-services/ngrok.md)*
+/*****************************************************/
 /** [Examples](exemplos/README.md)*/
    /** [Rails](exemplos/rails.md)*/
    /** [node.js](exemplos/nodejs.md)*/
    /** [Python](exemplos/python.md)*/
    /** [PHP](exemplos/php.md)*/
 /*****************************************************/
-* [Azkfile.js](azkfilejs/README.md)
-   * [command](azkfilejs/command.md)
-   * [depends](azkfilejs/depends.md)
-   * [dns_servers](azkfilejs/dns_servers.md)
-   * [envs](azkfilejs/envs.md)
-   * [export_envs](azkfilejs/export_envs.md)
-   * [extends](azkfilejs/extends.md)
-   * [http](azkfilejs/http.md)
-   * [image](azkfilejs/image.md)
-   * [mounts](azkfilejs/mounts.md)
-   * [ports](azkfilejs/ports.md)
-   * [provision](azkfilejs/provision.md)
-   * [scalable](azkfilejs/scalable.md)
-   * [shell](azkfilejs/shell.md)
-   * [wait](azkfilejs/wait.md)
-   * [workdir](azkfilejs/workdir.md)
+* [Agent](agent/README.md)
 /*****************************************************/
-* [Command line](command-line/README.md)
-   * [agent](command-line/agent.md)
-   * [docker](command-line/docker.md)
-   * [doctor](command-line/doctor.md)
-   * [help](command-line/help.md)
-   * [info](command-line/info.md)
-   * [init](command-line/init.md)
-   * [logs](command-line/logs.md)
-   * [restart](command-line/restart.md)
-   * [scale](command-line/scale.md)
-   * [shell](command-line/shell.md)
-   * [start](command-line/start.md)
-   * [status](command-line/status.md)
-   * [stop](command-line/stop.md)
-   * [version](command-line/version.md)
-   * [vm](command-line/vm.md)
+* [Images](images/README.md)
+/*****************************************************/
+* [Contributing](contributing/README.md)
+/*****************************************************/
+* [Reference](reference/README.md)
+   * [Azkfile.js](reference/azkfilejs/README.md)
+     * [command](reference/azkfilejs/command.md)
+     * [depends](reference/azkfilejs/depends.md)
+     * [dns_servers](reference/azkfilejs/dns_servers.md)
+     * [envs](reference/azkfilejs/envs.md)
+     * [export_envs](reference/azkfilejs/export_envs.md)
+     * [extends](reference/azkfilejs/extends.md)
+     * [http](reference/azkfilejs/http.md)
+     * [image](reference/azkfilejs/image.md)
+     * [mounts](reference/azkfilejs/mounts.md)
+     * [ports](reference/azkfilejs/ports.md)
+     * [provision](reference/azkfilejs/provision.md)
+     * [scalable](reference/azkfilejs/scalable.md)
+     * [shell](reference/azkfilejs/shell.md)
+     * [wait](reference/azkfilejs/wait.md)
+     * [workdir](reference/azkfilejs/workdir.md)
+   * [Command line](reference/cli/README.md)
+     * [agent](reference/cli/agent.md)
+     * [config](reference/cli/config.md)
+     * [docker](reference/cli/docker.md)
+     * [doctor](reference/cli/doctor.md)
+     * [help](reference/cli/help.md)
+     * [info](reference/cli/info.md)
+     * [init](reference/cli/init.md)
+     * [logs](reference/cli/logs.md)
+     * [restart](reference/cli/restart.md)
+     * [scale](reference/cli/scale.md)
+     * [shell](reference/cli/shell.md)
+     * [start](reference/cli/start.md)
+     * [status](reference/cli/status.md)
+     * [stop](reference/cli/stop.md)
+     * [version](reference/cli/version.md)
+     * [vm](reference/cli/vm.md)
    /** [Basic commands](azkfilejs/basic.md)*/
    /** [Shell](azkfilejs/shell.md)*/
    /** [Scaling](azkfilejs/escalando.md)*/
 /*****************************************************/
-* [Agent](agent/README.md)
-* [Images](images/README.md)
-* [Contributing](contributing/README.md)
 * [FAQ](faq/README.md)
 * [Troubleshooting](troubleshooting/README.md)
+* [Terms of Use](terms-of-use/README.md)
 /** [Roadmap](roadmap/README.md)*/

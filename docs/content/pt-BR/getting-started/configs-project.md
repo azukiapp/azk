@@ -2,7 +2,9 @@
 
 O primeiro passo para utilizar o `azk` em qualquer projeto é criar um arquivo `Azkfile.js`. Este arquivo tem como função marcar o diretório root do seu projeto e principalmente definir a *arquitetura da aplicação*.
 
-O `Azkfile.js` pode ser criado manualmente, mas para sua comodidade oferecemos o `azk init`, um gerador de `Azkfile.js` que irá fazer o trabalho pesado de descobrir como sua aplicação está desenhada e sugerir um `Azkfile.js`.
+O `Azkfile.js` pode ser criado manualmente, mas para facilitar esse processo temos o `azk init`. É um comando gerador de `Azkfile.js` que irá fazer o trabalho pesado de descobrir como sua aplicação está desenhada e sugerir um `Azkfile.js` pré-configurado.
+
+> Nota: Lembre-se que você ainda pode precisar editar o `Azkfile.js` gerado pelo `azk init` para que ele funcione corretamente com sua aplicação.
 
 ```bash
 $ cd [path_demo]/azkdemo

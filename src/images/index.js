@@ -1,14 +1,17 @@
-import { _, fs, async, defer, lazy_require, t, path, isBlank, log } from 'azk';
-import { ManifestError } from 'azk/utils/errors';
+import { _, fs, t, path, isBlank } from 'azk';
+import { async, defer, lazy_require } from 'azk';
+import { ManifestError, NoInternetConnection, LostInternetConnection } from 'azk/utils/errors';
+import { net } from 'azk/utils';
 import Utils from 'azk/utils';
+import { default as tracker } from 'azk/utils/tracker';
 
 var AVAILABLE_PROVIDERS = ["docker", "dockerfile"];
 var default_tag      = "latest";
 
-/* global DImage, docker */
-lazy_require(this, {
+var lazy = lazy_require({
   DImage: ['azk/docker', 'Image'],
   docker: ['azk/docker', 'default'],
+  Syncronizer: ['docker-registry-downloader'],
 });
 
 export class Image {
@@ -42,7 +45,7 @@ export class Image {
   check() {
     return defer((_resolve, _reject, notify) => {
       notify({ type: "action", context: "image", action: "check_image" });
-      return docker.findImage(this.name);
+      return lazy.docker.findImage(this.name);
     });
   }
 
@@ -71,72 +74,75 @@ export class Image {
       }
 
       // download from registry
-      if (isBlank(image)) {
+      if (isBlank(image) || options.build_force) {
         this.repository = namespace + '/' + repository;
         notify({ type: "action", context: "image", action: "pull_image", data: this });
 
-        var registry_result = null;
+        var registry_result;
+        var output;
+
+        var currentOnline = yield net.isOnlineCheck();
+        if ( !currentOnline ) {
+          throw new NoInternetConnection();
+        }
 
         // get size and layers count
         try {
           registry_result = yield this.getDownloadInfo(
-            docker.modem,
+            lazy.docker.modem,
             namespace,
             repository,
             this.tag);
+
+          output = _.isObject(stdout) && stdout;
+          // docker pull
+          image = yield lazy.docker.pull(this.repository, this.tag, output, registry_result);
         } catch (err) {
-          log.error(err);
+          output = err.toString();
+          throw new LostInternetConnection('  ' + output);
         }
 
-        // docker pull
-        image = yield docker.pull(
-          this.repository,
-          this.tag,
-          _.isObject(stdout) ? stdout : null,
-          registry_result);
-
+        yield this._track('pull');
       }
-      return yield this.check();
+      return this.check();
     });
   }
 
   getDownloadInfo(dockerode_modem, namespace, repository, repo_tag) {
     return async(this, function* (notify) {
 
-      var DockerHub   = require('docker-registry-downloader').DockerHub;
-      var Syncronizer = require('docker-registry-downloader').Syncronizer;
-      var dockerHub   = new DockerHub();
+      var docker_socket   = { dockerode_modem: dockerode_modem };
+      var request_options = {
+        timeout: 10000,
+        maxAttempts: 3,
+        retryDelay: 500
+      };
 
-      var syncronizer = new Syncronizer(
-        // docker socket
-        {
-          dockerode_modem: dockerode_modem
-        },
-        // request_options
-        {
-          timeout: 10000,
-          maxAttempts: 3,
-          retryDelay: 500
-        }
-      );
+      var syncronizer = new lazy.Syncronizer(docker_socket, request_options);
       var tag = repo_tag;
 
       // get token from Docker Hub
-      var hubResult = yield dockerHub.images(namespace, repository);
+      var registry_infos;
+      var hubResult;
+      var getLayersDiff_result;
 
+      hubResult = yield syncronizer.dockerHub.images(namespace, repository);
       // Check what layer we do not have locally
       notify({  type       : "pull_msg",
                 traslation : "commands.helpers.pull.pull_getLayersDiff",
                 data       : registry_infos });
 
-      var getLayersDiff_result      = yield syncronizer.getLayersDiff(hubResult, tag);
+      // Get layers diff
+      getLayersDiff_result = yield syncronizer.getLayersDiff(hubResult, tag);
+
       var registry_layers_ids       = getLayersDiff_result.registry_layers_ids;
       var non_existent_locally_ids  = getLayersDiff_result.non_existent_locally_ids;
 
-      var registry_infos = {
+      registry_infos = {
         registry_layers_ids_count      : registry_layers_ids.length,
         non_existent_locally_ids_count : non_existent_locally_ids.length
       };
+
       return registry_infos;
     });
   }
@@ -146,13 +152,14 @@ export class Image {
       var image = yield this.check();
       if (options.build_force || isBlank(image)) {
         notify({ type: 'action', context: 'image', action: 'build_image', data: this });
-        image = yield docker.build({
+        image = yield lazy.docker.build({
                                     dockerfile: this.path,
                                     tag: this.name,
                                     verbose: options.provision_verbose,
                                     stdout: options.stdout
                                   });
       }
+      yield this._track('build');
       return image;
     });
   }
@@ -204,7 +211,7 @@ export class Image {
       return;
     }
 
-    var imageParsed = DImage.parseRepositoryTag(value);
+    var imageParsed = lazy.DImage.parseRepositoryTag(value);
     this.repository = imageParsed.repository;
     this.tag        = imageParsed.tag || default_tag;
   }
@@ -250,4 +257,39 @@ export class Image {
 
     return provider;
   }
+
+  //
+  // Tracker
+  //
+  _track(event_type_name) {
+    return tracker.sendEvent("image", (trackerEvent) => {
+      // get event_type
+      trackerEvent.addData({
+        event_type: event_type_name,
+        manifest_id: this.system.manifest.namespace
+      });
+
+      // build repo name as `[repo]:[tag]`
+      var repo_full_name = this.repository;
+      if (this.tag) {
+        repo_full_name = repo_full_name + ':' + this.tag;
+      }
+
+      // set default image type
+      var image_part = {
+        image: {
+          type: this.provider
+        }
+      };
+
+      // get repository only if it is public
+      if (this.provider === 'docker') {
+        image_part.image.name = repo_full_name;
+      }
+
+      // add image object to tracker data
+      trackerEvent.addData(image_part);
+    });
+  }
+
 }

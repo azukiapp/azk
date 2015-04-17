@@ -1,34 +1,31 @@
 #!/usr/bin/env node
 
-var root    = process.env.AZK_ROOT_PATH;
-var fs      = require('fs');
-var version = require(root + '/package.json').version;
+if (process.env.AZK_PROFILE_REQUIRES) {
+  require('azk/utils/require_debug');
+}
 
-require('source-map-support').install({
-  retrieveSourceMap: function(source) {
-    var map_file = source + '.map';
-    if (fs.existsSync(map_file)) {
-      var map = JSON.parse(fs.readFileSync(map_file, 'utf8'));
-      map.sourceRoot = '/azk.io:' + version;
-      return {
-        url: source,
-        map: map,
-      };
+// Load source-map to support transpiled files
+var map_opts = {};
+if (process.env.AZK_DISABLE_SOURCE_MAP) {
+  map_opts = {
+    retrieveSourceMap: function() {
+      return null;
     }
-    return null;
-  }
-});
-var cli = require('azk/cli').cli;
+  };
+}
+require('source-map-support').install(map_opts);
 
+// Process exit events
 process.once("azk:command:exit", function(code) {
   process.stdin.pause();
   process.exit(code);
 });
 
 // ps name
-var path = require('path');
-title = path.basename(__filename, ".js");
+var path  = require('path');
+var title = path.basename(__filename, ".js");
 process.title = [title].concat(process.argv.slice(2)).join(" ");
 
 // Run cli
+var cli = require('azk/cli').cli;
 cli(process.argv, process.env.AZK_CURRENT_SYSTEM || process.cwd());

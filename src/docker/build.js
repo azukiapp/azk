@@ -4,24 +4,23 @@ import { DockerBuildError } from 'azk/utils/errors';
 var archiver = require('archiver');
 var qfs      = require('q-io/fs');
 
-/* global JStream, XRegExp */
-lazy_require(this, {
+var lazy = lazy_require({
   JStream: 'jstream',
   XRegExp: ['xregexp', 'XRegExp']
 });
 
 var msg_regex = {
-  building_from       : new XRegExp('FROM (?<FROM>.*)'),
-  building_maintainer : new XRegExp('MAINTAINER (?<MAINTAINER>.*)'),
-  building_run        : new XRegExp('RUN (.*)'),
-  building_cmd        : new XRegExp('CMD (.*)'),
-  building_complete   : new XRegExp('Successfully built (?<IMAGE_ID>.*)'),
+  get building_from      () { return new lazy.XRegExp('FROM (?<FROM>.*)'); },
+  get building_maintainer() { return new lazy.XRegExp('MAINTAINER (?<MAINTAINER>.*)'); },
+  get building_run       () { return new lazy.XRegExp('RUN (.*)'); },
+  get building_cmd       () { return new lazy.XRegExp('CMD (.*)'); },
+  get building_complete  () { return new lazy.XRegExp('Successfully built (?<IMAGE_ID>.*)'); },
 };
 
 function parse_stream(msg) {
   var result = {};
   _.find(msg_regex, (regex, type) => {
-    var match  = XRegExp.exec(msg, regex);
+    var match  = lazy.XRegExp.exec(msg, regex);
 
     if (match) {
       result.type = type;
@@ -44,15 +43,17 @@ function parseAddManifestFiles (archive, dockerfile, content) {
   return async(function* () {
     var base_dir = path.dirname(dockerfile);
 
-    // https://regex101.com/r/yT1jF9/1
-    var dockerfileRegex = /^ADD\s+([^\s]+)\s+([^\s]+)$/gmi;
-    var isUrlRegex      = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/gmi;
+    // https://regex101.com/r/yT1jF9/2
+    var dockerfileRegex = /^(?:ADD|COPY)\s+([^\s]+)\s+([^\s]+)$/gmi;
+    // https://regex101.com/r/aC1xZ3/4
+    var isUrlRegex      = /\b(?:(?:https?|ftp|file|ircs?):\/\/|www\.|ftp\.)[-A-Z0-9+&@#/%=~_|$?!:,.;]*[A-Z0-9+&@#/%=~_|$]/gmi;
     var capture = null;
     while ( (capture = dockerfileRegex.exec(content)) ) {
       var source = path.join(base_dir, capture[1]);
       var isUrl  = isUrlRegex.test(capture[1]);
 
       // keep urls
+      // TODO: support url download
       if (isUrl) { continue; }
 
       // Check if file/folder exist
@@ -114,7 +115,7 @@ export function build(docker, options) {
     // Parse json stream
     var from = null;
     var output = '';
-    stream.pipe(new JStream()).on('data', (msg) => {
+    stream.pipe(new lazy.JStream()).on('data', (msg) => {
       if (!msg.error) {
         msg.type = 'build_msg';
         msg.statusParsed = parse_stream(msg.stream);
@@ -136,6 +137,9 @@ export function build(docker, options) {
         } else if (msg.error.match(/returned a non-zero code/)) {
           output = output.replace(/^(.*)/gm, '    $1');
           done.reject(new DockerBuildError('command_error', { dockerfile, output: output }));
+        } else {
+          output = output.replace(/^(.*)/gm, '    $1');
+          done.reject(new DockerBuildError('unexpected_error', { dockerfile, output: output }));
         }
       }
     });

@@ -23,7 +23,7 @@ Os erros são reportados criando-se novas [issues] pelo [github]. Por favor, ant
 
 ## Desenvolvimento do azk
 
-O código do `azk` é escrito em [node.js]. Utiliza várias features do ES6 e, como ainda não estão disponíveis numa versão estável, o código recebe um passo de _compilação_ para que possa ser corretamente interpretado pelo [node.js] na versão atual. Utilizamos o [Google Traceur] que fornece muitas funcionalidades do ES6 (vide: [traceur compat-table]). Durante a transformação do código de ES6 para ES5 deixamos o `source-map` sempre ativado. Isso permite que o código gerado exiba os erros corretamente apontando para o código-fonte original (anterior a transformação).
+O código do `azk` é escrito em [node.js]. Utiliza várias features do ES6 e, como ainda não estão disponíveis numa versão estável, o código recebe um passo de _compilação_ para que possa ser corretamente interpretado pelo [node.js] na versão atual. Utilizamos o [babeljs] que fornece muitas funcionalidades do ES6 (vide: [babeljs compat-table]). Durante a transformação do código de ES6 para ES5 deixamos o `source-map` sempre ativado. Isso permite que o código gerado exiba os erros corretamente apontando para o código-fonte original (anterior a transformação).
 
 
 ### Detalhes de implementação
@@ -47,7 +47,6 @@ Uma coisa que logo se nota ao começar a mergulhar no código do `azk` é a util
 - `npm-shrinkwrap.json`: Trava as versões do `package.json`
 - `package.json`: Todas as dependências do `azk`
 
-
 ### Qualidade e estilo de código
 
 Utilizamos o `.jshintrc` e o `.jscsrc` configurados com o `esnext` ativado, ou seja, com várias features do ES6. Veja pelos links abaixo a melhor forma de configurar seu editor para integrar essas ferramentas de verificação de qualidade:
@@ -55,10 +54,19 @@ Utilizamos o `.jshintrc` e o `.jscsrc` configurados com o `esnext` ativado, ou s
 - **jscs**: http://jscs.info/overview.html
 - **jshint**: http://jshint.com/install/index.html
 
+### Ferramenta de task
+
+No azk utilizamos o [gulp] para coordenar as tarefas do dia a dia de desenvolvimento, tarefas como:
+
+- Transpilar os arquivos de `es5` para `es6` com [babeljs];
+- Verificar a qualidade do código com `jshint` e `jscs`;
+- Executar um "watch" nas modificações dos arquivos e executar as tarefas acima de forma automática;
+
+Dentre outras tarefas que podem ser consultadas com: `azk nvm gulp help`
 
 ### Testes
 
-O azk utiliza como framework de testes a biblioteca [mocha]. O [grunt] coordena as tarefas necessárias do dia a dia.
+O azk utiliza como framework de testes a biblioteca [mocha]. O [gulp] coordena as tarefas necessárias do dia a dia.
 
 Para executar os testes do azk, o `azk agent` deve estar em execução:
 
@@ -66,19 +74,19 @@ Para executar os testes do azk, o `azk agent` deve estar em execução:
 $ azk agent start
 ...
 azk: Agent has been successfully started.
-$ azk nvm grunt test
+$ azk nvm npm test
 ```
 
 ##### Todos os testes inclusive os "lentos"
 
 ```bash
-$ azk nvm grunt slow_test
+$ azk nvm npm run test:slow
 ```
 
 ##### Todos os testes excluindo os testes "lentos"
 
 ```bash
-$ azk nvm grunt test
+$ azk nvm gulp test --invert --grep="@slow"
 ```
 
 ##### Filtrando os testes
@@ -86,8 +94,10 @@ $ azk nvm grunt test
 Podemos filtrar os testes para a resolução de alguma parte especifíca.
 
 ```bash
-$ azk nvm grunt [test|slow_text] --grep="Azk command init run"
+$ azk nvm gulp test --grep="Azk command init run" --timeout=50000
 ```
+
+#####
 
 
 ### Contribuindo com código
@@ -138,16 +148,15 @@ Sempre que for fazer um commit, utilize o seguinte padrão:
 $ git commit -m "[my new feature] Fixing some system tests #9283"
 ```
 
-
 [mocha]: http://visionmedia.github.io/mocha/
-[grunt]: http://gruntjs.com/
+[gulp]: http://gulpjs.com/
 [github]: https://github.com/azukiapp/azk
 [issues]: https://github.com/azukiapp/azk/issues
 [pull requests]: https://github.com/azukiapp/azk/pulls
 [gitter]: https://gitter.im/azukiapp/azk
 [git flow]: http://jeffkreeftmeijer.com/2010/why-arent-you-using-git-flow/
 [Forking Workflow]: https://www.atlassian.com/git/tutorials/comparing-workflows/forking-workflow
-[Google Traceur]: https://github.com/google/traceur-compiler
-[traceur compat-table]: http://kangax.github.io/compat-table/es6/#tr
+[babeljs]: http://babeljs.io
+[babeljs compat-table]: https://babeljs.io/docs/learn-es6/
 [node.js]: http://nodejs.org/
 [Q]: https://github.com/kriskowal/q/wiki/API-Reference#generators

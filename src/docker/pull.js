@@ -1,28 +1,27 @@
 import { _, defer, lazy_require } from 'azk';
 import { ProvisionNotFound, ProvisionPullError } from 'azk/utils/errors';
 
-/* global XRegExp */
-lazy_require(this, {
+var lazy = lazy_require({
   XRegExp: ['xregexp', 'XRegExp']
 });
 
 var msg_regex = {
-  pulling_another    : new XRegExp('Repository.*another'),
-  pulling_repository : new XRegExp('Pulling repository (?<repository>.*)'),
-  pulling_layers     : new XRegExp('Pulling dependent layers'),
-  pulling_metadata   : new XRegExp('Pulling metadata'),
-  pulling_fs_layer   : new XRegExp('Pulling fs layer'),
-  pulling_image      : new XRegExp(
+  get pulling_another    () { return new lazy.XRegExp('Repository.*another'); },
+  get pulling_repository () { return new lazy.XRegExp('Pulling repository (?<repository>.*)'); },
+  get pulling_layers     () { return new lazy.XRegExp('Pulling dependent layers'); },
+  get pulling_metadata   () { return new lazy.XRegExp('Pulling metadata'); },
+  get pulling_fs_layer   () { return new lazy.XRegExp('Pulling fs layer'); },
+  get pulling_image      () { return new lazy.XRegExp(
     'Pulling image \((?<tag>.*)\) from (?<repository>.*), endpoint: (?<endpoint>.*)'
-  ),
-  download: new XRegExp('Downloading'),
-  download_complete: new XRegExp('Download complete'),
+  ); },
+  get download           () { return new lazy.XRegExp('Downloading'); },
+  get download_complete  () { return new lazy.XRegExp('Download complete'); },
 };
 
 function parse_status(msg) {
   var result = {};
   _.find(msg_regex, (regex, type) => {
-    var match  = XRegExp.exec(msg, regex);
+    var match  = lazy.XRegExp.exec(msg, regex);
     if (match) {
       result.type = type;
       _.each(regex.xregexp.captureNames, function(key) {

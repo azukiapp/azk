@@ -123,17 +123,17 @@ Clone `azk` from the source, and install dependencies:
   $ make
   $ azk nvm grunt vm-download # MAC OS X only
   $ azk agent start
-  $ azk nvm grunt test
+  $ azk nvm gulp test
   ```
 
 Note that running these tests requires you to have `azk agent` running.
 
-To run test with filters run use `azk nvm grunt --grep "test name"`:
+To run test with filters run use `azk nvm gulp --grep "test name"`:
 
 Example:
 
   ```bash
-  $ azk nvm grunt --grep "Azk generator"
+  $ azk nvm gulp --grep "Azk generator"
   ```
 
 ## Integration tests
@@ -161,9 +161,9 @@ $ azk nvm grunt integration --grep="force to replace a"
 
 ## License
 
-"Azuki", "Azk" and the Azuki logo are copyright (c) 2013-2015 Azuki Serviços de Internet LTDA.
+"Azuki", "azk" and the Azuki logo are copyright (c) 2013-2015 Azuki Serviços de Internet LTDA.
 
-Azk source code is released under Apache 2 License.
+**azk** source code is released under Apache 2 License.
 
 Check LEGAL and LICENSE files for more information.
 

@@ -1,20 +1,20 @@
 import { config, _, log, lazy_require } from 'azk';
 import Utils from 'azk/utils';
+import { default as tracker } from 'azk/utils/tracker';
 
 // Composer
 import { pull as pull_func  } from 'azk/docker/pull';
 import { run as run_func   } from 'azk/docker/run';
 import { build as build_func } from 'azk/docker/build';
 
-/* global parseRepositoryTag, uuid */
-lazy_require(this, {
+var lazy = lazy_require({
   parseRepositoryTag: ['dockerode/lib/util'],
   uuid: 'node-uuid',
 });
 
 export class Image extends Utils.qify('dockerode/lib/image') {
   static parseRepositoryTag(...args) {
-    return parseRepositoryTag(...args);
+    return lazy.parseRepositoryTag(...args);
   }
 }
 
@@ -24,11 +24,35 @@ export class Container extends Utils.qify('dockerode/lib/container') {
   }
 
   inspect(...args) {
-    return super(...args).then((data) => {
+    return super.inspect(...args).then((data) => {
+      // setup container data
       data.Annotations = Container.unserializeAnnotations(data.Name);
       data.NetworkSettings = Container.parsePortsFromNetwork(data.NetworkSettings);
       return data;
     });
+  }
+
+  stop(...args) {
+    return super.stop(...args).then((data) => {
+      return this._track(data, 'stop');
+    });
+  }
+
+  remove(...args) {
+    return super.remove(...args).then((data) => {
+      return this._track(data, 'remove');
+    });
+  }
+
+  kill(...args) {
+    return super.kill(...args).then((data) => {
+      return this._track(data, 'kill');
+    });
+  }
+
+  _track(data, action) {
+    var event_data = { event_type: action, id: this.Id };
+    return tracker.sendEvent("container", event_data).then(() => data);
   }
 
   static parsePorts(ports) {
@@ -82,7 +106,7 @@ export class Container extends Utils.qify('dockerode/lib/container') {
 
     // Unique id generator
     if (!azk.uid) {
-      azk.uid = uuid.v1().replace(/-/g, "").slice(0, 10);
+      azk.uid = lazy.uuid.v1().replace(/-/g, "").slice(0, 10);
     }
 
     // Mount string

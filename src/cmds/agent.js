@@ -3,14 +3,21 @@ import { defer, async } from 'azk';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Helpers } from 'azk/cli/command';
 
-/* global Client, spawn, net */
-lazy_require(this, {
-  Client: [ 'azk/agent/client' ],
-  spawn: ['child-process-promise'],
-  net: 'net',
+var lazy = lazy_require({
+  Client : [ 'azk/agent/client' ],
+  spawn  : ['child-process-promise'],
+  net    : 'net',
+  channel: function() {
+    return require('postal').channel("agent");
+  }
 });
 
 class Cmd extends InteractiveCmds {
+
+  get docker() {
+    return require('azk/docker').default;
+  }
+
   action(opts) {
     return this
       .callAgent(opts)
@@ -33,7 +40,7 @@ class Cmd extends InteractiveCmds {
 
         case 'start':
           // And no running
-          var status = yield Client.status();
+          var status = yield lazy.Client.status();
           if (!status.agent) {
             // Check and load configures
             this.warning('status.agent.wait');
@@ -45,6 +52,9 @@ class Cmd extends InteractiveCmds {
               yield cmd_vm.action({ action: 'remove', fail: () => {} });
             }
 
+            // Generate a new tracker agent session id
+            this.tracker.generateNewAgentSessionId();
+
             // Spaw daemon
             if (opts.daemon) {
               return this.spawChild(opts);
@@ -55,8 +65,34 @@ class Cmd extends InteractiveCmds {
       // Changing directory for security
       process.chdir(config('paths:azk_root'));
 
+      // use VM?
+      var subscription = lazy.channel.subscribe("started", (/* data, envelope */) => {
+        var vm_data = {};
+
+        if (config("agent:requires_vm")) {
+          vm_data = {
+            cpus: config("agent:vm:cpus"),
+            memory: config("agent:vm:memory")
+          };
+        }
+
+        subscription.unsubscribe();
+
+        // Track agent start
+        this.docker.version().then((result) => {
+          this.trackerEvent.addData({
+            vm: vm_data,
+            docker: {
+              version: result
+            }
+          });
+
+          return this.sendTrackerData();
+        });
+      });
+
       // Call action in agent
-      var promise = Client[opts.action](opts).progress(progress);
+      var promise = lazy.Client[opts.action](opts).progress(progress);
       return promise.then((result) => {
         if (opts.action != "status") {
           return result;
@@ -78,7 +114,7 @@ class Cmd extends InteractiveCmds {
     return defer((resolve) => {
       this.installSignals(resolve);
       log.debug('fork process to start agent in daemon');
-      spawn("azk", args, opts)
+      lazy.spawn("azk", args, opts)
         .progress((child) => {
           this.child = child;
 
@@ -130,7 +166,7 @@ class Cmd extends InteractiveCmds {
     return defer((resolve, reject) => {
       if (waitpipe) {
         try {
-          var pipe = new net.Socket({ fd: 3 });
+          var pipe = new lazy.net.Socket({ fd: 3 });
           pipe.on('data', (buf) => {
             var configs = JSON.parse(buf.toString('utf8'));
             pipe.end();

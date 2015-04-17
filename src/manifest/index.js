@@ -9,8 +9,7 @@ var file_name = config('manifest');
 var check     = require('syntax-error');
 var tsort     = require('gaia-tsort');
 
-/* global parent, runInNewContext */
-lazy_require(this, {
+var lazy = lazy_require({
   parent         : ['parentpath', 'sync'],
   runInNewContext: ['vm'],
 });
@@ -103,7 +102,7 @@ export class Manifest {
       throw new ManifestError(this.file, err);
     } else {
       try {
-        runInNewContext(content, Manifest.createDslContext(this), this.file);
+        lazy.runInNewContext(content, Manifest.createDslContext(this), this.file);
       } catch (e) {
         if (!(e instanceof ManifestError)) {
           var stack = e.stack.split('\n');
@@ -364,7 +363,7 @@ export class Manifest {
 
   static find_manifest(target) {
     var dir = Utils.cd(target, function() {
-      return parent(file_name);
+      return lazy.parent(file_name);
     });
     return dir ? path.join(dir, file_name) : null;
   }

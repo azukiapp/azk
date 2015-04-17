@@ -58,6 +58,7 @@ var options = mergeConfig({
       memcached_socket  : path.join(paths.run, 'memcachedjs.socket'),
       api_socket        : path.join(paths.run, 'api.socket'),
       persistent_folders: persistent_folders,
+      analytics         : path.join(data_path, azk_dir, "analytics"),
     },
     logs_level: {
       console: (envs('AZK_DEBUG') ? 'debug' : 'warn'),
@@ -76,6 +77,13 @@ var options = mergeConfig({
         retry: 10,
       }
     },
+    // jscs:disable maximumLineLength
+    tracker: {
+      disable: envs('AZK_DISABLE_TRACKER', false),
+      projectId: envs('AZK_KEEN_PROJECT_ID', '552818c790e4bd7f7bd8baba'),
+      writeKey:  envs('AZK_KEEN_WRITE_KEY', 'e2c70b3dd3ed3003a09a1bc7d8622ad9220fe33069d81164f0fafa13baf11458e48736f6cbcc995a8346183b290597504feb4bef06f71350f4859df5eb271a1d845f7cff5c9dfddf2f03de1e39760c6e51a06fb9e347c2e1fb98d3c6d370e6916e5db8810ddd9c0d5d83540386ccfe2e'),
+    },
+    // jscs:enable maximumLineLength
     agent: {
       requires_vm: requires_vm,
       portrange_start: 11000,
@@ -103,8 +111,8 @@ var options = mergeConfig({
         ssh_key    : envs('AZK_AGENT_VM_KEY', path.join(paths.vm, "azkvm_rsa")),
         screen_path: path.join(paths.vm, "screens"),
         data_disk  : path.join(paths.vm, "azk-agent.vmdk"),
-        boot_disk  : path.join(envs('AZK_LIB_PATH'), "vm", "azk.iso"),
-        blank_disk : path.join(envs('AZK_LIB_PATH'), "vm", "azk-agent.vmdk.gz"),
+        boot_disk  : path.join(envs('AZK_LIB_PATH'), "vm", envs('AZK_ISO_VERSION'), "azk.iso"),
+        blank_disk : path.join(envs('AZK_LIB_PATH'), "vm", envs('AZK_ISO_VERSION'), "azk-agent.vmdk.gz"),
         mount_point: '/media/sf_Root',
         authorized_key: '/home/docker/.ssh/authorized_keys',
       },
@@ -124,13 +132,20 @@ var options = mergeConfig({
   },
   test: {
     paths: {
+      // jscs:disable maximumLineLength
       log : path.join(paths.logs, 'azk_test.log'),
+      projectId: envs('AZK_KEEN_PROJECT_ID', '5526968d672e6c5a0d0ebec6'),
+      writeKey:  envs('AZK_KEEN_WRITE_KEY', '5dbce13e376070e36eec0c7dd1e7f42e49f39b4db041f208054617863832309c14a797409e12d976630c3a4b479004f26b362506e82a46dd54df0c977a7378da280c05ae733c97abb445f58abb56ae15f561ac9ad774cea12c3ad8628d896c39f6e702f6b035541fc1a562997cb05768'),
+      // jscs:enabled maximumLineLength
     },
     docker: {
       namespace   : 'azk.test',
       repository  : 'azk_test',
       build_name  : 'azkbuildtest',
       image_empty : 'cevich/empty_base_image',
+    },
+    tracker: {
+      disable: true,
     },
     agent: {
       portrange_start: 12000,

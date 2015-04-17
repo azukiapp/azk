@@ -1,8 +1,7 @@
 import { _, fs, lazy_require } from 'azk';
 import Utils from 'azk/utils';
 
-/* global mkdir, createCache */
-lazy_require(this, {
+var lazy = lazy_require({
   mkdir      : ['mkdirp', 'sync'],
   createCache: ['fscache', 'createSync'],
 });
@@ -39,8 +38,8 @@ export class Meta {
   get cache() {
     if (!this.__cache) {
       var cache_dir = this.cache_dir;
-      mkdir(cache_dir);
-      this.__cache = createCache(cache_dir);
+      lazy.mkdir(cache_dir);
+      this.__cache = lazy.createCache(cache_dir);
     }
     return this.__cache;
   }
@@ -55,12 +54,17 @@ export class Meta {
   }
 
   get(key, defaultValue) {
-    return this.cache.getSync(key) || defaultValue;
+    var value = this.cache.getSync(key);
+    return value !== undefined ? value : defaultValue;
   }
 
   set(key, value) {
     this.cache.putSync(key, value);
     return this;
+  }
+
+  del(key) {
+    return this.cache.delSync(key);
   }
 }
 
@@ -83,5 +87,9 @@ export class FakeCache {
 
   putSync(key, value) {
     this.values[this.keyCalc(key)] = value;
+  }
+
+  delSync(key) {
+    delete this.values[this.keyCalc(key)];
   }
 }

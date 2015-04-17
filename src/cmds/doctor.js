@@ -3,8 +3,7 @@ import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Helpers } from 'azk/cli/command';
 import Azk from 'azk';
 
-/* global Client */
-lazy_require(this, {
+var lazy = lazy_require({
   Client: ['azk/agent/client'],
 });
 
@@ -16,7 +15,7 @@ class Cmd extends InteractiveCmds {
   action(opts) {
     return async(this, function* () {
       // Get agent status
-      var agent = yield Client.status();
+      var agent = yield lazy.Client.status();
       var require_vm = config("agent:requires_vm");
 
       // Load configs from agent

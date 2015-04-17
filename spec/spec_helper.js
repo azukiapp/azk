@@ -4,15 +4,12 @@ import { Q, pp, config, t } from 'azk';
 import { Client as AgentClient } from 'azk/agent/client';
 import Utils from 'azk/utils';
 
-var chai  = require('chai');
 var tmp   = require('tmp');
 var qfs   = require('q-io/fs');
 var touch = require('touch');
 
 // Chai extensions
-chai.use(require('chai-as-promised'));
-chai.use(require('chai-things'));
-chai.config.includeStack = true;
+var chai = require('azk-dev/chai');
 
 import capture_io from 'azk/utils/capture_io';
 var MemoryStream  = require('memorystream');
