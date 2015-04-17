@@ -3,8 +3,9 @@
 * [Introdução](README.md)
 /*****************************************************/
 * [Instalação](installation/README.md)
-   * [Linux](installation/linux.md)
    * [Mac OS X](installation/mac_os_x.md)
+   * [Linux](installation/linux.md)
+   * [Código fonte](installation/source-code.md)
    * [Atualizando](installation/upgrading.md)
 /*****************************************************/
 * [Começando](getting-started/README.md)
