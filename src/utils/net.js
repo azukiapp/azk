@@ -272,10 +272,10 @@ var net = {
   isOnlineCheck() {
     return defer(function (resolve, reject) {
       lazy.connectivity(function (online) {
-        if (online) {
+        if (_.isBoolean(online)) {
           resolve(online);
         } else {
-          reject('no-internet-connection');
+          reject(online);
         }
       });
     });
