@@ -138,16 +138,25 @@ export class Configure extends UIProxy {
             new_version: tagNameGithubParsed
           });
         } else {
-          log.debug('AZK version `v' + tagNameGithubParsed + '` is up to date.' + statusCode);
+          this.ok('configure.latest_azk_version', { current_version: Azk.version });
         }
       } catch (err) {
-        notify({
-          type: "status",
-          status: "error",
-          data: new Error(t("configure.check_version_error", {
-            error_message: err.message
-          })),
-        });
+        if (err === 'no-internet-connection') {
+          this.warning('configure.check_version_no_internet', {
+            current_version: Azk.version,
+            new_version: tagNameGithubParsed
+          });
+        } else {
+          notify({
+            type: "status",
+            status: "error",
+            data: new Error(t("configure.check_version_error", {
+              error_message: err.message || err,
+              statusCode: statusCode
+            })),
+          });
+        }
+
       }
 
       return {};
