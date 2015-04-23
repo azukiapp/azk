@@ -128,7 +128,7 @@ var Agent = {
     // Start server and subsistems
     return lazy.Server.start().then(() => {
       this.change_status("started");
-      lazy.channel.publish("started", {});
+      lazy.channel.publish("agent:started", {});
       log.info("agent start with pid: " + process.pid);
     });
   },
