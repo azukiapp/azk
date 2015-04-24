@@ -52,7 +52,10 @@ export class Container extends Utils.qify('dockerode/lib/container') {
 
   _track(data, action) {
     var event_data = { event_type: action, id: this.Id };
-    return tracker.sendEvent("container", event_data).then(() => data);
+    return tracker.sendEvent("container", event_data).then(() => data, (err) => {
+      log.warn(err);
+      return data;
+    });
   }
 
   static parsePorts(ports) {
