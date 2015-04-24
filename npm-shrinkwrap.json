@@ -6816,9 +6816,9 @@
       }
     },
     "insight-keen-io": {
-      "version": "0.6.2",
+      "version": "0.6.3",
       "from": "insight-keen-io@*",
-      "resolved": "https://registry.npmjs.org/insight-keen-io/-/insight-keen-io-0.6.2.tgz",
+      "resolved": "https://registry.npmjs.org/insight-keen-io/-/insight-keen-io-0.6.3.tgz",
       "dependencies": {
         "async": {
           "version": "0.9.0",
