@@ -45,7 +45,7 @@ ${NODE}:
 		mkdir -p ${NVM_DIR} && \
 		. ${NVM_BIN_PATH} && \
 		nvm install $(NVM_NODE_VERSION) && \
-		npm install npm -g
+		azk nvm npm install npm -g
 
 clean:
 	@echo "task: $@"
@@ -118,7 +118,7 @@ ${NODE_PACKAGE}:
 		mkdir -p ${PATH_AZK_NVM} && \
 		. ${NVM_BIN_PATH} && \
 		nvm install $(NVM_NODE_VERSION) && \
-		npm install npm -g
+		azk nvm npm install npm -g
 
 define COPY_FILES
 $(abspath $(2)/$(3)): $(abspath $(1)/$(3))
