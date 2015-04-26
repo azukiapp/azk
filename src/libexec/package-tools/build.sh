@@ -133,14 +133,13 @@ if [[ $BUILD_DEB == true ]]; then
       fi
 
       step_run "Creating deb packages" make package_deb ${EXTRA_FLAGS}
-      LINUX_BUILD_WAS_EXECUTED=true
 
       step_run "Generating Ubuntu 12.04 repository" azk shell package -c "src/libexec/package-tools/ubuntu/generate.sh ${LIBNSS_RESOLVER_VERSION} precise ${SECRET_KEY}"
       step_run "Testing Ubuntu 12.04 repository" ${AZK_BUILD_TOOLS_PATH}/ubuntu/test.sh precise
 
       step_run "Generating Ubuntu 14.04 repository" azk shell package -c "src/libexec/package-tools/ubuntu/generate.sh ${LIBNSS_RESOLVER_VERSION} trusty ${SECRET_KEY}"
       step_run "Testing Ubuntu 14.04 repository" ${AZK_BUILD_TOOLS_PATH}/ubuntu/test.sh trusty
-    )
+    ) && LINUX_BUILD_WAS_EXECUTED=true
 
     echo
 fi
@@ -168,7 +167,7 @@ if [[ $BUILD_RPM == true ]]; then
 
       step_run "Generating Fedora 20 repository" azk shell package -c "src/libexec/package-tools/fedora/generate.sh fedora20 ${SECRET_KEY}"
       step_run "Testing Fedora 20 repository" ${AZK_BUILD_TOOLS_PATH}/fedora/test.sh fedora20
-    )
+    ) && LINUX_BUILD_WAS_EXECUTED=true
 
     echo
 fi
