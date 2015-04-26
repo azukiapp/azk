@@ -52,11 +52,16 @@ gulp.task('publish', function() {
   var gulpif      = require("gulp-if");
   var path_join   = require('path').join;
 
+  // Select bucket
+  var bucket = process.env[
+    "AWS_PACKAGE_BUCKET_" + (azk_gulp.yargs.argv.production ? "PROD" : "STAGE")
+  ];
+
   // create a new publisher
   var publisher = awspublish.create({
     key: process.env.AWS_ACCESS_KEY_ID,
     secret: process.env.AWS_SECRET_KEY,
-    bucket: process.env.AWS_PACKAGE_BUCKET,
+    bucket: bucket,
     region: 'sa-east-1',
   });
 
