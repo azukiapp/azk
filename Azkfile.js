@@ -87,13 +87,8 @@ systems({
   'dind-fedora': agent_system('azukiapp/dind:fedora20'),
 
   package: agent_system('azukiapp/fpm', {
-    provision: [
-      "cd /azk/aptly/public",
-      "[ -L fedora20 ] && ( rm fedora20 )",
-      "ln -s /azk/#{manifest.dir}/package/fedora20",
-    ],
     shell: "/bin/bash",
-    command: "aptly serve",
+    command: "azk nvm ./src/libexec/package-tools/server",
     scalable: { default: 0 },
     http: {
       domains: ["#{system.name}.azk.#{azk.default_domain}"],
@@ -105,7 +100,7 @@ systems({
 
   'pkg-ubuntu12-test': test_package_system('azukiapp/dind:ubuntu12'),
   'pkg-ubuntu14-test': test_package_system('azukiapp/dind:ubuntu14'),
-  'pkg-fedora-test': test_package_system('azukiapp/dind:fedora20'),
+  'pkg-fedora-test'  : test_package_system('azukiapp/dind:fedora20'),
 
   grunt: {
     image: { docker: "dockerfile/nodejs" },
