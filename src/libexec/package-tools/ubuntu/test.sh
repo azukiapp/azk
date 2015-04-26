@@ -6,6 +6,7 @@ if [[ $# != 1 ]]; then
 fi
 
 set -x
+set -e
 
 BASE_DIR=$( echo $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd ) | sed s#$(pwd)/##g )
 

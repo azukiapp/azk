@@ -11,6 +11,7 @@ if [[ ! -e Azkfile.js ]]; then
 fi
 
 set -x
+set -e
 
 export PATH=`pwd`/bin:$PATH
 export DISTRO=$1

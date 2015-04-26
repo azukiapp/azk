@@ -11,6 +11,7 @@ if [[ ! -e Azkfile.js ]]; then
 fi
 
 set -x
+set -e
 
 export PATH=`pwd`/bin:$PATH
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
@@ -22,9 +23,15 @@ export SECRET_KEY=$3
 
 gpg --import $SECRET_KEY
 
-aptly publish drop ${DISTRO}
-aptly snapshot drop ${REPO}-${VERSION}
-aptly repo drop ${REPO}
+# Try to remove old publishs
+(
+  set +e
+  aptly publish drop ${DISTRO}
+  aptly snapshot drop ${REPO}-${VERSION}
+  aptly repo drop ${REPO}
+) || true
+
+# Publish a new release
 aptly repo create -distribution=${DISTRO} -component=main ${REPO}
 aptly repo add -force-replace=true ${REPO} package/deb/azk_${VERSION}_amd64.deb package/deb/${DISTRO}-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb
 aptly repo show -with-packages ${REPO} | grep "azk_${VERSION}_amd64"

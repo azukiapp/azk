@@ -48,7 +48,7 @@ if [[ -z $BUILD_DEB ]] && [[ -z $BUILD_RPM ]] && [[ -z $BUILD_MAC ]]; then
 fi
 
 quiet() {
-    $@ > /dev/null 2>&1
+    "${@}" > /dev/null 2>&1
 }
 
 setup() {
@@ -82,7 +82,7 @@ step_run() {
     if [[ $1 == "--exit" ]]; then
         STEP_EXIT="$1"; shift
     fi
-    $@
+    "${@}"
     step_done $? ${STEP_EXIT}
 }
 
@@ -128,7 +128,7 @@ if [[ $BUILD_DEB == true ]]; then
       step_done $?
 
       EXTRA_FLAGS=""
-      if [[ $LINUX_BUILD_WAS_EXECUTED == true && NO_CLEAN_LINUX == true ]]; then
+      if [[ $LINUX_BUILD_WAS_EXECUTED == true || $NO_CLEAN_LINUX == true ]]; then
         EXTRA_FLAGS="LINUX_CLEAN="
       fi
 
@@ -159,7 +159,7 @@ if [[ $BUILD_RPM == true ]]; then
       step_done $?
 
       EXTRA_FLAGS=""
-      if [[ $LINUX_BUILD_WAS_EXECUTED == true && NO_CLEAN_LINUX == true ]]; then
+      if [[ $LINUX_BUILD_WAS_EXECUTED == true || $NO_CLEAN_LINUX == true ]]; then
         EXTRA_FLAGS="LINUX_CLEAN="
       fi
 
