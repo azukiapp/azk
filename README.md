@@ -113,49 +113,9 @@ $ azk logs [system_name, ...]     # Shows last lines of a specific system
 $ azk logs -f                     # Shows last lines of log and follow for more
 ```
 
-## Contributions and testing
+## Contributions
 
-Clone `azk` from the source, and install dependencies:
-
-  ```bash
-  $ git clone https://github.com/azukiapp/azk
-  $ cd azk
-  $ make
-  $ azk agent start
-  $ azk nvm gulp test
-  ```
-
-Note that running these tests requires you to have `azk agent` running.
-
-To run test with filters run `azk nvm gulp --grep "test name"`:
-
-Example:
-
-  ```bash
-  $ azk nvm gulp --grep "Azk generator"
-  ```
-
-## Integration tests
-
-The `azk` integration tests are written using [bats]. Before running the tests you need to install some dependencies:
-
-```bash
-$ make dependencies
-```
-
-Now you can run the integration tests:
-
-```bash
-$ azk nvm gulp integration
-```
-
-Note that running these tests requires you to have the `azk agent` running.
-
-Similar to the functional tests, you can filter which integration tests will be executed:
-
-```bash
-$ azk nvm gulp integration --grep="force to replace a"
-```
+Check our [Contributing Guide](CONTRIBUTING.md) for instructions on how to help the project!
 
 ## License
 
