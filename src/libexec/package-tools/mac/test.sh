@@ -9,6 +9,15 @@ SHA256=$(shasum -a 256 shasum -a 256 "package/brew/azk_${VERSION}.tar.gz" | awk 
 
 cp /usr/local/Library/Taps/azukiapp/homebrew-azk/Formula/azk.rb /usr/local/Library/Taps/azukiapp/homebrew-azk/Formula/azk.rb.orig
 
+
+# Clean same version
+(
+  set -e
+  brew unlink azk
+  rm -Rf /usr/local/Cellar/azk/${VERSION}
+  rm -rf /Library/Caches/Homebrew/azk-${VERSION}.tar.gz
+) || true
+
 # TODO: Replace using sed instead of override the whole file
 tee /usr/local/Library/Taps/azukiapp/homebrew-azk/Formula/azk.rb <<EOF
 require "formula"
@@ -24,6 +33,7 @@ class Azk < Formula
   def install
     prefix.install Dir['*']
     prefix.install Dir['.nvmrc']
+    prefix.install Dir['.dependencies']
   end
 end
 

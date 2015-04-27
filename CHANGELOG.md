@@ -5,6 +5,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## dev
 
+## v0.12.1 - (2015-25-04)
+
+* Bug
+  * [Agent] Fixing issue between `azk` and `insight-keen-io` that prevented `azk agent` to stop;
+  * [Agent] Replacing `is-online` lib with `connectivity`, #368
+  * [Agent] Better `azk agent start` messages on no internet is available, #371;
+
+* Enhancements
+  * [Code] Improvements in packages scripting: now with more options and better error handling;
+
 ## v0.12.0 - (2015-16-04)
 
 * Bug

@@ -7,7 +7,6 @@ export class TrackedCmds extends Command {
 
   constructor(...args) {
     super(...args);
-    this._command_tracked = false;
     this.tracker = tracker;
   }
 
@@ -46,10 +45,6 @@ export class TrackedCmds extends Command {
 
   sendTrackerData() {
     if (this.trackerEvent) {
-      if (this._command_tracked) { return Q(true); }
-      this._command_tracked = true;
-
-      // track
       return this.trackerEvent.send();
     } else {
       return Q(false);

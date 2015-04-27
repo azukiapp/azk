@@ -45,7 +45,7 @@ ${NODE}:
 		mkdir -p ${NVM_DIR} && \
 		. ${NVM_BIN_PATH} && \
 		nvm install $(NVM_NODE_VERSION) && \
-		npm install npm -g
+		azk nvm npm install npm -g
 
 clean:
 	@echo "task: $@"
@@ -82,7 +82,7 @@ NODE_PACKAGE = ${PATH_AZK_NVM}/${NVM_NODE_VERSION}/bin/node
 PATH_MAC_PACKAGE = ${AZK_PACKAGE_PATH}/azk_${AZK_VERSION}.tar.gz
 
 # Build package folders tree
-package_brew: package_build fix_permissions ${PATH_AZK_LIB}/${AZK_ISO_VERSION}/vm ${PATH_MAC_PACKAGE}
+package_brew: package_build fix_permissions ${PATH_AZK_LIB}/vm/${AZK_ISO_VERSION} ${PATH_MAC_PACKAGE}
 package_mac:
 	@export AZK_PACKAGE_PATH=${AZK_PACKAGE_PATH}/brew && \
 		mkdir -p $$AZK_PACKAGE_PATH && \
@@ -108,6 +108,7 @@ ${PATH_NODE_MODULES}: ${PATH_USR_LIB_AZK}/npm-shrinkwrap.json ${NODE_PACKAGE}
 
 ${PATH_USR_LIB_AZK}/npm-shrinkwrap.json: ${PATH_USR_LIB_AZK}/package.json
 	@echo "task: $@"
+	@test -e ${PATH_NODE_MODULES} && rm -rf ${PATH_NODE_MODULES} || true
 	@ln -s ${AZK_NPM_PATH} ${PATH_NODE_MODULES}
 	@cd ${PATH_USR_LIB_AZK} && ${AZK_BIN} nvm npm shrinkwrap
 	@rm ${PATH_NODE_MODULES}
@@ -118,7 +119,7 @@ ${NODE_PACKAGE}:
 		mkdir -p ${PATH_AZK_NVM} && \
 		. ${NVM_BIN_PATH} && \
 		nvm install $(NVM_NODE_VERSION) && \
-		npm install npm -g
+		azk nvm npm install npm -g
 
 define COPY_FILES
 $(abspath $(2)/$(3)): $(abspath $(1)/$(3))
@@ -159,9 +160,9 @@ creating_symbolic_links:
 	@ln -sf ../lib/azk/bin/azk ${PATH_USR_BIN}/azk
 	@ln -sf ../lib/azk/bin/adocker ${PATH_USR_BIN}/adocker
 
-${PATH_AZK_LIB}/${AZK_ISO_VERSION}/vm: ${AZK_LIB_PATH}/vm
-	@mkdir -p ${PATH_AZK_LIB}/${AZK_ISO_VERSION}/vm
-	@cp -r ${VM_DISKS_DIR} ${PATH_AZK_LIB}/${AZK_ISO_VERSION}/vm
+${PATH_AZK_LIB}/vm/${AZK_ISO_VERSION}: ${AZK_LIB_PATH}/vm
+	@mkdir -p ${PATH_AZK_LIB}/vm/${AZK_ISO_VERSION}
+	@cp -r ${VM_DISKS_DIR} ${PATH_AZK_LIB}/vm
 
 ${PATH_MAC_PACKAGE}: ${AZK_PACKAGE_PREFIX}
 	@cd ${PATH_USR_LIB_AZK}/.. && tar -czf ${PATH_MAC_PACKAGE} ./

@@ -7,12 +7,12 @@
 ## Main features
 
 * Multiplatform: Works on Linux & Mac OS X (requires 64 bit platform in both cases)
-* Images: via [Docker Registry][docker_registry]
+* Images: via [azk images][azk_images] or [Docker Registry][docker_registry]
 * Built in load-balancer
 * Built in file sync
 * Automatic start-up (and reload) script
 * Logging
-* And simple and easy to use DSL to describe its architecture:
+* And simple and easy to use DSL to describe its architecture
 
 ## Documentation
 
@@ -20,7 +20,7 @@ You can find our documentation online at: http://docs.azk.io/
 
 If you'd like to contribute:
 
-1. Go to https://github.com/azukiapp/azk/tree/develop/docs
+1. Go to https://github.com/azukiapp/azk/tree/master/docs
 2. Follow the instructions in the README
 3. You're awesome :)
 
@@ -39,7 +39,7 @@ For installation instructions and update, see the [en](http://docs.azk.io/en) or
 
 #### Images
 
-In order to automate the provisioning of development environments, `azk` uses pre-built custom images. These images follow the [Docker][docker] standard and can be found in: [Docker Index][docker_index] or [Dockerfile][dockerfile].
+In order to automate the provisioning of development environments, `azk` uses pre-built custom images. These images follow the [Docker][docker] standard and can be found in: [azk images][azk_images], [Docker Index][docker_index] or [Dockerfile][dockerfile].
 
 #### Azkfile.js
 
@@ -121,7 +121,6 @@ Clone `azk` from the source, and install dependencies:
   $ git clone https://github.com/azukiapp/azk
   $ cd azk
   $ make
-  $ azk nvm grunt vm-download # MAC OS X only
   $ azk agent start
   $ azk nvm gulp test
   ```
@@ -147,7 +146,7 @@ $ make dependencies
 Now you can run the integration tests:
 
 ```bash
-$ azk nvm grunt integration
+$ azk nvm gulp integration
 ```
 
 Note that running these tests requires you to have `azk agent` running.
@@ -156,7 +155,7 @@ As the functional tests, the integration tests has a way to filter which tests
 will be executed:
 
 ```bash
-$ azk nvm grunt integration --grep="force to replace a"
+$ azk nvm gulp integration --grep="force to replace a"
 ```
 
 ## License
@@ -169,6 +168,7 @@ Check LEGAL and LICENSE files for more information.
 
 [sos]: http://en.wikipedia.org/wiki/System_of_systems
 [docker]: http://docker.io
+[azk_images]: http://images.azk.io
 [docker_index]: http://index.docker.io
 [dockerfile]: http://dockerfile.github.io
 [docker_registry]: http://registry.hub.docker.com

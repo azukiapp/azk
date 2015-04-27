@@ -230,7 +230,9 @@ module.exports = {
       "",
     ]).join('\n'),
     check_version: 'Checking version...',
-    check_version_error: 'Checking version: [ %(error_message)s ]!',
+    latest_azk_version: 'azk %(current_version)s detected',
+    check_version_no_internet: 'Checking version: there is no internet connection to check azk version.',
+    check_version_error: 'Checking version: %(error_message)s',
     clean_containers: "Clearing %(count)d lost containers",
     migrations: {
       alert             : "azk updated, checking update procedures...",

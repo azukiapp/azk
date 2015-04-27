@@ -115,6 +115,10 @@ export class Configure extends UIProxy {
 
         if ( !currentOnline ) {
           log.debug('isOnline == false');
+          this.warning('configure.check_version_no_internet', {
+            current_version: Azk.version,
+            new_version: tagNameGithubParsed
+          });
           return {}; //can't check version
         }
 
@@ -138,14 +142,15 @@ export class Configure extends UIProxy {
             new_version: tagNameGithubParsed
           });
         } else {
-          log.debug('AZK version `v' + tagNameGithubParsed + '` is up to date.' + statusCode);
+          this.ok('configure.latest_azk_version', { current_version: Azk.version });
         }
       } catch (err) {
         notify({
           type: "status",
           status: "error",
           data: new Error(t("configure.check_version_error", {
-            error_message: err.message
+            error_message: err.message || err,
+            statusCode: statusCode
           })),
         });
       }

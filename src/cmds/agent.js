@@ -66,7 +66,7 @@ class Cmd extends InteractiveCmds {
       process.chdir(config('paths:azk_root'));
 
       // use VM?
-      var subscription = lazy.channel.subscribe("started", (/* data, envelope */) => {
+      var subscription = lazy.channel.subscribe("agent:started", (/* data, envelope */) => {
         var vm_data = {};
 
         if (config("agent:requires_vm")) {

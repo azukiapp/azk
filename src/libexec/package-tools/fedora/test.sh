@@ -6,6 +6,7 @@ if [[ $# != 1 ]]; then
 fi
 
 set -x
+set -e
 
 BASE_DIR=$( echo $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd ) | sed s#$( pwd )/##g )
 export VERSION=$( azk version | awk '{ print $2 }' )
@@ -13,7 +14,7 @@ export DISTRO=$1
 
 azk restart package --reprovision
 
-if [[ "$( azk shell pkg-fedora-test --shell=/bin/bash -c "${BASE_DIR}/install.sh ${DISTRO} && azk version" | tail -n1 )" == "azk ${VERSION}" ]]; then
+if [[ "$( azk shell pkg-fedora-test --shell=/bin/bash -c "rm -rf /etc/yum.repos.d/* && ${BASE_DIR}/install.sh ${DISTRO} && azk version" | tail -n1 )" == "azk ${VERSION}" ]]; then
     echo "azk ${VERSION} has been successfully installed."
 else
     echo "Failed to install azk ${VERSION}."

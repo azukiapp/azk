@@ -1,8 +1,9 @@
 import Azk from 'azk';
-import { _, config, async } from 'azk';
+import { Q, _, config, log } from 'azk';
 import { meta as azkMeta } from 'azk';
 import { calculateHash } from 'azk/utils';
 
+var util = require('util');
 var os = require('os');
 var osName = require('os-name');
 var InsightKeenIo = require('insight-keen-io');
@@ -39,7 +40,7 @@ export class TrackerEvent {
     };
   }
 
-  final() {
+  final_data() {
     return _.merge({}, this._data, {
       "meta": this.tracker.meta
     });
@@ -50,32 +51,34 @@ export class TrackerEvent {
   }
 
   send(extra_func = null) {
-    return async(this, function* () {
-      if (!this.tracker.loadTrackerPermission()) { return false; }
+    if (!this.tracker.loadTrackerPermission()) { return Q.resolve(false); }
 
-      if (_.isFunction(extra_func)) {
-        extra_func(this);
-      }
+    if (_.isFunction(extra_func)) {
+      extra_func(this);
+    }
 
-      var final_data = this.final();
-      this.tracker.logAnalyticsData({
-        eventCollection: this.collection,
-        data: final_data
-      });
-
-      // track data with insight
-      var tracking_result = yield this.tracker.insight.track(this.collection, final_data);
-
-      if (tracking_result !== 0) {
-        this.tracker.logAnalyticsError({stack:'[Tracker => Keen.io - failed:] ' + tracking_result.toString()});
-        this.tracker.logAnalyticsData({
-          eventCollection: this.collection,
-          data: final_data
-        });
-      }
-
-      return tracking_result;
+    var final_data = this.final_data();
+    this.tracker.logAnalyticsData({
+      eventCollection: this.collection,
+      data: final_data
     });
+
+    // track data with insight
+    return this.tracker.insight.track(this.collection, final_data)
+      .timeout(10000)
+      .then((tracking_result) => {
+        if (tracking_result !== 0) {
+          this.tracker.logAnalyticsError({stack:'[Tracker => Keen.io - failed:] ' + tracking_result.toString()});
+          this.tracker.logAnalyticsData({
+            eventCollection: this.collection,
+            data: final_data
+          });
+        }
+        return tracking_result;
+      }, (error) => {
+        log.error(error.stack);
+        return false;
+      });
   }
 }
 
@@ -156,28 +159,33 @@ export class Tracker {
   }
 
   logAnalyticsError(err) {
-    if (process.env.ANALYTICS_ERRORS === '1') {
-      console.log('\n>>---------\n\n [Analytics:tracking:error]\n\n');
+    if (process.env.AZK_ANALYTICS_ERRORS === '1') {
+      log.warn('[Analytics:tracking:error]');
       if (err.stack) {
-        console.log(err.stack);
+        log.warn(err.stack);
       } else {
-        console.log(err);
+        log.warn(err);
       }
     }
   }
 
   logAnalyticsData(analytics_data) {
-    if (process.env.ANALYTICS_DATA === '1') {
-      console.log('\n>>---------\n\n [Analytics:tracking:data]\n\n', require('util').inspect(analytics_data,
-      { showHidden: false, depth: null, colors: true }), '\n>>---------\n');
-    } else if (process.env.ANALYTICS_DATA === '2') {
-      console.log('[Analytics:tracking] >', analytics_data.eventCollection, analytics_data.data.event_type);
-    } else if (process.env.ANALYTICS_DATA === '3') {
-      console.log('[track] >', analytics_data.eventCollection, ':', analytics_data.data.event_type);
-      console.log('        >', analytics_data.data.meta.agent_session_id);
-      console.log('        >', analytics_data.data.meta.command_id);
-      console.log('        >', analytics_data.data.meta.user_id);
-      console.log('');
+    this.analytics_level_env = this.analytics_level_env || process.env.AZK_ANALYTICS_LEVEL || '0';
+
+    switch (this.analytics_level_env) {
+      case '1':
+        log.info('[Analytics:tracking:data]');
+        log.info(util.inspect(analytics_data, { showHidden: false, depth: null, colors: true }));
+        break;
+      case '2':
+        log.info('[Analytics:tracking]', analytics_data.eventCollection, analytics_data.data.event_type);
+        break;
+      case '3':
+        log.info('[track] >', analytics_data.eventCollection, ':', analytics_data.data.event_type);
+        log.info('        >', analytics_data.data.meta.agent_session_id);
+        log.info('        >', analytics_data.data.meta.command_id);
+        log.info('        >', analytics_data.data.meta.user_id, '\n');
+        break;
     }
   }
 }

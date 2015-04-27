@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # Get azk root path
 abs_dir() {
   cd "${1%/*}"; link=`readlink ${1##*/}`;
@@ -83,7 +85,7 @@ azk_shell() {
   destdir="/azk/${THIS_FOLDER}/package/${pkg_type}"
   mkdir -p package/${pkg_type}
 
-  [[ ! -z $CLEAN ]] && azk_shell package "make -e clean"
+  [[ ! -z $CLEAN ]] && azk_shell package "make -e clean && rm -Rf /azk/build/v${VERSION}"
 
   azk_shell package "make -e package_linux"
 
