@@ -16,10 +16,12 @@ class Cmd extends InteractiveCmds {
       Helpers.manifestValidate(this, manifest);
       var systems = manifest.getSystemsByName(opts.system);
 
-      yield this[`${this.name}`](manifest, systems, opts);
+      var result = yield this[`${this.name}`](manifest, systems, opts);
 
       this.output("");
       yield StatusCmd.status(this, manifest, systems);
+
+      return result;
     });
   }
 

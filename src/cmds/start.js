@@ -117,7 +117,7 @@ class Cmd extends ScaleCmd {
       }
 
       yield this.stop(manifest, systems, opts);
-      yield this.start(manifest, systems, scale_options);
+      return this.start(manifest, systems, scale_options);
     });
   }
 }

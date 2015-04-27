@@ -108,6 +108,7 @@ ${PATH_NODE_MODULES}: ${PATH_USR_LIB_AZK}/npm-shrinkwrap.json ${NODE_PACKAGE}
 
 ${PATH_USR_LIB_AZK}/npm-shrinkwrap.json: ${PATH_USR_LIB_AZK}/package.json
 	@echo "task: $@"
+	@test -e ${PATH_NODE_MODULES} && rm -rf ${PATH_NODE_MODULES} || true
 	@ln -s ${AZK_NPM_PATH} ${PATH_NODE_MODULES}
 	@cd ${PATH_USR_LIB_AZK} && ${AZK_BIN} nvm npm shrinkwrap
 	@rm ${PATH_NODE_MODULES}

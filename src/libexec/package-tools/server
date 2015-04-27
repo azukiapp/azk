@@ -1,0 +1,20 @@
+#!/usr/bin/env node
+
+// Load path
+require.extensions['.conf'] = require.extensions['.json'];
+var apptly = require('/root/.aptly.conf');
+
+// App
+var express = require('express');
+var app     = express();
+var server  = require('http').Server(app);
+
+// server as static
+var path = require('path');
+app.use("/fedora20", express.static(
+  path.resolve(__dirname, "..", "..", "..", "package", "fedora20")
+));
+app.use("/", express.static(path.join(apptly.rootDir, 'public')));
+
+// run
+server.listen(process.env.HTTP_PORT || 8080);

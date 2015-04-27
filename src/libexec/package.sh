@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # Get azk root path
 abs_dir() {
   cd "${1%/*}"; link=`readlink ${1##*/}`;

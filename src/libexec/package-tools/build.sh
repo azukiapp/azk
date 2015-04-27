@@ -48,7 +48,7 @@ if [[ -z $BUILD_DEB ]] && [[ -z $BUILD_RPM ]] && [[ -z $BUILD_MAC ]]; then
 fi
 
 quiet() {
-    $@ > /dev/null 2>&1
+    "${@}" > /dev/null 2>&1
 }
 
 setup() {
@@ -82,7 +82,7 @@ step_run() {
     if [[ $1 == "--exit" ]]; then
         STEP_EXIT="$1"; shift
     fi
-    $@
+    "${@}"
     step_done $? ${STEP_EXIT}
 }
 
@@ -128,19 +128,18 @@ if [[ $BUILD_DEB == true ]]; then
       step_done $?
 
       EXTRA_FLAGS=""
-      if [[ $LINUX_BUILD_WAS_EXECUTED == true && NO_CLEAN_LINUX == true ]]; then
+      if [[ $LINUX_BUILD_WAS_EXECUTED == true || $NO_CLEAN_LINUX == true ]]; then
         EXTRA_FLAGS="LINUX_CLEAN="
       fi
 
       step_run "Creating deb packages" make package_deb ${EXTRA_FLAGS}
-      LINUX_BUILD_WAS_EXECUTED=true
 
       step_run "Generating Ubuntu 12.04 repository" azk shell package -c "src/libexec/package-tools/ubuntu/generate.sh ${LIBNSS_RESOLVER_VERSION} precise ${SECRET_KEY}"
       step_run "Testing Ubuntu 12.04 repository" ${AZK_BUILD_TOOLS_PATH}/ubuntu/test.sh precise
 
       step_run "Generating Ubuntu 14.04 repository" azk shell package -c "src/libexec/package-tools/ubuntu/generate.sh ${LIBNSS_RESOLVER_VERSION} trusty ${SECRET_KEY}"
       step_run "Testing Ubuntu 14.04 repository" ${AZK_BUILD_TOOLS_PATH}/ubuntu/test.sh trusty
-    )
+    ) && LINUX_BUILD_WAS_EXECUTED=true
 
     echo
 fi
@@ -159,7 +158,7 @@ if [[ $BUILD_RPM == true ]]; then
       step_done $?
 
       EXTRA_FLAGS=""
-      if [[ $LINUX_BUILD_WAS_EXECUTED == true && NO_CLEAN_LINUX == true ]]; then
+      if [[ $LINUX_BUILD_WAS_EXECUTED == true || $NO_CLEAN_LINUX == true ]]; then
         EXTRA_FLAGS="LINUX_CLEAN="
       fi
 
@@ -168,7 +167,7 @@ if [[ $BUILD_RPM == true ]]; then
 
       step_run "Generating Fedora 20 repository" azk shell package -c "src/libexec/package-tools/fedora/generate.sh fedora20 ${SECRET_KEY}"
       step_run "Testing Fedora 20 repository" ${AZK_BUILD_TOOLS_PATH}/fedora/test.sh fedora20
-    )
+    ) && LINUX_BUILD_WAS_EXECUTED=true
 
     echo
 fi
