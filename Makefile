@@ -45,7 +45,7 @@ ${NODE}:
 		mkdir -p ${NVM_DIR} && \
 		. ${NVM_BIN_PATH} && \
 		nvm install $(NVM_NODE_VERSION) && \
-		azk nvm npm install npm -g
+		${AZK_BIN} nvm npm install npm -g
 
 clean:
 	@echo "task: $@"
