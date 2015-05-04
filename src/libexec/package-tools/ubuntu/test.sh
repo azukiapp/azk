@@ -5,7 +5,6 @@ if [[ $# < 1 ]] || [[ $# > 2 ]]; then
     exit 1
 fi
 
-set -x
 set -e
 
 BASE_DIR=$( echo $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd ) | sed s#$(pwd)/##g )

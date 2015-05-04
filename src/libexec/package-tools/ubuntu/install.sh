@@ -5,8 +5,6 @@ if [[ $# != 1 ]]; then
     exit 1
 fi
 
-set -x
-
 export PATH=`pwd`/bin:$PATH
 export DISTRO=$1
 

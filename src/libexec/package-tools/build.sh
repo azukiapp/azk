@@ -1,11 +1,9 @@
 #! /bin/bash
 
 if [[ $# < 1 ]]; then
-    echo "Usage: ${0##*/} {secret_key} [deb] [rpm] [mac] [--no-make] [--no-agent] [--no-test]"
+    echo "Usage: ${0##*/} {secret_key} [deb] [rpm] [mac] [--no-make] [--no-agent] [--no-test] [-v]"
     exit 1
 fi
-
-set -x
 
 # Get azk root path
 abs_dir() {
@@ -41,6 +39,8 @@ while [[ $# -gt 0 ]]; do
             NO_AGENT=true;;
         "--no-test" )
             NO_TEST=true;;
+        "-v" )
+            VERBOSE=true;;
         *) echo >&2 "Invalid option: $@"; exit 1;;
    esac
 done
@@ -52,20 +52,20 @@ if [[ -z $BUILD_DEB ]] && [[ -z $BUILD_RPM ]] && [[ -z $BUILD_MAC ]]; then
 fi
 
 quiet() {
-    "${@}" > /dev/null 2>&1
+    ( "${@}" ) > /dev/null 2>&1
 }
 
 setup() {
-    quiet make clean && quiet make
+    make clean && make
 }
 
 tear_down() {
     [[ $NO_AGENT != true ]] \
-      && quiet azk agent stop \
-      && quiet rm $AZK_AGENT_LOG_FILE
+      && azk agent stop \
+      && rm $AZK_AGENT_LOG_FILE
 }
 
-step() { echo $@ | sed -e :a -e 's/^.\{1,72\}$/&./;ta';}
+step() { echo -n $@ | sed -e :a -e 's/^.\{1,72\}$/&./;ta'; }
 
 step_done() {
     if [[ $# > 0 ]] && [[ $1 != 0 ]]; then
@@ -82,16 +82,23 @@ step_done() {
 
 step_run() {
     step $1; shift
+
     STEP_EXIT=""
     if [[ $1 == "--exit" ]]; then
         STEP_EXIT="$1"; shift
     fi
-    "${@}"
+
+    if [[ $VERBOSE == true ]]; then
+      "${@}"
+    else
+      quiet "${@}"
+    fi
+
     step_done $? ${STEP_EXIT}
 }
 
 start_agent() {
-    quiet azk agent stop
+    azk agent stop
     sleep 3
 
     AZK_VM_MEMORY=3072 ./bin/azk agent start --no-daemon > $AZK_AGENT_LOG_FILE 2>&1 &
@@ -107,6 +114,7 @@ start_agent() {
 }
 
 setup_test() {
+  rm -Rf $TEST_DIR
   git clone $TEST_PROJECT $TEST_DIR
 }
 
@@ -131,11 +139,10 @@ if [[ $BUILD_DEB == true ]]; then
 
       step_run "Cleaning current aptly repo" azk shell package -c "rm -Rf /azk/aptly/*"
 
-      step "Downloading libnss-resolver"
+      step_run "Downloading libnss-resolver" \
       mkdir -p package/deb \
-      && wget "${LIBNSS_RESOLVER_REPO}/ubuntu12-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb" -O "package/deb/precise-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb" \
-      && wget "${LIBNSS_RESOLVER_REPO}/ubuntu14-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb" -O "package/deb/trusty-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb"
-      step_done $?
+      && wget -q "${LIBNSS_RESOLVER_REPO}/ubuntu12-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb" -O "package/deb/precise-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb" \
+      && wget -q "${LIBNSS_RESOLVER_REPO}/ubuntu14-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb" -O "package/deb/trusty-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb"
 
       EXTRA_FLAGS=""
       if [[ $LINUX_BUILD_WAS_EXECUTED == true || $NO_CLEAN_LINUX == true ]]; then
@@ -162,10 +169,9 @@ if [[ $BUILD_RPM == true ]]; then
     (
       set -e
 
-      step "Downloading libnss-resolver"
+      step_run "Downloading libnss-resolver" \
       mkdir -p package/rpm \
       && wget "${LIBNSS_RESOLVER_REPO}/fedora20-libnss-resolver-${LIBNSS_RESOLVER_VERSION}-1.x86_64.rpm" -O "package/rpm/fedora20-libnss-resolver-${LIBNSS_RESOLVER_VERSION}-1.x86_64.rpm"
-      step_done $?
 
       EXTRA_FLAGS=""
       if [[ $LINUX_BUILD_WAS_EXECUTED == true || $NO_CLEAN_LINUX == true ]]; then
@@ -197,4 +203,4 @@ if [[ $BUILD_MAC == true ]]; then
     echo
 fi
 
-tear_down
+step_run "Tearing down" tear_down

@@ -10,7 +10,6 @@ if [[ ! -e Azkfile.js ]]; then
     exit 2
 fi
 
-set -x
 set -e
 
 export PATH=`pwd`/bin:$PATH
