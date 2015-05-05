@@ -43,7 +43,7 @@ The documentation for `azk`, the one you are reading right now, is the main sour
 
 ## Reporting issues
 
-Errors are reported by creating new [issues] on [GitHub][github]. They help us to fix bugs that we might have missed in our testing or release process.
+Errors are reported by creating new [issues] on [GitHub][github]. They help us fix bugs that we might have missed in our testing or release process.
 
 Before creating new [issues] please make sure there are no similar ones already created. If you do find one similar, add a :+1: comment to it, and also any information that might be different from the person who first opened the issue, for example: OS, `azk` version, etc.
 
@@ -105,6 +105,8 @@ We use `.jshintrc` and `.jscsrc` configured with `esnext` enabled, i.e. with var
 - **jscs**: http://jscs.info/overview.html
 - **jshint**: http://jshint.com/install/index.html
 
+We also use a `.editorconfig` file to help maintain a consistent coding style no matter which editor or IDE you're using. You can learn more about EditorConfig files [here](http://editorconfig.org/), and check how ours is setup [here](https://github.com/azukiapp/azk/blob/master/.editorconfig).
+
 
 ### Task tool - Gulp
 
@@ -119,7 +121,7 @@ You can find the full list of tasks available by running: `azk nvm gulp help`, b
 
 ## Pull Requests
 
-First of all, install azk from source code:
+First of all, grab `azk` from source and build its binary:
 
 ```bash
 $ git clone https://github.com/azukiapp/azk.git
@@ -128,8 +130,15 @@ $ make clean
 $ make
 ```
 
-Then add the path to your azk binary to your PATH variable, or create an alias to it. If you need further instructions, please check this [page](../installation/source-code.md).
+Then add the path to your azk binary to your PATH environment variable, or create an alias to it. 
 
+There's additional steps that you need to go through if you're installing it on a Mac or a Linux (for example, installing the `libnss-resolver`). Check [this page](../installation/source-code.md) for more detailed instructions. 
+
+### JavaScript and Node.js
+
+As mentioned in the "Implementation Details" section, `azk` is written in [Node.js][node.js], and it uses several features of ES6. One thing to note is that, for developing and contributing to `azk`, you don't need to have Node.js installed in your machine.
+
+`azk` uses itself to run a container with Node.js installed, and run any tests with changes made to the code inside it. 
 
 ### Contributing code
 
@@ -217,6 +226,18 @@ We can filter the tests to run specific sections, or a single one.
 ```bash
 $ azk nvm gulp test --grep="Azk command init run"
 ```
+
+
+### Adding or Updating Dependencies
+
+To help manage `azk` dependencies, we use `npm's shrinkwrap` to lock down the versions we use (more information about that [here](https://docs.npmjs.com/cli/shrinkwrap)). Because of that, if you need to add a dependency to `azk`, or update an existing one, make sure to generate the [`npm-shrinkwrap.json`](https://github.com/azukiapp/azk/blob/master/npm-shrinkwrap.json) file again.
+
+You can find more information about the commands [here](https://docs.npmjs.com/cli/shrinkwrap#building-shrinkwrapped-packages), but it should be as simples as:
+
+1. Run "npm install" in the package root to install the current versions of all dependencies.
+1. Add or update dependencies. "npm install" each new or updated package individually and then update package.json. Note that they must be explicitly named in order to be installed: running npm install with no arguments will merely reproduce the existing shrinkwrap.
+1. Validate that the package works as expected with the new dependencies.
+1. Run "npm shrinkwrap", commit the new npm-shrinkwrap.json, and publish your package.
 
 
 ### Opening a Pull Request
