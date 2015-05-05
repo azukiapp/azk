@@ -2,7 +2,7 @@ import h from 'spec/spec_helper';
 import { async } from 'azk';
 
 describe("Azk system class, balancer set", function() {
-  this.timeout(10000);
+  this.timeout(20000);
   var manifest, system;
 
   before(function() {
