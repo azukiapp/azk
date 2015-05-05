@@ -75,8 +75,8 @@ export class TrackerEvent {
           });
         }
         return tracking_result;
-      }, (error) => {
-        log.error(error.stack);
+      }, () => {
+        log.info('Analytics tracker timed out.');
         return false;
       });
   }

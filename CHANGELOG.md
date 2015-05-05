@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## dev
+* Bug
+  * [Tracking] Fixing timeout message when tracking an event;
 
 ## v0.12.1 - (2015-25-04)
 
