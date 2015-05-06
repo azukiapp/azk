@@ -1,5 +1,6 @@
 .vimrc
 .azk
+.env
 /data
 /lib
 /package
