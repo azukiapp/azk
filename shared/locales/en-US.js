@@ -351,7 +351,7 @@ module.exports = {
       },
       examples: [
         '$ azk shell --shell /bin/bash',
-        '$ azk shell [system_name] --mount /=/azk/root -e RAILS_ENV=dev',
+        '$ azk shell [system_name] --mount /:/azk/root -e RAILS_ENV=dev',
         '$ azk shell [system_name] -c "ls -l /"',
         '$ azk shell --image azukiapp/budybox -t -c "/bin/bash"',
       ]
