@@ -28,7 +28,7 @@ $ azk shell --shell /bin/bash
 
 # Start the system [system_name] mounting the folder in /azk/root
 #  inside the container and setting the environment variable RAILS_ENV=dev
-$ azk shell [system_name] --mount /=/azk/root -e RAILS_ENV=dev
+$ azk shell [system_name] --mount /:/azk/root -e RAILS_ENV=dev
 
 # Runs the command `ls` within the system [system_name]
 $ azk shell [system_name] -c "ls -l /"
