@@ -502,6 +502,7 @@ var vm = {
     }, []);
 
     var mount = `sudo mount -t vboxsf -o ${opts.join(',')} ${share} ${point}`;
+    console.log(mount);
     var check = `mount | grep "${point}\\s" &>/dev/null`;
     var cmd   = [
       `if sudo modprobe vboxguest &> /dev/null && sudo modprobe vboxsf &> /dev/null; then`,

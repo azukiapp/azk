@@ -516,6 +516,10 @@ export class System {
         case 'persistent':
           target = path.join(persist_base, mount.value);
           break;
+
+        case 'sync':
+          console.log('sync', point, mount.value);
+          break;
       }
 
       if (!_.isEmpty(target)) {

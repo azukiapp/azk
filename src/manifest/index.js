@@ -29,6 +29,10 @@ var ManifestDsl = {
     return { type: 'persistent', value: name, options: options };
   },
 
+  sync(name, options = {}) {
+    return { type: 'sync', value: name, options: options };
+  },
+
   // Systems
   system(name, data) {
     this.addSystem(name, data);
