@@ -90,6 +90,7 @@
   "devDependencies": {
     "azk-dev": "0.0.15",
     "babel": "^5.1.9",
+    "chrome-cpu-profiler": "git+https://github.com/saitodisse/chrome-cpu-profiler.git",
     "concurrent-transform": "^1.0.0",
     "dotenv": "^1.1.0",
     "fixture-stdout": "^0.2.1",

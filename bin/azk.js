@@ -1,5 +1,11 @@
 #!/usr/bin/env node
 
+if (process.env.AZK_ENABLE_CHROME_CPU_PROFILER) {
+  var profiler = require('chrome-cpu-profiler');
+  profiler.startDate = new Date();
+  profiler.startProfiling('cpu-azk-profile');
+}
+
 if (process.env.AZK_PROFILE_REQUIRES) {
   require('azk/utils/require_debug');
 }
