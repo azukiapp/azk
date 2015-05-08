@@ -24,13 +24,16 @@ Abaixo, você pode encontrar algumas seções com informações mais detalhadas.
     1. [Qualidade e estilo do código](README.html#qualidade-e-estilo-do-cdigo)
     1. [Ferramenta de tarefas - Gulp](README.html#ferramenta-de-tarefas---gulp)
 1. [Pull Requests](README.html#pull-requests)
+    1. [JavaScript e Node.js](README.html#javascript-e-nodejs)
     1. [Contribuir com código](README.html#contribuir-com-cdigo)
     1. [Organização de branches](README.html#organizao-de-branches)
     1. [Convenções](README.html#convenes)
         1. [Branches](README.html#branches)
         1. [Mensagens de commit](README.html#mensagens-de-commit)
     1. [Testes](README.html#testes)
+        1. [Testes de integração](README.html#tests-de-integrao)
         1. [Filtrar testes](README.html#filtrar-testes)
+    1. [Adicionando ou atualizando dependências](README.html#adicionando-ou-atualizando-dependncias)
     1. [Abrir Pull Requests](README.html#abrir-pull-requests)
         1. [Formato do Pull Request](README.html#formato-do-pull-request)
 
@@ -129,6 +132,8 @@ Nós utilizamos o `.jshintrc` e o `.jscsrc` configurados com o `esnext` ligado, 
 - **jscs**: http://jscs.info/overview.html
 - **jshint**: http://jshint.com/install/index.html
 
+Além disso, nós utilizamos o arquivo `.editorconfig` para manter a consistência do estilo de código, independente da IDE ou editor que qualquer um esteja usando. Você pode ver mais informações sobre arquivos EditorConfig [aqui](http://editorconfig.org/), e também ver como o nosso está configurado [aqui](https://github.com/azukiapp/azk/blob/master/.editorconfig).
+
 
 ### Ferramenta de tarefas - Gulp
 
@@ -152,7 +157,41 @@ $ make clean
 $ make
 ```
 
-Então adicione o caminho para o binário do azk a variável de ambiente PATH, ou crie um alias para ele. Caso você precise de instruções mais detalhadas, olhe [essa página da documentação](../installation/source-code.md).
+Então adicione o caminho para o binário do azk a variável de ambiente PATH, ou crie um alias para ele. 
+
+Existem passos adicionais que você precisará seguir caso esteja realizando a instalação no Mac ou no Linux (por exemplo, realizar a instalação do `libnss-resolver`). Olhe [essa página da documentação](../installation/source-code.md) para instruções mais detalhadas.
+
+
+### JavaScript e Node.js
+
+Como mencionado na seção "Detalhes de implementação", o `azk` é escrito em [Node.js][node.js], e utiliza vários recursos do ES6. Uma coisa a notar é que, para ajudar no desenvolvimento e contribuir para o `azk`, você não precisa ter Node.js instalado em sua máquina.
+
+O `azk` possui uma versão do Node.js, que é o mesmo que usamos para testá-lo e desenvolvê-lo, dentro da pasta "`/lib/nvm`". Ele já vem instalado e empacotado quando você baixa o `azk` através de um gerenciador de pacotes, ou ele também é instalado caso você baixe o projeto do GitHub e execute `make` para construir seu binário. Isso significa que nós podemos:
+
+1. Ter certeza de que o `azk` está sendo executado e usando uma versão do Node.js que testamos.
+2. Não exigir que o usuário possua o Node.js instalado em sua máquina, e caso ele esteja instalado, não afetar o ambiente de desenvolvimento de qualquer forma.
+
+Durante o desenvolvimento, no caso de você querer usar comandos node, você pode executar:
+
+```sh
+$ azk nvm node [command]
+
+# Ou
+
+$ azk nvm npm [command]
+```
+
+Caso você queira instalar alguma dependência, o processo será algo como:
+
+```sh
+$ azk nvm npm install gulp
+```
+
+E então você poderá usar o módulo com:
+
+```sh
+$ azk nvm gulp
+```
 
 
 ### Contribuir com código
@@ -216,7 +255,7 @@ As mensagens de commit seguem uma convenção:
 git commit -m '[YOUR_BRANCH_NAME] comment'
 ```
 
-Isso nos ajuda ao consultar e filtrar a história do git no futuro, para ver onde as mudanças vieram.
+Isso nos ajuda ao consultar e filtrar o histórico do git no futuro, para ver de onde as mudanças vieram.
 
 
 ### Testes
@@ -233,13 +272,48 @@ $ azk nvm npm test
 ```
 
 
+#### Testes de integração
+
+Os testes de integração do `azk` são escritos utilizando [bats], e podem ser encontrados dentro da pasta "`specs/integration`". Antes de rodar os testes você precisará instalar algumas dependências:
+
+```bash
+$ make dependencies
+```
+
+E então você poderá executá-los com:
+
+```bash
+$ azk nvm gulp integration
+```
+
+Note que para rodar os testes, é necessário que o `azk agent` esteja em execução.
+
+
 #### Filtrar testes
 
-Nós podemos filtrar os testes a serem executados por seções específicas, ou individualmente.
+Nós podemos filtrar os testes a serem executados por seções específicas, ou individualmente, com:
 
 ```bash
 $ azk nvm gulp test --grep="Azk command init run"
 ```
+
+Similar aos testes funcionais, você pode filtrar os testes de integração com:
+
+```bash
+$ azk nvm gulp integration --grep="force to replace a"
+```
+
+
+### Adicionando ou atualizando dependências
+
+Para ajudar a gerenciar as dependências do `azk`, nós utilizamos o `npm shrinkwrap` para realizar o "lock" das versões que usamos (mais informações sobre isso [aqui](https://docs.npmjs.com/cli/shrinkwrap)). Por isso, se você precisar adicionar uma dependência ao `azk`, ou atualizar uma já existente, certifique-se de gerar o arquivo [`npm-shrinkwrap.json`](https://github.com/azukiapp/azk/blob /master/npm-shrinkwrap.json) novamente.
+
+Você pode encontrar mais informações sobre os comandos necessários para fazer isso [aqui](https://docs.npmjs.com/cli/shrinkwrap#building-shrinkwrapped-packages), mas deve ser simples como:
+
+1. Execute "npm install" no root do pacote para instalar as versões atuais de todas as dependências.
+1. Adicionar ou atualizar dependências. "npm install" cada pacote novo ou atualizado individualmente e depois atualizar o package.json. Note-se que eles devem ser explicitamente chamados para serem instalados: executando npm install sem argumentos irá somente reproduzir o shrinkwrap existente.
+1. Confirme que o pacote funciona como previsto com as novas dependências.
+1. Execute "npm shrinkwrap", "commit" o novo npm-shrinkwrap.json, e publique o pacote.
 
 
 ### Abrir Pull Requests
@@ -314,15 +388,17 @@ Como testar o PR:
 Informação adicional:
 ```
 
-[mocha]: http://visionmedia.github.io/mocha/
-[gulp]: http://gulpjs.com/
-[github]: https://github.com/azukiapp/azk
-[issues]: https://github.com/azukiapp/azk/issues
-[pull requests]: https://github.com/azukiapp/azk/pulls
-[gitter]: https://gitter.im/azukiapp/azk
-[git flow]: http://jeffkreeftmeijer.com/2010/why-arent-you-using-git-flow/
-[Forking Workflow]: https://www.atlassian.com/git/tutorials/comparing-workflows/forking-workflow
+
 [babeljs]: http://babeljs.io
 [babeljs compat-table]: https://babeljs.io/docs/learn-es6/
+[bats]: https://github.com/sstephenson/bats
+[Forking Workflow]: https://www.atlassian.com/git/tutorials/comparing-workflows/forking-workflow
+[git flow]: http://jeffkreeftmeijer.com/2010/why-arent-you-using-git-flow/
+[github]: https://github.com/azukiapp/azk
+[gitter]: https://gitter.im/azukiapp/azk
+[gulp]: http://gulpjs.com/
+[issues]: https://github.com/azukiapp/azk/issues
+[mocha]: http://visionmedia.github.io/mocha/
 [node.js]: http://nodejs.org/
+[pull requests]: https://github.com/azukiapp/azk/pulls
 [Q]: https://github.com/kriskowal/q/wiki/API-Reference#generators

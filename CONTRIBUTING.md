@@ -19,19 +19,22 @@ Below you can find a few sections with more detailed information. We also recomm
 
 1. [Questions and support](README.html#questions-and-support)
 1. [Reporting issues](README.html#reporting-issues)
-1. [Tips and Guidelines](README.html#tips-and-guidelines)
+1. [Tips and guidelines](README.html#tips-and-guidelines)
     1. [Folders structure](README.html#folders-structure)
     1. [Implementation details](README.html#implementation-details)
     1. [Code quality and style](README.html#code-quality-and-style)
     1. [Task tool - Gulp](README.html#task-tool---gulp)
 1. [Pull Requests](README.html#pull-requests)
+    1. [JavaScript and Node.js](README.html#javascript-and-nodejs)
     1. [Contributing code](README.html#contributing-code)
     1. [Branches organization](README.html#branches-organization)
     1. [Conventions](README.html#conventions)
         1. [Branches](README.html#branches)
         1. [Commit message](README.html#commit-message)
     1. [Testing](README.html#testing)
+        1. [Integration tests](README.html#integration-tests)
         1. [Filtering tests](README.html#filtering-tests)
+    1. [Adding or updating dependencies](README.html#adding-or-updating-dependencies)
     1. [Opening a Pull Request](README.html#opening-a-pull-request)
         1. [Pull Request format](README.html#pull-request-format)
 
@@ -71,7 +74,7 @@ Expected Results:
 Additional info:
 ```
 
-## Tips and Guidelines
+## Tips and guidelines
 
 
 ### Folders structure
@@ -134,11 +137,38 @@ Then add the path to your azk binary to your PATH environment variable, or creat
 
 There's additional steps that you need to go through if you're installing it on a Mac or a Linux (for example, installing the `libnss-resolver`). Check [this page](../installation/source-code.md) for more detailed instructions. 
 
+
 ### JavaScript and Node.js
 
 As mentioned in the "Implementation Details" section, `azk` is written in [Node.js][node.js], and it uses several features of ES6. One thing to note is that, for developing and contributing to `azk`, you don't need to have Node.js installed in your machine.
 
-`azk` uses itself to run a container with Node.js installed, and run any tests with changes made to the code inside it. 
+`azk` has a version of Node.js, which is the same we use to test it and develop it, inside the folder "`/lib/nvm`". It comes already installed and pre-packaged when you grab `azk` from a package manager, or it's installed if you grab it from GitHub and run `make` to build a binary. That means that we can:
+
+1. Make sure that `azk` is being executed and using a Node.js version that we tested.
+2. Not require the user to have Node.js installed in its machine, and if they do, not affect their development environment in any way.
+
+During development, in case you want to use node commands, you can run:
+
+```sh
+$ azk nvm node [command]
+
+# Or
+
+$ azk nvm npm [command]
+```
+
+If you want to install any dependencies, it might work similar to this:
+
+```sh
+$ azk nvm npm install gulp
+```
+
+And then you can use it by running:
+
+```sh
+$ azk nvm gulp
+```
+
 
 ### Contributing code
 
@@ -218,17 +248,39 @@ azk: Agent has been successfully started.
 $ azk nvm npm test
 ```
 
+#### Integration tests
+
+The `azk` integration tests are written using [bats] and can be found inside the folder "`specs/integration`". Before running the tests you need to install some dependencies:
+
+```bash
+$ make dependencies
+```
+
+Now you can run the integration tests with:
+
+```bash
+$ azk nvm gulp integration
+```
+
+Note that running these tests requires you to have the `azk agent` running.
+
 
 #### Filtering tests
 
-We can filter the tests to run specific sections, or a single one.
+We can filter the tests to run specific sections, or a single one with:
 
 ```bash
 $ azk nvm gulp test --grep="Azk command init run"
 ```
 
+Similar to the functional tests, you can filter which integration tests will be executed:
 
-### Adding or Updating Dependencies
+```bash
+$ azk nvm gulp integration --grep="force to replace a"
+```
+
+
+### Adding or updating dependencies
 
 To help manage `azk` dependencies, we use `npm's shrinkwrap` to lock down the versions we use (more information about that [here](https://docs.npmjs.com/cli/shrinkwrap)). Because of that, if you need to add a dependency to `azk`, or update an existing one, make sure to generate the [`npm-shrinkwrap.json`](https://github.com/azukiapp/azk/blob/master/npm-shrinkwrap.json) file again.
 
@@ -297,15 +349,16 @@ How to test the PR:
 Additional info:
 ```
 
-[mocha]: http://visionmedia.github.io/mocha/
-[gulp]: http://gulpjs.com/
-[github]: https://github.com/azukiapp/azk
-[issues]: https://github.com/azukiapp/azk/issues
-[pull requests]: https://github.com/azukiapp/azk/pulls
-[gitter]: https://gitter.im/azukiapp/azk
-[git flow]: http://jeffkreeftmeijer.com/2010/why-arent-you-using-git-flow/
-[Forking Workflow]: https://www.atlassian.com/git/tutorials/comparing-workflows/forking-workflow
 [babeljs]: http://babeljs.io
 [babeljs compat-table]: https://babeljs.io/docs/learn-es6/
+[bats]: https://github.com/sstephenson/bats
+[Forking Workflow]: https://www.atlassian.com/git/tutorials/comparing-workflows/forking-workflow
+[git flow]: http://jeffkreeftmeijer.com/2010/why-arent-you-using-git-flow/
+[github]: https://github.com/azukiapp/azk
+[gitter]: https://gitter.im/azukiapp/azk
+[gulp]: http://gulpjs.com/
+[issues]: https://github.com/azukiapp/azk/issues
+[mocha]: http://visionmedia.github.io/mocha/
 [node.js]: http://nodejs.org/
+[pull requests]: https://github.com/azukiapp/azk/pulls
 [Q]: https://github.com/kriskowal/q/wiki/API-Reference#generators
