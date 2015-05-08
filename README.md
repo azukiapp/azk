@@ -47,7 +47,7 @@ In order to automate the provisioning of development environments, `azk` uses pr
 
 More information [here](http://docs.azk.io/en/azkfilejs/README.html).
 
-### Starting a new application project:
+### Starting a new project:
 
 If you are starting a new application project, you can already use `azk` to obtain the proper runtime as well the corresponding generators for your chosen language and then generate the application's basic structure. An example in node.js would look like this:
 
@@ -66,9 +66,9 @@ azk: 'Azkfile.js' generated
 $ azk start
 ```
 
-### Taming an existing application project's development environment with `azk`:
+### Using `azk` with an existing project:
 
-When you already have an application project going on and want to use `azk` to streamline its development environment, all you have to do is as follows:
+When you have an application project that's already started, and want to use `azk` to streamline its development environment, all you have to do is:
 
 ```bash
 $ cd [my_application_folder]
