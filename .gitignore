@@ -7,4 +7,5 @@
 /node_modules
 /build
 npm-debug.log
-*.cpuprofile
+CHROME_CPU_PROFILER/
+NJS_TRACER_RESULTS/

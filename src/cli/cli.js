@@ -57,24 +57,23 @@ export class Cli extends Command {
     return cmd.showUsage(prefix);
   }
 
-  stopProfiling() {
+  stopCpuProfiling() {
     if (!process.env.AZK_ENABLE_CHROME_CPU_PROFILER) {
       return;
     }
-
     var profiler = require('chrome-cpu-profiler');
-    if (profiler.profilerRun) {
-      console.log('ERROR: already executed');
-    } else {
-      // var mkdirp = require('mkdirp');
-      // mkdirp.sync('CPU-RESULTS');
-      var endDate = new Date();
-      var totalTime = endDate.getTime() - profiler.startDate.getTime();
-      console.log('stopping chrome-cpu-profiler :: ', totalTime, 'ms');
+    if (!profiler.profilerRun) {
       var data = profiler.stopProfiling('cpu-azk-profile');
       profiler.writeFile(data);
       profiler.profilerRun = true;
     }
+  }
+
+  stopNjsTracer() {
+    if (!process.env.AZK_ENABLE_NJS_TRACE_PROFILER) {
+      return;
+    }
+    global.njstrace.save('trace_result.json');
   }
 
   action(opts) {
@@ -84,11 +83,13 @@ export class Cli extends Command {
       var command_result = cmd.run(_.clone(opts.__leftover), opts);
       if (Q.isPromise(command_result)) {
         return command_result.then((result) => {
-          this.stopProfiling();
+          this.stopCpuProfiling();
+          this.stopNjsTracer();
           return result;
         });
       } else {
-        this.stopProfiling();
+        this.stopCpuProfiling();
+        this.stopNjsTracer();
         return command_result;
       }
     }
