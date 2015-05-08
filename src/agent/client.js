@@ -7,7 +7,7 @@ var req = require('request');
 
 var lazy = lazy_require({
   url: 'url',
-  WebSocket : 'ws',
+  WebSocket : 'ws'
 });
 
 var HttpClient = {
@@ -30,77 +30,53 @@ var HttpClient = {
 var WebSocketClient = {
   is_init: false,
   ws: null,
+  ws_path: '/',
 
-  init(handler = null) {
-    var socket_add  = lazy.url.parse(`ws+unix:\/\/${config('paths:api_socket')}`);
-    socket_add.path = '/echo';
-    console.log(socket_add);
-    this.ws = new WebSocket(socket_add);
-    this.ws.on('open', () => this.ws.send('something'));
-    this.ws.on('message', (data) => {
-      console.log("Received: ", data);
-      if (handler) {
-        handler(data);
+  init(callback = null) {
+    return defer((resolve, reject) => {
+      if (this.is_init) {
+        resolve();
       }
+
+      var socket_address  = lazy.url.parse(`ws+unix:\/\/${config('paths:api_socket')}`);
+      socket_address.path = this.ws_path;
+
+      this.ws = new lazy.WebSocket(socket_address);
+
+      this.ws.on('open', () => {
+        console.log('Websocket connected.');
+        this.is_init = true;
+        resolve();
+      });
+
+      this.ws.on('close', () => {
+        this.is_init = false;
+      });
+
+      this.ws.on('error', (err) => {
+        console.log('Error connecting Websocket:', err);
+        reject(err);
+      });
+
+      this.ws.on('message', (data) => {
+        console.log("Received: ", data);
+        if (callback) {
+          callback(data);
+        }
+      });
     });
-
-    // this.ws.on('connectFailed', function(error) {
-    //   console.log('Connect Error: ' + error.toString());
-    // });
-
-    // this.ws.on('connect', function(connection) {
-    //   this.ws_connection = connection;
-    //   console.log('WebSocket Client Connected');
-    //   this.ws_connection.on('error', function(error) {
-    //     console.log("Connection Error: " + error.toString());
-    //   });
-
-    //   this.ws_connection.on('close', function() {
-    //     console.log('echo-protocol Connection Closed');
-    //   });
-
-    //   this.ws_connection.on('message', function(message) {
-    //     if (message.type === 'utf8') {
-    //       console.log("Received: '" + message.utf8Data + "'");
-    //     }
-    //     if (handler) {
-    //       handler(message);
-    //     }
-    //   });
-
-    // this.ws.on('open', function() {
-    //   console.log('WebSocket Client Connected');
-    // });
-
-    // this.ws.on('textMessage', function(message) {
-    //   console.log("Received: ", message);
-    //   if (handler) {
-    //     handler(message);
-    //   }
-    // });
-
-    this.is_init = true;
   },
 
-  // connect(handler) {
-  //   if (!this.is_init) {
-  //     this.init(handler);
-  //   }
-  //   this.ws.connect(`ws+unix:\/\/unix:${config('paths:api_socket')}`);
-  //   console.log('5', this.ws);
-  // },
-
-  send(message, handler) {
-    if (!this.is_init || !this.ws.isOpen()) {
-      this.init(handler);
-    }
-
-    // if (this.ws.isOpen()) {
-    this.ws.send(message);
-    return true;
-    // }
-
-    // return false;
+  send(message, callback = null) {
+    this.init(callback)
+      .then(() => {
+        this.ws.send(message);
+        return true;
+      })
+      .fail((err) => {
+        console.log('Failed to send message', err);
+        return false;
+      });
   }
 };
 
@@ -144,14 +120,24 @@ var Client = {
   },
 
   syncs() {
-    return defer((resolve) => {
-      console.log('Posting syncs');
-      WebSocketClient.init();
-      resolve();
-      // var sync_data = { host_folder: "X", guest_folder: "Y" };
-      //   WebSocketClient.send(JSON.stringify(sync_data), (response) => {
-      //     (response === 'done') ? resolve(sync_data) : reject('Something happened...');
-      //   });
+    return defer((resolve, reject) => {
+      var sync_data = { host_folder: "/tmp/a/*", guest_folder: "/tmp/b" };
+
+      WebSocketClient.ws_path = '/sync/initial';
+      WebSocketClient.send(JSON.stringify(sync_data), (response) => {
+        switch (response) {
+          case 'start':
+            console.log('Sync started');
+            break;
+          case 'done' :
+            console.log('Sync finished');
+            resolve();
+            break;
+          case 'fail' :
+            console.log('Sync failed');
+            reject('Something happened...');
+        }
+      });
     });
   },
 
@@ -162,11 +148,10 @@ var Client = {
         console.log(status);
         if (status.agent) {
           return Q.all([this.configs(), this.syncs()])
-            .spread((configs, syncs) => {
+            .spread((configs) => {
               _.each(configs, (value, key) => {
                 set_config(key, value);
               });
-              console.log('final then', syncs);
             });
         }
         throw new AgentNotRunning();

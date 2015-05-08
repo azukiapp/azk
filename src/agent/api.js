@@ -9,9 +9,6 @@ var app        = express();
 
 require('express-ws')(app);
 
-// var WebSocketServer = require('websocket').server;
-// var yawl = require('yawl');
-
 app.use(bodyParser.urlencoded({ extended: false }));
 
 // Module
@@ -48,17 +45,23 @@ var Api = {
   },
 
   ws() {
-    // Init websocker entry point
-    // app.get('/ws', (req, res) => {
-    //   console.log('GET /ws');
-    //   res.header('Connection' , 'Upgrade');
-    //   res.header('Upgrade' , 'websocket');
-    //   res.sendStatus(101);
-    // });
-    app.ws('/echo', function(ws) {
-      ws.send('ok!');
-      ws.on('message', function(msg) {
-        ws.send(msg);
+    // Init websocket entry point
+    app.ws('/sync/initial', function(ws) {
+      ws.on('message', function(data) {
+        var sync_data = JSON.parse(data);
+        var [host_folder, guest_folder] = [sync_data.host_folder, sync_data.guest_folder];
+
+        ws.send('start');
+        console.log('outside rsync', host_folder, guest_folder);
+        Rsync.sync_folders(host_folder, guest_folder)
+        .then(() => {
+          console.log("folders sync'ed!");
+          ws.send('done');
+        })
+        .fail((err) => {
+          console.log("folders sync fail", err);
+          ws.send('fail');
+        });
       });
     });
   },
