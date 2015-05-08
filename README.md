@@ -113,7 +113,7 @@ $ azk logs [system_name, ...]     # Shows last lines of a specific system
 $ azk logs -f                     # Shows last lines of log and follow for more
 ```
 
-## Contributions and testing (for experts only)
+## Contributions and testing
 
 Clone `azk` from the source, and install dependencies:
 
@@ -127,7 +127,7 @@ Clone `azk` from the source, and install dependencies:
 
 Note that running these tests requires you to have `azk agent` running.
 
-To run test with filters run use `azk nvm gulp --grep "test name"`:
+To run test with filters run `azk nvm gulp --grep "test name"`:
 
 Example:
 
@@ -149,10 +149,9 @@ Now you can run the integration tests:
 $ azk nvm gulp integration
 ```
 
-Note that running these tests requires you to have `azk agent` running.
+Note that running these tests requires you to have the `azk agent` running.
 
-As the functional tests, the integration tests has a way to filter which tests
-will be executed:
+Similar to the functional tests, you can filter which integration tests will be executed:
 
 ```bash
 $ azk nvm gulp integration --grep="force to replace a"
