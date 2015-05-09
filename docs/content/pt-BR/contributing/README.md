@@ -47,7 +47,7 @@ A documentação para o `azk`, que você está lendo agora, é a principal fonte
 
 Os erros são comunicados através da criação de novas [issues] no [GitHub][github]. Elas nos ajudam a corrigir erros que possam ter escapado no nosso processo de teste ou release.
 
-Antes de criar novas [issues] por favor, certifique-se de que não há outras similares já criadas. Se você encontrar uma semelhante, adicione um comentário :+1: nela, e também qualquer informação que possa ser diferente da pessoa que a abriu pela primeira vez, por exemplo: OS, `azk`, versão, etc.
+Antes de criar novas [issues] por favor, certifique-se de que não há outras similares já criadas. Se você encontrar alguma que seja semelhante, adicione um comentário :+1: nela, e também qualquer informação adicional que nos ajude a reproduzir o erro como: OS, versão do `azk`, comandos utilizados, Azkfile.js, etc.
 
 Idealmente, uma issue deve conter uma descrição básica do seu sistema, uma descrição do erro, e instruções sobre como reproduzi-lo. Nós encorajamos você a abrir um problema mesmo se você não consiga se lembrar dos passos para realiza-lo novamente, ou reproduzi-lo (caso ele seja intermitente).
 
@@ -166,7 +166,7 @@ Existem passos adicionais que você precisará seguir caso esteja realizando a i
 
 Como mencionado na seção "Detalhes de implementação", o `azk` é escrito em [Node.js][node.js], e utiliza vários recursos do ES6. Uma coisa a notar é que, para ajudar no desenvolvimento e contribuir para o `azk`, você não precisa ter Node.js instalado em sua máquina.
 
-O `azk` possui uma versão do Node.js, que é o mesmo que usamos para testá-lo e desenvolvê-lo, dentro da pasta "`/lib/nvm`". Ele já vem instalado e empacotado quando você baixa o `azk` através de um gerenciador de pacotes, ou ele também é instalado caso você baixe o projeto do GitHub e execute `make` para construir seu binário. Isso significa que nós podemos:
+O `azk` possui uma versão do Node.js, que é o mesmo que usamos para testá-lo e desenvolvê-lo, dentro da pasta "`./lib/nvm`". Ele já vem instalado e empacotado quando você baixa o `azk` através de um gerenciador de pacotes, ou ele também é instalado caso você baixe o projeto do GitHub e execute `make` para construir seu binário. Isso significa que nós podemos:
 
 1. Ter certeza de que o `azk` está sendo executado e usando uma versão do Node.js que testamos.
 2. Não exigir que o usuário possua o Node.js instalado em sua máquina, e caso ele esteja instalado, não afetar o ambiente de desenvolvimento de qualquer forma.

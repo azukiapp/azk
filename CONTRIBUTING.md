@@ -142,7 +142,7 @@ There's additional steps that you need to go through if you're installing it on 
 
 As mentioned in the "Implementation Details" section, `azk` is written in [Node.js][node.js], and it uses several features of ES6. One thing to note is that, for developing and contributing to `azk`, you don't need to have Node.js installed in your machine.
 
-`azk` has a version of Node.js, which is the same we use to test it and develop it, inside the folder "`/lib/nvm`". It comes already installed and pre-packaged when you grab `azk` from a package manager, or it's installed if you grab it from GitHub and run `make` to build a binary. That means that we can:
+`azk` has a version of Node.js, which is the same we use to test it and develop it, inside the folder "`./lib/nvm`". It comes already installed and pre-packaged when you grab `azk` from a package manager, or it's installed if you grab it from GitHub and run `make` to build a binary. That means that we can:
 
 1. Make sure that `azk` is being executed and using a Node.js version that we tested.
 2. Not require the user to have Node.js installed in its machine, and if they do, not affect their development environment in any way.
