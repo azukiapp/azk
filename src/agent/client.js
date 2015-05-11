@@ -136,12 +136,12 @@ var Client = {
       .spread((response, body) => { return body; });
   },
 
-  sync(host_folder, guest_folder) {
+  sync(host_folder, guest_folder, opts = {}) {
     return defer((resolve, reject, notify) => {
-      var sync_data = { host_folder, guest_folder };
-      WebSocketClient.ws_path = '/sync';
+      var sync_data = { host_folder, guest_folder, opts };
+      WebSocketClient.ws_path = '/sync?watch=true';
       WebSocketClient.send(JSON.stringify(sync_data), (response) => {
-        var response_ary    = response.split(' ');
+        var response_ary   = response.split(' ');
         var [result, data] = [response_ary.shift(), response_ary.join(' ')];
         switch (result) {
           case 'start':

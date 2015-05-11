@@ -30,10 +30,12 @@ var Api = {
 
   sync() {
     // Init websocket entry point
-    app.ws('/sync', function(ws) {
+    app.ws('/sync', function(ws, req) {
       ws.on('message', function(data) {
-        var sync_data = JSON.parse(data);
-        var [host_folder, guest_folder] = [sync_data.host_folder, sync_data.guest_folder];
+        var sync_data    = JSON.parse(data);
+        var host_folder  = sync_data.host_folder;
+        var guest_folder = sync_data.guest_folder;
+        var opts         = sync_data.opts;
 
         // TODO: add progress to log single file sync
         ws.send('start');
@@ -44,6 +46,10 @@ var Api = {
         .fail((err) => {
           ws.send(`fail ${err}`);
         });
+
+        if (req.query.watch === 'true') {
+          Rsync.watch(host_folder, guest_folder, opts);
+        }
       });
     });
   },
