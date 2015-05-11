@@ -49,6 +49,12 @@ Agradecimentos ao [pow](https://github.com/basecamp/pow/wiki/Troubleshooting#dns
 
 Esse é um problema conhecido e se dá pela forma como os arquivos são "compartilhados" entre a máquina virtual (Virtual Box) e o host (Mac). Fizemos grandes melhorias na versão 0.10 do azk, mas esse problema ainda pode ocorrer principalmente em aplicações grandes e com muitos arquivos, como aplicações rails, por exemplo.
 
+Em applicações Ruby on Rails, você pode desligar o modo debug para conseguir mais performance, apenas atualize o config/environments/development.rb com:
+
+```ruby
+config.assets.debug = false
+```
+
 #### Não há Internet disponível / Eu não estou conectado a nenhuma rede. O `azk` é iniciado, mas o navegador mostra que eu estou offline. Como faço para corrigir isso?
 
 Este problema ocorre apenas no Sistema Operacional Mac OS X. Em SOs baseados em Linux, o `azk` deve funcionar tanto com Internet disponível como indisponível.
