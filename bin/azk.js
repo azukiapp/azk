@@ -16,8 +16,8 @@ if (process.env.AZK_ENABLE_NJS_TRACE_PROFILER) {
 
   global.njstrace = null;
   delete global.njstrace;
-  
-  global.njstrace = require('../../njstrace').inject({
+
+  global.njstrace = require('njstrace').inject({
     files: [source_files/*, no_node_modules*/]
   });
 }

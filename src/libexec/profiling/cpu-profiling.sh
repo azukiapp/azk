@@ -1,8 +1,9 @@
 #!/bin/bash
 
+BASEDIR=$(dirname $0)
 
 # clean all past profiles
-rm -rf CHROME_CPU_PROFILER/
+rm -rf "$BASEDIR/CHROME_CPU_PROFILER/"
 
 # configure cpu profiler a command
 export AZK_ENABLE_CHROME_CPU_PROFILER=1
@@ -16,9 +17,9 @@ run() {
   /usr/bin/time -v -o time.verbose ${COMMAND}
 
   # send files to CHROME_CPU_PROFILER folder
-  mkdir -p            "CHROME_CPU_PROFILER/$COMMAND"
-  mv CPU*.cpuprofile  "CHROME_CPU_PROFILER/$COMMAND"
-  mv time.verbose     "CHROME_CPU_PROFILER/$COMMAND"
+  mkdir -p            "$BASEDIR/CHROME_CPU_PROFILER/$COMMAND"
+  mv CPU*.cpuprofile  "$BASEDIR/CHROME_CPU_PROFILER/$COMMAND"
+  mv time.verbose     "$BASEDIR/CHROME_CPU_PROFILER/$COMMAND"
 }
 
 # get dependency
@@ -32,18 +33,16 @@ fi
 
 # cleanup
 azk agent stop
-# adocker kill $(adocker ps -q | tr '\r\n' ' ')
-# adocker rm -f $(adocker ps -f status=exited -q | tr '\r\n' ' ')
 
 # RUN all commands
 run 'azk version'
 run 'azk agent start'
 run 'azk info'
 run 'azk status'
-# run 'azk start'
 run 'azk agent stop'
+# run 'azk start' #FIXME: do a folder to test azk start
 
 echo ""
 echo ""
 echo "# all profiles generated:"
-find CHROME_CPU_PROFILER/*
+find $BASEDIR/CHROME_CPU_PROFILER/*
