@@ -1,4 +1,4 @@
-import { _, Q, defer, lazy_require } from 'azk';
+import { _, Q, defer, lazy_require, log } from 'azk';
 import { config, set_config } from 'azk';
 import { Agent } from 'azk/agent';
 import { AgentNotRunning } from 'azk/utils/errors';
@@ -44,22 +44,22 @@ var WebSocketClient = {
       this.ws = new lazy.WebSocket(socket_address);
 
       this.ws.on('open', () => {
-        console.log('Websocket connected.');
+        log.debug('Websocket connected.');
         this.is_init = true;
         resolve();
       });
 
       this.ws.on('close', () => {
+        log.debug('Websocket closed.');
         this.is_init = false;
       });
 
       this.ws.on('error', (err) => {
-        console.log('Error connecting Websocket:', err);
+        log.error('Error on websocket:', err);
         reject(err);
       });
 
       this.ws.on('message', (data) => {
-        console.log("Received: ", data);
         if (callback) {
           callback(data);
         }
@@ -67,15 +67,32 @@ var WebSocketClient = {
     });
   },
 
-  send(message, callback = null) {
+  close() {
+    this.ws.on('error', (err) => {
+      log.error('Error closing websocket:', err);
+    });
+
+    if (this.is_init) {
+      this.ws.close();
+    }
+    this.is_init = false;
+  },
+
+  send(message, callback = null, retry = 0) {
     this.init(callback)
       .then(() => {
         this.ws.send(message);
         return true;
       })
       .fail((err) => {
-        console.log('Failed to send message', err);
-        return false;
+        if (retry-- > 0) {
+          log.debug('Failed to send message: ', message);
+          log.debug('Retry: ', retry);
+          return this.send(message, callback, retry);
+        } else {
+          log.error('Failed to send message to websocket: ', err);
+          return false;
+        }
       });
   }
 };
@@ -119,23 +136,28 @@ var Client = {
       .spread((response, body) => { return body; });
   },
 
-  syncs() {
-    return defer((resolve, reject) => {
-      var sync_data = { host_folder: "/tmp/a/*", guest_folder: "/tmp/b" };
-
-      WebSocketClient.ws_path = '/sync/initial';
+  sync(host_folder, guest_folder) {
+    return defer((resolve, reject, notify) => {
+      var sync_data = { host_folder, guest_folder };
+      WebSocketClient.ws_path = '/sync';
       WebSocketClient.send(JSON.stringify(sync_data), (response) => {
-        switch (response) {
+        var response_ary    = response.split(' ');
+        var [result, data] = [response_ary.shift(), response_ary.join(' ')];
+        switch (result) {
           case 'start':
-            console.log('Sync started');
+            notify({ type: "status", status: "starting" });
+            break;
+          case 'sync':
+            notify({ type: "sync", status: data });
             break;
           case 'done' :
-            console.log('Sync finished');
+            WebSocketClient.close();
             resolve();
             break;
           case 'fail' :
-            console.log('Sync failed');
-            reject('Something happened...');
+            WebSocketClient.close();
+            reject(data);
+            break;
         }
       });
     });
@@ -145,16 +167,15 @@ var Client = {
     return this
       .status()
       .then((status) => {
-        console.log(status);
         if (status.agent) {
-          return Q.all([this.configs(), this.syncs()])
-            .spread((configs) => {
-              _.each(configs, (value, key) => {
-                set_config(key, value);
-              });
-            });
+          return this.configs();
         }
         throw new AgentNotRunning();
+      })
+      .then((configs) => {
+        _.each(configs, (value, key) => {
+          set_config(key, value);
+        });
       });
   },
 };

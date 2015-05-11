@@ -13,10 +13,8 @@ var namespace = envs('AZK_NAMESPACE');
 var default_vm  = os.platform() == "linux" ? "false" : "true";
 var requires_vm = (envs('AZK_USE_VM', default_vm) == "true");
 
-// Persistent folder path
-var persistent_folders = requires_vm ?
-  '/mnt/sda1/azk/persistent_folders' :
-  path.join(data_path, 'persistent_folders');
+// Data mount folder path
+var data_mnt_path = requires_vm ? '/mnt/sda1/azk' : data_path;
 
 // Paths to use in config
 var paths = {
@@ -57,7 +55,9 @@ var options = mergeConfig({
       balancer_file     : path.join(paths.run, 'hipache.json'),
       memcached_socket  : path.join(paths.run, 'memcachedjs.socket'),
       api_socket        : path.join(paths.run, 'api.socket'),
-      persistent_folders: persistent_folders,
+      data_mnt_path     : data_mnt_path,
+      persistent_folders: path.join(data_mnt_path, 'persistent_folders'),
+      sync_folders      : path.join(data_mnt_path, 'sync_folders'),
       analytics         : path.join(data_path, azk_dir, "analytics"),
     },
     logs_level: {

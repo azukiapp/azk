@@ -27,6 +27,7 @@ class Cmd extends ScaleCmd {
         if (action == "start") {
           // The number of instances is not set to system.name use "{}"
           instances = _.defaults(opts.instances[system.name], _.clone(scale_options.instances));
+          yield system.runSync();
         } else {
           instances = _.clone(scale_options.instances);
         }

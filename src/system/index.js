@@ -55,6 +55,7 @@ export class System {
   runShell(...args) { return Run.runShell(this, ...args); }
   runDaemon(...args) { return Run.runDaemon(this, ...args); }
   runProvision(...args) { return Run.runProvision(this, ...args); }
+  runSync(...args) { return Run.runSync(this, ...args); }
   stop(...args) { return Run.stop(this, ...args); }
   instances(...args) { return Run.instances(this, ...args); }
   throwRunError(...args) { return Run.throwRunError(this, ...args); }
@@ -253,6 +254,10 @@ export class System {
   // Mounts options
   get mounts() {
     return this._mounts_to_volumes(this.options.mounts || {});
+  }
+
+  get syncs() {
+    return this._mounts_to_syncs(this.options.mounts || {});
   }
 
   // Get depends info
@@ -495,6 +500,9 @@ export class System {
     var persist_base = config('paths:persistent_folders');
     persist_base = path.join(persist_base, this.manifest.namespace);
 
+    var sync_base = config('paths:sync_folders');
+    sync_base = path.join(sync_base, this.manifest.namespace);
+
     return _.reduce(mounts, (volumes, mount, point) => {
       if (_.isString(mount)) {
         mount = { type: 'path', value: mount };
@@ -518,7 +526,7 @@ export class System {
           break;
 
         case 'sync':
-          console.log('sync', point, mount.value);
+          target = path.join(sync_base, mount.value);
           break;
       }
 
@@ -528,5 +536,21 @@ export class System {
 
       return volumes;
     }, volumes);
+  }
+
+  _mounts_to_syncs(mounts) {
+    var syncs = {};
+
+    // sync folder
+    var sync_base = config('paths:sync_folders');
+    sync_base = path.join(sync_base, this.manifest.namespace);
+
+    return _.reduce(mounts, (syncs, mount) => {
+      if (!_.isString(mount) && mount.type === 'sync') {
+        var resolved_sync_folder = path.resolve(this.manifest.manifestPath, mount.value);
+        syncs[resolved_sync_folder] = path.join(sync_base, resolved_sync_folder);
+      }
+      return syncs;
+    }, syncs);
   }
 }

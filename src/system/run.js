@@ -1,11 +1,12 @@
-import { _, t, Q, async, defer, config, lazy_require, log, isBlank } from 'azk';
-import { ImageNotAvailable, SystemRunError, RunCommandError } from 'azk/utils/errors';
+import { _, t, Q, async, defer, config, lazy_require, log, isBlank, path } from 'azk';
+import { ImageNotAvailable, SystemRunError, RunCommandError, NotBeenImplementedError } from 'azk/utils/errors';
 import { Balancer } from 'azk/system/balancer';
 import net from 'azk/utils/net';
 
 var lazy = lazy_require({
   MemoryStream: 'memorystream',
-  docker: ['azk/docker', 'default']
+  docker      : ['azk/docker', 'default'],
+  Client      : ['azk/agent/client'],
 });
 
 var Run = {
@@ -127,6 +128,23 @@ var Run = {
       yield Balancer.add(system, container);
 
       return container;
+    });
+  },
+
+  runSync(system) {
+    return async(this, function* () {
+      var sync_result = yield this._fixSyncFolderPermissions(system.manifest.namespace);
+      if (sync_result !== 0) {
+        // TODO: throw proper error
+        throw new NotBeenImplementedError('SyncError');
+      }
+
+      _.each(system.syncs || {}, (guest_folder, host_folder) => {
+        return async(this, function* (notify) {
+          yield lazy.Client.sync(`${host_folder}/`, guest_folder);
+          notify({ type: "sync", system: system.name });
+        });
+      });
     });
   },
 
@@ -338,6 +356,28 @@ var Run = {
       });
 
       return _.sortBy(instances, (instance) => { return instance.Annotations.azk.seq; });
+    });
+  },
+
+  _fixSyncFolderPermissions(manifest_id) {
+    return async(this, function* () {
+      var mounted_sync_folders = '/sync_folders';
+      var current_sync_folder = path.join(`${mounted_sync_folders}`, `${manifest_id}`);
+      var chown = {
+        cmd: `chown -R ${process.getuid()}:${process.getuid()} ${current_sync_folder}`.split(' '),
+        opts: {
+          volumes: {},
+          interactive: false,
+        },
+      };
+      chown.opts.volumes[mounted_sync_folders] = config('paths:sync_folders');
+
+      var image_name = config('docker:image_default');
+      var container  = yield lazy.docker.run(image_name, chown.cmd, chown.opts);
+      var data = yield container.inspect();
+      yield container.remove();
+
+      return data.State.ExitCode;
     });
   },
 
