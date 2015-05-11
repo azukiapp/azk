@@ -18,7 +18,7 @@ class Cmd extends InteractiveCmds {
   action(opts) {
     return this
       .callAgent(opts)
-      .fin((result) => {
+      .then((result) => {
         process.stdin.pause();
         return result;
       });
@@ -141,7 +141,7 @@ class Cmd extends InteractiveCmds {
           pipe.write(buff);
         })
         .then(() => { return 0; })
-        .fail(() => { process.stdin.pause(); });
+        .catch(() => { process.stdin.pause(); });
     });
   }
 

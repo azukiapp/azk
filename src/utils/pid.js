@@ -1,4 +1,5 @@
-import { defer, Q, fs } from 'azk';
+import { fs } from 'azk';
+import { defer, promiseResolve } from 'azk/utils/promises';
 
 export class Pid {
   constructor(file) {
@@ -67,7 +68,7 @@ export class Pid {
     if (this.running) {
       process.kill(this.pid, 'SIGTERM');
     }
-    return Q();
+    return promiseResolve();
   }
 
   term() {

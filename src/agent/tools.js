@@ -1,4 +1,5 @@
-import { async, defer, log, publish } from 'azk';
+import { log, publish } from 'azk';
+import { async, defer } from 'azk/utils/promises';
 
 var Tools = {
   change_status(key, status, data) {

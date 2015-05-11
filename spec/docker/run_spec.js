@@ -1,4 +1,5 @@
-import { Q, config, defer, async, utils, subscribe } from 'azk';
+import { config, utils, subscribe } from 'azk';
+import { async, defer, delay } from 'azk/utils/promises';
 import h from 'spec/spec_helper';
 
 var default_img = config('docker:image_default');
@@ -138,7 +139,7 @@ describe("Azk docker module, run method @slow", function() {
       var data = yield container.inspect();
       h.expect(data).to.have.deep.property("State.Running", true);
 
-      yield Q.delay(timeout * 0.1);
+      yield delay(timeout * 0.1);
       var log = yield container.logs({stdout: true, stderr: true}).then((stream) => {
         var buffer = "";
         return defer((resolve) => {

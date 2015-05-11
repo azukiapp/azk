@@ -1,5 +1,6 @@
 import h from 'spec/spec_helper';
-import { _, async, path, Q, config, log, subscribe } from 'azk';
+import { _, path, config, log, subscribe, fsAsync } from 'azk';
+import { async, nbind, all } from 'azk/utils/promises';
 import { lazy_require } from 'azk';
 import { net } from 'azk/utils';
 
@@ -7,10 +8,9 @@ var l = lazy_require({
   VM      : ['azk/agent/vm'],
   dhcp    : ['azk/agent/vm'],
   hostonly: ['azk/agent/vm'],
-  qfs : 'q-io/fs',
-  vbm : 'vboxmanage',
-  exec: function() {
-    return Q.nbind(l.vbm.command.exec, l.vbm.command);
+  vbm     : 'vboxmanage',
+  exec    : function() {
+    return nbind(l.vbm.command.exec, l.vbm.command);
   }
 });
 
@@ -28,7 +28,7 @@ h.describeRequireVm("Azk agent vm", function() {
 
   // Setups
   var remove_disk = function(file) {
-    return l.exec("closemedium", "disk", file).fail(() => {});
+    return l.exec("closemedium", "disk", file).catch(() => {});
   };
 
   var remove = function() {
@@ -44,8 +44,8 @@ h.describeRequireVm("Azk agent vm", function() {
       yield remove_disk(opts.data);
       yield remove_disk(opts.data + ".tmp");
 
-      yield l.qfs.remove(opts.data).fail(() => null);
-      yield l.qfs.remove(opts.data + ".tmp").fail(() => null);
+      yield fsAsync.remove(opts.data).catch(() => null);
+      yield fsAsync.remove(opts.data + ".tmp").catch(() => null);
     });
   };
 
@@ -54,7 +54,7 @@ h.describeRequireVm("Azk agent vm", function() {
       yield remove.apply(this);
 
       var interfaces = yield net.getInterfacesIps();
-      opts.ip = yield net.generateSuggestionIp(null, interfaces);
+      opts.ip = net.generateSuggestionIp(null, interfaces);
 
       _.merge(net_opts, {
         ip: opts.ip,
@@ -83,7 +83,7 @@ h.describeRequireVm("Azk agent vm", function() {
         });
       },
       netinfo() {
-        return Q.all([l.hostonly.list(), l.dhcp.list_servers()]);
+        return all([l.hostonly.list(), l.dhcp.list_servers()]);
       },
       filter_dhcp(list, VBoxNetworkName) {
         return _.find(list, (server) => server.NetworkName == VBoxNetworkName);
@@ -256,8 +256,8 @@ h.describeRequireVm("Azk agent vm", function() {
     it("should genereate a new screenshot file", function() {
       return async(this, function* () {
         var file = yield l.VM.saveScreenShot(name);
-        yield h.expect(l.qfs.exists(file)).to.eventually.fulfilled;
-        yield l.qfs.remove(file);
+        yield h.expect(fsAsync.exists(file)).to.eventually.fulfilled;
+        yield fsAsync.remove(file);
       });
     });
 

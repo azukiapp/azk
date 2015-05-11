@@ -1,14 +1,14 @@
 require('source-map-support').install();
 
-import { Q, pp, config, t, _, lazy_require } from 'azk';
+import { pp, config, t, _, fsAsync, lazy_require } from 'azk';
+import { nfcall } from 'azk/utils/promises';
 import { Client as AgentClient } from 'azk/agent/client';
 import Utils from 'azk/utils';
 
-var lazy = lazy_require({
+var l = lazy_require({
   MemoryStream: 'memorystream',
   dirdiff : 'dirdiff',
   tmp     : 'tmp',
-  qfs     : 'q-io/fs',
   touch   : 'touch',
 });
 
@@ -37,31 +37,31 @@ var Helpers = {
   },
 
   tmp_dir(opts = { prefix: "azk-test-"}) {
-    return Q.nfcall(lazy.tmp.dir, opts).then((dir) => {
+    return nfcall(l.tmp.dir, opts).then((dir) => {
       return Utils.resolve(dir);
     });
   },
 
   tmpFile(opts = { prefix: "azk-test-"}) {
-    return Q.nfcall(lazy.tmp.file, opts).spread((file) => {
+    return nfcall(l.tmp.file, opts).spread((file) => {
       return Utils.resolve(file);
     });
   },
 
   touchSync(path) {
-    return lazy.touch.sync(path);
+    return l.touch.sync(path);
   },
 
   copyToTmp(origin) {
     return this.tmp_dir({ prefix: 'azk-test-'}).then((dir) => {
-      return lazy.qfs.copyTree(origin, dir).then(() => {
+      return fsAsync.copy(origin, dir).then(() => {
         return dir;
       });
     });
   },
 
   diff(origin, dest) {
-    return Q.nfcall(lazy.dirdiff, origin, dest, { fileContents: true })
+    return nfcall(l.dirdiff, origin, dest, { fileContents: true })
       .then((diffs) => {
         diffs.deviation = diffs.length;
         return diffs;
@@ -75,7 +75,7 @@ var Helpers = {
   },
 
   makeMemoryStream(...args) {
-    return new lazy.MemoryStream(...args);
+    return new l.MemoryStream(...args);
   },
 
   escapeRegExp(...args) {

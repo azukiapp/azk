@@ -1,4 +1,5 @@
-import { Q, _, config, defer, log, lazy_require, set_config } from 'azk';
+import { _, config, log, lazy_require, set_config } from 'azk';
+import { defer, promiseResolve } from 'azk/utils/promises';
 import { unsubscribeAll, publish } from 'azk/utils/postal';
 import { Pid } from 'azk/utils/pid';
 import { AgentStopError } from 'azk/utils/errors';
@@ -35,7 +36,7 @@ var Agent = {
         this.change_status('starting');
         this
           .processWrapper(options.configs || {} )
-          .fail((err) => {
+          .catch((err) => {
             this.change_status("error", err.stack || err);
             this.gracefullyStop();
           });
@@ -45,9 +46,9 @@ var Agent = {
 
   // TODO: Capture agent error and show
   stop() {
-    if (this.stopping) { return Q(); }
+    if (this.stopping) { return promiseResolve(); }
     var pid = this.agentPid();
-    return pid.killAndWait().fail(() => {
+    return pid.killAndWait().catch(() => {
       throw new AgentStopError();
     });
   },
@@ -62,7 +63,7 @@ var Agent = {
         this.change_status("stopped");
         return 0;
       })
-      .fail((error) => {
+      .catch((error) => {
         try { pid.unlink(); } catch (e) {}
         error = error.stack || error;
         log.error('[agent] agent stop error: ' + error);

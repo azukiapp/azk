@@ -1,4 +1,5 @@
-import { path, async } from 'azk';
+import { path } from 'azk';
+import { async } from 'azk/utils/promises';
 
 function isGeneratorFunction (fn) {
   return typeof fn === 'function' &&

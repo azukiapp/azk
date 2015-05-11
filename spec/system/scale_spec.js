@@ -1,5 +1,5 @@
 import h from 'spec/spec_helper';
-import { async } from 'azk';
+import { async } from 'azk/utils/promises';
 import { SystemDependError, SystemNotScalable } from 'azk/utils/errors';
 
 describe("Azk system class, scale set", function() {
@@ -16,7 +16,7 @@ describe("Azk system class, scale set", function() {
 
   describe("scale one system", function() {
     afterEach(function() {
-      return system.killAll().fail(() => {});
+      return system.killAll().catch(() => {});
     });
 
     it("should not run system if its dependencies are not met", function() {

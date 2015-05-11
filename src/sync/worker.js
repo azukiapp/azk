@@ -1,10 +1,9 @@
-import { _, lazy_require, path, log } from 'azk';
-import { defer, async } from 'azk';
+import { _, lazy_require, path, log, fsAsync } from 'azk';
+import { defer, async } from 'azk/utils/promises';
 
 var lazy = lazy_require({
   Sync     : ['azk/sync'],
-  chokidar : 'chokidar',
-  qfs      : 'q-io/fs',
+  chokidar : 'chokidar'
 });
 
 export class Worker {
@@ -24,12 +23,12 @@ export class Worker {
     log.debug('[sync] call to watch and sync: %s => %s', origin, destination);
     return async(this, function* () {
       try {
-        var exists = yield lazy.qfs.exists(origin);
+        var exists = yield fsAsync.exists(origin);
         if (!exists) {
           throw { err: 'Sync: origin path not exist', code: 101 };
         }
 
-        var stats = yield lazy.qfs.stat(origin);
+        var stats = yield fsAsync.stat(origin);
         if (!(stats.isDirectory || stats.isFile() || stats.isSymbolicLink())) {
           throw new Error(`The type of the file ${origin} is not supported for synchronization`);
         }
@@ -73,7 +72,7 @@ export class Worker {
         lazy.Sync
           .sync(origin, destination, sync_opts )
           .then(() => this._send(event, 'done', { filepath }))
-          .fail((err) => this._send(event, 'fail', _.merge(err, { filepath })));
+          .catch((err) => this._send(event, 'fail', _.merge(err, { filepath })));
       })
       .on('ready', () => resolve(true))
       .on('error', (err) => reject(err));
@@ -97,10 +96,11 @@ export class Worker {
 
       for (var i = 0; i < candidates.length; i++) {
         file   = candidates[i];
-        exists = yield lazy.qfs.exists(file);
+        exists = yield fsAsync.exists(file);
         if (exists) {
           opts.except_from = file;
-          file_content = yield lazy.qfs.read(file);
+          file_content = yield fsAsync.readFile(file);
+          file_content = file_content.toString();
           break;
         }
       }

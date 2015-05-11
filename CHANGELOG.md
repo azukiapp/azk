@@ -7,8 +7,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 * Enhancements
   * [Suggesting] Now node.js suggestions have a env `PORT` for to get a `HTTP_PORT`, this change makes this suggestion more "compatible" with most of the apps that await env `PORT`.
+  * [Code] Replaced Promises: Q with bluebird #386;
+  * [Code] Replaced `q-io/fs` with `utils/file_async` a bluebird promisified `fs-extra` #386;
+  * [Code] No more direct call to Q or any other Promise lib, only by `utils/promises` #386;
+  * [Code] Removed `progress()` Promises helper. Included postal: subscribe and publish functions #385;
 
-## v0.13.0 - (2015-X-05)
+## v0.13.1 - (2015-29-05)
 
 * Bug
   * [Imagens] Fixing registry download error #407
@@ -17,7 +21,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Docker] Fixing bug that could prevent the work instruction `ADD . /folder/` when used in a Dockerfile;
 
 * Enhancements
-  * [Code] Removed `progress()` Promises helper. Included postal: subscribe and publish functions #385;
   * [Docker] Now support `Dockerfile` is complete, and similar to the docker, including support `.dockerignore`;
   * [Suggesting] Changing the suggestions of python and ruby ​​to give preference to sync instead of path;
 

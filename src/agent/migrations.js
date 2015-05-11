@@ -1,5 +1,5 @@
-import { async, lazy_require, publish, config } from 'azk';
-var qfs = require('q-io/fs');
+import { lazy_require, publish, config, fsAsync } from 'azk';
+import { async } from 'azk/utils/promises';
 
 var lazy = lazy_require({
   meta : ['azk'],
@@ -19,7 +19,7 @@ var Migrations = {
         var origin = "/etc/resolver/azk.dev";
         var target = config('agent:balancer:file_dns');
 
-        if ((yield qfs.exists(origin)) && !(yield qfs.exists(target))) {
+        if ((yield fsAsync.exists(origin)) && !(yield fsAsync.exists(target))) {
           yield configure.execShWithSudo('mv_resolver', (sudo_path) => {
             // Moving resolver files and log
             configure.info('configure.migrations.moving_resolver', { origin, target });
@@ -57,7 +57,7 @@ var Migrations = {
       var be_run    = this.migrations.slice(last_run + 1);
 
       // Azk agent was set up at least once?
-      if (yield qfs.exists(lazy.meta.cache_dir) && be_run.length > 0) {
+      if (yield fsAsync.exists(lazy.meta.cache_dir) && be_run.length > 0) {
         // Warns on the run of migrations
         publish("agent.migrations.run.status", { type: "status", keys: "configure.migrations.alert"});
 

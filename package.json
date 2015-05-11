@@ -33,6 +33,7 @@
   "dependencies": {
     "archiver": "^0.13.1",
     "babel-runtime": "^5.1.9",
+    "bluebird": "^2.9.25",
     "child-process-promise": "^1.0.0",
     "chokidar": "^1.0.1",
     "cli-table": "git+https://github.com/gullitmiranda/cli-table#master",
@@ -74,8 +75,6 @@
     "prettyjson": "^1.0.0",
     "printf": "^0.2.0",
     "progress": "git+https://github.com/nuxlli/node-progress",
-    "q": "~1.0.1",
-    "q-io": "^1.11.0",
     "request": "^2.45.0",
     "rsync": "^0.4.0",
     "scp2": "^0.1.4",

@@ -1,8 +1,7 @@
-import { config, path, fs } from 'azk';
+import { config, path, fs, fsAsync } from 'azk';
 import h from 'spec/spec_helper';
 import { Generator } from 'azk/generator';
 import { Manifest } from 'azk/manifest';
-var qfs = require('q-io/fs');
 
 describe('Azk generator generation two nodes systems', function() {
   var outputs = [];
@@ -27,7 +26,7 @@ describe('Azk generator generation two nodes systems', function() {
       packageJson = path.join(projectFolder, 'package.json');
       h.touchSync(packageJson);
 
-      return qfs.write(packageJson, '');
+      return fsAsync.writeFile(packageJson, '');
     });
   });
 

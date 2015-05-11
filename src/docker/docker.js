@@ -1,4 +1,5 @@
 import { config, _, log, lazy_require } from 'azk';
+import { promisifyClass } from 'azk/utils/promises';
 import Utils from 'azk/utils';
 import { default as tracker } from 'azk/utils/tracker';
 
@@ -12,13 +13,13 @@ var lazy = lazy_require({
   uuid: 'node-uuid',
 });
 
-export class Image extends Utils.qify('dockerode/lib/image') {
+export class Image extends promisifyClass('dockerode/lib/image') {
   static parseRepositoryTag(...args) {
     return lazy.parseRepositoryTag(...args);
   }
 }
 
-export class Container extends Utils.qify('dockerode/lib/container') {
+export class Container extends promisifyClass('dockerode/lib/container') {
   get Id() {
     return this.id;
   }
@@ -141,7 +142,7 @@ export class Container extends Utils.qify('dockerode/lib/container') {
   }
 }
 
-export class Docker extends Utils.qify('dockerode') {
+export class Docker extends promisifyClass('dockerode') {
   constructor(opts) {
     var info = opts.socketPath || `${opts.host}:${opts.port}`;
     log.info("Connecting to", info);

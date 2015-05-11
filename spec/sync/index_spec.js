@@ -1,5 +1,6 @@
 import h from 'spec/spec_helper';
-import { Q, async, config, path, lazy_require } from 'azk';
+import { config, path, lazy_require } from 'azk';
+import { async, all } from 'azk/utils/promises';
 
 var lazy = lazy_require({
   Sync    : ['azk/sync'],
@@ -13,7 +14,7 @@ describe("Azk sync, main module", function() {
   var invalid_fixtures = path.join(h.fixture_path('sync/test_1/'), 'invalid');
 
   function make_copy() {
-    return Q.all([
+    return all([
       h.copyToTmp(example_fixtures),
       h.tmp_dir()
     ]);

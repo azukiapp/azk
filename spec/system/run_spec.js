@@ -1,5 +1,6 @@
 import h from 'spec/spec_helper';
-import { _, async, defer, Q, publish, subscribe } from 'azk';
+import { _, publish, subscribe } from 'azk';
+import { async, defer, promiseResolve, promiseReject } from 'azk/utils/promises';
 import { ImageNotAvailable } from 'azk/utils/errors';
 
 describe("Azk system class, run set", function() {
@@ -53,7 +54,7 @@ describe("Azk system class, run set", function() {
       var result  = system.runDaemon({ retry: 2, timeout: 1000, command: command });
 
       return async(this, function*() {
-        var err = yield result.fail((err) => { return err; });
+        var err = yield result.catch((err) => { return err; });
         h.expect(err).to.instanceOf(Error).and.match(regex);
 
         var data = yield h.docker.findContainer(err.container.Id);
@@ -94,7 +95,7 @@ describe("Azk system class, run set", function() {
         var container = yield system.runDaemon();
         var data = yield container.inspect();
         yield system.stop([data]);
-        return h.expect(container.inspect()).to.reject;
+        return h.expect(container.inspect().catch(()=>{})).to.reject;
       });
     });
 
@@ -189,8 +190,12 @@ describe("Azk system class, run set", function() {
           });
         },
 
+        check() {
+          return promiseResolve(null);
+        },
+
         inspect() {
-          return Q.reject({});
+          return promiseReject({});
         }
       };
 

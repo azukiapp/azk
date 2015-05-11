@@ -1,5 +1,5 @@
 import h from 'spec/spec_helper';
-import { async } from 'azk';
+import { async } from 'azk/utils/promises';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 
 describe('Azk cli interactive cmds class', function() {

@@ -1,11 +1,11 @@
-import { _, t, os, Q, async, log, lazy_require, publish } from 'azk';
+import { _, t, os, log, lazy_require, publish, fsAsync } from 'azk';
+import { async, ninvoke, nfcall, all } from 'azk/utils/promises';
 import { config, set_config } from 'azk';
 import { UIProxy } from 'azk/cli/ui';
-import { OSNotSupported, DependencyError } from 'azk/utils/errors';
+import { AzkError, OSNotSupported, DependencyError } from 'azk/utils/errors';
 import { net, envDefaultArray } from 'azk/utils';
 import Azk from 'azk';
 
-var qfs        = require('q-io/fs');
 var which      = require('which');   // Search for command in path
 var request    = require('request');
 var semver     = require('semver');
@@ -77,12 +77,13 @@ export class Configure extends UIProxy {
           yield this._cleanContainers()
         );
       })
-      .fail((err) => {
-        if (!(err instanceof DependencyError)) {
-          err = new DependencyError('docker_access', { socket });
+      .catch(function (err) {
+        // Unhandled rejection overtakes synchronous exception through done() #471
+        // https://github.com/petkaantonov/bluebird/issues/471
+        if (err instanceof AzkError) {
+          this.fail(err.toString());
         }
-        throw err;
-      });
+      }.bind(this));
     }
   }
 
@@ -134,7 +135,7 @@ export class Configure extends UIProxy {
         };
 
         publish("agent.configure.check_version.status", { type: "status", keys: "configure.check_version"});
-        var [response, body] = yield Q.ninvoke(request, 'get', config('urls:github:api:tags_url'), options);
+        var [response, body] = yield ninvoke(request, 'get', config('urls:github:api:tags_url'), options);
         var statusCode = response.statusCode;
 
         if (statusCode !== 200) {
@@ -197,8 +198,7 @@ export class Configure extends UIProxy {
             .getContainer(container.Id)
             .remove({ force: true });
         });
-        return Q
-          .all(removes)
+        return all(removes)
           .then(() => { return {}; });
       });
   }
@@ -230,7 +230,7 @@ export class Configure extends UIProxy {
   }
 
   _which(command, save_key = null) {
-    return Q.nfcall(which, command)
+    return nfcall(which, command)
       .then((fullpath) => {
         if (save_key) {
           var obj = {};
@@ -238,7 +238,7 @@ export class Configure extends UIProxy {
           return obj;
         }
       })
-      .fail(() => {
+      .catch(() => {
         throw new DependencyError(command);
       });
   }
@@ -246,7 +246,7 @@ export class Configure extends UIProxy {
   // Check for ssh keys, used for connection vm
   _checkAndGenerateSSHKeys() {
     var file = config('agent:vm:ssh_key');
-    return qfs.exists(file).then((exist) => {
+    return fsAsync.exists(file).then((exist) => {
       if (!exist) {
         this.info('configure.generating_key');
         var script = `
@@ -275,10 +275,10 @@ export class Configure extends UIProxy {
       var result = {}, nameserver = null;
 
       // File exist? Get content
-      var exist = yield qfs.exists(file);
+      var exist = yield fsAsync.exists(file);
       if (exist) {
-        var content     = yield qfs.read(file);
-        var nameservers = net.parseNameserver(content);
+        var content     = yield fsAsync.readFile(file);
+        var nameservers = net.parseNameserver(content.toString());
         if (!_.isEmpty(nameservers)) { nameserver = nameservers[0]; }
       }
 
@@ -339,7 +339,7 @@ export class Configure extends UIProxy {
   sudo_check() {
     return this._which('sudo', 'sudo')
       .then((sudo_path) => { return sudo_path.sudo; })
-      .fail(() => { return ""; });
+      .catch(() => { return ""; });
   }
 
   // Generate file /etc/resolver/*
@@ -422,7 +422,7 @@ export class Configure extends UIProxy {
     var regex = /docker0.*inet\s(.*?)\//;
     var cmd   = "/sbin/ip -o addr show";
 
-    return Q.nfcall(lazy.exec, cmd)
+    return nfcall(lazy.exec, cmd)
       .spread((stdout) => {
         var match = stdout.match(regex);
         if (match) { return match[1]; }

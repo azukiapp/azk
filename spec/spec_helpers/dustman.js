@@ -1,4 +1,5 @@
-import { Q, _, config, t, defer, publish, subscribe } from 'azk';
+import { _, config, t, publish, subscribe } from 'azk';
+import { defer, all } from 'azk/utils/promises';
 
 export function extend(Helpers) {
   var h = Helpers;
@@ -16,7 +17,7 @@ export function extend(Helpers) {
     return defer(() => {
       return h.docker.azkListContainers({ all: true }).then((containers) => {
         publish("spec.dustman.remove_containers.message", t('test.remove_containers', containers.length));
-        return Q.all(_.map(containers, (container) => {
+        return all(_.map(containers, (container) => {
           var c = h.docker.getContainer(container.Id);
           return c.kill().then(() => {
             return c.remove({ force: true });
@@ -34,7 +35,7 @@ export function extend(Helpers) {
         ));
         tags = _.filter(tags, filter_tags);
         publish("spec.dustman.remove_images.message", t('test.remove_images', tags.length));
-        return Q.all(_.map(tags, (tag) => {
+        return all(_.map(tags, (tag) => {
           return h.docker.getImage(tag).remove();
         }));
       });
@@ -42,20 +43,20 @@ export function extend(Helpers) {
   };
 
   // Remove all containers before run
-  // if no_required_agent is disabled
-  if (!Helpers.no_required_agent) {
-    var _subscription;
-    before(function() {
-      this.timeout(0);
-      _subscription = subscribe('spec.dustman.#', (event) => console.log(`  ${event}`) );
-      var funcs = [
-        Helpers.remove_containers,
-        Helpers.remove_images,
-        () => console.log("\n")
-      ];
-      return funcs.reduce(Q.when, Q());
-    });
-  }
+  var _subscription;
+
+  before(function() {
+    this.timeout(0);
+    _subscription = subscribe('spec.dustman.#', (event) => console.log(`  ${event}`) );
+
+    var funcs = [
+      Helpers.remove_containers(),
+      Helpers.remove_images()
+    ];
+    return all(funcs).then(
+      () => console.log("\n")
+    );
+  });
 
   after(() => {
     if (_subscription) {

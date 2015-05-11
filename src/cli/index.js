@@ -1,4 +1,5 @@
-import { _, Q, log, t } from 'azk';
+import { _, log, t } from 'azk';
+import { promiseResolve, promiseReject, isPromise } from 'azk/utils/promises';
 import { Cli } from 'azk/cli/cli';
 import { UI } from 'azk/cli/ui';
 import { InvalidValueError } from 'azk/utils/errors';
@@ -10,7 +11,7 @@ class CmdCli extends Cli {
   invalidCmd(error) {
     this.fail("commands.not_found", error.value);
     this.showUsage();
-    return Q(1);
+    return promiseResolve(1);
   }
 
   action(opts, parent_opts) {
@@ -20,7 +21,7 @@ class CmdCli extends Cli {
 
     if (opts.help || (_.isEmpty(opts.command) && _.isEmpty(opts.__leftover))) {
       this.showUsage();
-      return Q(0);
+      return promiseResolve(0);
     }
 
     // Set log level
@@ -45,10 +46,10 @@ export function cli(args, cwd, ui = UI) {
     result = azk_cli.run(_.rest(args, 2));
   } catch (e) {
     result = (e instanceof InvalidValueError && e.option == "command") ?
-      azk_cli.invalidCmd(e) : Q.reject(e);
+      azk_cli.invalidCmd(e) : promiseReject(e);
   }
 
-  if (Q.isPromise(result)) {
+  if (isPromise(result)) {
     result
       .then((code) => {
         ui.exit(code ? code : 0);

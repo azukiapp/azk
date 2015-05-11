@@ -70,7 +70,7 @@ class Cmd extends InteractiveCmds {
         var escape = (key, container, next) => {
           if (key === ".") {
             process.nextTick(() => {
-              lazy.docker.getContainer(container).stop({ t: 5000 }).fail(reject);
+              lazy.docker.getContainer(container).stop({ t: 5000 }).catch(reject);
             });
             return true;
           } else if (key === "?") {
@@ -98,7 +98,7 @@ class Cmd extends InteractiveCmds {
 
       });
 
-      result = yield result.fail((error) => {
+      result = yield result.catch((error) => {
         return this.parseError(error);
       });
 

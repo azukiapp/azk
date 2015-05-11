@@ -1,4 +1,5 @@
-import { _, async, log, config, utils } from 'azk';
+import { _, log, config, utils } from 'azk';
+import { async } from 'azk/utils/promises';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Helpers } from 'azk/cli/command';
 

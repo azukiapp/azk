@@ -1,7 +1,5 @@
 import { Q, _, defer, async, isBlank, asyncUnsubscribe } from 'azk/utils';
 
-Q.longStackSupport = true;
-
 class Azk {
   static get version() {
     return require('package.json').version;
@@ -52,7 +50,8 @@ module.exports = {
   // Internals alias
   get os     () { return require('os'); },
   get path   () { return require('path'); },
-  get fs     () { return require('fs-extra'); },
+  get fs     () { return require('fs'); },
+  get fsAsync() { return require('azk/utils/file_async'); },
   get utils  () { return require('azk/utils'); },
   get version() { return Azk.version; },
   get isBlank() { return isBlank; },

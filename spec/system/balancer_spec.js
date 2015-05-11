@@ -1,5 +1,5 @@
 import h from 'spec/spec_helper';
-import { async } from 'azk';
+import { async } from 'azk/utils/promises';
 
 describe("Azk system class, balancer set", function() {
   this.timeout(20000);

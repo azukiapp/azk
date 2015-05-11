@@ -3891,6 +3891,11 @@
         }
       }
     },
+    "bluebird": {
+      "version": "2.9.25",
+      "from": "https://registry.npmjs.org/bluebird/-/bluebird-2.9.25.tgz",
+      "resolved": "https://registry.npmjs.org/bluebird/-/bluebird-2.9.25.tgz"
+    },
     "chai": {
       "version": "1.10.0",
       "from": "https://registry.npmjs.org/chai/-/chai-1.10.0.tgz",

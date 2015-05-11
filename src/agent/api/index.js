@@ -1,9 +1,8 @@
-import { config, lazy_require, log } from 'azk';
-import { Q, defer, async } from 'azk';
+import { config, lazy_require, log, fsAsync } from 'azk';
+import { async, defer, ninvoke, promiseResolve, all } from 'azk/utils/promises';
 
 var lazy = lazy_require({
   ApiWs   : ['azk/agent/api/ws'],
-  qfs     : 'q-io/fs',
   hotswap : 'hotswap',
 });
 
@@ -40,15 +39,15 @@ var Api = {
   stop() {
     if (this.server || this.api_ws) {
       log.debug("[api] stopping server api");
-      return Q.all([
-        (this.api_ws) ? this.api_ws.stop() : Q.resolve(),
-        (this.server) ? Q.ninvoke(this.server, "close") : Q.resolve(),
+      return all([
+        (this.api_ws) ? this.api_ws.stop() : promiseResolve(),
+        (this.server) ? ninvoke(this.server, "close") : promiseResolve(),
       ]).then(() => {
         this.app    = null;
         this.api_ws = null;
       });
     }
-    return Q.resolve();
+    return promiseResolve();
   },
 
   _make_new_app() {
@@ -69,11 +68,11 @@ var Api = {
 
   // Remove socket if exist
   _clearSocket(socket) {
-    return lazy.qfs
+    return fsAsync
       .exists(socket)
       .then((exist) => {
         if (exist) {
-          return lazy.qfs.remove(socket);
+          return fsAsync.remove(socket);
         }
       });
   },

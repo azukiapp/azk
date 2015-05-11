@@ -1,14 +1,13 @@
 var { join, basename, dirname } = require('path');
 var crypto = require('crypto');
-var Q      = require('q');
 var _      = require('lodash');
 var fs     = require('fs');
+var defer = require('azk/utils/promises').defer;
 
 var Utils = {
   __esModule: true,
 
   get default() { return Utils; },
-  get Q      () { return Q; },
   get _      () { return _; },
   get net    () { return require('azk/utils/net'); },
   get docker () { return require('azk/utils/docker'); },
@@ -80,90 +79,8 @@ var Utils = {
     });
   },
 
-  defer(func) {
-    return Q.Promise((resolve, reject) => {
-      setImmediate(() => {
-        var result;
-
-        try {
-          resolve = _.extend(resolve, { resolve: resolve, reject: reject });
-          result = func(resolve, reject);
-        } catch (e) {
-          return reject(e);
-        }
-
-        if (Q.isPromise(result)) {
-          result.then(resolve, reject);
-        } else if (typeof(result) != "undefined") {
-          resolve(result);
-        }
-      });
-    });
-  },
-
-  async(obj, func, ...args) {
-    return Utils.defer((/* _resolve, _reject */) => {
-      if (typeof obj == "function") {
-        [func, obj] = [obj, null];
-      }
-
-      if (typeof obj == "object") {
-        func = func.bind(obj);
-      }
-
-      return Q.async(func).apply(func, [...args]);
-    });
-  },
-
-  asyncUnsubscribe(obj, subscription, ...args) {
-    return this.async(obj, ...args)
-    .then(function (result) {
-      subscription.unsubscribe();
-      return result;
-    })
-    .catch(function (err) {
-      subscription.unsubscribe();
-      throw err;
-    });
-  },
-
-  qify(Klass) {
-    if (_.isString(Klass)) {
-      Klass = require(Klass);
-    }
-
-    var NewClass = function(...args) {
-      Klass.call(this, ...args);
-    };
-
-    NewClass.prototype = Object.create(Klass.prototype);
-    NewClass.prototype.constructor = Klass;
-
-    _.each(_.methods(Klass.prototype), (method) => {
-      var original = Klass.prototype[method];
-      NewClass.prototype[method] = function(...args) {
-        return Q.nbind(original, this)(...args);
-      };
-    });
-
-    return NewClass;
-  },
-
-  qifyModule(mod) {
-    var newMod = _.clone(mod);
-
-    _.each(_.methods(mod), (method) => {
-      var original = mod[method];
-      newMod[method] = function(...args) {
-        return Q.nbind(original, this)(...args);
-      };
-    });
-
-    return newMod;
-  },
-
   unzip(origin, target) {
-    return Utils.defer((done) => {
+    return defer((done) => {
       try {
         var input  = fs.createReadStream(origin);
         var output = fs.createWriteStream(target);

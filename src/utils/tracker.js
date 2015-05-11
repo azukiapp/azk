@@ -1,7 +1,8 @@
 import Azk from 'azk';
-import { Q, _, config, log, t } from 'azk';
+import { _, config, log, t } from 'azk';
 import { meta as azkMeta } from 'azk';
 import { calculateHash } from 'azk/utils';
+import { promiseResolve } from 'azk/utils/promises';
 
 var util = require('util');
 var os = require('os');
@@ -51,7 +52,7 @@ export class TrackerEvent {
   }
 
   send(extra_func = null) {
-    if (!this.tracker.loadTrackerPermission()) { return Q.resolve(false); }
+    if (!this.tracker.loadTrackerPermission()) { return promiseResolve(false); }
 
     if (_.isFunction(extra_func)) {
       extra_func(this);

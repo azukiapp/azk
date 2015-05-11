@@ -1,12 +1,11 @@
 import h from 'spec/spec_helper';
-import { _, path, lazy_require } from 'azk';
-import { Q, defer, async } from 'azk';
+import { _, path, lazy_require, fsAsync } from 'azk';
+import { defer, async, all } from 'azk/utils/promises';
 
 var lazy = lazy_require({
   Sync         : ['azk/sync'],
   Worker       : ['azk/sync/worker'],
   EventEmitter : ['events'],
-  qfs          : 'q-io/fs',
   semver       : 'semver'
 });
 
@@ -16,7 +15,7 @@ describe("Azk sync, Worker module", function() {
   var invalid_fixtures = path.join(h.fixture_path('sync/test_1/'), 'invalid');
 
   function make_copy() {
-    return Q.all([
+    return all([
       h.copyToTmp(example_fixtures),
       h.tmp_dir()
     ]);
@@ -63,7 +62,7 @@ describe("Azk sync, Worker module", function() {
       return async(function* () {
         [origin, dest] = yield make_copy();
         [bus] = create_worker();
-        yield lazy.qfs.remove(path.join(origin, ".syncignore"));
+        yield fsAsync.remove(path.join(origin, ".syncignore"));
 
         var msg = yield run_and_wait_msg(bus, "watch", () => {
           return bus.emit("message", { origin, destination: dest });
@@ -85,7 +84,7 @@ describe("Azk sync, Worker module", function() {
         var origin_file = path.join(origin, file);
 
         var msg = yield run_and_wait_msg(bus, () => {
-          return lazy.qfs.write(origin_file, "foobar");
+          return fsAsync.writeFile(origin_file, "foobar");
         });
 
         h.expect(msg).to.have.property('op', 'add');
@@ -104,15 +103,15 @@ describe("Azk sync, Worker module", function() {
         var dest_file   = path.join(origin, file);
 
         var msg = yield run_and_wait_msg(bus, () => {
-          return lazy.qfs.write(origin_file, "foobar");
+          return fsAsync.writeFile(origin_file, "foobar");
         });
 
         h.expect(msg).to.have.property('op', 'change');
         h.expect(msg).to.have.property('filepath', file);
         h.expect(msg).to.have.property('status', 'done');
 
-        var content = yield lazy.qfs.read(dest_file);
-        h.expect(content).to.equal("foobar");
+        var content = yield fsAsync.readFile(dest_file);
+        h.expect(content.toString()).to.equal("foobar");
       });
     });
 
@@ -123,13 +122,13 @@ describe("Azk sync, Worker module", function() {
         var dest_file   = path.join(origin, file);
 
         var msg = yield run_and_wait_msg(bus, () => {
-          return lazy.qfs.remove(origin_file);
+          return fsAsync.remove(origin_file);
         });
         h.expect(msg).to.have.property('op', 'unlink');
         h.expect(msg).to.have.property('filepath', file);
         h.expect(msg).to.have.property('status', 'done');
 
-        var exists = yield lazy.qfs.exists(dest_file);
+        var exists = yield fsAsync.exists(dest_file);
         h.expect(exists).to.fail;
       });
     });
@@ -150,7 +149,7 @@ describe("Azk sync, Worker module", function() {
         });
 
         var msg = yield run_and_wait_msg(bus, 'unlinkDir', () => {
-          return lazy.qfs.removeTree(origin_folder);
+          return fsAsync.remove(origin_folder);
         });
         h.expect(msg).to.have.property('op', 'unlinkDir');
         h.expect(msg).to.have.property('filepath', folder);
@@ -165,7 +164,7 @@ describe("Azk sync, Worker module", function() {
           {"op": "unlink", "status":"done", "filepath":"foo/Moe.txt"}
         );
 
-        var exists = yield lazy.qfs.exists(dest_folder);
+        var exists = yield fsAsync.exists(dest_folder);
         h.expect(exists).to.fail;
       });
     });
@@ -183,10 +182,10 @@ describe("Azk sync, Worker module", function() {
     h.expect(msg).to.have.property('op', 'sync');
     h.expect(msg).to.have.property('status', 'done');
 
-    var exists = yield lazy.qfs.exists(path.join(dest, "foo"));
+    var exists = yield fsAsync.exists(path.join(dest, "foo"));
     h.expect(exists).to.fail;
 
-    exists = yield lazy.qfs.exists(path.join(dest, "bar"));
+    exists = yield fsAsync.exists(path.join(dest, "bar"));
     h.expect(exists).to.ok;
   });
 
@@ -204,9 +203,9 @@ describe("Azk sync, Worker module", function() {
       });
     });
 
-    yield lazy.qfs.write(path.join(origin, "ignored/Fred.txt"), "foobar");
-    yield lazy.qfs.write(path.join(origin, "bar/Fred.txt"), "foobar");
-    yield lazy.qfs.write(path.join(origin, "foo/Moe.txt" ), "foobar");
+    yield fsAsync.writeFile(path.join(origin, "ignored/Fred.txt"), "foobar");
+    yield fsAsync.writeFile(path.join(origin, "bar/Fred.txt"), "foobar");
+    yield fsAsync.writeFile(path.join(origin, "foo/Moe.txt" ), "foobar");
 
     var msgs = yield wait;
     h.expect(msgs).to.not.match(/ignored\/Fred.txt/);
@@ -216,13 +215,13 @@ describe("Azk sync, Worker module", function() {
 
   it("should exclude the .gitignore content for default", function* () {
     var [origin, dest]  = yield make_copy();
-    yield lazy.qfs.write(path.join(origin, ".gitignore"), "ignored/");
-    yield lazy.qfs.remove(path.join(origin, ".syncignore"));
+    yield fsAsync.writeFile(path.join(origin, ".gitignore"), "ignored/");
+    yield fsAsync.remove(path.join(origin, ".syncignore"));
 
     worker = create_worker()[1];
     yield worker.watch(origin, dest, {});
 
-    var exists = yield lazy.qfs.exists(path.join(dest, "ignored"));
+    var exists = yield fsAsync.exists(path.join(dest, "ignored"));
     h.expect(exists).to.be.not.ok;
 
     var wait = defer((resolve) => {
@@ -231,8 +230,8 @@ describe("Azk sync, Worker module", function() {
       });
     });
 
-    yield lazy.qfs.write(path.join(origin, "ignored/Fred.txt"), "foobar");
-    yield lazy.qfs.write(path.join(origin, "foo/Moe.txt" ), "foobar");
+    yield fsAsync.writeFile(path.join(origin, "ignored/Fred.txt"), "foobar");
+    yield fsAsync.writeFile(path.join(origin, "foo/Moe.txt" ), "foobar");
 
     var msgs = yield wait;
     h.expect(msgs).to.not.match(/ignored\/Fred.txt/);
@@ -245,10 +244,10 @@ describe("Azk sync, Worker module", function() {
     worker = create_worker()[1];
     yield worker.watch(origin, dest, {});
 
-    var exists = yield lazy.qfs.exists(path.join(dest, "ignored"));
+    var exists = yield fsAsync.exists(path.join(dest, "ignored"));
     h.expect(exists).to.be.ok;
 
-    exists = yield lazy.qfs.exists(path.join(dest, "foo"));
+    exists = yield fsAsync.exists(path.join(dest, "foo"));
     h.expect(exists).to.be.not.ok;
 
     var wait = defer((resolve) => {
@@ -257,8 +256,8 @@ describe("Azk sync, Worker module", function() {
       });
     });
 
-    yield lazy.qfs.write(path.join(origin, "ignored/Fred.txt"), "foobar");
-    yield lazy.qfs.write(path.join(origin, "foo/Moe.txt" ), "foobar");
+    yield fsAsync.writeFile(path.join(origin, "ignored/Fred.txt"), "foobar");
+    yield fsAsync.writeFile(path.join(origin, "foo/Moe.txt" ), "foobar");
 
     var msgs = yield wait;
     h.expect(msgs).to.match(/ignored\/Fred.txt/);

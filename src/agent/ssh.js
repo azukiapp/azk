@@ -1,4 +1,5 @@
-import { config, log, defer, publish } from 'azk';
+import { config, log, publish } from 'azk';
+import { defer } from 'azk/utils/promises';
 import { net } from 'azk/utils';
 
 var ssh2 = require('ssh2');

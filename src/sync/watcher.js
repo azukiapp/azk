@@ -1,4 +1,5 @@
-import { _, path, defer, log } from 'azk';
+import { _, path, log } from 'azk';
+import { defer } from 'azk/utils/promises';
 import { IPublisher } from 'azk/utils/postal';
 
 var forever = require('forever-monitor');

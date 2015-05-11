@@ -1,4 +1,5 @@
-import { _, log, lazy_require, config, async } from 'azk';
+import { _, log, lazy_require, config } from 'azk';
+import { async } from 'azk/utils/promises';
 import { SmartProgressBar } from 'azk/cli/smart_progress_bar';
 
 var lazy = lazy_require({

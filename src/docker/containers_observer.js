@@ -1,5 +1,5 @@
 import { _, lazy_require, log } from 'azk';
-import { Q, defer } from 'azk';
+import { defer, promiseResolve } from 'azk/utils/promises';
 import { IPublisher } from 'azk/utils/postal';
 
 var l = lazy_require({
@@ -36,7 +36,7 @@ export class ContainersObserver extends IPublisher  {
   }
 
   start() {
-    if (this.starting || this.stoping) { return Q(); }
+    if (this.starting || this.stoping) { return promiseResolve(); }
     this.starting = true;
     this.attemps++;
 

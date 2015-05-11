@@ -1,4 +1,5 @@
-import { _, async, defer, Q, lazy_require } from 'azk';
+import { _, lazy_require } from 'azk';
+import { async, defer, all } from 'azk/utils/promises';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Helpers } from 'azk/cli/command';
 
@@ -64,7 +65,7 @@ class Cmd extends InteractiveCmds {
     var colors = ["green", "yellow", "blue", "red", "cyan", "grey"];
     var color  = -1;
 
-    return Q.all(_.map(systems, (system) => {
+    return all(_.map(systems, (system) => {
       return system.instances({ type: "daemon" }).then((instances) => {
         color++;
 
@@ -75,7 +76,7 @@ class Cmd extends InteractiveCmds {
           });
         }
 
-        return Q.all(this.connect(system, colors[color % colors.length], instances, options));
+        return all(this.connect(system, colors[color % colors.length], instances, options));
       });
     }));
   }

@@ -12,10 +12,12 @@ describe("Azk docker module, image build @slow", function() {
 
   var build = (file_path, tag) => {
     tag = tag || null;
+
     var build_options = {
       dockerfile: path.join(h.fixture_path('build'), file_path),
-      tag: `${repository}:${tag || file_path}`,
+      tag: `${repository}:${tag || file_path}`
     };
+
     return h.docker.build(build_options);
   };
 
@@ -25,7 +27,7 @@ describe("Azk docker module, image build @slow", function() {
     var mocks = h.mockOutputs(beforeEach, outputs);
 
     it("should generate a valid image", function() {
-      return build('Dockerfile', 'sucess')
+      return build('Dockerfile', 'success')
         .then((image) => {
           var result = h.docker.run(
             image.name,
@@ -72,6 +74,7 @@ describe("Azk docker module, image build @slow", function() {
       });
       return build('Dockerfile')
         .then(() => {
+          _subscription.unsubscribe();
           var status = [
             'building_from',
             'building_maintainer',
@@ -106,12 +109,15 @@ describe("Azk docker module, image build @slow", function() {
       });
       return build('DockerfileInvalid')
         .then(() => {
+          _subscription.unsubscribe();
+
           // test for Docker 1.2
           h.expect(events).to.be.length(1);
           h.expect(events[0].statusParsed).to.be.deep.equal({});
           _subscription.unsubscribe();
         })
         .catch((rejection) => {
+          _subscription.unsubscribe();
           if (l.semver.cmp(docker_version, '>=', '1.6.0')) {
             h.expect(rejection.translation_key).to.equal('docker_build_error.unknow_instrction_error');
           } else {
@@ -123,17 +129,23 @@ describe("Azk docker module, image build @slow", function() {
 
     it("should raise error for a invalid step", function() {
       var events = [];
+
       var _subscription = subscribe('docker.build.status', (data) => {
         events.push(data);
       });
+
       return build('DockerfileBuildError')
         .then(() => {
+          _subscription.unsubscribe();
+
           // test for Docker 1.2
           h.expect(events).to.be.length(1);
           h.expect(events[0].statusParsed).to.be.deep.equal({});
           _subscription.unsubscribe();
         })
-        .catch((rejection) => {
+        .catch(function(rejection) {
+          _subscription.unsubscribe();
+
           // test for Docker 1.4
           h.expect(rejection.translation_key).to.equal('docker_build_error.command_error');
           _subscription.unsubscribe();

@@ -1,7 +1,9 @@
-import { log, _, async, t, lazy_require, subscribe } from 'azk';
+import { log, t, lazy_require, subscribe } from 'azk';
+import { async } from 'azk/utils/promises';
 import { Helpers } from 'azk/cli/command';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Cmd as StatusCmd } from 'azk/cmds/status';
+import { AzkError } from 'azk/utils/errors';
 
 var lazy = lazy_require({
   Manifest: ['azk/manifest'],
@@ -22,7 +24,14 @@ class Cmd extends InteractiveCmds {
       yield StatusCmd.status(this, manifest, systems);
 
       return result;
-    });
+    })
+    .catch(function (err) {
+      // Unhandled rejection overtakes synchronous exception through done() #471
+      // https://github.com/petkaantonov/bluebird/issues/471
+      if (err instanceof AzkError) {
+        this.fail(err.toString());
+      }
+    }.bind(this));
   }
 
   scale(manifest, systems, opts) {
