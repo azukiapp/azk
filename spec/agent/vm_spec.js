@@ -1,5 +1,5 @@
 import h from 'spec/spec_helper';
-import { _, async, path, Q, config, log } from 'azk';
+import { _, async, path, Q, config, log, subscribe, progress } from 'azk';
 import { lazy_require } from 'azk';
 import { net } from 'azk/utils';
 
@@ -206,8 +206,11 @@ h.describeRequireVm("Azk agent vm", function() {
 
         // Removing vm and network interface
         var events   = [];
-        var progress = (event) => events.push(event);
-        yield remove.apply(this).progress(progress);
+
+        var _subscription = subscribe('agent.#', (data) => { events.push(data); });
+        yield remove.apply(this);
+        _subscription.unsubscribe();
+
         data = yield aux_tools.netinfo();
         h.expect(aux_tools.filter_hostonly(data[0], info.hostonlyadapter1)).to.empty;
         h.expect(events).to.length(2);
@@ -219,13 +222,22 @@ h.describeRequireVm("Azk agent vm", function() {
     this.timeout(10000);
     var name = config("agent:vm:name");
     var data = "";
-    var progress = (event) => {
-      if (event.type == "ssh" && (event.context == "stdout" || event.context == "stderr")) {
-        data += event.data.toString();
-      }
-    };
+    var _subscription;
 
-    beforeEach(() => data = "");
+    before(() => {
+      _subscription = subscribe('agent.#', (event) => {
+        if (event.type == "ssh" && (event.context == "stdout" || event.context == "stderr")) {
+          data += event.data.toString();
+        }
+      });
+    });
+    after(() => {
+      _subscription.unsubscribe();
+    });
+
+    beforeEach(() => {
+      data = "";
+    });
 
     it("should return error if vm not exist", function() {
       return h.expect(l.VM.ssh("not-exist")).to.eventually.rejectedWith(/vm is not running/);

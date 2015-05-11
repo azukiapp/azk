@@ -1,4 +1,4 @@
-import { _, defer, lazy_require } from 'azk';
+import { _, defer, lazy_require, publish } from 'azk';
 import { ProvisionNotFound, ProvisionPullError } from 'azk/utils/errors';
 
 var lazy = lazy_require({
@@ -42,7 +42,7 @@ export function pull(docker, repository, tag, stdout, registry_result) {
     tag: tag,
   });
   return promise.then((stream) => {
-    return defer((resolve, reject, notify) => {
+    return defer((resolve, reject) => {
       stream.on('data', (data) => {
         try {
           var msg             = JSON.parse(data.toString());
@@ -57,13 +57,13 @@ export function pull(docker, repository, tag, stdout, registry_result) {
           } else {
             // parse message
             msg.statusParsed = parse_status(msg.status);
-            notify(msg); // -> cli.helpers.newPullProgress
+            publish("docker.pull.status", msg);
           }
         } catch (e) {}
       });
 
       stream.on('end', () => {
-        notify({ type: "pull_msg", end: true, image});
+        publish("docker.pull.status", { type: "pull_msg", end: true, image});
         resolve(docker.findImage(image));
       });
     });

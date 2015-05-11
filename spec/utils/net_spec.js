@@ -1,7 +1,5 @@
 import h from 'spec/spec_helper';
-import { async, Q } from 'azk';
-import { config, set_config } from 'azk';
-import { path } from 'azk';
+import { async, Q, config, set_config, path, subscribe } from 'azk';
 import { net as net_utils, envDefaultArray } from 'azk/utils';
 var net = require('net');
 
@@ -90,24 +88,40 @@ describe("Azk utils.net module", function() {
       server = net.createServer(() => {});
       return Q
         .ninvoke(server, 'listen', port_or_path)
-        .then(() => { return Q.delay(1000); });
+        .then(() => {
+          return Q.delay(1000).then(function (result) {
+            return result;
+          });
+        });
     };
 
     it("should wait for server", function() {
-      var progress = (event) => {
-        // Connect before 2 attempts
-        if (event.type == "try_connect" && event.attempts == 2) {
-          return runServer(port);
-        }
-      };
+
+      var _subscription;
 
       var connect = () => {
         return net_utils.waitService("tcp://localhost:" + port, 2, { timeout: 100 });
       };
 
       return async(function* () {
+        // not listening to utils.net.waitService.status
         yield h.expect(connect()).to.eventually.equal(false);
-        yield h.expect(connect().progress(progress)).to.eventually.equal(true);
+
+        // listening to utils.net.waitService.status
+        _subscription = subscribe('utils.net.waitService.status', (event) => {
+          // Connect before 2 attempts
+          if (event.type == "try_connect" && event.attempts == 2) {
+            runServer(port);
+          }
+        });
+        yield h.expect(connect()).to.eventually.equal(true);
+        _subscription.unsubscribe();
+      })
+      .catch(function (err) {
+        if (_subscription) {
+          _subscription.unsubscribe();
+        }
+        throw err;
       });
     });
 

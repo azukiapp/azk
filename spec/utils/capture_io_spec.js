@@ -1,4 +1,4 @@
-import { Q } from 'azk';
+import { Q, publish, subscribe } from 'azk';
 import h from 'spec/spec_helper';
 import capture_io from 'azk/utils/capture_io';
 
@@ -24,7 +24,9 @@ describe("Azk capture_io utils helper", function() {
       var done = Q.defer();
 
       setImmediate( () => {
-        done.notify('notification');
+
+        publish("capture_io_spec", 'notification');
+
         console.log('output in stdout');
         done.resolve(1);
       });
@@ -42,9 +44,12 @@ describe("Azk capture_io utils helper", function() {
     it("should support progress", function() {
       var promise = capture_io(block);
       var notify  = [];
-      promise.progress((notification) => notify.push(notification));
+
+      var _subscription = subscribe('capture_io_spec', (notification) => notify.push(notification));
 
       return promise.spread((result, outs) => {
+        _subscription.unsubscribe();
+
         h.expect(notify).to.eql(['notification']);
         h.expect(result).to.equal(1);
         h.expect(outs.stdout).to.equal("output in stdout\n");

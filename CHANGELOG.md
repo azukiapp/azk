@@ -17,6 +17,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Docker] Fixing bug that could prevent the work instruction `ADD . /folder/` when used in a Dockerfile;
 
 * Enhancements
+  * [Code] Removed `progress()` Promises helper. Included postal: subscribe and publish functions #385;
   * [Docker] Now support `Dockerfile` is complete, and similar to the docker, including support `.dockerignore`;
   * [Suggesting] Changing the suggestions of python and ruby ​​to give preference to sync instead of path;
 

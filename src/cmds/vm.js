@@ -1,4 +1,4 @@
-import { Q, config, async, lazy_require, log } from 'azk';
+import { Q, config, async, lazy_require, log, subscribe } from 'azk';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Helpers } from 'azk/cli/command';
 
@@ -41,15 +41,24 @@ class VmCmd extends InteractiveCmds {
       var vm_info = yield lazy.VM.info(vm_name);
 
       var promise = this[`action_${action}`](vm_info, opts);
-      promise = promise.progress(Helpers.vmStartProgress(this));
 
-      return promise.fail(opts.fail || ((error) => {
-        if (error instanceof RequiredError) {
-          this.fail(error.key);
-          return 1;
-        }
-        throw error;
-      }));
+      var _subscription = subscribe('vm.action.status', (data) => {
+        Helpers.vmStartProgress(this)(data);
+      });
+
+      return promise
+        .then(function (result) {
+          _subscription.unsubscribe();
+          return result;
+        })
+        .catch(opts.fail || ((error) => {
+          if (error instanceof RequiredError) {
+            this.fail(error.key);
+            return 1;
+          }
+          _subscription.unsubscribe();
+          throw error;
+        }));
     });
   }
 

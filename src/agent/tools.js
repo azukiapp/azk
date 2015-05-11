@@ -1,10 +1,10 @@
-import { async, defer, log } from 'azk';
+import { async, defer, log, publish } from 'azk';
 
 var Tools = {
   change_status(key, notify, status, data) {
     var keys = ["commands", key, "status", status];
     (status != "error") ?  log.info_t(keys, data) : null;
-    notify({ type: "status", context: key, status: status, data: data });
+    publish("agent." + key + ".status", { type: "status", context: key, status: status, data: data });
   },
 
   defer_status(key, func) {

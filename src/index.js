@@ -1,4 +1,4 @@
-import { Q, _, defer, async, isBlank } from 'azk/utils';
+import { Q, _, defer, async, isBlank, asyncUnsubscribe } from 'azk/utils';
 
 Q.longStackSupport = true;
 
@@ -47,6 +47,7 @@ module.exports = {
   // Promise helpers
   get defer() { return defer; },
   get async() { return async; },
+  get asyncUnsubscribe() { return asyncUnsubscribe; },
 
   // Internals alias
   get os     () { return require('os'); },
@@ -66,4 +67,9 @@ module.exports = {
     }
     return _log;
   },
+
+  // Postal helpers
+  get subscribe() { return require("azk/utils/postal").subscribe; },
+  get publish() { return require("azk/utils/postal").publish; },
+
 };

@@ -1,4 +1,4 @@
-import { Q, _, config, t, defer } from 'azk';
+import { Q, _, config, t, defer, publish, subscribe } from 'azk';
 
 export function extend(Helpers) {
   var h = Helpers;
@@ -13,9 +13,9 @@ export function extend(Helpers) {
   };
 
   Helpers.remove_containers = function() {
-    return defer((done) => {
+    return defer(() => {
       return h.docker.azkListContainers({ all: true }).then((containers) => {
-        done.notify(t('test.remove_containers', containers.length));
+        publish("spec.dustman.remove_containers.message", t('test.remove_containers', containers.length));
         return Q.all(_.map(containers, (container) => {
           var c = h.docker.getContainer(container.Id);
           return c.kill().then(() => {
@@ -27,15 +27,13 @@ export function extend(Helpers) {
   };
 
   Helpers.remove_images = function() {
-    return defer((done) => {
+    return defer(() => {
       return h.docker.listImages().then((images) => {
         var tags = _.flatten(_.map(
           images, (image) => { return image.RepoTags; }
         ));
-
         tags = _.filter(tags, filter_tags);
-        done.notify(t('test.remove_images', tags.length));
-
+        publish("spec.dustman.remove_images.message", t('test.remove_images', tags.length));
         return Q.all(_.map(tags, (tag) => {
           return h.docker.getImage(tag).remove();
         }));
@@ -46,15 +44,20 @@ export function extend(Helpers) {
   // Remove all containers before run
   // if no_required_agent is disabled
   if (!Helpers.no_required_agent) {
+    var _subscription;
     before(function() {
       this.timeout(0);
-      var progress = (event) => console.log(`  ${event}`);
+      _subscription = subscribe('spec.dustman.#', (event) => console.log(`  ${event}`) );
       var funcs = [
         Helpers.remove_containers,
         Helpers.remove_images,
         () => console.log("\n")
       ];
-      return funcs.reduce(Q.when, Q()).progress(progress);
+      return funcs.reduce(Q.when, Q());
     });
   }
+
+  after(() => {
+    _subscription.unsubscribe();
+  });
 }

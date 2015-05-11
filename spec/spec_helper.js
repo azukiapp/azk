@@ -15,6 +15,12 @@ var lazy = lazy_require({
 var chai = require('azk-dev/chai');
 chai.use(require('chai-subset'));
 
+if (process.env.AZK_SUBSCRIBE_POSTAL) {
+  var SubscriptionLogger = require("azk/utils/postal").SubscriptionLogger;
+  var subscriptionLogger = new SubscriptionLogger();
+  subscriptionLogger.subscribeTo(process.env.AZK_SUBSCRIBE_POSTAL);
+}
+
 var Helpers = {
   pp: pp,
   expect: chai.expect,

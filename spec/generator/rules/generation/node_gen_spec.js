@@ -39,9 +39,6 @@ describe('Azk generator generation node rule', function() {
     var expectedMounts = {};
     var workdir = '/azk/' + project_folder_name;
     expectedMounts[workdir] = utils.docker.resolvePath(manifest.manifestPath);
-    // FIXME: where does this api name comes from when all 'Azk generator' are run?
-    // h.expect(system).to.have.deep.property('mounts')
-    //  .and.to.eql(expectedMounts);
 
     h.expect(system).to.have.deep.property('options.workdir', workdir);
     h.expect(system).to.have.deep.property('options.provision')

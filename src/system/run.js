@@ -1,7 +1,9 @@
-import { _, t, Q, async, defer, config, lazy_require, log, isBlank, path } from 'azk';
+import { _, t,  config, lazy_require, log, isBlank, path } from 'azk';
+import { Q, async, defer, asyncUnsubscribe } from 'azk';
 import { ImageNotAvailable, SystemRunError, RunCommandError, NotBeenImplementedError } from 'azk/utils/errors';
 import { Balancer } from 'azk/system/balancer';
 import net from 'azk/utils/net';
+import { subscribe, publish } from 'azk';
 
 var lazy = lazy_require({
   MemoryStream: 'memorystream',
@@ -11,7 +13,7 @@ var lazy = lazy_require({
 
 var Run = {
   runProvision(system, options = {}) {
-    return async(this, function* (notify) {
+    return async(this, function* () {
       var steps = system.provision_steps;
 
       options = _.defaults(options, {
@@ -46,7 +48,7 @@ var Run = {
         output = t("system.seelog");
       }
 
-      notify({ type: "provision", system: system.name });
+      publish("system.run.provision.status", { type: "provision", system: system.name });
       var exitResult = yield system.runShell(cmd, options);
       if (exitResult.code !== 0) {
         throw new RunCommandError(system.name, cmd.join(' '), output);
@@ -92,6 +94,7 @@ var Run = {
   runDaemon(system, options = {}) {
     return async(this, function* () {
       // TODO: add instances and dependencies options
+
       // Prepare options
       var image = yield this._check_image(system, options);
       options.image_data = image;
@@ -209,7 +212,7 @@ var Run = {
       remove: true,
     });
 
-    return async(function* (notify) {
+    return async(function* () {
       var container = null;
 
       // Default stop all
@@ -224,13 +227,13 @@ var Run = {
         yield Balancer.remove(system, container);
 
         if (options.kill) {
-          notify({ type: 'kill_service', system: system.name });
+          publish("system.run.stop.status", { type: 'kill_service', system: system.name });
           yield container.kill();
         } else {
-          notify({ type: 'stop_service', system: system.name });
+          publish("system.run.stop.status", { type: 'stop_service', system: system.name });
           yield container.stop();
         }
-        notify({ type: "stopped", id: container.Id });
+        publish("system.run.stop.status", { type: 'stopped', id: container.Id });
         if (options.remove) {
           yield container.remove();
         }
@@ -244,7 +247,7 @@ var Run = {
 
   // Wait for container/system available
   _wait_available(system, port_data, container, retry, timeout) {
-    return async(this, function* (notify) {
+    return async(this, function* () {
       var host;
       if (config('agent:requires_vm')) {
         host = config('agent:vm:ip');
@@ -263,7 +266,7 @@ var Run = {
         },
       };
 
-      notify(_.merge(port_data, {
+      publish("system.run._wait_available.status", _.merge(port_data, {
         name: system.portName(port_data.name),
         type: "wait_port", system: system.name
       }));
@@ -343,8 +346,14 @@ var Run = {
       image_pull: true,
     });
 
-    return async(function* () {
+    var _subscription = subscribe("image.check.status", (msg, env) => {
+      msg.system = system;
+      publish("system.run." + env.topic, msg);
+    });
+
+    return asyncUnsubscribe(this, _subscription, function* () {
       var promise;
+
       if ((options.build_force || options.image_pull) && !system.image.builded) {
         if (system.image.provider === 'docker') {
           promise = system.image.pull(options);
@@ -355,18 +364,16 @@ var Run = {
         // save the date provisioning
         system.image.builded = new Date();
       } else {
-        promise = system.image.check().then((image) => {
-          if (isBlank(image)) {
-            throw new ImageNotAvailable(system.name, system.image.name);
-          }
-          return image;
-        });
+        promise = system.image.check()
+          .then((image) => {
+            if (isBlank(image)) {
+              throw new ImageNotAvailable(system.name, system.image.name);
+            }
+            return image;
+          });
       }
 
-      var image = yield promise.progress((event) => {
-        event.system = system;
-        return event;
-      });
+      var image = yield promise;
 
       if (!isBlank(image)) {
         return image.inspect();

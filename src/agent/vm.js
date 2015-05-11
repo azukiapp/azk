@@ -1,4 +1,4 @@
-import { _, Q, path, config, async, log, isBlank } from 'azk';
+import { _, Q, path, config, async, log, isBlank, subscribe, publish } from 'azk';
 import Utils from 'azk/utils';
 import { Tools } from 'azk/agent/tools';
 import { SSH } from 'azk/agent/ssh';
@@ -514,17 +514,23 @@ var vm = {
     ].join(" ");
 
     var stderr = "";
-    var progress = (event) => {
+
+    var _subscription = subscribe('agent.vm.ssh.status', (event) => {
       if (event.type == "ssh" && event.context == "stderr") {
         stderr += event.data.toString();
       }
-      return event;
-    };
+      publish('agent.vm.mount.status', event); //FIXME: was a return in this progress
+    });
 
-    return VM.ssh(vm_name, cmd).progress(progress).then((code) => {
+    return VM.ssh(vm_name, cmd).then((code) => {
       if (code !== 0) {
         throw new Error('not mount share files, error:\n' + stderr);
       }
+      _subscription.unsubscribe();
+    })
+    .catch(function (err) {
+      _subscription.unsubscribe();
+      throw err;
     });
   },
 };

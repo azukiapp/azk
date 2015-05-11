@@ -1,4 +1,4 @@
-import { _, Q, async, lazy_require, path } from 'azk';
+import { _, Q, async, lazy_require, path, publish } from 'azk';
 import { DockerBuildError } from 'azk/utils/errors';
 
 var lazy = lazy_require({
@@ -39,7 +39,7 @@ function parse_stream(msg) {
 }
 
 export function build(docker, options) {
-  return async(function* (notify) {
+  return async(function* () {
     var opts = _.extend({
       cache: true
     }, options);
@@ -97,7 +97,7 @@ export function build(docker, options) {
           opts.stdout.write('  ' + msg.stream);
         }
         if (msg.statusParsed) {
-          notify(msg);
+          publish("docker.build.status", msg);
           if (msg.statusParsed.type == "building_from") {
             from = msg.statusParsed.FROM;
           }

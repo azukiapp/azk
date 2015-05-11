@@ -1,4 +1,4 @@
-import { config, log, defer } from 'azk';
+import { config, log, defer, publish } from 'azk';
 import { net } from 'azk/utils';
 
 var ssh2 = require('ssh2');
@@ -14,7 +14,7 @@ export class SSH {
   exec(cmd, wait = false) {
     return this.connect(wait, (client, done) => {
       log.debug("agent vm ssh cmd: %s", cmd);
-      done.notify({ type: "ssh", context: "running", cmd: cmd});
+      publish("agent.ssh.exec.status", { type: "ssh", context: "running", cmd: cmd});
 
       client.exec(cmd, (err, stream) => {
         if (err) {
@@ -22,7 +22,7 @@ export class SSH {
         }
         stream.on('data', (data, extended) => {
           var context = extended ? extended : 'stdout';
-          done.notify({ type: "ssh", context: context, data: data });
+          publish("agent.ssh.exec.status", { type: "ssh", context: context, data: data });
         });
 
         stream.on('end', () => { client.end(); });
@@ -38,7 +38,7 @@ export class SSH {
   getFile(origin, dest, wait = false) {
     return this.connect(wait, (client, done) => {
       log.debug("agent vm ssh scp: %s <= %s", origin, dest);
-      done.notify({ type: "ssh", context: "scp", dest: dest, origin: origin});
+      publish("agent.ssh.getFile.status", { type: "ssh", context: "scp", dest: dest, origin: origin});
 
       client.sftp((err, sftp) => {
         if (err) {
@@ -61,7 +61,7 @@ export class SSH {
   putFile(origin, dest, wait = false) {
     return this.connect(wait, (client, done) => {
       log.debug("agent vm ssh scp: %s => %s", origin, dest);
-      done.notify({ type: "ssh", context: "scp", origin: origin, dest: dest});
+      publish("agent.ssh.putFile.status", { type: "ssh", context: "scp", origin: origin, dest: dest});
 
       client.sftp((err, sftp) => {
         if (err) {
@@ -94,7 +94,7 @@ export class SSH {
         };
 
         client.on("ready", () => {
-          done.notify({ type: 'connected' });
+          publish("agent.ssh.connect.status", { type: 'connected' });
           log.debug("agent vm ssh connected");
           callback(client, done);
         });

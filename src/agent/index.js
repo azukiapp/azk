@@ -1,4 +1,4 @@
-import { Q, _, config, defer, log, lazy_require, set_config } from 'azk';
+import { Q, _, config, defer, log, lazy_require, set_config, publish } from 'azk';
 import { Pid } from 'azk/utils/pid';
 import { AgentStopError } from 'azk/utils/errors';
 
@@ -20,7 +20,8 @@ var Agent = {
   stopping: false,
 
   change_status(status, data = null) {
-    this.observer.notify({ type: "status", status, pid: process.pid, data: data });
+    publish("agent.agent.change_status.status", { type: "status", status, pid: process.pid, data: data });
+    this.observer;
   },
 
   start(options) {
@@ -37,7 +38,6 @@ var Agent = {
         this.change_status('starting');
         this
           .processWrapper(options.configs || {} )
-          .progress(observer.notify)
           .fail((err) => {
             this.change_status("error", err.stack || err);
             this.gracefullyStop();
@@ -60,7 +60,6 @@ var Agent = {
     this.change_status("stopping");
     return lazy.Server
       .stop()
-      .progress(this.observer.notify)
       .then(() => {
         try { pid.unlink(); } catch (e) {}
         this.change_status("stopped");
@@ -128,7 +127,7 @@ var Agent = {
     // Start server and subsistems
     return lazy.Server.start().then(() => {
       this.change_status("started");
-      lazy.channel.publish("agent:started", {});
+      lazy.channel.publish("agent.agent.started.event", {});
       log.info("agent start with pid: " + process.pid);
     });
   },

@@ -1,4 +1,4 @@
-import { _, config, path, lazy_require } from 'azk';
+import { _, config, path, lazy_require, subscribe } from 'azk';
 import h from 'spec/spec_helper';
 import { DockerBuildError } from 'azk/utils/errors';
 
@@ -67,10 +67,11 @@ describe("Azk docker module, image build @slow", function() {
 
     it("should parse progress messages", function() {
       var events = [];
+      var _subscription = subscribe('docker.build.status', (data) => {
+        events.push(data);
+      });
       return build('Dockerfile')
-        .progress((event) => events.push(event))
         .then(() => {
-
           var status = [
             'building_from',
             'building_maintainer',
@@ -80,6 +81,11 @@ describe("Azk docker module, image build @slow", function() {
             h.expect(events)
               .to.contain.an.item.with.deep.property('statusParsed.type', status);
           });
+          _subscription.unsubscribe();
+        })
+        .catch(function (err) {
+          _subscription.unsubscribe();
+          throw err;
         });
     });
   });
@@ -95,14 +101,15 @@ describe("Azk docker module, image build @slow", function() {
 
     it("should raise error for a invalid image", function() {
       var events = [];
+      var _subscription = subscribe('docker.build.status', (data) => {
+        events.push(data);
+      });
       return build('DockerfileInvalid')
-        .progress((event) => {
-          events.push(event);
-        })
         .then(() => {
           // test for Docker 1.2
           h.expect(events).to.be.length(1);
           h.expect(events[0].statusParsed).to.be.deep.equal({});
+          _subscription.unsubscribe();
         })
         .catch((rejection) => {
           if (l.semver.cmp(docker_version, '>=', '1.6.0')) {
@@ -110,23 +117,26 @@ describe("Azk docker module, image build @slow", function() {
           } else {
             h.expect(rejection.translation_key).to.equal('docker_build_error.server_error');
           }
+          _subscription.unsubscribe();
         });
     });
 
     it("should raise error for a invalid step", function() {
       var events = [];
+      var _subscription = subscribe('docker.build.status', (data) => {
+        events.push(data);
+      });
       return build('DockerfileBuildError')
-        .progress((event) => {
-          events.push(event);
-        })
         .then(() => {
           // test for Docker 1.2
           h.expect(events).to.be.length(1);
           h.expect(events[0].statusParsed).to.be.deep.equal({});
+          _subscription.unsubscribe();
         })
         .catch((rejection) => {
           // test for Docker 1.4
           h.expect(rejection.translation_key).to.equal('docker_build_error.command_error');
+          _subscription.unsubscribe();
         });
     });
 

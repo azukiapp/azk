@@ -1,5 +1,4 @@
-import { async, lazy_require } from 'azk';
-import { config } from 'azk';
+import { async, lazy_require, publish, config } from 'azk';
 var qfs = require('q-io/fs');
 
 var lazy = lazy_require({
@@ -49,7 +48,7 @@ var Migrations = {
   ],
 
   run(configure) {
-    return async(this, function* (notify) {
+    return async(this, function* () {
       // Meta options
       var meta_tag  = "last_migration";
 
@@ -60,7 +59,7 @@ var Migrations = {
       // Azk agent was set up at least once?
       if (yield qfs.exists(lazy.meta.cache_dir) && be_run.length > 0) {
         // Warns on the run of migrations
-        notify({ type: "status", keys: "configure.migrations.alert"});
+        publish("agent.migrations.run.status", { type: "status", keys: "configure.migrations.alert"});
 
         // Run migrations
         for (var i = 0; i < be_run.length; i++) {

@@ -1,4 +1,4 @@
-import { Q, config, defer, async, utils } from 'azk';
+import { Q, config, defer, async, utils, subscribe } from 'azk';
 import h from 'spec/spec_helper';
 
 var default_img = config('docker:image_default');
@@ -31,16 +31,24 @@ describe("Azk docker module, run method @slow", function() {
       { tty: true, stdin: stdin, stdout: mocks.stdout }
     );
 
-    result = result.progress((event) => {
+    var _subscription = subscribe('docker.run.status', (event) => {
       if (event.type == "started") {
         stdin.write("uname; exit\n");
       }
     });
 
     return result.then((container) => {
+      _subscription.unsubscribe();
+      
       h.expect(outputs.stdout).to.match(/Linux/);
       return container.remove();
+    })
+    .catch(function (err) {
+      _subscription.unsubscribe();
+
+      throw err;
     });
+
   });
 
   it("should support envs", function() {

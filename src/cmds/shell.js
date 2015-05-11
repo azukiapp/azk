@@ -1,4 +1,4 @@
-import { _, t, async, defer, lazy_require } from 'azk';
+import { _, t, async, asyncUnsubscribe, defer, lazy_require, subscribe } from 'azk';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Helpers } from 'azk/cli/command';
 
@@ -9,8 +9,12 @@ var lazy = lazy_require({
 
 class Cmd extends InteractiveCmds {
   action(opts) {
-    var progress = Helpers.newPullProgress(this);
-    return async(this, function* () {
+
+    var _subscription = subscribe('docker.pull.status', (data) => {
+      Helpers.newPullProgressBar(this)(data);
+    });
+
+    return asyncUnsubscribe(this, _subscription, function* () {
       var cmd = [opts.cmd, ...opts.__leftover];
       var dir = this.cwd;
       var manifest, system;
@@ -75,11 +79,21 @@ class Cmd extends InteractiveCmds {
           return false;
         };
 
-        var shell_progress = this._escapeAndPullProgress(escape, system, !opts.silent, opts.verbose, options.stdout);
+        var _subscription_run = subscribe('docker.run.status', (data) => {
+          this._escapeAndPullProgress(escape, system, !opts.silent, opts.verbose, options.stdout)(data);
+        });
 
-        system.runShell(cmd, options).
-          progress(shell_progress).
-          then(resolver, reject);
+        system.runShell(cmd, options)
+          .then(function (result) {
+            _subscription_run.unsubscribe();
+            return result;
+          })
+          .then(resolver, reject)
+          .catch(function (err) {
+            _subscription_run.unsubscribe();
+            throw err;
+          });
+
       });
 
       result = yield result.fail((error) => {
@@ -87,7 +101,7 @@ class Cmd extends InteractiveCmds {
       });
 
       return result.code;
-    }).progress(progress);
+    });
   }
 
   parseError(error) {
@@ -108,8 +122,8 @@ class Cmd extends InteractiveCmds {
 
   _escapeAndPullProgress(escape, system, show_logs, verbose) {
     return (event) => {
-      var pull_progress = Helpers.newPullProgress(this);
-      var escape_progress = Helpers.escapeCapture(escape);
+      var pullProgressBar = Helpers.newPullProgressBar(this);
+      var escapeCapture = Helpers.escapeCapture(escape);
 
       // show verbose output
       if (verbose && event.stream) {
@@ -117,10 +131,10 @@ class Cmd extends InteractiveCmds {
       }
 
       if (event.type === "stdin_pipe") {
-        escape_progress(event);
+        escapeCapture(event);
       } else if (show_logs) {
         if (show_logs && event.type === "pull_msg") {
-          pull_progress(event);
+          pullProgressBar(event);
         } else if (event.type === "action") {
           var keys = ["commands", "scale"];
           var actions = ["pull_image", "build_image"];

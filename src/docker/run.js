@@ -1,4 +1,4 @@
-import { _, async, config, log } from 'azk';
+import { _, async, config, log, publish } from 'azk';
 import { default as tracker } from 'azk/utils/tracker';
 
 function new_resize(container) {
@@ -78,17 +78,17 @@ export function run(docker, Container, image, cmd, opts = { }) {
     'name': name,
   };
 
-  return async(docker, function* (notify) {
+  return async(docker, function* () {
     var resize, isRaw, stream;
     var create_opts = _.merge(optsc, docker_opts.create || {});
     log.debug("[docker] creating a container with ", create_opts);
     container = yield this.createContainer(create_opts);
 
-    var c_notify = (type, ...data) => {
-      return notify({ type, context: "container_run", id: container.id, data: data });
+    var c_publish = (type, ...data) => {
+      publish("docker.run.status", { type, context: "container_run", id: container.id, data: data });
     };
-    c_notify("created");
-    notify({type: "created", id: container.id});
+    c_publish("created");
+    publish("docker.run.status", {type: "created", id: container.id});
 
     // Resize tty
     if (interactive) {
@@ -102,7 +102,7 @@ export function run(docker, Container, image, cmd, opts = { }) {
         log: true, stream: true,
         stdin: interactive, stdout: true, stderr: true
       });
-      c_notify("attached");
+      c_publish("attached");
 
       if (interactive) {
         stream.pipe(opts.stdout);
@@ -125,7 +125,7 @@ export function run(docker, Container, image, cmd, opts = { }) {
           opts.stdin.pipe(stream);
         }
 
-        c_notify("stdin_pipe", { stdin: opts.stdin, stream });
+        c_publish("stdin_pipe", { stdin: opts.stdin, stream });
       }
     }
 
@@ -152,7 +152,7 @@ export function run(docker, Container, image, cmd, opts = { }) {
       tracker.logAnalyticsError(err);
     }
 
-    c_notify("started");
+    c_publish("started");
 
     if (!daemon) {
       if (interactive && opts.tty) {
@@ -161,7 +161,7 @@ export function run(docker, Container, image, cmd, opts = { }) {
       }
 
       // Wait container
-      c_notify("wait");
+      c_publish("wait");
       yield container.wait();
       if (interactive) {
         opts.stdout.removeListener('resize', resize);

@@ -173,7 +173,7 @@ export class Docker extends Utils.qify('dockerode') {
   azkListContainers(...args) {
     return this.listContainers(...args).then((containers) => {
       return _.reduce(containers, (result, container) => {
-        if (container.Names[0].match(this.c_regex)) {
+        if (container.Names && container.Names[0].match(this.c_regex)) {
           container.Name = container.Names[0];
           container.Annotations = Container.unserializeAnnotations(container.Name);
           container.State = Container.parseStatus(container.Status);
