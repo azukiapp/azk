@@ -14,12 +14,11 @@ run() {
   # profile a command
   echo ""
   echo "# $ \`$COMMAND\`"
-  /usr/bin/time -v -o time.verbose ${COMMAND}
+  ${COMMAND}
 
   # send files to CHROME_CPU_PROFILER folder
   mkdir -p            "$BASEDIR/CHROME_CPU_PROFILER/$COMMAND"
   mv CPU*.cpuprofile  "$BASEDIR/CHROME_CPU_PROFILER/$COMMAND"
-  mv time.verbose     "$BASEDIR/CHROME_CPU_PROFILER/$COMMAND"
 }
 
 # get dependency
