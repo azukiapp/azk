@@ -551,6 +551,10 @@ module.exports = {
         },
       },
     },
+  },
+  
+  tracking: {
+    timeout: "Analytics tracker timed out."
   }
 };
 // jscs:enable maximumLineLength

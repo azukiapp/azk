@@ -1,5 +1,5 @@
 import Azk from 'azk';
-import { Q, _, config, log } from 'azk';
+import { Q, _, config, log, t } from 'azk';
 import { meta as azkMeta } from 'azk';
 import { calculateHash } from 'azk/utils';
 
@@ -76,7 +76,7 @@ export class TrackerEvent {
         }
         return tracking_result;
       }, () => {
-        log.info('Analytics tracker timed out.');
+        log.info(t("tracking.timeout"));
         return false;
       });
   }
