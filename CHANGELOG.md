@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## dev
 * Bug
   * [cli] Fixing `--mount` option of `azk shell` command to comply with Docker's pattern (`local_folder:remote_folder`)
+  * [Tracking] Fixing timeout message when tracking an event;
 
 ## v0.12.1 - (2015-25-04)
 
