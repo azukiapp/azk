@@ -1,6 +1,6 @@
 require('source-map-support').install();
 
-import { Q, pp, config, t } from 'azk';
+import { Q, pp, config, t, _ } from 'azk';
 import { Client as AgentClient } from 'azk/agent/client';
 import Utils from 'azk/utils';
 
@@ -67,10 +67,12 @@ var Helpers = {
 };
 
 // In specs the virtual machine is required
-before(() => {
-  console.log(t('test.before'));
-  return AgentClient.require();
-});
+if (!_.contains(process.argv, '--no-required-agent') || !process.env.AZK_NO_REQUIRED_AGENT) {
+  before(() => {
+    console.log(t('test.before'));
+    return AgentClient.require();
+  });
+}
 
 // Helpers
 require('spec/spec_helpers/dustman').extend(Helpers);

@@ -78,7 +78,7 @@ gulp.task('publish', function() {
 
   var add_prefix = function(cond, prefix) {
     return gulpif(cond, rename(function (path) {
-        path.dirname = path_join(prefix, path.dirname);
+      path.dirname = path_join(prefix, path.dirname);
     }));
   };
 
