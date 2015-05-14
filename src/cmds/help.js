@@ -1,12 +1,10 @@
-import { Command } from 'azk/cli/command';
+import { CliController } from 'cli-router';
 
-class HelpCmd extends Command {
-  action(opts) {
-    this.parent.showUsage(opts.command);
+class Help extends CliController {
+  index(params, cli) {
+    this.ui.output(cli.help);
     return 0;
   }
 }
 
-export function init(cli) {
-  (new HelpCmd('help [command]', cli));
-}
+module.exports = Help;
