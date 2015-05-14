@@ -16,7 +16,8 @@ export function cli(args, cwd, ui = UI) {
   try {
     var azk_cli = new Cli();
     azk_cli
-      .route('/help');
+      .route('/help')
+      .route('/version');
 
     result = azk_cli.run({
       argv: args.slice(2)
