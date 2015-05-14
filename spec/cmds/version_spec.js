@@ -18,7 +18,6 @@ describe('Azk cli version controller', function() {
   it('should run a version command', function() {
     doc_opts.argv = 'version';
     var options = cli.docopt(doc_opts);
-
     return cli.run(doc_opts, run_options).then((code) => {
       h.expect(code).to.eql(0);
       h.expect(options).to.have.property('version', true);
@@ -32,7 +31,5 @@ describe('Azk cli version controller', function() {
       h.expect(code).to.eql(0);
       h.expect(outputs[0]).to.eql(version);
     });
-
   });
-
 });

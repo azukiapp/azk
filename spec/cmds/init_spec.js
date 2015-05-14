@@ -51,6 +51,7 @@ describe('Azk cli init controller', function() {
     return h.tmp_dir().then((project) => {
       doc_opts.argv   = ['init'];
       run_options.cwd = project;
+      var options = cli.docopt(doc_opts);
 
       // Check generated manifest
       var manifest = new Manifest(project);
@@ -59,6 +60,9 @@ describe('Azk cli init controller', function() {
 
       return cli.run(doc_opts, run_options).then((code) => {
         h.expect(code).to.equal(0);
+        h.expect(options).to.have.property('path', null);
+        h.expect(options).to.have.property('filename', false);
+
         h.expect(system).to.have.deep.property("name", "example");
         h.expect(system).to.have.deep.property("image.name", "[repository]:[tag]");
         h.expect(system).to.have.deep.property("depends").and.to.eql([]);
