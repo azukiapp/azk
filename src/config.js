@@ -41,10 +41,11 @@ var options = mergeConfig({
     },
     paths    : {
       azk_root,
-      data  : data_path,
-      logs  : paths.logs,
-      log   : path.join(paths.logs, 'azk.log'),
-      shared: path.join(azk_root, "shared"),
+      data   : data_path,
+      logs   : paths.logs,
+      log    : path.join(paths.logs, 'azk.log'),
+      shared : path.join(azk_root, "shared"),
+      locales: path.join(azk_root, "shared", "locales"),
 
       azk_meta          : path.join(data_path, azk_dir, "shared", "Azkfile.js"),
       pems              : path.join(paths.vm , '.docker'),

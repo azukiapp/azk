@@ -1,0 +1,51 @@
+azk help
+
+Usage:
+  azk agent (start|stop|status) [--reload-vm --no-daemon] [-v]... [-q] [-l] [-h]
+  azk config (track-toggle|track-status) [-v]... [-q] [-l] [-h]
+  azk docker [-v]... [-- <docker-options>...] [-l] [-h]
+  azk info [-v]... [-q] [-l] [-h] [-C]
+  azk init [<path>] [--filename] [-v]... [-q] [-l] [-h] [-C] [--force]
+  azk stop [<system>] [-v]... [-l] [-h]
+  azk start [<system>] [--reprovision --rebuild --open] [-v]... [-l] [-h]
+  azk scale [<system>] [<to>] [-v]... [-l] [-h]
+  azk vm (ssh|remove|stop) [-v]... [-l] [-h] [-- <ssh-options>...]
+  azk [help | -h | --help]
+  azk [version | --version]
+
+Options:
+  -h, --help                  Show this screen.
+  --version                   Show version.
+  -v, --verbose=<level>, -vv  Sets the level of detail - multiple supported [default: 0].
+  -l, --log                   Sets a log level.
+  -f, --force                 Force mode.
+  -C, --colored               Outputs with colors [default: true].
+  -q, --quiet                 Never prompt [default: false].
+  --filename                  Filename.
+
+commands:
+  agent    Controls azk agent
+  config   Controls azk configuration options
+  docker   Alias for calling docker in 'azk' scope configuration
+  doctor   Shows an analysis of `azk`'s health
+  help     Shows help about a specific command
+  info     Shows systems information for the current `Azkfile.js`
+  init     Initializes a project by adding the file Azkfile.js
+  logs     Shows logs for the systems
+  reload   Stops all systems, run provision commands and starts them again
+  restart  Stops all systems and starts them again
+  scale    Scales (up or down) an instance of the system(s)
+  shell    Initializes a shell with instance context, or runs a specified command
+  start    Starts an instance of the system(s)
+  status   Shows systems(s) instances status(es)
+  stop     Stops an instance of the system(s)
+  version  Shows azk version
+  vm       Controls a virtual machine.
+
+examples:
+
+  $ azk agent start --daemon
+  $ azk shell --image azukiapp/busybox
+  $ azk shell --mount ~/Home:/azk/user -e HOME=/azk/user
+  $ azk status [system_name]
+  $ azk scale [system_name] 2

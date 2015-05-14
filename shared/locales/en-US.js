@@ -46,6 +46,7 @@ module.exports = {
     image_not_available: "System `%(system)s` requires image `%(image)s` which is not available",
     run_command_error: "Run `%(command)s` in system `%(system)s` error:\n`%(output)s`",
     provision_pull_error: "Error downloading/pulling docker image `%(image)s`, message: %(msg)s.",
+    invalid_command_error: "Invalid command: %(command)s",
     invalid_option_error: "Invalid argument option: %(option)s",
     invalid_value_error: "Invalid value: %(value)s in option %(option)s",
     image_not_exist: "Image from '%(image)s' was not found",

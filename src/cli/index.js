@@ -1,51 +1,29 @@
-import { _, log, t } from 'azk';
 import { promiseResolve, promiseReject, isPromise } from 'azk/utils/promises';
-import { Cli } from 'azk/cli/cli';
+import { Cli as AzkCli } from 'azk/cli/cli';
 import { UI } from 'azk/cli/ui';
-import { InvalidValueError } from 'azk/utils/errors';
+import { InvalidCommandError } from 'azk/utils/errors';
 
-var path = require('path');
-var cmds_path = path.join(__dirname, "..", "cmds");
-
-class CmdCli extends Cli {
+export class Cli extends AzkCli {
   invalidCmd(error) {
-    this.fail("commands.not_found", error.value);
+    this.fail("commands.not_found", error.command);
     this.showUsage();
     return promiseResolve(1);
-  }
-
-  action(opts, parent_opts) {
-    if (opts.version) {
-      opts.command = "version";
-    }
-
-    if (opts.help || (_.isEmpty(opts.command) && _.isEmpty(opts.__leftover))) {
-      this.showUsage();
-      return promiseResolve(0);
-    }
-
-    // Set log level
-    if (opts.log) {
-      log.setConsoleLevel(opts.log);
-    }
-
-    return super.action(opts, parent_opts);
   }
 }
 
 export function cli(args, cwd, ui = UI) {
   var result;
   try {
-    var azk_cli = new CmdCli('azk', ui, cmds_path);
-    azk_cli.addOption(['--version', '-v'], { default: false, show_default: false });
-    azk_cli.addOption(['--log', '-l'] , { type: String});
-    azk_cli.addOption(['--help', '-h'], { show_default: false } );
-    azk_cli.addExamples(t("commands.azk.examples"));
+    var azk_cli = new Cli();
 
-    azk_cli.cwd = cwd;
-    result = azk_cli.run(_.rest(args, 2));
+    result = azk_cli.run({
+      argv: args.slice(2)
+    }, {
+      ui: ui,
+      cwd: process.cwd()
+    });
   } catch (e) {
-    result = (e instanceof InvalidValueError && e.option == "command") ?
+    result = (e instanceof InvalidCommandError) ?
       azk_cli.invalidCmd(e) : promiseReject(e);
   }
 
