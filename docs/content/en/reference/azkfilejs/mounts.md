@@ -2,7 +2,7 @@
 
 Configure which folders will be internalized to the container or persisted internally by `azk`. 
 
-For Linux, information persisted internally is saved inside `~/.azk/data/persistent_folders`. For Mac, the information is kept inside your virtual machine. Using the same parameter with the `persistent` option allows you to share data across applications.
+For Linux, information persisted internally is saved inside `~/.azk/data/persistent_folders`. For Mac, the information is kept inside your virtual machine. Using the same parameter with the `persistent` option allows you to share data across systems in the same ``Azkfile.js``.
 
 #### Usage:
 
