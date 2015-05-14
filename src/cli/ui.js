@@ -33,6 +33,10 @@ var UI = {
     this.stdout().write(t(...args) + "\n");
   },
 
+  tKeyPath(...keys) {
+    return ['commands', ...keys];
+  },
+
   outputWithLabel(rows, ident = '') {
     rows = _.map(_.sortBy(rows), (row) => {
       return _.isArray(row) ? row : row.split('\t');
