@@ -96,6 +96,10 @@ export class Tracker {
     this.ids_keys      = ids_keys;
     this.insight_opts  = opts;
     this.meta          = {
+
+    /**/console.log('\n>>---------\n this.insight:\n', require('util').inspect(this.insight, { showHidden: false, depth: null, colors: true }), '\n>>---------\n');/*-debug-*/
+
+    this.meta     = {
       "ip_address"      : "${keen.ip}",
       "agent_session_id": this.loadAgentSessionId(),
       "command_id"      : this.generateRandomId('command_id'),
@@ -115,7 +119,7 @@ export class Tracker {
 
   get insight() {
     if (!this.__insight) {
-      this.__insight = new lazy.InsightKeenIo(this.insight_opts);
+      this.__insight = new InsightKeenIoWithMeta(this.insight_opts);
     }
     return this.__insight;
   }
@@ -181,27 +185,14 @@ export class Tracker {
   }
 }
 
-export class InsightKeenIoWithMeta extends InsightKeenIo {
-
-  constructor() {
-    console.log("* Constructing InsightKeenIoWithMeta..");
-    super();
-    this.redefineOptOut();
+export class InsightKeenIoWithMeta extends lazy.InsightKeenIo {
+  get optOut() {
+    return azkMeta.get('optOut');
   }
 
-  redefineOptOut() {
-    Object.defineProperty(InsightKeenIo.prototype, 'optOut', {
-      get: function () {
-        console.log("* InsightKeenIoWithMeta.get...");
-        return azkMeta.get('optOut');
-      },
-      set: function (val) {
-        console.log("* InsightKeenIoWithMeta.set...");
-        azkMeta.set('optOut', val);
-      }
-    });
+  set optOut(val) {
+    azkMeta.set('optOut', val);
   }
-
 }
 
 // Default tracker
