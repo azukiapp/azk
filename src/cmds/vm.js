@@ -5,6 +5,7 @@ import { Helpers } from 'azk/cli/command';
 var lazy = lazy_require({
   VM: ['azk/agent/vm'],
   Server: ['azk/agent/server'],
+  Client: ['azk/agent/client'],
 });
 
 class RequiredError extends Error {
@@ -57,10 +58,9 @@ class VmCmd extends InteractiveCmds {
     return async(this, function* () {
       yield Helpers.requireAgent(this);
 
-      var ssh_url  = `${config('agent:vm:user')}@${config('agent:vm:ip')}`;
-      var ssh_opts = "StrictHostKeyChecking=no -o LogLevel=quiet -o UserKnownHostsFile=/dev/null";
+      var ssh_opts = lazy.Client.ssh_opts();
       var args     = opts.__leftover.join(`" "`);
-      var script   = `ssh -i ${config('agent:vm:ssh_key')} -o ${ssh_opts} ${ssh_url} "${args}"`;
+      var script   = `ssh ${ssh_opts.opts} ${ssh_opts.url} "${args}"`;
 
       log.debug(script);
       return this.execSh(script);

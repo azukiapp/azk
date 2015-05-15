@@ -55,7 +55,8 @@ export class System {
   runShell(...args) { return Run.runShell(this, ...args); }
   runDaemon(...args) { return Run.runDaemon(this, ...args); }
   runProvision(...args) { return Run.runProvision(this, ...args); }
-  runSync(...args) { return Run.runSync(this, ...args); }
+  runWatch(...args) { return Run.runWatch(this, ...args); }
+  stopWatching(...args) { return Run.stopWatching(this, ...args); }
   stop(...args) { return Run.stop(this, ...args); }
   instances(...args) { return Run.instances(this, ...args); }
   throwRunError(...args) { return Run.throwRunError(this, ...args); }
@@ -493,6 +494,16 @@ export class System {
     return template.replace(regex, "#{_keep_key('$1')}");
   }
 
+  _resolved_sync_path(mount_path) {
+    return path.resolve(this.manifest.manifestPath, mount_path);
+  }
+
+  _sync_path(mount_path) {
+    var sync_base_path = config('paths:sync_folders');
+    sync_base_path = path.join(sync_base_path, this.manifest.namespace, this.name);
+    return path.join(sync_base_path, this._resolved_sync_path(mount_path));
+  }
+
   _mounts_to_volumes(mounts) {
     var volumes = {};
 
@@ -500,10 +511,7 @@ export class System {
     var persist_base = config('paths:persistent_folders');
     persist_base = path.join(persist_base, this.manifest.namespace);
 
-    var sync_base = config('paths:sync_folders');
-    sync_base = path.join(sync_base, this.manifest.namespace);
-
-    return _.reduce(mounts, (volumes, mount, point) => {
+    var v = _.reduce(mounts, (volumes, mount, point) => {
       if (_.isString(mount)) {
         mount = { type: 'path', value: mount };
       }
@@ -526,7 +534,18 @@ export class System {
           break;
 
         case 'sync':
-          target = path.join(sync_base, mount.value);
+          if (mount.options.shell) {
+            target = this._sync_path(mount.value);
+          } else {
+            target = mount.value;
+
+            if (!target.match(/^\//)) {
+              target = path.resolve(this.manifest.manifestPath, target);
+            }
+
+            target = (fs.existsSync(target)) ?
+              utils.docker.resolvePath(target) : null;
+          }
           break;
       }
 
@@ -536,19 +555,20 @@ export class System {
 
       return volumes;
     }, volumes);
+
+    console.log(v);
+    return v;
   }
 
   _mounts_to_syncs(mounts) {
     var syncs = {};
 
-    // sync folder
-    var sync_base = config('paths:sync_folders');
-    sync_base = path.join(sync_base, this.manifest.namespace);
-
     return _.reduce(mounts, (syncs, mount) => {
-      if (!_.isString(mount) && mount.type === 'sync') {
-        var resolved_sync_folder = path.resolve(this.manifest.manifestPath, mount.value);
-        syncs[resolved_sync_folder] = path.join(sync_base, resolved_sync_folder);
+      if (mount.type === 'sync') {
+        syncs[this._resolved_sync_path(mount.value)] = {
+          guest_folder: this._sync_path(mount.value),
+          options     : mount.options || {},
+        };
       }
       return syncs;
     }, syncs);

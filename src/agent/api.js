@@ -1,5 +1,8 @@
-import { _, Q, defer, async, config } from 'azk';
-import { Rsync } from 'azk/agent/rsync';
+import { _, Q, defer, async, config, lazy_require } from 'azk';
+
+var lazy = lazy_require({
+  Router : ['azk/agent/cli_ws'],
+});
 
 // Express load and init
 var qfs        = require('q-io/fs');
@@ -28,28 +31,11 @@ var Api = {
     });
   },
 
-  sync() {
-    // Init websocket entry point
-    app.ws('/sync', function(ws, req) {
-      ws.on('message', function(data) {
-        var sync_data    = JSON.parse(data);
-        var host_folder  = sync_data.host_folder;
-        var guest_folder = sync_data.guest_folder;
-        var opts         = sync_data.opts;
-
-        // TODO: add progress to log single file sync
-        ws.send('start');
-        Rsync.sync(host_folder, guest_folder)
-        .then(() => {
-          ws.send('done');
-        })
-        .fail((err) => {
-          ws.send(`fail ${err}`);
-        });
-
-        if (req.query.watch === 'true') {
-          Rsync.watch(host_folder, guest_folder, opts);
-        }
+  cli_ws() {
+    // Init websocket CLI entry point
+    app.ws('/cli', function(ws) {
+      ws.on('message', function(req) {
+        lazy.Router.route(ws, JSON.parse(req));
       });
     });
   },
@@ -63,7 +49,7 @@ var Api = {
 
       // Mount entries points
       this.mount();
-      this.sync();
+      this.cli_ws();
     });
   },
 

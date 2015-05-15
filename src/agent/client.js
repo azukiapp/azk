@@ -6,7 +6,8 @@ import { AgentNotRunning } from 'azk/utils/errors';
 var req = require('request');
 
 var lazy = lazy_require({
-  url: 'url',
+  uuid      : 'node-uuid',
+  url       : 'url',
   WebSocket : 'ws'
 });
 
@@ -28,60 +29,84 @@ var HttpClient = {
 };
 
 var WebSocketClient = {
-  is_init: false,
-  ws: null,
-  ws_path: '/',
+  ws_path: '/cli',
+  _ws: null,
+  _status: null,
+  _buffer: [],
+  _cb: {},
 
-  init(callback = null) {
+  init() {
     return defer((resolve, reject) => {
-      if (this.is_init) {
-        resolve();
+      if (this._status === 'connecting' || this._status === 'connected') {
+        return resolve();
       }
+
+      this._status = 'connecting';
 
       var socket_address  = lazy.url.parse(`ws+unix:\/\/${config('paths:api_socket')}`);
       socket_address.path = this.ws_path;
 
-      this.ws = new lazy.WebSocket(socket_address);
+      this._ws = new lazy.WebSocket(socket_address);
 
-      this.ws.on('open', () => {
+      this._ws.on('open', () => {
+        this._status = 'connected';
         log.debug('Websocket connected.');
-        this.is_init = true;
+        while (this._buffer.length > 0 && this._ws) {
+          var item = this._buffer.shift();
+          var message = item.message;
+          message.id = this._generate_msg_id();
+          this._cb[message.id] = item.callback;
+          this._ws.send(JSON.stringify(message));
+        }
         resolve();
       });
 
-      this.ws.on('close', () => {
+      this._ws.on('close', () => {
+        this._status = 'closed';
         log.debug('Websocket closed.');
-        this.is_init = false;
       });
 
-      this.ws.on('error', (err) => {
+      this._ws.on('error', (err) => {
         log.error('Error on websocket:', err);
         reject(err);
       });
 
-      this.ws.on('message', (data) => {
-        if (callback) {
-          callback(data);
-        }
+      this._ws.on('message', (data) => {
+        var message = JSON.parse(data);
+        if (!this._cb[message.id]) { return; }
+        var callback = this._cb[message.id];
+        callback(message, () => {
+          delete this._cb[message.id];
+        });
       });
     });
   },
 
   close() {
-    this.ws.on('error', (err) => {
+    this._ws.on('error', (err) => {
       log.error('Error closing websocket:', err);
     });
 
-    if (this.is_init) {
-      this.ws.close();
+    if (this._status !== 'closed') {
+      this._ws.close();
     }
-    this.is_init = false;
+    this._status = 'closed';
+    return true;
   },
 
   send(message, callback = null, retry = 0) {
-    this.init(callback)
+    this.init()
+      .fail((err) => {
+        log.error('Failed to init websocket: ', err);
+      })
       .then(() => {
-        this.ws.send(message);
+        if (this._status == 'connected') {
+          message.id = this._generate_msg_id();
+          this._cb[message.id] = callback;
+          this._ws.send(JSON.stringify(message));
+        } else {
+          this._buffer.push({message, callback});
+        }
         return true;
       })
       .fail((err) => {
@@ -94,6 +119,10 @@ var WebSocketClient = {
           return false;
         }
       });
+  },
+
+  _generate_msg_id() {
+    return lazy.uuid.v1().split('-')[0];
   }
 };
 
@@ -136,31 +165,69 @@ var Client = {
       .spread((response, body) => { return body; });
   },
 
-  sync(host_folder, guest_folder, opts = {}) {
+  watch(host_folder, guest_folder, opts = {}) {
     return defer((resolve, reject, notify) => {
-      var sync_data = { host_folder, guest_folder, opts };
-      WebSocketClient.ws_path = '/sync?watch=true';
-      WebSocketClient.send(JSON.stringify(sync_data), (response) => {
-        var response_ary   = response.split(' ');
-        var [result, data] = [response_ary.shift(), response_ary.join(' ')];
-        switch (result) {
+      var req = { action: 'watch', data: { host_folder, guest_folder, opts } };
+      return WebSocketClient.send(req, (res, end) => {
+        switch (res.status) {
           case 'start':
             notify({ type: "status", status: "starting" });
             break;
           case 'sync':
-            notify({ type: "sync", status: data });
+            notify({ type: "sync", status: res.data });
             break;
           case 'done' :
-            WebSocketClient.close();
-            resolve();
+            end();
+            resolve(true);
             break;
           case 'fail' :
-            WebSocketClient.close();
-            reject(data);
+            end();
+            reject(res.err);
             break;
         }
       });
     });
+  },
+
+  unwatch(host_folder, guest_folder) {
+    return defer((resolve, reject) => {
+      var req = { action: 'unwatch', data: { host_folder, guest_folder } };
+      WebSocketClient.send(req, (res, end) => {
+        switch (res.status) {
+          case 'fail':
+            end();
+            reject();
+            break;
+          default:
+            end();
+            resolve(true);
+            break;
+
+        }
+      });
+    });
+  },
+
+  watchers() {
+    return defer((resolve) => {
+      var req = { action: 'watchers' };
+      WebSocketClient.send(req, (res, end) => {
+        end();
+        resolve(res);
+      });
+    });
+  },
+
+  ssh_opts() {
+    var key = `-i ${config('agent:vm:ssh_key')}`;
+    return {
+      url : `${config('agent:vm:user')}@${config('agent:vm:ip')}`,
+      opts: key + " -o StrictHostKeyChecking=no -o LogLevel=quiet -o UserKnownHostsFile=/dev/null",
+    };
+  },
+
+  close_ws() {
+    return WebSocketClient.close();
   },
 
   require() {
@@ -180,4 +247,4 @@ var Client = {
   },
 };
 
-export { Client, HttpClient };
+export { Client, HttpClient, WebSocketClient };

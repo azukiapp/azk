@@ -51,6 +51,14 @@ export function extend(h) {
     var mounts_with_persitent = _.merge(mounts, {
       '/data': { type: 'persistent', value: 'data' },
     });
+    var mounts_with_sync = {
+      '/azk/#{manifest.dir}'       : '.',
+      '/tmp/azk-test-guest'        : { type: 'sync', value: '/tmp/azk-test-host' },
+      // '/tmp/azk-test-guest-except' : { type: 'sync', value: '/tmp/azk-sync-host',
+      //   options: { except: ['**/*.css', 'd1/'] } },
+      // '/tmp/azk-test-guest-include': { type: 'sync', value: '/tmp/azk-sync-host',
+      //   options: { include: ['**/*.js', 'd0/'] } },
+    };
 
     // Data merge
     data = _.merge({
@@ -158,6 +166,10 @@ export function extend(h) {
             "azk.balancer_port: #{azk.balancer_port}",
             "azk.balancer_ip: #{azk.balancer_ip}",
           ],
+        },
+        'example-sync': {
+          extends: "example",
+          mounts: mounts_with_sync,
         },
       },
       defaultSystem: 'api',

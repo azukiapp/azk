@@ -90,6 +90,9 @@ var Run = {
       var image = yield this._check_image(system, options);
       options.image_data = image;
 
+      // Sync folders
+      yield system.runWatch();
+
       // Check provision
       yield system.runProvision(options);
 
@@ -131,20 +134,51 @@ var Run = {
     });
   },
 
-  runSync(system) {
-    return async(this, function* () {
-      var sync_result = yield this._fixSyncFolderPermissions(system.manifest.namespace);
-      if (sync_result !== 0) {
+  runWatch(system) {
+    return async(this, function* (notify) {
+      if (_.isEmpty(system.syncs)) {
+        return true;
+      }
+
+      var fix_permissions = yield this._fixSyncFolderPermissions(system.manifest.namespace);
+      if (fix_permissions !== 0) {
         // TODO: throw proper error
         throw new NotBeenImplementedError('SyncError');
       }
 
-      _.each(system.syncs || {}, (guest_folder, host_folder) => {
-        return async(this, function* (notify) {
-          yield lazy.Client.sync(`${host_folder}/`, guest_folder);
-          notify({ type: "sync", system: system.name });
-        });
-      });
+      return Q.all(_.map(system.syncs || {}, (sync_data, host_folder) => {
+        console.log(host_folder);
+        if (config('agent:requires_vm')) {
+          sync_data.options = _.defaults(sync_data.options, { use_vm: true, ssh: lazy.Client.ssh_opts() });
+        }
+        console.log('system/run.js', sync_data);
+        return lazy.Client.watch(path.join(host_folder, '/'), sync_data.guest_folder, sync_data.options)
+          .then(() => {
+            notify({
+              type        : "watch",
+              system      : system.name,
+              host_folder : host_folder,
+              guest_folder: sync_data.guest_folder,
+              options     : sync_data.options
+            });
+          });
+      }));
+    });
+  },
+
+  stopWatching(system) {
+    return async(this, function* (notify) {
+      return yield Q.all(_.map(system.syncs || {}, (sync_data, host_folder) => {
+        return lazy.Client.unwatch(path.join(host_folder, '/'), sync_data.guest_folder)
+          .then(() => {
+            notify({
+              type        : "unwatch",
+              system      : system.name,
+              host_folder : host_folder,
+              guest_folder: sync_data.guest_folder
+            });
+          });
+      }));
     });
   },
 
@@ -179,6 +213,8 @@ var Run = {
         if (options.remove) {
           yield container.remove();
         }
+
+        yield system.stopWatching();
       }
 
       return true;
@@ -373,6 +409,7 @@ var Run = {
       chown.opts.volumes[mounted_sync_folders] = config('paths:sync_folders');
 
       var image_name = config('docker:image_default');
+      yield lazy.docker.run(image_name, ['mkdir', '-p', current_sync_folder], chown.opts);
       var container  = yield lazy.docker.run(image_name, chown.cmd, chown.opts);
       var data = yield container.inspect();
       yield container.remove();

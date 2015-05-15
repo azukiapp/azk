@@ -67,9 +67,10 @@ var Helpers = {
     return Utils.escapeRegExp(...args);
   },
 
-  describeSkipVm(...args) {
+  describeRequireVm(...args) {
     return config('agent:requires_vm') ? describe(...args) : describe.skip(...args);
-  }
+  },
+
 };
 
 // In specs the virtual machine is required
