@@ -181,6 +181,29 @@ export class Tracker {
   }
 }
 
+export class InsightKeenIoWithMeta extends InsightKeenIo {
+
+  constructor() {
+    console.log("* Constructing InsightKeenIoWithMeta..");
+    super();
+    this.redefineOptOut();
+  }
+
+  redefineOptOut() {
+    Object.defineProperty(InsightKeenIo.prototype, 'optOut', {
+      get: function () {
+        console.log("* InsightKeenIoWithMeta.get...");
+        return azkMeta.get('optOut');
+      },
+      set: function (val) {
+        console.log("* InsightKeenIoWithMeta.set...");
+        azkMeta.set('optOut', val);
+      }
+    });
+  }
+
+}
+
 // Default tracker
 var default_tracker = new Tracker({}, {
   permission: 'tracker_permission',
