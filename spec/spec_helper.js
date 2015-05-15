@@ -72,6 +72,12 @@ before(() => {
   return AgentClient.require();
 });
 
+after(() => {
+  if (process.env.AZK_ENABLE_NJS_TRACE_PROFILER) {
+    global.njstrace.save('/home/julio/_git/njstrace/examples/02-es5/execute/TRACE_RESULT.json');
+  }
+});
+
 // Helpers
 require('spec/spec_helpers/dustman').extend(Helpers);
 require('spec/spec_helpers/mock_outputs').extend(Helpers);

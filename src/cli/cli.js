@@ -70,10 +70,9 @@ export class Cli extends Command {
   }
 
   stopNjsTracer() {
-    if (!process.env.AZK_ENABLE_NJS_TRACE_PROFILER) {
-      return;
+    if (process.env.AZK_ENABLE_NJS_TRACE_PROFILER) {
+      global.njstrace.save('trace_result.json');
     }
-    global.njstrace.save('trace_result.json');
   }
 
   action(opts) {
