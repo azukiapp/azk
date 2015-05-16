@@ -1,27 +1,27 @@
 azk help
 
 Usage:
-  azk agent (start|stop|status) [--reload-vm --no-daemon] [-v]... [-q] [-l] [-h]
-  azk config (track-toggle|track-status) [-v]... [-q] [-l] [-h]
-  azk docker [-v]... [-- <docker-options>...] [-l] [-h]
-  azk info [-v]... [-q] [-l] [-h] [-C]
-  azk init [<path>] [--filename] [-v]... [-q] [-l] [-h] [-C] [--force]
-  azk stop [<system>] [-v]... [-l] [-h]
-  azk start [<system>] [--reprovision --rebuild --open] [-v]... [-l] [-h]
-  azk scale [<system>] [<to>] [-v]... [-l] [-h]
-  azk vm (ssh|remove|stop) [-v]... [-l] [-h] [-- <ssh-options>...]
+  azk agent (start|status|stop) [--no-daemon --child --reload-vm -q -l -h] [-v]...
+  azk config (track-toggle|track-status) [-q -l -h] [-v]...
+  azk docker [-q -l -h] [-v]... [-- <docker-options>...]
+  azk info [-C -q -l -h] [-v]...
+  azk init [<path>] [--filename --force -q -l -h] [-v]...
+  azk stop [<system>]  [-q -l -h] [-v]...
+  azk start [<system>] [--reprovision --rebuild --open] [-q -l -h] [-v]...
+  azk scale [<system>] [<to>] [-q -l -h] [-v]...
+  azk vm (ssh|start|status|installed|stop|remove) [-q -l -h -f] [-v]... [-- <ssh-options>...]
   azk [help | -h | --help]
   azk [version | --version]
 
 Options:
-  -h, --help                  Show this screen.
-  --version                   Show version.
-  -v, --verbose=<level>, -vv  Sets the level of detail - multiple supported [default: 0].
-  -l, --log                   Sets a log level.
-  -f, --force                 Force mode.
-  -C, --colored               Outputs with colors [default: true].
-  -q, --quiet                 Never prompt [default: false].
-  --filename                  Filename.
+  -h, --help     Show this screen.
+  --version      Show version.
+  -v, --verbose  Sets the level of detail - multiple supported (-vv == --verbose 2) [default: 0].
+  -l, --log      Sets a log level.
+  -f, --force    Force mode.
+  -C, --colored  Outputs with colors [default: true].
+  -q, --quiet    Never prompt [default: false].
+
 
 commands:
   agent    Controls azk agent
