@@ -1,2 +1,5 @@
 CHROME_CPU_PROFILER/
 NJS_TRACER_RESULTS/
+SIMPLE/
+azkdemo/
+node_modules/
