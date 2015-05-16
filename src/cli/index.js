@@ -18,6 +18,7 @@ export function cli(args, cwd, ui = UI) {
     azk_cli
       .route('/help')
       .route('/init')
+      .route('/vm')
       .route('/version');
 
     result = azk_cli.run({
