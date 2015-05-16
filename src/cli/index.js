@@ -17,6 +17,7 @@ export function cli(args, cwd, ui = UI) {
     var azk_cli = new Cli();
     azk_cli
       .route('/help')
+      .route('/agent')
       .route('/init')
       .route('/vm')
       .route('/version');
