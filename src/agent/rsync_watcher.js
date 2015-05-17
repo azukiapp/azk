@@ -1,21 +1,44 @@
 import { _, defer, log } from 'azk';
 
 var child_process = require('child_process');
+// var forever = require('forever-monitor');
 
 var RsyncWatcher = {
   _workers: [],
 
   watch(host_folder, guest_folder, opts) {
     return defer((resolve, reject, notify) => {
-      console.log('rsync_watcher.js', opts);
-      console.log(host_folder, guest_folder);
-      if (this._get_worker(host_folder, guest_folder)) {
+      var existing_worker = this._get_worker(host_folder, guest_folder);
+      if (existing_worker) {
+        ++existing_worker.count;
+        console.log(this._workers);
         return resolve();
       }
 
-      this._workers.push({host_folder, guest_folder, count: 1});
-      var worker = child_process.fork(`${__dirname}/rsync_worker.js`, { stdio: [ 0, 'pipe', null] });
-      this._get_worker(host_folder, guest_folder).pid = worker.pid;
+      var worker_info = {host_folder, guest_folder, count: 1};
+      this._workers.push(worker_info);
+
+      // var worker = new (forever.Monitor)(`${__dirname}/rsync_worker.js`, {
+      //   'max': 10,
+      //   'minUptime': 1,
+      //   'spinSleepTime': 5000,
+      //   'spawnWith': { customFds: [0, 'pipe', 'pipe'] },
+      // });
+
+      var worker = child_process.fork(`${__dirname}/rsync_worker.js`, { stdio: [ 0, 'pipe', 'pipe'] });
+
+      // worker.on('restart', () => {
+      //   log.warn('Sync process restarted');
+      //   log.warn('  Host folder:', host_folder);
+      //   log.warn('  Guest folder:', guest_folder);
+      // });
+
+      // worker.on('exit:code', (code) => {
+      //   log.warn('Sync process exited with code' + code);
+      //   log.warn('  Host folder:', host_folder);
+      //   log.warn('  Guest folder:', guest_folder);
+      // });
+
       worker.on('message', (data) => {
         console.log('server message', data);
         data = JSON.parse(data);
@@ -29,12 +52,18 @@ var RsyncWatcher = {
             notify(_.merge({ type: "sync" }, data));
         }
       });
+
+      // worker.start();
+
+      worker_info.pid = worker.pid;
       worker.send({host_folder, guest_folder, opts});
-      console.log('workers', this._workers);
+
+      console.log(this._workers);
     });
   },
 
   unwatch(host_folder, guest_folder) {
+    console.log('unwatch', host_folder, guest_folder);
     return this._remove_worker(host_folder, guest_folder);
   },
 
@@ -67,8 +96,8 @@ var RsyncWatcher = {
       }
     } else {
       log.warn('Trying to unwatch an unexisting watcher:');
-      log.warn('  host_folder:', host_folder);
-      log.warn('  guest_folder:', guest_folder);
+      log.warn('  Host folder:', host_folder);
+      log.warn('  Guest folder:', guest_folder);
     }
     return true;
   },

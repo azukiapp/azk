@@ -7,7 +7,7 @@ var lazy = lazy_require({
 
 function _watch(host_folder, guest_folder, opts = {}) {
   console.log('starting watch');
-  opts = _.defaults(opts, { clean: true });
+  // opts = _.defaults(opts, { clean: true });
   console.log(opts);
   return lazy.Rsync.sync(host_folder, guest_folder, opts)
     .then(()=> {

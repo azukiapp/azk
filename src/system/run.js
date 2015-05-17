@@ -20,6 +20,9 @@ var Run = {
         provision_verbose: false,
       });
 
+      // Sync folders if set in mounts section at Azkfile.js
+      yield system.runWatch('provision');
+
       if (_.isEmpty(steps)) {
         return null;
       }
@@ -62,6 +65,9 @@ var Run = {
         sequencies: yield this._getSequencies(system)
       });
 
+      // Sync folders if set in mounts section at Azkfile.js
+      yield system.runWatch('shell');
+
       // Envs
       var deps_envs = yield system.checkDependsAndReturnEnvs(options, false);
       options.envs  = _.merge(deps_envs, options.envs || {});
@@ -89,9 +95,6 @@ var Run = {
       // Prepare options
       var image = yield this._check_image(system, options);
       options.image_data = image;
-
-      // Sync folders
-      yield system.runWatch();
 
       // Check provision
       yield system.runProvision(options);
@@ -134,24 +137,28 @@ var Run = {
     });
   },
 
-  runWatch(system) {
-    return async(this, function* (notify) {
-      if (_.isEmpty(system.syncs)) {
-        return true;
-      }
+  runWatch(system, context = 'provision') {
+    if (_.isEmpty(system.syncs)) {
+      return true;
+    }
 
-      var fix_permissions = yield this._fixSyncFolderPermissions(system.manifest.namespace);
-      if (fix_permissions !== 0) {
-        // TODO: throw proper error
-        throw new NotBeenImplementedError('SyncError');
-      }
+    return Q.all(_.map(system.syncs || {}, (sync_data, host_folder) => {
+      return async(this, function* (notify) {
+        if (context === 'provision' && sync_data.options.provision === false ||
+            context === 'shell'     && sync_data.options.shell !== true) {
+          return Q.resolve();
+        }
 
-      return Q.all(_.map(system.syncs || {}, (sync_data, host_folder) => {
-        console.log(host_folder);
         if (config('agent:requires_vm')) {
           sync_data.options = _.defaults(sync_data.options, { use_vm: true, ssh: lazy.Client.ssh_opts() });
         }
-        console.log('system/run.js', sync_data);
+
+        var clean_sync_folder = yield this._clean_sync_folder(system, host_folder);
+        if (clean_sync_folder !== 0) {
+          // TODO: throw proper error
+          throw new NotBeenImplementedError('SyncError');
+        }
+
         return lazy.Client.watch(path.join(host_folder, '/'), sync_data.guest_folder, sync_data.options)
           .then(() => {
             notify({
@@ -162,8 +169,8 @@ var Run = {
               options     : sync_data.options
             });
           });
-      }));
-    });
+      });
+    }));
   },
 
   stopWatching(system) {
@@ -395,23 +402,28 @@ var Run = {
     });
   },
 
-  _fixSyncFolderPermissions(manifest_id) {
+  _clean_sync_folder(system, host_folder) {
     return async(this, function* () {
       var mounted_sync_folders = '/sync_folders';
-      var current_sync_folder = path.join(`${mounted_sync_folders}`, `${manifest_id}`);
-      var chown = {
-        cmd: `chown -R ${process.getuid()}:${process.getuid()} ${current_sync_folder}`.split(' '),
+      var current_sync_folder = path.join(mounted_sync_folders, system.manifest.namespace, system.name, host_folder);
+      var cmds = {
+        rm   : `rm -Rf ${current_sync_folder}`.split(' '),
+        mkdir: `mkdir -p ${current_sync_folder}`.split(' '),
+        chown: `chown -R ${process.getuid()}:${process.getuid()} ${current_sync_folder}`.split(' '),
         opts: {
           volumes: {},
           interactive: false,
         },
       };
-      chown.opts.volumes[mounted_sync_folders] = config('paths:sync_folders');
+      cmds.opts.volumes[mounted_sync_folders] = config('paths:sync_folders');
 
       var image_name = config('docker:image_default');
-      yield lazy.docker.run(image_name, ['mkdir', '-p', current_sync_folder], chown.opts);
-      var container  = yield lazy.docker.run(image_name, chown.cmd, chown.opts);
-      var data = yield container.inspect();
+      var container  = yield lazy.docker.run(image_name, cmds.rm, cmds.opts);
+      yield container.remove();
+      container  = yield lazy.docker.run(image_name, cmds.mkdir, cmds.opts);
+      yield container.remove();
+      container      = yield lazy.docker.run(image_name, cmds.chown, cmds.opts);
+      var data       = yield container.inspect();
       yield container.remove();
 
       return data.State.ExitCode;
