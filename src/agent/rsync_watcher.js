@@ -8,10 +8,11 @@ var RsyncWatcher = {
 
   watch(host_folder, guest_folder, opts) {
     return defer((resolve, reject, notify) => {
+      log.debug('Adding watcher from folder', host_folder, 'to', guest_folder);
       var existing_worker = this._get_worker(host_folder, guest_folder);
       if (existing_worker) {
         ++existing_worker.count;
-        console.log(this._workers);
+        log.debug('Current watchers:\n', this._workers);
         return resolve();
       }
 
@@ -40,7 +41,7 @@ var RsyncWatcher = {
       // });
 
       worker.on('message', (data) => {
-        console.log('server message', data);
+        log.debug('Watcher received message', data);
         data = JSON.parse(data);
         switch (data.op) {
           case 'sync':
@@ -58,13 +59,15 @@ var RsyncWatcher = {
       worker_info.pid = worker.pid;
       worker.send({host_folder, guest_folder, opts});
 
-      console.log(this._workers);
+      log.debug('Current watchers:\n', this._workers);
     });
   },
 
   unwatch(host_folder, guest_folder) {
-    console.log('unwatch', host_folder, guest_folder);
-    return this._remove_worker(host_folder, guest_folder);
+    log.info('Removing watcher from folder', host_folder, 'to', guest_folder);
+    var result = this._remove_worker(host_folder, guest_folder);
+    log.debug('Current watchers:\n', this._workers);
+    return result;
   },
 
   watchers() {
@@ -87,7 +90,7 @@ var RsyncWatcher = {
         }
         catch (e) {
           if (e.code === 'ESRCH') {
-            console.log('Trying to kill unexisting process', worker.pid);
+            log.info('Trying to kill unexisting process', worker.pid);
           } else {
             throw e;
           }
@@ -95,9 +98,9 @@ var RsyncWatcher = {
         this._workers.splice(this._workers.indexOf(worker), 1);
       }
     } else {
-      log.warn('Trying to unwatch an unexisting watcher:');
-      log.warn('  Host folder:', host_folder);
-      log.warn('  Guest folder:', guest_folder);
+      log.info('Trying to stop an unexisting watcher:');
+      log.info('  Host folder:', host_folder);
+      log.info('  Guest folder:', guest_folder);
     }
     return true;
   },

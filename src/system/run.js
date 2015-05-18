@@ -20,9 +20,6 @@ var Run = {
         provision_verbose: false,
       });
 
-      // Sync folders if set in mounts section at Azkfile.js
-      yield system.runWatch('provision');
-
       if (_.isEmpty(steps)) {
         return null;
       }
@@ -44,6 +41,7 @@ var Run = {
         options.stdout.on('data', (data) => {
           output += data.toString();
         });
+        options.silent_sync = true;
       } else {
         output = t("system.seelog");
       }
@@ -66,7 +64,7 @@ var Run = {
       });
 
       // Sync folders if set in mounts section at Azkfile.js
-      yield system.runWatch('shell');
+      yield system.runWatch('shell', options.silent_sync);
 
       // Envs
       var deps_envs = yield system.checkDependsAndReturnEnvs(options, false);
@@ -77,8 +75,10 @@ var Run = {
       var container  = yield lazy.docker.run(system.image.name, command, docker_opt);
       var data       = yield container.inspect();
 
-      // Remove before run
+      // Remove after run
       if (options.remove) { yield container.remove(); }
+
+      yield system.stopWatching();
 
       return {
         code: data.State.ExitCode,
@@ -98,6 +98,9 @@ var Run = {
 
       // Check provision
       yield system.runProvision(options);
+
+      // Sync folders if set in mounts section at Azkfile.js
+      yield system.runWatch('daemon');
 
       options = _.defaults(options, {
         sequencies: yield this._getSequencies(system),
@@ -137,40 +140,49 @@ var Run = {
     });
   },
 
-  runWatch(system, context = 'provision') {
-    if (_.isEmpty(system.syncs)) {
-      return true;
-    }
+  runWatch(system, context = 'daemon', silent = false) {
+    return async(this, function* (notify) {
+      if (_.isEmpty(system.syncs)) {
+        return true;
+      }
 
-    return Q.all(_.map(system.syncs || {}, (sync_data, host_folder) => {
-      return async(this, function* (notify) {
-        if (context === 'provision' && sync_data.options.provision === false ||
-            context === 'shell'     && sync_data.options.shell !== true) {
-          return Q.resolve();
-        }
+      if (!silent) {
+        notify({ type : "sync", system : system.name });
+      }
 
-        if (config('agent:requires_vm')) {
-          sync_data.options = _.defaults(sync_data.options, { use_vm: true, ssh: lazy.Client.ssh_opts() });
-        }
+      return yield Q.all(_.map(system.syncs || {}, (sync_data, host_folder) => {
+        return async(this, function* (notify) {
+          if (context === 'daemon' && sync_data.options.daemon === false ||
+              context === 'shell'     && sync_data.options.shell !== true) {
+            return Q.resolve();
+          }
 
-        var clean_sync_folder = yield this._clean_sync_folder(system, host_folder);
-        if (clean_sync_folder !== 0) {
-          // TODO: throw proper error
-          throw new NotBeenImplementedError('SyncError');
-        }
+          if (config('agent:requires_vm')) {
+            sync_data.options = _.defaults(sync_data.options, { use_vm: true, ssh: lazy.Client.ssh_opts() });
+          }
 
-        return lazy.Client.watch(path.join(host_folder, '/'), sync_data.guest_folder, sync_data.options)
-          .then(() => {
-            notify({
-              type        : "watch",
-              system      : system.name,
-              host_folder : host_folder,
-              guest_folder: sync_data.guest_folder,
-              options     : sync_data.options
+          var clean_sync_folder = yield this._clean_sync_folder(system, host_folder);
+          if (clean_sync_folder !== 0) {
+            // TODO: throw proper error
+            throw new NotBeenImplementedError('SyncError');
+          }
+
+          var notify_data = {
+            system      : system.name,
+            host_folder : host_folder,
+            guest_folder: sync_data.guest_folder,
+            options     : sync_data.options
+          };
+
+          notify(_.merge({ type : "sync_start" }, notify_data));
+
+          return lazy.Client.watch(path.join(host_folder, '/'), sync_data.guest_folder, sync_data.options)
+            .then(() => {
+              notify(_.merge({ type : "sync_done" }, notify_data));
             });
-          });
-      });
-    }));
+        });
+      }));
+    });
   },
 
   stopWatching(system) {

@@ -494,14 +494,14 @@ export class System {
     return template.replace(regex, "#{_keep_key('$1')}");
   }
 
-  _resolved_sync_path(mount_path) {
+  _resolved_path(mount_path) {
     return path.resolve(this.manifest.manifestPath, mount_path);
   }
 
   _sync_path(mount_path) {
     var sync_base_path = config('paths:sync_folders');
     sync_base_path = path.join(sync_base_path, this.manifest.namespace, this.name);
-    return path.join(sync_base_path, this._resolved_sync_path(mount_path));
+    return path.join(sync_base_path, this._resolved_path(mount_path));
   }
 
   _mounts_to_volumes(mounts) {
@@ -511,7 +511,7 @@ export class System {
     var persist_base = config('paths:persistent_folders');
     persist_base = path.join(persist_base, this.manifest.namespace);
 
-    var v = _.reduce(mounts, (volumes, mount, point) => {
+    return _.reduce(mounts, (volumes, mount, point) => {
       if (_.isString(mount)) {
         mount = { type: 'path', value: mount };
       }
@@ -522,7 +522,7 @@ export class System {
           target = mount.value;
 
           if (!target.match(/^\//)) {
-            target = path.resolve(this.manifest.manifestPath, target);
+            target = this._resolved_path(target);
           }
 
           target = (fs.existsSync(target)) ?
@@ -540,7 +540,7 @@ export class System {
             target = mount.value;
 
             if (!target.match(/^\//)) {
-              target = path.resolve(this.manifest.manifestPath, target);
+              target = this._resolved_path(target);
             }
 
             target = (fs.existsSync(target)) ?
@@ -555,23 +555,35 @@ export class System {
 
       return volumes;
     }, volumes);
-
-    console.log(v);
-    return v;
   }
 
-  // _default_excludes() {
-    // var excludes = [ '' ]
-  // }
-
   _mounts_to_syncs(mounts) {
-    var syncs = {};
+    var syncs        = {};
+    var rsyncignore  = path.join(this.manifest.manifestPath, '.rsyncignore');
+    var except_from  = fs.existsSync(rsyncignore) ? rsyncignore : undefined;
 
     return _.reduce(mounts, (syncs, mount) => {
       if (mount.type === 'sync') {
-        syncs[this._resolved_sync_path(mount.value)] = {
+
+        var host_sync_path = this._resolved_path(mount.value);
+
+        var mounted_subpaths = _.reduce(mounts, (subpaths, mount) => {
+          var mount_path = this._resolved_path(mount.value);
+          if ( mount_path !== host_sync_path &&  mount_path.indexOf(host_sync_path) === 0) {
+            return subpaths.concat([path.join(mount.value, '/')]);
+          } else {
+            return subpaths;
+          }
+        }, []);
+
+        mount.options = _.defaults((mount.options || {}), {
+          except     : mounted_subpaths.concat(['.gitignore', '.azk/', '.git/', 'Azkfile.js']),
+          except_from: except_from,
+        });
+
+        syncs[host_sync_path] = {
           guest_folder: this._sync_path(mount.value),
-          options     : mount.options || {},
+          options     : mount.options,
         };
       }
       return syncs;

@@ -70,8 +70,9 @@ class Cmd extends InteractiveCmds {
 
             this.ok([...keys].concat(type), event);
             break;
-          case "wait_port":
-          case "provision":
+          case "sync":
+          case "wait_port" :
+          case "provision" :
             this.ok([...keys].concat(event.type), event);
             break;
           default:
