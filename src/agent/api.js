@@ -5,14 +5,11 @@ var lazy = lazy_require({
 });
 
 // Express load and init
-var qfs        = require('q-io/fs');
-var express    = require('express');
-var bodyParser = require('body-parser');
-var app        = express();
+var qfs     = require('q-io/fs');
+var express = require('express');
+var app     = express();
 
 require('express-ws')(app);
-
-app.use(bodyParser.urlencoded({ extended: false }));
 
 // Module
 var Api = {
