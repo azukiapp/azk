@@ -52,10 +52,10 @@ echo "# Running azk with 'time'..."
 azk agent stop
 
 ### RUN all commands
-run 'adocker version'
-run 'adocker info'
 run 'azk version'
 run 'azk agent start'
+run 'adocker version'
+run 'adocker info'
 run 'azk info'
 run 'azk init'
 run 'azk start'

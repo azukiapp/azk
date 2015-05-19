@@ -69,7 +69,6 @@ run 'azk agent start'
 run 'azk info'
 run 'azk status'
 run 'azk agent stop'
-# run 'azk start' #FIXME: do a folder to test azk start
 
 echo ""
 echo ""
