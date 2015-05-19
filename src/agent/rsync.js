@@ -1,6 +1,4 @@
-import { _, async, defer, path, log } from 'azk';
-
-var qfs = require('q-io/fs');
+import { _, defer, log, path } from 'azk';
 
 // Module
 var Rsync = {
@@ -16,32 +14,43 @@ var Rsync = {
   },
 
   _sync(host_folder, guest_folder, opts = {}, callback = null) {
-    return async(this, function* () {
-      var shell       = opts.use_vm ? `ssh ${opts.ssh.opts}` : '/bin/bash';
-      var destination = opts.use_vm ? `${opts.ssh.url}:${guest_folder}` : guest_folder;
+    var shell       = opts.use_vm ? `ssh ${opts.ssh.opts}` : '/bin/bash';
+    var destination = opts.use_vm ? `${opts.ssh.url}:${guest_folder}` : guest_folder;
 
-      var r = new require('rsync')()
-        .shell(shell)
-        .flags('az')
-        .set('delete')
-        .source(host_folder)
-        .destination(destination);
+    var r = new require('rsync')()
+      .shell(shell)
+      .flags('az')
+      .set('delete')
+      .source(host_folder)
+      .destination(destination);
 
-      var excludes = (opts.except || []).concat(['.gitignore', '.azk/', '.git/', 'Azkfile.js']);
-      r.exclude(excludes);
+    if (opts.include) {
+      if (!_.isArray(opts.include)) { opts.include = [opts.include]; }
 
-      var rsyncignore = path.join(host_folder, '.rsyncignore');
-      var exists = yield qfs.exists(rsyncignore);
-      if (exists) {
-        r.set('exclude-from', rsyncignore);
-      }
-
-      r.execute(function(err, code, cmd) {
-        log.debug('SSH Command: ', cmd);
-        if (_.isFunction(callback)) {
-          callback(err, code, cmd);
-        }
+      var includes = [];
+      _.each(opts.include, (include) => {
+        _.reduce(include.split('/'), (acc, p) => {
+          if (acc === include) { return acc; }
+          acc = acc.concat(p) === include ? acc.concat(p) : acc.concat(path.join(p, '/'));
+          includes.push(acc);
+          return acc;
+        }, '');
       });
+
+      r.include(includes);
+      r.exclude(['*/', '*']);
+    } else {
+      r.exclude(opts.except);
+      if (opts.except_from) {
+        r.set('exclude-from', opts.except_from);
+      }
+    }
+
+    r.execute(function(err, code, cmd) {
+      log.debug('SSH Command: ', cmd);
+      if (_.isFunction(callback)) {
+        callback(err, code, cmd);
+      }
     });
   },
 

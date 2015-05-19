@@ -23,10 +23,8 @@ var Controller = {
 
     // TODO: add progress to log single file sync
     this._send(ws, req_id, { status: 'start' });
-    console.log('cli_ws.js', opts);
     lazy.RsyncWatcher.watch(host_folder, guest_folder, opts)
     .then(() => {
-      console.log('watch then');
       this._send(ws, req_id, { status: 'done' });
     })
     .fail((err) => {

@@ -495,6 +495,9 @@ export class System {
   }
 
   _resolved_path(mount_path) {
+    if (!mount_path) {
+      return this.manifest.manifestPath;
+    }
     return path.resolve(this.manifest.manifestPath, mount_path);
   }
 
@@ -576,10 +579,11 @@ export class System {
           }
         }, []);
 
-        mount.options = _.defaults((mount.options || {}), {
-          except     : mounted_subpaths.concat(['.gitignore', '.azk/', '.git/', 'Azkfile.js']),
-          except_from: except_from,
-        });
+        mount.options             = mount.options || {};
+        mount.options.except_from = except_from;
+        mount.options.except      = _.uniq((mount.options.except || [])
+          .concat(mounted_subpaths)
+          .concat(['.rsyncignore', '.gitignore', '.azk/', '.git/', 'Azkfile.js']));
 
         syncs[host_sync_path] = {
           guest_folder: this._sync_path(mount.value),

@@ -47,10 +47,15 @@ var RsyncWatcher = {
           case 'sync':
             data.status === 'done' ? resolve() : reject();
             break;
-          case 'added':
-          case 'changed':
-          case 'deleted':
-            notify(_.merge({ type: "sync" }, data));
+          case 'add':
+          case 'change':
+          case 'unlink':
+          case 'addDir':
+          case 'unlinkDir':
+          case 'error':
+          case 'unlink':
+          case 'unlink':
+            notify(_.merge({ type: "sync_file" }, data));
         }
       });
 

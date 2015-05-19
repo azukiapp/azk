@@ -1,4 +1,4 @@
-import { lazy_require, _, path } from 'azk';
+import { lazy_require, _, path, log } from 'azk';
 
 var lazy = lazy_require({
   Rsync: ['azk/agent/rsync'],
@@ -23,15 +23,18 @@ function _start_watcher(host_folder, guest_folder, opts = {}) {
     .on('all', (event, filepath) => {
       filepath = path.relative(host_folder, filepath);
 
-      var include = (event === 'unlinkDir') ? [`${filepath}/\*`, filepath] : filepath;
+      var include = (event === 'unlinkDir') ? [`${filepath}/\*`, filepath] : [ filepath ];
       var sync_opts = { include };
       if (opts.use_vm) {
         _.defaults(sync_opts, { use_vm: opts.use_vm, ssh: opts.ssh });
       }
 
+      log.debug('[sync]', event, 'file', filepath);
+
       lazy.Rsync.sync(host_folder, guest_folder, sync_opts )
       .then(() => _send(event, 'done', { filepath }))
       .fail((err) => _send(event, 'fail', { filepath, err }));
+
     });
 }
 

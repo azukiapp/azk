@@ -153,7 +153,7 @@ var Run = {
       return yield Q.all(_.map(system.syncs || {}, (sync_data, host_folder) => {
         return async(this, function* (notify) {
           if (context === 'daemon' && sync_data.options.daemon === false ||
-              context === 'shell'     && sync_data.options.shell !== true) {
+              context === 'shell'  && sync_data.options.shell !== true) {
             return Q.resolve();
           }
 
@@ -419,9 +419,9 @@ var Run = {
       var mounted_sync_folders = '/sync_folders';
       var current_sync_folder = path.join(mounted_sync_folders, system.manifest.namespace, system.name, host_folder);
       var cmds = {
-        rm   : `rm -Rf ${current_sync_folder}`.split(' '),
+        // rm   : `rm -Rf ${current_sync_folder}`.split(' '),
         mkdir: `mkdir -p ${current_sync_folder}`.split(' '),
-        chown: `chown -R ${process.getuid()}:${process.getuid()} ${current_sync_folder}`.split(' '),
+        chown: `chown -R ${process.getuid()}:${process.getuid()} ${mounted_sync_folders}`.split(' '),
         opts: {
           volumes: {},
           interactive: false,
@@ -430,9 +430,9 @@ var Run = {
       cmds.opts.volumes[mounted_sync_folders] = config('paths:sync_folders');
 
       var image_name = config('docker:image_default');
-      var container  = yield lazy.docker.run(image_name, cmds.rm, cmds.opts);
-      yield container.remove();
-      container  = yield lazy.docker.run(image_name, cmds.mkdir, cmds.opts);
+      // var container  = yield lazy.docker.run(image_name, cmds.rm, cmds.opts);
+      // yield container.remove();
+      var container  = yield lazy.docker.run(image_name, cmds.mkdir, cmds.opts);
       yield container.remove();
       container      = yield lazy.docker.run(image_name, cmds.chown, cmds.opts);
       var data       = yield container.inspect();

@@ -414,7 +414,7 @@ module.exports = {
     scale: {
       instances   : "from " + "%(from)d".red             + " to " + "%(to)d".green + " instances",
       description : "Scales (up or down) an instance of the system(s)",
-      sync        : "⎘".yellow  + " sync'ing files for `" + "%(system)s".blue     + "` system...",
+      sync        : "⎘".yellow  + " syncing files for `" + "%(system)s".blue     + "` system...",
       wait_port   : "◴".magenta + " waiting for `"       + "%(system)s".blue     + "` system to start, trying connection to port %(name)s/%(protocol)s...",
       check_image : "✓".cyan    + " checking `"          + "%(image)s".yellow    + "` image...",
       pull_image  : "⇲".blue    + " downloading `"       + "%(image)s".yellow    + "` image...",
