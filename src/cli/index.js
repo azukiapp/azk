@@ -18,6 +18,7 @@ export function cli(args, cwd, ui = UI) {
     azk_cli
       .route('/help')
       .route('/agent')
+      .route('/docker')
       .route('/init')
       .route('/vm')
       .route('/config')

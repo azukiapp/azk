@@ -1,25 +1,39 @@
 import h from 'spec/spec_helper';
-import { init } from 'azk/cmds/docker';
+import { Cli } from 'azk/cli';
 
-h.describeRequireVm("Azk command docker, run", function() {
+h.describeRequireVm('Azk cli, docker controller', function() {
   var outputs = [];
-  var UI   = h.mockUI(beforeEach, outputs);
-  var cmd  = init(UI);
+  var ui      = h.mockUI(beforeEach, outputs);
 
-  it("should call `azk vm ssh`", function() {
-    cmd.cwd = __dirname;
-    return cmd.run(["images"]).then(() => {
-      h.expect(outputs[0]).to.match(/azk vm ssh -t/);
-      h.expect(outputs[0]).to.match(RegExp("cd.*" + h.escapeRegExp(__dirname)));
-      h.expect(outputs[0]).to.match(/; docker images/);
+  var cli_options = {};
+  var cli = new Cli(cli_options)
+    .route('/docker');
+
+  var doc_opts    = { exit: false };
+  var run_options = { ui: ui, cwd: __dirname };
+
+  it("should run a `docker -- version` command", function() {
+    doc_opts.argv = ['docker', '--', 'version'];
+    var options = cli.router.cleanArgs(cli.docopt(doc_opts));
+    return cli.run(doc_opts, run_options).then((code) => {
+      h.expect(code).to.equal(0);
+      h.expect(options).to.have.property('docker', true);
+      h.expect(options).to.have.property('__doubledash', true);
+      h.expect(options['docker-options']).to.deep.eql(['version']);
+      h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp("docker version")));
     });
   });
 
-  it("should forwarding all arguments", function() {
-    var args = ["run", "/bin/bash", "-c", "ls -l"];
-    return cmd.run(args).then(() => {
-      var regex = /; docker run \/bin\/bash -c \\"ls -l\\"/;
-      h.expect(outputs[0]).to.match(regex);
-    });
+  it("should run a `docker -- images` command", function() {
+    doc_opts.argv = ['docker', '--', 'images'];
+    var options = cli.router.cleanArgs(cli.docopt(doc_opts));
+    return cli.run(doc_opts, run_options)
+      .then((code) => {
+        h.expect(code).to.equal(0);
+        h.expect(options).to.have.property('docker', true);
+        h.expect(options).to.have.property('__doubledash', true);
+        h.expect(options['docker-options']).to.deep.eql(['images']);
+        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp("docker images")));
+      });
   });
 });
