@@ -14,7 +14,6 @@ var Utils = {
 
   lazy_require(loads) {
     var lazy = {};
-    var _ = this._;
     _.each(loads, (func, getter) => {
       if (!_.isFunction(func)) {
         var opts = func;
