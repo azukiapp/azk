@@ -19,6 +19,7 @@ export function cli(args, cwd, ui = UI) {
       .route('/help')
       .route('/agent')
       .route('/docker')
+      .route('/doctor')
       .route('/init')
       .route('/vm')
       .route('/config')
