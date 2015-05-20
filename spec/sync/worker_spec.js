@@ -3,7 +3,7 @@ import { _, path, lazy_require } from 'azk';
 import { Q, defer, async } from 'azk';
 
 var lazy = lazy_require({
-  Worker: ['azk/sync/worker_worker'],
+  Worker: ['azk/sync/worker'],
   DirDiff      : ['node-dir-diff', 'Dir_Diff'],
   EventEmitter : ['events'],
   qfs          : 'q-io/fs'

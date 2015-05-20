@@ -88,11 +88,8 @@ describe("Azk sync, main module", function() {
       var origin = invalid_fixtures;
       var dest   = yield h.tmp_dir();
 
-      var err_data;
-      yield lazy.Sync.sync(origin, dest)
-        .then(() => { h.expect(0).to.equal(1); })
-        .fail(function(err) { err_data = err; });
-      h.expect(err_data).to.have.property('code', 23);
+      var promise = lazy.Sync.sync(origin, dest);
+      return h.expect(promise).to.be.rejected.and.eventually.have.property('code', 23);
     });
   });
 
