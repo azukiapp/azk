@@ -147,6 +147,10 @@ var options = mergeConfig({
     tracker: {
       disable: true,
     },
+    logs_level: {
+      console: (envs('AZK_DEBUG') ? 'debug' : 'warn'),
+      file: envs('AZK_LOG_LEVEL', 'debug'),
+    },
     agent: {
       portrange_start: 12000,
       vm: {
