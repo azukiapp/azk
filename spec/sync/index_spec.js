@@ -11,6 +11,7 @@ var lazy = lazy_require({
 
 describe("Azk sync module", function() {
   var example_fixtures = h.fixture_path('sync/test_1/');
+  var invalid_fixtures = path.join(h.fixture_path('sync/test_1/'), 'invalid');
 
   function make_copy() {
     return Q.all([
@@ -79,6 +80,19 @@ describe("Azk sync module", function() {
       h.expect(code).to.eql(0);
       h.expect(result_folder).to.have.property('deviation', 7);
       h.expect(result_subfolder).to.have.property('deviation', 0);
+    });
+  });
+
+  it("should not sync an invalid folder", function() {
+    return async(function* () {
+      var origin = invalid_fixtures;
+      var dest   = yield h.tmp_dir();
+
+      var err_data;
+      yield lazy.Sync.sync(origin, dest)
+        .then(() => { h.expect(0).to.equal(1); })
+        .fail(function(err) { err_data = err });
+      h.expect(err_data).to.have.property('code', 23);
     });
   });
 
