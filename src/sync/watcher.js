@@ -3,8 +3,10 @@ import { _, defer, log } from 'azk';
 var child_process = require('child_process');
 // var forever = require('forever-monitor');
 
-var RsyncWatcher = {
-  _workers: [],
+export class Watcher {
+  constructor() {
+    this._workers = [];
+  }
 
   watch(host_folder, guest_folder, opts) {
     return defer((resolve, reject, notify) => {
@@ -54,7 +56,6 @@ var RsyncWatcher = {
           case 'unlinkDir':
           case 'error':
           case 'unlink':
-          case 'unlink':
             notify(_.merge({ type: "sync_file" }, data));
         }
       });
@@ -66,25 +67,25 @@ var RsyncWatcher = {
 
       log.debug('Current watchers:\n', this._workers);
     });
-  },
+  }
 
   unwatch(host_folder, guest_folder) {
     log.info('Removing watcher from folder', host_folder, 'to', guest_folder);
     var result = this._remove_worker(host_folder, guest_folder);
     log.debug('Current watchers:\n', this._workers);
     return result;
-  },
+  }
 
   watchers() {
     return this._workers;
-  },
+  }
 
   _get_worker(host_folder, guest_folder) {
     return _.find(this._workers, (worker) => {
       return worker.host_folder === host_folder &&
             worker.guest_folder === guest_folder;
     });
-  },
+  }
 
   _remove_worker(host_folder, guest_folder) {
     var worker = this._get_worker(host_folder, guest_folder);
@@ -108,8 +109,5 @@ var RsyncWatcher = {
       log.info('  Guest folder:', guest_folder);
     }
     return true;
-  },
-
-};
-
-export { RsyncWatcher };
+  }
+}

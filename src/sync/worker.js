@@ -7,7 +7,7 @@ var lazy = lazy_require({
   fs       : 'fs'
 });
 
-export class WatcherWorker {
+export class Worker {
   constructor(process) {
     this.process = process;
     this.process.on('message', (data) => {
@@ -108,5 +108,5 @@ export class WatcherWorker {
 //
 if (require.main === module) {
   process.title = 'azk: sync worker';
-  new WatcherWorker(process);
+  new Worker(process);
 }

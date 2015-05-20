@@ -3,13 +3,13 @@ import { _, path, lazy_require } from 'azk';
 import { Q, defer, async } from 'azk';
 
 var lazy = lazy_require({
-  WatcherWorker: ['azk/sync/watcher_worker'],
+  Worker: ['azk/sync/worker_worker'],
   DirDiff      : ['node-dir-diff', 'Dir_Diff'],
   EventEmitter : ['events'],
   qfs          : 'q-io/fs'
 });
 
-describe("Azk sync, WatcherWorker module", function() {
+describe("Azk sync, Worker module", function() {
   var example_fixtures = h.fixture_path('sync/test_1/');
   var invalid_fixtures = path.join(h.fixture_path('sync/test_1/'), 'invalid');
 
@@ -25,14 +25,14 @@ describe("Azk sync, WatcherWorker module", function() {
     return Q.ninvoke(dd, "compare");
   }
 
-  function create_watcher() {
+  function create_worker() {
     class FakeProcess extends lazy.EventEmitter {
       send(...args) {
         return this.emit('sending', ...args);
       }
     }
     var bus = new FakeProcess();
-    return [bus, new lazy.WatcherWorker(bus)];
+    return [bus, new lazy.Worker(bus)];
   }
 
   function run_and_wait_msg(bus, filter, block = null) {
@@ -58,11 +58,11 @@ describe("Azk sync, WatcherWorker module", function() {
   }
 
   describe("with a watch to sync a two folders", function() {
-    var origin, dest, bus, watcher;
+    var origin, dest, bus, worker;
     beforeEach(() => {
       return async(function* () {
         [origin, dest] = yield make_copy();
-        [bus, watcher] = create_watcher();
+        [bus, worker] = create_worker();
 
         var msg = yield run_and_wait_msg(bus, () => {
           return bus.emit("message", { origin, destination: dest });
@@ -73,7 +73,7 @@ describe("Azk sync, WatcherWorker module", function() {
       });
     });
 
-    afterEach(() => watcher.unwatch());
+    afterEach(() => worker.unwatch());
 
     it("should have done initial sync", function() {
       var result = diff(origin, dest);
@@ -175,7 +175,7 @@ describe("Azk sync, WatcherWorker module", function() {
   it("should forward sync options", function() {
     return async(function* () {
       var [origin, dest]  = yield make_copy();
-      var bus  = create_watcher()[0];
+      var bus  = create_worker()[0];
       var opts = { except: ["foo/"] };
 
       var msg = yield run_and_wait_msg(bus, () => {
@@ -193,10 +193,10 @@ describe("Azk sync, WatcherWorker module", function() {
     });
   });
 
-  it("should not override a watcher", function() {
+  it("should not override a worker", function() {
     return async(function* () {
       var [origin, dest]  = yield make_copy();
-      var bus  = create_watcher()[0];
+      var bus  = create_worker()[0];
       var opts = { except: ["foo/"] };
 
       var msg = yield run_and_wait_msg(bus, () => {
@@ -232,7 +232,7 @@ describe("Azk sync, WatcherWorker module", function() {
     return async(function* () {
       var origin = yield h.tmp_dir();
       var dest   = path.join(yield h.tmp_dir(), "foo", "bar");
-      var bus    = create_watcher()[0];
+      var bus    = create_worker()[0];
 
       var msg = yield run_and_wait_msg(bus, () => {
         return bus.emit("message", { origin, destination: dest });
@@ -249,7 +249,7 @@ describe("Azk sync, WatcherWorker module", function() {
     return async(function* () {
       var origin = invalid_fixtures;
       var dest   = yield h.tmp_dir();
-      var bus    = create_watcher()[0];
+      var bus    = create_worker()[0];
 
       var msg = yield run_and_wait_msg(bus, () => {
         return bus.emit("message", { origin, destination: dest });
