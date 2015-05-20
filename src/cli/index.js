@@ -20,6 +20,7 @@ export function cli(args, cwd, ui = UI) {
       .route('/agent')
       .route('/init')
       .route('/vm')
+      .route('/config')
       .route('/version');
 
     result = azk_cli.run({

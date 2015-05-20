@@ -1,7 +1,7 @@
 import h from 'spec/spec_helper';
 import { Cli } from 'azk/cli';
 
-h.describeSkipVm('Azk cli vm controller', function() {
+h.describeRequireVm('Azk cli vm controller', function() {
   var outputs = [];
   var ui      = h.mockUI(beforeEach, outputs);
 

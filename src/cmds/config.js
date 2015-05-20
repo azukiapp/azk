@@ -1,24 +1,18 @@
-import { async } from 'azk/utils/promises';
-import { InteractiveCmds } from 'azk/cli/interactive_cmds';
-import { Helpers } from 'azk/cli/command';
+import { CliTrackerController } from 'azk/cli/cli_tracker_controller.js';
+import { promiseResolve } from 'azk/utils/promises';
+import { Helpers } from 'azk/cli/helpers';
 
-class Cmd extends InteractiveCmds {
-  action(opts) {
-    return async(this, function* () {
-      if (opts.action.match(/track-/)) {
-        var status = this.tracker.loadTrackerPermission();
-        this.ok('commands.config.tracking-' + status);
+class Config extends CliTrackerController {
+  trackStatus() {
+    var status = this.ui.tracker.loadTrackerPermission();
+    this.ui.ok('commands.config.tracking-' + status);
+    return promiseResolve(0);
+  }
 
-        if (opts.action == "track-toggle") {
-          this.tracker.saveTrackerPermission(undefined);
-          yield Helpers.askPermissionToTrack(this);
-        }
-      }
-    });
+  trackToggle(...args) {
+    this.trackStatus(...args);
+    return Helpers.askPermissionToTrack(this.ui, true);
   }
 }
 
-export function init(cli) {
-  (new Cmd('config {action}', cli))
-    .setOptions('action', { options: ['track-toggle', 'track-status'] });
-}
+module.exports = Config;
