@@ -17,7 +17,7 @@ var Sync = {
       r.include(this._process_include(opts.include));
       r.exclude(['*/', '*']);
     } else {
-      if (opts.except) { r.exclude(opts.except) }
+      if (opts.except) { r.exclude(opts.except); }
       if (opts.except_from) {
         r.set('exclude-from', path.resolve(origin, opts.except_from));
       }

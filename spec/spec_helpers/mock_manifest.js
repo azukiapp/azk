@@ -52,13 +52,12 @@ export function extend(h) {
       '/data': { type: 'persistent', value: 'data' },
     });
     var mounts_with_sync = {
-      '/azk/#{manifest.dir}'       : '.',
-      '/tmp/azk-test-guest'        : { type: 'sync', value: '/tmp/azk-test-host' },
-      // '/tmp/azk-test-guest-except' : { type: 'sync', value: '/tmp/azk-sync-host',
-      //   options: { except: ['**/*.css', 'd1/'] } },
-      // '/tmp/azk-test-guest-include': { type: 'sync', value: '/tmp/azk-sync-host',
-      //   options: { include: ['**/*.js', 'd0/'] } },
-    };
+      '/azk'           : { type: 'sync', value: '.' },
+      '/azk/bin'       : { type: 'sync', value: 'bin', shell: true },
+      '/azk/lib'       : { type: 'sync', value: 'lib', shell: true, daemon: false },
+      '/azk/tmp'       : { type: 'persistent', value: 'tmp' },
+      '/azk/log'       : { type: 'persistent', value: 'log' },
+    } ;
 
     // Data merge
     data = _.merge({

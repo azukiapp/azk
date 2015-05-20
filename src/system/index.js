@@ -381,8 +381,8 @@ export class System {
 
     var type   = daemon ? "daemon" : "shell";
     var mounts = _.merge(
-      {}, this.mounts,
-      this._mounts_to_volumes(options.mounts)
+      {}, this._mounts_to_volumes(this.options.mounts || {}, daemon),
+      this._mounts_to_volumes(options.mounts, daemon)
     );
 
     var dns_servers = [];
@@ -507,7 +507,7 @@ export class System {
     return path.join(sync_base_path, this._resolved_path(mount_path));
   }
 
-  _mounts_to_volumes(mounts) {
+  _mounts_to_volumes(mounts, daemon = true) {
     var volumes = {};
 
     // persistent folder
@@ -537,7 +537,8 @@ export class System {
           break;
 
         case 'sync':
-          if (mount.options.shell) {
+          if (daemon && mount.options.daemon !== false ||
+             !daemon && mount.options.shell === true) {
             target = this._sync_path(mount.value);
           } else {
             target = mount.value;

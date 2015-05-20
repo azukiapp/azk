@@ -64,7 +64,7 @@ var Run = {
       });
 
       // Sync folders if set in mounts section at Azkfile.js
-      yield system.runWatch('shell', options.silent_sync);
+      yield system.runWatch(false, options.silent_sync);
 
       // Envs
       var deps_envs = yield system.checkDependsAndReturnEnvs(options, false);
@@ -100,7 +100,7 @@ var Run = {
       yield system.runProvision(options);
 
       // Sync folders if set in mounts section at Azkfile.js
-      yield system.runWatch('daemon');
+      yield system.runWatch(true);
 
       options = _.defaults(options, {
         sequencies: yield this._getSequencies(system),
@@ -140,7 +140,7 @@ var Run = {
     });
   },
 
-  runWatch(system, context = 'daemon', silent = false) {
+  runWatch(system, daemon = true, silent = false) {
     return async(this, function* (notify) {
       if (_.isEmpty(system.syncs)) {
         return true;
@@ -152,8 +152,8 @@ var Run = {
 
       return yield Q.all(_.map(system.syncs || {}, (sync_data, host_folder) => {
         return async(this, function* (notify) {
-          if (context === 'daemon' && sync_data.options.daemon === false ||
-              context === 'shell'  && sync_data.options.shell !== true) {
+          if (daemon && sync_data.options.daemon === false ||
+             !daemon && sync_data.options.shell !== true) {
             return Q.resolve();
           }
 

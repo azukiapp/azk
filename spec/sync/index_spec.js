@@ -1,5 +1,5 @@
 import h from 'spec/spec_helper';
-import { _, Q, async, config, path, lazy_require } from 'azk';
+import { Q, async, config, path, lazy_require } from 'azk';
 
 var lazy = lazy_require({
   Sync    : ['azk/sync'],
@@ -91,7 +91,7 @@ describe("Azk sync module", function() {
       var err_data;
       yield lazy.Sync.sync(origin, dest)
         .then(() => { h.expect(0).to.equal(1); })
-        .fail(function(err) { err_data = err });
+        .fail(function(err) { err_data = err; });
       h.expect(err_data).to.have.property('code', 23);
     });
   });
