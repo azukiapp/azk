@@ -5,7 +5,7 @@ import { VM } from 'azk/agent/vm';
 
 var qfs = require('q-io/fs');
 
-h.describeRequireVm("Azk sync VM", function() {
+describe.skip("Azk agent sync VM", function() {
 
   describe("with a running VM", function() {
 

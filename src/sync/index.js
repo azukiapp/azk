@@ -25,8 +25,13 @@ var Sync = {
 
     return defer((resolve, reject) => {
       r.execute(function(err, code, cmd) {
-        log.debug('SSH Command: ', cmd);
-        return err ? reject({ err, code }) : resolve(code);
+        log.debug('[sync] rsync command:', cmd);
+        if (err) {
+          err = err.stack ? err.stack : err.toString();
+          log.error('[sync] fail', err);
+          return reject({ err, code });
+        }
+        return resolve(code);
       });
     });
   },

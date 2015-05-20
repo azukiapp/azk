@@ -9,7 +9,7 @@ var lazy = lazy_require({
   uuid    : 'node-uuid'
 });
 
-describe("Azk sync module", function() {
+describe("Azk sync, main module", function() {
   var example_fixtures = h.fixture_path('sync/test_1/');
   var invalid_fixtures = path.join(h.fixture_path('sync/test_1/'), 'invalid');
 
