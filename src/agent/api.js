@@ -2,14 +2,8 @@ import { _, Q, defer, async, config, lazy_require } from 'azk';
 
 var lazy = lazy_require({
   Router : ['azk/agent/cli_ws'],
+  qfs    : 'q-io/fs'
 });
-
-// Express load and init
-var qfs     = require('q-io/fs');
-var express = require('express');
-var app     = express();
-
-require('express-ws')(app);
 
 // Module
 var Api = {
@@ -17,9 +11,18 @@ var Api = {
 
   wss: null,
 
+  // Express load and init
+  get app() {
+    if (!this.__app) {
+      this.__app = require('express')();
+      require('express-ws')(this.__app);
+    }
+    return this.__app;
+  },
+
   mount() {
     // Return configs from set by Configure
-    app.get('/configs', (req, res) => {
+    this.app.get('/configs', (req, res) => {
       var keys = config('agent:config_keys');
       res.json(_.reduce(keys, (acc, key) => {
         acc[key] = config(key);
@@ -30,7 +33,7 @@ var Api = {
 
   cli_ws() {
     // Init websocket CLI entry point
-    app.ws('/cli', function(ws) {
+    this.app.ws('/cli', function(ws) {
       ws.on('message', function(req) {
         lazy.Router.route(ws, JSON.parse(req));
       });
@@ -56,18 +59,18 @@ var Api = {
 
   // Remove socket if exist
   _clearSocket(socket) {
-    return qfs
+    return lazy.qfs
       .exists(socket)
       .then((exist) => {
         if (exist) {
-          return qfs.remove(socket);
+          return lazy.qfs.remove(socket);
         }
       });
   },
 
   _listen(socket) {
     return defer((resolve, reject) => {
-      this.server = app.listen(socket, (err) => {
+      this.server = this.app.listen(socket, (err) => {
         (err) ? reject(err) : resolve();
       });
     });
