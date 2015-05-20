@@ -1,8 +1,33 @@
 ## mounts
 
-Configura quais pastas serão internalizadas ao container ou persistidas internamente pelo `azk`.
+`mounts` possui duas maneiras de uso: `path` e `persistent`. Elas são usadas para configurar quais pastas serão internalizadas ao container ou persistidas internamente pelo `azk`.
 
-Utilizando Linux, a informação persistida internamente é salva dentro de `~/.azk/data/persistent_folders`. No Mac, a informação se encontra no disco de dados da sua máquina virtual. Ao utilizar o mesmo parâmetro com a opção `persistent`, é possível compartilhar informações (por exemplo, um banco de dados) entre aplicações.
+#### path
+
+```js
+'INTERNAL_FOLDER': path('LOCAL_PATH'),
+```
+
+Monta a pasta localizada no sistema atual em `LOCAL_PATH`, relativo ao Azkfile.js, a pasta `INTERNAL_FOLDER` dentro do contêiner. Caso algum arquivo seja alterado, a partir da máquina do usuário ou de dentro do contêiner, a informação também é atualizado no outro lado.
+
+#### persistent
+
+```js
+'INTERNAL_FOLDER': path('LOCAL_PATH'),
+```
+
+Persiste os arquivos dentro do contêiner no caminho `INTERNAL_FOLDER`, para uma pasta persistente do `azk` dentro da máquina do usuário. O local dessa pasta varia entre Mac e Linux:
+
+###### Mac
+
+`/Users/heitorsergent/.azk/data/vm/azk-agent.vmdk.link`
+`~/.azk/data/persistent_folders/#{manifest.id}/LOCAL_PATH`.
+ 
+###### Linux
+
+`~/.azk/data/persistent_folders/#{manifest.id}/LOCAL_PATH`.
+
+Note que utilizar o mesmo 'LOCAL_PATH' no mesmo Azkfile.js, mas em contêiners diferentes, significa que eles irão compartilhar dados persistidos.
 
 #### Uso:
 
