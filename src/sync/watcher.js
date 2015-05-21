@@ -1,7 +1,6 @@
 import { _, defer, log } from 'azk';
 import { IPublisher } from 'azk/utils/postal';
 
-// var child_process = require('child_process');
 var forever = require('forever-monitor');
 
 export class Watcher extends IPublisher {
@@ -16,37 +15,36 @@ export class Watcher extends IPublisher {
     return defer((resolve, reject) => {
       log.debug('Adding watcher from folder', origin, 'to', destination);
       if (this.workers[id]) {
+        this.workers[id].count++;
         this.publish('init', { status: 'exists' });
         log.debug('Current watchers:\n', this.workers);
         return resolve();
       }
 
       // Save worker info
-      this.workers[id] = {origin, destination};
+      var worker = {origin, destination, count: 1, kill_not_sendend: true};
+      this.workers[id] = worker;
 
       // Fork process with monitor
       var child = new (forever.Monitor)(`${__dirname}/worker.js`, {
         max: 3,
-        env: { AZK_DEBUG: 'true' },
+        env: process.env,
         fork: true,
         killTTL: 10000,
       });
 
       // Save work process monitor
-      this.workers[id].child = child;
+      worker.child = child;
 
       child.on('restart', () => {
         this.publish('restart', { op: 'restart', status: 'init' });
         child.send({origin, destination, opts});
-        log.warn('[sync] Sync process restarted');
-        log.warn('[sync]   Host folder:', origin);
-        log.warn('[sync]   Guest folder:', destination);
+        log.info('[sync] Sync process restarted', { origin, destination });
       });
 
       child.on('exit:code', (code) => {
-        log.warn('[sync] Sync process exited with code', code);
-        log.warn('[sync]   Host folder:', origin);
-        log.warn('[sync]   Guest folder:', destination);
+        var level = worker.kill_not_sendend && code > 0 ? 'warn' : 'info';
+        log[level]('[sync] Sync process exited with code', code, { origin, destination });
       });
 
       child.on('message', (data) => {
@@ -88,6 +86,7 @@ export class Watcher extends IPublisher {
 
   close() {
     _.each(this.workers, (worker, id) => {
+      worker.count = 0;
       this._remove_worker(id);
     });
   }
@@ -99,8 +98,11 @@ export class Watcher extends IPublisher {
   _remove_worker(id) {
     var worker = this.workers[id];
     if (worker) {
-      worker.child.kill(true);
-      delete this.workers[id];
+      if (--worker.count <= 0) {
+        worker.kill_not_sendend = false;
+        worker.child.kill(true);
+        delete this.workers[id];
+      }
     } else {
       id = JSON.parse(id);
       log.info('[sync] Trying to stop an unexisting watcher:');
