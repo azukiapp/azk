@@ -8,7 +8,7 @@
 'INTERNAL_FOLDER': path('LOCAL_PATH'),
 ```
 
-Monta a pasta localizada no sistema atual em `LOCAL_PATH`, relativo ao Azkfile.js, a pasta `INTERNAL_FOLDER` dentro do contêiner. Caso algum arquivo seja alterado, a partir da máquina do usuário ou de dentro do contêiner, a informação também é atualizado no outro lado.
+Monta a pasta localizada no sistema atual em `LOCAL_PATH`, relativo ao Azkfile.js, na pasta `INTERNAL_FOLDER` dentro do contêiner. Caso algum arquivo seja alterado a partir da máquina do usuário ou de dentro do contêiner, a informação também é atualizada do outro lado.
 
 #### persistent
 
@@ -16,7 +16,7 @@ Monta a pasta localizada no sistema atual em `LOCAL_PATH`, relativo ao Azkfile.j
 'INTERNAL_FOLDER': path('LOCAL_PATH'),
 ```
 
-Persiste os arquivos dentro do contêiner no caminho `INTERNAL_FOLDER`, para uma pasta persistente do `azk` dentro da máquina do usuário. O local dessa pasta varia entre Mac e Linux:
+Persiste os arquivos dentro do contêiner no caminho `INTERNAL_FOLDER` para uma pasta persistente do `azk` dentro da máquina do usuário. O local dessa pasta varia entre Mac e Linux:
 
 ###### Mac
 
