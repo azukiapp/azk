@@ -60,7 +60,7 @@ Once the database is already installed and we have the necessary dependencies to
 systems({
   azkdemo: {
     // Dependent systems
-    depends: ["redis"], // <= adicione o redis
+    depends: ["redis"], // <= add the redis
     // ...
   },
   redis: {
