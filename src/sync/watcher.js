@@ -7,23 +7,24 @@ var forever = require('forever-monitor');
 export class Watcher extends IPublisher {
   constructor() {
     super('sync.watcher');
-    this._workers = [];
+    this._workers = {};
   }
 
   watch(origin, destination, opts) {
+    var id = this.calculate_id(origin, destination);
+
     return defer((resolve, reject) => {
       log.debug('Adding watcher from folder', origin, 'to', destination);
-      var existing_worker = this._get_worker(origin, destination);
-      if (existing_worker) {
-        ++existing_worker.count;
+      if (this.workers[id]) {
         this.publish('init', { status: 'exists' });
         log.debug('Current watchers:\n', this.workers);
         return resolve();
       }
 
-      var worker_info = {origin, destination, count: 1};
-      this.workers.push(worker_info);
+      // Save worker info
+      this.workers[id] = {origin, destination};
 
+      // Fork process with monitor
       var child = new (forever.Monitor)(`${__dirname}/worker.js`, {
         max: 3,
         env: { AZK_DEBUG: 'true' },
@@ -31,7 +32,8 @@ export class Watcher extends IPublisher {
         killTTL: 10000,
       });
 
-      worker_info.child = child;
+      // Save work process monitor
+      this.workers[id].child = child;
 
       child.on('restart', () => {
         this.publish('restart', { op: 'restart', status: 'init' });
@@ -70,7 +72,7 @@ export class Watcher extends IPublisher {
 
   unwatch(origin, destination) {
     log.info('Removing watcher from folder', origin, 'to', destination);
-    var result = this._remove_worker(origin, destination);
+    var result = this._remove_worker(this.calculate_id(origin, destination));
     log.debug('Current watchers:\n', this._workers);
     this.publish('finish', { op: 'finish', status: 'done' });
     return result;
@@ -80,36 +82,31 @@ export class Watcher extends IPublisher {
     return this._workers;
   }
 
-  close() {
-    while (this.workers.length > 0) {
-      var worker = this.workers.pop();
-      this._kill_worker(worker.child);
-    }
+  get_worker(...args) {
+    return this.workers[this.calculate_id(...args)];
   }
 
-  _get_worker(origin, destination) {
-    return _.find(this.workers, (worker) => {
-      return worker.origin === origin &&
-            worker.destination === destination;
+  close() {
+    _.each(this.workers, (worker, id) => {
+      this._remove_worker(id);
     });
   }
 
-  _remove_worker(origin, destination) {
-    var worker = this._get_worker(origin, destination);
-    if (worker) {
-      if (--worker.count === 0) {
-        this._kill_worker(worker.child);
-        this.workers.splice(this.workers.indexOf(worker), 1);
-      }
-    } else {
-      log.info('[sync] Trying to stop an unexisting watcher:');
-      log.info('[sync]   Host folder:', origin);
-      log.info('[sync]   Guest folder:', destination);
-    }
-    return true;
+  calculate_id(origin, destination) {
+    return JSON.stringify({ origin, destination });
   }
 
-  _kill_worker(child) {
-    child.kill(true);
+  _remove_worker(id) {
+    var worker = this.workers[id];
+    if (worker) {
+      worker.child.kill(true);
+      delete this.workers[id];
+    } else {
+      id = JSON.parse(id);
+      log.info('[sync] Trying to stop an unexisting watcher:');
+      log.info('[sync]   Host folder:' , id.origin);
+      log.info('[sync]   Guest folder:', id.destination);
+    }
+    return true;
   }
 }

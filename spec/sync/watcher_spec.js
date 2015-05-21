@@ -29,7 +29,7 @@ describe("Azk sync, Watcher module", function() {
       subscription = null;
     }
     watcher.close();
-    h.expect(watcher.workers).to.length(0);
+    h.expect(_.keys(watcher.workers)).to.length(0);
   });
 
   it("should sync two folders", function() {
@@ -41,7 +41,7 @@ describe("Azk sync, Watcher module", function() {
 
       var [origin, dest] = yield make_copy();
       yield watcher.watch(origin, dest);
-      h.expect(watcher.workers).to.length(1);
+      h.expect(_.keys(watcher.workers)).to.length(1);
 
       h.expect(sync_data).to.have.property('op', 'sync');
       h.expect(sync_data).to.have.property('status', 'done');
@@ -59,7 +59,7 @@ describe("Azk sync, Watcher module", function() {
         [origin, dest] = yield make_copy();
 
         yield watcher.watch(origin, dest);
-        h.expect(watcher.workers).to.length(1);
+        h.expect(_.keys(watcher.workers)).to.length(1);
 
         var result = yield h.diff(origin, dest);
         h.expect(result).to.have.property('deviation', 0);
@@ -105,7 +105,7 @@ describe("Azk sync, Watcher module", function() {
 
     it("should remove a watcher", function() {
       return async(function* () {
-        h.expect(watcher.workers).to.length(1);
+        h.expect(_.keys(watcher.workers)).to.length(1);
 
         var data = yield defer((resolve) => {
           subscription = subscribe('sync.watcher.finish', (data) => {
@@ -114,7 +114,7 @@ describe("Azk sync, Watcher module", function() {
           watcher.unwatch(origin, dest);
         });
 
-        h.expect(watcher.workers).to.length(0);
+        h.expect(_.keys(watcher.workers)).to.length(0);
         h.expect(data).to.have.property('status', 'done');
       });
     });
@@ -130,7 +130,7 @@ describe("Azk sync, Watcher module", function() {
               resolve(msgs);
             }
           });
-          process.kill(watcher.workers[0].child.childData.pid);
+          process.kill(watcher.get_worker(origin, dest).child.childData.pid);
         });
 
         h.expect(data_respawn).to.include.something.that.deep.eql(
@@ -179,7 +179,7 @@ describe("Azk sync, Watcher module", function() {
 
       var promise = watcher.watch(origin, dest);
       yield h.expect(promise).to.be.rejected.and.eventually.have.property('code', 12);
-      h.expect(watcher.workers).to.length(0);
+      h.expect(_.keys(watcher.workers)).to.length(0);
 
       h.expect(msgs).to.include.something.that.deep.eql({ "op": "sync", "status": "fail" });
       h.expect(msgs).to.include.something.that.deep.eql({ "op": "finish", "status": "done" });
