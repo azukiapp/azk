@@ -12,11 +12,13 @@ It follows the naming conventions for Docker containers names. The only exceptio
 dev.azk.io_type.daemon_mid.892a5f73fa_sys.azkdemo_seq.1_uid.0bed3aa0c3
 ```
 
+Also, if you use `-` in your system's name, you must enclose it in quotes.
+
 ##### Examples:
 
 ```
 systems({
-  system-name: {
+  "system-name": {
 
   }
 })
