@@ -11,6 +11,7 @@ export class Worker {
   constructor(process) {
     this.process = process;
     this.process.on('message', (data) => {
+      process.title = "azk sync worker " + data.origin + " " + data.destination;
       this.watch(data.origin, data.destination, data.opts);
     });
 
@@ -110,7 +111,7 @@ export class Worker {
 // this process is being forked by azk itself
 //
 if (require.main === module) {
-  process.title = 'azk: sync worker';
+  process.title = 'azk sync worker';
   log.debug('[sync]', "sync worker spawned");
   new Worker(process);
 }

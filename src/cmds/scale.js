@@ -49,6 +49,7 @@ class Cmd extends InteractiveCmds {
   }
 
   _scale(system, instances = {}, opts = undefined) {
+    var flags    = {};
     var progress = (event) => {
       var type;
       var pull_progress = Helpers.newPullProgress(this);
@@ -71,12 +72,19 @@ class Cmd extends InteractiveCmds {
             this.ok([...keys].concat(type), event);
             break;
           case "sync":
+            flags.sync = flags.sync || {};
+            if (!flags.sync[event.system]) {
+              flags.sync[event.system] = true;
+              this.ok([...keys].concat(event.type), event);
+            }
+            log.debug({ log_label: "[scale]", data: event});
+            break;
           case "wait_port" :
           case "provision" :
             this.ok([...keys].concat(event.type), event);
             break;
           default:
-            log.debug(event);
+            log.debug({ log_label: "[scale]", data: event});
         }
       }
     };
