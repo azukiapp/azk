@@ -1,31 +1,37 @@
 {
-    "title": "azk Docs Gitbook",
-    "description": "Gitbook documentation for azk",
-    "plugins": [
-        "scrollablecode",
-        "jsbin",
-        "anchors",
-        "include",
-        "-mathjax",
-        "mixpanel"
-    ],
-    "pluginsConfig": {
-      "mixpanel": {
-        "token": "MIXPANEL_TOKEN"
+  "title": "azk Docs Gitbook",
+  "description": "Gitbook documentation for azk",
+  "version": "1.0.0",
+  "azkVersion": "0.13.0",
+  "releaseNotes": "http://......",
+  "plugins": [
+      "scrollablecode",
+      "jsbin",
+      "anchors",
+      "include",
+      "-mathjax",
+      "ga"
+  ],
+  "pluginsConfig": {
+    "ga": {
+      "token": "GA_UA_ID",
+      "configuration": {
+        "cookieDomain": "GA_COOKIE_DOMAIN"
       }
-    },
-    "links": {
-        "home": "http://azk.io",
-        "issues": "https://github.com/azukiapp/azk/issues",
-        "theme": "node_modules/gitbook-theme-clarity/lib",
-        "custom": {
-            "custom": "http://azukiapp.com"
-        },
-        "sharing": {
-            "google": false,
-            "facebook": null,
-            "twitter": null,
-            "all": false
-        }
     }
+  },
+  "links": {
+    "home": "http://azk.io",
+    "issues": "https://github.com/azukiapp/azk/issues",
+    "theme": "node_modules/gitbook-theme-clarity/lib",
+    "custom": {
+        "custom": "http://azukiapp.com"
+    },
+    "sharing": {
+      "google": false,
+      "facebook": null,
+      "twitter": null,
+      "all": false
+    }
+  }
 }
