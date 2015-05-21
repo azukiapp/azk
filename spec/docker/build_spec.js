@@ -1,6 +1,10 @@
-import { _, config, path } from 'azk';
+import { _, config, path, lazy_require } from 'azk';
 import h from 'spec/spec_helper';
 import { DockerBuildError } from 'azk/utils/errors';
+
+var l = lazy_require({
+  semver: 'semver',
+});
 
 describe("Azk docker module, image build @slow", function() {
   this.timeout(20000);
@@ -56,6 +60,14 @@ describe("Azk docker module, image build @slow", function() {
   });
 
   describe("with a invalids Dockerfile's", function () {
+    var docker_version = null;
+
+    before(() => {
+      return h.docker.version().then((versions) => {
+        docker_version = versions.Version;
+      });
+    });
+
     it("should raise error for a invalid image", function() {
       var events = [];
       return build('DockerfileInvalid')
@@ -67,9 +79,12 @@ describe("Azk docker module, image build @slow", function() {
           h.expect(events).to.be.length(1);
           h.expect(events[0].statusParsed).to.be.deep.equal({});
         })
-        .catch(function(rejection) {
-          // test for Docker 1.4
-          h.expect(rejection.translation_key).to.equal('docker_build_error.server_error');
+        .catch((rejection) => {
+          if (l.semver.cmp(docker_version, '>=', '1.6.0')) {
+            h.expect(rejection.translation_key).to.equal('docker_build_error.unknow_instrction_error');
+          } else {
+            h.expect(rejection.translation_key).to.equal('docker_build_error.server_error');
+          }
         });
     });
 
@@ -84,13 +99,14 @@ describe("Azk docker module, image build @slow", function() {
           h.expect(events).to.be.length(1);
           h.expect(events[0].statusParsed).to.be.deep.equal({});
         })
-        .catch(function(rejection) {
+        .catch((rejection) => {
           // test for Docker 1.4
           h.expect(rejection.translation_key).to.equal('docker_build_error.command_error');
         });
     });
 
     it("should raise error for not found from", function() {
+      this.timeout(50000);
       return h.expect(build('DockerfileFrom404')).to.be.rejectedWith(DockerBuildError, /not_found/);
     });
   });

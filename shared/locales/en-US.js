@@ -67,7 +67,8 @@ module.exports = {
 
     docker_build_error: {
       command_error: "  Error in building `%(dockerfile)s`:\n%(output)s\n",
-      server_error: "Internal error in build `%(dockerfile)s`: %(error)",
+      server_error: "Internal error in build `%(dockerfile)s`: %(error)s",
+      unknow_instrction_error: "Unknown instruction in build `%(dockerfile)s`: %(instruction)s",
       not_found   : "Can't find `%(from)s` image to build `%(dockerfile)s`",
       can_find_dockerfile: "Can't find `%(dockerfile)s` file",
       can_find_add_file_in_dockerfile: "Can't find `%(source)s` file to ADD in `%(dockerfile)s`",

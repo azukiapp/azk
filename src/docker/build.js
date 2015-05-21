@@ -132,14 +132,27 @@ export function build(docker, options) {
       } else {
         output += msg.error;
 
+        var capture = null;
+        var check_and_capture = (regex) => {
+          capture = msg.error.match(regex);
+          return capture;
+        };
+
+        var reject = (key, opts = {}) => {
+          var options = _.merge({ dockerfile, from, output }, opts);
+          done.reject(new DockerBuildError(key, options));
+        };
+
         if (msg.error.match(/image .* not found/)) {
-          done.reject(new DockerBuildError('not_found', { dockerfile, from: from }));
+          reject('not_found');
         } else if (msg.error.match(/returned a non-zero code/)) {
           output = output.replace(/^(.*)/gm, '    $1');
-          done.reject(new DockerBuildError('command_error', { dockerfile, output: output }));
+          reject('command_error', { output });
+        } else if (check_and_capture(/Unknown instruction: (.*)/)) {
+          reject('unknow_instrction_error', { instruction: capture[1] });
         } else {
           output = output.replace(/^(.*)/gm, '    $1');
-          done.reject(new DockerBuildError('unexpected_error', { dockerfile, output: output }));
+          reject('unexpected_error', { output });
         }
       }
     });
