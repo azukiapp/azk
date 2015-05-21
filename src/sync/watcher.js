@@ -1,4 +1,4 @@
-import { _, defer, log } from 'azk';
+import { _, path, defer, log } from 'azk';
 import { IPublisher } from 'azk/utils/postal';
 
 var forever = require('forever-monitor');
@@ -22,8 +22,7 @@ export class Watcher extends IPublisher {
       }
 
       // Save worker info
-      var worker = {origin, destination, count: 1, kill_not_sendend: true};
-      this.workers[id] = worker;
+      this.workers[id] = {origin, destination, count: 1};
 
       // Fork process with monitor
       var child = new (forever.Monitor)(`${__dirname}/worker.js`, {
@@ -34,7 +33,7 @@ export class Watcher extends IPublisher {
       });
 
       // Save work process monitor
-      worker.child = child;
+      this.workers[id].child = child;
 
       child.on('restart', () => {
         this.publish('restart', { op: 'restart', status: 'init' });
@@ -43,7 +42,7 @@ export class Watcher extends IPublisher {
       });
 
       child.on('exit:code', (code) => {
-        var level = worker.kill_not_sendend && code > 0 ? 'warn' : 'info';
+        var level = code !== null && code > 0 && code !== 130 ? 'warn' : 'info';
         log[level]('[sync] Sync process exited with code', code, { origin, destination });
       });
 
@@ -69,9 +68,9 @@ export class Watcher extends IPublisher {
   }
 
   unwatch(origin, destination) {
-    log.info('Removing watcher from folder', origin, 'to', destination);
+    log.info('[sync] Removing watcher from folder', origin, 'to', destination);
     var result = this._remove_worker(this.calculate_id(origin, destination));
-    log.debug('Current watchers:\n', this._workers);
+    log.debug('[sync] Current watchers: ' + _.keys(this.workers));
     this.publish('finish', { op: 'finish', status: 'done' });
     return result;
   }
@@ -92,22 +91,24 @@ export class Watcher extends IPublisher {
   }
 
   calculate_id(origin, destination) {
-    return JSON.stringify({ origin, destination });
+    return JSON.stringify({
+      origin: path.resolve(origin),
+      destination: path.resolve(destination)
+    });
   }
 
   _remove_worker(id) {
+    log.info('[sync] workers ' + _.keys(this.workers));
+    log.info('[sync] call to remove worker id ' + id);
     var worker = this.workers[id];
     if (worker) {
       if (--worker.count <= 0) {
-        worker.kill_not_sendend = false;
         worker.child.kill(true);
         delete this.workers[id];
       }
     } else {
       id = JSON.parse(id);
-      log.info('[sync] Trying to stop an unexisting watcher:');
-      log.info('[sync]   Host folder:' , id.origin);
-      log.info('[sync]   Guest folder:', id.destination);
+      log.info('[sync] Trying to stop an unexisting watcher:', id);
     }
     return true;
   }
