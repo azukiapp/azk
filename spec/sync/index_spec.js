@@ -3,7 +3,6 @@ import { Q, async, config, path, lazy_require } from 'azk';
 
 var lazy = lazy_require({
   Sync    : ['azk/sync'],
-  DirDiff : ['node-dir-diff', 'Dir_Diff'],
   VM      : ['azk/agent/vm'],
   Client  : ['azk/agent/client'],
   uuid    : 'node-uuid'
@@ -20,16 +19,11 @@ describe("Azk sync, main module", function() {
     ]);
   }
 
-  function diff(origin, dest) {
-    var dd = new lazy.DirDiff([origin, dest], 'full');
-    return Q.ninvoke(dd, "compare");
-  }
-
   it("should sync two folders", function() {
     return async(function* () {
       var [origin, dest] = yield make_copy();
       var code   = yield lazy.Sync.sync(origin, dest);
-      var result = yield diff(origin, dest);
+      var result = yield h.diff(origin, dest);
       h.expect(code).to.eql(0);
       h.expect(result).to.have.property('deviation', 0);
     });
@@ -42,8 +36,8 @@ describe("Azk sync, main module", function() {
       var code   = yield lazy.Sync.sync(origin, dest, { include });
 
       // Compare folders and files
-      var result_folder = yield diff(origin, dest);
-      var result_file   = yield diff(path.join(origin, include), path.join(dest, include));
+      var result_folder = yield h.diff(origin, dest);
+      var result_file   = yield h.diff(path.join(origin, include), path.join(dest, include));
 
       h.expect(code).to.eql(0);
       h.expect(result_file).to.have.property('deviation', 0);
@@ -58,8 +52,8 @@ describe("Azk sync, main module", function() {
       var code   = yield lazy.Sync.sync(origin, dest, { except });
 
       // Compare folders and subfolders
-      var result_folder    = yield diff(origin, dest);
-      var result_subfolder = yield diff(path.join(origin, "bar"), path.join(dest, "bar"));
+      var result_folder    = yield h.diff(origin, dest);
+      var result_subfolder = yield h.diff(path.join(origin, "bar"), path.join(dest, "bar"));
 
       h.expect(code).to.eql(0);
       h.expect(result_folder).to.have.property('deviation', 3);
@@ -74,8 +68,8 @@ describe("Azk sync, main module", function() {
       var code   = yield lazy.Sync.sync(origin, dest, { except_from });
 
       // Compare folders and subfolders
-      var result_folder    = yield diff(origin, dest);
-      var result_subfolder = yield diff(path.join(origin, "foo"), path.join(dest, "foo"));
+      var result_folder    = yield h.diff(origin, dest);
+      var result_subfolder = yield h.diff(path.join(origin, "foo"), path.join(dest, "foo"));
 
       h.expect(code).to.eql(0);
       h.expect(result_folder).to.have.property('deviation', 7);
@@ -93,7 +87,7 @@ describe("Azk sync, main module", function() {
     });
   });
 
-  h.describeRequireVm("with enabled vm", function() {
+  describe.skip("with enabled vm", function() {
     it("should sync two folders", function() {
       return async(function* () {
         var name = config("agent:vm:name");

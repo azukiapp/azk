@@ -26,10 +26,13 @@ export class Worker {
         return lazy.Sync.sync(origin, destination, opts);
       })
       .then(() => {
+        this._send('sync', 'done');
+      })
+      .then(() => {
         return this._start_watcher(origin, destination, opts);
       })
       .then(() => {
-        this._send('sync', 'done');
+        this._send('watch', 'ready');
       })
       .fail((err) => {
         log.error('[sync] fail', (err.stack ? err.stack : err.toString()));
@@ -108,5 +111,6 @@ export class Worker {
 //
 if (require.main === module) {
   process.title = 'azk: sync worker';
+  log.debug('[sync]', "sync worker spawned");
   new Worker(process);
 }

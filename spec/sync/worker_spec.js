@@ -3,13 +3,13 @@ import { _, path, lazy_require } from 'azk';
 import { Q, defer, async } from 'azk';
 
 var lazy = lazy_require({
-  Worker: ['azk/sync/worker'],
-  DirDiff      : ['node-dir-diff', 'Dir_Diff'],
+  Worker       : ['azk/sync/worker'],
   EventEmitter : ['events'],
   qfs          : 'q-io/fs'
 });
 
 describe("Azk sync, Worker module", function() {
+  var worker;
   var example_fixtures = h.fixture_path('sync/test_1/');
   var invalid_fixtures = path.join(h.fixture_path('sync/test_1/'), 'invalid');
 
@@ -20,11 +20,6 @@ describe("Azk sync, Worker module", function() {
     ]);
   }
 
-  function diff(origin, dest) {
-    var dd = new lazy.DirDiff([origin, dest], 'full');
-    return Q.ninvoke(dd, "compare");
-  }
-
   function create_worker() {
     class FakeProcess extends lazy.EventEmitter {
       send(...args) {
@@ -32,7 +27,8 @@ describe("Azk sync, Worker module", function() {
       }
     }
     var bus = new FakeProcess();
-    return [bus, new lazy.Worker(bus)];
+    worker  = new lazy.Worker(bus)
+    return bus;
   }
 
   function run_and_wait_msg(bus, filter, block = null) {
@@ -57,26 +53,26 @@ describe("Azk sync, Worker module", function() {
     });
   }
 
+  afterEach(() => worker.unwatch());
+
   describe("with a watch to sync a two folders", function() {
-    var origin, dest, bus, worker;
+    var origin, dest, bus;
     beforeEach(() => {
       return async(function* () {
         [origin, dest] = yield make_copy();
-        [bus, worker] = create_worker();
+        bus = create_worker();
 
-        var msg = yield run_and_wait_msg(bus, () => {
+        var msg = yield run_and_wait_msg(bus, "watch", () => {
           return bus.emit("message", { origin, destination: dest });
         });
 
-        h.expect(msg).to.have.property('op', 'sync');
-        h.expect(msg).to.have.property('status', 'done');
+        h.expect(msg).to.have.property('op', 'watch');
+        h.expect(msg).to.have.property('status', 'ready');
       });
     });
 
-    afterEach(() => worker.unwatch());
-
     it("should have done initial sync", function() {
-      var result = diff(origin, dest);
+      var result = h.diff(origin, dest);
       return h.expect(result).to.eventually.have.property('deviation', 0);
     });
 
@@ -93,7 +89,7 @@ describe("Azk sync, Worker module", function() {
         h.expect(msg).to.have.property('filepath', file);
         h.expect(msg).to.have.property('status', 'done');
 
-        var result = yield diff(origin, dest);
+        var result = yield h.diff(origin, dest);
         return h.expect(result).to.have.property('deviation', 0);
       });
     });
@@ -175,7 +171,7 @@ describe("Azk sync, Worker module", function() {
   it("should forward sync options", function() {
     return async(function* () {
       var [origin, dest]  = yield make_copy();
-      var bus  = create_worker()[0];
+      var bus  = create_worker();
       var opts = { except: ["foo/"] };
 
       var msg = yield run_and_wait_msg(bus, () => {
@@ -196,7 +192,7 @@ describe("Azk sync, Worker module", function() {
   it("should not override a worker", function() {
     return async(function* () {
       var [origin, dest]  = yield make_copy();
-      var bus  = create_worker()[0];
+      var bus  = create_worker();
       var opts = { except: ["foo/"] };
 
       var msg = yield run_and_wait_msg(bus, () => {
@@ -232,7 +228,7 @@ describe("Azk sync, Worker module", function() {
     return async(function* () {
       var origin = yield h.tmp_dir();
       var dest   = path.join(yield h.tmp_dir(), "foo", "bar");
-      var bus    = create_worker()[0];
+      var bus    = create_worker();
 
       var msg = yield run_and_wait_msg(bus, () => {
         return bus.emit("message", { origin, destination: dest });
@@ -249,7 +245,7 @@ describe("Azk sync, Worker module", function() {
     return async(function* () {
       var origin = invalid_fixtures;
       var dest   = yield h.tmp_dir();
-      var bus    = create_worker()[0];
+      var bus    = create_worker();
 
       var msg = yield run_and_wait_msg(bus, () => {
         return bus.emit("message", { origin, destination: dest });
