@@ -1,23 +1,24 @@
 require('source-map-support').install();
 
-import { Q, pp, config, t, _ } from 'azk';
+import { Q, pp, config, t, _, lazy_require } from 'azk';
 import { Client as AgentClient } from 'azk/agent/client';
 import Utils from 'azk/utils';
 
-var tmp   = require('tmp');
-var qfs   = require('q-io/fs');
-var touch = require('touch');
+var lazy = lazy_require({
+  MemoryStream: 'memorystream',
+  DirDiff     : ['node-dir-diff', 'Dir_Diff'],
+  tmp   : 'tmp',
+  qfs   : 'q-io/fs',
+  touch : 'touch',
+});
 
-// Chai extensions
 var chai = require('azk-dev/chai');
-
-import capture_io from 'azk/utils/capture_io';
-var MemoryStream  = require('memorystream');
-
 var Helpers = {
   pp: pp,
-  capture_io: capture_io,
-  expect : chai.expect,
+  expect: chai.expect,
+  get capture_io() {
+    return require('azk/utils/capture_io').capture_io;
+  },
 
   get no_required_agent() {
     return (_.contains(process.argv, '--no-required-agent') || process.env.AZK_NO_REQUIRED_AGENT);
@@ -30,27 +31,32 @@ var Helpers = {
   },
 
   tmp_dir(opts = { prefix: "azk-test-"}) {
-    return Q.nfcall(tmp.dir, opts).then((dir) => {
+    return Q.nfcall(lazy.tmp.dir, opts).then((dir) => {
       return Utils.resolve(dir);
     });
   },
 
   tmpFile(opts = { prefix: "azk-test-"}) {
-    return Q.nfcall(tmp.file, opts).spread((file) => {
+    return Q.nfcall(lazy.tmp.file, opts).spread((file) => {
       return Utils.resolve(file);
     });
   },
 
   touchSync(path) {
-    return touch.sync(path);
+    return lazy.touch.sync(path);
   },
 
   copyToTmp(origin) {
     return this.tmp_dir({ prefix: 'azk-test-'}).then((dir) => {
-      return qfs.copyTree(origin, dir).then(() => {
+      return lazy.qfs.copyTree(origin, dir).then(() => {
         return dir;
       });
     });
+  },
+
+  diff(origin, dest) {
+    var dd = new lazy.DirDiff([origin, dest], 'full');
+    return Q.ninvoke(dd, "compare");
   },
 
   fixture_path(...fixture) {
@@ -60,7 +66,7 @@ var Helpers = {
   },
 
   makeMemoryStream(...args) {
-    return new MemoryStream(...args);
+    return new lazy.MemoryStream(...args);
   },
 
   escapeRegExp(...args) {
