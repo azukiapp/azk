@@ -223,12 +223,8 @@ export class AgentStartError extends AzkError {
   constructor(error) {
     super('agent_start');
 
-    this.__error = error;
-    this.code    = AGENT_CODE_ERROR;
-  }
-
-  get error() {
-    return this.__error.stack || this.__error;
+    this.err_message = error.stack || error.toString();
+    this.code        = AGENT_CODE_ERROR;
   }
 }
 

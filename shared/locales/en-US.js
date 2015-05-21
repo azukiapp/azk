@@ -33,7 +33,7 @@ module.exports = {
     lost_internet_connection: "\nLost internet connection:\n%(output)s",
     connect_docker_unavailable: "Could not initialize balancer because docker was not available",
     agent_not_running: "azk agent is required but is not running (try `azk agent status`)",
-    agent_start: "azk agent start error: %(error)s",
+    agent_start: "azk agent start error: %(err_message)s",
     agent_stop:  "azk agent stop error (try `azk agent status`)",
     not_been_implemented: "This feature: `%(feature)s` has not been implemented yet",
     system_not_found: "System `%(system)s` not found in `%(manifest)s`",
@@ -554,7 +554,7 @@ module.exports = {
       },
     },
   },
-  
+
   tracking: {
     timeout: "Analytics tracker timed out."
   }
