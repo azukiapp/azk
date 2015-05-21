@@ -74,7 +74,7 @@ gulp.task('publish', function() {
     'package/brew/*.tar.gz',
     'package/public/!(fedora20)/**/*',
     'package/fedora20/**/*',
-  ]
+  ];
 
   var add_prefix = function(cond, prefix) {
     return gulpif(cond, rename(function (path) {
@@ -94,3 +94,18 @@ gulp.task('publish', function() {
     // print upload updates to console
     .pipe(awspublish.reporter());
 });
+
+// usefull to see execution timeline
+if (process.env.AZK_ENABLE_NJS_TRACE_PROFILER) {
+  var path = require('path');
+  var rel = path.relative(process.cwd(), __dirname);
+  var source_files = path.join(rel, 'lib/azk', '**', '*.js');
+  var source_files_specs = path.join(rel, 'lib/spec', '**', '*.js');
+
+  global.njstrace = null;
+  delete global.njstrace;
+
+  global.njstrace = require('njstrace').inject({
+    files: [source_files, source_files_specs]
+  });
+}

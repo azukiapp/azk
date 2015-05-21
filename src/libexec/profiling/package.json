@@ -1,0 +1,19 @@
+{
+  "name": "profiling",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^2.9.25",
+    "getmac": "^1.0.7",
+    "git-repo-info": "^1.1.1",
+    "glob": "^5.0.6",
+    "keen-js": "^3.2.4",
+    "os-name": "^1.0.3"
+  }
+}
