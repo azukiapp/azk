@@ -27,7 +27,7 @@ describe("Azk sync, Worker module", function() {
       }
     }
     var bus = new FakeProcess();
-    worker  = new lazy.Worker(bus)
+    worker  = new lazy.Worker(bus);
     return bus;
   }
 
