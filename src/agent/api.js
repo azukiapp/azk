@@ -1,8 +1,8 @@
 import { _, Q, defer, async, config, lazy_require } from 'azk';
 
 var lazy = lazy_require({
-  Router : ['azk/agent/cli_ws'],
-  qfs    : 'q-io/fs'
+  ApiWs : ['azk/agent/api_ws'],
+  qfs   : 'q-io/fs'
 });
 
 // Module
@@ -15,7 +15,6 @@ var Api = {
   get app() {
     if (!this.__app) {
       this.__app = require('express')();
-      require('express-ws')(this.__app);
     }
     return this.__app;
   },
@@ -31,30 +30,24 @@ var Api = {
     });
   },
 
-  cli_ws() {
-    // Init websocket CLI entry point
-    this.app.ws('/cli', function(ws) {
-      ws.on('message', function(req) {
-        lazy.Router.route(ws, JSON.parse(req));
-      });
-    });
-  },
-
   start() {
     return async(this, function* () {
+      // Mount entries points
+      this.api_ws = new lazy.ApiWs(this.app);
+      this.mount();
+
       // Listen in unix domain socket
       var socket = config('paths:api_socket');
       yield this._clearSocket(socket);
       yield this._listen(socket);
-
-      // Mount entries points
-      this.mount();
-      this.cli_ws();
     });
   },
 
   stop() {
-    return (this.server) ? Q.ninvoke(this.server, "close") : Q();
+    return Q.all([
+      (this.api_ws) ? this.api_ws.stop() : Q.resolve(),
+      (this.server) ? Q.ninvoke(this.server, "close") : Q.resolve(),
+    ]);
   },
 
   // Remove socket if exist
