@@ -49,11 +49,13 @@ Thanks to [pow](https://github.com/basecamp/pow/wiki/Troubleshooting#dns) for th
 
 This is a known problem, and it happens because of the way that files are "shared" between the virtual machine (VirtualBox) and the host (Mac). We made some great improvements in azk's 0.10 version, but this problem might still happen especially with applications that have a lot of files, like rails applications, for example.
 
-On Ruby on Rails applications, you can turn off debug mode to get more performance, just update config/environments/development.rb with:
+On Ruby on Rails applications specifically, you can turn off debug mode to get more performance. Just update config/environments/development.rb with:
 
 ```ruby
 config.assets.debug = false
 ```
+
+You can find more information regarding this setting [here](http://guides.rubyonrails.org/asset_pipeline.html#turning-debugging-off).
 
 #### There's no Internet available / I'm not connected to any network. `azk` starts but the browser shows I'm offline. How do I fix it?
 
