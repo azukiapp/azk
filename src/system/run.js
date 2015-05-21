@@ -176,7 +176,7 @@ var Run = {
 
           notify(_.merge({ type : "sync_start" }, notify_data));
 
-          return lazy.Client.watch(path.join(host_folder, '/'), sync_data.guest_folder, sync_data.options)
+          return lazy.Client.watch(host_folder, sync_data.guest_folder, sync_data.options)
             .then(() => {
               notify(_.merge({ type : "sync_done" }, notify_data));
             });
@@ -416,26 +416,40 @@ var Run = {
 
   _clean_sync_folder(system, host_folder) {
     return async(this, function* () {
+      var uid_gid;
+      if (config('agent:requires_vm')) {
+        uid_gid = `\$(id -u ${config('agent:vm:user')}):\$(id -g ${config('agent:vm:user')})`;
+      } else {
+        uid_gid = `${process.getuid()}:${process.getuid()}`;
+      }
+
       var mounted_sync_folders = '/sync_folders';
       var current_sync_folder = path.join(mounted_sync_folders, system.manifest.namespace, system.name, host_folder);
-      var cmds = {
-        // rm   : `rm -Rf ${current_sync_folder}`.split(' '),
-        mkdir: `mkdir -p ${current_sync_folder}`.split(' '),
-        chown: `chown -R ${process.getuid()}:${process.getuid()} ${mounted_sync_folders}`.split(' '),
-        opts: {
-          volumes: {},
-          interactive: false,
-        },
-      };
-      cmds.opts.volumes[mounted_sync_folders] = config('paths:sync_folders');
 
+      // Script to fix sync folder
+      var script = [
+        `mkdir -p ${current_sync_folder}`,
+        `chown -R ${uid_gid} ${mounted_sync_folders}`
+      ].join(" && ");
+
+      // Docker params
       var image_name = config('docker:image_default');
-      // var container  = yield lazy.docker.run(image_name, cmds.rm, cmds.opts);
-      // yield container.remove();
-      var container  = yield lazy.docker.run(image_name, cmds.mkdir, cmds.opts);
-      yield container.remove();
-      container      = yield lazy.docker.run(image_name, cmds.chown, cmds.opts);
-      var data       = yield container.inspect();
+      var cmd = ["/bin/bash", "-c", script];
+      var docker_opts = {
+        interactive: false,
+        docker: {
+          start: {
+            Binds: [
+              `${config('paths:sync_folders')}:${mounted_sync_folders}`,
+              "/etc/passwd:/etc/passwd"
+            ]
+          }
+        }
+      };
+
+      // Run container to fix path
+      var container = yield lazy.docker.run(image_name, cmd, docker_opts);
+      var data      = yield container.inspect();
       yield container.remove();
 
       return data.State.ExitCode;
