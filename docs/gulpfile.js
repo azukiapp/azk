@@ -52,9 +52,10 @@ gulp.task('replace-style.css-path-on-index', function(){
     .pipe(gulp.dest('./content/_book/'));
 });
 
-gulp.task('replace-mixpanel-token', function() {
+gulp.task('replace-ga-tokens', function() {
   return gulp.src(['./content/_book/**/*.html'])
-    .pipe(replace(/MIXPANEL_TOKEN/gm, process.env.MIXPANEL_TOKEN))
+    .pipe(replace(/GA_UA_ID/gm, process.env.GA_UA))
+    .pipe(replace(/GA_COOKIE_DOMAIN/gm, process.env.GA_COOKIE_DOMAIN))
     .pipe(gulp.dest('./content/_book'));
 });
 
@@ -118,7 +119,7 @@ gulp.task('build-gitbook', shell.task([
 ]));
 
 gulp.task('override-landingpage', function(callback){
-  gulp.src('./content-override/index.html')
+  return gulp.src('./content-override/index.html')
     .pipe(gulp.dest('./content/_book'));
 });
 
@@ -141,7 +142,6 @@ gulp.task('deploy-stage', function(callback) {
               'replace-font-path-pt-BR',
               'replace-font-path-en',
               'override-landingpage',
-              'replace-mixpanel-token',
               'publish-stage-gz',
               callback);
 });
