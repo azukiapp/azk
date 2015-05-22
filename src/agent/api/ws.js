@@ -1,5 +1,6 @@
 import { Q, lazy_require, log } from 'azk';
 
+module.change_code = 1;
 var lazy = lazy_require({
   Watcher: ['azk/sync/watcher'],
 });

@@ -6916,6 +6916,18 @@
         }
       }
     },
+    "hotswap": {
+      "version": "1.1.0",
+      "from": "hotswap@*",
+      "resolved": "https://registry.npmjs.org/hotswap/-/hotswap-1.1.0.tgz",
+      "dependencies": {
+        "async": {
+          "version": "1.0.0",
+          "from": "async@*",
+          "resolved": "https://registry.npmjs.org/async/-/async-1.0.0.tgz"
+        }
+      }
+    },
     "i18n-cli": {
       "version": "0.0.3",
       "from": "https://registry.npmjs.org/i18n-cli/-/i18n-cli-0.0.3.tgz",

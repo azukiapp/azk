@@ -102,6 +102,7 @@
     "gulp-awspublish": "^1.0.6",
     "gulp-if": "^1.2.5",
     "gulp-rename": "^1.2.2",
+    "hotswap": "^1.1.0",
     "tmp": "0.0.23"
   }
 }
