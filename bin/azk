@@ -60,6 +60,7 @@ make_data_folders() {
     "$AZK_DATA_PATH/nvm"
     "$AZK_DATA_PATH/logs"
     "$AZK_DATA_PATH/persistent_folders"
+    "$AZK_DATA_PATH/sync_folders"
   )
 
   for dir in "${data_folders[@]}"; do

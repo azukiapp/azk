@@ -68,6 +68,9 @@ class Cmd extends InteractiveCmds {
               lazy.docker.getContainer(container).stop({ t: 5000 }).fail(reject);
             });
             return true;
+          } else if (key === "?") {
+            this.ok("show help");
+            return true;
           }
           return false;
         };

@@ -1,11 +1,12 @@
-import { _, t, Q, async, defer, config, lazy_require, log, isBlank } from 'azk';
-import { ImageNotAvailable, SystemRunError, RunCommandError } from 'azk/utils/errors';
+import { _, t, Q, async, defer, config, lazy_require, log, isBlank, path } from 'azk';
+import { ImageNotAvailable, SystemRunError, RunCommandError, NotBeenImplementedError } from 'azk/utils/errors';
 import { Balancer } from 'azk/system/balancer';
 import net from 'azk/utils/net';
 
 var lazy = lazy_require({
   MemoryStream: 'memorystream',
-  docker: ['azk/docker', 'default']
+  docker      : ['azk/docker', 'default'],
+  Client      : ['azk/agent/client'],
 });
 
 var Run = {
@@ -40,6 +41,7 @@ var Run = {
         options.stdout.on('data', (data) => {
           output += data.toString();
         });
+        options.silent_sync = true;
       } else {
         output = t("system.seelog");
       }
@@ -61,6 +63,9 @@ var Run = {
         sequencies: yield this._getSequencies(system)
       });
 
+      // Sync folders if set in mounts section at Azkfile.js
+      yield system.runWatch(false, options.silent_sync);
+
       // Envs
       var deps_envs = yield system.checkDependsAndReturnEnvs(options, false);
       options.envs  = _.merge(deps_envs, options.envs || {});
@@ -70,8 +75,10 @@ var Run = {
       var container  = yield lazy.docker.run(system.image.name, command, docker_opt);
       var data       = yield container.inspect();
 
-      // Remove before run
+      // Remove after run
       if (options.remove) { yield container.remove(); }
+
+      yield system.stopWatching();
 
       return {
         code: data.State.ExitCode,
@@ -91,6 +98,9 @@ var Run = {
 
       // Check provision
       yield system.runProvision(options);
+
+      // Sync folders if set in mounts section at Azkfile.js
+      yield system.runWatch(true);
 
       options = _.defaults(options, {
         sequencies: yield this._getSequencies(system),
@@ -130,6 +140,67 @@ var Run = {
     });
   },
 
+  runWatch(system, daemon = true, silent = false) {
+    return async(this, function* (notify) {
+      if (_.isEmpty(system.syncs)) {
+        return true;
+      }
+
+      if (!silent) {
+        notify({ type : "sync", system : system.name });
+      }
+
+      return yield Q.all(_.map(system.syncs || {}, (sync_data, host_folder) => {
+        return async(this, function* (notify) {
+          if (daemon && sync_data.options.daemon === false ||
+             !daemon && sync_data.options.shell !== true) {
+            return Q.resolve();
+          }
+
+          if (config('agent:requires_vm')) {
+            sync_data.options = _.defaults(sync_data.options, { use_vm: true, ssh: lazy.Client.ssh_opts() });
+          }
+
+          var clean_sync_folder = yield this._clean_sync_folder(system, host_folder);
+          if (clean_sync_folder !== 0) {
+            // TODO: throw proper error
+            throw new NotBeenImplementedError('SyncError');
+          }
+
+          var notify_data = {
+            system      : system.name,
+            host_folder : host_folder,
+            guest_folder: sync_data.guest_folder,
+            options     : sync_data.options
+          };
+
+          notify(_.merge({ type : "sync_start" }, notify_data));
+
+          return lazy.Client.watch(host_folder, sync_data.guest_folder, sync_data.options)
+            .then(() => {
+              notify(_.merge({ type : "sync_done" }, notify_data));
+            });
+        });
+      }));
+    });
+  },
+
+  stopWatching(system) {
+    return async(this, function* (notify) {
+      return yield Q.all(_.map(system.syncs || {}, (sync_data, host_folder) => {
+        return lazy.Client.unwatch(path.join(host_folder, '/'), sync_data.guest_folder)
+          .then(() => {
+            notify({
+              type        : "unwatch",
+              system      : system.name,
+              host_folder : host_folder,
+              guest_folder: sync_data.guest_folder
+            });
+          });
+      }));
+    });
+  },
+
   stop(system, instances, options = {}) {
     options = _.defaults(options, {
       kill: false,
@@ -161,6 +232,8 @@ var Run = {
         if (options.remove) {
           yield container.remove();
         }
+
+        yield system.stopWatching();
       }
 
       return true;
@@ -338,6 +411,48 @@ var Run = {
       });
 
       return _.sortBy(instances, (instance) => { return instance.Annotations.azk.seq; });
+    });
+  },
+
+  _clean_sync_folder(system, host_folder) {
+    return async(this, function* () {
+      var uid_gid;
+      if (config('agent:requires_vm')) {
+        uid_gid = `\$(id -u ${config('agent:vm:user')}):\$(id -g ${config('agent:vm:user')})`;
+      } else {
+        uid_gid = `${process.getuid()}:${process.getuid()}`;
+      }
+
+      var mounted_sync_folders = '/sync_folders';
+      var current_sync_folder = path.join(mounted_sync_folders, system.manifest.namespace, system.name, host_folder);
+
+      // Script to fix sync folder
+      var script = [
+        `mkdir -p ${current_sync_folder}`,
+        `chown -R ${uid_gid} ${mounted_sync_folders}`
+      ].join(" && ");
+
+      // Docker params
+      var image_name = config('docker:image_default');
+      var cmd = ["/bin/bash", "-c", script];
+      var docker_opts = {
+        interactive: false,
+        docker: {
+          start: {
+            Binds: [
+              `${config('paths:sync_folders')}:${mounted_sync_folders}`,
+              "/etc/passwd:/etc/passwd"
+            ]
+          }
+        }
+      };
+
+      // Run container to fix path
+      var container = yield lazy.docker.run(image_name, cmd, docker_opts);
+      var data      = yield container.inspect();
+      yield container.remove();
+
+      return data.State.ExitCode;
     });
   },
 

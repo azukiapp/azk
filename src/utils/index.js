@@ -3,7 +3,6 @@ var crypto = require('crypto');
 var Q      = require('q');
 var _      = require('lodash');
 var fs     = require('fs');
-var zlib   = require('zlib');
 
 var Utils = {
   __esModule: true,
@@ -157,8 +156,13 @@ var Utils = {
         var input  = fs.createReadStream(origin);
         var output = fs.createWriteStream(target);
 
-        output.on("close", () => done.resolve());
-        input.pipe(zlib.createGunzip()).pipe(output);
+        var unzip = require('zlib').createGunzip();
+        unzip.on('error', function (err) {
+          done.reject(err);
+        });
+        output.on("close", done.resolve);
+
+        input.pipe(unzip).pipe(output);
       } catch (err) {
         done.reject(err);
       }

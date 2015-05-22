@@ -223,8 +223,11 @@ function config_disks(name, boot, data) {
 
   return async(function* () {
     if (!(yield qfs.exists(data))) {
-      var file = data + ".tmp";
-      yield Utils.unzip(config("agent:vm:blank_disk"), file);
+      var file   = data + ".tmp";
+      var origin = config("agent:vm:blank_disk");
+      yield Utils.unzip(origin, file).catch((err) => {
+        throw new Error('Invalid disk file ' + origin + ', err: ' + err);
+      });
       yield hdds.clonehd(file, data);
     }
 

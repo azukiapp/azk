@@ -4,12 +4,15 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## dev
+
 * Bug
   * [cli] Fixing `--mount` option of `azk shell` command to comply with Docker's pattern (`local_folder:remote_folder`)
+  * [Docker] Fixing parse invalid instructions in build a Dockerfile, #391
   * [Tracking] Fixing timeout message when tracking an event;
 
 * Enhancements
   * [Test] Adding to flag `--no-required-agent` to disable required `Agent` before tests.
+  * [File sharing] Adding support to file sync instead of VirtualBox shared folders.
 
 ## v0.12.1 - (2015-25-04)
 

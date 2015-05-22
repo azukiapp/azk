@@ -1,17 +1,27 @@
-import { _, Q, defer, async, config } from 'azk';
+import { _, Q, defer, async, config, lazy_require } from 'azk';
 
-// Express load and init
-var qfs     = require('q-io/fs');
-var express = require('express');
-var app = express();
+var lazy = lazy_require({
+  ApiWs : ['azk/agent/api_ws'],
+  qfs   : 'q-io/fs'
+});
 
 // Module
 var Api = {
   server: null,
 
+  wss: null,
+
+  // Express load and init
+  get app() {
+    if (!this.__app) {
+      this.__app = require('express')();
+    }
+    return this.__app;
+  },
+
   mount() {
     // Return configs from set by Configure
-    app.get('/configs', (req, res) => {
+    this.app.get('/configs', (req, res) => {
       var keys = config('agent:config_keys');
       res.json(_.reduce(keys, (acc, key) => {
         acc[key] = config(key);
@@ -23,6 +33,7 @@ var Api = {
   start() {
     return async(this, function* () {
       // Mount entries points
+      this.api_ws = new lazy.ApiWs(this.app);
       this.mount();
 
       // Listen in unix domain socket
@@ -33,27 +44,30 @@ var Api = {
   },
 
   stop() {
-    return (this.server) ? Q.ninvoke(this.server, "close") : Q();
+    return Q.all([
+      (this.api_ws) ? this.api_ws.stop() : Q.resolve(),
+      (this.server) ? Q.ninvoke(this.server, "close") : Q.resolve(),
+    ]);
   },
 
   // Remove socket if exist
   _clearSocket(socket) {
-    return qfs
+    return lazy.qfs
       .exists(socket)
       .then((exist) => {
         if (exist) {
-          return qfs.remove(socket);
+          return lazy.qfs.remove(socket);
         }
       });
   },
 
   _listen(socket) {
     return defer((resolve, reject) => {
-      this.server = app.listen(socket, (err) => {
+      this.server = this.app.listen(socket, (err) => {
         (err) ? reject(err) : resolve();
       });
     });
-  }
+  },
 };
 
 export { Api };

@@ -123,11 +123,11 @@ var Helpers = {
           if (context === "stderr") {
             break;
           } else {
-            log.debug(event);
+            log.debug({ log_label: "[vm_progress] [ssh]", data: event});
           }
           break;
         default:
-          log.debug(event);
+          log.debug({ log_label: "[vm_progress]", data: event});
       }
     };
   },
