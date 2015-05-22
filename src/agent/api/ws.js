@@ -1,6 +1,13 @@
 import { Q, lazy_require, log } from 'azk';
 
+// Hotswap configure
 module.change_code = 1;
+if (!module.cache) { module.cache = {}; }
+module.change_code = function(oldmod, newmod) {
+  newmod.cache = oldmod.cache;
+  newmod.cache.reload = true;
+};
+
 var lazy = lazy_require({
   Watcher: ['azk/sync/watcher'],
 });
@@ -28,17 +35,21 @@ export class ApiWs {
   }
 
   stop() {
-    Controller.rsync_watcher.close();
+    if (!module.cache.reload) {
+      Controller.rsync_watcher.close();
+    } else {
+      delete module.cache.reload;
+    }
     return Q.resolve();
   }
 }
 
 var Controller = {
   get rsync_watcher() {
-    if (!this.__rsync_watcher) {
-      this.__rsync_watcher = new lazy.Watcher();
+    if (!module.cache.rsync_watcher) {
+      module.cache.rsync_watcher = new lazy.Watcher();
     }
-    return this.__rsync_watcher;
+    return module.cache.rsync_watcher;
   },
 
   watch: function(ws, data, req_id) {
