@@ -12,6 +12,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 * Enhancements
   * [Test] Adding to flag `--no-required-agent` to disable required `Agent` before tests.
+  * [File sharing] Adding support to file sync instead of VirtualBox shared folders.
 
 ## v0.12.1 - (2015-25-04)
 
