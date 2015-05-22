@@ -6,10 +6,10 @@ import Utils from 'azk/utils';
 
 var lazy = lazy_require({
   MemoryStream: 'memorystream',
-  DirDiff     : ['node-dir-diff', 'Dir_Diff'],
-  tmp   : 'tmp',
-  qfs   : 'q-io/fs',
-  touch : 'touch',
+  dirdiff : 'dirdiff',
+  tmp     : 'tmp',
+  qfs     : 'q-io/fs',
+  touch   : 'touch',
 });
 
 var chai = require('azk-dev/chai');
@@ -55,8 +55,11 @@ var Helpers = {
   },
 
   diff(origin, dest) {
-    var dd = new lazy.DirDiff([origin, dest], 'full');
-    return Q.ninvoke(dd, "compare");
+    return Q.nfcall(lazy.dirdiff, origin, dest, { fileContents: true })
+      .then((diffs) => {
+        diffs.deviation = diffs.length;
+        return diffs;
+      });
   },
 
   fixture_path(...fixture) {

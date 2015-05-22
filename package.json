@@ -95,13 +95,13 @@
     "azk-dev": "0.0.15",
     "babel": "^5.1.9",
     "concurrent-transform": "^1.0.0",
+    "dirdiff": "0.0.1",
     "dotenv": "^1.1.0",
     "fixture-stdout": "^0.2.1",
     "gulp": "^3.8.11",
     "gulp-awspublish": "^1.0.6",
     "gulp-if": "^1.2.5",
     "gulp-rename": "^1.2.2",
-    "node-dir-diff": "bingomanatee/node-dir-diff",
     "tmp": "0.0.23"
   }
 }
