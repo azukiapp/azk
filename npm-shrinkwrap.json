@@ -3920,6 +3920,11 @@
       "from": "https://registry.npmjs.org/chai-as-promised/-/chai-as-promised-4.3.0.tgz",
       "resolved": "https://registry.npmjs.org/chai-as-promised/-/chai-as-promised-4.3.0.tgz"
     },
+    "chai-subset": {
+      "version": "1.0.0",
+      "from": "chai-subset@*",
+      "resolved": "https://registry.npmjs.org/chai-subset/-/chai-subset-1.0.0.tgz"
+    },
     "chai-things": {
       "version": "0.2.0",
       "from": "https://registry.npmjs.org/chai-things/-/chai-things-0.2.0.tgz",
