@@ -22,6 +22,7 @@ export function cli(args, cwd, ui = UI) {
       .route('/doctor')
       .route('/init')
       .route('/vm')
+      .route('/info')
       .route('/config')
       .route('/version');
 

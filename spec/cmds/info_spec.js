@@ -1,18 +1,27 @@
 import h from 'spec/spec_helper';
+import { Cli } from 'azk/cli';
 import { config } from 'azk';
-import { init } from 'azk/cmds/info';
 import { ManifestRequiredError } from 'azk/utils/errors';
 
-describe("Azk command info, run in an", function() {
+describe('Azk cli, info controller, run in an', function() {
   var outputs = [];
-  var UI  = h.mockUI(beforeEach, outputs);
-  var cmd = init(UI);
+  var ui      = h.mockUI(beforeEach, outputs);
+
+  var cli_options = {};
+  var cli = new Cli(cli_options)
+    .route('/info');
+
+  var doc_opts    = { exit: false };
+  var run_options = { ui: ui, cwd: __dirname };
 
   describe("invalid SoS dir", function() {
     it("should return error if not have manifest", function() {
       return h.tmp_dir().then((dir) => {
-        cmd.cwd = dir;
-        return h.expect(cmd.run()).to.rejectedWith(ManifestRequiredError);
+        doc_opts.argv   = ['info'];
+        run_options.cwd = dir;
+        var options = cli.router.cleanArgs(cli.docopt(doc_opts));
+        h.expect(options).to.have.property('info', true);
+        return h.expect(cli.run(doc_opts, run_options)).to.rejectedWith(ManifestRequiredError);
       });
     });
   });
@@ -27,9 +36,29 @@ describe("Azk command info, run in an", function() {
       });
     });
 
+    it("should show systems information no colored", function() {
+      doc_opts.argv   = ['info', '--no-color'];
+      run_options.cwd = manifest.manifestPath;
+      var options = cli.router.cleanArgs(cli.docopt(doc_opts));
+      return cli.run(doc_opts, run_options).then((code) => {
+        h.expect(code).to.equal(0);
+        h.expect(options).to.have.property('info', true);
+        h.expect(options).to.have.property('no-color', true);
+        h.expect(outputs[0]).to.match(/^manifest/);
+      });
+    });
+
     it("should show systems information", function() {
-      cmd.cwd = manifest.manifestPath;
-      return cmd.run().then(() => {
+      doc_opts.argv   = ['info'];
+      run_options.cwd = manifest.manifestPath;
+      var options = cli.router.cleanArgs(cli.docopt(doc_opts));
+      h.expect(options).to.have.property('info', true);
+      return cli.run(doc_opts, run_options).then((code) => {
+        h.expect(code).to.equal(0);
+
+        var rx_color = /^\u001b\[32mmanifest/;
+        h.expect(outputs[0]).to.match(rx_color);
+
         var rx_manifest = RegExp("manifest:.*" + h.escapeRegExp(manifest.file));
         h.expect(outputs[0]).to.match(rx_manifest);
 
