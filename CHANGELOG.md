@@ -12,6 +12,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Code] No more direct call to Q or any other Promise lib, only by `utils/promises` #386;
   * [Code] Removed `progress()` Promises helper. Included postal: subscribe and publish functions #385;
   * [Code] Removing `async`, `defer`, `publish`, `subscribe` and `asyncUnsubscribe` from `azk` module;
+  * [Cli] Replacing `cli` to [`cli-router`](https://github.com/azukiapp/cli-router), #382 #418;
 
 ## v0.13.1 - (2015-30-05)
 
