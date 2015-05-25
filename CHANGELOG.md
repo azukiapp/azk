@@ -11,6 +11,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [cli] Fixing `--mount` option of `azk shell` command to comply with Docker's pattern (`local_folder:remote_folder`);
   * [Docker] Fixing parse invalid instructions in build a Dockerfile, #391;
   * [Tracking] Fixing timeout message when tracking an event;
+  * [Imagens] Fixing registry download error #407
 
 * Enhancements
   * [Test] Adding flag `--no-required-agent` to disable required `Agent` before tests;
