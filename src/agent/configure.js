@@ -57,6 +57,8 @@ export class Configure extends UIProxy {
         yield this._checkAzkVersion();
         yield lazy.Migrations.run(this);
 
+        yield this._checkRsyncVersion();
+
         var dns_key = 'agent:dns:port';
         var balancer_key = 'agent:balancer:port';
 
@@ -168,7 +170,7 @@ export class Configure extends UIProxy {
 
   _checkRsyncVersion() {
     return async(this, function* () {
-      var minRsyncVersion = '2.6.9';
+      var minRsyncVersion = (process.env.RSYNC_VERSION || '2.6.9');
       var currentRsyncVersion = yield lazy.Sync.version();
       var validRsyncVersion = semver.gte(currentRsyncVersion, minRsyncVersion);
       if ( !validRsyncVersion ) {

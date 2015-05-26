@@ -20,8 +20,6 @@ LICENSE="Apache 2.0"
 VENDOR="Azuki (http://azukiapp.com)"
 MAINTAINER="Everton Ribeiro <everton@azukiapp.com>"
 
-RSYNC_MIN_VERSION="2.6.9"
-
 source $AZK_ROOT_PATH/.dependencies
 
 usage() {
@@ -55,7 +53,7 @@ azk_shell() {
       fpm_extra_options=" \
         --depends \"docker-io\" \
         --depends \"libnss-resolver >= ${LIBNSS_RESOLVER_VERSION}\" \
-        --depends \"rsync >= ${RSYNC_MIN_VERSION}\" \
+        --depends \"rsync >= ${RSYNC_VERSION}\" \
         --rpm-use-file-permissions \
         --rpm-user root --rpm-group root \
       "
@@ -64,7 +62,7 @@ azk_shell() {
       fpm_extra_options=" \
         --depends \"lxc-docker\" \
         --depends \"libnss-resolver (>= ${LIBNSS_RESOLVER_VERSION})\" \
-        --depends \"rsync (>= ${RSYNC_MIN_VERSION})\" \
+        --depends \"rsync (>= ${RSYNC_VERSION})\" \
         --deb-user root --deb-group root \
       "
       ;;
