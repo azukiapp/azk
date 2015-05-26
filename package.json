@@ -1,6 +1,6 @@
 {
   "name": "azk",
-  "version": "0.13.0-devel",
+  "version": "0.13.0",
   "description": "Orchestrate development environments with agility and automation",
   "main": "index.js",
   "scripts": {
