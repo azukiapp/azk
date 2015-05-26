@@ -34,5 +34,4 @@ describe('Azk cli, doctor controller', function() {
       h.expect(outputs[0]).to.match(RegExp(`Agent.*\:.*up`));
     });
   });
-
 });

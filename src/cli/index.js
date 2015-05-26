@@ -21,6 +21,7 @@ export function cli(args, cwd, ui = UI) {
       .route('/docker')
       .route('/doctor')
       .route('/init')
+      .route('/logs')
       .route('/vm')
       .route('/info')
       .route('/config')

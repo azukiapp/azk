@@ -7,21 +7,24 @@ Usage:
   azk docker [-q -l -h] [-v]... [-- <docker-options>...]
   azk info [--no-color -q -l -h] [-v]...
   azk init [<path>] [--filename --force -q -l -h] [-v]...
+  azk logs [<system>] [<instances>] [-q -f -n --no-timestamps]
   azk stop [<system>]  [-q -l -h] [-v]...
   azk start [<system>] [--reprovision --rebuild --open] [-q -l -h] [-v]...
   azk scale [<system>] [<to>] [-q -l -h] [-v]...
-  azk vm (ssh|start|status|installed|stop|remove) [-q -l -h -f] [-v]... [-- <ssh-options>...]
+  azk vm (ssh|start|status|installed|stop|remove) [-q -l -h -F] [-v]... [-- <ssh-options>...]
   azk [help | -h | --help]
   azk [version | --version]
 
 Options:
-  -h, --help     Show this screen.
-  --version      Show version.
-  -v, --verbose  Sets the level of detail - multiple supported (-vv == --verbose 2) [default: 0].
-  -l, --log      Sets a log level.
-  -f, --force    Force mode.
-  -q, --quiet    Never prompt [default: false].
-
+  -h, --help            Show this screen.
+  --version             Show version.
+  -v, --verbose         Sets the level of detail - multiple supported (-vv == --verbose 2) [default: 0].
+  -l, --log             Sets a log level.
+  -F, --force           Force mode.
+  -q, --quiet           Never prompt [default: false].
+  -n, --lines=<n>       Output the specified number of lines at the end of logs.
+  -f, --tail, --follow  Follow log output.
+  --no-timestamps       Hide timestamps.
 
 commands:
   agent    Controls azk agent
