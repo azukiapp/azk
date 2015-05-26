@@ -50,6 +50,7 @@ module.exports = {
     invalid_value_error: "Invalid value: %(value)s in option %(option)s",
     image_not_exist: "Image from '%(image)s' was not found",
     provision_not_found: "Could not find '%(image)s' image",
+    rsync_invalid_version_format: "Invalid rsync version format: %(rsync_version)s",
     os_not_supported: "System not supported (see http://azk.io)",
     run_timeout_error: [
       "[timeout] `azk` has timed out on `%(system)s` system.",
@@ -98,6 +99,12 @@ module.exports = {
           "Check if docker service is running.",
           "Also check if you have write permission to socket: '%(socket)s'",
         ].join('\n'),
+        check_rsync_version_error: [
+          'Checking rsync version:',
+          'Detected:    %(current_version)s',
+          'Required: >= %(min_version)s',
+          'Please update rsync before continue.'
+          ].join('\n'),
       }
     }
   },
@@ -232,6 +239,8 @@ module.exports = {
     ]).join('\n'),
     check_version: 'Checking version...',
     latest_azk_version: 'azk %(current_version)s detected',
+    current_rsync_version: 'rsync %(current_version)s detected',
+    github_azk_version_error: 'Failed to access Github to get azk latest version number',
     check_version_no_internet: 'Checking version: there is no internet connection to check azk version.',
     check_version_error: 'Checking version: %(error_message)s',
     clean_containers: "Clearing %(count)d lost containers",

@@ -19,6 +19,13 @@ describe("Azk sync, main module", function() {
     ]);
   }
 
+  it("should get rsync version", function() {
+    return async(function* () {
+      var version = yield lazy.Sync.version();
+      h.expect(version).to.match(/\d+.\d+.\d+/);
+    });
+  });
+
   it("should sync two folders", function() {
     return async(function* () {
       var [origin, dest] = yield make_copy();

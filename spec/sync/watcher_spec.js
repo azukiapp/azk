@@ -5,7 +5,9 @@ import { subscribe } from 'azk/utils/postal';
 
 var lazy = lazy_require({
   Watcher: ['azk/sync/watcher'],
-  qfs    : 'q-io/fs'
+  Sync   : ['azk/sync'],
+  qfs    : 'q-io/fs',
+  semver : 'semver'
 });
 
 describe("Azk sync, Watcher module", function() {
@@ -177,8 +179,15 @@ describe("Azk sync, Watcher module", function() {
         msgs.push(data);
       });
 
+      var rsync_version = yield lazy.Sync.version();
       var promise = watcher.watch(origin, dest);
-      yield h.expect(promise).to.be.rejected.and.eventually.have.property('code', 12);
+
+      if (lazy.semver.cmp(rsync_version, '>=', '3.1.0')) {
+        yield h.expect(promise).to.be.rejected.and.eventually.have.property('code', 3);
+      } else {
+        yield h.expect(promise).to.be.rejected.and.eventually.have.property('code', 12);
+      }
+
       h.expect(_.keys(watcher.workers)).to.length(0);
 
       h.expect(msgs).to.include.something.that.deep.eql({ "op": "sync", "status": "fail" });
