@@ -9,7 +9,7 @@ describe("Azk docker module, run method @slow", function() {
 
   var stdin, outputs = { };
   var mocks = h.mockOutputs(beforeEach, outputs, function() {
-    stdin  = h.makeMemoryStream();
+    stdin   = h.makeMemoryStream();
     stdin.setRawMode = function() { };
   });
 

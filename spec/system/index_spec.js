@@ -105,7 +105,12 @@ describe("Azk system class, main set", function() {
 
       it("should return sync volumes", function() {
         var system       = manifest.system("example-sync");
-        var share_folder = path.join(config('agent:vm:mount_point'), manifest.cwd);
+        var share_folder;
+        if (config('agent:requires_vm')) {
+          share_folder = path.join(config('agent:vm:mount_point'), manifest.cwd);
+        } else {
+          share_folder = manifest.cwd;
+        }
         var sync_folder  = path.join(
           config("paths:sync_folders"),
           manifest.namespace, system.name, manifest.cwd

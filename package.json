@@ -94,6 +94,7 @@
   "devDependencies": {
     "azk-dev": "0.0.15",
     "babel": "^5.1.9",
+    "chai-subset": "^1.0.0",
     "concurrent-transform": "^1.0.0",
     "dirdiff": "0.0.1",
     "dotenv": "^1.1.0",
@@ -102,6 +103,7 @@
     "gulp-awspublish": "^1.0.6",
     "gulp-if": "^1.2.5",
     "gulp-rename": "^1.2.2",
+    "hotswap": "^1.1.0",
     "tmp": "0.0.23"
   }
 }

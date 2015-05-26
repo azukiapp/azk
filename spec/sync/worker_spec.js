@@ -3,9 +3,11 @@ import { _, path, lazy_require } from 'azk';
 import { Q, defer, async } from 'azk';
 
 var lazy = lazy_require({
+  Sync         : ['azk/sync'],
   Worker       : ['azk/sync/worker'],
   EventEmitter : ['events'],
-  qfs          : 'q-io/fs'
+  qfs          : 'q-io/fs',
+  semver       : 'semver'
 });
 
 describe("Azk sync, Worker module", function() {
@@ -229,6 +231,7 @@ describe("Azk sync, Worker module", function() {
       var origin = yield h.tmp_dir();
       var dest   = path.join(yield h.tmp_dir(), "foo", "bar");
       var bus    = create_worker();
+      var rsync_version = yield lazy.Sync.version();
 
       var msg = yield run_and_wait_msg(bus, () => {
         return bus.emit("message", { origin, destination: dest });
@@ -236,8 +239,14 @@ describe("Azk sync, Worker module", function() {
 
       h.expect(msg).to.have.property('op', 'sync');
       h.expect(msg).to.have.property('status', 'fail');
-      h.expect(msg).to.have.deep.property('err.code', 12);
-      h.expect(msg).to.have.deep.property('err.err').and.match(/Error: rsync.*12/);
+
+      if (lazy.semver.cmp(rsync_version, '>=', '3.1.0')) {
+        h.expect(msg).to.have.deep.property('err.code', 3);
+        h.expect(msg).to.have.deep.property('err.err').and.match(/Error: rsync.*3/);
+      } else {
+        h.expect(msg).to.have.deep.property('err.code', 12);
+        h.expect(msg).to.have.deep.property('err.err').and.match(/Error: rsync.*12/);
+      }
     });
   });
 

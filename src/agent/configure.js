@@ -16,6 +16,7 @@ var lazy = lazy_require({
   Migrations : ['azk/agent/migrations'],
   exec       : ['child_process'],
   Netmask    : ['netmask'],
+  Sync       : ['azk/sync'],
 });
 
 var ports_tabs = {
@@ -56,6 +57,8 @@ export class Configure extends UIProxy {
         yield this._checkAzkVersion();
         yield lazy.Migrations.run(this);
 
+        yield this._checkRsyncVersion();
+
         var dns_key = 'agent:dns:port';
         var balancer_key = 'agent:balancer:port';
 
@@ -87,6 +90,8 @@ export class Configure extends UIProxy {
     return async(this, function* () {
       yield this._checkAzkVersion();
       yield lazy.Migrations.run(this);
+
+      yield this._checkRsyncVersion();
 
       var ports = {
         dns: config('agent:dns:port'),
@@ -132,6 +137,10 @@ export class Configure extends UIProxy {
         var [response, body] = yield Q.ninvoke(request, 'get', config('urls:github:api:tags_url'), options);
         var statusCode = response.statusCode;
 
+        if (statusCode !== 200) {
+          throw Error(t('configure.github_azk_version_error'));
+        }
+
         var tagNameGithub = body[0].name;
         var tagNameGithubParsed = semver.clean(tagNameGithub);
         var newAzkVersionExists = semver.lt(Azk.version, tagNameGithubParsed);
@@ -155,6 +164,21 @@ export class Configure extends UIProxy {
         });
       }
 
+      return {};
+    });
+  }
+
+  _checkRsyncVersion() {
+    return async(this, function* () {
+      var minRsyncVersion = (process.env.RSYNC_MIN_VERSION || '2.6.9');
+      var currentRsyncVersion = yield lazy.Sync.version();
+      var validRsyncVersion = semver.gte(currentRsyncVersion, minRsyncVersion);
+      if ( !validRsyncVersion ) {
+        throw new DependencyError('check_rsync_version_error', {
+          current_version: currentRsyncVersion,
+          min_version    : minRsyncVersion,
+        });
+      }
       return {};
     });
   }

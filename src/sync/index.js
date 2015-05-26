@@ -1,4 +1,4 @@
-import { _, defer, log, path } from 'azk';
+import { _, defer, log, path, t } from 'azk';
 
 // Module
 var Sync = {
@@ -32,6 +32,29 @@ var Sync = {
           return reject({ err, code });
         }
         return resolve(code);
+      });
+    });
+  },
+
+  version() {
+    var version_output;
+    var r = new require('rsync')().set('version').output((data) => {
+      version_output = data.toString();
+    });
+    return defer((resolve, reject) => {
+      r.execute(function(err, code) {
+        if (err) {
+          return reject({ err, code });
+        }
+        var _version = version_output.match(/.*version\ (\d+.\d+.\d+)/);
+        if (!_.isEmpty(_version) && _version.length >= 2) {
+          return resolve(_version[1]);
+        } else {
+          return reject({ err: t('errors.rsync_invalid_version_format', {
+              rsync_version: version_output
+            })
+          });
+        }
       });
     });
   },

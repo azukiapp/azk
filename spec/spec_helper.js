@@ -13,6 +13,8 @@ var lazy = lazy_require({
 });
 
 var chai = require('azk-dev/chai');
+chai.use(require('chai-subset'));
+
 var Helpers = {
   pp: pp,
   expect: chai.expect,
@@ -79,7 +81,6 @@ var Helpers = {
   describeRequireVm(...args) {
     return config('agent:requires_vm') ? describe(...args) : describe.skip(...args);
   },
-
 };
 
 // In specs the virtual machine is required
@@ -101,5 +102,6 @@ require('spec/spec_helpers/dustman').extend(Helpers);
 require('spec/spec_helpers/mock_outputs').extend(Helpers);
 require('spec/spec_helpers/mock_ui').extend(Helpers);
 require('spec/spec_helpers/mock_manifest').extend(Helpers);
+require('spec/spec_helpers/wait_subscription').extend(Helpers);
 
 export default Helpers;
