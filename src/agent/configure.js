@@ -170,7 +170,7 @@ export class Configure extends UIProxy {
 
   _checkRsyncVersion() {
     return async(this, function* () {
-      var minRsyncVersion = (process.env.RSYNC_VERSION || '2.6.9');
+      var minRsyncVersion = (process.env.RSYNC_MIN_VERSION || '2.6.9');
       var currentRsyncVersion = yield lazy.Sync.version();
       var validRsyncVersion = semver.gte(currentRsyncVersion, minRsyncVersion);
       if ( !validRsyncVersion ) {
