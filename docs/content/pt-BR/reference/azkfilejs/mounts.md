@@ -20,8 +20,7 @@ Persiste os arquivos dentro do contêiner no caminho `INTERNAL_FOLDER` para uma 
 
 ###### Mac
 
-`/Users/heitorsergent/.azk/data/vm/azk-agent.vmdk.link`
-`~/.azk/data/persistent_folders/#{manifest.id}/LOCAL_PATH`.
+A pasta encontra-se no disco virtual (`~/.azk/data/vm/azk-agent.vmdk`), no diretório `/azk/persistent_folders`. Esse disco é montada no caminho `/mnt/sda1` da VM.
  
 ###### Linux
 
@@ -38,9 +37,10 @@ Note que utilizar o mesmo 'LOCAL_PATH' no mesmo Azkfile.js, mas em contêiners d
 Sincroniza os arquivos presentes em `LOCAL_PATH` com o destino remoto, o qual é montado dentro do container na pasta `INTERNAL_FOLDER`. Diferentemente da opção `path`, a `sync` utiliza [rsync](https://rsync.samba.org/) ao invés das [pastas compartilhadas](https://www.virtualbox.org/manual/ch04.html#sharedfolders) do VirtualBox. Como resultado, há um significativo ganho de performance, principalmente em aplicações que demandam um grande número de arquivos (e.g. uma aplicação Ruby on Rails que possui um grande número de assets).
 
 ##### OPTS (opcional)
+
 * `except`: um `Array` de arquivos e/ou pastas a serem ignoradas no processo de sincronização. Esta opção usa [glob patterns](http://teaching.idallen.com/dat2330/06w/notes/glob_patterns.txt). Dicas úteis:
   * **Ignorar um arquivo**: `{except: ["./caminho/para/o/arquivo.png"]}`
-  * **Ignorar uma pasta**: `{except: ["./caminho/para/a/pasta"]}` // *Lembre-se da `/` no final!*
+  * **Ignorar uma pasta**: `{except: ["./caminho/para/a/pasta/"]}` // *Lembre-se da `/` no final!*
   * **Ignorar todos os arquivos CSS**: `{except: ["*.css"]}`
 
   > Por padrão, o `azk` já ignora os seguintes elementos: `.rsyncignore`, `.gitignore`, `Azkfile.js`, `.azk/` and `.git/`.
@@ -49,12 +49,12 @@ Sincroniza os arquivos presentes em `LOCAL_PATH` com o destino remoto, o qual é
 * `shell`: de modo similar à opção `daemon`, a opção `shell` é um  valor `boolean` que indica se, ao rodar o `azk` no modo daemon (e.g. `azk start`), o `azk` deve ou não utilizar o `sync` (em caso negativo, será utilizado a opção de `path`) (valor padrão: `false`). Utilizar o valor `false` é útil para manter a sincronização em ambos os sentidos, permitindo assim que arquivos criados dentro do shell (e.g. via `$ rails generate scaffold User name:string`) sejam persistidos de volta na pasta original do projeto.
 
 ##### Diretório de destino da sincronização
+
 O diretório de destino da sincronização varia entre Mac e Linux:
 
 ###### Mac
 
-`/Users/heitorsergent/.azk/data/vm/azk-agent.vmdk.link`
-`~/.azk/data/sync_folders/#{manifest.id}/LOCAL_PATH`.
+A pasta encontra-se no disco virtual (`~/.azk/data/vm/azk-agent.vmdk`), no diretório `/azk/sync_folders`. Esse disco é montada no caminho `/mnt/sda1` da VM.
  
 ###### Linux
 
@@ -74,7 +74,7 @@ Note que utilizar o mesmo 'LOCAL_PATH' no mesmo Azkfile.js, mas em contêiners d
   },
   ```
 
-* __persistent__: Persiste os arquivos de dentro do container que estão no caminho `/azk/bundler`. Estes arquivos, geralmente, ficam guardados na _máquina host_ na pasta `~/.azk/data/persistent_folders/_ALGUM_ID_`.
+* __persistent__: Persiste os arquivos de dentro do container que estão no caminho `/azk/bundler`. Estes arquivos, nesse caso, ficarão guardados na _máquina host_ na pasta `~/.azk/data/persistent_folders/_ALGUM_ID_`.
 
   ```js
   mounts: {

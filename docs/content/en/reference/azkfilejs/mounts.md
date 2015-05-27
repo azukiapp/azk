@@ -21,8 +21,7 @@ Persists the files that are inside the container on the path `INTERNAL_FOLDER`, 
 
 ###### Mac
 
-`/Users/heitorsergent/.azk/data/vm/azk-agent.vmdk.link`
-`~/.azk/data/persistent_folders/#{manifest.id}/LOCAL_PATH`.
+The folder is stored in a virtual disk (`~/.azk/data/vm/azk-agent.vmdk`) in the path `/azk/persistent_folders`. This disk is mounted in the path `/mnt/sda1` of the VM.
  
 ###### Linux
 
@@ -40,6 +39,7 @@ Syncs the files in `LOCAL_PATH` with a remote destination, which is mounted in t
 
 
 ##### OPTS (optional)
+
 * `except`: an `Array` of files and/or folders to be ignored in the sync process. It uses [glob patterns](http://teaching.idallen.com/dat2330/06w/notes/glob_patterns.txt). Useful hints:
   * **Exclude a file**: `{except: ["./path/to/the/file.png"]}`
   * **Exclude a folder**: `{except: ["./path/to/the/folder/"]}` // *Mind the tailing slash!*
@@ -51,12 +51,12 @@ Syncs the files in `LOCAL_PATH` with a remote destination, which is mounted in t
 * `shell`: similarly to `daemon` option, it's a `boolean` value that indicates if, when running `azk` in shell mode (e.g. `azk shell`), `azk` should either use or not use the `sync` scheme (in the negative case, the `path` scheme is used) (default: `false`). Setting as `false` is particularly useful to keep a two-way sync, allowing created files in the shell (e.g. via `$ rails generate scaffold User name:string`) to be persisted back in the original project folder;
 
 ##### Destination synced data
-The destination location the data will be synced with will vary between Mac and Linux:
+
+The destination path of the data that will be synced will vary between Mac and Linux:
 
 ###### Mac
 
-`/Users/heitorsergent/.azk/data/vm/azk-agent.vmdk.link`
-`~/.azk/data/sync_folders/#{manifest.id}/LOCAL_PATH`.
+The folder is stored in a virtual disk (`~/.azk/data/vm/azk-agent.vmdk`) in the path `/azk/sync_folders`. This disk is mounted in the path `/mnt/sda1` of the VM.
  
 ###### Linux
 
@@ -76,7 +76,7 @@ Note that using the same 'LOCAL_PATH' in the same Azkfile.js, but in different c
   },
   ```
 
-* __persistent__: Persists the files within the container that are on the path `/azk/bundler`. The files will usually be stored in the _guest machine_ inside the folder `~/.azk/data/persistent_folders/_SOME_ID_`.
+* __persistent__: Persists the files within the container that are on the path `/azk/bundler`. The files, in this case, will be stored in the _guest machine_ inside the folder `~/.azk/data/persistent_folders/#{manifest.id}/`.
 
   ```js
   mounts: {
