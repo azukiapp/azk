@@ -5,7 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## dev
 
-## v0.13.0 - (2015-26-05)
+## v0.13.0 - (2015-27-05)
 
 * Bug
   * [cli] Fixing `--mount` option of `azk shell` command to comply with Docker's pattern (`local_folder:remote_folder`);
