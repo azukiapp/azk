@@ -72,17 +72,17 @@ ${AZK_LIB_PATH}/bats:
 
 # PACKAGE
 AZK_PACKAGE_PATH:=${AZK_ROOT_PATH}/package
-AZK_PACKAGE_PREFIX := ${AZK_PACKAGE_PATH}/v${AZK_VERSION}
+AZK_PACKAGE_PREFIX:=${AZK_PACKAGE_PATH}/v${AZK_VERSION}
 PATH_USR_LIB_AZK:=${AZK_PACKAGE_PREFIX}/usr/lib/azk
 PATH_USR_BIN:=${AZK_PACKAGE_PREFIX}/usr/bin
 PATH_NODE_MODULES:=${PATH_USR_LIB_AZK}/node_modules
 PATH_AZK_LIB:=${PATH_USR_LIB_AZK}/lib
 PATH_AZK_NVM:=${PATH_AZK_LIB}/nvm
 NODE_PACKAGE = ${PATH_AZK_NVM}/${NVM_NODE_VERSION}/bin/node
-PATH_MAC_PACKAGE := ${AZK_PACKAGE_PATH}/azk_${AZK_VERSION}.tar.gz
+PATH_MAC_PACKAGE:=${AZK_PACKAGE_PATH}/azk_${AZK_VERSION}.tar.gz
 
 # Build package folders tree
-package_brew: package_build fix_permissions ${PATH_AZK_LIB}/vm/${AZK_ISO_VERSION} ${PATH_MAC_PACKAGE}
+package_brew: package_build fix_permissions check_version ${PATH_AZK_LIB}/vm/${AZK_ISO_VERSION} ${PATH_MAC_PACKAGE}
 package_mac:
 	@export AZK_PACKAGE_PATH=${AZK_PACKAGE_PATH}/brew && \
 		mkdir -p $$AZK_PACKAGE_PATH && \
@@ -90,7 +90,7 @@ package_mac:
 
 # Alias to create a distro package
 LINUX_CLEAN:="--clean"
-package_linux: package_build creating_symbolic_links fix_permissions
+package_linux: package_build creating_symbolic_links fix_permissions check_version
 package_deb:
 	@mkdir -p package
 	@./src/libexec/package.sh deb ${LINUX_CLEAN}
@@ -101,6 +101,16 @@ package_rpm:
 package_clean:
 	@echo "task: $@"
 	@rm -Rf ${AZK_PACKAGE_PREFIX}/..?* ${AZK_PACKAGE_PREFIX}/.[!.]* ${AZK_PACKAGE_PREFIX}/*
+
+check_version: NEW_AZK_VERSION=$(shell ${PATH_USR_LIB_AZK}/bin/azk version)
+check_version:
+	@echo "task: $@"
+	@if [ ! "azk ${AZK_VERSION}" = "${NEW_AZK_VERSION}" ] ; then \
+		echo 'Error to run: ${PATH_USR_LIB_AZK}/bin/azk version'; \
+		echo 'Expect: azk ${AZK_VERSION}'; \
+		echo 'Output: ${NEW_AZK_VERSION}'; \
+		exit 1; \
+	fi
 
 ${PATH_NODE_MODULES}: ${PATH_USR_LIB_AZK}/npm-shrinkwrap.json ${NODE_PACKAGE}
 	@echo "task: $@"
@@ -169,4 +179,4 @@ ${PATH_MAC_PACKAGE}: ${AZK_PACKAGE_PREFIX}
 
 package_build: bootstrap ${AZK_LIB_PATH}/azk $(FILES_TARGETS) $(FILES_JS_TARGETS) ${PATH_NODE_MODULES}
 
-.PHONY: bootstrap clean fast_clean package package_brew package_mac package_deb package_rpm package_build package_clean copy_files fix_permissions creating_symbolic_links dependencies
+.PHONY: bootstrap clean fast_clean package package_brew package_mac package_deb package_rpm package_build package_clean copy_files fix_permissions creating_symbolic_links dependencies check_version
