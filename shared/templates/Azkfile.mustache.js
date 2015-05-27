@@ -85,7 +85,12 @@ systems({
     {{~/if}}
     {{~#if envs}}
     envs: {
+      {{~#if envs_comment}}
+      {{~#each envs_comment}}
+      // {{&this}}{{/each}}
+      {{~else}}
       // set instances variables
+      {{~/if}}
       {{~#each envs}}
       {{&hash_key @key}}: "{{this}}",{{/each}}
     },
