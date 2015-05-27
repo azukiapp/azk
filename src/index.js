@@ -1,6 +1,4 @@
-import { get as config, set as set_config }  from 'azk/config';
 import { Q, _, defer, async, isBlank } from 'azk/utils';
-import { I18n } from 'i18n-cli';
 
 Q.longStackSupport = true;
 
@@ -27,17 +25,18 @@ module.exports = {
   get _() {  return _; },
   get t() {
     if (!_t) {
+      var I18n = require('i18n-cli');
       _t = new I18n({
         path: this.path.join(this.config('paths:azk_root'), 'shared', 'locales'),
-        locale: config('locale'),
+        locale: this.config('locale'),
       }).t;
     }
     return _t;
   },
 
   // Config options
-  get config() { return config; },
-  get set_config() { return set_config; },
+  get config() { return require('azk/config').get; },
+  get set_config() { return require('azk/config').set; },
 
   // Global azk meta data
   get meta() {

@@ -16,7 +16,7 @@ var mounts = (function() {
     "/azk/data"        : persistent('data-#{system.name}'),
     "/azk/aptly"       : persistent('aptly-#{system.name}'),
     "/var/lib/docker"  : persistent('docker_files-#{system.name}'),
-    "/azk/#{manifest.dir}/node_modules": persistent('node_modules-#{system.name}'),
+    "/azk/#{manifest.dir}/node_modules" : persistent('node_modules-#{system.name}'),
     "/root/.aptly.conf": path("./src/libexec/aptly.json")
   }
 

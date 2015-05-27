@@ -1,74 +1,268 @@
-# Contribuindo com azk
+# Contribuindo para o azk
 
-1. [Faça parte](README.html#faa-parte)
+Antes de tudo, você é incrível! Obrigado por contribuir com o `azk`!
+
+Existem diversas maneiras de ajudar, e todas elas são bem-vindas:
+
+1. Abrir issues
+1. Comentar em issues abertos
+1. Fazer PRs
+1. Testar PRs
+1. Escrever testes
+1. Escrever documentação
+1. Arrumar erros de escrita
+
+Abaixo, você pode encontrar algumas seções com informações mais detalhadas. Recomendamos também dar uma olhada no próprio guia do GitHub "[Contributing to Open Source on GitHub](https://guides.github.com/activities/contributing-to-open-source/)".
+
+## Seções
+
 1. [Dúvidas e suporte](README.html#dvidas-e-suporte)
-1. [Como reportar erros](README.html#como-reportar-erros)
-1. [Desenvolvimento do azk](README.html#desenvolvimento-do-azk)
-
-
-## Faça parte
-
-O `azk` é inteiramente _Open Source_ e seu código-fonte está disponível pelo repositório no [github]. Estamos sempre precisando de ajuda para identificar falhas, criações de testes, solução de [issues] e documentação.
+1. [Abrir issues](README.html#abrir-issues)
+1. [Dicas e orientações](README.html#dicas-e-orientaes)
+    1. [Estrutura das pastas](README.html#estrutura-das-pastas)
+    1. [Detalhes de implementação](README.html#detalhes-de-implementao)
+    1. [Qualidade e estilo do código](README.html#qualidade-e-estilo-do-cdigo)
+    1. [Ferramenta de tarefas - Gulp](README.html#ferramenta-de-tarefas---gulp)
+1. [Pull Requests](README.html#pull-requests)
+    1. [JavaScript e Node.js](README.html#javascript-e-nodejs)
+    1. [Contribuir com código](README.html#contribuir-com-cdigo)
+    1. [Organização de branches](README.html#organizao-de-branches)
+    1. [Convenções](README.html#convenes)
+        1. [Branches](README.html#branches)
+        1. [Mensagens de commit](README.html#mensagens-de-commit)
+    1. [Testes](README.html#testes)
+        1. [Testes de integração](README.html#tests-de-integrao)
+        1. [Filtrar testes](README.html#filtrar-testes)
+    1. [Adicionando ou atualizando dependências](README.html#adicionando-ou-atualizando-dependncias)
+    1. [Abrir Pull Requests](README.html#abrir-pull-requests)
+        1. [Formato do Pull Request](README.html#formato-do-pull-request)
 
 
 ## Dúvidas e suporte
 
-A documentação do `azk`, esta que você está lendo no momento, é a principal fonte de informações sobre o projeto. Existe ainda um chat ([gitter]) que pode ser bastante útil para tirar dúvidas em tempo real diretamente com nossa equipe de desenvolvedores.
+A documentação para o `azk`, que você está lendo agora, é a principal fonte de informações sobre o projeto. Temos também um bate-papo no [Gitter][gitter] em Inglês e Português que pode ser útil para fazer perguntas em tempo real, diretamente para a nossa equipe de desenvolvedores e outros membros da comunidade.
 
 
-## Como reportar erros
+## Abrir issues
 
-Os erros são reportados criando-se novas [issues] pelo [github]. Por favor, antes de criar novas [issues] verifique se elas já não foram criadas previamente.
+Os erros são comunicados através da criação de novas [issues] no [GitHub][github]. Elas nos ajudam a corrigir erros que possam ter escapado no nosso processo de teste ou release.
+
+Antes de criar novas [issues] por favor, certifique-se de que não há outras similares já criadas. Se você encontrar alguma que seja semelhante, adicione um comentário :+1: nela, e também qualquer informação adicional que nos ajude a reproduzir o erro como: OS, versão do `azk`, comandos utilizados, Azkfile.js, etc.
+
+Idealmente, uma issue deve conter uma descrição básica do seu sistema, uma descrição do erro, e instruções sobre como reproduzi-lo. Nós encorajamos você a abrir um problema mesmo se você não consiga se lembrar dos passos para realiza-lo novamente, ou reproduzi-lo (caso ele seja intermitente).
+
+Um exemplo de um bom formato para uma issue:
+
+> Toda a comunicação dentro do nosso repositório é feita em inglês, mas fique a vontade para escrever em português também.
+
+Inglês:
+```
+Description of the problem:
+
+`OS`:
+`azk version`:
+
+Environment details (VirtualBox, DigitalOcean, etc.):
+
+Steps to Reproduce:
+1.
+2.
+3.
+
+Actual Results:
+
+Expected Results:
+
+Additional info:
+```
+
+Português
+```
+Descrição do problema:
+
+`OS`:
+`azk version`:
+
+Detalhes do ambiente (VirtualBox, DigitalOcean, etc.):
+
+Passos para reproduzir o erro:
+1.
+2.
+3.
+
+Resultado atual:
+
+Resultado esperado:
+
+Informação adicional:
+```
 
 
-## Desenvolvimento do azk
+## Dicas e orientações
 
-O código do `azk` é escrito em [node.js]. Utiliza várias features do ES6 e, como ainda não estão disponíveis numa versão estável, o código recebe um passo de _compilação_ para que possa ser corretamente interpretado pelo [node.js] na versão atual. Utilizamos o [babeljs] que fornece muitas funcionalidades do ES6 (vide: [babeljs compat-table]). Durante a transformação do código de ES6 para ES5 deixamos o `source-map` sempre ativado. Isso permite que o código gerado exiba os erros corretamente apontando para o código-fonte original (anterior a transformação).
+
+### Estrutura das pastas
+
+- `/bin`: binários do azk: `adocker` e `azk`.
+- `/docs`: documentação no formato Gitbook.
+- `/shared`:
+    - `Azkfile.js`: Azkfile.js do próprio azk. Configura o dns e o load balancer.
+    - `locales/en-US.js`: Todas as mensagens e textos mostrados no cli.
+    - `templates/Azkfile.mustache.js`: Template de um Azkfile.js escrito em mustache.
+- `/spec`: Todos os testes do `azk`.
+- `/src`: Código fonte.
+- `.jscsrc`: Configura o padrão de estilo de código.
+- `.jshintrc`: Configura a validação da sintaxe do JavaScript.
+- `Makefile`: Tarefas de empacotamento.
+- `npm-shrinkwrap.json`: "Trava" as versão do `package.json`.
+- `package.json`: Todas as dependências do `azk`.
 
 
 ### Detalhes de implementação
 
-Uma coisa que logo se nota ao começar a mergulhar no código do `azk` é a utilização de `promises` com `generators`. Isso permite que o nosso código assíncrono fique parecido com um código síncrono, deixando mais fácil a leitura do código. Utilizamos a biblioteca de promises [Q] que já possui suporte a generators.
+O código do `azk` é escrito em [Node.js][node.js]. Ele usa vários recursos de ES6 que ainda não estão disponíveis em uma versão estável, e por isso o código passa por uma etapa de _compilação_ para que ele possa ser interpretado corretamente pela versão atual do [Node.js][node.js]. Nós usamos o [babeljs] para isso, que oferece muitos recursos de ES6 (ver: [babeljs compat-table]). Durante o processo de "transpilation", nós sempre configuramos o `source-map` para "on". Isso permite que o código gerado mostre os erros que apontando corretamente para o código-fonte original.
+
+Uma coisa que você vai notar logo que começar a mergulhar no código do `azk` é o uso de `promises` com `generators`. Isso permite que o nosso código assíncrono torne-se mais semelhante ao código síncrono, tornando-o mais fácil de ler. Usamos a biblioteca de promessas [Q] que suporta `generators`.
 
 
-### Pastas
+### Qualidade e estilo do código
 
-- `/bin`: Executáveis do azk: `adocker` e `azk`
-- `/docs`: Documentação do `azk` em formato gitbook
-- `/shared`:
-    - `Azkfile.js`: Azkfile.js principal do `azk`. Leva o dns e o balancer.
-    - `locales/en-US.js`: Todas as mensagens e textos exibidos pelo cliente do `azk` estão aqui.
-    - `templates/Azkfile.mustache.js`: Template de um Azkfile escrito em mustache
-- `/spec`: Todos os testes do `azk`
-- `/src`: Código fonte do `azk`
-- `.jscsrc`: Define o padrão de estilo de código
-- `.jshintrc`: Define a validação de sintaxe javascript
-- `Makefile`: Tarefas para empacotamento de versão
-- `npm-shrinkwrap.json`: Trava as versões do `package.json`
-- `package.json`: Todas as dependências do `azk`
-
-### Qualidade e estilo de código
-
-Utilizamos o `.jshintrc` e o `.jscsrc` configurados com o `esnext` ativado, ou seja, com várias features do ES6. Veja pelos links abaixo a melhor forma de configurar seu editor para integrar essas ferramentas de verificação de qualidade:
+Nós utilizamos o `.jshintrc` e o `.jscsrc` configurados com o `esnext` ligado, ou seja, com várias features do ES6. Veja os links abaixo para descobrir a melhor forma de configurar seu editor com essas ferramentas de qualidade de código:
 
 - **jscs**: http://jscs.info/overview.html
 - **jshint**: http://jshint.com/install/index.html
 
-### Ferramenta de task
+Além disso, nós utilizamos o arquivo `.editorconfig` para manter a consistência do estilo de código, independente da IDE ou editor que qualquer um esteja usando. Você pode ver mais informações sobre arquivos EditorConfig [aqui](http://editorconfig.org/), e também ver como o nosso está configurado [aqui](https://github.com/azukiapp/azk/blob/master/.editorconfig).
 
-No azk utilizamos o [gulp] para coordenar as tarefas do dia a dia de desenvolvimento, tarefas como:
 
-- Transpilar os arquivos de `es5` para `es6` com [babeljs];
+### Ferramenta de tarefas - Gulp
+
+Para o desenvolvimento do `azk`, usamos o [gulp] para coordenar as tarefas do dia-a-dia de desenvolvimento, tais como:
+
+- "Transpilar" arquivos `es5` para `es6` com [babeljs];
 - Verificar a qualidade do código com `jshint` e `jscs`;
-- Executar um "watch" nas modificações dos arquivos e executar as tarefas acima de forma automática;
+- A execução de um comando "watch" para modificação dos arquivos e execução das tarefas acima automaticamente;
 
-Dentre outras tarefas que podem ser consultadas com: `azk nvm gulp help`
+Você pode encontrar a lista completa de comandos disponíveis executando: `azk nvm gulp help`, mas a tarefa principal que você deve conhecer e usar durante o desenvolvimento é `azk nvm watch:test:lint`.
+
+
+## Pull Requests
+
+Antes de tudo, instale o azk a partir do código-fonte:
+
+```bash
+$ git clone https://github.com/azukiapp/azk.git
+$ cd azk
+$ make clean
+$ make
+```
+
+Então adicione o caminho para o binário do azk a variável de ambiente PATH, ou crie um alias para ele. 
+
+Existem passos adicionais que você precisará seguir caso esteja realizando a instalação no Mac ou no Linux (por exemplo, realizar a instalação do `libnss-resolver`). Olhe [essa página da documentação](../installation/source-code.md) para instruções mais detalhadas.
+
+
+### JavaScript e Node.js
+
+Como mencionado na seção "Detalhes de implementação", o `azk` é escrito em [Node.js][node.js], e utiliza vários recursos do ES6. Uma coisa a notar é que, para ajudar no desenvolvimento e contribuir para o `azk`, você não precisa ter Node.js instalado em sua máquina.
+
+O `azk` possui uma versão do Node.js, que é o mesmo que usamos para testá-lo e desenvolvê-lo, dentro da pasta "`./lib/nvm`". Ele já vem instalado e empacotado quando você baixa o `azk` através de um gerenciador de pacotes, ou ele também é instalado caso você baixe o projeto do GitHub e execute `make` para construir seu binário. Isso significa que nós podemos:
+
+1. Ter certeza de que o `azk` está sendo executado e usando uma versão do Node.js que testamos.
+2. Não exigir que o usuário possua o Node.js instalado em sua máquina, e caso ele esteja instalado, não afetar o ambiente de desenvolvimento de qualquer forma.
+
+Durante o desenvolvimento, no caso de você querer usar comandos node, você pode executar:
+
+```sh
+$ azk nvm node [command]
+
+# Ou
+
+$ azk nvm npm [command]
+```
+
+Caso você queira instalar alguma dependência, o processo será algo como:
+
+```sh
+$ azk nvm npm install gulp
+```
+
+E então você poderá usar o módulo com:
+
+```sh
+$ azk nvm gulp
+```
+
+
+### Contribuir com código
+
+Todas as contribuições de código são bem-vindas, seja ela para consertar uma issue ou adicionar novas funcionalidades.
+
+O fluxo de trabalho geral segue estes passos:
+
+- Abra uma issue / Encontre uma issue aberta / Sugerir uma feature através da nossa página de issues no GitHub
+- Discutir a  issue/feature com nossa equipe de desenvolvedores e membros da comunidade
+- Pegar a issue/feature para você consertar/criar
+- Fork `azk`
+- Criar uma "feature branch" e começar a trabalhar
+- Sincronizar o seu trabalho com a branch master de tempos em tempos
+- Abrir um PR e iterar
+- PR aceito e merged!
+
+Em comandos shell, isso será algo parecido com:
+
+```sh
+# Fork o repositório do azk
+$ git clone https://github.com/your_username/azk.git
+$ cd azk
+$ git checkout -b feature/feature_name
+# Faça mudanças nos arquivos
+$ make clean && make
+# Execute os testes
+$ azk nvm npm test
+$ git add .
+$ git commit -m "[my new feature] Fixing some system tests"
+$ git push
+# Abra o PR da sua feature branch para a master branch do azk
+```
+
+Lembre-se de fazer um fork diretamente no [GitHub][github]. Todas as contribuições são feitas através de _Pull Requests_ na branch **`master`** do repositório principal.
+
+### Organização de branches
+
+- `master` é a branch de desenvolvimento.
+
+  A branch **`master`** é onde novas features são iniciadas, e onde elas serão "merged".
+
+- `stable` é a versão estável.
+
+  A branch **`stable`** é a versão mais recente e estável do `azk`. É ela que utilizamos para construir os binários, disponíveis nos gerenciadores de pacotes.
+  
+
+### Convenções
+
+
+#### Branches
+
+Ao criar uma branch na qual você irá trabalhar, lembre-se de nomeá-la como `feature/feature_name`.
+
+
+#### Mensagens de commit
+
+As mensagens de commit seguem uma convenção:
+
+```sh
+git commit -m '[YOUR_BRANCH_NAME] comment'
+```
+
+Isso nos ajuda ao consultar e filtrar o histórico do git no futuro, para ver de onde as mudanças vieram.
+
 
 ### Testes
 
-O azk utiliza como framework de testes a biblioteca [mocha]. O [gulp] coordena as tarefas necessárias do dia a dia.
+O `azk` utiliza o [mocha] como o framework de testes, e o [gulp] coordena as tarefas necessárias para o uso diário.
 
-Para executar os testes do azk, o `azk agent` deve estar em execução:
+Para executar os testes do `azk`, o `azk agent` deve estar em execução:
 
 ```bash
 $ azk agent start
@@ -77,86 +271,134 @@ azk: Agent has been successfully started.
 $ azk nvm npm test
 ```
 
-##### Todos os testes inclusive os "lentos"
+
+#### Testes de integração
+
+Os testes de integração do `azk` são escritos utilizando [bats], e podem ser encontrados dentro da pasta "`specs/integration`". Antes de rodar os testes você precisará instalar algumas dependências:
 
 ```bash
-$ azk nvm npm run test:slow
+$ make dependencies
 ```
 
-##### Todos os testes excluindo os testes "lentos"
+E então você poderá executá-los com:
 
 ```bash
-$ azk nvm gulp test --invert --grep="@slow"
+$ azk nvm gulp integration
 ```
 
-##### Filtrando os testes
+Note que para rodar os testes, é necessário que o `azk agent` esteja em execução.
 
-Podemos filtrar os testes para a resolução de alguma parte especifíca.
+
+#### Filtrar testes
+
+Nós podemos filtrar os testes a serem executados por seções específicas, ou individualmente, com:
 
 ```bash
-$ azk nvm gulp test --grep="Azk command init run" --timeout=50000
+$ azk nvm gulp test --grep="Azk command init run"
 ```
 
-#####
+Similar aos testes funcionais, você pode filtrar os testes de integração com:
 
-
-### Contribuindo com código
-
-Trabalhamos com o formato de repositório distribuído ([Forking Workflow]). Esta é a forma clássica do Github. Para melhorar ainda mais a organização e preparação das novas versões, optamos por utilizar as idéias do [git flow], descritas por Jeff Kreeftmeijer em seu famoso blog post: "Using git-flow to automate your git branching workflow".
-
-Um exemplo de fluxo de trabalho:
-
-```
-$ git clone https://github.com/azukiapp/azk.git
-$ git checkout -b feature/feature_name develop
-# Make some changes to files
-$ git add .
-$ git commit -m "[my new feature] Fixing some system tests #9283"
-$ git push
-# Make pull request from your feature branch to azk's develop branch
+```bash
+$ azk nvm gulp integration --grep="force to replace a"
 ```
 
-Sempre que for contribuir para o `azk` faça um fork do `azk` diretamente pelo [github]. Toda contribuição é feita através de _Pull Requests_ para o repositórios principal na branch **`develop`** (Atenção: não esqueça de selecionar a branch develop quando for enviar o pull request).
 
-##### Resumo das branchs:
+### Adicionando ou atualizando dependências
 
-- `master`: Versão atual de produção
+Para ajudar a gerenciar as dependências do `azk`, nós utilizamos o `npm shrinkwrap` para realizar o "lock" das versões que usamos (mais informações sobre isso [aqui](https://docs.npmjs.com/cli/shrinkwrap)). Por isso, se você precisar adicionar uma dependência ao `azk`, ou atualizar uma já existente, certifique-se de gerar o arquivo [`npm-shrinkwrap.json`](https://github.com/azukiapp/azk/blob /master/npm-shrinkwrap.json) novamente.
 
-- `develop`: Branch para integração das features que farão parte do próximo release
+Você pode encontrar mais informações sobre os comandos necessários para fazer isso [aqui](https://docs.npmjs.com/cli/shrinkwrap#building-shrinkwrapped-packages), mas deve ser simples como:
 
-- `release/x.x.x`: Um release especifico onde serão feitas as últimas correções antes de se lançar a versão final
-
-- `feature/understandable_feature_name`: Uma _feature_ em desenvolvimento ou a espera de integração que fica no repositório pessoal do desenvolvedor
-
-
-##### Formato de commit:
-
-Sempre que for fazer um commit, utilize o seguinte padrão:
+1. Execute "npm install" no root do pacote para instalar as versões atuais de todas as dependências.
+1. Adicionar ou atualizar dependências. "npm install" cada pacote novo ou atualizado individualmente e depois atualizar o package.json. Note-se que eles devem ser explicitamente chamados para serem instalados: executando npm install sem argumentos irá somente reproduzir o shrinkwrap existente.
+1. Confirme que o pacote funciona como previsto com as novas dependências.
+1. Execute "npm shrinkwrap", "commit" o novo npm-shrinkwrap.json, e publique o pacote.
 
 
-`[nome da feature sendo alterada] commentário #NUMERO_DA_ISSUE`
+### Abrir Pull Requests
 
-- `nome da feature sendo alterada`: Nome reduzido, geralmente o mesmo nome utilizado na branch sem underscore
-- `commentário`: A mensagem do commit em si. **Sempre em inglês** e iniciando com gerúndio
-- `#NUMERO_DA_ISSUE`: Identificador numérico da `issue` relacionada
+Antes de abrir um Pull Request, certifique-se de que você:
 
->Dessa forma fica fácil depois consultar e filtrar o histórico do git e saber de onde vem as alterações.
+- Testou o binário do azk com suas alterações:
 
-###### Exemplo:
-
-```
-$ git commit -m "[my new feature] Fixing some system tests #9283"
+```sh
+$ make clean && make
+# Tenha certeza de que o azk sendo executado é o da pasta de desenvolvimento, não do package manager
+$ azk nvm npm test
 ```
 
-[mocha]: http://visionmedia.github.io/mocha/
-[gulp]: http://gulpjs.com/
-[github]: https://github.com/azukiapp/azk
-[issues]: https://github.com/azukiapp/azk/issues
-[pull requests]: https://github.com/azukiapp/azk/pulls
-[gitter]: https://gitter.im/azukiapp/azk
-[git flow]: http://jeffkreeftmeijer.com/2010/why-arent-you-using-git-flow/
-[Forking Workflow]: https://www.atlassian.com/git/tutorials/comparing-workflows/forking-workflow
+- "Merge" de forma limpa com a branch master
+
+Seu trabalho deve fazer o "merge" de forma limpa com a branch master. No caso de haver commits adicionais feito na branch master depois de você ter criado sua branch, faça um `git rebase`:
+
+```sh
+$ git remote add upstream https://github.com/azukiapp/azk.git
+$ git fetch --all
+$ git checkout master
+$ git merge upstream/master
+$ git checkout feature/your_feature_name
+$ git rebase master
+```
+
+Caso você já tenha feito um push para seu repositório, após fazer um `rebase` será necessário fazer um `git push -f`.
+
+- Ter commits que são pequenas unidades lógicas de trabalho
+
+Durante o desenvolvimento, você pode acabar com um grande número de commits que podem ter mensagens confusas, ou partes do trabalho que poderiam estar juntas. Uma coisa que você pode fazer é usar o `git rebase -i` para modificar seus commits anteriores. Essas mudanças podem variar de simplesmente certificar-se de que todas as mensagens seguem as convenções do repositório, quanto para juntar as mudanças feitas em diversos commits a um único.
+
+```sh
+$ git rebase -i HEAD~X
+# X sendo o número de commits que você quer modificar
+```
+
+Caso você precise de ajuda para fazer qualquer uma das coisas acima, basta abrir um PR e nós vamos ajudá-lo através dele. :)
+
+#### Formato do Pull Request
+
+Ao abrir um pull request, você deve incluir as seguintes informações:
+
+> Toda a comunicação dentro do nosso repositório é feita em inglês, mas fique a vontade para escrever em português também.
+
+Inglês
+```
+Issues that are closed by this PR (Use they keyword "closes", so the issues are closed automatically after the work is merged)
+
+Description of the pull request:
+
+How to test the PR:
+1.
+2.
+3.
+
+Additional info:
+```
+
+Português
+```
+Issues que são fechadas pelo PR (Use a palavra-chave "closes", para que as issues sejam fechadas automaticamente após o trabalho ser "merged")
+
+Descrição do pull request:
+
+Como testar o PR:
+1.
+2.
+3.
+
+Informação adicional:
+```
+
+
 [babeljs]: http://babeljs.io
 [babeljs compat-table]: https://babeljs.io/docs/learn-es6/
+[bats]: https://github.com/sstephenson/bats
+[Forking Workflow]: https://www.atlassian.com/git/tutorials/comparing-workflows/forking-workflow
+[git flow]: http://jeffkreeftmeijer.com/2010/why-arent-you-using-git-flow/
+[github]: https://github.com/azukiapp/azk
+[gitter]: https://gitter.im/azukiapp/azk
+[gulp]: http://gulpjs.com/
+[issues]: https://github.com/azukiapp/azk/issues
+[mocha]: http://visionmedia.github.io/mocha/
 [node.js]: http://nodejs.org/
+[pull requests]: https://github.com/azukiapp/azk/pulls
 [Q]: https://github.com/kriskowal/q/wiki/API-Reference#generators

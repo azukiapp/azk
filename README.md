@@ -47,7 +47,7 @@ In order to automate the provisioning of development environments, `azk` uses pr
 
 More information [here](http://docs.azk.io/en/azkfilejs/README.html).
 
-### Starting a new application project:
+### Starting a new project:
 
 If you are starting a new application project, you can already use `azk` to obtain the proper runtime as well the corresponding generators for your chosen language and then generate the application's basic structure. An example in node.js would look like this:
 
@@ -66,9 +66,9 @@ azk: 'Azkfile.js' generated
 $ azk start
 ```
 
-### Taming an existing application project's development environment with `azk`:
+### Using `azk` with an existing project:
 
-When you already have an application project going on and want to use `azk` to streamline its development environment, all you have to do is as follows:
+When you have an application project that's already started, and want to use `azk` to streamline its development environment, all you have to do is:
 
 ```bash
 $ cd [my_application_folder]
@@ -113,50 +113,9 @@ $ azk logs [system_name, ...]     # Shows last lines of a specific system
 $ azk logs -f                     # Shows last lines of log and follow for more
 ```
 
-## Contributions and testing (for experts only)
+## Contributions
 
-Clone `azk` from the source, and install dependencies:
-
-  ```bash
-  $ git clone https://github.com/azukiapp/azk
-  $ cd azk
-  $ make
-  $ azk agent start
-  $ azk nvm gulp test
-  ```
-
-Note that running these tests requires you to have `azk agent` running.
-
-To run test with filters run use `azk nvm gulp --grep "test name"`:
-
-Example:
-
-  ```bash
-  $ azk nvm gulp --grep "Azk generator"
-  ```
-
-## Integration tests
-
-The `azk` integration tests are written using [bats]. Before running the tests you need to install some dependencies:
-
-```bash
-$ make dependencies
-```
-
-Now you can run the integration tests:
-
-```bash
-$ azk nvm gulp integration
-```
-
-Note that running these tests requires you to have `azk agent` running.
-
-As the functional tests, the integration tests has a way to filter which tests
-will be executed:
-
-```bash
-$ azk nvm gulp integration --grep="force to replace a"
-```
+Check our [Contributing Guide](CONTRIBUTING.md) for instructions on how to help the project!
 
 ## License
 

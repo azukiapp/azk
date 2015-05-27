@@ -1,32 +1,95 @@
 ## mounts
 
-Configure which folders will be internalized to the container or persisted internally by `azk`. 
+Mounts has three different usage options: `path`, `persistent` and `sync`. They're used to configure which folders will be internalized to the container or persisted internally by `azk`. 
 
-For Linux, information persisted internally is saved inside `~/.azk/data/persistent_folders`. For Mac, the information is kept inside your virtual machine. Using the same parameter with the `persistent` option allows you to share data across applications.
+#### path
 
-#### Usage:
+```js
+'INTERNAL_FOLDER': path('LOCAL_PATH'),
+```
+
+Mount the folder located in the current system machine `LOCAL_PATH`, relative to the Azkfile.js, to the path `INTERNAL_FOLDER` inside the system container. If any of the files are changed, from the user machine or from inside the container, the information is also updated on the other end.
+
+
+#### persistent
+
+```js
+'INTERNAL_FOLDER': path('LOCAL_PATH'),
+```
+
+Persists the files that are inside the container on the path `INTERNAL_FOLDER`, to an `azk` persistent data folder in the user machine. The location the data will be saved will vary between Mac and Linux:
+
+###### Mac
+
+`/Users/heitorsergent/.azk/data/vm/azk-agent.vmdk.link`
+`~/.azk/data/persistent_folders/#{manifest.id}/LOCAL_PATH`.
+ 
+###### Linux
+
+`~/.azk/data/persistent_folders/#{manifest.id}/LOCAL_PATH`.
+
+Note that using the same 'LOCAL_PATH' in the same Azkfile.js, but in different containers, will mean that they'll share the persisted data.
+
+#### sync
+
+```js
+'INTERNAL_FOLDER': sync('LOCAL_PATH' [, OPTS]),
+```
+
+Syncs the files in `LOCAL_PATH` with a remote destination, which is mounted in the `INTERNAL_FOLDER`. Differently from `path` option, `sync` uses [rsync](https://rsync.samba.org/) instead of VirtualBox [shared folders](https://www.virtualbox.org/manual/ch04.html#sharedfolders). As result, the overall performance is significantly increased, mainly for applications which demand a great number of files (e.g. a Ruby on Rails application with a lot of assets).
+
+
+##### OPTS (optional)
+* `except`: an `Array` of files and/or folders to be ignored in the sync process. It uses [glob patterns](http://teaching.idallen.com/dat2330/06w/notes/glob_patterns.txt). Useful hints:
+  * **Exclude a file**: `{except: ["./path/to/the/file.png"]}`
+  * **Exclude a folder**: `{except: ["./path/to/the/folder/"]}` // *Mind the tailing slash!*
+  * **Exclude all CSS files**: `{except: ["*.css"]}`
+
+  > By default, `azk` ignores the following elements when syncing: `.rsyncignore`, `.gitignore`, `Azkfile.js`, `.azk/` and `.git/`.
+
+* `daemon`: a `boolean` value that indicates if, when running `azk` in daemon mode (e.g. `azk start`), `azk` should either use or not use the `sync` scheme (in the negative case, the `path` scheme is used) (default: `true`);
+* `shell`: similarly to `daemon` option, it's a `boolean` value that indicates if, when running `azk` in shell mode (e.g. `azk shell`), `azk` should either use or not use the `sync` scheme (in the negative case, the `path` scheme is used) (default: `false`). Setting as `false` is particularly useful to keep a two-way sync, allowing created files in the shell (e.g. via `$ rails generate scaffold User name:string`) to be persisted back in the original project folder;
+
+##### Destination synced data
+The destination location the data will be synced with will vary between Mac and Linux:
+
+###### Mac
+
+`/Users/heitorsergent/.azk/data/vm/azk-agent.vmdk.link`
+`~/.azk/data/sync_folders/#{manifest.id}/LOCAL_PATH`.
+ 
+###### Linux
+
+`~/.azk/data/sync_folders/#{manifest.id}/LOCAL_PATH`.
+
+Note that using the same 'LOCAL_PATH' in the same Azkfile.js, but in different containers, will mean that they'll share the data.
+
+> **IMPORTANT NOTE:** If you are facing performance issues using `azk` with your application, you should use this option when mounting your source code. Note it's a one-way sync, so you still have to add entries in `mounts` indicating which folders need to use the `share` option (using `path` or `persistent`).
+
+### Examples
+
+* __path__: Mount the current project folder (`'.'`) in the container on the path `/azk/azkdemo` (considering `azkdemo` is the name of the folder where the `Azkfile.js` is located).
 
   ```js
   mounts: {
-    'INTERNAL_FOLDER': path('LOCAL_PATH'),
-    'INTERNAL_FOLDER': persistent('FOLDER_ID'),
+    '/azk/#{manifest.dir}' : path('.'),
   },
   ```
 
-##### Examples:
-
-* __path__: Mount the current project folder (`'.'`) with the name of the folder where the `Azkfile.js` is located. For example, if we are in the folder `/home/projetos/azkdemo`, our files within the container will be located in `/azk/azkdemo`.
+* __persistent__: Persists the files within the container that are on the path `/azk/bundler`. The files will usually be stored in the _guest machine_ inside the folder `~/.azk/data/persistent_folders/_SOME_ID_`.
 
   ```js
   mounts: {
-    '/azk/#{manifest.dir}'  : path('.'),
+    '/azk/bundler' : persistent('bundler'),
   },
   ```
 
-* __persistent__: Persists the files within the container that are on the path `/azk/bundler`. The files will usually be stored in the _host machine_ inside the folder `~/.azk/data/persistent_folders/_SOME_ID_`.
+* __sync__: Syncs the project files within the container on the path `/azk/azkdemo` (considering `azkdemo` is the name of the folder where the `Azkfile.js` is located), excluding CSS files and `config` folder. Plus, use shared folders to `tmp` and `log`.
 
   ```js
   mounts: {
-    '/azk/bundler'          : persistent('bundler'),
+    '/azk/#{manifest.dir}'      : sync('.', except: ['*.css', 'config/']),
+    '/azk/#{manifest.dir}/tmp'  : persistent('tmp/'),
+    '/azk/#{manifest.dir}/log'  : persistent('log/'),
   },
   ```

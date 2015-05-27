@@ -2,7 +2,13 @@
 
 ## Requisitos
 
-Dependendo do seu sistema operacional você precisa seguir alguns passos antes de instalar o `azk`. Siga-os aqui para o [Mac](mac_os_x.html), ou aqui para o [Linux](linux.html), mas sinta-se livre para ignorar a última etapa de instalação que usa um dos gerenciadores de pacotes.
+Dependendo do seu sistema operacional você precisa seguir alguns passos antes de instalar o `azk`. Siga-os aqui para o [Mac](mac_os_x.html), ou aqui para o [Linux](linux.html), mas sinta-se livre para ignorar a última etapa de instalação que usa um dos gerenciadores de pacotes (brew ou apt-get).
+
+## Linux - Requisito Adicional
+
+Se você estiver em um Linux, além de instalar o Docker será necessário instalar o `libnss-resolver`.
+
+Siga as instruções [aqui](https://github.com/azukiapp/libnss-resolver#installing) para instalação através do [pacote](https://github.com/azukiapp/libnss-resolver/releases), ou do [source](https://github.com/azukiapp/libnss-resolver#from-the-source-without-azk).
 
 ## Baixando o código fonte do azk
 

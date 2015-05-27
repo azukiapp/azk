@@ -143,7 +143,8 @@ export class Container extends Utils.qify('dockerode/lib/container') {
 
 export class Docker extends Utils.qify('dockerode') {
   constructor(opts) {
-    log.info("Connect %s:%s", opts.host, opts.port);
+    var info = opts.socketPath || `${opts.host}:${opts.port}`;
+    log.info("Connecting to", info);
     super(opts);
 
     this.c_regex = RegExp(`\/${Utils.escapeRegExp(config('docker:namespace'))}`);

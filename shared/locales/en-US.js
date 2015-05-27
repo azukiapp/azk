@@ -33,7 +33,7 @@ module.exports = {
     lost_internet_connection: "\nLost internet connection:\n%(output)s",
     connect_docker_unavailable: "Could not initialize balancer because docker was not available",
     agent_not_running: "azk agent is required but is not running (try `azk agent status`)",
-    agent_start: "azk agent start error: %(error)s",
+    agent_start: "azk agent start error: %(err_message)s",
     agent_stop:  "azk agent stop error (try `azk agent status`)",
     not_been_implemented: "This feature: `%(feature)s` has not been implemented yet",
     system_not_found: "System `%(system)s` not found in `%(manifest)s`",
@@ -50,6 +50,7 @@ module.exports = {
     invalid_value_error: "Invalid value: %(value)s in option %(option)s",
     image_not_exist: "Image from '%(image)s' was not found",
     provision_not_found: "Could not find '%(image)s' image",
+    rsync_invalid_version_format: "Invalid rsync version format: %(rsync_version)s",
     os_not_supported: "System not supported (see http://azk.io)",
     run_timeout_error: [
       "[timeout] `azk` has timed out on `%(system)s` system.",
@@ -67,7 +68,8 @@ module.exports = {
 
     docker_build_error: {
       command_error: "  Error in building `%(dockerfile)s`:\n%(output)s\n",
-      server_error: "Internal error in build `%(dockerfile)s`: %(error)",
+      server_error: "Internal error in build `%(dockerfile)s`: %(error)s",
+      unknow_instrction_error: "Unknown instruction in build `%(dockerfile)s`: %(instruction)s",
       not_found   : "Can't find `%(from)s` image to build `%(dockerfile)s`",
       can_find_dockerfile: "Can't find `%(dockerfile)s` file",
       can_find_add_file_in_dockerfile: "Can't find `%(source)s` file to ADD in `%(dockerfile)s`",
@@ -97,6 +99,12 @@ module.exports = {
           "Check if docker service is running.",
           "Also check if you have write permission to socket: '%(socket)s'",
         ].join('\n'),
+        check_rsync_version_error: [
+          'Checking rsync version:',
+          'Detected:    %(current_version)s',
+          'Required: >= %(min_version)s',
+          'Please update rsync before continue.'
+          ].join('\n'),
       }
     }
   },
@@ -231,6 +239,8 @@ module.exports = {
     ]).join('\n'),
     check_version: 'Checking version...',
     latest_azk_version: 'azk %(current_version)s detected',
+    current_rsync_version: 'rsync %(current_version)s detected',
+    github_azk_version_error: 'Failed to access Github to get azk latest version number',
     check_version_no_internet: 'Checking version: there is no internet connection to check azk version.',
     check_version_error: 'Checking version: %(error_message)s',
     clean_containers: "Clearing %(count)d lost containers",
@@ -351,7 +361,7 @@ module.exports = {
       },
       examples: [
         '$ azk shell --shell /bin/bash',
-        '$ azk shell [system_name] --mount /=/azk/root -e RAILS_ENV=dev',
+        '$ azk shell [system_name] --mount /:/azk/root -e RAILS_ENV=dev',
         '$ azk shell [system_name] -c "ls -l /"',
         '$ azk shell --image azukiapp/budybox -t -c "/bin/bash"',
       ]
@@ -412,17 +422,18 @@ module.exports = {
       }
     },
     scale: {
-      instances   : "from " + "%(from)d".red + " to " + "%(to)d".green + " instances",
+      instances   : "from " + "%(from)d".red             + " to " + "%(to)d".green + " instances",
       description : "Scales (up or down) an instance of the system(s)",
-      wait_port   : "◴".magenta + " waiting for `" + "%(system)s".blue  + "` system to start, trying connection to port %(name)s/%(protocol)s...",
-      check_image : "✓".cyan    + " checking `"      + "%(image)s".yellow + "` image...",
-      pull_image  : "⇲".blue    + " downloading `"   + "%(image)s".yellow + "` image...",
-      build_image : "⇲".blue    + " building `"      + "%(image)s".yellow + "` image...",
-      provision   : "↻".yellow  + " provisioning `"  + "%(system)s".blue  + "` system...",
-      starting    : "↑".green   + " starting `"      + "%(system)s".blue  + "` system, " + "%(to)d".green + " new instances...",
-      stopping    : "↓".red     + " stopping `"      + "%(system)s".blue  + "` system, " + "%(from)d".red + " instances...",
-      scaling_up  : "↑".green   + " scaling `"       + "%(system)s".blue  + "` system %(instances)s...",
-      scaling_down: "↓".red     + " scaling `"       + "%(system)s".blue  + "` system %(instances)s...",
+      sync        : "⎘".yellow  + " syncing files for `" + "%(system)s".blue     + "` system...",
+      wait_port   : "◴".magenta + " waiting for `"       + "%(system)s".blue     + "` system to start, trying connection to port %(name)s/%(protocol)s...",
+      check_image : "✓".cyan    + " checking `"          + "%(image)s".yellow    + "` image...",
+      pull_image  : "⇲".blue    + " downloading `"       + "%(image)s".yellow    + "` image...",
+      build_image : "⇲".blue    + " building `"          + "%(image)s".yellow    + "` image...",
+      provision   : "↻".yellow  + " provisioning `"      + "%(system)s".blue     + "` system...",
+      starting    : "↑".green   + " starting `"          + "%(system)s".blue     + "` system, " + "%(to)d".green + " new instances...",
+      stopping    : "↓".red     + " stopping `"          + "%(system)s".blue     + "` system, " + "%(from)d".red + " instances...",
+      scaling_up  : "↑".green   + " scaling `"           + "%(system)s".blue     + "` system %(instances)s...",
+      scaling_down: "↓".red     + " scaling `"           + "%(system)s".blue     + "` system %(instances)s...",
       options: {
         remove: "Removes the instances before stopping",
         verbose: verbose,
@@ -551,6 +562,10 @@ module.exports = {
         },
       },
     },
+  },
+
+  tracking: {
+    timeout: "Analytics tracker timed out."
   }
 };
 // jscs:enable maximumLineLength

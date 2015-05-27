@@ -3,7 +3,7 @@ import { async } from 'azk';
 import { SystemDependError, SystemNotScalable } from 'azk/utils/errors';
 
 describe("Azk system class, scale set", function() {
-  this.timeout(10000);
+  this.timeout(20000);
   var manifest, system, system_db;
 
   before(function() {

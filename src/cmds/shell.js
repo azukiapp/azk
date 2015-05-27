@@ -48,8 +48,8 @@ class Cmd extends InteractiveCmds {
 
       // Support extra envs, ports and mount volumes
       options.envs   = this._parse_option(opts.env  , /.+=.+/, '=', 'invalid_env');
-      options.mounts = this._parse_option(opts.mount, /.+:.+:?.*/, ':', 'invalid_mount', (opts) => {
-        return { type: (opts[2] ? opts[1] : 'path'), value: (opts[2] ? opts[2] : opts[1]) };
+      options.mounts = this._parse_option(opts.mount, /.+:.+:?.*/, ':', 'invalid_mount', 1, (opts) => {
+        return { type: (opts[2] ? opts[1] : 'path'), value: (opts[2] ? opts[2] : opts[0]) };
       });
 
       cmd = [opts.shell || system.shell];
@@ -67,6 +67,9 @@ class Cmd extends InteractiveCmds {
             process.nextTick(() => {
               lazy.docker.getContainer(container).stop({ t: 5000 }).fail(reject);
             });
+            return true;
+          } else if (key === "?") {
+            this.ok("show help");
             return true;
           }
           return false;
@@ -131,13 +134,13 @@ class Cmd extends InteractiveCmds {
     };
   }
 
-  _parse_option(option, regex, split, fail, format = null) {
+  _parse_option(option, regex, split, fail, key_index = 0, format = null) {
     var result = {};
     for (var j = 0; j < option.length; j++) {
       var opt = option[j];
       if (opt.match(regex)) {
         opt = opt.split(split);
-        result[opt[0]] = format ? format(opt) : opt[1];
+        result[opt[key_index]] = format ? format(opt) : opt[1];
       } else {
         this.fail('commands.shell.' + fail, { value: opt });
         return 1;

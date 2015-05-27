@@ -51,6 +51,13 @@ export function extend(h) {
     var mounts_with_persitent = _.merge(mounts, {
       '/data': { type: 'persistent', value: 'data' },
     });
+    var mounts_with_sync = {
+      '/azk'           : { type: 'sync', value: '.' },
+      '/azk/bin'       : { type: 'sync', value: 'bin', shell: true },
+      '/azk/lib'       : { type: 'sync', value: 'lib', shell: true, daemon: false },
+      '/azk/tmp'       : { type: 'persistent', value: 'tmp' },
+      '/azk/log'       : { type: 'persistent', value: 'log' },
+    } ;
 
     // Data merge
     data = _.merge({
@@ -158,6 +165,10 @@ export function extend(h) {
             "azk.balancer_port: #{azk.balancer_port}",
             "azk.balancer_ip: #{azk.balancer_ip}",
           ],
+        },
+        'example-sync': {
+          extends: "example",
+          mounts: mounts_with_sync,
         },
       },
       defaultSystem: 'api',

@@ -55,6 +55,8 @@ export class System {
   runShell(...args) { return Run.runShell(this, ...args); }
   runDaemon(...args) { return Run.runDaemon(this, ...args); }
   runProvision(...args) { return Run.runProvision(this, ...args); }
+  runWatch(...args) { return Run.runWatch(this, ...args); }
+  stopWatching(...args) { return Run.stopWatching(this, ...args); }
   stop(...args) { return Run.stop(this, ...args); }
   instances(...args) { return Run.instances(this, ...args); }
   throwRunError(...args) { return Run.throwRunError(this, ...args); }
@@ -255,6 +257,10 @@ export class System {
     return this._mounts_to_volumes(this.options.mounts || {});
   }
 
+  get syncs() {
+    return this._mounts_to_syncs(this.options.mounts || {});
+  }
+
   // Get depends info
   get depends() { return this.options.depends; }
   get dependsInstances() {
@@ -375,8 +381,8 @@ export class System {
 
     var type   = daemon ? "daemon" : "shell";
     var mounts = _.merge(
-      {}, this.mounts,
-      this._mounts_to_volumes(options.mounts)
+      {}, this._mounts_to_volumes(this.options.mounts || {}, daemon),
+      this._mounts_to_volumes(options.mounts, daemon)
     );
 
     var dns_servers = [];
@@ -488,7 +494,20 @@ export class System {
     return template.replace(regex, "#{_keep_key('$1')}");
   }
 
-  _mounts_to_volumes(mounts) {
+  _resolved_path(mount_path) {
+    if (!mount_path) {
+      return this.manifest.manifestPath;
+    }
+    return path.resolve(this.manifest.manifestPath, mount_path);
+  }
+
+  _sync_path(mount_path) {
+    var sync_base_path = config('paths:sync_folders');
+    sync_base_path = path.join(sync_base_path, this.manifest.namespace, this.name);
+    return path.join(sync_base_path, this._resolved_path(mount_path));
+  }
+
+  _mounts_to_volumes(mounts, daemon = true) {
     var volumes = {};
 
     // persistent folder
@@ -506,7 +525,7 @@ export class System {
           target = mount.value;
 
           if (!target.match(/^\//)) {
-            target = path.resolve(this.manifest.manifestPath, target);
+            target = this._resolved_path(target);
           }
 
           target = (fs.existsSync(target)) ?
@@ -516,6 +535,22 @@ export class System {
         case 'persistent':
           target = path.join(persist_base, mount.value);
           break;
+
+        case 'sync':
+          if (daemon && mount.options.daemon !== false ||
+             !daemon && mount.options.shell === true) {
+            target = this._sync_path(mount.value);
+          } else {
+            target = mount.value;
+
+            if (!target.match(/^\//)) {
+              target = this._resolved_path(target);
+            }
+
+            target = (fs.existsSync(target)) ?
+              utils.docker.resolvePath(target) : null;
+          }
+          break;
       }
 
       if (!_.isEmpty(target)) {
@@ -524,5 +559,39 @@ export class System {
 
       return volumes;
     }, volumes);
+  }
+
+  _mounts_to_syncs(mounts) {
+    var syncs        = {};
+    var rsyncignore  = path.join(this.manifest.manifestPath, '.rsyncignore');
+    var except_from  = fs.existsSync(rsyncignore) ? rsyncignore : undefined;
+
+    return _.reduce(mounts, (syncs, mount) => {
+      if (mount.type === 'sync') {
+
+        var host_sync_path = this._resolved_path(mount.value);
+
+        var mounted_subpaths = _.reduce(mounts, (subpaths, mount) => {
+          var mount_path = this._resolved_path(mount.value);
+          if ( mount_path !== host_sync_path &&  mount_path.indexOf(host_sync_path) === 0) {
+            return subpaths.concat([path.join(mount.value, '/')]);
+          } else {
+            return subpaths;
+          }
+        }, []);
+
+        mount.options             = mount.options || {};
+        mount.options.except_from = except_from;
+        mount.options.except      = _.uniq((mount.options.except || [])
+          .concat(mounted_subpaths)
+          .concat(['.rsyncignore', '.gitignore', '.azk/', '.git/', 'Azkfile.js']));
+
+        syncs[host_sync_path] = {
+          guest_folder: this._sync_path(mount.value),
+          options     : mount.options,
+        };
+      }
+      return syncs;
+    }, syncs);
   }
 }

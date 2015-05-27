@@ -1,4 +1,4 @@
-import { _, lazy_require } from 'azk';
+import { Q, _, lazy_require } from 'azk';
 import { Command, Option } from 'azk/cli/command';
 import { InvalidValueError } from 'azk/utils/errors';
 
@@ -57,10 +57,41 @@ export class Cli extends Command {
     return cmd.showUsage(prefix);
   }
 
+  stopCpuProfiling() {
+    if (!process.env.AZK_ENABLE_CHROME_CPU_PROFILER) {
+      return;
+    }
+    var profiler = require('chrome-cpu-profiler');
+    if (!profiler.profilerRun) {
+      var data = profiler.stopProfiling('cpu-azk-profile');
+      profiler.writeFile(data);
+      profiler.profilerRun = true;
+    }
+  }
+
+  stopNjsTracer() {
+    if (process.env.AZK_ENABLE_NJS_TRACE_PROFILER) {
+      global.njstrace.save('trace_result.json');
+    }
+  }
+
   action(opts) {
     var cmd = this.commands[opts.command];
     if (cmd && cmd instanceof Command) {
-      return cmd.run(_.clone(opts.__leftover), opts);
+      // run command
+      var command_result = cmd.run(_.clone(opts.__leftover), opts);
+      if (Q.isPromise(command_result)) {
+        return command_result.then((result) => {
+          this.stopCpuProfiling();
+          this.stopNjsTracer();
+          return result;
+        });
+      } else {
+        this.stopCpuProfiling();
+        this.stopNjsTracer();
+        return command_result;
+      }
     }
   }
+
 }

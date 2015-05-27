@@ -8,14 +8,14 @@ export function extend(h) {
       outputs.stdout = '';
       outputs.stderr = '';
 
-      outputs.__proto__.show = function() { // jshint ignore:line
+      outputs.show = function() {
         console.log("Stdout:");
         process.stdout.write(this.stdout);
         console.log("Stderr:");
         process.stdout.write(this.stderr);
       };
 
-      outputs.__proto__.reset = function() { // jshint ignore:line
+      outputs.reset = function() {
         mocks.stdout = h.makeMemoryStream();
         mocks.stderr = h.makeMemoryStream();
 

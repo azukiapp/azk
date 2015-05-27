@@ -1,14 +1,22 @@
 import h from 'spec/spec_helper';
-import { _, async, path, Q, config } from 'azk';
-import { VM, dhcp, hostonly } from 'azk/agent/vm';
+import { _, async, path, Q, config, log } from 'azk';
+import { lazy_require } from 'azk';
 import { net } from 'azk/utils';
 
-var qfs  = require('q-io/fs');
-var os   = require('os');
-var vbm  = require('vboxmanage');
-var exec = Q.nbind(vbm.command.exec, vbm.command);
+var l = lazy_require({
+  VM      : ['azk/agent/vm'],
+  dhcp    : ['azk/agent/vm'],
+  hostonly: ['azk/agent/vm'],
+  qfs : 'q-io/fs',
+  vbm : 'vboxmanage',
+  exec: function() {
+    return Q.nbind(l.vbm.command.exec, l.vbm.command);
+  }
+});
 
-h.describeSkipVm("Azk agent vm", function() {
+var os   = require('os');
+
+h.describeRequireVm("Azk agent vm", function() {
   var data_path = config("agent:vm:data_disk");
   var data_test = path.join(path.dirname(data_path), "test-" + path.basename(data_path));
   var net_opts  = {};
@@ -20,24 +28,24 @@ h.describeSkipVm("Azk agent vm", function() {
 
   // Setups
   var remove_disk = function(file) {
-    return exec("closemedium", "disk", file).fail(() => {});
+    return l.exec("closemedium", "disk", file).fail(() => {});
   };
 
   var remove = function() {
     return async(this, function* () {
-      var info = yield VM.info(opts.name);
+      var info = yield l.VM.info(opts.name);
       this.timeout(0);
 
       if (info.installed) {
-        yield VM.stop(opts.name);
-        yield VM.remove(opts.name);
+        yield l.VM.stop(opts.name);
+        yield l.VM.remove(opts.name);
       }
 
       yield remove_disk(opts.data);
       yield remove_disk(opts.data + ".tmp");
 
-      yield qfs.remove(opts.data).fail(() => null);
-      yield qfs.remove(opts.data + ".tmp").fail(() => null);
+      yield l.qfs.remove(opts.data).fail(() => null);
+      yield l.qfs.remove(opts.data + ".tmp").fail(() => null);
     });
   };
 
@@ -60,21 +68,22 @@ h.describeSkipVm("Azk agent vm", function() {
 
   // Tests
   it("should return installed", function() {
-    return h.expect(VM.isInstalled(opts.name)).to.eventually.fail;
+    return h.expect(l.VM.isInstalled(opts.name)).to.eventually.fail;
   });
 
   describe("with have a vm", function() {
     var aux_tools = {
       install_vm(options = {}) {
         options = _.merge({}, opts, options);
+        log.debug("will install vm with options", options);
         return async(this, function *() {
           if (this.timeout) { this.timeout(10000); }
           yield remove.apply(this);
-          return h.expect(VM.init(options)).to.eventually.fulfilled;
+          return h.expect(l.VM.init(options)).to.eventually.fulfilled;
         });
       },
       netinfo() {
-        return Q.all([hostonly.list(), dhcp.list_servers()]);
+        return Q.all([l.hostonly.list(), l.dhcp.list_servers()]);
       },
       filter_dhcp(list, VBoxNetworkName) {
         return _.find(list, (server) => server.NetworkName == VBoxNetworkName);
@@ -118,12 +127,12 @@ h.describeSkipVm("Azk agent vm", function() {
       it("should start, stop and return vm status", function() {
         return async(this, function* () {
           this.timeout(15000);
-          h.expect(yield VM.start(opts.name)).to.ok;
-          h.expect(yield VM.start(opts.name)).to.fail;
-          h.expect(yield VM.isRunnig(opts.name)).to.ok;
-          h.expect(yield VM.stop(opts.name, true)).to.ok;
-          h.expect(yield VM.isRunnig(opts.name)).to.fail;
-          h.expect(yield VM.stop(opts.name)).to.fail;
+          h.expect(yield l.VM.start(opts.name)).to.ok;
+          h.expect(yield l.VM.start(opts.name)).to.fail;
+          h.expect(yield l.VM.isRunnig(opts.name)).to.ok;
+          h.expect(yield l.VM.stop(opts.name, true)).to.ok;
+          h.expect(yield l.VM.isRunnig(opts.name)).to.fail;
+          h.expect(yield l.VM.stop(opts.name)).to.fail;
         });
       });
 
@@ -131,14 +140,14 @@ h.describeSkipVm("Azk agent vm", function() {
         return async(this, function* () {
           var result, data = "foo", key = "bar";
           // Set property
-          yield VM.setProperty(opts.name, key, data, "TRANSIENT");
+          yield l.VM.setProperty(opts.name, key, data, "TRANSIENT");
 
           // Get property
-          result = yield VM.getProperty(opts.name, key);
+          result = yield l.VM.getProperty(opts.name, key);
           h.expect(result).to.eql({ Value: data });
 
           // Get a not set
-          result = yield VM.getProperty(opts.name, "any_foo_key_not_set");
+          result = yield l.VM.getProperty(opts.name, "any_foo_key_not_set");
           h.expect(result).to.eql({});
         });
       });
@@ -184,11 +193,11 @@ h.describeSkipVm("Azk agent vm", function() {
 
         // Networking configure guest ip
         var result, key_base = "/VirtualBox/D2D/eth0";
-        result = yield VM.getProperty(opts.name, `${key_base}/address`);
+        result = yield l.VM.getProperty(opts.name, `${key_base}/address`);
         h.expect(result).to.eql({ Value: net_opts.ip });
-        result = yield VM.getProperty(opts.name, `${key_base}/netmask`);
+        result = yield l.VM.getProperty(opts.name, `${key_base}/netmask`);
         h.expect(result).to.eql({ Value: net_opts.netmask });
-        result = yield VM.getProperty(opts.name, `${key_base}/network`);
+        result = yield l.VM.getProperty(opts.name, `${key_base}/network`);
         h.expect(result).to.eql({ Value: net_opts.network });
 
         // Check if dhcp server is disabled
@@ -219,11 +228,11 @@ h.describeSkipVm("Azk agent vm", function() {
     beforeEach(() => data = "");
 
     it("should return error if vm not exist", function() {
-      return h.expect(VM.ssh("not-exist")).to.eventually.rejectedWith(/vm is not running/);
+      return h.expect(l.VM.ssh("not-exist")).to.eventually.rejectedWith(/vm is not running/);
     });
 
     it("should execute a ssh command", function() {
-      var result = VM.ssh(name, "sleep 0.5; uptime").progress(progress);
+      var result = l.VM.ssh(name, "sleep 0.5; uptime").progress(progress);
       return result.then(function(code) {
         h.expect(data).to.match(/load average/);
         h.expect(code).to.equal(0);
@@ -231,14 +240,14 @@ h.describeSkipVm("Azk agent vm", function() {
     });
 
     it("should return code to execute ssh command", function() {
-      return h.expect(VM.ssh(name, "exit 127")).to.eventually.equal(127);
+      return h.expect(l.VM.ssh(name, "exit 127")).to.eventually.equal(127);
     });
 
     it("should genereate a new screenshot file", function() {
       return async(this, function* () {
-        var file = yield VM.saveScreenShot(name);
-        yield h.expect(qfs.exists(file)).to.eventually.fulfilled;
-        yield qfs.remove(file);
+        var file = yield l.VM.saveScreenShot(name);
+        yield h.expect(l.qfs.exists(file)).to.eventually.fulfilled;
+        yield l.qfs.remove(file);
       });
     });
 
@@ -246,10 +255,10 @@ h.describeSkipVm("Azk agent vm", function() {
       return async(this, function* () {
         var code;
 
-        code = yield VM.copyFile(name, __filename, "/tmp/azk/file").progress(progress);
+        code = yield l.VM.copyFile(name, __filename, "/tmp/azk/file").progress(progress);
         h.expect(code).to.equal(0);
 
-        code = yield VM.ssh(name, "cat /tmp/azk/file").progress(progress);
+        code = yield l.VM.ssh(name, "cat /tmp/azk/file").progress(progress);
         h.expect(code).to.equal(0);
         h.expect(data).to.match(/should\scopy\sfile\sto\svm/);
       });

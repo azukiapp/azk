@@ -39,7 +39,7 @@ systems({
       data: "3306/tcp",
     },
     envs: {
-      MYSQL_PASS: "senha",
+      MYSQL_PASS: "password",
       MYSQL_USER: "admin",
     },
     export_envs: {

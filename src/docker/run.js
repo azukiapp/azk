@@ -1,4 +1,4 @@
-import { _, async, config } from 'azk';
+import { _, async, config, log } from 'azk';
 import { default as tracker } from 'azk/utils/tracker';
 
 function new_resize(container) {
@@ -80,7 +80,9 @@ export function run(docker, Container, image, cmd, opts = { }) {
 
   return async(docker, function* (notify) {
     var resize, isRaw, stream;
-    container = yield this.createContainer(_.merge(optsc, docker_opts.create || {}));
+    var create_opts = _.merge(optsc, docker_opts.create || {});
+    log.debug("[docker] creating a container with ", create_opts);
+    container = yield this.createContainer(create_opts);
 
     var c_notify = (type, ...data) => {
       return notify({ type, context: "container_run", id: container.id, data: data });
@@ -128,13 +130,14 @@ export function run(docker, Container, image, cmd, opts = { }) {
     }
 
     // Start container
-    var start_opts = {
+    var start_opts = _.merge({
       Dns: nameservers,
       Binds: v_binds,
       PortBindings: p_binds,
-    };
+    }, docker_opts.start || {});
 
-    yield container.start(_.merge(start_opts, docker_opts.start || {}));
+    log.debug("[docker] attaching a container with ", start_opts);
+    yield container.start(start_opts);
 
     //track
     try {

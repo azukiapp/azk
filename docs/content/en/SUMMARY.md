@@ -44,6 +44,7 @@
 /*****************************************************/
 * [Reference](reference/README.md)
    * [Azkfile.js](reference/azkfilejs/README.md)
+     * [System name](reference/azkfilejs/system_name.md)
      * [command](reference/azkfilejs/command.md)
      * [depends](reference/azkfilejs/depends.md)
      * [dns_servers](reference/azkfilejs/dns_servers.md)

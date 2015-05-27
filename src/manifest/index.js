@@ -29,6 +29,10 @@ var ManifestDsl = {
     return { type: 'persistent', value: name, options: options };
   },
 
+  sync(name, options = {}) {
+    return { type: 'sync', value: name, options: options };
+  },
+
   // Systems
   system(name, data) {
     this.addSystem(name, data);
@@ -177,6 +181,7 @@ export class Manifest {
   // TODO: refactoring to use validate
   _system_validate(name, data) {
     var msg, opts;
+    // system_name must not contain anything not valid in docker container name
     if (!name.match(/^[a-zA-Z0-9-]+$/)) {
       msg = t("manifest.system_name_invalid", { system: name });
       throw new ManifestError(this.file, msg);

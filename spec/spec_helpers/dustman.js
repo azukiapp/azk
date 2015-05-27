@@ -44,14 +44,17 @@ export function extend(Helpers) {
   };
 
   // Remove all containers before run
-  before(function() {
-    this.timeout(0);
-    var progress = (event) => console.log(`  ${event}`);
-    var funcs = [
-      Helpers.remove_containers,
-      Helpers.remove_images,
-      () => console.log("\n")
-    ];
-    return funcs.reduce(Q.when, Q()).progress(progress);
-  });
+  // if no_required_agent is disabled
+  if (!Helpers.no_required_agent) {
+    before(function() {
+      this.timeout(0);
+      var progress = (event) => console.log(`  ${event}`);
+      var funcs = [
+        Helpers.remove_containers,
+        Helpers.remove_images,
+        () => console.log("\n")
+      ];
+      return funcs.reduce(Q.when, Q()).progress(progress);
+    });
+  }
 }

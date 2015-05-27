@@ -14,8 +14,7 @@ dotenv.load();
 // Configs for deploy
 var configs = {
   deploy: {
-    bucket: process.env.AWS_BUCKET_STAGE,
-    mixpanel_expand: false,
+    bucket: process.env.AWS_BUCKET_STAGE
   }
 };
 
@@ -53,9 +52,10 @@ gulp.task('replace-style.css-path-on-index', function(){
     .pipe(gulp.dest('./content/_book/'));
 });
 
-gulp.task('replace-mixpanel-token', function() {
+gulp.task('replace-ga-tokens', function() {
   return gulp.src(['./content/_book/**/*.html'])
-    .pipe(replace(/MIXPANEL_TOKEN/gm, process.env.MIXPANEL_TOKEN))
+    .pipe(replace(/GA_UA_ID/gm, process.env.GA_UA))
+    .pipe(replace(/GA_COOKIE_DOMAIN/gm, process.env.GA_COOKIE_DOMAIN))
     .pipe(gulp.dest('./content/_book'));
 });
 
@@ -114,35 +114,44 @@ gulp.task('publish-stage-gz', function() {
     .pipe(awspublish.reporter());
 });
 
-gulp.task('build', shell.task([
+gulp.task('build-gitbook', shell.task([
   'azk nvm gitbook build content'
 ]));
+
+gulp.task('override-landingpage', function(callback){
+  return gulp.src('./content-override/index.html')
+    .pipe(gulp.dest('./content/_book'));
+});
 
 gulp.task('deploy-prod', function(callback) {
   configs.deploy.bucket = process.env.AWS_BUCKET_PROD;
 
-  runSequence('build',
+  runSequence('build-gitbook',
               'del-wrong-gitbook-folder',
-              'replace-style.css-path-on-index',
               'replace-font-path-pt-BR',
               'replace-font-path-en',
-              'replace-readme-to-index',
-              'rename-readme-to-index',
-              'replace-mixpanel-token',
+              'override-landingpage',
+              'replace-ga-tokens',
               'publish-stage-gz',
               callback);
 });
 
 gulp.task('deploy-stage', function(callback) {
-  runSequence('build',
+  runSequence('build-gitbook',
               'del-wrong-gitbook-folder',
-              'replace-style.css-path-on-index',
               'replace-font-path-pt-BR',
               'replace-font-path-en',
-              'replace-readme-to-index',
-              'rename-readme-to-index',
+              'override-landingpage',
               'publish-stage-gz',
               callback);
 });
 
+gulp.task('build', function(callback) {
+  runSequence(
+              'build-gitbook',
+              'override-landingpage',
+              callback);
+});
+
 gulp.task('default', ['build']);
+
