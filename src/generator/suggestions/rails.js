@@ -25,8 +25,10 @@ export class Suggestion extends UIProxy {
       scalable: { default: 2 },
       command : 'bundle exec rackup config.ru --pid /tmp/rails.pid --port $HTTP_PORT --host 0.0.0.0',
       mounts  : {
-        '/azk/#{manifest.dir}': {type: 'path', value: '.'},
-        '/azk/bundler'        : {type: 'persistent', value: 'bundler'},
+        '/azk/#{manifest.dir}'     : {type: 'sync', value: '.'},
+        '/azk/#{manifest.dir}/tmp' : {type: 'persistent', value: 'tmp-#{system.name}'},
+        '/azk/#{manifest.dir}/log' : {type: 'persistent', value: 'log-#{system.name}'},
+        '/azk/bundler'             : {type: 'persistent', value: 'bundler'},
       },
       envs    : {
         RAILS_ENV : 'development',
