@@ -56,7 +56,7 @@ The destination path of the data that will be synced will vary between Mac and L
 
 ###### Mac
 
-`~/.azk/data/sync_folders/#{manifest.id}/LOCAL_PATH`.
+The folder is stored in a virtual disk (`~/.azk/data/vm/azk-agent.vmdk`) in the path `/azk/sync_folders`. This disk is mounted in the path `/mnt/sda1` of the VM.
  
 ###### Linux
 

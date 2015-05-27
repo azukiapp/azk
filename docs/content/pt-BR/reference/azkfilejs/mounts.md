@@ -20,7 +20,7 @@ Persiste os arquivos dentro do contêiner no caminho `INTERNAL_FOLDER` para uma 
 
 ###### Mac
 
-A pasta se encontra no disco virtual (`~/.azk/data/vm/azk-agent.vmdk`), no diretório `/azk/persistent_folders`. Esse disco é montada no caminho `/mnt/sda1` da VM.
+A pasta encontra-se no disco virtual (`~/.azk/data/vm/azk-agent.vmdk`), no diretório `/azk/persistent_folders`. Esse disco é montada no caminho `/mnt/sda1` da VM.
  
 ###### Linux
 
@@ -40,7 +40,7 @@ Sincroniza os arquivos presentes em `LOCAL_PATH` com o destino remoto, o qual é
 
 * `except`: um `Array` de arquivos e/ou pastas a serem ignoradas no processo de sincronização. Esta opção usa [glob patterns](http://teaching.idallen.com/dat2330/06w/notes/glob_patterns.txt). Dicas úteis:
   * **Ignorar um arquivo**: `{except: ["./caminho/para/o/arquivo.png"]}`
-  * **Ignorar uma pasta**: `{except: ["./caminho/para/a/pasta"]}` // *Lembre-se da `/` no final!*
+  * **Ignorar uma pasta**: `{except: ["./caminho/para/a/pasta/"]}` // *Lembre-se da `/` no final!*
   * **Ignorar todos os arquivos CSS**: `{except: ["*.css"]}`
 
   > Por padrão, o `azk` já ignora os seguintes elementos: `.rsyncignore`, `.gitignore`, `Azkfile.js`, `.azk/` and `.git/`.
@@ -54,7 +54,7 @@ O diretório de destino da sincronização varia entre Mac e Linux:
 
 ###### Mac
 
-`~/.azk/data/sync_folders/#{manifest.id}/LOCAL_PATH`.
+A pasta encontra-se no disco virtual (`~/.azk/data/vm/azk-agent.vmdk`), no diretório `/azk/sync_folders`. Esse disco é montada no caminho `/mnt/sda1` da VM.
  
 ###### Linux
 
