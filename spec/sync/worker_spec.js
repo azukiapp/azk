@@ -139,11 +139,15 @@ describe("Azk sync, Worker module", function() {
         var origin_folder = path.join(origin, folder);
         var dest_folder   = path.join(origin, folder);
 
-        // Save all msgs
+        // Save all messages and call check via event emitter
+        var msgs = [];
+        bus.on('sending', (msg) => {
+          msgs.push(JSON.parse(msg));
+          bus.emit('received');
+        });
+
         var wait_msgs = defer((resolve) => {
-          var msgs = [];
-          bus.on('sending', (msg) => {
-            msgs.push(JSON.parse(msg));
+          bus.on('received', (msg) => {
             if (msgs.length >= 3) { resolve(msgs); }
           });
         });
@@ -270,18 +274,23 @@ describe("Azk sync, Worker module", function() {
       var [bus] = create_worker();
       var opts  = { except: ["foo/"] };
 
-      var msg = yield run_and_wait_msg(bus, () => {
+      var msg = yield run_and_wait_msg(bus,'watch', () => {
         return bus.emit("message", { origin, destination: dest, opts });
       });
 
-      h.expect(msg).to.have.property('op', 'sync');
-      h.expect(msg).to.have.property('status', 'done');
+      h.expect(msg).to.have.property('op', 'watch');
+      h.expect(msg).to.have.property('status', 'ready');
+
+      // Save all messages and call check via event emitter
+      msgs = [];
+      bus.on('sending', (msg) => {
+        msgs.push(JSON.parse(msg));
+        bus.emit('received');
+      });
 
       var wait_msgs = defer((resolve) => {
-        var msgs = [];
-        bus.on('sending', (msg) => {
-          msgs.push(JSON.parse(msg));
-          if (msgs.length >= 2) { resolve(msgs); }
+        bus.on('received', () => {
+          if (msgs.length >= 3) { resolve(msgs); }
         });
       });
 
@@ -290,12 +299,11 @@ describe("Azk sync, Worker module", function() {
       });
 
       var msgs = yield wait_msgs;
-      h.expect(msgs).to.include.something.that.deep.eql(
-        {"op": "sync", "status":"close"}
-      );
-      h.expect(msgs).to.include.something.that.deep.eql(
-        {"op": "sync", "status":"done"}
-      );
+      h.expect(msgs).to.containSubset([
+        {"op": "sync", "status":"close"},
+        {"op": "sync", "status":"done"},
+        {"op": "watch", "status":"ready"},
+      ]);
     });
   });
 
