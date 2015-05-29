@@ -64,10 +64,17 @@ function parseAddManifestFiles (archive, dockerfile, content) {
       var stats = yield qfs.stat(source);
       if (stats.isDirectory()) {
         var dirname = source.split(path.sep)[source.split(path.sep).length - 1];
-        var parent  = path.dirname(source);
-        archive.bulk([
-          { expand: true, cwd: parent, src: [path.join(dirname, '**')], dest: '/' },
-        ]);
+        var cwd, src;
+
+        if (source === base_dir) {
+          cwd = base_dir;
+          src = ['**'];
+        } else {
+          cwd = path.dirname(source);
+          src = [path.join(dirname, '**')];
+        }
+
+        archive.bulk([{ expand: true, cwd, src, dest: '/' }]);
       } else if (stats.isFile()) {
         archive.file(source, { name: capture[1] });
       }

@@ -34,9 +34,31 @@ describe("Azk docker module, image build @slow", function() {
           );
 
           return result.then((container) => {
-            h.expect(outputs.stdout).to.equal("Sucess!!\n");
+            h.expect(outputs.stdout).to.match(/^'Sucess!!'$/m);
+            h.expect(outputs.stdout).to.match(/^Run \/entrypoint.sh$/m);
             return container.remove();
           });
+        });
+    });
+
+    it("should generate a valid image with add files", function() {
+      return build('Dockerfile', 'sucess')
+        .then((image) => {
+          var result = h.docker.run(
+            image.name,
+            ["/bin/bash", "-c", "ls -la /all" ],
+            { stdout: mocks.stdout, stderr: mocks.stderr, rm: true }
+          );
+
+          return result
+            .then((container) => {
+              return container.remove();
+            })
+            .then(() => {
+              h.expect(outputs.stdout).to.match(/^-.*DockerfileFrom404$/m);
+              h.expect(outputs.stdout).to.match(/^d.*dir_to_add$/m);
+              h.expect(outputs.stdout).to.not.match(/^d.*build$/m);
+            });
         });
     });
 

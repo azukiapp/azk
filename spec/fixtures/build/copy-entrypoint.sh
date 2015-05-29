@@ -1,4 +1,6 @@
 #!/bin/bash
 set -e
 
-exec "$@"
+echo "Run ${BASH_SOURCE:-$0}"
+echo "$@"
+exec ${@}
