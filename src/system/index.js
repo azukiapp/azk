@@ -562,9 +562,16 @@ export class System {
   }
 
   _mounts_to_syncs(mounts) {
-    var syncs        = {};
-    var rsyncignore  = path.join(this.manifest.manifestPath, '.rsyncignore');
-    var except_from  = fs.existsSync(rsyncignore) ? rsyncignore : undefined;
+    var syncs       = {};
+    var rsyncignore = path.join(this.manifest.manifestPath, '.rsyncignore');
+    var gitignore   = path.join(this.manifest.manifestPath, '.gitignore');
+    var except_from = null;
+
+    if (fs.existsSync(rsyncignore)) {
+      except_from = rsyncignore;
+    } else if (fs.existsSync(gitignore)) {
+      except_from = gitignore;
+    }
 
     return _.reduce(mounts, (syncs, mount) => {
       if (mount.type === 'sync') {
@@ -582,7 +589,7 @@ export class System {
 
         mount.options             = mount.options || {};
         mount.options.except_from = except_from;
-        mount.options.except      = _.uniq((mount.options.except || [])
+        mount.options.except      = _.uniq(_.flatten([mount.options.except || []])
           .concat(mounted_subpaths)
           .concat(['.rsyncignore', '.gitignore', '.azk/', '.git/', 'Azkfile.js']));
 

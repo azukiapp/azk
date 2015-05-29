@@ -26,7 +26,7 @@ describe("Azk sync, Watcher module", function() {
   });
 
   afterEach(() => {
-    if (_.isEmpty(subscription)) {
+    if (!_.isEmpty(subscription)) {
       subscription.unsubscribe();
       subscription = null;
     }

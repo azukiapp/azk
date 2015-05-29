@@ -75,10 +75,12 @@ export class Worker {
   _watch_patterns_ary(origin, opts = {}) {
     // TODO Support include
     opts.include = ['.'];
-    opts.except  = opts.except || [];
+    opts.except  = _.flatten([opts.except || []]);
 
-    if (!_.isArray(opts.except)) {
-      opts.except = [opts.except];
+    if (opts.except_from) {
+      opts.except = opts.except.concat(
+        _.without(lazy.fs.readFileSync(opts.except_from, {encoding: 'UTF-8'}).split('\n'), '')
+      );
     }
 
     return opts.include.map((pattern) => {
