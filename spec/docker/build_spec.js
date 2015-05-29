@@ -55,8 +55,11 @@ describe("Azk docker module, image build @slow", function() {
               return container.remove();
             })
             .then(() => {
-              h.expect(outputs.stdout).to.match(/^-.*DockerfileFrom404$/m);
               h.expect(outputs.stdout).to.match(/^d.*dir_to_add$/m);
+              h.expect(outputs.stdout).to.match(/^-.*file_to_add$/m);
+              h.expect(outputs.stdout).to.not.match(/^-.*Dockerfile$/m);
+              h.expect(outputs.stdout).to.not.match(/^-.*DockerfileFrom404$/m);
+              h.expect(outputs.stdout).to.not.match(/^-.*.dockerignore$/m);
               h.expect(outputs.stdout).to.not.match(/^d.*build$/m);
             });
         });
