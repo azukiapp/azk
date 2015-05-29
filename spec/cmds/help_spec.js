@@ -13,15 +13,13 @@ describe('Azk cli, help controller', function() {
   var doc_opts    = { exit: false };
   var run_options = { ui: ui };
 
-  var should  = cli.help.replace('\n', '') + "\n";
-
   it("should run help command", function() {
     doc_opts.argv = 'help';
     var options = cli.docopt(doc_opts);
     return cli.run(doc_opts, run_options).then((code) => {
       h.expect(code).to.eql(0);
       h.expect(options).to.have.property('help', true);
-      h.expect(outputs[0]).to.eql(should);
+      h.expect(outputs[0]).to.match(RegExp('Usage:', 'gi'));
     });
   });
 
@@ -29,7 +27,7 @@ describe('Azk cli, help controller', function() {
     doc_opts.argv = ['--help'];
     return cli.run(doc_opts, run_options).then((code) => {
       h.expect(code).to.eql(0);
-      h.expect(outputs[0]).to.eql(should);
+      h.expect(outputs[0]).to.match(RegExp('Usage:', 'gi'));
     });
   });
 
@@ -37,7 +35,15 @@ describe('Azk cli, help controller', function() {
     doc_opts.argv = '-h';
     return cli.run(doc_opts, run_options).then((code) => {
       h.expect(code).to.eql(0);
-      h.expect(outputs[0]).to.eql(should);
+      h.expect(outputs[0]).to.match(RegExp('Usage:', 'gi'));
+    });
+  });
+
+  it("should run `agent --help` command", function() {
+    doc_opts.argv = ['agent', '--help'];
+    return cli.run(doc_opts, run_options).then((code) => {
+      h.expect(result).to.eql(0);
+      h.expect(outputs[0]).to.match(RegExp('Usage:', 'gi'));
     });
   });
 });

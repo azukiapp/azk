@@ -1,7 +1,9 @@
+$ azk [options] [*command]
+
 azk help
 
 Usage:
-  azk agent (start|status|stop) [--no-daemon --child --reload-vm -q -l -h] [-v]...
+  azk agent [start|status|stop] [--no-daemon --child --reload-vm -q -l -h] [-v]...
   azk config (track-toggle|track-status) [-q -l -h] [-v]...
   azk doctor [--logo -q] [-v]...
   azk docker [-q -l -h] [-v]... [-- <docker-options>...]
@@ -26,7 +28,7 @@ Options:
   -f, --tail, --follow  Follow log output.
   --no-timestamps       Hide timestamps.
 
-commands:
+Commands:
   agent    Controls azk agent
   config   Controls azk configuration options
   docker   Alias for calling docker in 'azk' scope configuration
@@ -45,8 +47,7 @@ commands:
   version  Shows azk version
   vm       Controls a virtual machine.
 
-examples:
-
+Examples:
   $ azk agent start --daemon
   $ azk shell --image azukiapp/busybox
   $ azk shell --mount ~/Home:/azk/user -e HOME=/azk/user

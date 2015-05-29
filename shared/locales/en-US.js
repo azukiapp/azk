@@ -370,9 +370,10 @@ module.exports = {
     },
     help: {
       description: "Shows help about a specific command",
-      usage: 'Usage:'.blue + ' $ %s',
-      options: "options:".green,
-      examples: "examples:".yellow,
+      commands   : "Commands:".yellow,
+      options    : "Options:".green,
+      examples   : "Examples:".yellow,
+      usage      : 'Usage:'.blue,
     },
     helpers: {
       pull: {
