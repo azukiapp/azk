@@ -32,11 +32,11 @@
   },
   "dependencies": {
     "archiver": "^0.13.1",
-    "babel-runtime": "^5.1.9",
+    "babel-runtime": "^5.1.11",
     "bluebird": "^2.9.25",
     "child-process-promise": "^1.0.0",
     "chokidar": "^1.0.1",
-    "cli-router": "^0.1.0",
+    "cli-router": "^0.2.3",
     "cli-table": "git+https://github.com/gullitmiranda/cli-table#master",
     "colors": "^0.6.2",
     "connectivity": "^0.1.1",

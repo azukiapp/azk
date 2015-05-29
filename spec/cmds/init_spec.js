@@ -3,14 +3,14 @@ import { config, path, t, utils } from 'azk';
 import { Cli } from 'azk/cli';
 import { Manifest } from 'azk/manifest';
 
-describe('Azk cli init controller', function() {
+describe('Azk cli, init controller', function() {
   var outputs = [];
   var ui       = h.mockUI(beforeEach, outputs);
   var manifest = config('manifest');
 
   var cli_options = {};
   var cli = new Cli(cli_options)
-    .route('/init');
+    .route('init');
 
   var doc_opts    = { exit: false };
   var run_options = { ui: ui };
@@ -27,7 +27,7 @@ describe('Azk cli init controller', function() {
 
     it("should fail", function() {
       doc_opts.argv = ['init'];
-      var options = cli.router.cleanArgs(cli.docopt(doc_opts));
+      var options = cli.router.cleanParams(cli.docopt(doc_opts));
       return cli.run(doc_opts, run_options).then((code) => {
         h.expect(code).to.equal(1);
         h.expect(options).to.have.property('init', true);
@@ -51,7 +51,7 @@ describe('Azk cli init controller', function() {
     return h.tmp_dir().then((project) => {
       doc_opts.argv   = ['init'];
       run_options.cwd = project;
-      var options = cli.docopt(doc_opts);
+      var options = cli.router.cleanParams(cli.docopt(doc_opts));
 
       // Check generated manifest
       var manifest = new Manifest(project);

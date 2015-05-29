@@ -11,7 +11,7 @@ describe('Azk cli module', function() {
     path: h.fixture_path('cli', 'usage.txt'),
   };
   var cli = new Cli(cli_options)
-    .route('/test_options');
+    .route('test_options');
 
   var doc_opts    = { exit: false };
   var run_options = {

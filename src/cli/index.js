@@ -16,16 +16,18 @@ export function cli(args, cwd, ui = UI) {
   try {
     var azk_cli = new Cli();
     azk_cli
-      .route('/help')
-      .route('/agent')
-      .route('/docker')
-      .route('/doctor')
-      .route('/init')
-      .route('/logs')
-      .route('/vm')
-      .route('/info')
-      .route('/config')
-      .route('/version');
+      // Options
+      .route('help', (p) => p.help || p['--help'])
+      .route('version', (p) => p.version || p['--version'])
+      // Commands
+      .route('agent')
+      .route('vm')
+      .route('config')
+      .route('docker')
+      .route('doctor')
+      .route('info')
+      .route('init')
+      .route('logs');
 
     result = azk_cli.run({
       argv: args.slice(2)

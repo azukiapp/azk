@@ -1,13 +1,14 @@
 import h from 'spec/spec_helper';
 import { Cli } from 'azk/cli';
 
-describe('Azk cli help controller', function() {
+describe('Azk cli, help controller', function() {
   var outputs = [];
   var ui = h.mockUI(beforeEach, outputs);
 
   var cli_options = {};
   var cli = new Cli(cli_options)
-    .route('/help');
+    .route('help', (p) => p.help || p['--help'])
+    .route('agent');
 
   var doc_opts    = { exit: false };
   var run_options = { ui: ui };

@@ -9,7 +9,7 @@ describe('Azk cli, info controller, run in an', function() {
 
   var cli_options = {};
   var cli = new Cli(cli_options)
-    .route('/info');
+    .route('info');
 
   var doc_opts    = { exit: false };
   var run_options = { ui: ui, cwd: __dirname };
@@ -19,7 +19,7 @@ describe('Azk cli, info controller, run in an', function() {
       return h.tmp_dir().then((dir) => {
         doc_opts.argv   = ['info'];
         run_options.cwd = dir;
-        var options = cli.router.cleanArgs(cli.docopt(doc_opts));
+        var options = cli.router.cleanParams(cli.docopt(doc_opts));
         h.expect(options).to.have.property('info', true);
         return h.expect(cli.run(doc_opts, run_options)).to.rejectedWith(ManifestRequiredError);
       });
@@ -39,7 +39,7 @@ describe('Azk cli, info controller, run in an', function() {
     it("should show systems information no colored", function() {
       doc_opts.argv   = ['info', '--no-color'];
       run_options.cwd = manifest.manifestPath;
-      var options = cli.router.cleanArgs(cli.docopt(doc_opts));
+      var options = cli.router.cleanParams(cli.docopt(doc_opts));
       return cli.run(doc_opts, run_options).then((code) => {
         h.expect(code).to.equal(0);
         h.expect(options).to.have.property('info', true);
@@ -51,7 +51,7 @@ describe('Azk cli, info controller, run in an', function() {
     it("should show systems information", function() {
       doc_opts.argv   = ['info'];
       run_options.cwd = manifest.manifestPath;
-      var options = cli.router.cleanArgs(cli.docopt(doc_opts));
+      var options = cli.router.cleanParams(cli.docopt(doc_opts));
       h.expect(options).to.have.property('info', true);
       return cli.run(doc_opts, run_options).then((code) => {
         h.expect(code).to.equal(0);

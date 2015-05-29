@@ -1,6 +1,6 @@
 import { CliTrackerController } from 'azk/cli/cli_tracker_controller.js';
 import { Helpers } from 'azk/cli/helpers';
-import { config, lazy_require, log } from 'azk';
+import { config, lazy_require, log, _ } from 'azk';
 import { async, promiseResolve, promiseReject } from 'azk/utils/promises';
 import { subscribe } from 'azk/utils/postal';
 
@@ -42,7 +42,7 @@ class VM extends CliTrackerController {
     }
 
     return async(this, function* () {
-      var action  = this.params.action || options.action;
+      var action  = _.head(this.route.actions) || options.action;
       var vm_name = config("agent:vm:name");
       var vm_info = yield lazy.VM.info(vm_name);
 

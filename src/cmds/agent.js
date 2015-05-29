@@ -26,7 +26,9 @@ class Agent extends CliTrackerController {
   }
 
   callAgent(opts) {
-    var params = _.clone(this.params);
+    var params = {
+      action: _.head(this.route.actions) || opts.action
+    };
     // Create a progress output
     var _subscription = subscribe('#.status', (data) => {
       Helpers.vmStartProgress(this.ui)(data);
