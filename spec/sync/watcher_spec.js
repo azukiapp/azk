@@ -41,7 +41,7 @@ describe("Azk sync, Watcher module", function() {
     h.expect(msg).to.have.property('status', 'done');
 
     var result = yield h.diff(origin, dest);
-    h.expect(result).to.have.property('deviation', 0);
+    h.expect(result).to.have.property('deviation', 3);
   });
 
   describe("with called to watch a two folders", function() {
@@ -54,7 +54,7 @@ describe("Azk sync, Watcher module", function() {
       h.expect(_.keys(watcher.workers)).to.length(1);
 
       var result = yield h.diff(origin, dest);
-      h.expect(result).to.have.property('deviation', 0);
+      h.expect(result).to.have.property('deviation', 3);
     });
 
     it("should sync two folders and watch", function* () {

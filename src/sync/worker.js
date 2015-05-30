@@ -1,10 +1,10 @@
 import { _, lazy_require, path, log } from 'azk';
-import { defer } from 'azk';
+import { defer, async } from 'azk';
 
 var lazy = lazy_require({
   Sync     : ['azk/sync'],
   chokidar : 'chokidar',
-  fs       : 'fs'
+  qfs      : 'q-io/fs',
 });
 
 export class Worker {
@@ -22,23 +22,32 @@ export class Worker {
     this.unwatch();
 
     log.debug('[sync] call to watch and sync: %s => %s', origin, destination);
-    return this._check_origin(origin)
-      .then(() => {
-        return lazy.Sync.sync(origin, destination, opts);
-      })
-      .then(() => {
+    return async(this, function* () {
+      try {
+        var exists = yield lazy.qfs.exists(origin);
+        if (!exists) {
+          throw { err: 'Sync: origin path not exist', code: 101 };
+        }
+
+        var stats = yield lazy.qfs.stat(origin);
+        if (!(stats.isDirectory || stats.isFile() || stats.isSymbolicLink())) {
+          throw new Error(`The type of the file ${origin} is not supported for synchronization`);
+        }
+
+        if (stats.isDirectory()) {
+          opts = yield this._check_for_except_from(origin, opts);
+        }
+
+        yield lazy.Sync.sync(origin, destination, opts);
         this._send('sync', 'done');
-      })
-      .then(() => {
-        return this._start_watcher(origin, destination, opts);
-      })
-      .then(() => {
+        yield this._start_watcher(origin, destination, opts);
         this._send('watch', 'ready');
-      })
-      .fail((err) => {
+      } catch (err) {
         log.error('[sync] fail', (err.stack ? err.stack : err.toString()));
         this._send('sync', 'fail', { err });
-      });
+        throw err;
+      }
+    });
   }
 
   unwatch() {
@@ -51,37 +60,64 @@ export class Worker {
 
   _start_watcher(origin, destination, opts = {}) {
     var patterns_ary = this._watch_patterns_ary(origin, opts);
-
     return defer((resolve, reject) => {
-      this.chok = lazy.chokidar.watch(patterns_ary, { ignoreInitial: true })
-        .on('all', (event, filepath) => {
-          filepath = path.relative(origin, filepath);
+      this.chok = lazy.chokidar.watch(patterns_ary, { ignoreInitial: true });
+      this.chok.on('all', (event, filepath) => {
+        filepath = path.relative(origin, filepath);
 
-          var include = (event === 'unlinkDir') ? [`${filepath}/\*`, filepath] : [ filepath ];
-          var sync_opts = { include, ssh: opts.ssh || null };
+        var include = (event === 'unlinkDir') ? [`${filepath}/\*`, filepath] : [ filepath ];
+        var sync_opts = { include, ssh: opts.ssh || null };
 
-          log.debug('[sync]', event, 'file', filepath);
+        log.debug('[sync]', event, 'file', filepath);
 
-          lazy.Sync
-            .sync(origin, destination, sync_opts )
-            .then(() => this._send(event, 'done', { filepath }))
-            .fail((err) => this._send(event, 'fail', _.merge(err, { filepath })));
-        })
-        .on('ready', () => resolve(true))
-        .on('error', (err) => reject(err));
+        lazy.Sync
+          .sync(origin, destination, sync_opts )
+          .then(() => this._send(event, 'done', { filepath }))
+          .fail((err) => this._send(event, 'fail', _.merge(err, { filepath })));
+      })
+      .on('ready', () => resolve(true))
+      .on('error', (err) => reject(err));
+    });
+  }
+
+  _check_for_except_from(origin, opts) {
+    return async(this, function* () {
+      // Find from exceptions in files
+      opts = _.clone(opts);
+      opts.except = _.flatten([opts.except || []]);
+
+      var exists, file, file_content = '';
+      var candidates   = opts.except_from ? [opts.except_from] : [];
+      candidates = candidates.concat([
+        path.join(origin, ".syncignore"),
+        path.join(origin, ".gitignore"),
+      ]);
+
+      delete opts.except_from;
+
+      for (var i = 0; i < candidates.length; i++) {
+        file   = candidates[i];
+        exists = yield lazy.qfs.exists(file);
+        if (exists) {
+          opts.except_from = file;
+          file_content = yield lazy.qfs.read(file);
+          break;
+        }
+      }
+
+      opts.except = opts.except.concat(
+        _.without(file_content.split('\n'), '')
+      );
+
+      return opts;
     });
   }
 
   _watch_patterns_ary(origin, opts = {}) {
     // TODO Support include
+    opts = _.clone(opts);
     opts.include = ['.'];
     opts.except  = _.flatten([opts.except || []]);
-
-    if (opts.except_from) {
-      opts.except = opts.except.concat(
-        _.without(lazy.fs.readFileSync(opts.except_from, {encoding: 'UTF-8'}).split('\n'), '')
-      );
-    }
 
     return opts.include.map((pattern) => {
       return path.resolve(origin, pattern);
@@ -92,19 +128,6 @@ export class Worker {
 
   _send(op, status, opts = {}) {
     this.process.send(JSON.stringify(_.merge({ op, status }, opts)));
-  }
-
-  _check_origin(origin) {
-    return defer((resolve, reject) => {
-      try {
-        lazy.fs.exists(origin, (exists) => {
-          var err = exists ? null : { err: 'Sync: origin path not exist', code: 101 };
-          return err ? reject(err) : resolve(true);
-        });
-      } catch (err) {
-        reject(err);
-      }
-    });
   }
 }
 
