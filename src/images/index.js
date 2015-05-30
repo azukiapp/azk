@@ -98,7 +98,7 @@ export class Image {
           // docker pull
           image = yield lazy.docker.pull(this.repository, this.tag, output, registry_result);
         } catch (err) {
-          output = (err || err).toString();
+          output = (err || '').toString();
           throw new LostInternetConnection('  ' + output);
         }
 
