@@ -29,6 +29,8 @@ image: {
 
 É realizado o _build_ localmente. Observe que é possivel especificar a **pasta** que contém o arquivo `Dockerfile` ou o próprio **`Dockerfile`**, que neste caso, não precisa possuir o nome _Dockerfile_.
 
+Para saber como construir seu _Dockerfile_ consulte a [documentação](http://docs.docker.com/reference/builder/#format). Observe que aqui temos o mesmo comportamento do comando `docker build`, inclusive o comportamento de enviar ao Docker todos os arquivos que estão na pasta onde esta o Dockerfile, para evitar lentidão no processo de uma olhada em como criar um [.dockerignore](http://docs.docker.com/reference/builder/#the-dockerignore-file) e eliminar do processo de build arquivos que não são necessários.
+
 ```js
 // modo reduzido
 image: { dockerfile: 'PASTA_COM_DOCKERFILE' },

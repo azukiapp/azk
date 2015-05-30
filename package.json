@@ -4,8 +4,8 @@
   "description": "Orchestrate development environments with agility and automation",
   "main": "index.js",
   "scripts": {
-    "test": "gulp test",
-    "test:slow": "gulp test --slow",
+    "test": "make test",
+    "test:slow": "make slow_test",
     "azk:package": "./src/libexec/package-tools/build.sh",
     "azk:package:publish": "gulp publish"
   },

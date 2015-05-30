@@ -1,12 +1,11 @@
 import { _, Q, async, lazy_require, path } from 'azk';
 import { DockerBuildError } from 'azk/utils/errors';
 
-var archiver = require('archiver');
-var qfs      = require('q-io/fs');
-
 var lazy = lazy_require({
-  JStream: 'jstream',
-  XRegExp: ['xregexp', 'XRegExp']
+  JStream : 'jstream',
+  XRegExp : ['xregexp', 'XRegExp'],
+  qfs     : 'q-io/fs',
+  archiver: 'archiver',
 });
 
 var msg_regex = {
@@ -39,44 +38,6 @@ function parse_stream(msg) {
   return result;
 }
 
-function parseAddManifestFiles (archive, dockerfile, content) {
-  return async(function* () {
-    var base_dir = path.dirname(dockerfile);
-
-    // https://regex101.com/r/yT1jF9/2
-    var dockerfileRegex = /^(?:ADD|COPY)\s+([^\s]+)\s+([^\s]+)$/gmi;
-    // https://regex101.com/r/aC1xZ3/4
-    var isUrlRegex      = /\b(?:(?:https?|ftp|file|ircs?):\/\/|www\.|ftp\.)[-A-Z0-9+&@#/%=~_|$?!:,.;]*[A-Z0-9+&@#/%=~_|$]/gmi;
-    var capture = null;
-    while ( (capture = dockerfileRegex.exec(content)) ) {
-      var source = path.join(base_dir, capture[1]);
-      var isUrl  = isUrlRegex.test(capture[1]);
-
-      // keep urls
-      // TODO: support url download
-      if (isUrl) { continue; }
-
-      // Check if file/folder exist
-      if (!(yield qfs.exists(source))) {
-        throw new DockerBuildError('cannot_find_add_file_in_dockerfile', { dockerfile, source });
-      }
-
-      var stats = yield qfs.stat(source);
-      if (stats.isDirectory()) {
-        var dirname = source.split(path.sep)[source.split(path.sep).length - 1];
-        var parent  = path.dirname(source);
-        archive.bulk([
-          { expand: true, cwd: parent, src: [path.join(dirname, '**')], dest: '/' },
-        ]);
-      } else if (stats.isFile()) {
-        archive.file(source, { name: capture[1] });
-      }
-    }
-
-    return archive;
-  });
-}
-
 export function build(docker, options) {
   return async(function* (notify) {
     var opts = _.extend({
@@ -85,7 +46,7 @@ export function build(docker, options) {
 
     // Check if "Dockerfile" exist
     var dockerfile = opts.dockerfile;
-    if (!(yield qfs.exists(dockerfile))) {
+    if (!(yield lazy.qfs.exists(dockerfile))) {
       throw new DockerBuildError('cannot_find_dockerfile', { dockerfile });
     }
 
@@ -94,12 +55,25 @@ export function build(docker, options) {
     }
 
     // Create a tar and includes Dockerfile
-    var archive = archiver('tar');
-    archive.file(dockerfile, { name: 'Dockerfile' });
+    var archive = lazy.archiver('tar');
+    var src     = ["**", "!Dockerfile"];
+    var cwd     = path.dirname(dockerfile);
 
-    // find ADDs on Dockerfile and include them
-    var dockerfile_content = yield qfs.read(dockerfile);
-    yield parseAddManifestFiles(archive, dockerfile, dockerfile_content);
+    // Filter with .dockerignore
+    var ignore  = path.join(cwd, '.dockerignore');
+    var exists_ignore = yield lazy.qfs.exists(ignore);
+    if (exists_ignore) {
+      var ignore_content = yield lazy.qfs.read(ignore);
+      ignore_content = ignore_content.trim().split('\n');
+      src = src.concat(ignore_content.map((entry) => `!${entry}`));
+    }
+
+    // Add files
+    archive.bulk([{ expand: true, cwd, src, dest: '/' }]);
+    archive.file(dockerfile, { name: 'Dockerfile' });
+    if (exists_ignore) {
+      archive.file(ignore, { name: '.dockerignore' });
+    }
     archive.finalize();
 
     // Options and defer

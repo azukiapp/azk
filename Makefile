@@ -70,6 +70,14 @@ ${VM_DISKS_DIR}/azk-agent.vmdk.gz:
 ${AZK_LIB_PATH}/bats:
 	@git clone -b ${BATS_VERSION} https://github.com/sstephenson/bats ${AZK_LIB_PATH}/bats
 
+slow_test: TEST_SLOW="--slow"
+slow_test: test
+	@echo "task: $@"
+
+test: bootstrap
+	@echo "task: $@"
+	${AZK_BIN} nvm gulp test ${TEST_SLOW} $(if $(filter undefined,$(origin TEST_GREP)),"",--grep "${TEST_GREP}")
+
 # PACKAGE
 AZK_PACKAGE_PATH:=${AZK_ROOT_PATH}/package
 AZK_PACKAGE_PREFIX:=${AZK_PACKAGE_PATH}/v${AZK_VERSION}
@@ -179,4 +187,4 @@ ${PATH_MAC_PACKAGE}: ${AZK_PACKAGE_PREFIX}
 
 package_build: bootstrap ${AZK_LIB_PATH}/azk $(FILES_TARGETS) $(FILES_JS_TARGETS) ${PATH_NODE_MODULES}
 
-.PHONY: bootstrap clean fast_clean package package_brew package_mac package_deb package_rpm package_build package_clean copy_files fix_permissions creating_symbolic_links dependencies check_version
+.PHONY: bootstrap clean fast_clean package package_brew package_mac package_deb package_rpm package_build package_clean copy_files fix_permissions creating_symbolic_links dependencies check_version slow_test test
