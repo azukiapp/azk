@@ -63,7 +63,7 @@ Utilizando o `sync`, é preciso garantir que os dados gerados pelo [`provision`]
   ```js
   mounts: {
     '/azk/#{manifest.dir}' : sync('.'),
-    '/azk/node_modules'         : persistent('node_modules'),
+    '/azk/node_modules'    : persistent('node_modules'),
   },
   ```
 
