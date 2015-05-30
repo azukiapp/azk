@@ -29,6 +29,8 @@ image: {
 
 The _build_ is performed locally. Note that it's possible to specify the **folder** that contains the `Dockerfile` file or the **`Dockerfile`** file itself, which in this case, does not need to have the name _Dockerfile_.
 
+To learn how to build your _Dockerfile_, check out the [docs](http://docs.docker.com/reference/builder/#format). Note that here we have the same behaviour of the command `docker build`, even sending all the files in the folder where is placed the Dockerfile. In order to avoid slowness, check how to create a [.dockerignore](http://docs.docker.com/reference/builder/#the-dockerignore-file) file and remove useless files from the build process.
+
 ```js
 // short mode
 image: { dockerfile: 'FOLDER_WITH_DOCKERFILE' },
