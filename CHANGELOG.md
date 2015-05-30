@@ -5,6 +5,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## dev
 
+* Bug
+  * [Docker] Fixing bug that could prevent the work instruction `ADD . /folder/` when used in a Dockerfile;
+
+* Enhancements
+  * [Docker] Now support `Dockerfile` is complete, and similar to the docker, including support `.dockerignore`;
+
 ## v0.13.0 - (2015-27-05)
 
 * Bug
