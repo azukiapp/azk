@@ -37,20 +37,21 @@ var Sync = {
   },
 
   version() {
-    var version_output;
+    var version_output = '';
     var r = new require('rsync')().set('version').output((data) => {
-      version_output = data.toString();
+      version_output += data.toString();
     });
     return defer((resolve, reject) => {
       r.execute(function(err, code) {
         if (err) {
           return reject({ err, code });
         }
-        var _version = version_output.match(/.*version\ (\d+.\d+.\d+)/);
+        var _version = version_output.match(/.*version\ (\d+\.\d+\.\d+)/);
         if (!_.isEmpty(_version) && _version.length >= 2) {
           return resolve(_version[1]);
         } else {
-          return reject({ err: t('errors.rsync_invalid_version_format', {
+          return reject({
+            err: t('errors.rsync_invalid_version_format', {
               rsync_version: version_output
             })
           });
