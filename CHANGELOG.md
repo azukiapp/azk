@@ -5,6 +5,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## dev
 
+* Enhancements
+  * [Suggesting] Changing the suggestions of python and ruby ​​to give preference to sync instead of path;
+
 ## v0.13.0 - (2015-27-05)
 
 * Bug
