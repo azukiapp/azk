@@ -58,7 +58,7 @@ describe("Azk sync, Watcher module", function() {
     });
 
     it("should sync two folders and watch", function* () {
-      var file = "foo/Moe.txt";
+      var file = "bar/Fred.txt";
       var origin_file = path.join(origin, file);
       var dest_file   = path.join(origin, file);
 
@@ -107,7 +107,7 @@ describe("Azk sync, Watcher module", function() {
         {"op": "watch", "status": "ready"}
       );
 
-      var file = "foo/Moe.txt";
+      var file = "bar/Fred.txt";
       var origin_file = path.join(origin, file);
       var dest_file   = path.join(origin, file);
       var wait_msgs   = h.wait_msg('sync.watcher.*');
