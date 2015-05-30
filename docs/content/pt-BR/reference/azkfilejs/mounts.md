@@ -21,7 +21,7 @@ Persiste os arquivos dentro do contêiner no caminho `INTERNAL_FOLDER` para uma 
 ###### Mac
 
 A pasta encontra-se no disco virtual (`~/.azk/data/vm/azk-agent.vmdk`), no diretório `/azk/persistent_folders`. Esse disco é montada no caminho `/mnt/sda1` da VM.
- 
+
 ###### Linux
 
 `~/.azk/data/persistent_folders/#{manifest.id}/LOCAL_PATH`.
@@ -43,10 +43,17 @@ Sincroniza os arquivos presentes em `LOCAL_PATH` com o destino remoto, o qual é
   * **Ignorar uma pasta**: `{except: ["./caminho/para/a/pasta/"]}` // *Lembre-se da `/` no final!*
   * **Ignorar todos os arquivos CSS**: `{except: ["*.css"]}`
 
-  > Por padrão, o `azk` já ignora os seguintes elementos: `.rsyncignore`, `.gitignore`, `Azkfile.js`, `.azk/` and `.git/`.
+  > Por padrão, o `azk` já ignora os seguintes elementos: `.syncignore`, `.gitignore`, `Azkfile.js`, `.azk/` and `.git/`.
 
 * `daemon`: um valor `boolean` que infica se, ao rodar o `azk` no modo daemon (e.g. `azk start`), o `azk` deve ou não utilizar o `sync` (em caso negativo, será utilizado a opção de `path`) (valor padrão: `true`);
 * `shell`: de modo similar à opção `daemon`, a opção `shell` é um  valor `boolean` que indica se, ao rodar o `azk` no modo daemon (e.g. `azk start`), o `azk` deve ou não utilizar o `sync` (em caso negativo, será utilizado a opção de `path`) (valor padrão: `false`). Utilizar o valor `false` é útil para manter a sincronização em ambos os sentidos, permitindo assim que arquivos criados dentro do shell (e.g. via `$ rails generate scaffold User name:string`) sejam persistidos de volta na pasta original do projeto.
+
+##### Pastas ignoradas
+Quando você usa o `sync` para uma pasta, o `azk` começa a monitorar seus arquivos para ressincronizar aqueles que foram modificados, assim que a mudança acontecer. Uma vez que essa pasta contenha muitos arquivos, o consumo de CPU pode aumentar drasticamente. A melhor maneira de evitar isso é fazendo o `azk` ignorar, durante o processo de sincronização, quaisquer pastas que não sejam estritamente necessárias para o sistema rodar. Você pode fazer isso das seguintes maneiras:
+
+* Utilizando a opção `except` listada acima;
+* Criando, dentro da pasta que está sendo sincronizada, um arquivo chamado `.syncignore` que contém uma lista de todos arquivos e pastas a serem ignorados durante o processo de sincronização (e.g. se você está fazendo `sync(./MeuProjeto)`, o `azk` vai procurar o arquivo `./MeuProjeto/.syncignore`);
+* Se você não tiver o arquivo `.syncignore`, por padrão o `azk` írá ignorar todos os arquivos e pastas listados no arquivo `.gitignore` (dentro da pasta que está sendo sincronizada) durante o processo de sincronização (e.g. analogamente, se você está fazendo `sync(./MeuProjeto)`, o `azk` vai procurar o arquivo `./MeuProjeto/.gitignore`).
 
 ##### Diretório de destino da sincronização
 
@@ -55,7 +62,7 @@ O diretório de destino da sincronização varia entre Mac e Linux:
 ###### Mac
 
 A pasta encontra-se no disco virtual (`~/.azk/data/vm/azk-agent.vmdk`), no diretório `/azk/sync_folders`. Esse disco é montada no caminho `/mnt/sda1` da VM.
- 
+
 ###### Linux
 
 `~/.azk/data/sync_folders/#{manifest.id}/LOCAL_PATH`.

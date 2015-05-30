@@ -168,7 +168,7 @@ var Client = {
   watch(host_folder, guest_folder, opts = {}) {
     return defer((resolve, reject, notify) => {
       var req = { action: 'watch', data: { host_folder, guest_folder, opts } };
-      return WebSocketClient.send(req, (res, end) => {
+      WebSocketClient.send(req, (res, end) => {
         switch (res.status) {
           case 'start':
             notify({ type: "status", status: "starting" });

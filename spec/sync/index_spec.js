@@ -48,7 +48,7 @@ describe("Azk sync, main module", function() {
 
       h.expect(code).to.eql(0);
       h.expect(result_file).to.have.property('deviation', 0);
-      h.expect(result_folder).to.have.property('deviation', 8);
+      h.expect(result_folder).to.have.property('deviation', 10);
     });
   });
 

@@ -30,7 +30,7 @@ describe("Azk sync, Worker module", function() {
     }
     var bus = new FakeProcess();
     worker  = new lazy.Worker(bus);
-    return bus;
+    return [bus, worker];
   }
 
   function run_and_wait_msg(bus, filter, block = null) {
@@ -62,7 +62,8 @@ describe("Azk sync, Worker module", function() {
     beforeEach(() => {
       return async(function* () {
         [origin, dest] = yield make_copy();
-        bus = create_worker();
+        [bus] = create_worker();
+        yield lazy.qfs.remove(path.join(origin, ".syncignore"));
 
         var msg = yield run_and_wait_msg(bus, "watch", () => {
           return bus.emit("message", { origin, destination: dest });
@@ -170,32 +171,105 @@ describe("Azk sync, Worker module", function() {
     });
   });
 
-  it("should forward sync options", function() {
-    return async(function* () {
-      var [origin, dest]  = yield make_copy();
-      var bus  = create_worker();
-      var opts = { except: ["foo/"] };
+  it("should forward sync options", function* () {
+    var [origin, dest]  = yield make_copy();
+    var [bus] = create_worker();
+    var opts  = { except: ["foo/"] };
 
-      var msg = yield run_and_wait_msg(bus, () => {
-        return bus.emit("message", { origin, destination: dest, opts });
-      });
-
-      h.expect(msg).to.have.property('op', 'sync');
-      h.expect(msg).to.have.property('status', 'done');
-
-      var exists = yield lazy.qfs.exists(path.join(dest, "foo"));
-      h.expect(exists).to.fail;
-
-      exists = yield lazy.qfs.exists(path.join(dest, "bar"));
-      h.expect(exists).to.ok;
+    var msg = yield run_and_wait_msg(bus, () => {
+      return bus.emit("message", { origin, destination: dest, opts });
     });
+
+    h.expect(msg).to.have.property('op', 'sync');
+    h.expect(msg).to.have.property('status', 'done');
+
+    var exists = yield lazy.qfs.exists(path.join(dest, "foo"));
+    h.expect(exists).to.fail;
+
+    exists = yield lazy.qfs.exists(path.join(dest, "bar"));
+    h.expect(exists).to.ok;
+  });
+
+  it("should not include content patterns files from except_from option", function* () {
+    var [origin, dest]  = yield make_copy();
+    worker = create_worker()[1];
+    yield worker.watch(origin, dest, {
+      except_from: h.fixture_path("sync/rsyncignore.txt"),
+      except: [ "ignored" ]
+    });
+
+    var wait = defer((resolve) => {
+      worker.chok.on('all', (event, filepath) => {
+        resolve(filepath);
+      });
+    });
+
+    yield lazy.qfs.write(path.join(origin, "ignored/Fred.txt"), "foobar");
+    yield lazy.qfs.write(path.join(origin, "bar/Fred.txt"), "foobar");
+    yield lazy.qfs.write(path.join(origin, "foo/Moe.txt" ), "foobar");
+
+    var msgs = yield wait;
+    h.expect(msgs).to.not.match(/ignored\/Fred.txt/);
+    h.expect(msgs).to.not.match(/bar\/Fred.txt/);
+    h.expect(msgs).to.match(/foo\/Moe.txt/);
+  });
+
+  it("should exclude the .gitignore content for default", function* () {
+    var [origin, dest]  = yield make_copy();
+    yield lazy.qfs.write(path.join(origin, ".gitignore"), "ignored/");
+    yield lazy.qfs.remove(path.join(origin, ".syncignore"));
+
+    worker = create_worker()[1];
+    yield worker.watch(origin, dest, {});
+
+    var exists = yield lazy.qfs.exists(path.join(dest, "ignored"));
+    h.expect(exists).to.be.not.ok;
+
+    var wait = defer((resolve) => {
+      worker.chok.on('all', (event, filepath) => {
+        resolve(filepath);
+      });
+    });
+
+    yield lazy.qfs.write(path.join(origin, "ignored/Fred.txt"), "foobar");
+    yield lazy.qfs.write(path.join(origin, "foo/Moe.txt" ), "foobar");
+
+    var msgs = yield wait;
+    h.expect(msgs).to.not.match(/ignored\/Fred.txt/);
+    h.expect(msgs).to.match(/foo\/Moe.txt/);
+  });
+
+  it("should exclude the .syncignore content for default in preference to .gitignore", function* () {
+    var [origin, dest]  = yield make_copy();
+
+    worker = create_worker()[1];
+    yield worker.watch(origin, dest, {});
+
+    var exists = yield lazy.qfs.exists(path.join(dest, "ignored"));
+    h.expect(exists).to.be.ok;
+
+    exists = yield lazy.qfs.exists(path.join(dest, "foo"));
+    h.expect(exists).to.be.not.ok;
+
+    var wait = defer((resolve) => {
+      worker.chok.on('all', (event, filepath) => {
+        resolve(filepath);
+      });
+    });
+
+    yield lazy.qfs.write(path.join(origin, "ignored/Fred.txt"), "foobar");
+    yield lazy.qfs.write(path.join(origin, "foo/Moe.txt" ), "foobar");
+
+    var msgs = yield wait;
+    h.expect(msgs).to.match(/ignored\/Fred.txt/);
+    h.expect(msgs).to.not.match(/foo\/Moe.txt/);
   });
 
   it("should not override a worker", function() {
     return async(function* () {
       var [origin, dest]  = yield make_copy();
-      var bus  = create_worker();
-      var opts = { except: ["foo/"] };
+      var [bus] = create_worker();
+      var opts  = { except: ["foo/"] };
 
       var msg = yield run_and_wait_msg(bus, () => {
         return bus.emit("message", { origin, destination: dest, opts });
@@ -230,7 +304,7 @@ describe("Azk sync, Worker module", function() {
     return async(function* () {
       var origin = yield h.tmp_dir();
       var dest   = path.join(yield h.tmp_dir(), "foo", "bar");
-      var bus    = create_worker();
+      var [bus]  = create_worker();
       var rsync_version = yield lazy.Sync.version();
 
       var msg = yield run_and_wait_msg(bus, () => {
@@ -254,7 +328,7 @@ describe("Azk sync, Worker module", function() {
     return async(function* () {
       var origin = invalid_fixtures;
       var dest   = yield h.tmp_dir();
-      var bus    = create_worker();
+      var [bus]  = create_worker();
 
       var msg = yield run_and_wait_msg(bus, () => {
         return bus.emit("message", { origin, destination: dest });

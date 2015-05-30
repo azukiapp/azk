@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 * Bug
   * [Imagens] Fixing registry download error #407
   * [File sharing] Fixing bug when trying to capture the version of rsync.
+  * [File sharing] Adding support exclude files from sync through the files `.syncignore` and `.gitignore`
 
 ## v0.13.0 - (2015-27-05)
 

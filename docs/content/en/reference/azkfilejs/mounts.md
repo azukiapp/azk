@@ -1,6 +1,6 @@
 ## mounts
 
-Mounts has three different usage options: `path`, `persistent` and `sync`. They're used to configure which folders will be internalized to the container or persisted internally by `azk`. 
+Mounts has three different usage options: `path`, `persistent` and `sync`. They're used to configure which folders will be internalized to the container or persisted internally by `azk`.
 
 #### path
 
@@ -22,7 +22,7 @@ Persists the files that are inside the container on the path `INTERNAL_FOLDER`, 
 ###### Mac
 
 The folder is stored in a virtual disk (`~/.azk/data/vm/azk-agent.vmdk`) in the path `/azk/persistent_folders`. This disk is mounted in the path `/mnt/sda1` of the VM.
- 
+
 ###### Linux
 
 `~/.azk/data/persistent_folders/#{manifest.id}/LOCAL_PATH`.
@@ -45,10 +45,17 @@ Syncs the files in `LOCAL_PATH` with a remote destination, which is mounted in t
   * **Exclude a folder**: `{except: ["./path/to/the/folder/"]}` // *Mind the tailing slash!*
   * **Exclude all CSS files**: `{except: ["*.css"]}`
 
-  > By default, `azk` ignores the following elements when syncing: `.rsyncignore`, `.gitignore`, `Azkfile.js`, `.azk/` and `.git/`.
+  > By default, `azk` ignores the following elements when syncing: `.syncignore`, `.gitignore`, `Azkfile.js`, `.azk/` and `.git/`.
 
 * `daemon`: a `boolean` value that indicates if, when running `azk` in daemon mode (e.g. `azk start`), `azk` should either use or not use the `sync` scheme (in the negative case, the `path` scheme is used) (default: `true`);
 * `shell`: similarly to `daemon` option, it's a `boolean` value that indicates if, when running `azk` in shell mode (e.g. `azk shell`), `azk` should either use or not use the `sync` scheme (in the negative case, the `path` scheme is used) (default: `false`). Setting as `false` is particularly useful to keep a two-way sync, allowing created files in the shell (e.g. via `$ rails generate scaffold User name:string`) to be persisted back in the original project folder;
+
+##### Excluded folders
+Since you use `sync` in a folder, `azk` starts to watch its files for any new change in order to re-sync the modified ones as soon as the change happens. As long as that folder has too many files, the CPU consumption can increase severally. The best way to avoid this is by telling `sync` to skip any folder which isn't absolutely required to make the system run. You can make this by any of the following ways:
+
+* Using the `except` option for the `sync`, as listed above;
+* Creating, inside the folder to be sync, a file named `.syncignore` which contains a list of files and folders to be skipped during the sync process (e.g. if you are using `sync(./MyProject)`, `azk` will look for the file `./MyProject/.syncignore`);
+* If you don't have a `.syncignore` file, by default `azk` will ignore all the files and folders listed in the file `.gitignore` (inside the folder to be synced) during the sync process (e.g. analogously, if you are using `sync(./MyProject)`, `azk` will look for the file `./MyProject/.gitignore`).
 
 ##### Destination synced data
 
@@ -57,7 +64,7 @@ The destination path of the data that will be synced will vary between Mac and L
 ###### Mac
 
 The folder is stored in a virtual disk (`~/.azk/data/vm/azk-agent.vmdk`) in the path `/azk/sync_folders`. This disk is mounted in the path `/mnt/sda1` of the VM.
- 
+
 ###### Linux
 
 `~/.azk/data/sync_folders/#{manifest.id}/LOCAL_PATH`.

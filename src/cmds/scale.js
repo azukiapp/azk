@@ -51,6 +51,7 @@ class Cmd extends InteractiveCmds {
   _scale(system, instances = {}, opts = undefined) {
     var flags    = {};
     var progress = (event) => {
+      if (!event) { return; }
       var type;
       var pull_progress = Helpers.newPullProgress(this);
       if (event.type === "pull_msg") {
