@@ -322,9 +322,10 @@ export class Court extends UIProxy {
           systemSuggestion.workdir = path.join(systemSuggestion.workdir, folderBasename);
         }
 
-        // when in a sub-folder change default `path('.') mounts` to the subfolder
+        // when in a sub-folder change default `path('.')` or `sync('.')` to the subfolder
         var default_mount_path = _.findKey(systemSuggestion.mounts, function(mount) {
-          return (mount.type === 'path' && mount.value === '.');
+          return (mount.type === 'path' && mount.value === '.' ||
+                  mount.type === 'sync' && mount.value === '.');
         });
 
         if (default_mount_path && folderName !== this.__root_folder) {
