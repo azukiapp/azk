@@ -50,7 +50,8 @@ var Sync = {
         if (!_.isEmpty(_version) && _version.length >= 2) {
           return resolve(_version[1]);
         } else {
-          return reject({ err: t('errors.rsync_invalid_version_format', {
+          return reject({
+            err: t('errors.rsync_invalid_version_format', {
               rsync_version: version_output
             })
           });
