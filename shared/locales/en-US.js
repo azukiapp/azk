@@ -82,7 +82,7 @@ module.exports = {
                   "`v%(new_version)s` version is available.",
                   "Please, access http://azk.io to upgrade\n"].join("\n"),
         mv_resolver: "Upgrading domains error, moving files was not possible",
-        rsync: "`rsync` command is required, but not installed or it not on the $PATH. Install before continuing.",
+        rsync: "`rsync` command is required, but it's not installed or it's not in the $PATH. Please install it before continue.",
         check_rsync_version_error: [
           'Checking rsync version:',
           'Detected:    %(current_version)s',
@@ -91,7 +91,7 @@ module.exports = {
         ].join('\n'),
       },
       darwin: {
-        VBoxManage     : 'VirtualBox command is required, but not installed or it not on the $PATH. Install before continuing.',
+        VBoxManage     : 'VirtualBox command is required, but it's not installed or it's not in the $PATH. Please install it before continue.',
         network        : 'Networking error',
         custom_dns_port: 'Sorry, but Mac OS X supports only port `53` as `AZK_DNS_PORT`',
       },

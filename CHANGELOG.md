@@ -5,6 +5,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## dev
 
+* Bug
+  * [File sharing] Fixing bug when trying to capture the version of rsync.
+
 ## v0.13.0 - (2015-27-05)
 
 * Bug
