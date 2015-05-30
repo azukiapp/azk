@@ -13,11 +13,24 @@ export function extend(h) {
           deferred.resolve(msgs);
         }
       });
-      if (!_.isEmpty(block)) { block(); }
+      if (_.isFunction(block)) {
+        setImmediate(block);
+      }
     } catch (err) {
       deferred.reject(err);
     }
 
     return [deferred.promise, sub];
+  };
+
+  h.wait_msgs = function(...args) {
+    var [wait] = h.wait_subscription(...args);
+    return wait;
+  };
+
+  h.wait_msg = function(...args) {
+    return h.wait_msgs(...args).spread((msg) => {
+      return msg;
+    });
   };
 }
