@@ -50,6 +50,13 @@ Syncs the files in `LOCAL_PATH` with a remote destination, which is mounted in t
 * `daemon`: a `boolean` value that indicates if, when running `azk` in daemon mode (e.g. `azk start`), `azk` should either use or not use the `sync` scheme (in the negative case, the `path` scheme is used) (default: `true`);
 * `shell`: similarly to `daemon` option, it's a `boolean` value that indicates if, when running `azk` in shell mode (e.g. `azk shell`), `azk` should either use or not use the `sync` scheme (in the negative case, the `path` scheme is used) (default: `false`). Setting as `false` is particularly useful to keep a two-way sync, allowing created files in the shell (e.g. via `$ rails generate scaffold User name:string`) to be persisted back in the original project folder;
 
+##### Excluded folders
+Since you use `sync` in a folder, `azk` starts to watch its files for any new change in order to re-sync the modified ones as soon as the change happens. As long as that folder has too many files, the CPU consumption can increase severally. The best way to avoid this is by telling `sync` to skip any folder which isn't absolutely required to make the system run. You can make this by any of the following ways:
+
+* Using the `except` option for the `sync`, as listed above;
+* Creating, inside the folder to be sync, a file named `.rsyncignore` which contains a list of files and folders to be skipped during the sync process (e.g. if you are using `sync(./MyProject)`, `azk` will look for the file `./MyProject/.rsyncignore`);
+* If you don't have a `.rsyncignore` file, by default `azk` will ignore all the files and folders listed in the file `.gitignore` (inside the folder to be synced) during the sync process (e.g. analogously, if you are using `sync(./MyProject)`, `azk` will look for the file `./MyProject/.gitignore`).
+
 ##### Destination synced data
 
 The destination path of the data that will be synced will vary between Mac and Linux:
