@@ -5,6 +5,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## dev
 
+* Bug
+  * [Imagens] Fixing registry download error #407
+
 ## v0.13.0 - (2015-27-05)
 
 * Bug

@@ -47,15 +47,9 @@ Agradecimentos ao [pow](https://github.com/basecamp/pow/wiki/Troubleshooting#dns
 
 #### Estou enfrentando lentidão ao executar uma aplicação com o azk no meu Mac. O que pode estar acontecendo?
 
-Esse é um problema conhecido e se dá pela forma como os arquivos são "compartilhados" entre a máquina virtual (Virtual Box) e o host (Mac). Fizemos grandes melhorias na versão 0.10 do azk, mas esse problema ainda pode ocorrer principalmente em aplicações grandes e com muitos arquivos, como aplicações rails, por exemplo.
+Esse é um problema conhecido, causado quando usa-se a opção de montagem `path` com a pasta do seu projeto. Para resolver isso, simplesmente altere a opção de `path` para `sync` em seu Azkfile.js.
 
-Em applicações Ruby on Rails, você pode desligar o modo debug para conseguir mais performance. Apenas atualize o config/environments/development.rb com:
-
-```ruby
-config.assets.debug = false
-```
-
-Você pode encontrar mais informações sobre essa configuração [aqui](http://guides.rubyonrails.org/asset_pipeline.html#turning-debugging-off).
+Nós recomendamos fortemente e leitura da [seção sobre `mounts`](/pt-BR/reference/azkfilejs/mounts.html) na documentação do Azkfile.js.
 
 #### Não há Internet disponível / Eu não estou conectado a nenhuma rede. O `azk` é iniciado, mas o navegador mostra que eu estou offline. Como faço para corrigir isso?
 
