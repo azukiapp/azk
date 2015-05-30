@@ -91,7 +91,7 @@ module.exports = {
         ].join('\n'),
       },
       darwin: {
-        VBoxManage     : 'VirtualBox command is required, but it's not installed or it's not in the $PATH. Please install it before continue.',
+        VBoxManage     : '`VirtualBox` command is required, but it\'s not installed or it\'s not in the $PATH. Please install it before continue.',
         network        : 'Networking error',
         custom_dns_port: 'Sorry, but Mac OS X supports only port `53` as `AZK_DNS_PORT`',
       },
