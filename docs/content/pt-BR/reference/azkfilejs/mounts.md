@@ -48,6 +48,25 @@ Sincroniza os arquivos presentes em `LOCAL_PATH` com o destino remoto, o qual é
 * `daemon`: um valor `boolean` que infica se, ao rodar o `azk` no modo daemon (e.g. `azk start`), o `azk` deve ou não utilizar o `sync` (em caso negativo, será utilizado a opção de `path`) (valor padrão: `true`);
 * `shell`: de modo similar à opção `daemon`, a opção `shell` é um  valor `boolean` que indica se, ao rodar o `azk` no modo daemon (e.g. `azk start`), o `azk` deve ou não utilizar o `sync` (em caso negativo, será utilizado a opção de `path`) (valor padrão: `false`). Utilizar o valor `false` é útil para manter a sincronização em ambos os sentidos, permitindo assim que arquivos criados dentro do shell (e.g. via `$ rails generate scaffold User name:string`) sejam persistidos de volta na pasta original do projeto.
 
+##### Persistência dos dados
+Utilizando o `sync`, é preciso garantir que os dados gerados pelo [`provision`](/pt-BR/reference/azkfilejs/provision.html) serão persistidos. Para isso, deve-se adicionar aos mounts uma entrada de `persistent` com a pasta correspondente. Essas pastas variam entre linguagens e frameworks, mas seguem alguns exemplos:
+
+* __Ruby/Rails__:
+  ```js
+  mounts: {
+    '/azk/#{manifest.dir}' : sync('.'),
+    '/azk/bundler'         : persistent('bundler'),
+  },
+  ```
+
+* __Node.js__:
+  ```js
+  mounts: {
+    '/azk/#{manifest.dir}' : sync('.'),
+    '/azk/node_modules'    : persistent('node_modules'),
+  },
+  ```
+
 ##### Pastas ignoradas
 Quando você usa o `sync` para uma pasta, o `azk` começa a monitorar seus arquivos para ressincronizar aqueles que foram modificados, assim que a mudança acontecer. Uma vez que essa pasta contenha muitos arquivos, o consumo de CPU pode aumentar drasticamente. A melhor maneira de evitar isso é fazendo o `azk` ignorar, durante o processo de sincronização, quaisquer pastas que não sejam estritamente necessárias para o sistema rodar. Você pode fazer isso das seguintes maneiras:
 
