@@ -5,6 +5,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## dev
 
+* Enhancements
+  * [Suggesting] Now node.js suggestions have a env `PORT` for to get a `HTTP_PORT`, this change makes this suggestion more "compatible" with most of the apps that await env `PORT`.
+
 ## v0.13.0 - (2015-X-05)
 
 * Bug
