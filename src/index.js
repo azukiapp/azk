@@ -50,7 +50,7 @@ module.exports = {
   // Internals alias
   get os     () { return require('os'); },
   get path   () { return require('path'); },
-  get fs     () { return require('fs'); },
+  get fs     () { return require('fs-extra'); },
   get fsAsync() { return require('azk/utils/file_async'); },
   get utils  () { return require('azk/utils'); },
   get version() { return Azk.version; },
