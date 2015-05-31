@@ -1,7 +1,6 @@
 import h from 'spec/spec_helper';
 import { _, path, lazy_require } from 'azk';
-import { Q, defer, async } from 'azk';
-import { subscribe } from 'azk/utils/postal';
+import { Q } from 'azk';
 
 var lazy = lazy_require({
   Watcher: ['azk/sync/watcher'],
@@ -11,7 +10,7 @@ var lazy = lazy_require({
 });
 
 describe("Azk sync, Watcher module", function() {
-  var watcher, subscription;
+  var watcher;
   var example_fixtures = h.fixture_path('sync/test_1/');
 
   function make_copy() {
@@ -26,172 +25,125 @@ describe("Azk sync, Watcher module", function() {
   });
 
   afterEach(() => {
-    if (_.isEmpty(subscription)) {
-      subscription.unsubscribe();
-      subscription = null;
-    }
     watcher.close();
     h.expect(_.keys(watcher.workers)).to.length(0);
   });
 
-  it("should sync two folders", function() {
-    return async(function* () {
-      var sync_data;
-      subscription = subscribe('sync.watcher.sync', (data) => {
-        sync_data = data;
-      });
+  it("should sync two folders", function* () {
+    var wait_msg = h.wait_msg("sync.watcher.sync");
 
-      var [origin, dest] = yield make_copy();
-      yield watcher.watch(origin, dest);
-      h.expect(_.keys(watcher.workers)).to.length(1);
+    var [origin, dest] = yield make_copy();
+    yield watcher.watch(origin, dest);
+    h.expect(_.keys(watcher.workers)).to.length(1);
 
-      h.expect(sync_data).to.have.property('op', 'sync');
-      h.expect(sync_data).to.have.property('status', 'done');
+    var msg = yield wait_msg;
+    h.expect(msg).to.have.property('op', 'sync');
+    h.expect(msg).to.have.property('status', 'done');
 
-      var result = yield h.diff(origin, dest);
-      h.expect(result).to.have.property('deviation', 0);
-    });
+    var result = yield h.diff(origin, dest);
+    h.expect(result).to.have.property('deviation', 3);
   });
 
   describe("with called to watch a two folders", function() {
     var origin, dest;
 
-    beforeEach(() => {
-      return async(function* () {
-        [origin, dest] = yield make_copy();
+    beforeEach(function* () {
+      [origin, dest] = yield make_copy();
 
-        yield watcher.watch(origin, dest);
-        h.expect(_.keys(watcher.workers)).to.length(1);
+      yield watcher.watch(origin, dest);
+      h.expect(_.keys(watcher.workers)).to.length(1);
 
-        var result = yield h.diff(origin, dest);
-        h.expect(result).to.have.property('deviation', 0);
-      });
+      var result = yield h.diff(origin, dest);
+      h.expect(result).to.have.property('deviation', 3);
     });
 
-    it("should sync two folders and watch", function() {
-      return async(function* () {
-        var file = "foo/Moe.txt";
-        var origin_file = path.join(origin, file);
-        var dest_file   = path.join(origin, file);
+    it("should sync two folders and watch", function* () {
+      var file = "bar/Fred.txt";
+      var origin_file = path.join(origin, file);
+      var dest_file   = path.join(origin, file);
 
-        var wait_data = defer((resolve) => {
-          subscription = subscribe('sync.watcher.*', (data) => {
-            resolve(data);
-          });
-        });
+      var wait_msg = h.wait_msg("sync.watcher.*");
+      yield lazy.qfs.write(origin_file, "foobar");
+      var msg = yield wait_msg;
 
-        yield lazy.qfs.write(origin_file, "foobar");
+      h.expect(msg).to.have.deep.property('op', 'change');
+      h.expect(msg).to.have.deep.property('filepath', file);
+      h.expect(msg).to.have.deep.property('status', 'done');
 
-        var data = yield wait_data;
-        h.expect(data).to.have.property('op', 'change');
-        h.expect(data).to.have.property('filepath', file);
-        h.expect(data).to.have.property('status', 'done');
-
-        var content = yield lazy.qfs.read(dest_file);
-        h.expect(content).to.equal("foobar");
-      });
+      var content = yield lazy.qfs.read(dest_file);
+      h.expect(content).to.equal("foobar");
     });
 
-    it("should reuse a watcher", function() {
-      return async(function* () {
-        var data = yield defer((resolve) => {
-          subscription = subscribe('sync.watcher.init', (data) => {
-            resolve(data);
-          });
-          watcher.watch(origin, dest);
-        });
-
-        h.expect(data).to.have.property('status', 'exists');
+    it("should reuse a watcher", function* () {
+      var msg = yield h.wait_msg("sync.watcher.init", null, () => {
+        watcher.watch(origin, dest);
       });
+      h.expect(msg).to.have.property('status', 'exists');
     });
 
-    it("should remove a watcher", function() {
-      return async(function* () {
-        h.expect(_.keys(watcher.workers)).to.length(1);
-
-        var data = yield defer((resolve) => {
-          subscription = subscribe('sync.watcher.finish', (data) => {
-            resolve(data);
-          });
-          watcher.unwatch(origin, dest);
-        });
-
-        h.expect(_.keys(watcher.workers)).to.length(0);
-        h.expect(data).to.have.property('status', 'done');
+    it("should remove a watcher", function* () {
+      h.expect(_.keys(watcher.workers)).to.length(1);
+      var msg = yield h.wait_msg("sync.watcher.finish", null, () => {
+        watcher.unwatch(origin, dest);
       });
+
+      h.expect(_.keys(watcher.workers)).to.length(0);
+      h.expect(msg).to.have.property('status', 'done');
     });
 
-    it("should respawn sync process if worker killed", function() {
-      return async(function* () {
-        var data_respawn = yield defer((resolve) => {
-          var msgs = [];
-          subscription = subscribe('sync.watcher.*', (data) => {
-            msgs.push(data);
-            if (msgs.length >= 3) {
-              subscription.unsubscribe();
-              resolve(msgs);
-            }
-          });
-          process.kill(watcher.get_worker(origin, dest).child.childData.pid);
-        });
-
-        h.expect(data_respawn).to.include.something.that.deep.eql(
-          {"op": "restart", "status": "init"}
-        );
-        h.expect(data_respawn).to.include.something.that.deep.eql(
-          {"op": "sync", "status": "done"}
-        );
-        h.expect(data_respawn).to.include.something.that.deep.eql(
-          {"op": "watch", "status": "ready"}
-        );
-
-        var file = "foo/Moe.txt";
-        var origin_file = path.join(origin, file);
-        var dest_file   = path.join(origin, file);
-        var wait_change = defer((resolve) => {
-          subscription  = subscribe('sync.watcher.*', (data) => {
-            resolve(data);
-          });
-        });
-
-        yield lazy.qfs.write(origin_file, "foobar");
-
-        var data_change = yield wait_change;
-        h.expect(data_change).to.have.property('op', 'change');
-        h.expect(data_change).to.have.property('filepath', file);
-        h.expect(data_change).to.have.property('status', 'done');
-
-        var content = yield lazy.qfs.read(dest_file);
-        h.expect(content).to.equal("foobar");
+    it("should respawn sync process if worker killed", function* () {
+      var filter = (msg, msgs) => { msg; return msgs.length >= 3; };
+      var msgs = yield h.wait_msgs("sync.watcher.*", filter, () => {
+        process.kill(watcher.get_worker(origin, dest).child.childData.pid);
       });
+
+      h.expect(msgs).to.include.something.that.deep.eql(
+        {"op": "restart", "status": "init"}
+      );
+      h.expect(msgs).to.include.something.that.deep.eql(
+        {"op": "sync", "status": "done"}
+      );
+      h.expect(msgs).to.include.something.that.deep.eql(
+        {"op": "watch", "status": "ready"}
+      );
+
+      var file = "bar/Fred.txt";
+      var origin_file = path.join(origin, file);
+      var dest_file   = path.join(origin, file);
+      var wait_msgs   = h.wait_msg('sync.watcher.*');
+
+      yield lazy.qfs.write(origin_file, "foobar");
+
+      var msg_change = yield wait_msgs;
+      h.expect(msg_change).to.have.property('op', 'change');
+      h.expect(msg_change).to.have.property('filepath', file);
+      h.expect(msg_change).to.have.property('status', 'done');
+
+      var content = yield lazy.qfs.read(dest_file);
+      h.expect(content).to.equal("foobar");
     });
   });
 
-  it("should return a error if initial sync fails", function() {
-    return async(function* () {
-      var origin = yield h.tmp_dir();
-      var dest   = path.join(yield h.tmp_dir(), "foo", "bar");
+  it("should return a error if initial sync fails", function* () {
+    var origin = yield h.tmp_dir();
+    var dest   = path.join(yield h.tmp_dir(), "foo", "bar");
 
-      var msgs = [];
-      subscription = subscribe('sync.watcher.*', (data) => {
-        data = _.clone(data);
-        delete(data.err);
-        msgs.push(data);
-      });
+    var filter    = (msg) => msg.op == "finish";
+    var wait_msgs = h.wait_msgs('sync.watcher.*', filter);
 
-      var rsync_version = yield lazy.Sync.version();
-      var promise = watcher.watch(origin, dest);
+    var rsync_version = yield lazy.Sync.version();
+    var promise = watcher.watch(origin, dest);
 
-      if (lazy.semver.cmp(rsync_version, '>=', '3.1.0')) {
-        yield h.expect(promise).to.be.rejected.and.eventually.have.property('code', 3);
-      } else {
-        yield h.expect(promise).to.be.rejected.and.eventually.have.property('code', 12);
-      }
+    if (lazy.semver.cmp(rsync_version, '>=', '3.1.0')) {
+      yield h.expect(promise).to.be.rejected.and.eventually.have.property('code', 3);
+    } else {
+      yield h.expect(promise).to.be.rejected.and.eventually.have.property('code', 12);
+    }
 
-      h.expect(_.keys(watcher.workers)).to.length(0);
+    h.expect(_.keys(watcher.workers)).to.length(0);
 
-      h.expect(msgs).to.include.something.that.deep.eql({ "op": "sync", "status": "fail" });
-      h.expect(msgs).to.include.something.that.deep.eql({ "op": "finish", "status": "done" });
-    });
+    var msgs = yield wait_msgs;
+    h.expect(msgs).to.containSubset([{ "op": "sync", "status": "fail" }]);
+    h.expect(msgs).to.containSubset([{ "op": "finish", "status": "done" }]);
   });
 });

@@ -1,8 +1,8 @@
 import { _ } from 'azk';
-import { UIProxy } from 'azk/cli/ui';
-import { example_system } from 'azk/generator/rules';
 
-export class Suggestion extends UIProxy {
+import { Suggestion as DefaultSuggestion } from 'azk/generator/suggestions/node_default';
+
+export class Suggestion extends DefaultSuggestion {
   constructor(...args) {
     super(...args);
 
@@ -13,22 +13,7 @@ export class Suggestion extends UIProxy {
     this.ruleNamesList = ['node010'];
 
     // Initial Azkfile.js suggestion
-    this.suggestion = _.extend({}, example_system, {
-      __type: "node.js",
-      image : { docker: "azukiapp/node" },
-      provision: [
-        "npm install"
-      ],
-      http: true,
-      scalable: { default: 2 },
-      command : "npm start",
-      ports   : {
-        http: "8000"
-      },
-      envs    : {
-        NODE_ENV: "dev"
-      }
-    });
+    this.suggestion = _.extend({}, this.suggestion, {});
   }
 
   suggest() {

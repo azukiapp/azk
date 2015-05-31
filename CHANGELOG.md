@@ -5,6 +5,18 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## dev
 
+## v0.13.0 - (2015-X-05)
+
+* Bug
+  * [Imagens] Fixing registry download error #407
+  * [File sharing] Fixing bug when trying to capture the version of rsync.
+  * [File sharing] Adding support exclude files from sync through the files `.syncignore` and `.gitignore`
+  * [Docker] Fixing bug that could prevent the work instruction `ADD . /folder/` when used in a Dockerfile;
+
+* Enhancements
+  * [Docker] Now support `Dockerfile` is complete, and similar to the docker, including support `.dockerignore`;
+  * [Suggesting] Changing the suggestions of python and ruby ​​to give preference to sync instead of path;
+
 ## v0.13.0 - (2015-27-05)
 
 * Bug

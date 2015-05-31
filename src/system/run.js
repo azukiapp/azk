@@ -141,7 +141,9 @@ var Run = {
   },
 
   runWatch(system, daemon = true, silent = false) {
-    return async(this, function* (notify) {
+    return defer((resolve) => {
+      var notify = resolve.notify;
+
       if (_.isEmpty(system.syncs)) {
         return true;
       }
@@ -150,8 +152,8 @@ var Run = {
         notify({ type : "sync", system : system.name });
       }
 
-      return yield Q.all(_.map(system.syncs || {}, (sync_data, host_folder) => {
-        return async(this, function* (notify) {
+      return Q.all(_.map(system.syncs || {}, (sync_data, host_folder) => {
+        return async(this, function* () {
           if (daemon && sync_data.options.daemon === false ||
              !daemon && sync_data.options.shell !== true) {
             return Q.resolve();

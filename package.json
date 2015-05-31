@@ -1,11 +1,11 @@
 {
   "name": "azk",
-  "version": "0.13.0",
+  "version": "0.13.1",
   "description": "Orchestrate development environments with agility and automation",
   "main": "index.js",
   "scripts": {
-    "test": "gulp test",
-    "test:slow": "gulp test --slow",
+    "test": "make test",
+    "test:slow": "make slow_test",
     "azk:package": "./src/libexec/package-tools/build.sh",
     "azk:package:publish": "gulp publish"
   },
@@ -39,7 +39,7 @@
     "colors": "^0.6.2",
     "connectivity": "^0.1.1",
     "dns-sync": "^0.1.0",
-    "docker-registry-downloader": "^0.1.35",
+    "docker-registry-downloader": "^0.1.36",
     "dockerode": "^2.1.2",
     "esprima": "^1.2.2",
     "exec-sh": "^0.1.3",

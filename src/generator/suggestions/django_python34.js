@@ -1,8 +1,7 @@
 import { _ } from 'azk';
-import { UIProxy } from 'azk/cli/ui';
-import { example_system } from 'azk/generator/rules';
+import { Suggestion as DefaultSuggestion } from 'azk/generator/suggestions/django_python_default';
 
-export class Suggestion extends UIProxy {
+export class Suggestion extends DefaultSuggestion {
   constructor(...args) {
     super(...args);
 
@@ -13,23 +12,9 @@ export class Suggestion extends UIProxy {
     this.ruleNamesList = ['djangoPython34'];
 
     // Initial Azkfile.js suggestion
-    this.suggestion = _.extend({}, example_system, {
+    this.suggestion = _.extend({}, this.suggestion, {
       __type  : 'djangoPython34',
       image   : { docker: 'azukiapp/python:3.4' },
-      provision: [
-        'pip install --user --allow-all-external -r requirements.txt',
-      ],
-      http    : true,
-      scalable: { default: 2 },
-      command : 'python manage.py runserver 0.0.0.0:$HTTP_PORT',
-      mounts  : {
-        '/azk/#{manifest.dir}': {type: 'path',       value: '.'},
-        '/azk/djangouserbase':  {type: 'persistent', value: 'djangouserbase'},
-      },
-      envs: {
-        PATH : '/azk/djangouserbase/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
-        PYTHONUSERBASE: '/azk/djangouserbase',
-      }
     });
   }
 
