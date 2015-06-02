@@ -42,7 +42,7 @@ h.describeRequireVm('Azk cli, vm controller', function() {
       h.expect(options).to.have.property('vm', true);
       h.expect(options).to.have.property('ssh', true);
       h.expect(options).to.have.property('__doubledash', true);
-      h.expect(options['ssh-options']).to.deep.eql(['echo', 'test']);
+      h.expect(options['ssh-args']).to.deep.eql(['echo', 'test']);
       h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('test')));
     });
   });

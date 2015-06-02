@@ -13,7 +13,7 @@ Usage:
   azk (start|restart) [<system>] [--reprovision --rebuild --open] [-q -l -h] [-v]...
   azk status [<system>] [--long --short --text] [-q -l -h] [-v]...
   azk stop [<system>]  [--remove -q -l -h] [-v]...
-  azk vm (ssh|start|status|installed|stop|remove) [--force -q -l -h] [-v]... [-- <ssh-options>...]
+  azk vm (ssh|start|status|installed|stop|remove) [--force -q -l -h] [-v]... [-- <ssh-args>...]
   azk [agent|config|vm|help|version] [--help]
   azk [--version -h --help]
 
@@ -46,7 +46,7 @@ Arguments:
   docker-options  Options and arguments to be passed to Docker.
   instances       Number of instances.
   path            Path where manifest file can be found.
-  ssh-options     Options and arguments to be passed to VM over ssh.
+  ssh-args        Options and arguments to be passed to VM over ssh.
   system          System name where action will take place.
   to              Number of instances to be available after the scale.
 

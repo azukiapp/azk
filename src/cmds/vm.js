@@ -72,7 +72,7 @@ class VM extends CliTrackerController {
         .then(() => {
           var ssh_url  = `${config('agent:vm:user')}@${config('agent:vm:ip')}`;
           var ssh_opts = "StrictHostKeyChecking=no -o LogLevel=quiet -o UserKnownHostsFile=/dev/null";
-          var args     = (params['ssh-options'] || []).join(`" "`);
+          var args     = (params['ssh-args'] || []).join(`" "`);
           var script   = `ssh -i ${config('agent:vm:ssh_key')} -o ${ssh_opts} ${ssh_url} "${args}"`;
 
           log.debug(script);
