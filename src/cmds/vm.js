@@ -18,10 +18,6 @@ class RequiredError extends Error {
 }
 
 class VM extends CliTrackerController {
-  constructor(...args) {
-    super(...args);
-    this.params = this.params || {};
-  }
   require_installed(vm_info) {
     if (!vm_info.installed) {
       throw new RequiredError("commands.vm.not_installed");
@@ -42,7 +38,7 @@ class VM extends CliTrackerController {
     }
 
     return async(this, function* () {
-      var action  = _.head(this.route.actions) || options.action;
+      var action  = _.head((this.route && this.route.actions)) || options.action;
       var vm_name = config("agent:vm:name");
       var vm_info = yield lazy.VM.info(vm_name);
 

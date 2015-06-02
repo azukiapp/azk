@@ -1,7 +1,7 @@
 $ azk [options] [*command]
 
 Usage:
-  azk agent (start|status|stop) [--no-daemon --child --reload-vm -q -l -h] [-v]...
+  azk agent (start|status|stop) [--no-daemon --child --no-reload-vm -q -l -h] [-v]...
   azk config (track-toggle|track-status) [-q -l -h] [-v]...
   azk doctor [--logo -q] [-v]...
   azk docker [-q -l -h] [-v]... [-- <docker-options>...]
@@ -70,7 +70,7 @@ Options:
   --open, -o                Open a url of system in the preferred application.
   --quiet, -q               Never prompt [default: false].
   --rebuild, -B             Force the rebuild, or pull image and reprovision before starting an instance [default: false].
-  --reload-vm               Reloads the virtual machine settings [default: true].
+  --no-reload-vm            Not reloads the virtual machine settings [default: false].
   --reprovision             Force the provisioning actions before starting an instance [default: false].
   --remove, -r              Removes the instances before stopping [default: true].
   --shell                   The path to the shell binary.

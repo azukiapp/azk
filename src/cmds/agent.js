@@ -47,7 +47,7 @@ class Agent extends CliTrackerController {
             params.configs = yield this.getConfig(false, params);
 
             // Remove and adding vm (to refresh vm configs)
-            if (config('agent:requires_vm') && opts['reload-vm']) {
+            if (config('agent:requires_vm') && !opts['no-reload-vm']) {
               var cmd_vm = new lazy.VMController({ ui: this.ui });
               yield cmd_vm.index({ action: 'remove', fail: () => {} });
             }
