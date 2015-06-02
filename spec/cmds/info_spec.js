@@ -37,13 +37,13 @@ describe('Azk cli, info controller, run in an', function() {
     });
 
     it("should show systems information no colored", function() {
-      doc_opts.argv   = ['info', '--no-color'];
+      doc_opts.argv   = `info --no-colored`.split(' ');
       run_options.cwd = manifest.manifestPath;
       var options = cli.router.cleanParams(cli.docopt(doc_opts));
       return cli.run(doc_opts, run_options).then((code) => {
         h.expect(code).to.equal(0);
         h.expect(options).to.have.property('info', true);
-        h.expect(options).to.have.property('no-color', true);
+        h.expect(options).to.have.property('no-colored', true);
         h.expect(outputs[0]).to.match(/^manifest/);
       });
     });

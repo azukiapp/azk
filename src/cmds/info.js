@@ -47,7 +47,7 @@ class Info extends CliTrackerController {
 
       // Show result
       this.ui.output(lazy.prettyjson.render(data, {
-        noColor: opts['no-color'],
+        noColor: opts['no-colored'],
         dashColor: "magenta",
         stringColor: "blue",
       }));
