@@ -12,7 +12,7 @@ class Help extends CliController {
     var help = '';
     if (cli && _.isString(cli.help)) {
       help = cli.help;
-      _.map(['usage', 'options', 'commands', 'examples'], (section) => {
+      _.map(['usage', 'commands', 'actions', 'arguments', 'options', 'examples'], (section) => {
         var regex = new RegExp(`^${section}:`, 'gmi');
         help = help.replace(regex, t(`commands.help.${section}`));
       });

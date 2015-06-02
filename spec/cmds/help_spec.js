@@ -42,7 +42,7 @@ describe('Azk cli, help controller', function() {
   it("should run `agent --help` command", function() {
     doc_opts.argv = ['agent', '--help'];
     return cli.run(doc_opts, run_options).then((code) => {
-      h.expect(result).to.eql(0);
+      h.expect(code).to.eql(0);
       h.expect(outputs[0]).to.match(RegExp('Usage:', 'gi'));
     });
   });
