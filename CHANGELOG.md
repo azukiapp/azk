@@ -8,17 +8,17 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 * Enhancements
   * [Suggesting] Now node.js suggestions have a env `PORT` for to get a `HTTP_PORT`, this change makes this suggestion more "compatible" with most of the apps that await env `PORT`.
 
-## v0.13.0 - (2015-X-05)
+## v0.13.1 - (2015-30-05)
 
 * Bug
   * [Imagens] Fixing registry download error #407
   * [File sharing] Fixing bug when trying to capture the version of rsync.
-  * [File sharing] Adding support exclude files from sync through the files `.syncignore` and `.gitignore`
-  * [Docker] Fixing bug that could prevent the work instruction `ADD . /folder/` when used in a Dockerfile;
+  * [File sharing] Adding support to exclude files from sync through the files `.syncignore` and `.gitignore`
+  * [Docker] Fixing bug that could prevent the instruction `ADD . /folder/` to work properly when used in a Dockerfile;
 
 * Enhancements
   * [Docker] Now support `Dockerfile` is complete, and similar to the docker, including support `.dockerignore`;
-  * [Suggesting] Changing the suggestions of python and ruby ​​to give preference to sync instead of path;
+  * [Suggesting] Changing the suggestions of Python/Django, Ruby and Rails to give preference to sync instead of path;
 
 ## v0.13.0 - (2015-27-05)
 
