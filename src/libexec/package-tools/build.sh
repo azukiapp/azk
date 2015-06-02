@@ -55,7 +55,7 @@ quiet() {
     ( "${@}" ) > /dev/null 2>&1
 }
 
-setup() {
+run_make() {
     make clean && make
 }
 
@@ -123,9 +123,9 @@ cd $AZK_ROOT_PATH
 source .dependencies
 
 LINUX_BUILD_WAS_EXECUTED=false
-[[ $NO_MAKE != true ]] && step_run "Setup" --exit setup
+[[ $NO_MAKE != true ]] && step_run "Running make" --exit run_make
 [[ $NO_AGENT != true ]] && step_run "Starting agent" --exit start_agent
-[[ $NO_TEST != true ]] && step_run "Preparing test env" setup_test && export TEST_ARGS=$TEST_DIR
+[[ $NO_TEST != true ]] && step_run "Preparing testing env" setup_test && export TEST_ARGS=$TEST_DIR
 
 LIBNSS_RESOLVER_REPO="https://github.com/azukiapp/libnss-resolver/releases/download/v${LIBNSS_RESOLVER_VERSION}"
 
