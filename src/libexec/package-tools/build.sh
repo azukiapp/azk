@@ -129,6 +129,10 @@ LINUX_BUILD_WAS_EXECUTED=false
 
 LIBNSS_RESOLVER_REPO="https://github.com/azukiapp/libnss-resolver/releases/download/v${LIBNSS_RESOLVER_VERSION}"
 
+if [[ $BUILD_DEB == true ]] || [[ $BUILD_RPM == true ]]; then
+  step_run "Making Linux base package" make package_linux
+fi
+
 if [[ $BUILD_DEB == true ]]; then
     echo
     echo "Building deb packages"
@@ -144,12 +148,7 @@ if [[ $BUILD_DEB == true ]]; then
       && wget -q "${LIBNSS_RESOLVER_REPO}/ubuntu12-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb" -O "package/deb/precise-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb" \
       && wget -q "${LIBNSS_RESOLVER_REPO}/ubuntu14-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb" -O "package/deb/trusty-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb"
 
-      EXTRA_FLAGS=""
-      if [[ $LINUX_BUILD_WAS_EXECUTED == true || $NO_CLEAN_LINUX == true ]]; then
-        EXTRA_FLAGS="LINUX_CLEAN="
-      fi
-
-      step_run "Creating deb packages" make package_deb ${EXTRA_FLAGS}
+      step_run "Creating deb packages" make package_deb LINUX_CLEAN=
 
       step_run "Generating Ubuntu 12.04 repository" azk shell package -c "src/libexec/package-tools/ubuntu/generate.sh ${LIBNSS_RESOLVER_VERSION} precise ${SECRET_KEY}"
       step_run "Testing Ubuntu 12.04 repository" ${AZK_BUILD_TOOLS_PATH}/ubuntu/test.sh precise $TEST_ARGS
