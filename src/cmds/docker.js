@@ -7,7 +7,7 @@ class Docker extends CliTrackerController {
   index(opts) {
     return async(this, function* () {
       var cmd, _path;
-      var args = _.map(opts['docker-options'], (arg) => {
+      var args = _.map(opts['docker-args'], (arg) => {
         return arg.replace(/'/g, "'\"'\"'");
       });
 

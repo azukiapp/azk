@@ -19,7 +19,7 @@ h.describeRequireVm('Azk cli, docker controller', function() {
       h.expect(code).to.equal(0);
       h.expect(options).to.have.property('docker', true);
       h.expect(options).to.have.property('__doubledash', true);
-      h.expect(options['docker-options']).to.deep.eql(['version']);
+      h.expect(options['docker-args']).to.deep.eql(['version']);
       h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp("docker version")));
     });
   });
@@ -32,7 +32,7 @@ h.describeRequireVm('Azk cli, docker controller', function() {
         h.expect(code).to.equal(0);
         h.expect(options).to.have.property('docker', true);
         h.expect(options).to.have.property('__doubledash', true);
-        h.expect(options['docker-options']).to.deep.eql(['images']);
+        h.expect(options['docker-args']).to.deep.eql(['images']);
         h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp("docker images")));
       });
   });
