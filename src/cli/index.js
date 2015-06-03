@@ -1,3 +1,4 @@
+import { _ } from 'azk';
 import { promiseResolve, promiseReject, isPromise } from 'azk/utils/promises';
 import { Cli as AzkCli } from 'azk/cli/cli';
 import { UI } from 'azk/cli/ui';
@@ -17,7 +18,7 @@ export function cli(args, cwd, ui = UI) {
     var azk_cli = new Cli();
     azk_cli
       // Options
-      .route('help', (p) => p.help || p['--help'])
+      .route('help', (p) => p.help || p['--help'] || _.isEmpty(args))
       .route('version', (p) => p.version || p['--version'])
       // Commands
       .route('agent')
