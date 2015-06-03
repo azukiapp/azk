@@ -36,7 +36,7 @@
     "bluebird": "^2.9.25",
     "child-process-promise": "^1.0.0",
     "chokidar": "^1.0.1",
-    "cli-router": "^0.2.3",
+    "cli-router": "^0.2.4",
     "cli-table": "git+https://github.com/gullitmiranda/cli-table#master",
     "colors": "^0.6.2",
     "connectivity": "^0.1.1",

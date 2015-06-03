@@ -12,9 +12,10 @@ Usage:
   azk shell [<system>] [--command --cwd --image --remove --shell --silent --tty --no-tty -q -l -h] [-e -m -v]...
   azk (start|restart) [<system>] [--reprovision --rebuild --open] [-q -l -h] [-v]...
   azk status [<system>] [--long --short --text] [-q -l -h] [-v]...
-  azk stop [<system>]  [--remove -q -l -h] [-v]...
+  azk stop [<system>] [--remove -q -l -h] [-v]...
   azk vm (ssh|start|status|installed|stop|remove) [--force -q -l -h] [-v]... [-- <ssh-args>...]
-  azk [agent|config|vm|help|version] [--help]
+  azk [agent|config|vm|version] [--help]
+  azk help [<command>]
   azk [--version -h --help]
 
 Commands:
@@ -36,25 +37,25 @@ Commands:
   vm       Controls a virtual machine.
 
 Actions:
-  start           Start azk agent
-  status          Shows azk agent status
-  stop            Stops azk agent running in the background
-  track-status    Displays tracking status
-  track-toggle    Toggles tracking behavior on/off
+  start                     Start azk agent
+  status                    Shows azk agent status
+  stop                      Stops azk agent running in the background
+  track-status              Displays tracking status
+  track-toggle              Toggles tracking behavior on/off
 
 Arguments:
-  docker-args     Options and arguments to be passed to Docker.
-  instances       Number of instances.
-  path            Path where manifest file can be found.
-  ssh-args        Options and arguments to be passed to VM over ssh.
-  system          System name where action will take place.
-  to              Number of instances to be available after the scale.
+  docker-args               Options and arguments to be passed to Docker.
+  instances                 Number of instances.
+  path                      Path where manifest file can be found.
+  ssh-args                  Options and arguments to be passed to VM over ssh.
+  system                    System name where action will take place.
+  to                        Number of instances to be available after the scale.
 
 Options:
   --command, -c             Runs a specific command
   --cwd, -C                 Default directory
   --env, -e                 Additional environment variables - multiple supported (`-e HTTP_PORT=5000 -e PORT=5000`).
-  --filename                Sets the file name to be generated [default: Azkfile.js].
+  --filename                Shows the name of the manifest file.
   --force, -F               Force mode.
   --follow, -f              Follow log output [default: false].
   --help, -h                Show help usage.
@@ -83,8 +84,8 @@ Options:
   --version                 Show azk version.
 
 Examples:
-  $ azk agent start --no-daemon
-  $ azk shell --image azukiapp/debian --shell /bin/bash
-  $ azk shell --mount ~/Home:/azk/user -env HOME=/azk/user -env HTTP_PORT=5000
-  $ azk status [system_name]
-  $ azk scale [system_name] 2
+  azk agent start --no-daemon
+  azk shell --image azukiapp/debian --shell /bin/bash
+  azk shell --mount ~/Home:/azk/user -env HOME=/azk/user -env HTTP_PORT=5000
+  azk status [system_name]
+  azk scale [system_name] 2
