@@ -1,38 +1,37 @@
+import { CliTrackerController } from 'azk/cli/cli_tracker_controller.js';
+import { Helpers } from 'azk/cli/helpers';
 import { _, lazy_require } from 'azk';
 import { async } from 'azk/utils/promises';
-import { InteractiveCmds } from 'azk/cli/interactive_cmds';
-import { Helpers } from 'azk/cli/command';
 
 var lazy = lazy_require({
   Manifest: ['azk/manifest'],
   moment: 'moment',
 });
 
-class Cmd extends InteractiveCmds {
-  action(opts) {
-    return async(this, function* () {
-      yield Helpers.requireAgent(this);
-
-      var manifest = new lazy.Manifest(this.cwd, true);
-      Helpers.manifestValidate(this, manifest);
-      var systems  = manifest.getSystemsByName(opts.system);
-
-      yield Cmd.status(this, manifest, systems, opts);
-    });
+class Status extends CliTrackerController {
+  index(opts) {
+    return Helpers.requireAgent(this.ui)
+      .then(() => {
+        var manifest = new lazy.Manifest(this.cwd, true);
+        Helpers.manifestValidate(this.ui, manifest);
+        var systems  = manifest.getSystemsByName(opts.system);
+        return Status.status(this, manifest, systems, opts);
+      })
+      .then(() => 0);
   }
 
   static status(cli, manifest, systems, opts = {}) {
     return async(cli, function* () {
       // Force types if not interactive or narrow console
-      if (cli.outputColumns() === -1) {
+      if (cli.ui.outputColumns() === -1) {
         opts.text = true;
       }
-      if (!opts.long && cli.outputColumns() < 90) {
+      if (!opts.long && cli.ui.outputColumns() < 90) {
         opts.short = true;
       }
 
-      var table = cli.table_add('status', {
-        head: Cmd._head(opts, cli.outputColumns()),
+      var table = cli.ui.table_add('status', {
+        head: Status._head(opts, cli.ui.outputColumns()),
         text: opts.text
       });
 
@@ -46,7 +45,7 @@ class Cmd extends InteractiveCmds {
         } else {
           hostname = system.hostname;
         }
-        var ports   = Cmd._ports_map(system, instances);
+        var ports   = Status._ports_map(system, instances);
         var name    = instances.length > 0 ? `${system.name}`.green : `${system.name}`.red;
         var status  = instances.length > 0 ? `↑`.green : `↓`.red;
         var counter = instances.length.toString().blue;
@@ -80,10 +79,10 @@ class Cmd extends InteractiveCmds {
           line.push(system.image.name.white);
         }
 
-        cli.table_push(table, line);
+        cli.ui.table_push(table, line);
       }
 
-      cli.table_show(table);
+      cli.ui.table_show(table);
     });
   }
 
@@ -125,10 +124,4 @@ class Cmd extends InteractiveCmds {
   }
 }
 
-export { Cmd };
-export function init(cli) {
-  (new Cmd('status [system]', cli))
-    .addOption(['--text', '-t'], { default: false })
-    .addOption(['--long', '-l'], { default: false })
-    .addOption(['--short'], { default: false });
-}
+module.exports = Status;

@@ -62,7 +62,7 @@ Options:
   --image, -i               Defines the image in which the command will be executed.
   --log, -l                 Sets a log level.
   --logo                    Shows the `azk` logo before showing health information [default: false].
-  --long, -l                Show all columns [default: false].
+  --long                    Show all columns [default: false].
   --mount, -m               Points to additional mounting - multiple supported (`-m ~/Home:/azk/user -m ~/data:/var/data`).
   --lines=<n>, -n           Output the specified number of lines at the end of logs.
   --no-colored              Hide outputs colors [default: false].
@@ -78,7 +78,7 @@ Options:
   --short                   Hide 'Provisioned' column [default: false].
   -T                        Disables pseudo-tty allocation [default: false].
   -t                        Forces pseudo-tty allocation [default: false].
-  --text, -t                Show in text mode [default: false].
+  --text                    Show in text mode [default: false].
   --verbose, -v             Sets the level of detail - multiple supported (-vv == --verbose 2) [default: 0].
   --silent                  Prevents any log message about the command execution. It's useful when using the `-c` option and the output is used as input to another command using the pipe `|` operator [default: false].
   --version                 Show azk version.
