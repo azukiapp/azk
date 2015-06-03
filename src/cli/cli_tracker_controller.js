@@ -1,4 +1,4 @@
-import { CliController } from 'cli-router';
+import { CliController } from 'azk/cli/cli_controller';
 import { Helpers } from 'azk/cli/helpers';
 import { _ } from 'azk';
 import { promiseResolve } from 'azk/utils/promises';

@@ -3948,9 +3948,9 @@
       }
     },
     "cli-router": {
-      "version": "0.2.4",
-      "from": "cli-router@0.2.4",
-      "resolved": "https://registry.npmjs.org/cli-router/-/cli-router-0.2.4.tgz",
+      "version": "0.2.6",
+      "from": "cli-router@0.2.6",
+      "resolved": "https://registry.npmjs.org/cli-router/-/cli-router-0.2.6.tgz",
       "dependencies": {
         "docopt": {
           "version": "0.6.2",
