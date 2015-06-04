@@ -30,6 +30,9 @@ export function cli(args, cwd, ui = UI) {
       .route('init')
       .route('scale')
       .route('status')
+      .route('start')
+      .route('restart', (p) => p.restart, 'start.index')
+      .route('stop'   , (p) => p.stop   , 'start.index')
       .route('logs')
       .route('help'); // If you do not fall in any other route, the help is called.
 

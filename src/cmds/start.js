@@ -1,22 +1,22 @@
-import { _ } from 'azk';
+import Scale from 'azk/cmds/scale';
+import { _, lazy_require } from 'azk';
 import { async } from 'azk/utils/promises';
 import { SYSTEMS_CODE_ERROR } from 'azk/utils/errors';
-import { Cmd as ScaleCmd } from 'azk/cmds/scale';
 
-var open = require('open');
+var lazy = lazy_require({
+  open: 'open',
+});
 
 var action_opts = {
   start: { instances: {}, key: "already_started" },
   stop:  { instances: 0 , key: "not_running" },
 };
 
-class Cmd extends ScaleCmd {
+class Start extends Scale {
   _scale(systems, action, opts) {
     var scale_options = action_opts[action];
 
-    opts = _.defaults(opts, {
-      instances: {},
-    });
+    opts.instances = opts.instances || {};
 
     return async(this, function* () {
       var system, result = 0;
@@ -44,7 +44,7 @@ class Cmd extends ScaleCmd {
         var icc = yield super._scale(system, instances, opts);
 
         if (icc === 0) {
-          this.fail([...ns].concat(scale_options.key), system);
+          this.ui.fail([...ns].concat(scale_options.key), system);
           result = SYSTEMS_CODE_ERROR;
         }
       }
@@ -58,7 +58,7 @@ class Cmd extends ScaleCmd {
       var result = yield this._scale(systems, 'start', opts);
 
       // if flag --open
-      if (!_.isUndefined(opts.open)) {
+      if (opts.open) {
         var open_with;
         var system = manifest.systemDefault;
         var tKey   = 'commands.start.option_errors.open';
@@ -74,21 +74,20 @@ class Cmd extends ScaleCmd {
           var instances = yield system.instances({ type: "daemon" });
 
           if (instances.length > 0) {
-            open(system.url, open_with);
+            lazy.open(system.url, open_with);
           } else {
-            this.warning(`${tKey}.system_not_running`, tOpt);
+            this.ui.warning(`${tKey}.system_not_running`, tOpt);
           }
-
         } else {
-          this.warning(`${tKey}.default_system_not_balanceable`, tOpt);
+          this.ui.warning(`${tKey}.default_system_not_balanceable`, tOpt);
         }
       }
 
       return result;
     })
     .catch((error) => {
-      this.fail(error);
-      this.fail('commands.start.fail', error);
+      this.ui.fail(error);
+      this.ui.fail('commands.start.fail', error);
       return this
         .stop(manifest, systems, opts)
         .then(() => { return error.code ? error.code : 127; });
@@ -100,16 +99,10 @@ class Cmd extends ScaleCmd {
     return this._scale(systems, 'stop', opts);
   }
 
-  reload(manifest, systems, opts) {
-    this.fail('commands.reload.deprecation');
-    return this.restart(manifest, systems, opts);
-  }
-
   restart(manifest, systems, opts) {
     return async(this, function* () {
-      var scale_options = _.merge({
-        instances: {}
-      }, opts);
+      var scale_options = _.clone(opts);
+      scale_options.instances = scale_options.instances || {};
 
       // save instances count
       for (var system of systems) {
@@ -123,21 +116,4 @@ class Cmd extends ScaleCmd {
   }
 }
 
-export function init(cli) {
-  var cmds = {
-    start   : (new Cmd('start [system]'   , cli))
-                .addOption(['--reprovision', '-R'], { default: false })
-                .addOption(['--rebuild', '--pull', '-B'], { default: false })
-                .addOption(['--open', '-o'], { type: String, placeholder: "application" }),
-    stop    : (new Cmd('stop [system]'    , cli))
-                .addOption(['--remove', '-r'], { default: true }),
-    restart : (new Cmd('restart [system]' , cli))
-                .addOption(['--reprovision', '-R'], { default: false })
-                .addOption(['--rebuild', '--pull', '-B'], { default: false })
-                .addOption(['--open', '-o'], { type: String, placeholder: "application" }),
-    reload  : (new Cmd('reload [system]'  , cli))
-                .addOption(['--reprovision', '-R'], { default: true }),
-  };
-
-  return cmds;
-}
+module.exports = Start;

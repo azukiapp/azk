@@ -74,7 +74,7 @@ Options:
   --open, -o                Open a url of system in the preferred application.
   --quiet, -q               Never prompt [default: false].
   --rebuild, -B             Force the rebuild, or pull image and reprovision before starting an instance [default: false].
-  --reprovision             Force the provisioning actions before starting an instance [default: false].
+  --reprovision, -R         Force the provisioning actions before starting an instance [default: false].
   --shell                   The path to the shell binary.
   --short                   Hide 'Provisioned' column [default: false].
   -T                        Disables pseudo-tty allocation [default: false].
