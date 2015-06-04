@@ -10,6 +10,7 @@ export function extend(h) {
     UI.stdout = () => {
       return {
         write(data) {
+          data = (data || '').toString();
           outputs.push(data.replace(/(.*)\n/, "$1"));
         }
       };
