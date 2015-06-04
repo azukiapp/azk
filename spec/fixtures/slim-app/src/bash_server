@@ -1,0 +1,15 @@
+#!/bin/sh
+
+cd $(dirname $0)
+fifo=/tmp/bashttpd_fifo
+
+if [ ! -f $fifo ]; then
+  mkfifo $fifo
+fi
+
+chmod +x ./bashttpd;
+
+while true; do
+  nc -l $PORT 0<$fifo | ./bashttpd 1>$fifo
+  test $? -gt 128 && break
+done
