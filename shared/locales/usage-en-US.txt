@@ -60,7 +60,7 @@ Options:
   --follow, -f              Follow log output [default: false].
   --help, -h                Show help usage.
   --image, -i               Defines the image in which the command will be executed.
-  --log, -l                 Sets a log level.
+  --log=<level>, -l         Sets a log level.
   --logo                    Shows the `azk` logo before showing health information [default: false].
   --long                    Show all columns [default: false].
   --mount, -m               Points to additional mounting - multiple supported (`-m ~/Home:/azk/user -m ~/data:/var/data`).

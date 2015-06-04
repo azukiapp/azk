@@ -106,7 +106,7 @@ class Agent extends CliTrackerController {
 
   spawChild(controller_params) {
     var options = ["--child"].concat(process.argv.slice(4) || []);
-    var args    = ["agent", "start", ..._.uniq(options)];
+    var args    = _.uniq(["agent", "start", ...options]);
     var params = {
       detached: true,
       stdio   : [null, null, null, 'pipe'],
