@@ -10,8 +10,8 @@ Usage:
   azk logs [<system> <instances>] [--no-timestamps --follow --lines <n> -q -h -l <level>] [-v]...
   azk restart [<system>] [--reprovision --rebuild --open -q -h -l <level>] [-v]...
   azk scale [<system>] [<to>] [--no-remove -q -h -l <level>] [-v]...
-  azk shell [<system>] [--command --cwd --image --no-remove --shell --silent --tty --no-tty -q -h -l <level>] [-e -m -v]...
   azk start [<system>] [--reprovision --rebuild --open -q -h -l <level>] [-v]...
+  azk shell [<system>] [--command <cmd> --cwd <dir> --image <name> --shell <bin> --no-remove --silent --tty --no-tty -q -h -l <level>] [-m <mounts> -e <data> -v]...
   azk status [<system>] [--long --short --text -q -h -l <level>] [-v]...
   azk stop [<system>] [--no-remove -q -h -l <level>] [-v]...
   azk vm (ssh|start|status|installed|stop|remove) [--force -q -h -l <level>] [-v]... [-- <ssh-args>...]
@@ -53,18 +53,18 @@ Arguments:
   to                        Number of instances to be available after the scale.
 
 Options:
-  --command, -c             Runs a specific command
-  --cwd, -C                 Default directory
-  --env, -e                 Additional environment variables - multiple supported (`-e HTTP_PORT=5000 -e PORT=5000`).
+  --command=<cmd>, -c       Runs a specific command
+  --cwd=<dir>, -C           Default directory
+  --env=<data>, -e         Additional environment variables - multiple supported (`-e HTTP_PORT=5000 -e PORT=5000`).
   --filename                Shows the name of the manifest file.
-  --force, -F               Force mode.
+  --force, -F               Force mode [default: false].
   --follow, -f              Follow log output [default: false].
   --help, -h                Show help usage.
-  --image, -i               Defines the image in which the command will be executed.
+  --image=<name>, -i       Defines the image in which the command will be executed.
   --log=<level>, -l         Sets a log level.
   --logo                    Shows the `azk` logo before showing health information [default: false].
   --long                    Show all columns [default: false].
-  --mount, -m               Points to additional mounting - multiple supported (`-m ~/Home:/azk/user -m ~/data:/var/data`).
+  --mount=<paths>, -m      Points to additional mounting - multiple supported (`-m ~/Home:/azk/user -m ~/data:/var/data`).
   --lines=<n>, -n           Output the specified number of lines at the end of logs [default: 0].
   --no-colored              Hide outputs colors [default: false].
   --no-daemon               `azk agent` does not run in background mode [default: false].
@@ -75,10 +75,10 @@ Options:
   --quiet, -q               Never prompt [default: false].
   --rebuild, -B             Force the rebuild, or pull image and reprovision before starting an instance [default: false].
   --reprovision, -R         Force the provisioning actions before starting an instance [default: false].
-  --shell                   The path to the shell binary.
+  --shell=<bin>             The path to the shell binary.
   --short                   Hide 'Provisioned' column [default: false].
-  -T                        Disables pseudo-tty allocation [default: false].
-  -t                        Forces pseudo-tty allocation [default: false].
+  --no-tty, -t              Disables pseudo-tty allocation [default: false].
+  --tty, -T                 Forces pseudo-tty allocation [default: false].
   --text                    Show in text mode [default: false].
   --verbose, -v             Sets the level of detail - multiple supported (-vv == --verbose 2) [default: 0].
   --silent                  Prevents any log message about the command execution. It's useful when using the `-c` option and the output is used as input to another command using the pipe `|` operator [default: false].
@@ -87,6 +87,6 @@ Options:
 Examples:
   azk agent start --no-daemon
   azk shell --image azukiapp/debian --shell /bin/bash
-  azk shell --mount ~/Home:/azk/user -env HOME=/azk/user -env HTTP_PORT=5000
+  azk shell --mount ~/Home:/azk/user --env HOME=/azk/user --env HTTP_PORT=5000
   azk status [system_name]
   azk scale [system_name] 2

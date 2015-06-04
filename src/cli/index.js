@@ -29,6 +29,7 @@ export function cli(args, cwd, ui = UI) {
       .route('info')
       .route('init')
       .route('scale')
+      .route('shell')
       .route('status')
       .route('start')
       .route('restart', (p) => p.restart, 'start.index')
