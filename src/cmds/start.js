@@ -60,7 +60,14 @@ class Start extends Scale {
       // if flag --open
       if (opts.open) {
         var open_with;
-        var system = manifest.systemDefault;
+        var system;
+        var system_name = opts.system && opts.system.split(',');
+        system_name = _.head(system_name || []);
+        if (system_name) {
+          system = _.head(_.filter(systems, (s) => s.name === system_name));
+        }
+        system = system || manifest.systemDefault;
+
         var tKey   = 'commands.start.option_errors.open';
         var tOpt   = { name : system.name };
 
