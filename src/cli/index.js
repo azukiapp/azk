@@ -30,7 +30,8 @@ export function cli(args, cwd, ui = UI) {
       .route('init')
       .route('scale')
       .route('status')
-      .route('logs');
+      .route('logs')
+      .route('help'); // If you do not fall in any other route, the help is called.
 
     result = azk_cli.run({
       argv: args.slice(2)
