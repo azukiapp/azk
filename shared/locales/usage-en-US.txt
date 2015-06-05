@@ -55,33 +55,33 @@ Arguments:
 Options:
   --command=<cmd>, -c       Runs a specific command
   --cwd=<dir>, -C           Default directory
-  --env=<data>, -e         Additional environment variables - multiple supported (`-e HTTP_PORT=5000 -e PORT=5000`).
+  --env=<data>, -e          Additional environment variables - multiple supported (`-e HTTP_PORT=5000 -e PORT=5000`).
   --filename                Shows the name of the manifest file.
-  --force, -F               Force mode [default: false].
-  --follow, -f              Follow log output [default: false].
+  --force, -F               Force mode.
+  --follow, -f              Follow log output.
   --help, -h                Show help usage.
-  --image=<name>, -i       Defines the image in which the command will be executed.
-  --log=<level>, -l         Sets a log level.
-  --logo                    Shows the `azk` logo before showing health information [default: false].
-  --long                    Show all columns [default: false].
-  --mount=<paths>, -m      Points to additional mounting - multiple supported (`-m ~/Home:/azk/user -m ~/data:/var/data`).
+  --image=<name>, -i        Defines the image in which the command will be executed.
+  --log=<level>, -l         Sets a log level [default: error].
+  --logo                    Shows the `azk` logo before showing health information.
+  --long                    Show all columns.
+  --mount=<paths>, -m       Points to additional mounting - multiple supported (`-m ~/Home:/azk/user -m ~/data:/var/data`).
   --lines=<n>, -n           Output the specified number of lines at the end of logs [default: 0].
-  --no-colored              Hide outputs colors [default: false].
-  --no-daemon               `azk agent` does not run in background mode [default: false].
-  --no-reload-vm            Not reloads the virtual machine settings [default: false].
-  --no-remove, -r           Do not remove the instances before stopping [default: false].
-  --no-timestamps           Hide log timestamps [default: false].
+  --no-colored              Hide outputs colors.
+  --no-daemon               `azk agent` does not run in background mode.
+  --no-reload-vm            Not reloads the virtual machine settings.
+  --no-remove, -r           Do not remove the instances before stopping.
+  --no-timestamps           Hide log timestamps.
   --open=<app>, -o          Open a url of system in the preferred application.
-  --quiet, -q               Never prompt [default: false].
-  --rebuild, -B             Force the rebuild, or pull image and reprovision before starting an instance [default: false].
-  --reprovision, -R         Force the provisioning actions before starting an instance [default: false].
+  --quiet, -q               Never prompt.
+  --rebuild, -B             Force the rebuild, or pull image and reprovision before starting an instance.
+  --reprovision, -R         Force the provisioning actions before starting an instance.
   --shell=<bin>             The path to the shell binary.
-  --short                   Hide 'Provisioned' column [default: false].
-  --no-tty, -t              Disables pseudo-tty allocation [default: false].
-  --tty, -T                 Forces pseudo-tty allocation [default: false].
-  --text                    Show in text mode [default: false].
+  --short                   Hide 'Provisioned' column.
+  --no-tty, -T              Disables pseudo-tty allocation.
+  --tty, -t                 Forces pseudo-tty allocation.
+  --text                    Show in text mode.
   --verbose, -v             Sets the level of detail - multiple supported (-vv == --verbose 2) [default: 0].
-  --silent                  Prevents any log message about the command execution. It's useful when using the `-c` option and the output is used as input to another command using the pipe `|` operator [default: false].
+  --silent                  Prevents any log message about the command execution. It's useful when using the `-c` option and the output is used as input to another command using the pipe `|` operator.
   --version                 Show azk version.
 
 Examples:
