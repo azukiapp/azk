@@ -42,7 +42,7 @@ class Init extends CliController {
   }
 
   showFilename() {
-    this.output(config('manifest'));
+    this.ui.output(config('manifest'));
   }
 }
 
