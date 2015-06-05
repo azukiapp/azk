@@ -1,5 +1,5 @@
 import { CliController as RouterController } from 'cli-router';
-import { log } from 'azk';
+import { _, log } from 'azk';
 
 export class CliController extends RouterController {
   constructor(...args) {
@@ -33,9 +33,10 @@ export class CliController extends RouterController {
   }
 
   run_action(action_name, opts, ...args) {
+    var options = _.isObject(action_name) ? action_name : opts;
     // Set log level
-    if (opts.log) {
-      log.setConsoleLevel(opts.log);
+    if (options.log) {
+      log.setConsoleLevel(options.log);
     }
 
     return super.run_action(action_name, opts, ...args);
