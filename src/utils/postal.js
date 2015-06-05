@@ -31,6 +31,14 @@ export class IPublisher {
   publish(topic, ...args) {
     publish(this.topic_prefix + '.' + topic, ...args);
   }
+
+  subscribe(topic, func = null) {
+    if (typeof topic === 'function') {
+      [func, topic] = [topic, null];
+    }
+    topic = topic || "*";
+    return subscribe(`${this.topic_prefix}.${topic}`, func);
+  }
 }
 
 export class SubscriptionLogger {

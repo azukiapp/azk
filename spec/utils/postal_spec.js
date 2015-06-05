@@ -52,5 +52,18 @@ describe("Azk utils, postal module", function() {
       var obj = new MyClass();
       obj.test_publish('subtopic', data);
     });
+
+    it("should support subscribe with default prefix topic", function(done) {
+      var data = { data: true };
+      var obj  = new MyClass();
+
+      var subs = obj.subscribe((msg) => {
+        h.expect(msg).to.eql(data);
+        subs.unsubscribe();
+        done();
+      });
+
+      obj.test_publish('subtopic', data);
+    });
   });
 });
