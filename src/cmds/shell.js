@@ -67,7 +67,11 @@ class Shell extends CliTrackerController {
       }
 
       // Remove container before run
-      cmd_options.remove = !options['no-remove'];
+      cmd_options = _.merge(cmd_options, {
+        build_force    : options.rebuild || false,
+        provision_force: (options.rebuild ? true : options.reprovision) || false,
+        remove         : !options['no-remove'],
+      });
 
       var result = defer((resolver, reject) => {
         var escape = (key, container, next) => {
