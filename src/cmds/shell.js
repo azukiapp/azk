@@ -38,7 +38,11 @@ class Shell extends CliTrackerController {
         }
       }
 
-      var tty_default = options.tty || !_.isString(options.command);
+      if (_.isString(options.command)) {
+        options.command = `${options.command};`;
+      }
+      var commands = _.compact([ options.command, ...args['shell-args']]);
+      var tty_default = options.tty || !_.isEmpty(commands);
       var tty = (options['no-tty']) ? (options.tty || false) : tty_default;
 
       var stdin = this.ui.stdin();
@@ -61,10 +65,11 @@ class Shell extends CliTrackerController {
 
       // TODO add support to `-- [shell-args]`
       var cmd = [options.shell || system.shell];
-      if (options.command) {
+      if (!_.isEmpty(commands)) {
         cmd.push("-c");
-        cmd.push(options.command);
+        cmd.push(commands.join(' '));
       }
+      cmd = _.compact(cmd);
 
       // Remove container before run
       cmd_options = _.merge(cmd_options, {

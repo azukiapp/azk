@@ -10,7 +10,7 @@ Usage:
   azk logs [<system> <instances>] [--no-timestamps --follow --lines <n> -q -h -l <level>] [-v]...
   azk restart [<system>] [--reprovision --rebuild --open <app> -q -h -l <level>] [-v]...
   azk scale [<system>] [<to>] [--no-remove -q -h -l <level>] [-v]...
-  azk shell [<system>] [--command <cmd> --cwd <dir> --image <name> --shell <bin> --rebuild --no-remove --silent --tty --no-tty -q -h -l <level>] [-m <mounts> -e <data> -v]...
+  azk shell [<system>] [--command <cmd> --cwd <dir> --image <name> --shell <bin> --rebuild --no-remove --silent --tty --no-tty -q -h -l <level>] [-m <mounts> -e <data> -v]... [-- <shell-args>...]
   azk start [<system>] [--reprovision --rebuild --open <app> -q -h -l <level>] [-v]...
   azk status [<system>] [--long --short --text -q -h -l <level>] [-v]...
   azk stop [<system>] [--no-remove -q -h -l <level>] [-v]...
@@ -49,6 +49,7 @@ Arguments:
   instances                 Number of instances.
   path                      Path where manifest file can be found.
   ssh-args                  Options and arguments to be passed to VM over ssh.
+  shell-args                Options and arguments to be passed to system.
   system                    System name where action will take place.
   to                        Number of instances to be available after the scale.
 
@@ -87,6 +88,8 @@ Options:
 Examples:
   azk agent start --no-daemon
   azk shell --image azukiapp/debian --shell /bin/bash
+  azk shell --image azukiapp/debian --shell /bin/bash -c 'echo test'
+  azk shell --image azukiapp/debian --shell /bin/bash -- echo test
   azk shell --mount ~/Home:/azk/user --env HOME=/azk/user --env HTTP_PORT=5000
   azk status [system_name]
   azk scale [system_name] 2
