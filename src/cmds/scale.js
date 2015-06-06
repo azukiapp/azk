@@ -13,7 +13,7 @@ var lazy = lazy_require({
 class Scale extends CliTrackerController {
   index(opts) {
     return async(this, function* () {
-      yield Helpers.requireAgent(this);
+      yield Helpers.requireAgent(this.ui);
 
       var manifest = new lazy.Manifest(this.cwd, true);
 

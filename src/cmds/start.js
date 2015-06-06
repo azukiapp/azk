@@ -58,7 +58,7 @@ class Start extends Scale {
       var result = yield this._scale(systems, 'start', opts);
 
       // if flag --open
-      if (opts.open) {
+      if (opts.open || opts['open-with']) {
         var open_with;
         var system;
         var system_name = opts.system && opts.system.split(',');
@@ -71,10 +71,8 @@ class Start extends Scale {
         var tKey   = 'commands.start.option_errors.open';
         var tOpt   = { name : system.name };
 
-        if (_.isNull(opts.open) || !_.isString(opts.open) ) {
-          open_with = null;
-        } else {
-          open_with = opts.open;
+        if (_.isString(opts['open-with']) ) {
+          open_with = opts['open-with'];
         }
 
         if (system.balanceable) {
