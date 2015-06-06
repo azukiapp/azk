@@ -10,7 +10,6 @@ var lazy = lazy_require({
 });
 
 var blank_observer = {
-  notify() {},
   resolve() {},
   reject() {},
 };

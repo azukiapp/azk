@@ -39,7 +39,7 @@ describe("Azk docker module, run method @slow", function() {
 
     return result.then((container) => {
       _subscription.unsubscribe();
-      
+
       h.expect(outputs.stdout).to.match(/Linux/);
       return container.remove();
     })

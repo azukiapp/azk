@@ -1,4 +1,5 @@
-import { _, t, async, asyncUnsubscribe, defer, lazy_require, subscribe } from 'azk';
+import { _, t, lazy_require } from 'azk';
+import { defer, subscribe, asyncUnsubscribe } from 'azk';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Helpers } from 'azk/cli/command';
 
@@ -66,14 +67,15 @@ class Cmd extends InteractiveCmds {
       options.remove = opts.remove;
 
       var result = defer((resolver, reject) => {
-        var escape = (key, container) => {
+        var escape = (key, container, next) => {
           if (key === ".") {
             process.nextTick(() => {
               lazy.docker.getContainer(container).stop({ t: 5000 }).fail(reject);
             });
             return true;
           } else if (key === "?") {
-            this.ok("show help");
+            this.ok("coming soon...");
+            process.nextTick(() => next());
             return true;
           }
           return false;

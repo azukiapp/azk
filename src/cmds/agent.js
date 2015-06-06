@@ -1,4 +1,5 @@
-import { _, t, log, config, lazy_require, subscribe, defer, async, asyncUnsubscribe } from 'azk';
+import { _, t, log, config, lazy_require } from 'azk';
+import { defer, subscribe, asyncUnsubscribe } from 'azk';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Helpers } from 'azk/cli/command';
 
@@ -80,7 +81,6 @@ class Cmd extends InteractiveCmds {
             memory: config("agent:vm:memory")
           };
         }
-
 
         // Track agent start
         this.docker.version().then((result) => {

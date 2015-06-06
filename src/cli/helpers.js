@@ -223,7 +223,7 @@ var Helpers = {
             stream.write(key);
           } else {
             if (escape) {
-              stopped = callback(ch, container);
+              stopped = callback(ch, container, () => stopped = false);
               escape = false;
             } else {
               stream.write(key);

@@ -77,8 +77,14 @@ var Run = {
       var container  = yield lazy.docker.run(system.image.name, command, docker_opt);
       var data       = yield container.inspect();
 
+      log.debug("[system] container shell ended: %s", container.id);
+
       // Remove after run
-      if (options.remove) { yield container.remove(); }
+      if (options.remove) {
+        log.debug("[system] call to remove container %s", container.id);
+        yield container.remove();
+        log.debug("[system] container removed %s", container.id);
+      }
 
       yield system.stopWatching();
 
