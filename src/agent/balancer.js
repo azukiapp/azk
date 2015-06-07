@@ -108,7 +108,7 @@ var Balancer = {
   start_hipache(ip, port, socket) {
     var pid  = config("paths:hipache_pid");
     var file = this._check_config(ip, port, socket);
-    var cmd = [ 'nvm', 'hipache', '--config', file ];
+    var cmd  = [ 'nvm', 'hipache', '--config', file ];
     var name = "hipache";
 
     return this._start_service(name, cmd, pid).then((child) => {
@@ -168,14 +168,14 @@ var Balancer = {
     return manifest.system(system, true);
   },
 
-  _waitDocker() {
+  _waitDocker(shoot = true, retry = 10) {
     var docker_host = config("docker:host");
-    var promise = net.waitService(docker_host, 10, { timeout: 2000, context: "balancer" });
+    var promise = net.waitService(docker_host, retry, { timeout: 2000, context: "balancer" });
     return promise.then((success) => {
-      if (!success) {
+      if ((!success) && shoot) {
         throw new AgentStartError(t('errors.connect_docker_unavailable'));
       }
-      return true;
+      return success;
     });
   },
 
@@ -188,7 +188,7 @@ var Balancer = {
       var system = this._getSystem(system_name);
 
       // Wait docker
-      yield this._waitDocker();
+      yield this._waitDocker(false, 3);
 
       // Save outputs to use in error
       var output = "";

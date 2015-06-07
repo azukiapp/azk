@@ -1,10 +1,14 @@
-import { Q, publish, subscribe } from 'azk';
+import { Q, lazy_require } from 'azk';
+import { publish, subscribe } from 'azk/utils/postal';
 import h from 'spec/spec_helper';
-import capture_io from 'azk/utils/capture_io';
+
+var lazy = lazy_require({
+  capture_io: ["azk/utils/capture_io"],
+});
 
 describe("Azk capture_io utils helper", function() {
   it("should capture outputs", function() {
-    var promise = capture_io( () => {
+    var promise = lazy.capture_io( () => {
       process.stdout.write('stdout write ');
       console.log('output to stdout');
       console.error('output to stderr');
@@ -35,14 +39,14 @@ describe("Azk capture_io utils helper", function() {
     };
 
     it("should capture outputs", function() {
-      return capture_io(block).spread((result, outs) => {
+      return lazy.capture_io(block).spread((result, outs) => {
         h.expect(result).to.equal(1);
         h.expect(outs.stdout).to.equal("output in stdout\n");
       });
     });
 
     it("should support progress", function() {
-      var promise = capture_io(block);
+      var promise = lazy.capture_io(block);
       var notify  = [];
 
       var _subscription = subscribe('capture_io_spec', (notification) => notify.push(notification));
