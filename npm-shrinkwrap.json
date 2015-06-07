@@ -3948,14 +3948,13 @@
       }
     },
     "cli-router": {
-      "version": "0.3.2",
-      "from": "cli-router@0.3.2",
-      "resolved": "https://registry.npmjs.org/cli-router/-/cli-router-0.3.2.tgz",
+      "version": "0.3.3",
+      "from": "cli-router@>=0.3.0 <0.4.0",
       "dependencies": {
         "docopt": {
           "version": "0.6.2",
-          "from": "docopt@>=0.6.2 <0.7.0",
-          "resolved": "https://registry.npmjs.org/docopt/-/docopt-0.6.2.tgz"
+          "from": "git+https://github.com/gullitmiranda/docopt.coffee.git#stable",
+          "resolved": "git+https://github.com/gullitmiranda/docopt.coffee.git#45ed4031549a7b083cca3a9e6af149003e03878e"
         },
         "ramda": {
           "version": "0.14.0",
