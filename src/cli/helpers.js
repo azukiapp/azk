@@ -96,6 +96,8 @@ var Helpers = {
           // running, starting, not_running, already_installed
           switch (event.status) {
             case "not_running":
+              cmd.fail([...keys].concat(event.status), event.data);
+              break;
             case "already_installed":
               cmd.fail([...keys].concat(event.status), event.data);
               break;
@@ -132,7 +134,7 @@ var Helpers = {
     };
   },
 
-  newPullProgress(cmd) {
+  newPullProgressBar(cmd) {
     return (msg) => {
       if (msg.type !== "pull_msg") {
         return msg;
@@ -221,7 +223,7 @@ var Helpers = {
             stream.write(key);
           } else {
             if (escape) {
-              stopped = callback(ch, container);
+              stopped = callback(ch, container, () => stopped = false);
               escape = false;
             } else {
               stream.write(key);

@@ -1,4 +1,4 @@
-import { _, config } from 'azk';
+import { _, config, subscribe } from 'azk';
 import { Image } from 'azk/docker';
 import h from 'spec/spec_helper';
 import { ProvisionNotFound } from 'azk/utils/errors';
@@ -12,9 +12,15 @@ describe("Azk docker module, image pull @slow", function() {
   it("should get a image by name", function() {
     var image  = Image.parseRepositoryTag(image_empty);
     var events = [];
+
+    var _subscription = subscribe('docker.pull.status', (data) => {
+      events.push(data);
+    });
+
     return h.docker.pull(image.repository, image.tag)
-      .progress((event) => events.push(event))
       .then(() => {
+        _subscription.unsubscribe();
+
         var status = [
           'pulling_repository',
           'pulling_layers',
@@ -28,6 +34,10 @@ describe("Azk docker module, image pull @slow", function() {
           h.expect(events)
             .to.contain.an.item.with.deep.property('statusParsed.type', status);
         });
+      })
+      .catch(function (err) {
+        _subscription.unsubscribe();
+        throw err;
       });
   });
 

@@ -1,7 +1,12 @@
 import { path, async } from 'azk';
 
+function isGeneratorFunction (fn) {
+  return typeof fn === 'function' &&
+    fn.constructor &&
+    fn.constructor.name === 'GeneratorFunction';
+}
+
 export function extend() {
-  var Generator = (function*() { yield undefined; }).constructor;
   var suffix    = path.sep + path.join('', 'mocha', 'index.js');
   var children  = require.cache || {};
 
@@ -15,13 +20,19 @@ export function extend() {
     var Runnable = mocha.Runnable;
     var run = Runnable.prototype.run;
 
+    if (Runnable.__generatorsIsLoaded) {
+      return true;
+    }
+
     Runnable.prototype.run = function (fn) {
-      if (this.fn instanceof Generator) {
+      if (isGeneratorFunction(this.fn)) {
         var _fn = this.fn;
         this.fn = () => async(this, _fn);
       }
 
       return run.call(this, fn);
     };
+
+    Runnable.__generatorsIsLoaded = true;
   });
 }

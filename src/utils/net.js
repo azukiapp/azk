@@ -1,5 +1,4 @@
-import { Q, _, async, defer, fs, lazy_require } from 'azk';
-import { config, set_config } from 'azk';
+import { Q, _, async, defer, fs, lazy_require, publish, config, set_config } from 'azk';
 import { envDefaultArray, isBlank } from 'azk/utils';
 
 var portscanner = require('portscanner');
@@ -195,12 +194,13 @@ var net = {
       };
     }
 
-    return defer((resolve, reject, notify) => {
+    return defer((resolve) => {
       var client   = null;
       var attempts = 1, max = retry;
       var connect  = () => {
         var t = null;
-        notify(_.merge({
+
+        publish("utils.net.waitService.status", _.merge({
           uri : uri,
           type: 'try_connect', attempts: attempts, max: max, context: opts.context
         }, address ));
@@ -232,11 +232,11 @@ var net = {
 
   // TODO: change for a generic service wait function
   waitForwardingService(host, port, retry = 15, timeout = 10000) {
-    return defer((resolve, reject, notify) => {
+    return defer((resolve, reject) => {
       var client   = null;
       var attempts = 1, max = retry;
       var connect  = () => {
-        notify({ type: 'try_connect', attempts: attempts, max: max });
+        publish("utils.net.waitForwardingService.status", { type: 'try_connect', attempts: attempts, max: max });
 
         var timeout_func = function() {
           attempts += 1;

@@ -72,6 +72,7 @@ var UI = {
 
   // TOOD: Flush log (https://github.com/flatiron/winston/issues/228)
   exit(code = 0) {
+    require('azk/utils/postal').unsubscribeAll();
     setTimeout(() => {
       process.emit("azk:command:exit", code);
     }, 500);

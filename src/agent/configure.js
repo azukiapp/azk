@@ -1,4 +1,4 @@
-import { _, t, os, Q, async, log, lazy_require } from 'azk';
+import { _, t, os, Q, async, log, lazy_require, publish } from 'azk';
 import { config, set_config } from 'azk';
 import { UIProxy } from 'azk/cli/ui';
 import { OSNotSupported, DependencyError } from 'azk/utils/errors';
@@ -113,7 +113,7 @@ export class Configure extends UIProxy {
   }
 
   _checkAzkVersion() {
-    return async(this, function* (notify) {
+    return async(this, function* () {
       try {
         // check connectivity
         var currentOnline = yield net.isOnlineCheck();
@@ -133,7 +133,7 @@ export class Configure extends UIProxy {
           json: true,
         };
 
-        notify({ type: "status", keys: "configure.check_version"});
+        publish("agent.configure.check_version.status", { type: "status", keys: "configure.check_version"});
         var [response, body] = yield Q.ninvoke(request, 'get', config('urls:github:api:tags_url'), options);
         var statusCode = response.statusCode;
 
@@ -154,7 +154,7 @@ export class Configure extends UIProxy {
           this.ok('configure.latest_azk_version', { current_version: Azk.version });
         }
       } catch (err) {
-        notify({
+        publish("agent.configure.check_version.status", {
           type: "status",
           status: "error",
           data: new Error(t("configure.check_version_error", {

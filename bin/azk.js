@@ -26,6 +26,12 @@ if (process.env.AZK_PROFILE_REQUIRES) {
   require('azk/utils/require_debug');
 }
 
+if (process.env.AZK_SUBSCRIBE_POSTAL) {
+  var SubscriptionLogger = require("azk/utils/postal").SubscriptionLogger;
+  var subscriptionLogger = new SubscriptionLogger();
+  subscriptionLogger.subscribeTo(process.env.AZK_SUBSCRIBE_POSTAL);
+}
+
 // Load source-map to support transpiled files
 var map_opts = {};
 if (process.env.AZK_DISABLE_SOURCE_MAP) {
@@ -35,6 +41,7 @@ if (process.env.AZK_DISABLE_SOURCE_MAP) {
     }
   };
 }
+
 require('source-map-support').install(map_opts);
 
 // Process exit events

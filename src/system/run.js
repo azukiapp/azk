@@ -1,7 +1,9 @@
-import { _, t, Q, async, defer, config, lazy_require, log, isBlank, path } from 'azk';
+import { _, t,  config, lazy_require, log, isBlank, path } from 'azk';
+import { Q, async, defer, asyncUnsubscribe } from 'azk';
 import { ImageNotAvailable, SystemRunError, RunCommandError, NotBeenImplementedError } from 'azk/utils/errors';
 import { Balancer } from 'azk/system/balancer';
 import net from 'azk/utils/net';
+import { subscribe, publish } from 'azk';
 
 var lazy = lazy_require({
   MemoryStream: 'memorystream',
@@ -11,7 +13,7 @@ var lazy = lazy_require({
 
 var Run = {
   runProvision(system, options = {}) {
-    return async(this, function* (notify) {
+    return async(this, function* () {
       var steps = system.provision_steps;
 
       options = _.defaults(options, {
@@ -46,7 +48,7 @@ var Run = {
         output = t("system.seelog");
       }
 
-      notify({ type: "provision", system: system.name });
+      publish("system.run.provision.status", { type: "provision", system: system.name });
       var exitResult = yield system.runShell(cmd, options);
       if (exitResult.code !== 0) {
         throw new RunCommandError(system.name, cmd.join(' '), output);
@@ -75,8 +77,14 @@ var Run = {
       var container  = yield lazy.docker.run(system.image.name, command, docker_opt);
       var data       = yield container.inspect();
 
+      log.debug("[system] container shell ended: %s", container.id);
+
       // Remove after run
-      if (options.remove) { yield container.remove(); }
+      if (options.remove) {
+        log.debug("[system] call to remove container %s", container.id);
+        yield container.remove();
+        log.debug("[system] container removed %s", container.id);
+      }
 
       yield system.stopWatching();
 
@@ -92,6 +100,7 @@ var Run = {
   runDaemon(system, options = {}) {
     return async(this, function* () {
       // TODO: add instances and dependencies options
+
       // Prepare options
       var image = yield this._check_image(system, options);
       options.image_data = image;
@@ -141,66 +150,62 @@ var Run = {
   },
 
   runWatch(system, daemon = true, silent = false) {
-    return defer((resolve) => {
-      var notify = resolve.notify;
+    var topic = "system.sync.status";
+    if (_.isEmpty(system.syncs)) {
+      return true;
+    }
 
-      if (_.isEmpty(system.syncs)) {
-        return true;
-      }
+    if (!silent) {
+      publish(topic, { type : "sync", system : system.name });
+    }
 
-      if (!silent) {
-        notify({ type : "sync", system : system.name });
-      }
+    return Q.all(_.map(system.syncs || {}, (sync_data, host_folder) => {
+      return async(this, function* () {
+        if (daemon && sync_data.options.daemon === false ||
+           !daemon && sync_data.options.shell !== true) {
+          return Q.resolve();
+        }
 
-      return Q.all(_.map(system.syncs || {}, (sync_data, host_folder) => {
-        return async(this, function* () {
-          if (daemon && sync_data.options.daemon === false ||
-             !daemon && sync_data.options.shell !== true) {
-            return Q.resolve();
-          }
+        if (config('agent:requires_vm')) {
+          sync_data.options = _.defaults(sync_data.options, { use_vm: true, ssh: lazy.Client.ssh_opts() });
+        }
 
-          if (config('agent:requires_vm')) {
-            sync_data.options = _.defaults(sync_data.options, { use_vm: true, ssh: lazy.Client.ssh_opts() });
-          }
+        var clean_sync_folder = yield this._clean_sync_folder(system, host_folder);
+        if (clean_sync_folder !== 0) {
+          // TODO: throw proper error
+          throw new NotBeenImplementedError('SyncError');
+        }
 
-          var clean_sync_folder = yield this._clean_sync_folder(system, host_folder);
-          if (clean_sync_folder !== 0) {
-            // TODO: throw proper error
-            throw new NotBeenImplementedError('SyncError');
-          }
+        var pub_data = {
+          system      : system.name,
+          host_folder : host_folder,
+          guest_folder: sync_data.guest_folder,
+          options     : sync_data.options
+        };
 
-          var notify_data = {
-            system      : system.name,
-            host_folder : host_folder,
-            guest_folder: sync_data.guest_folder,
-            options     : sync_data.options
-          };
+        publish(topic, _.merge({ type : "sync_start" }, pub_data));
 
-          notify(_.merge({ type : "sync_start" }, notify_data));
-
-          return lazy.Client.watch(host_folder, sync_data.guest_folder, sync_data.options)
-            .then(() => {
-              notify(_.merge({ type : "sync_done" }, notify_data));
-            });
-        });
-      }));
-    });
+        return lazy.Client
+          .watch(host_folder, sync_data.guest_folder, sync_data.options)
+          .then(() => {
+            publish(topic, _.merge({ type : "sync_done" }, pub_data));
+          });
+      });
+    }));
   },
 
   stopWatching(system) {
-    return async(this, function* (notify) {
-      return yield Q.all(_.map(system.syncs || {}, (sync_data, host_folder) => {
-        return lazy.Client.unwatch(path.join(host_folder, '/'), sync_data.guest_folder)
-          .then(() => {
-            notify({
-              type        : "unwatch",
-              system      : system.name,
-              host_folder : host_folder,
-              guest_folder: sync_data.guest_folder
-            });
+    return Q.all(_.map(system.syncs || {}, (sync_data, host_folder) => {
+      return lazy.Client.unwatch(path.join(host_folder, '/'), sync_data.guest_folder)
+        .then(() => {
+          publish("system.sync.status", {
+            type        : "unwatch",
+            system      : system.name,
+            host_folder : host_folder,
+            guest_folder: sync_data.guest_folder
           });
-      }));
-    });
+        });
+    }));
   },
 
   stop(system, instances, options = {}) {
@@ -209,7 +214,7 @@ var Run = {
       remove: true,
     });
 
-    return async(function* (notify) {
+    return async(function* () {
       var container = null;
 
       // Default stop all
@@ -224,13 +229,13 @@ var Run = {
         yield Balancer.remove(system, container);
 
         if (options.kill) {
-          notify({ type: 'kill_service', system: system.name });
+          publish("system.run.stop.status", { type: 'kill_service', system: system.name });
           yield container.kill();
         } else {
-          notify({ type: 'stop_service', system: system.name });
+          publish("system.run.stop.status", { type: 'stop_service', system: system.name });
           yield container.stop();
         }
-        notify({ type: "stopped", id: container.Id });
+        publish("system.run.stop.status", { type: 'stopped', id: container.Id });
         if (options.remove) {
           yield container.remove();
         }
@@ -244,7 +249,7 @@ var Run = {
 
   // Wait for container/system available
   _wait_available(system, port_data, container, retry, timeout) {
-    return async(this, function* (notify) {
+    return async(this, function* () {
       var host;
       if (config('agent:requires_vm')) {
         host = config('agent:vm:ip');
@@ -263,7 +268,7 @@ var Run = {
         },
       };
 
-      notify(_.merge(port_data, {
+      publish("system.run._wait_available.status", _.merge(port_data, {
         name: system.portName(port_data.name),
         type: "wait_port", system: system.name
       }));
@@ -343,8 +348,14 @@ var Run = {
       image_pull: true,
     });
 
-    return async(function* () {
+    var _subscription = subscribe("image.check.status", (msg, env) => {
+      msg.system = system;
+      publish("system.run." + env.topic, msg);
+    });
+
+    return asyncUnsubscribe(this, _subscription, function* () {
       var promise;
+
       if ((options.build_force || options.image_pull) && !system.image.builded) {
         if (system.image.provider === 'docker') {
           promise = system.image.pull(options);
@@ -355,18 +366,16 @@ var Run = {
         // save the date provisioning
         system.image.builded = new Date();
       } else {
-        promise = system.image.check().then((image) => {
-          if (isBlank(image)) {
-            throw new ImageNotAvailable(system.name, system.image.name);
-          }
-          return image;
-        });
+        promise = system.image.check()
+          .then((image) => {
+            if (isBlank(image)) {
+              throw new ImageNotAvailable(system.name, system.image.name);
+            }
+            return image;
+          });
       }
 
-      var image = yield promise.progress((event) => {
-        event.system = system;
-        return event;
-      });
+      var image = yield promise;
 
       if (!isBlank(image)) {
         return image.inspect();

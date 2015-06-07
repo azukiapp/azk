@@ -81,19 +81,19 @@ var Utils = {
   },
 
   defer(func) {
-    return Q.Promise((resolve, reject, notify) => {
+    return Q.Promise((resolve, reject) => {
       setImmediate(() => {
         var result;
 
         try {
-          resolve = _.extend(resolve, { resolve: resolve, reject: reject, notify: notify });
-          result = func(resolve, reject, notify);
+          resolve = _.extend(resolve, { resolve: resolve, reject: reject });
+          result = func(resolve, reject);
         } catch (e) {
           return reject(e);
         }
 
         if (Q.isPromise(result)) {
-          result.progress(notify).then(resolve, reject);
+          result.then(resolve, reject);
         } else if (typeof(result) != "undefined") {
           resolve(result);
         }
@@ -102,7 +102,7 @@ var Utils = {
   },
 
   async(obj, func, ...args) {
-    return Utils.defer((_resolve, _reject, notify) => {
+    return Utils.defer((/* _resolve, _reject */) => {
       if (typeof obj == "function") {
         [func, obj] = [obj, null];
       }
@@ -111,7 +111,19 @@ var Utils = {
         func = func.bind(obj);
       }
 
-      return Q.async(func).apply(func, [...args].concat(notify));
+      return Q.async(func).apply(func, [...args]);
+    });
+  },
+
+  asyncUnsubscribe(obj, subscription, ...args) {
+    return this.async(obj, ...args)
+    .then(function (result) {
+      subscription.unsubscribe();
+      return result;
+    })
+    .catch(function (err) {
+      subscription.unsubscribe();
+      throw err;
     });
   },
 
@@ -207,7 +219,8 @@ var Utils = {
   envDefaultArray(key, defaultValue) {
     var value = Utils.envs(key);
     return (!value || _.isEmpty(value)) ? defaultValue : _.invoke(value.split(','), 'trim');
-  }
+  },
+
 };
 
 module.exports = Utils;

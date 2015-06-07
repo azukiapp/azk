@@ -1,5 +1,5 @@
 import { _, t, log, config, lazy_require } from 'azk';
-import { defer, async } from 'azk';
+import { defer, subscribe, asyncUnsubscribe } from 'azk';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Helpers } from 'azk/cli/command';
 
@@ -7,9 +7,6 @@ var lazy = lazy_require({
   Client : [ 'azk/agent/client' ],
   spawn  : ['child-process-promise'],
   net    : 'net',
-  channel: function() {
-    return require('postal').channel("agent");
-  }
 });
 
 class Cmd extends InteractiveCmds {
@@ -29,22 +26,24 @@ class Cmd extends InteractiveCmds {
 
   callAgent(opts) {
     // Create a progress output
-    var progress = Helpers.vmStartProgress(this);
+    var _subscription = subscribe('#.status', (data) => {
+      Helpers.vmStartProgress(this)(data);
+    });
 
-    return async(this, function* () {
+    return asyncUnsubscribe(this, _subscription, function* () {
       switch (opts.action) {
         case 'startchild':
-          opts.configs = yield this.getConfig(true, opts).progress(progress);
+          opts.configs = yield this.getConfig(true, opts);
           opts.action  = "start";
           break;
 
         case 'start':
           // And no running
-          var status = yield lazy.Client.status();
+          var status = yield lazy.Client.status(opts.action);
           if (!status.agent) {
             // Check and load configures
             this.warning('status.agent.wait');
-            opts.configs = yield this.getConfig(false, opts).progress(progress);
+            opts.configs = yield this.getConfig(false, opts);
 
             // Remove and adding vm (to refresh vm configs)
             if (config('agent:requires_vm') && opts['reload-vm']) {
@@ -66,7 +65,11 @@ class Cmd extends InteractiveCmds {
       process.chdir(config('paths:azk_root'));
 
       // use VM?
-      var subscription = lazy.channel.subscribe("agent:started", (/* data, envelope */) => {
+      var _agent_started_subscription = subscribe("agent.agent.started.event", (/* data, envelope */) => {
+
+        // auto-unsubscribe
+        _agent_started_subscription.unsubscribe();
+
         var vm_data = {};
 
         if (config("agent:requires_vm")) {
@@ -75,8 +78,6 @@ class Cmd extends InteractiveCmds {
             memory: config("agent:vm:memory")
           };
         }
-
-        subscription.unsubscribe();
 
         // Track agent start
         this.docker.version().then((result) => {
@@ -92,7 +93,7 @@ class Cmd extends InteractiveCmds {
       });
 
       // Call action in agent
-      var promise = lazy.Client[opts.action](opts).progress(progress);
+      var promise = lazy.Client[opts.action](opts);
       return promise.then((result) => {
         if (opts.action != "status") {
           return result;

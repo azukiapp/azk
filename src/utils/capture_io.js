@@ -36,4 +36,5 @@ function capture_io(block) {
   });
 }
 
+export { capture_io };
 export default capture_io;

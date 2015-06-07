@@ -1,5 +1,5 @@
 import h from 'spec/spec_helper';
-import { _, async, path, Q, config, log } from 'azk';
+import { _, async, path, Q, config, log, subscribe } from 'azk';
 import { lazy_require } from 'azk';
 import { net } from 'azk/utils';
 
@@ -205,12 +205,13 @@ h.describeRequireVm("Azk agent vm", function() {
         h.expect(aux_tools.filter_dhcp(data[1], VBoxNetworkName)).to.empty;
 
         // Removing vm and network interface
-        var events   = [];
-        var progress = (event) => events.push(event);
-        yield remove.apply(this).progress(progress);
+        var msgs, wait_msgs = h.wait_msgs("agent.#", (msg, msgs) => msgs.length >= 2);
+        yield remove.apply(this);
+
         data = yield aux_tools.netinfo();
+        msgs = yield wait_msgs;
         h.expect(aux_tools.filter_hostonly(data[0], info.hostonlyadapter1)).to.empty;
-        h.expect(events).to.length(2);
+        h.expect(msgs).to.length(2);
       });
     });
   });
@@ -219,20 +220,29 @@ h.describeRequireVm("Azk agent vm", function() {
     this.timeout(10000);
     var name = config("agent:vm:name");
     var data = "";
-    var progress = (event) => {
-      if (event.type == "ssh" && (event.context == "stdout" || event.context == "stderr")) {
-        data += event.data.toString();
-      }
-    };
+    var _subscription;
 
-    beforeEach(() => data = "");
+    before(() => {
+      _subscription = subscribe('agent.#', (event) => {
+        if (event.type == "ssh" && (event.context == "stdout" || event.context == "stderr")) {
+          data += event.data.toString();
+        }
+      });
+    });
+    after(() => {
+      _subscription.unsubscribe();
+    });
+
+    beforeEach(() => {
+      data = "";
+    });
 
     it("should return error if vm not exist", function() {
       return h.expect(l.VM.ssh("not-exist")).to.eventually.rejectedWith(/vm is not running/);
     });
 
     it("should execute a ssh command", function() {
-      var result = l.VM.ssh(name, "sleep 0.5; uptime").progress(progress);
+      var result = l.VM.ssh(name, "sleep 0.5; uptime");
       return result.then(function(code) {
         h.expect(data).to.match(/load average/);
         h.expect(code).to.equal(0);
@@ -255,10 +265,10 @@ h.describeRequireVm("Azk agent vm", function() {
       return async(this, function* () {
         var code;
 
-        code = yield l.VM.copyFile(name, __filename, "/tmp/azk/file").progress(progress);
+        code = yield l.VM.copyFile(name, __filename, "/tmp/azk/file");
         h.expect(code).to.equal(0);
 
-        code = yield l.VM.ssh(name, "cat /tmp/azk/file").progress(progress);
+        code = yield l.VM.ssh(name, "cat /tmp/azk/file");
         h.expect(code).to.equal(0);
         h.expect(data).to.match(/should\scopy\sfile\sto\svm/);
       });

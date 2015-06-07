@@ -105,9 +105,8 @@ describe("Azk utils module", function() {
     var async = utils.async;
 
     var will_solve = () => {
-      return defer((resolve, reject, notify) => {
+      return defer((resolve) => {
         process.nextTick(() => {
-          notify("notify");
           resolve(1);
         });
       });
@@ -135,20 +134,14 @@ describe("Azk utils module", function() {
     });
 
     it("should support a async alias", function() {
-      var events   = [];
-      var progress = (event) => events.push(event);
-
-      var promise = async(function* (notify) {
-        notify("fromasync");
+      var promise = async(function* () {
         var number = yield will_solve();
         h.expect(number).to.equal(1);
         return true;
-      }).progress(progress);
+      });
 
       return promise.then((result) => {
         h.expect(result).to.equal(true);
-        h.expect(events).to.include("notify");
-        h.expect(events).to.include("fromasync");
       });
     });
 

@@ -7,7 +7,7 @@ var azk_gulp = require('azk-dev/gulp')({
   src  : { src: "./src" , dest: path.join(lib, "/azk") },
   spec : { src: "./spec", dest: path.join(lib, "/spec") },
   mocha: { timeout: 10000 },
-  lint: [ "bin/**/*.js" ],
+  lint : [ "bin/**/*.js" ],
 });
 
 // Load gulp

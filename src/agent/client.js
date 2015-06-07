@@ -1,4 +1,4 @@
-import { _, Q, defer, lazy_require, log } from 'azk';
+import { _, Q, defer, lazy_require, log, publish } from 'azk';
 import { config, set_config } from 'azk';
 import { Agent } from 'azk/agent';
 import { AgentNotRunning } from 'azk/utils/errors';
@@ -127,19 +127,21 @@ var WebSocketClient = {
 };
 
 var Client = {
-  status() {
+  status(action_name) {
     var status_obj = {
       agent   : false,
       docker  : false,
       balancer: false,
     };
 
-    return defer((resolve, _reject, notify) => {
+    return defer((resolve) => {
       if (Agent.agentPid().running) {
-        notify({ type: "status", status: "running" });
+        publish("agent.client.status", { type: "status", status: "running" });
         status_obj.agent = true;
       } else {
-        notify({ type: "status", status: "not_running" });
+        if (action_name !== 'start') {
+          publish("agent.client.status", { type: "status", status: "not_running" });
+        }
       }
       resolve(status_obj);
     });
@@ -150,10 +152,10 @@ var Client = {
   },
 
   stop(opts) {
-    return defer((_resolve, _reject, notify) => {
-      notify({ type: "status", status: "stopping" });
+    return defer(() => {
+      publish("agent.client.stop.status", { type: "status", status: "stopping" });
       return Agent.stop(opts).then((result) => {
-        if (result) { notify({ type: "status", status: "stopped" }); }
+        if (result) { publish("agent.client.stop.status", { type: "status", status: "stopped" }); }
         return { agent: result };
       });
     });
@@ -166,15 +168,15 @@ var Client = {
   },
 
   watch(host_folder, guest_folder, opts = {}) {
-    return defer((resolve, reject, notify) => {
+    return defer((resolve, reject) => {
       var req = { action: 'watch', data: { host_folder, guest_folder, opts } };
       WebSocketClient.send(req, (res, end) => {
         switch (res.status) {
           case 'start':
-            notify({ type: "status", status: "starting" });
+            publish("sync.status", { type: "starting" });
             break;
           case 'sync':
-            notify({ type: "sync", status: res.data });
+            publish("sync.status", { type: "sync", status: res.data });
             break;
           case 'done' :
             end();
@@ -202,7 +204,6 @@ var Client = {
             end();
             resolve(true);
             break;
-
         }
       });
     });

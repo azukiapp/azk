@@ -1,4 +1,4 @@
-import { config, async, log } from 'azk';
+import { config, async, log, publish } from 'azk';
 import { VM  }   from 'azk/agent/vm';
 import { Balancer } from 'azk/agent/balancer';
 import { Api } from 'azk/agent/api';
@@ -53,10 +53,14 @@ var Server = {
 
   installVM(start = false) {
     var vm_name = config("agent:vm:name");
-    return async(this, function* (notify) {
-      var installed = yield VM.isInstalled(vm_name);
-      var running   = (installed) ? yield VM.isRunnig(vm_name) : false;
-      var vm_notify = (status) => notify({ type: "status", context: "vm", status });
+    return async(this, function* () {
+      var installed  = yield VM.isInstalled(vm_name);
+      var running    = (installed) ? yield VM.isRunnig(vm_name) : false;
+      var vm_publish = (status) => {
+        publish("agent.server.installVM.status", {
+          type: "status", context: "vm", status
+        });
+      };
 
       if (!installed) {
         var opts = {
@@ -69,7 +73,7 @@ var Server = {
         yield VM.init(opts);
 
         // Set ssh key
-        vm_notify("sshkey");
+        vm_publish("sshkey");
         var file    = config("agent:vm:ssh_key") + ".pub";
         var content = yield qfs.read(file);
         VM.setProperty(vm_name, "/VirtualBox/D2D/SSH_KEY", content);
@@ -85,9 +89,9 @@ var Server = {
       }
 
       // Mount shared
-      vm_notify("mounting");
+      vm_publish("mounting");
       yield VM.mount(vm_name, "Root", config("agent:vm:mount_point"));
-      vm_notify("mounted");
+      vm_publish("mounted");
 
       // Mark installed
       this.vm_started = true;

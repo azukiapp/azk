@@ -1,4 +1,4 @@
-import { log, _, async, t, lazy_require } from 'azk';
+import { log, _, async, t, lazy_require, subscribe } from 'azk';
 import { Helpers } from 'azk/cli/command';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Cmd as StatusCmd } from 'azk/cmds/status';
@@ -50,12 +50,12 @@ class Cmd extends InteractiveCmds {
 
   _scale(system, instances = {}, opts = undefined) {
     var flags    = {};
-    var progress = (event) => {
+    var _subscription = subscribe('#.status', (event) => {
       if (!event) { return; }
       var type;
-      var pull_progress = Helpers.newPullProgress(this);
+      var pullProgressBar = Helpers.newPullProgressBar(this);
       if (event.type === "pull_msg") {
-        pull_progress(event);
+        pullProgressBar(event);
       } else {
         var keys = ["commands", "scale"];
         switch (event.type) {
@@ -88,7 +88,7 @@ class Cmd extends InteractiveCmds {
             log.debug({ log_label: "[scale]", data: event});
         }
       }
-    };
+    });
 
     var options = {
       build_force: opts.rebuild || false,
@@ -104,7 +104,15 @@ class Cmd extends InteractiveCmds {
       });
     });
 
-    return system.scale(instances, options).progress(progress);
+    return system.scale(instances, options)
+      .then(function (result) {
+        _subscription.unsubscribe();
+        return result;
+      })
+      .catch(function (err) {
+        _subscription.unsubscribe();
+        throw err;
+      });
   }
 }
 

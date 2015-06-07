@@ -15,6 +15,12 @@ var lazy = lazy_require({
 var chai = require('azk-dev/chai');
 chai.use(require('chai-subset'));
 
+if (process.env.AZK_SUBSCRIBE_POSTAL) {
+  var SubscriptionLogger = require("azk/utils/postal").SubscriptionLogger;
+  var subscriptionLogger = new SubscriptionLogger();
+  subscriptionLogger.subscribeTo(process.env.AZK_SUBSCRIBE_POSTAL);
+}
+
 var Helpers = {
   pp: pp,
   expect: chai.expect,
@@ -27,9 +33,7 @@ var Helpers = {
   },
 
   get docker() {
-    if (!Helpers.no_required_agent) {
-      return require('azk/docker').default;
-    }
+    return require('azk/docker').default;
   },
 
   tmp_dir(opts = { prefix: "azk-test-"}) {
@@ -95,6 +99,7 @@ after(() => {
   if (process.env.AZK_ENABLE_NJS_TRACE_PROFILER) {
     global.njstrace.save('/home/julio/_git/njstrace/examples/02-es5/execute/TRACE_RESULT.json');
   }
+  require('azk/utils/postal').unsubscribeAll();
 });
 
 // Helpers

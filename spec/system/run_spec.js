@@ -1,5 +1,5 @@
 import h from 'spec/spec_helper';
-import { _, async, defer, Q } from 'azk';
+import { _, async, defer, Q, publish, subscribe } from 'azk';
 import { ImageNotAvailable } from 'azk/utils/errors';
 
 describe("Azk system class, run set", function() {
@@ -181,16 +181,12 @@ describe("Azk system class, run set", function() {
       // TODO: Replace this merge for a mock class
       var system, image_mock = {
         pull() {
-          return defer((resolve, reject, notify) => {
+          return defer((resolve) => {
             process.nextTick(() => {
-              notify({ type: "event" });
+              publish("spec.image_mock.status", { type: "event" });
               resolve(this);
             });
           });
-        },
-
-        check() {
-          return Q.resolve(null);
         },
 
         inspect() {
@@ -198,27 +194,73 @@ describe("Azk system class, run set", function() {
         }
       };
 
+      var events;
+      var _subscription;
+      var _subscription2;
+
       before(() => {
         system = manifest.system("empty");
-        system.image = _.merge(_.clone(system.image), image_mock);
+        system.image = _.merge({}, system.image, image_mock);
+
+        _subscription = subscribe('spec.image_mock.status', (event) => {
+          events.push(event);
+        });
+
+      });
+      after(() => {
+        _subscription.unsubscribe();
+      });
+
+      beforeEach(() => {
+        events   = [];
       });
 
       it("should raise error if image not found", function() {
+
+        // mock check to return null
+        system.image.check = function () {
+          return defer((resolve) => {
+            process.nextTick(() => {
+              publish("image.check.status", { type: "action", context: "image", action: "check_image" });
+              resolve(null);
+            });
+          });
+        };
+
         var result = system.runShell([], { image_pull: false});
         return h.expect(result).to.rejectedWith(ImageNotAvailable);
       });
 
       it("should add system to event object", function() {
         return async(function* () {
-          var events   = [];
-          var progress = (event) => {
-            events.push(event);
-            return event;
+
+          // force azk to think that the image is builded
+          system.image.builded = true;
+
+          // mock check to return null
+          system.image.check = function () {
+            return defer((resolve) => {
+              process.nextTick(() => {
+                publish("image.check.status", { type: "action", context: "image", action: "check_image" });
+                resolve(system.image);
+              });
+            });
           };
 
-          yield system.runDaemon().progress(progress).fail(() => {});
+          _subscription2 = subscribe('system.run.image.check.status', (event) => {
+            events.push(event);
+          });
+
+          yield system.runDaemon()
+                .catch(() => {});
+
+          _subscription2.unsubscribe();
+
           h.expect(events).to.have.deep.property("[0]").and.eql(
-            { type: "event", system: system }
+            { type: 'action',
+              context: 'image',
+              action: 'check_image',
+              system: system }
           );
         });
       });
