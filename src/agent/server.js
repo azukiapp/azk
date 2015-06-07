@@ -54,9 +54,13 @@ var Server = {
   installVM(start = false) {
     var vm_name = config("agent:vm:name");
     return async(this, function* () {
-      var installed = yield VM.isInstalled(vm_name);
-      var running   = (installed) ? yield VM.isRunnig(vm_name) : false;
-      var vm_publish = (status) => publish("agent.server.installVM.status", { type: "status", context: "vm", status });
+      var installed  = yield VM.isInstalled(vm_name);
+      var running    = (installed) ? yield VM.isRunnig(vm_name) : false;
+      var vm_publish = (status) => {
+        publish("agent.server.installVM.status", {
+          type: "status", context: "vm", status
+        });
+      };
 
       if (!installed) {
         var opts = {

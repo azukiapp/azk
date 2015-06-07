@@ -33,9 +33,7 @@ var Helpers = {
   },
 
   get docker() {
-    if (!Helpers.no_required_agent) {
-      return require('azk/docker').default;
-    }
+    return require('azk/docker').default;
   },
 
   tmp_dir(opts = { prefix: "azk-test-"}) {
@@ -101,6 +99,7 @@ after(() => {
   if (process.env.AZK_ENABLE_NJS_TRACE_PROFILER) {
     global.njstrace.save('/home/julio/_git/njstrace/examples/02-es5/execute/TRACE_RESULT.json');
   }
+  require('azk/utils/postal').unsubscribeAll();
 });
 
 // Helpers

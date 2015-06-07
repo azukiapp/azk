@@ -58,6 +58,8 @@ export function extend(Helpers) {
   }
 
   after(() => {
-    _subscription.unsubscribe();
+    if (_subscription) {
+      _subscription.unsubscribe();
+    }
   });
 }

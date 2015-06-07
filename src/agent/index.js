@@ -106,7 +106,9 @@ var Agent = {
     process.on('SIGINT' , gracefullExit('SIGINT'));
     process.on('SIGQUIT', gracefullExit('SIGQUIT'));
     process.on('SIGUSR2', () => {
-      log.info('clear observer');
+      log.info('[azk] mock output');
+
+      unsubscribeAll();
       this.observer = blank_observer;
     });
   },

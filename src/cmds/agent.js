@@ -7,9 +7,6 @@ var lazy = lazy_require({
   Client : [ 'azk/agent/client' ],
   spawn  : ['child-process-promise'],
   net    : 'net',
-  channel: function() {
-    return require('postal').channel("agent");
-  }
 });
 
 class Cmd extends InteractiveCmds {
