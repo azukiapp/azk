@@ -13,9 +13,10 @@ export VERSION=$( azk version | awk '{ print $2 }' )
 export DISTRO=$1
 
 if [[ $# == 2 ]]; then
-    export TEST_ARGS="--run-test-app"
-    export EXTRA_ARGS="--mount ${2}:/azk/test"
-    export EXTRA_CMDS="&& ${BASE_DIR}/test-container.sh"
+    TEST_ARGS="--run-test-app"
+    EXTRA_ARGS="--mount ${2}:/azk/test"
+else
+    TEST_ARGS=
 fi
 
 case "${DISTRO}" in
@@ -33,7 +34,9 @@ esac
 
 azk restart package --reprovision
 
-if [[ ! $( azk shell pkg-${UBUNTU_VERSION}-test --shell=/bin/bash ${EXTRA_ARGS} -c "${BASE_DIR}/install.sh ${DISTRO} && ${BASE_DIR}/test-container.sh ${VERSION} ${TEST_ARGS}" ) ]]; then
+if azk shell pkg-${UBUNTU_VERSION}-test --shell=/bin/bash ${EXTRA_ARGS} -c "${BASE_DIR}/install.sh ${DISTRO} && ${BASE_DIR}/test-container.sh ${VERSION} ${TEST_ARGS}"; then
+    echo "azk ${VERSION} has been successfully installed."
+else
     echo "Failed to install azk ${VERSION}."
     exit 4
 fi

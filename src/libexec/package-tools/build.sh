@@ -62,7 +62,8 @@ run_make() {
 tear_down() {
     [[ $NO_AGENT != true ]] \
       && azk agent stop \
-      && rm $AZK_AGENT_LOG_FILE
+      && rm $AZK_AGENT_LOG_FILE \
+    || return 0
 }
 
 step() { echo -n $@ | sed -e :a -e 's/^.\{1,72\}$/&./;ta'; }
@@ -125,13 +126,9 @@ source .dependencies
 LINUX_BUILD_WAS_EXECUTED=false
 [[ $NO_MAKE != true ]] && step_run "Running make" --exit run_make
 [[ $NO_AGENT != true ]] && step_run "Starting agent" --exit start_agent
-[[ $NO_TEST != true ]] && step_run "Preparing testing env" setup_test && export TEST_ARGS=$TEST_DIR
+[[ $NO_TEST != true ]] && step_run "Preparing testing env" setup_test && TEST_ARGS=$TEST_DIR
 
 LIBNSS_RESOLVER_REPO="https://github.com/azukiapp/libnss-resolver/releases/download/v${LIBNSS_RESOLVER_VERSION}"
-
-if [[ $BUILD_DEB == true ]] || [[ $BUILD_RPM == true ]]; then
-  step_run "Making Linux base package" make package_linux
-fi
 
 if [[ $BUILD_DEB == true ]]; then
     echo
@@ -142,19 +139,29 @@ if [[ $BUILD_DEB == true ]]; then
       set -e
 
       step_run "Cleaning current aptly repo" azk shell package -c "rm -Rf /azk/aptly/*"
+      step_run "Cleaning environment" rm -Rf package/deb package/public
 
       step_run "Downloading libnss-resolver" \
       mkdir -p package/deb \
       && wget -q "${LIBNSS_RESOLVER_REPO}/ubuntu12-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb" -O "package/deb/precise-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb" \
       && wget -q "${LIBNSS_RESOLVER_REPO}/ubuntu14-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb" -O "package/deb/trusty-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb"
 
-      step_run "Creating deb packages" make package_deb LINUX_CLEAN=
+      EXTRA_FLAGS=""
+      if [[ $LINUX_BUILD_WAS_EXECUTED == true || $NO_CLEAN_LINUX == true ]]; then
+        EXTRA_FLAGS="LINUX_CLEAN="
+      fi
+
+      step_run "Creating deb packages" make package_deb ${EXTRA_FLAGS}
 
       step_run "Generating Ubuntu 12.04 repository" azk shell package -c "src/libexec/package-tools/ubuntu/generate.sh ${LIBNSS_RESOLVER_VERSION} precise ${SECRET_KEY}"
-      step_run "Testing Ubuntu 12.04 repository" ${AZK_BUILD_TOOLS_PATH}/ubuntu/test.sh precise $TEST_ARGS
+      if [[ $NO_TEST != true ]]; then
+        step_run "Testing Ubuntu 12.04 repository" ${AZK_BUILD_TOOLS_PATH}/ubuntu/test.sh precise $TEST_ARGS
+      fi
 
       step_run "Generating Ubuntu 14.04 repository" azk shell package -c "src/libexec/package-tools/ubuntu/generate.sh ${LIBNSS_RESOLVER_VERSION} trusty ${SECRET_KEY}"
-      step_run "Testing Ubuntu 14.04 repository" ${AZK_BUILD_TOOLS_PATH}/ubuntu/test.sh trusty $TEST_ARGS
+      if [[ $NO_TEST != true ]]; then
+        step_run "Testing Ubuntu 14.04 repository" ${AZK_BUILD_TOOLS_PATH}/ubuntu/test.sh trusty $TEST_ARGS
+      fi
     ) && LINUX_BUILD_WAS_EXECUTED=true
 
     echo
@@ -168,6 +175,8 @@ if [[ $BUILD_RPM == true ]]; then
     (
       set -e
 
+      step_run "Cleaning environment" rm -Rf package/rpm package/fedora20
+
       step_run "Downloading libnss-resolver" \
       mkdir -p package/rpm \
       && wget "${LIBNSS_RESOLVER_REPO}/fedora20-libnss-resolver-${LIBNSS_RESOLVER_VERSION}-1.x86_64.rpm" -O "package/rpm/fedora20-libnss-resolver-${LIBNSS_RESOLVER_VERSION}-1.x86_64.rpm"
@@ -178,10 +187,10 @@ if [[ $BUILD_RPM == true ]]; then
       fi
 
       step_run "Creating rpm packages" make package_rpm ${EXTRA_FLAGS}
-      LINUX_BUILD_WAS_EXECUTED=true
-
       step_run "Generating Fedora 20 repository" azk shell package -c "src/libexec/package-tools/fedora/generate.sh fedora20 ${SECRET_KEY}"
-      step_run "Testing Fedora 20 repository" ${AZK_BUILD_TOOLS_PATH}/fedora/test.sh fedora20 $TEST_ARGS
+      if [[ $NO_TEST != true ]]; then
+        step_run "Testing Fedora 20 repository" ${AZK_BUILD_TOOLS_PATH}/fedora/test.sh fedora20 $TEST_ARGS
+      fi
     ) && LINUX_BUILD_WAS_EXECUTED=true
 
     echo
@@ -194,9 +203,12 @@ if [[ $BUILD_MAC == true ]]; then
 
     (
       set -e
+      step_run "Cleaning environment" rm -Rf package/brew
       step_run "Creating Mac packages" make package_mac
       step_run "Generating Mac repository" ${AZK_BUILD_TOOLS_PATH}/mac/generate.sh
-      step_run "Testing Mac repository" ${AZK_BUILD_TOOLS_PATH}/mac/test.sh $TEST_ARGS
+      if [[ $NO_TEST != true ]]; then
+        step_run "Testing Mac repository" ${AZK_BUILD_TOOLS_PATH}/mac/test.sh $TEST_ARGS
+      fi
     )
 
     echo

@@ -25,6 +25,7 @@ fail() {
 }
 
 start_agent() {
+    azk agent stop
     azk agent start --no-daemon > $AZK_AGENT_LOG_FILE 2>&1 &
     AGENT_PID="$!"
     tail -f $AZK_AGENT_LOG_FILE &
@@ -44,18 +45,21 @@ setup() {
 
     if [[ $RUN_TEST_APP == true ]]; then
         cd /azk/test
-        rm Azkfile.js || true
+        rm -Rf Azkfile.js
         azk init
         ls Azkfile.js > /dev/null 2>&1
         azk start
     fi
 }
 
-test() {
+run_test() {
     set -e
+    DETECTED_VERSION=$( azk --version )
 
-    if [[ "$( azk --version | sed s/azk\ /azk\ v/g )" != "azk ${VERSION}" ]]; then
+    if [[ "${DETECTED_VERSION}" != "azk ${VERSION}" ]]; then
         echo "Version check failed."
+        echo "Detected: ${DETECTED_VERSION}"
+        echo "Expected: azk ${VERSION}"
         fail 4
     else
         echo "Version is ok!"
@@ -83,7 +87,7 @@ tear_down() {
 set -e
 
 setup
-test
+run_test
 tear_down
 
 exit 0
