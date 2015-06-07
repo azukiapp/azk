@@ -150,66 +150,62 @@ var Run = {
   },
 
   runWatch(system, daemon = true, silent = false) {
-    return defer((resolve) => {
-      var notify = resolve.notify;
+    var topic = "system.sync.status";
+    if (_.isEmpty(system.syncs)) {
+      return true;
+    }
 
-      if (_.isEmpty(system.syncs)) {
-        return true;
-      }
+    if (!silent) {
+      publish(topic, { type : "sync", system : system.name });
+    }
 
-      if (!silent) {
-        notify({ type : "sync", system : system.name });
-      }
+    return Q.all(_.map(system.syncs || {}, (sync_data, host_folder) => {
+      return async(this, function* () {
+        if (daemon && sync_data.options.daemon === false ||
+           !daemon && sync_data.options.shell !== true) {
+          return Q.resolve();
+        }
 
-      return Q.all(_.map(system.syncs || {}, (sync_data, host_folder) => {
-        return async(this, function* () {
-          if (daemon && sync_data.options.daemon === false ||
-             !daemon && sync_data.options.shell !== true) {
-            return Q.resolve();
-          }
+        if (config('agent:requires_vm')) {
+          sync_data.options = _.defaults(sync_data.options, { use_vm: true, ssh: lazy.Client.ssh_opts() });
+        }
 
-          if (config('agent:requires_vm')) {
-            sync_data.options = _.defaults(sync_data.options, { use_vm: true, ssh: lazy.Client.ssh_opts() });
-          }
+        var clean_sync_folder = yield this._clean_sync_folder(system, host_folder);
+        if (clean_sync_folder !== 0) {
+          // TODO: throw proper error
+          throw new NotBeenImplementedError('SyncError');
+        }
 
-          var clean_sync_folder = yield this._clean_sync_folder(system, host_folder);
-          if (clean_sync_folder !== 0) {
-            // TODO: throw proper error
-            throw new NotBeenImplementedError('SyncError');
-          }
+        var pub_data = {
+          system      : system.name,
+          host_folder : host_folder,
+          guest_folder: sync_data.guest_folder,
+          options     : sync_data.options
+        };
 
-          var notify_data = {
-            system      : system.name,
-            host_folder : host_folder,
-            guest_folder: sync_data.guest_folder,
-            options     : sync_data.options
-          };
+        publish(topic, _.merge({ type : "sync_start" }, pub_data));
 
-          notify(_.merge({ type : "sync_start" }, notify_data));
-
-          return lazy.Client.watch(host_folder, sync_data.guest_folder, sync_data.options)
-            .then(() => {
-              notify(_.merge({ type : "sync_done" }, notify_data));
-            });
-        });
-      }));
-    });
+        return lazy.Client
+          .watch(host_folder, sync_data.guest_folder, sync_data.options)
+          .then(() => {
+            publish(topic, _.merge({ type : "sync_done" }, pub_data));
+          });
+      });
+    }));
   },
 
   stopWatching(system) {
-    return async(this, function* (notify) {
-      return yield Q.all(_.map(system.syncs || {}, (sync_data, host_folder) => {
-        return lazy.Client.unwatch(path.join(host_folder, '/'), sync_data.guest_folder)
-          .then(() => {
-            notify({
-              type        : "unwatch",
-              system      : system.name,
-              host_folder : host_folder,
-              guest_folder: sync_data.guest_folder
-            });
+    return Q.all(_.map(system.syncs || {}, (sync_data, host_folder) => {
+      return lazy.Client.unwatch(path.join(host_folder, '/'), sync_data.guest_folder)
+        .then(() => {
+          publish("system.sync.status", {
+            type        : "unwatch",
+            system      : system.name,
+            host_folder : host_folder,
+            guest_folder: sync_data.guest_folder
           });
-      }));
-    });
+        });
+    }));
   },
 
   stop(system, instances, options = {}) {

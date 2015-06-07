@@ -168,15 +168,15 @@ var Client = {
   },
 
   watch(host_folder, guest_folder, opts = {}) {
-    return defer((resolve, reject, notify) => {
+    return defer((resolve, reject) => {
       var req = { action: 'watch', data: { host_folder, guest_folder, opts } };
       WebSocketClient.send(req, (res, end) => {
         switch (res.status) {
           case 'start':
-            notify({ type: "status", status: "starting" });
+            publish("sync.status", { type: "starting" });
             break;
           case 'sync':
-            notify({ type: "sync", status: res.data });
+            publish("sync.status", { type: "sync", status: res.data });
             break;
           case 'done' :
             end();
@@ -204,7 +204,6 @@ var Client = {
             end();
             resolve(true);
             break;
-
         }
       });
     });
