@@ -30,7 +30,7 @@ var PromisesHelper = {
 
         try {
           resolve = _.extend(resolve, { resolve: resolve, reject: reject });
-          result = func(resolve, reject);
+          result  = func(resolve, reject);
         } catch (e) {
           return reject(e);
         }
@@ -91,6 +91,12 @@ var PromisesHelper = {
     return newMod;
   },
 
+  when(previous, next) {
+    return BB.cast(previous).then((result) => {
+      return _.isFunction(next) ? next(result) : next;
+    });
+  },
+
   nfcall(method, ...args) {
     return BB.promisify(method)(...args);
   },
@@ -101,6 +107,10 @@ var PromisesHelper = {
 
   nbind(obj, context) {
     return BB.promisify(obj.bind(context));
+  },
+
+  thenAll(...args) {
+    return BB.all(...args);
   },
 
   all(...args) {

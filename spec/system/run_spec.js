@@ -95,7 +95,7 @@ describe("Azk system class, run set", function() {
         var container = yield system.runDaemon();
         var data = yield container.inspect();
         yield system.stop([data]);
-        return h.expect(container.inspect().catch(()=>{})).to.reject;
+        return h.expect(container.inspect().catch(() => {})).to.reject;
       });
     });
 

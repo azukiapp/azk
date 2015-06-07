@@ -1,5 +1,5 @@
 import { _, t, os, log, lazy_require, publish, fsAsync } from 'azk';
-import { async, ninvoke, nfcall, all } from 'azk/utils/promises';
+import { async, ninvoke, nfcall, thenAll } from 'azk/utils/promises';
 import { config, set_config } from 'azk';
 import { UIProxy } from 'azk/cli/ui';
 import { AzkError, OSNotSupported, DependencyError } from 'azk/utils/errors';
@@ -198,7 +198,7 @@ export class Configure extends UIProxy {
             .getContainer(container.Id)
             .remove({ force: true });
         });
-        return all(removes)
+        return thenAll(removes)
           .then(() => { return {}; });
       });
   }

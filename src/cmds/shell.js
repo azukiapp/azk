@@ -1,5 +1,6 @@
 import { _, t, lazy_require } from 'azk';
-import { defer, subscribe, asyncUnsubscribe } from 'azk';
+import { defer, asyncUnsubscribe } from 'azk/utils/promises';
+import { subscribe } from 'azk/utils/postal';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Helpers } from 'azk/cli/command';
 

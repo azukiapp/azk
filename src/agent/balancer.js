@@ -1,5 +1,5 @@
 import { _, t, path, fs, config, log } from 'azk';
-import { async, defer, ninvoke, all, promiseResolve } from 'azk/utils/promises';
+import { async, defer, ninvoke, thenAll, promiseResolve } from 'azk/utils/promises';
 
 import { lazy_require } from 'azk';
 import { net } from 'azk/utils';
@@ -141,7 +141,7 @@ var Balancer = {
     if (this.isRunnig()) {
       log.debug("call to stop balancer");
       return Tools.async_status("balancer", this, function* (change_status) {
-        yield all([
+        yield thenAll([
           this._stop_system('balancer-redirect', change_status),
           this._stop_system('dns', change_status),
         ]);
@@ -169,11 +169,11 @@ var Balancer = {
     return manifest.system(system, true);
   },
 
-  _waitDocker(shoot = true, retry = 10) {
+  _waitDocker(retry = 10) {
     var docker_host = config("docker:host");
     var promise = net.waitService(docker_host, retry, { timeout: 2000, context: "balancer" });
     return promise.then((success) => {
-      if ((!success) && shoot) {
+      if (!success) {
         throw new AgentStartError(t('errors.connect_docker_unavailable'));
       }
       return success;
@@ -189,7 +189,7 @@ var Balancer = {
       var system = this._getSystem(system_name);
 
       // Wait docker
-      yield this._waitDocker(false, 3);
+      yield this._waitDocker();
 
       // Save outputs to use in error
       var output = "";
@@ -221,20 +221,24 @@ var Balancer = {
       var system = this._getSystem(system_name);
 
       // Wait docker
-      yield this._waitDocker();
+      try {
+        yield this._waitDocker(3);
 
-      // Stop
-      change_status("stopping_" + system_name);
-      yield system
-        .stop()
-        .catch((err) => {
-          try {
-            log.error(err);
-            change_status("error", err);
-          } catch (err) {}
-          return true;
-        });
-      change_status("stopped_" + system_name);
+        // Stop
+        change_status("stopping_" + system_name);
+        yield system
+          .stop()
+          .catch((err) => {
+            try {
+              log.error(err);
+              change_status("error", err);
+            } catch (err) {}
+            return true;
+          });
+        change_status("stopped_" + system_name);
+      } catch (err) {
+        log.err(`[agent] Error to stop balance system ${system_name}`, err);
+      }
 
       // Save state
       this.running[system_name] = false;

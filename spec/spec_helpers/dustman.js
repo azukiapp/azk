@@ -1,5 +1,5 @@
 import { _, config, t, publish, subscribe } from 'azk';
-import { defer, all } from 'azk/utils/promises';
+import { defer, promiseResolve, when, thenAll } from 'azk/utils/promises';
 
 export function extend(Helpers) {
   var h = Helpers;
@@ -17,7 +17,7 @@ export function extend(Helpers) {
     return defer(() => {
       return h.docker.azkListContainers({ all: true }).then((containers) => {
         publish("spec.dustman.remove_containers.message", t('test.remove_containers', containers.length));
-        return all(_.map(containers, (container) => {
+        return thenAll(_.map(containers, (container) => {
           var c = h.docker.getContainer(container.Id);
           return c.kill().then(() => {
             return c.remove({ force: true });
@@ -35,7 +35,7 @@ export function extend(Helpers) {
         ));
         tags = _.filter(tags, filter_tags);
         publish("spec.dustman.remove_images.message", t('test.remove_images', tags.length));
-        return all(_.map(tags, (tag) => {
+        return thenAll(_.map(tags, (tag) => {
           return h.docker.getImage(tag).remove();
         }));
       });
@@ -51,11 +51,11 @@ export function extend(Helpers) {
 
     var funcs = [
       Helpers.remove_containers(),
-      Helpers.remove_images()
-    ];
-    return all(funcs).then(
+      Helpers.remove_images(),
       () => console.log("\n")
-    );
+    ];
+
+    return funcs.reduce(when, promiseResolve());
   });
 
   after(() => {

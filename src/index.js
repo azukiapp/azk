@@ -1,4 +1,5 @@
-import { Q, _, defer, async, isBlank, asyncUnsubscribe } from 'azk/utils';
+import { _, isBlank } from 'azk/utils';
+import { defer, async, asyncUnsubscribe } from 'azk/utils/promises';
 
 class Azk {
   static get version() {
@@ -19,7 +20,6 @@ module.exports = {
 
   get default() { return Azk; },
   get pp() { return Azk.pp; },
-  get Q() {  return Q; },
   get _() {  return _; },
   get t() {
     if (!_t) {

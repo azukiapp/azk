@@ -1,4 +1,5 @@
-import { publish, subscribe } from 'azk';
+import { lazy_require } from 'azk';
+import { publish, subscribe } from 'azk/utils/postal';
 import { originalDefer } from 'azk/utils/promises';
 import h from 'spec/spec_helper';
 

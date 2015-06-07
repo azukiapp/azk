@@ -97,14 +97,19 @@ describe("Azk utils promises:", function() {
       it('should verify if it is a promise', function () {
 
         return all([
-          isPromise( promiseResolve() ),
+          isPromise(promiseResolve()),
 
-          isPromise( defer((resolve) => resolve()) ),
+          isPromise(defer((resolve) => resolve())),
 
-          isPromise( async(function* () { yield will_solve(); }) ),
+          isPromise(async(function* () { yield will_solve(); })),
 
-          isPromise( asyncUnsubscribe(this, subscribe('topic', ()=>{}),
-                       function* () { yield will_solve(); }) ),
+          isPromise(
+            asyncUnsubscribe(
+              this,
+              subscribe('topic', () => {}),
+              function* () { yield will_solve(); }
+            )
+          ),
         ])
         .then(function (results) {
           var allTrue = _.every(results, (item) => item === true);

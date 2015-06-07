@@ -2,8 +2,6 @@ import { _, lazy_require, path, publish, fsAsync } from 'azk';
 import { async, originalDefer } from 'azk/utils/promises';
 import { DockerBuildError } from 'azk/utils/errors';
 
-var archiver = require('archiver');
-
 var lazy = lazy_require({
   JStream : 'jstream',
   XRegExp : ['xregexp', 'XRegExp'],

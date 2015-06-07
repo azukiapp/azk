@@ -1,5 +1,5 @@
 import { _, t, config, lazy_require, log, isBlank, path } from 'azk';
-import { defer, async, asyncUnsubscribe, promiseResolve, all } from 'azk/utils/promises';
+import { defer, async, asyncUnsubscribe, promiseResolve, thenAll } from 'azk/utils/promises';
 import { ImageNotAvailable, SystemRunError, RunCommandError, NotBeenImplementedError } from 'azk/utils/errors';
 import { Balancer } from 'azk/system/balancer';
 import net from 'azk/utils/net';
@@ -159,7 +159,7 @@ var Run = {
       publish(topic, { type : "sync", system : system.name });
     }
 
-    return Q.all(_.map(system.syncs || {}, (sync_data, host_folder) => {
+    return thenAll(_.map(system.syncs || {}, (sync_data, host_folder) => {
       return async(this, function* () {
         if (daemon && sync_data.options.daemon === false ||
            !daemon && sync_data.options.shell !== true) {
@@ -195,7 +195,7 @@ var Run = {
   },
 
   stopWatching(system) {
-    return all(_.map(system.syncs || {}, (sync_data, host_folder) => {
+    return thenAll(_.map(system.syncs || {}, (sync_data, host_folder) => {
       return lazy.Client.unwatch(path.join(host_folder, '/'), sync_data.guest_folder)
         .then(() => {
           publish("system.sync.status", {

@@ -1,5 +1,5 @@
 import { config, lazy_require, log, fsAsync } from 'azk';
-import { async, defer, ninvoke, promiseResolve, all } from 'azk/utils/promises';
+import { async, defer, ninvoke, promiseResolve, thenAll } from 'azk/utils/promises';
 
 var lazy = lazy_require({
   ApiWs   : ['azk/agent/api/ws'],
@@ -39,7 +39,7 @@ var Api = {
   stop() {
     if (this.server || this.api_ws) {
       log.debug("[api] stopping server api");
-      return all([
+      return thenAll([
         (this.api_ws) ? this.api_ws.stop() : promiseResolve(),
         (this.server) ? ninvoke(this.server, "close") : promiseResolve(),
       ]).then(() => {

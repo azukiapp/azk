@@ -1,5 +1,5 @@
 import { _, path, config, log, isBlank, subscribe, publish, fsAsync } from 'azk';
-import { async, nbind, nfcall, all, promisifyModule } from 'azk/utils/promises';
+import { async, nbind, nfcall, thenAll, promisifyModule } from 'azk/utils/promises';
 import Utils from 'azk/utils';
 import { Tools } from 'azk/agent/tools';
 import { SSH } from 'azk/agent/ssh';
@@ -106,7 +106,7 @@ var hdds = {
             closes.push(self.close(hdd.Location), hdd.Location == origin);
           }
         });
-        return all(closes);
+        return thenAll(closes);
       });
   },
 };
@@ -166,7 +166,7 @@ function config_net_interfaces(name, ip, use_dhcp) {
       yield config_dhcp(inter, gateway, netmask, ip);
     } else {
       var key_base = "/VirtualBox/D2D/eth0";
-      return all([
+      return thenAll([
         guestproperty.set(name, `${key_base}/address`, ip),
         guestproperty.set(name, `${key_base}/netmask`, netmask),
         guestproperty.set(name, `${key_base}/network`, network),
