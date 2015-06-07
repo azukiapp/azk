@@ -1,13 +1,8 @@
 import { _, isBlank } from 'azk/utils';
-import { defer, async, asyncUnsubscribe } from 'azk/utils/promises';
 
 class Azk {
   static get version() {
     return require('package.json').version;
-  }
-
-  static pp(...args) {
-    return console.log(...args);
   }
 }
 
@@ -19,7 +14,6 @@ module.exports = {
   __esModule: true,
 
   get default() { return Azk; },
-  get pp() { return Azk.pp; },
   get _() {  return _; },
   get t() {
     if (!_t) {
@@ -42,11 +36,6 @@ module.exports = {
     return new (require('azk/manifest/meta').Meta)({ cache_dir });
   },
 
-  // Promise helpers
-  get defer() { return defer; },
-  get async() { return async; },
-  get asyncUnsubscribe() { return asyncUnsubscribe; },
-
   // Internals alias
   get os     () { return require('os'); },
   get path   () { return require('path'); },
@@ -66,9 +55,4 @@ module.exports = {
     }
     return _log;
   },
-
-  // Postal helpers
-  get subscribe() { return require("azk/utils/postal").subscribe; },
-  get publish() { return require("azk/utils/postal").publish; },
-
 };

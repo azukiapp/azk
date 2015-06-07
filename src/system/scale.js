@@ -1,4 +1,5 @@
-import { _, lazy_require, publish } from 'azk';
+import { _, lazy_require } from 'azk';
+import { publish } from 'azk/utils/postal';
 import { async, promiseReject } from 'azk/utils/promises';
 import { calculateHash } from 'azk/utils';
 import { SystemDependError, SystemNotScalable } from 'azk/utils/errors';

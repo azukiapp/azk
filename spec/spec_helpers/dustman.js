@@ -1,4 +1,5 @@
-import { _, config, t, publish, subscribe } from 'azk';
+import { _, config, t } from 'azk';
+import { publish, subscribe } from 'azk/utils/postal';
 import { defer, promiseResolve, when, thenAll } from 'azk/utils/promises';
 
 export function extend(Helpers) {

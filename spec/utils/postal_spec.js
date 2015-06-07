@@ -1,7 +1,7 @@
 import h from 'spec/spec_helper';
 import { lazy_require } from 'azk';
 
-var l = lazy_require({
+var lazy = lazy_require({
   IPublisher    : ['azk/utils/postal'],
   channel       : ['azk/utils/postal'],
   subscribe     : ['azk/utils/postal'],
@@ -12,50 +12,50 @@ var l = lazy_require({
 
 describe("Azk utils, postal module", function() {
   beforeEach(() => {
-    l.channel.unsubscribeAll();
+    lazy.channel.unsubscribeAll();
   });
 
   it("should support subscribe and publish with defailt channel", function(done) {
     var topic = "test.postal.module";
     var data  = { data: true };
-    var subs  = l.subscribe(topic, (msg) => {
+    var subs  = lazy.subscribe(topic, (msg) => {
       h.expect(msg).to.eql(data);
       subs.unsubscribe();
       done();
     });
 
-    l.publish(topic, data);
+    lazy.publish(topic, data);
   });
 
   it("should return all subscribe for default channel if call subscriptions", function() {
     var topic = "test.subscriptions";
-    var sub   = l.subscribe(topic, () => {});
-    var subs  = l.subscriptions();
+    var sub   = lazy.subscribe(topic, () => {});
+    var subs  = lazy.subscriptions();
     h.expect(subs).to.eql([sub]);
   });
 
   it("should support unsubscribe all subscriptions", function() {
     var topic = "test.subscriptions";
-    var sub   = l.subscribe(topic, () => {});
-    var subs  = l.subscriptions();
+    var sub   = lazy.subscribe(topic, () => {});
+    var subs  = lazy.subscriptions();
     h.expect(subs).to.eql([sub]);
-    l.unsubscribeAll();
-    subs = l.subscriptions();
+    lazy.unsubscribeAll();
+    subs = lazy.subscriptions();
     h.expect(subs).to.not.eql([sub]);
   });
 
   it("should raise erro if subscribe without topic", function() {
-    var sub = () => l.subscribe();
+    var sub = () => lazy.subscribe();
     h.expect(sub).to.throw(Error, /suply a topicName/);
 
-    var pub = () => l.publish();
+    var pub = () => lazy.publish();
     h.expect(pub).to.throw(Error, /suply a topicName/);
   });
 
   describe("have a class IPublisher", function() {
     var topic = 'test.postal.module.IPublisher';
 
-    class MyClass extends l.IPublisher {
+    class MyClass extends lazy.IPublisher {
       constructor() {
         super(topic);
       }
@@ -67,7 +67,7 @@ describe("Azk utils, postal module", function() {
 
     it("should support publish with default prefix topic", function(done) {
       var data  = { data: true };
-      var subs  = l.subscribe(topic + '.*', (msg) => {
+      var subs  = lazy.subscribe(topic + '.*', (msg) => {
         h.expect(msg).to.eql(data);
         subs.unsubscribe();
         done();

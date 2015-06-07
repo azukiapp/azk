@@ -1,4 +1,5 @@
-import { config, log, publish } from 'azk';
+import { config, log } from 'azk';
+import { publish } from 'azk/utils/postal';
 import { defer } from 'azk/utils/promises';
 import { net } from 'azk/utils';
 

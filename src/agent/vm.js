@@ -1,4 +1,5 @@
-import { _, path, config, log, isBlank, subscribe, publish, fsAsync } from 'azk';
+import { _, path, config, log, isBlank, fsAsync } from 'azk';
+import { subscribe, publish } from 'azk/utils/postal';
 import { async, nbind, nfcall, thenAll, promisifyModule } from 'azk/utils/promises';
 import Utils from 'azk/utils';
 import { Tools } from 'azk/agent/tools';

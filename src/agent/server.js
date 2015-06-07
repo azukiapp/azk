@@ -1,4 +1,5 @@
-import { config, log, publish, fsAsync } from 'azk';
+import { config, log, fsAsync } from 'azk';
+import { publish } from 'azk/utils/postal';
 import { async } from 'azk/utils/promises';
 import { VM  }   from 'azk/agent/vm';
 import { Balancer } from 'azk/agent/balancer';

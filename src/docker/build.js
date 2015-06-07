@@ -1,4 +1,5 @@
-import { _, lazy_require, path, publish, fsAsync } from 'azk';
+import { _, lazy_require, path, fsAsync } from 'azk';
+import { publish } from 'azk/utils/postal';
 import { async, originalDefer } from 'azk/utils/promises';
 import { DockerBuildError } from 'azk/utils/errors';
 

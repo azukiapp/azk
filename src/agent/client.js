@@ -1,4 +1,5 @@
-import { _, lazy_require, log, publish } from 'azk';
+import { _, lazy_require, log } from 'azk';
+import { publish } from 'azk/utils/postal';
 import { defer, ninvoke } from 'azk/utils/promises';
 import { config, set_config } from 'azk';
 import { Agent } from 'azk/agent';

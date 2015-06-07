@@ -1,5 +1,6 @@
 import h from 'spec/spec_helper';
-import { config, set_config, path, subscribe } from 'azk';
+import { config, set_config, path } from 'azk';
+import { subscribe } from 'azk/utils/postal';
 import { async, promiseResolve, ninvoke, delay } from 'azk/utils/promises';
 import { net as net_utils, envDefaultArray } from 'azk/utils';
 var net = require('net');

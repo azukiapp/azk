@@ -1,16 +1,17 @@
 import h from 'spec/spec_helper';
-import { _, path, config, log, subscribe, fsAsync } from 'azk';
+import { _, path, config, log, fsAsync } from 'azk';
+import { subscribe } from 'azk/utils/postal';
 import { async, nbind, all } from 'azk/utils/promises';
 import { lazy_require } from 'azk';
 import { net } from 'azk/utils';
 
-var l = lazy_require({
+var lazy = lazy_require({
   VM      : ['azk/agent/vm'],
   dhcp    : ['azk/agent/vm'],
   hostonly: ['azk/agent/vm'],
   vbm     : 'vboxmanage',
   exec    : function() {
-    return nbind(l.vbm.command.exec, l.vbm.command);
+    return nbind(lazy.vbm.command.exec, lazy.vbm.command);
   }
 });
 
@@ -28,17 +29,17 @@ h.describeRequireVm("Azk agent vm", function() {
 
   // Setups
   var remove_disk = function(file) {
-    return l.exec("closemedium", "disk", file).catch(() => {});
+    return lazy.exec("closemedium", "disk", file).catch(() => {});
   };
 
   var remove = function() {
     return async(this, function* () {
-      var info = yield l.VM.info(opts.name);
+      var info = yield lazy.VM.info(opts.name);
       this.timeout(0);
 
       if (info.installed) {
-        yield l.VM.stop(opts.name);
-        yield l.VM.remove(opts.name);
+        yield lazy.VM.stop(opts.name);
+        yield lazy.VM.remove(opts.name);
       }
 
       yield remove_disk(opts.data);
@@ -68,7 +69,7 @@ h.describeRequireVm("Azk agent vm", function() {
 
   // Tests
   it("should return installed", function() {
-    return h.expect(l.VM.isInstalled(opts.name)).to.eventually.fail;
+    return h.expect(lazy.VM.isInstalled(opts.name)).to.eventually.fail;
   });
 
   describe("with have a vm", function() {
@@ -79,11 +80,11 @@ h.describeRequireVm("Azk agent vm", function() {
         return async(this, function *() {
           if (this.timeout) { this.timeout(10000); }
           yield remove.apply(this);
-          return h.expect(l.VM.init(options)).to.eventually.fulfilled;
+          return h.expect(lazy.VM.init(options)).to.eventually.fulfilled;
         });
       },
       netinfo() {
-        return all([l.hostonly.list(), l.dhcp.list_servers()]);
+        return all([lazy.hostonly.list(), lazy.dhcp.list_servers()]);
       },
       filter_dhcp(list, VBoxNetworkName) {
         return _.find(list, (server) => server.NetworkName == VBoxNetworkName);
@@ -127,12 +128,12 @@ h.describeRequireVm("Azk agent vm", function() {
       it("should start, stop and return vm status", function() {
         return async(this, function* () {
           this.timeout(15000);
-          h.expect(yield l.VM.start(opts.name)).to.ok;
-          h.expect(yield l.VM.start(opts.name)).to.fail;
-          h.expect(yield l.VM.isRunnig(opts.name)).to.ok;
-          h.expect(yield l.VM.stop(opts.name, true)).to.ok;
-          h.expect(yield l.VM.isRunnig(opts.name)).to.fail;
-          h.expect(yield l.VM.stop(opts.name)).to.fail;
+          h.expect(yield lazy.VM.start(opts.name)).to.ok;
+          h.expect(yield lazy.VM.start(opts.name)).to.fail;
+          h.expect(yield lazy.VM.isRunnig(opts.name)).to.ok;
+          h.expect(yield lazy.VM.stop(opts.name, true)).to.ok;
+          h.expect(yield lazy.VM.isRunnig(opts.name)).to.fail;
+          h.expect(yield lazy.VM.stop(opts.name)).to.fail;
         });
       });
 
@@ -140,14 +141,14 @@ h.describeRequireVm("Azk agent vm", function() {
         return async(this, function* () {
           var result, data = "foo", key = "bar";
           // Set property
-          yield l.VM.setProperty(opts.name, key, data, "TRANSIENT");
+          yield lazy.VM.setProperty(opts.name, key, data, "TRANSIENT");
 
           // Get property
-          result = yield l.VM.getProperty(opts.name, key);
+          result = yield lazy.VM.getProperty(opts.name, key);
           h.expect(result).to.eql({ Value: data });
 
           // Get a not set
-          result = yield l.VM.getProperty(opts.name, "any_foo_key_not_set");
+          result = yield lazy.VM.getProperty(opts.name, "any_foo_key_not_set");
           h.expect(result).to.eql({});
         });
       });
@@ -193,11 +194,11 @@ h.describeRequireVm("Azk agent vm", function() {
 
         // Networking configure guest ip
         var result, key_base = "/VirtualBox/D2D/eth0";
-        result = yield l.VM.getProperty(opts.name, `${key_base}/address`);
+        result = yield lazy.VM.getProperty(opts.name, `${key_base}/address`);
         h.expect(result).to.eql({ Value: net_opts.ip });
-        result = yield l.VM.getProperty(opts.name, `${key_base}/netmask`);
+        result = yield lazy.VM.getProperty(opts.name, `${key_base}/netmask`);
         h.expect(result).to.eql({ Value: net_opts.netmask });
-        result = yield l.VM.getProperty(opts.name, `${key_base}/network`);
+        result = yield lazy.VM.getProperty(opts.name, `${key_base}/network`);
         h.expect(result).to.eql({ Value: net_opts.network });
 
         // Check if dhcp server is disabled
@@ -238,11 +239,11 @@ h.describeRequireVm("Azk agent vm", function() {
     });
 
     it("should return error if vm not exist", function() {
-      return h.expect(l.VM.ssh("not-exist")).to.eventually.rejectedWith(/vm is not running/);
+      return h.expect(lazy.VM.ssh("not-exist")).to.eventually.rejectedWith(/vm is not running/);
     });
 
     it("should execute a ssh command", function() {
-      var result = l.VM.ssh(name, "sleep 0.5; uptime");
+      var result = lazy.VM.ssh(name, "sleep 0.5; uptime");
       return result.then(function(code) {
         h.expect(data).to.match(/load average/);
         h.expect(code).to.equal(0);
@@ -250,12 +251,12 @@ h.describeRequireVm("Azk agent vm", function() {
     });
 
     it("should return code to execute ssh command", function() {
-      return h.expect(l.VM.ssh(name, "exit 127")).to.eventually.equal(127);
+      return h.expect(lazy.VM.ssh(name, "exit 127")).to.eventually.equal(127);
     });
 
     it("should genereate a new screenshot file", function() {
       return async(this, function* () {
-        var file = yield l.VM.saveScreenShot(name);
+        var file = yield lazy.VM.saveScreenShot(name);
         yield h.expect(fsAsync.exists(file)).to.eventually.fulfilled;
         yield fsAsync.remove(file);
       });
@@ -265,10 +266,10 @@ h.describeRequireVm("Azk agent vm", function() {
       return async(this, function* () {
         var code;
 
-        code = yield l.VM.copyFile(name, __filename, "/tmp/azk/file");
+        code = yield lazy.VM.copyFile(name, __filename, "/tmp/azk/file");
         h.expect(code).to.equal(0);
 
-        code = yield l.VM.ssh(name, "cat /tmp/azk/file");
+        code = yield lazy.VM.ssh(name, "cat /tmp/azk/file");
         h.expect(code).to.equal(0);
         h.expect(data).to.match(/should\scopy\sfile\sto\svm/);
       });

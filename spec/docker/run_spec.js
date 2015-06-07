@@ -1,4 +1,5 @@
-import { config, utils, subscribe } from 'azk';
+import { config, utils } from 'azk';
+import { subscribe } from 'azk/utils/postal';
 import { async, defer, delay } from 'azk/utils/promises';
 import h from 'spec/spec_helper';
 

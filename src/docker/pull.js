@@ -1,4 +1,5 @@
-import { _, lazy_require, publish } from 'azk';
+import { _, lazy_require } from 'azk';
+import { publish } from 'azk/utils/postal';
 import { defer } from 'azk/utils/promises';
 import { ProvisionNotFound, ProvisionPullError } from 'azk/utils/errors';
 

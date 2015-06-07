@@ -1,4 +1,5 @@
-import { _, t, os, log, lazy_require, publish, fsAsync } from 'azk';
+import { _, t, os, log, lazy_require, fsAsync } from 'azk';
+import { publish } from 'azk/utils/postal';
 import { async, ninvoke, nfcall, thenAll } from 'azk/utils/promises';
 import { config, set_config } from 'azk';
 import { UIProxy } from 'azk/cli/ui';

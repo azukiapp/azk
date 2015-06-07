@@ -1,9 +1,9 @@
 import { _, t, config, lazy_require, log, isBlank, path } from 'azk';
+import { subscribe, publish } from 'azk/utils/postal';
 import { defer, async, asyncUnsubscribe, promiseResolve, thenAll } from 'azk/utils/promises';
 import { ImageNotAvailable, SystemRunError, RunCommandError, NotBeenImplementedError } from 'azk/utils/errors';
 import { Balancer } from 'azk/system/balancer';
 import net from 'azk/utils/net';
-import { subscribe, publish } from 'azk';
 
 var lazy = lazy_require({
   MemoryStream: 'memorystream',

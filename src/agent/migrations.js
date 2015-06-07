@@ -1,4 +1,5 @@
-import { lazy_require, publish, config, fsAsync } from 'azk';
+import { lazy_require, config, fsAsync } from 'azk';
+import { publish } from 'azk/utils/postal';
 import { async } from 'azk/utils/promises';
 
 var lazy = lazy_require({

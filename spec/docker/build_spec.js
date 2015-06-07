@@ -1,8 +1,9 @@
-import { _, config, path, lazy_require, subscribe } from 'azk';
+import { _, config, path, lazy_require } from 'azk';
+import { subscribe } from 'azk/utils/postal';
 import h from 'spec/spec_helper';
 import { DockerBuildError } from 'azk/utils/errors';
 
-var l = lazy_require({
+var lazy = lazy_require({
   semver: 'semver',
 });
 
@@ -118,7 +119,7 @@ describe("Azk docker module, image build @slow", function() {
         })
         .catch((rejection) => {
           _subscription.unsubscribe();
-          if (l.semver.cmp(docker_version, '>=', '1.6.0')) {
+          if (lazy.semver.cmp(docker_version, '>=', '1.6.0')) {
             h.expect(rejection.translation_key).to.equal('docker_build_error.unknow_instrction_error');
           } else {
             h.expect(rejection.translation_key).to.equal('docker_build_error.server_error');

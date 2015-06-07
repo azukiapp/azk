@@ -1,7 +1,7 @@
 import h from 'spec/spec_helper';
 import { _, config, lazy_require } from 'azk';
 
-var l = lazy_require({
+var lazy = lazy_require({
   ContainersObserver: ['azk/docker/containers_observer']
 });
 
@@ -39,7 +39,7 @@ describe("Azk docker, ContainersObserver class", function() {
     var wait_msg = null;
     [wait_msg, sub] = yield h.wait_subscription(topic, filter);
 
-    observer = new l.ContainersObserver();
+    observer = new lazy.ContainersObserver();
     yield observer.start();
     yield run_container();
 
@@ -58,7 +58,7 @@ describe("Azk docker, ContainersObserver class", function() {
     var wait_msg = null;
     [wait_msg, sub] = yield h.wait_subscription(topic, filter);
 
-    observer = new l.ContainersObserver({ event: ["create", "start"]});
+    observer = new lazy.ContainersObserver({ event: ["create", "start"]});
     yield observer.start();
     yield run_container();
 
@@ -77,7 +77,7 @@ describe("Azk docker, ContainersObserver class", function() {
     var wait_msg = null;
     [wait_msg, sub] = yield h.wait_subscription(topic, filter);
 
-    observer = new l.ContainersObserver();
+    observer = new lazy.ContainersObserver();
     yield observer.start();
     yield run_container();
 

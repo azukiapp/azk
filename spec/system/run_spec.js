@@ -1,5 +1,6 @@
 import h from 'spec/spec_helper';
-import { _, publish, subscribe } from 'azk';
+import { _ } from 'azk';
+import { publish, subscribe } from 'azk/utils/postal';
 import { async, defer, promiseResolve, promiseReject } from 'azk/utils/promises';
 import { ImageNotAvailable } from 'azk/utils/errors';
 

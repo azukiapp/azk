@@ -1,4 +1,5 @@
-import { _, config, subscribe } from 'azk';
+import { _, config } from 'azk';
+import { subscribe } from 'azk/utils/postal';
 import { Image } from 'azk/docker';
 import h from 'spec/spec_helper';
 import { ProvisionNotFound } from 'azk/utils/errors';

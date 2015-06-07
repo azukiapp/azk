@@ -1,4 +1,5 @@
-import { _, fs, lazy_require, publish, config, set_config } from 'azk';
+import { _, fs, lazy_require, config, set_config } from 'azk';
+import { publish } from 'azk/utils/postal';
 import { async, defer, ninvoke, promiseResolve } from 'azk/utils/promises';
 import { envDefaultArray, isBlank } from 'azk/utils';
 

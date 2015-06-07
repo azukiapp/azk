@@ -5,7 +5,7 @@ import { nfcall } from 'azk/utils/promises';
 import { Client as AgentClient } from 'azk/agent/client';
 import Utils from 'azk/utils';
 
-var l = lazy_require({
+var lazy = lazy_require({
   MemoryStream: 'memorystream',
   dirdiff : 'dirdiff',
   tmp     : 'tmp',
@@ -37,19 +37,19 @@ var Helpers = {
   },
 
   tmp_dir(opts = { prefix: "azk-test-"}) {
-    return nfcall(l.tmp.dir, opts).then((dir) => {
+    return nfcall(lazy.tmp.dir, opts).then((dir) => {
       return Utils.resolve(dir);
     });
   },
 
   tmpFile(opts = { prefix: "azk-test-"}) {
-    return nfcall(l.tmp.file, opts).spread((file) => {
+    return nfcall(lazy.tmp.file, opts).spread((file) => {
       return Utils.resolve(file);
     });
   },
 
   touchSync(path) {
-    return l.touch.sync(path);
+    return lazy.touch.sync(path);
   },
 
   copyToTmp(origin) {
@@ -61,7 +61,7 @@ var Helpers = {
   },
 
   diff(origin, dest) {
-    return nfcall(l.dirdiff, origin, dest, { fileContents: true })
+    return nfcall(lazy.dirdiff, origin, dest, { fileContents: true })
       .then((diffs) => {
         diffs.deviation = diffs.length;
         return diffs;
@@ -75,7 +75,7 @@ var Helpers = {
   },
 
   makeMemoryStream(...args) {
-    return new l.MemoryStream(...args);
+    return new lazy.MemoryStream(...args);
   },
 
   escapeRegExp(...args) {

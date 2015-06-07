@@ -1,5 +1,6 @@
 import h from 'spec/spec_helper';
-import { _, publish, subscribe } from 'azk';
+import { _ } from 'azk';
+import { publish, subscribe } from 'azk/utils/postal';
 import { promisifyClass, promisifyModule } from 'azk/utils/promises';
 import { async, asyncUnsubscribe, defer } from 'azk/utils/promises';
 import { nfcall, ninvoke, nbind } from 'azk/utils/promises';
