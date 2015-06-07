@@ -66,7 +66,7 @@ Options:
   --logo                    Shows the `azk` logo before showing health information.
   --long                    Show all columns.
   --mount=<paths>, -m       Points to additional mounting - multiple supported (`-m ~/Home:/azk/user -m ~/data:/var/data`).
-  --lines=<n>, -n           Output the specified number of lines at the end of logs [default: 0].
+  --lines=<n>, -n           Output the specified number of lines at the end of logs [default: all].
   --no-colored              Hide outputs colors.
   --no-daemon               `azk agent` does not run in background mode.
   --no-reload-vm            Not reloads the virtual machine settings.
