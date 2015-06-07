@@ -47,14 +47,16 @@ describe("Azk capture_io utils helper", function() {
 
     it("should support progress", function() {
       var promise = lazy.capture_io(block);
-      var notify  = [];
+      var events  = [];
 
-      var _subscription = subscribe('capture_io_spec', (notification) => notify.push(notification));
+      var _subscription = subscribe('capture_io_spec', (event) => {
+        events.push(event);
+      });
 
       return promise.spread((result, outs) => {
         _subscription.unsubscribe();
 
-        h.expect(notify).to.eql(['notification']);
+        h.expect(events).to.eql(['notification']);
         h.expect(result).to.equal(1);
         h.expect(outs.stdout).to.equal("output in stdout\n");
       });

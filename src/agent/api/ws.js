@@ -57,7 +57,7 @@ var Controller = {
     var guest_folder = data.guest_folder;
     var opts         = data.opts;
 
-    // TODO: add progress to log single file sync
+    // TODO: add log single file sync
     this._send(ws, req_id, { status: 'start' });
     this.rsync_watcher.watch(host_folder, guest_folder, opts)
     .then(() => {

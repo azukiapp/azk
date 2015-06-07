@@ -269,7 +269,7 @@ var Balancer = {
     };
 
     return Tools.defer_status("balancer", (resolve, reject, change_status) => {
-      // Log and notify
+      // Log and post msgs
       log.info("starting " + name);
       change_status("starting_" + name);
 

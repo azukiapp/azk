@@ -21,7 +21,7 @@ var Migrations = {
 
         if ((yield qfs.exists(origin)) && !(yield qfs.exists(target))) {
           yield configure.execShWithSudo('mv_resolver', (sudo_path) => {
-            // Moving resolver files and notify
+            // Moving resolver files and log
             configure.info('configure.migrations.moving_resolver', { origin, target });
             var result = `
               echo "" &&
