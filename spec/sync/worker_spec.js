@@ -140,16 +140,16 @@ describe("Azk sync, Worker module", function() {
         var dest_folder   = path.join(origin, folder);
 
         // Save all messages and call check via event emitter
-        var msgs = [];
-        bus.on('sending', (msg) => {
-          msgs.push(JSON.parse(msg));
-          bus.emit('received');
-        });
-
         var wait_msgs = defer((resolve) => {
-          bus.on('received', (msg) => {
-            if (msgs.length >= 3) { resolve(msgs); }
-          });
+          var msgs = [];
+          var call = (msg) => {
+            msgs.push(JSON.parse(msg));
+            if (msgs.length >= 3) {
+              bus.removeListener('sending', call);
+              resolve(msgs);
+            }
+          };
+          bus.on('sending', call);
         });
 
         var msg = yield run_and_wait_msg(bus, 'unlinkDir', () => {
@@ -268,43 +268,40 @@ describe("Azk sync, Worker module", function() {
     h.expect(msgs).to.not.match(/foo\/Moe.txt/);
   });
 
-  it("should not override a worker", function() {
-    return async(function* () {
-      var [origin, dest]  = yield make_copy();
-      var [bus] = create_worker();
-      var opts  = { except: ["foo/"] };
+  it("should not override a worker", function* () {
+    var [origin, dest]  = yield make_copy();
+    var [bus] = create_worker();
+    var opts  = { except: ["foo/"] };
 
-      var msg = yield run_and_wait_msg(bus,'watch', () => {
-        return bus.emit("message", { origin, destination: dest, opts });
-      });
-
-      h.expect(msg).to.have.property('op', 'watch');
-      h.expect(msg).to.have.property('status', 'ready');
-
-      // Save all messages and call check via event emitter
-      msgs = [];
-      bus.on('sending', (msg) => {
-        msgs.push(JSON.parse(msg));
-        bus.emit('received');
-      });
-
-      var wait_msgs = defer((resolve) => {
-        bus.on('received', () => {
-          if (msgs.length >= 3) { resolve(msgs); }
-        });
-      });
-
-      yield run_and_wait_msg(bus, () => {
-        return bus.emit("message", { origin, destination: dest, opts });
-      });
-
-      var msgs = yield wait_msgs;
-      h.expect(msgs).to.containSubset([
-        {"op": "sync", "status":"close"},
-        {"op": "sync", "status":"done"},
-        {"op": "watch", "status":"ready"},
-      ]);
+    var msg = yield run_and_wait_msg(bus, 'watch', () => {
+      return bus.emit("message", { origin, destination: dest, opts });
     });
+
+    h.expect(msg).to.have.property('op', 'watch');
+    h.expect(msg).to.have.property('status', 'ready');
+
+    // Save all messages and call check via event emitter
+    var wait_msgs = defer((resolve) => {
+      var msgs = [];
+      var call = (msg) => {
+        msgs.push(JSON.parse(msg));
+        if (msgs.length >= 2) {
+          bus.removeListener('sending', call);
+          resolve(msgs);
+        }
+      };
+      bus.on('sending', call);
+    });
+
+    yield run_and_wait_msg(bus, () => {
+      return bus.emit("message", { origin, destination: dest, opts });
+    });
+
+    var msgs = yield wait_msgs;
+    h.expect(msgs).to.containSubset([
+      {"op": "sync" , "status":"done" },
+      {"op": "watch", "status":"ready"},
+    ]);
   });
 
   it("should return a error if initial sync fails", function() {

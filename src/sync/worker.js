@@ -11,7 +11,7 @@ export class Worker {
     this.process = process;
     this.process.on('message', (data) => {
       process.title = "azk sync worker " + data.origin + " " + data.destination;
-      this.watch(data.origin, data.destination, data.opts);
+      this.watch(data.origin, data.destination, data.opts).then(() => {}, () => {});
     });
 
     this.chok = null;
