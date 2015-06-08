@@ -39,6 +39,7 @@ export class BaseRule extends UIProxy {
     // this.type     = "runtime";
     // this.name     = "elixir";
     // this.ruleName = "elixir";
+    // this.replaces = ['elixir'];
 
     this.semver = semver;
   }
@@ -61,6 +62,12 @@ export class BaseRule extends UIProxy {
    * }
    */
   getEvidence(path, content) {
+    var framework;
+    if (this.type === 'framework') {
+      framework = this.getFrameworkVersion(content);
+      if (!framework) { return null; }
+    }
+
     var version = this.getVersion(content);
     var evidence = {
       fullpath: path,
@@ -68,11 +75,14 @@ export class BaseRule extends UIProxy {
       name    : this.name,
       ruleName: this.getRuleByVersion(version) || this.rule_name,
       version : version,
+      replaces: this.replaces,
+      framework,
     };
     return evidence;
   }
 
   getVersion(/*content*/) { return; }
+  getFrameworkVersion(/*content*/) { return; }
 
   /**
    * Find `ruleName` in `version_rules` by `version`

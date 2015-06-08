@@ -7,6 +7,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 * Enhancements
   * [Suggesting] Now node.js suggestions have a env `PORT` for to get a `HTTP_PORT`, this change makes this suggestion more "compatible" with most of the apps that await env `PORT`.
+  * [Suggesting] Refactor Rule and Suggestion base class;
+  * [Suggesting] Removing (trim) multiple new_line before generate a new Manifestfile;
+  * [Suggesting] Adding `elixir` suggestions;
+  * [Suggesting] Adding `elixir_phoenix` suggestions;
 
 ## v0.13.1 - (2015-30-05)
 
