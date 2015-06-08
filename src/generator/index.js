@@ -38,8 +38,15 @@ export class Generator extends UIProxy {
       },
     }, data);
 
-    var renderedTemplate = this.tpl(data);
+    var renderedTemplate = this.trim(this.tpl(data));
     fs.writeFileSync(file, renderedTemplate);
+  }
+
+  trim(context) {
+    while (/\n\n/.test(context)) {
+      context = context.replace(/\n\n/, '\n');
+    }
+    return context;
   }
 }
 
@@ -73,12 +80,16 @@ function mount(data) {
   // args
   var args  = [];
   if (!_.isUndefined(data.value)) {
+    // Support unescape
+    // https://regex101.com/r/hR4rY3/2
+    var regex = /^_{3}(.*)_{3}$/;
+    var isEscaped = regex.test(data.value);
+    data.value = (isEscaped) ? data.value.replace(regex, "$1") : json(data.value);
     args.push(data.value);
   }
   if (!_.isEmpty(options)) {
-    args.push(options);
+    args.push(json(options));
   }
-  args = _.map(args, (arg) => { return json(arg); });
 
   switch (data.type) {
     default:
