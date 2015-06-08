@@ -82,7 +82,7 @@ class Cmd extends InteractiveCmds {
 
         // Track agent start
         this.docker.version().then((result) => {
-          this.trackerEvent.addData({
+          this.addDataToTracker({
             vm: vm_data,
             docker: {
               version: result

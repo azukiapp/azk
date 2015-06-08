@@ -44,6 +44,12 @@ export class TrackedCmds extends Command {
     });
   }
 
+  addDataToTracker(data) {
+    if (this.trackerEvent) {
+      return this.trackerEvent.addData(data);
+    }
+  }
+
   sendTrackerData() {
     if (this.trackerEvent) {
       return this.trackerEvent.send();
