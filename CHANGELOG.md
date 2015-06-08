@@ -11,6 +11,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Code] Replaced `q-io/fs` with `utils/file_async` a bluebird promisified `fs-extra` #386;
   * [Code] No more direct call to Q or any other Promise lib, only by `utils/promises` #386;
   * [Code] Removed `progress()` Promises helper. Included postal: subscribe and publish functions #385;
+  * [Code] Removing `async`, `defer`, `publish`, `subscribe` and `asyncUnsubscribe` from `azk` module;
 
 ## v0.13.1 - (2015-29-05)
 
