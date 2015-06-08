@@ -1,11 +1,15 @@
 #! /bin/bash
 
-if [[ $# < 1 ]] || [[ $# > 2 ]]; then
-    echo "Usage: ${0##*/} {version} [--run-test-app]"
+if [[ $# < 3 ]] || [[ $# > 4 ]]; then
+    echo "Usage: ${0##*/} {distro} {codename} {version} [--run-test-app]"
     exit 1
 fi
 
+export DISTRO=$1; shift
+export CODENAME=$1; shift
 export VERSION=$1; shift
+
+BASE_DIR=$( echo $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd ) | sed s#$(pwd)/##g )
 
 while [[ $# -gt 0 ]]; do
     opt="$1"; shift
@@ -25,30 +29,30 @@ fail() {
 }
 
 start_agent() {
-    azk agent stop
     azk agent start --no-daemon > $AZK_AGENT_LOG_FILE 2>&1 &
     AGENT_PID="$!"
-    tail -f $AZK_AGENT_LOG_FILE &
+    tail -F $AZK_AGENT_LOG_FILE &
     TAIL_PID="$!"
     until tail -1 $AZK_AGENT_LOG_FILE | grep -q 'Agent has been successfully started.'; do
       sleep 2;
       kill -0 ${AGENT_PID} || exit 3;
     done
 
-    kill -9 $TAIL_PID
+    kill -9 $TAIL_PID > /dev/null 2>&1
 }
 
 setup() {
     set -e
     /usr/local/bin/wrapdocker
+    ${BASE_DIR}/${DISTRO}/install.sh ${CODENAME}
     start_agent
 
     if [[ $RUN_TEST_APP == true ]]; then
         cd /azk/test
-        rm -Rf Azkfile.js
+        rm -Rf Azkfile.js .azk/
         azk init
         ls Azkfile.js > /dev/null 2>&1
-        azk start
+        azk start --reprovision
     fi
 }
 
@@ -79,7 +83,7 @@ run_test() {
 tear_down() {
     if [[ $RUN_TEST_APP == true ]]; then
         azk stop
-        rm Azkfile.js
+        rm -Rf Azkfile.js .azk/
     fi
     azk agent stop
 }

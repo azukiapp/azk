@@ -163,12 +163,7 @@ $(foreach file,$(FILES_ALL),$(eval $(call COPY_FILES,$(AZK_ROOT_PATH),$(PATH_USR
 copy_transpiled_files:
 	@echo "task: $@"
 	@mkdir -p ${PATH_AZK_LIB}/azk
-	@cp -R $(AZK_LIB_PATH)/azk ${PATH_AZK_LIB}/azk
-
-# Debug opts
-#$(warning $(FILES_JS))
-#$(foreach file,$(FILES_ALL),$(warning $(file)))
-# $(warning $(abspath $(2)/$(3)): $(abspath $(1)/$(3)))
+	@cp -R $(AZK_LIB_PATH)/azk ${PATH_AZK_LIB}
 
 fix_permissions:
 	@chmod 755 ${PATH_USR_LIB_AZK}/bin/*

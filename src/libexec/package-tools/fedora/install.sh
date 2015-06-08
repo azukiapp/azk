@@ -5,10 +5,9 @@ if [[ $# != 1 ]]; then
     exit 1
 fi
 
-set -x
-
 export DISTRO=$1
 
+rm -rf /etc/yum.repos.d/*
 rpm --import http://repo.azukiapp.com/keys/azuki.asc
 tee /etc/yum.repos.d/azuki.repo <<EOF
 [azuki]
@@ -17,4 +16,5 @@ baseurl=${PACKAGE_URL}/${DISTRO}
 enabled=1
 gpgcheck=1
 EOF
-yum -y update && yum -y install azk
+yum -y update
+yum -y install azk

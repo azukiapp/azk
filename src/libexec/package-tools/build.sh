@@ -98,20 +98,25 @@ step_run() {
     step_done $? ${STEP_EXIT}
 }
 
+step_skip() {
+    step $1; shift
+    echo "[ SKIP ]"
+}
+
 start_agent() {
     azk agent stop
     sleep 3
 
     AZK_VM_MEMORY=3072 ./bin/azk agent start --no-daemon > $AZK_AGENT_LOG_FILE 2>&1 &
     AGENT_PID="$!"
-    tail -f $AZK_AGENT_LOG_FILE &
+    tail -F $AZK_AGENT_LOG_FILE &
     TAIL_PID="$!"
     until tail -1 $AZK_AGENT_LOG_FILE | grep -q 'Agent has been successfully started.'; do
       sleep 2;
       kill -0 ${AGENT_PID} || exit 1;
     done
 
-    kill -9 $TAIL_PID
+    kill -9 $TAIL_PID > /dev/null 2>&1
 }
 
 setup_test() {
@@ -155,12 +160,12 @@ if [[ $BUILD_DEB == true ]]; then
 
       step_run "Generating Ubuntu 12.04 repository" azk shell package -c "src/libexec/package-tools/ubuntu/generate.sh ${LIBNSS_RESOLVER_VERSION} precise ${SECRET_KEY}"
       if [[ $NO_TEST != true ]]; then
-        step_run "Testing Ubuntu 12.04 repository" ${AZK_BUILD_TOOLS_PATH}/ubuntu/test.sh precise $TEST_ARGS
+        step_run "Testing Ubuntu 12.04 repository" ${AZK_BUILD_TOOLS_PATH}/test.sh ubuntu12 $TEST_ARGS
       fi
 
       step_run "Generating Ubuntu 14.04 repository" azk shell package -c "src/libexec/package-tools/ubuntu/generate.sh ${LIBNSS_RESOLVER_VERSION} trusty ${SECRET_KEY}"
       if [[ $NO_TEST != true ]]; then
-        step_run "Testing Ubuntu 14.04 repository" ${AZK_BUILD_TOOLS_PATH}/ubuntu/test.sh trusty $TEST_ARGS
+        step_run "Testing Ubuntu 14.04 repository" ${AZK_BUILD_TOOLS_PATH}/test.sh ubuntu14 $TEST_ARGS
       fi
     ) && LINUX_BUILD_WAS_EXECUTED=true
 
@@ -189,7 +194,7 @@ if [[ $BUILD_RPM == true ]]; then
       step_run "Creating rpm packages" make package_rpm ${EXTRA_FLAGS}
       step_run "Generating Fedora 20 repository" azk shell package -c "src/libexec/package-tools/fedora/generate.sh fedora20 ${SECRET_KEY}"
       if [[ $NO_TEST != true ]]; then
-        step_run "Testing Fedora 20 repository" ${AZK_BUILD_TOOLS_PATH}/fedora/test.sh fedora20 $TEST_ARGS
+        step_skip "Testing Fedora 20 repository" ${AZK_BUILD_TOOLS_PATH}/test.sh fedora20 $TEST_ARGS
       fi
     ) && LINUX_BUILD_WAS_EXECUTED=true
 
