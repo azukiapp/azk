@@ -1,7 +1,6 @@
 import h from 'spec/spec_helper';
-import { path, fs, _ } from 'azk';
+import { path, fs, _, fsAsync } from 'azk';
 import { Court } from 'azk/generator/court';
-var qfs = require('q-io/fs');
 
 describe('Azk generator tool court veredict:', function() {
 
@@ -25,7 +24,7 @@ describe('Azk generator tool court veredict:', function() {
       'gem \'rails\', \'4.1.6\'',
       'gem \'pg\', \'~> 0.17.1\'',
     ].join('\n');
-    return qfs.write(gemfilePath, gemfileContent);
+    return fsAsync.writeFile(gemfilePath, gemfileContent);
 
   }).then(() => {
     // -------
@@ -51,7 +50,7 @@ describe('Azk generator tool court veredict:', function() {
       '  "engine": "node >= 0.4.1"',
       '}',
     ].join('\n');
-    return qfs.write(packageJsonPath, packageJsonContent);
+    return fsAsync.writeFile(packageJsonPath, packageJsonContent);
   });
 
   before(function() {

@@ -1,4 +1,6 @@
-import { _, fs, t, path, isBlank, publish, async, defer, lazy_require } from 'azk';
+import { _, fs, t, path, isBlank, lazy_require } from 'azk';
+import { publish } from 'azk/utils/postal';
+import { async, defer } from 'azk/utils/promises';
 import { ManifestError, NoInternetConnection, LostInternetConnection } from 'azk/utils/errors';
 import { net } from 'azk/utils';
 import Utils from 'azk/utils';

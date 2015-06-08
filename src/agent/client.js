@@ -1,4 +1,6 @@
-import { _, Q, defer, lazy_require, log, publish } from 'azk';
+import { _, lazy_require, log } from 'azk';
+import { publish } from 'azk/utils/postal';
+import { defer, ninvoke } from 'azk/utils/promises';
 import { config, set_config } from 'azk';
 import { Agent } from 'azk/agent';
 import { AgentNotRunning } from 'azk/utils/errors';
@@ -17,7 +19,7 @@ var HttpClient = {
   },
 
   request(method, path, opts = {}) {
-    return Q.ninvoke(req, method, _.defaults(opts, {
+    return ninvoke(req, method, _.defaults(opts, {
       url : this.url(path),
       json: true,
     }));
@@ -96,7 +98,7 @@ var WebSocketClient = {
 
   send(message, callback = null, retry = 0) {
     this.init()
-      .fail((err) => {
+      .catch((err) => {
         log.error('Failed to init websocket: ', err);
       })
       .then(() => {
@@ -109,7 +111,7 @@ var WebSocketClient = {
         }
         return true;
       })
-      .fail((err) => {
+      .catch((err) => {
         if (retry-- > 0) {
           log.debug('Failed to send message: ', message);
           log.debug('Retry: ', retry);

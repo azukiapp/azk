@@ -1,8 +1,8 @@
 import { _, lazy_require, log } from 'azk';
-import { Q, defer } from 'azk';
+import { defer, promiseResolve } from 'azk/utils/promises';
 import { IPublisher } from 'azk/utils/postal';
 
-var l = lazy_require({
+var lazy = lazy_require({
   docker : ['azk/docker', 'default'],
   JStream: 'jstream',
 });
@@ -27,7 +27,7 @@ export class ContainersObserver extends IPublisher  {
     this.__stream = value;
     // Connect operations in stream
     if (value) {
-      l.docker.modem.followProgress(
+      lazy.docker.modem.followProgress(
         value,
         this._stream_end.bind(this),
         this._handler.bind(this)
@@ -36,7 +36,7 @@ export class ContainersObserver extends IPublisher  {
   }
 
   start() {
-    if (this.starting || this.stoping) { return Q(); }
+    if (this.starting || this.stoping) { return promiseResolve(); }
     this.starting = true;
     this.attemps++;
 
@@ -47,7 +47,7 @@ export class ContainersObserver extends IPublisher  {
 
     log.debug('[docker] starting containers observer');
     return defer((resolve, reject) => {
-      l.docker.getEvents(options)
+      lazy.docker.getEvents(options)
         .then((stream) => {
           log.debug('[docker] containers observer started');
           this.stream   = stream;

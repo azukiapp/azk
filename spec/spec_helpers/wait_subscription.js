@@ -1,9 +1,10 @@
-import { _, Q } from 'azk';
+import { _ } from 'azk';
+import { originalDefer } from 'azk/utils/promises';
 import { subscribe } from 'azk/utils/postal';
 
 export function extend(h) {
   h.wait_subscription = function(topic, filter = null, block = null) {
-    var deferred = Q.defer();
+    var deferred = originalDefer();
     var sub = null, msgs = [];
     try {
       sub = subscribe(topic, (msg) => {

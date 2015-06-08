@@ -1,4 +1,5 @@
-import { Q, lazy_require, log } from 'azk';
+import { lazy_require, log } from 'azk';
+import { promiseResolve } from 'azk/utils/promises';
 
 // Hotswap configure
 module.change_code = 1;
@@ -40,7 +41,7 @@ export class ApiWs {
     } else {
       delete module.cache.reload;
     }
-    return Q.resolve();
+    return promiseResolve();
   }
 }
 
@@ -63,7 +64,7 @@ var Controller = {
     .then(() => {
       this._send(ws, req_id, { status: 'done' });
     })
-    .fail((err) => {
+    .catch((err) => {
       this._send(ws, req_id, { status: 'fail', err: err});
     });
   },

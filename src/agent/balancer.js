@@ -1,4 +1,6 @@
-import { _, Q, t, path, fs, config, log, defer, async } from 'azk';
+import { _, t, path, fs, config, log } from 'azk';
+import { async, defer, ninvoke, thenAll, promiseResolve } from 'azk/utils/promises';
+
 import { lazy_require } from 'azk';
 import { net } from 'azk/utils';
 import { Tools } from 'azk/agent/tools';
@@ -35,12 +37,12 @@ var Balancer = {
 
   removeAll(host) {
     var key = 'frontend:' + host;
-    return Q.ninvoke(this.memCached, 'delete', key);
+    return ninvoke(this.memCached, 'delete', key);
   },
 
   getBackends(host) {
     var key = 'frontend:' + host;
-    return Q.ninvoke(this.memCached, 'get', key).then((entries) => {
+    return ninvoke(this.memCached, 'get', key).then((entries) => {
       return entries ? entries : [host];
     });
   },
@@ -52,7 +54,7 @@ var Balancer = {
         var entries = yield this.getBackends(host);
         entries = this._removeEntry(entries, backend);
         entries.push(backend);
-        yield Q.ninvoke(this.memCached, 'set', key, entries, 0);
+        yield ninvoke(this.memCached, 'set', key, entries, 0);
       }
     });
   },
@@ -63,7 +65,7 @@ var Balancer = {
         var key = 'frontend:' + host;
         var entries = yield this.getBackends(host);
         entries = this._removeEntry(entries, backend);
-        yield Q.ninvoke(this.memCached, 'set', key, entries, 0);
+        yield ninvoke(this.memCached, 'set', key, entries, 0);
       }
     });
   },
@@ -124,7 +126,6 @@ var Balancer = {
     var name = "memcached";
 
     // Remove socket before start
-    // TODO: replace by q-io
     if (fs.existsSync(socket)) {
       fs.unlinkSync(socket);
     }
@@ -140,7 +141,7 @@ var Balancer = {
     if (this.isRunnig()) {
       log.debug("call to stop balancer");
       return Tools.async_status("balancer", this, function* (change_status) {
-        yield Q.all([
+        yield thenAll([
           this._stop_system('balancer-redirect', change_status),
           this._stop_system('dns', change_status),
         ]);
@@ -148,7 +149,7 @@ var Balancer = {
         yield this._stop_sub_service("memcached", change_status);
       });
     } else {
-      return Q();
+      return promiseResolve();
     }
   },
 
@@ -168,11 +169,11 @@ var Balancer = {
     return manifest.system(system, true);
   },
 
-  _waitDocker(shoot = true, retry = 10) {
+  _waitDocker(retry = 10) {
     var docker_host = config("docker:host");
     var promise = net.waitService(docker_host, retry, { timeout: 2000, context: "balancer" });
     return promise.then((success) => {
-      if ((!success) && shoot) {
+      if (!success) {
         throw new AgentStartError(t('errors.connect_docker_unavailable'));
       }
       return success;
@@ -188,7 +189,7 @@ var Balancer = {
       var system = this._getSystem(system_name);
 
       // Wait docker
-      yield this._waitDocker(false, 3);
+      yield this._waitDocker();
 
       // Save outputs to use in error
       var output = "";
@@ -220,20 +221,24 @@ var Balancer = {
       var system = this._getSystem(system_name);
 
       // Wait docker
-      yield this._waitDocker();
+      try {
+        yield this._waitDocker(3);
 
-      // Stop
-      change_status("stopping_" + system_name);
-      yield system
-        .stop()
-        .catch((err) => {
-          try {
-            log.error(err);
-            change_status("error", err);
-          } catch (err) {}
-          return true;
-        });
-      change_status("stopped_" + system_name);
+        // Stop
+        change_status("stopping_" + system_name);
+        yield system
+          .stop()
+          .catch((err) => {
+            try {
+              log.error(err);
+              change_status("error", err);
+            } catch (err) {}
+            return true;
+          });
+        change_status("stopped_" + system_name);
+      } catch (err) {
+        log.err(`[agent] Error to stop balance system ${system_name}`, err);
+      }
 
       // Save state
       this.running[system_name] = false;

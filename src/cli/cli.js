@@ -1,4 +1,5 @@
-import { Q, _, lazy_require } from 'azk';
+import { _, lazy_require } from 'azk';
+import { isPromise } from 'azk/utils/promises';
 import { Command, Option } from 'azk/cli/command';
 import { InvalidValueError } from 'azk/utils/errors';
 
@@ -80,7 +81,7 @@ export class Cli extends Command {
     if (cmd && cmd instanceof Command) {
       // run command
       var command_result = cmd.run(_.clone(opts.__leftover), opts);
-      if (Q.isPromise(command_result)) {
+      if (isPromise(command_result)) {
         return command_result.then((result) => {
           this.stopCpuProfiling();
           this.stopNjsTracer();

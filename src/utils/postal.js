@@ -63,7 +63,7 @@ export class SubscriptionLogger {
   subscribeTo(topic) {
     if (topic) {
       var subscribe_topic = topic;
-      var subscribe = require("azk").subscribe;
+      var subscribe = azk_channel.subscribe;
       var log = require("azk/utils/log").log;
 
       if (!this.date_now) {

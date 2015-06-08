@@ -1,5 +1,7 @@
 import h from 'spec/spec_helper';
-import { async, Q, config, set_config, path, subscribe } from 'azk';
+import { config, set_config, path } from 'azk';
+import { subscribe } from 'azk/utils/postal';
+import { async, promiseResolve, ninvoke, delay } from 'azk/utils/promises';
 import { net as net_utils, envDefaultArray } from 'azk/utils';
 var net = require('net');
 
@@ -86,10 +88,9 @@ describe("Azk utils.net module", function() {
 
     var runServer = (port_or_path) => {
       server = net.createServer(() => {});
-      return Q
-        .ninvoke(server, 'listen', port_or_path)
+      return ninvoke(server, 'listen', port_or_path)
         .then(() => {
-          return Q.delay(1000).then(function (result) {
+          return delay(1000).then(function (result) {
             return result;
           });
         });
@@ -141,7 +142,7 @@ describe("Azk utils.net module", function() {
       var retry   = 0;
       var options = { timeout: 100, retry_if: () => {
         retry++;
-        return Q(false);
+        return promiseResolve(false);
       }};
 
       return async(function* () {

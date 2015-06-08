@@ -1,4 +1,6 @@
-import { Q, config, async, lazy_require, log, subscribe } from 'azk';
+import { config, lazy_require, log } from 'azk';
+import { subscribe } from 'azk/utils/postal';
+import { async, promiseResolve } from 'azk/utils/promises';
 import { InteractiveCmds } from 'azk/cli/interactive_cmds';
 import { Helpers } from 'azk/cli/command';
 
@@ -97,13 +99,13 @@ class VmCmd extends InteractiveCmds {
   action_status(vm_info) {
     this.require_running(vm_info);
     this.ok("commands.vm.running");
-    return Q();
+    return promiseResolve();
   }
 
   action_installed(vm_info) {
     this.require_installed(vm_info);
     this.ok("commands.vm.already_installed");
-    return Q();
+    return promiseResolve();
   }
 
   action_remove(vm_info, opts) {

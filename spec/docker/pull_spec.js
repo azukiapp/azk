@@ -1,4 +1,5 @@
-import { _, config, subscribe } from 'azk';
+import { _, config } from 'azk';
+import { subscribe } from 'azk/utils/postal';
 import { Image } from 'azk/docker';
 import h from 'spec/spec_helper';
 import { ProvisionNotFound } from 'azk/utils/errors';
@@ -6,7 +7,7 @@ import { ProvisionNotFound } from 'azk/utils/errors';
 var image_empty = config('docker:image_empty');
 
 describe("Azk docker module, image pull @slow", function() {
-  this.timeout(20000);
+  this.timeout(50000);
   before(() => h.remove_images());
 
   it("should get a image by name", function() {

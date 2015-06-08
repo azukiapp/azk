@@ -1,10 +1,10 @@
-import { config, async, log, publish } from 'azk';
+import { config, log, fsAsync } from 'azk';
+import { publish } from 'azk/utils/postal';
+import { async } from 'azk/utils/promises';
 import { VM  }   from 'azk/agent/vm';
 import { Balancer } from 'azk/agent/balancer';
 import { Api } from 'azk/agent/api';
 import { VmStartError } from 'azk/utils/errors';
-
-var qfs = require('q-io/fs');
 
 var Server = {
   server: null,
@@ -75,8 +75,8 @@ var Server = {
         // Set ssh key
         vm_publish("sshkey");
         var file    = config("agent:vm:ssh_key") + ".pub";
-        var content = yield qfs.read(file);
-        VM.setProperty(vm_name, "/VirtualBox/D2D/SSH_KEY", content);
+        var content = yield fsAsync.readFile(file);
+        VM.setProperty(vm_name, "/VirtualBox/D2D/SSH_KEY", content.toString());
       }
 
       if (!running && start) {

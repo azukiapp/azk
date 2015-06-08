@@ -1,4 +1,5 @@
-import { _, defer, log, path, t } from 'azk';
+import { _, log, path, t } from 'azk';
+import { defer } from 'azk/utils/promises';
 
 // Module
 var Sync = {

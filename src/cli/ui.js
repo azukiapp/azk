@@ -1,4 +1,5 @@
-import { _, Q, t, defer } from 'azk';
+import { _, t } from 'azk';
+import { defer, nfcall } from 'azk/utils/promises';
 import { AzkError } from 'azk/utils/errors';
 
 require('colors');
@@ -129,7 +130,7 @@ var UI = {
   // User interactions methods
   execSh(...args) {
     var result = (err) => { return (err) ? err.code : 0; };
-    return Q.nfcall(execShLib, ...args).spread(result, result);
+    return nfcall(execShLib, ...args).spread(result, result);
   },
 
   prompt(questions) {

@@ -1,4 +1,5 @@
-import { _, async } from 'azk';
+import { _ } from 'azk';
+import { async } from 'azk/utils/promises';
 import { SYSTEMS_CODE_ERROR } from 'azk/utils/errors';
 import { Cmd as ScaleCmd } from 'azk/cmds/scale';
 
@@ -85,7 +86,7 @@ class Cmd extends ScaleCmd {
 
       return result;
     })
-    .fail((error) => {
+    .catch((error) => {
       this.fail(error);
       this.fail('commands.start.fail', error);
       return this

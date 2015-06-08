@@ -1,4 +1,6 @@
-import { _, Q, async, lazy_require, path, publish } from 'azk';
+import { _, lazy_require, path, fsAsync } from 'azk';
+import { publish } from 'azk/utils/postal';
+import { async, originalDefer } from 'azk/utils/promises';
 import { DockerBuildError } from 'azk/utils/errors';
 
 var lazy = lazy_require({
@@ -46,7 +48,7 @@ export function build(docker, options) {
 
     // Check if "Dockerfile" exist
     var dockerfile = opts.dockerfile;
-    if (!(yield lazy.qfs.exists(dockerfile))) {
+    if (!(yield fsAsync.exists(dockerfile))) {
       throw new DockerBuildError('cannot_find_dockerfile', { dockerfile });
     }
 
@@ -77,7 +79,7 @@ export function build(docker, options) {
     archive.finalize();
 
     // Options and defer
-    var done = Q.defer();
+    var done = originalDefer();
     var build_options = { t: opts.tag, forcerm: true, nocache: !opts.cache, q: !opts.verbose };
 
     // Start stream

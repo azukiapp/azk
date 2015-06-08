@@ -1,4 +1,6 @@
-import { _, async, config, log, publish } from 'azk';
+import { _, config, log } from 'azk';
+import { publish } from 'azk/utils/postal';
+import { async } from 'azk/utils/promises';
 import { default as tracker } from 'azk/utils/tracker';
 
 function new_resize(container) {

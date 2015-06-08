@@ -1,5 +1,6 @@
-import { Q, lazy_require } from 'azk';
+import { lazy_require } from 'azk';
 import { publish, subscribe } from 'azk/utils/postal';
+import { originalDefer } from 'azk/utils/promises';
 import h from 'spec/spec_helper';
 
 var lazy = lazy_require({
@@ -7,6 +8,7 @@ var lazy = lazy_require({
 });
 
 describe("Azk capture_io utils helper", function() {
+
   it("should capture outputs", function() {
     var promise = lazy.capture_io( () => {
       process.stdout.write('stdout write ');
@@ -25,12 +27,10 @@ describe("Azk capture_io utils helper", function() {
 
   describe("in a promise", function() {
     var block = () => {
-      var done = Q.defer();
+      var done = originalDefer();
 
       setImmediate( () => {
-
         publish("capture_io_spec", 'notification');
-
         console.log('output in stdout');
         done.resolve(1);
       });

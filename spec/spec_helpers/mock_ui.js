@@ -1,4 +1,5 @@
-import { Q, _ } from 'azk';
+import { _ } from 'azk';
+import { promiseResolve } from 'azk/utils/promises';
 import { UI as OriginalUI } from 'azk/cli/command';
 
 export function extend(h) {
@@ -18,7 +19,7 @@ export function extend(h) {
 
     UI.execSh = (cmd) => {
       UI.dir(cmd);
-      return Q(0);
+      return promiseResolve(0);
     };
 
     func(() => {

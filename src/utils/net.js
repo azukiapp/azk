@@ -1,4 +1,6 @@
-import { Q, _, async, defer, fs, lazy_require, publish, config, set_config } from 'azk';
+import { _, fs, lazy_require, config, set_config } from 'azk';
+import { publish } from 'azk/utils/postal';
+import { async, defer, ninvoke, promiseResolve } from 'azk/utils/promises';
 import { envDefaultArray, isBlank } from 'azk/utils';
 
 var portscanner = require('portscanner');
@@ -31,7 +33,7 @@ var net = {
   },
 
   checkPort(port, host = 'localhost') {
-    return Q.ninvoke(portscanner, "checkPortStatus", port, host)
+    return ninvoke(portscanner, "checkPortStatus", port, host)
       .then((status) => {
         return status == 'closed';
       });
@@ -180,7 +182,7 @@ var net = {
   waitService(uri, retry = 15, opts = {}) {
     opts = _.defaults(opts, {
       timeout: 10000,
-      retry_if: () => { return Q(true); }
+      retry_if: () => { return promiseResolve(true); }
     });
 
     // Parse options to try connect

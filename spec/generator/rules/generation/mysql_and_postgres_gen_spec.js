@@ -1,8 +1,7 @@
-import { config, path, fs } from 'azk';
+import { config, path, fs, fsAsync } from 'azk';
 import h from 'spec/spec_helper';
 import { Generator } from 'azk/generator';
 import { Manifest } from 'azk/manifest';
-var qfs = require('q-io/fs');
 
 describe('Azk generator db', function() {
   var outputs = [];
@@ -29,7 +28,7 @@ describe('Azk generator db', function() {
         'gem \'rails\', \'4.1.6\'',
         'gem \'mysql2\'',
       ].join('\n');
-      return qfs.write(gemfilePath, gemfileContent);
+      return fsAsync.writeFile(gemfilePath, gemfileContent);
     }).then(() => {
 
       //create rails folder with postgres dependency
@@ -43,7 +42,7 @@ describe('Azk generator db', function() {
         'gem \'rails\', \'4.1.6\'',
         'gem \'pg\'',
       ].join('\n');
-      return qfs.write(gemfilePath, gemfileContent);
+      return fsAsync.writeFile(gemfilePath, gemfileContent);
     });
   });
 

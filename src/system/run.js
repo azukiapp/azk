@@ -1,9 +1,9 @@
-import { _, t,  config, lazy_require, log, isBlank, path } from 'azk';
-import { Q, async, defer, asyncUnsubscribe } from 'azk';
+import { _, t, config, lazy_require, log, isBlank, path } from 'azk';
+import { subscribe, publish } from 'azk/utils/postal';
+import { defer, async, asyncUnsubscribe, promiseResolve, thenAll } from 'azk/utils/promises';
 import { ImageNotAvailable, SystemRunError, RunCommandError, NotBeenImplementedError } from 'azk/utils/errors';
 import { Balancer } from 'azk/system/balancer';
 import net from 'azk/utils/net';
-import { subscribe, publish } from 'azk';
 
 var lazy = lazy_require({
   MemoryStream: 'memorystream',
@@ -159,11 +159,11 @@ var Run = {
       publish(topic, { type : "sync", system : system.name });
     }
 
-    return Q.all(_.map(system.syncs || {}, (sync_data, host_folder) => {
+    return thenAll(_.map(system.syncs || {}, (sync_data, host_folder) => {
       return async(this, function* () {
         if (daemon && sync_data.options.daemon === false ||
            !daemon && sync_data.options.shell !== true) {
-          return Q.resolve();
+          return promiseResolve();
         }
 
         if (config('agent:requires_vm')) {
@@ -195,7 +195,7 @@ var Run = {
   },
 
   stopWatching(system) {
-    return Q.all(_.map(system.syncs || {}, (sync_data, host_folder) => {
+    return thenAll(_.map(system.syncs || {}, (sync_data, host_folder) => {
       return lazy.Client.unwatch(path.join(host_folder, '/'), sync_data.guest_folder)
         .then(() => {
           publish("system.sync.status", {
@@ -286,7 +286,7 @@ var Run = {
             container,
             data.Config.Cmd.join(' '),
             exitCode,
-            Q(t('errors.run_timeout_error', {
+            promiseResolve(t('errors.run_timeout_error', {
               system: system.name,
               port: port_data && port_data.port,
               retry: retry,
@@ -304,7 +304,7 @@ var Run = {
   },
 
   throwRunError(system, container, data = null, stop = false) {
-    data = data ? Q(data) : container.inspect();
+    data = data ? promiseResolve(data) : container.inspect();
     return data.then((data) => {
       // Get container log
       var promise = container.logs({stdout: true, stderr: true}).then((stream) => {

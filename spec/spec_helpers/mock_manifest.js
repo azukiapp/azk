@@ -1,8 +1,7 @@
-import { path, _, config, async } from 'azk';
+import { path, _, config, fsAsync } from 'azk';
+import { async } from 'azk/utils/promises';
 import { Generator } from 'azk/generator';
 import { Manifest } from  'azk/manifest';
-
-var qfs = require('q-io/fs');
 
 export function extend(h) {
 
@@ -20,7 +19,7 @@ export function extend(h) {
       var tmp = yield fixture_path();
 
       // Write content to manifest file
-      yield qfs.write(path.join(tmp, config('manifest')), content);
+      yield fsAsync.writeFile(path.join(tmp, config('manifest')), content);
 
       // Return a new project dir
       return new Manifest(tmp);
