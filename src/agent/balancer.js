@@ -117,6 +117,7 @@ var Balancer = {
       this.hipache = child;
       log.info("hipache started in %s port with file config", port, file);
       this._handleChild(name, child);
+      return promiseResolve({});
     });
   },
 
@@ -136,6 +137,7 @@ var Balancer = {
       this.memcached = child;
       log.info("memcachedjs started in socket: ", socket);
       this._handleChild(name, child);
+      return promiseResolve({});
     });
   },
 
@@ -252,7 +254,7 @@ var Balancer = {
       log.info(name + ' stopped');
     });
 
-    // Log child erro if exited
+    // Log child error if exited
     child.on('exit:code', (code) => {
       if (code && code !== 0) {
         log.error(name + ' exit code: ' + code);
@@ -335,8 +337,8 @@ var Balancer = {
     };
 
     // set content
-    return fsAsync.writeFile(file, JSON.stringify(data, null, '  ')).then(function (file) {
-      return promiseResolve(file);
+    return fsAsync.writeFile(file, JSON.stringify(data, null, '  ')).then(function () {
+      return file;
     });
   }
 };
