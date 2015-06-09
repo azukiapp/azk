@@ -32,17 +32,19 @@ describe('Azk generator generation two nodes systems', function() {
 
   var generateAndReturnManifest = (project) => {
     var manifest = path.join(project, config('manifest'));
-    generator.render({
-      systems: generator.findSystems(project),
-    }, manifest);
-    return new Manifest(project);
+    return generator.findSystems(project).then(function (all_systems) {
+      generator.render({
+        systems: all_systems,
+      }, manifest);
+      return new Manifest(project);
+    });
   };
 
   it('should detect two node projects', function() {
-    var manifest = generateAndReturnManifest(rootFolder);
-
-    var allKeys = Object.keys(manifest.systems);
-    h.expect(allKeys).to.have.contains('node1');
-    h.expect(allKeys).to.have.contains('node2');
+    return generateAndReturnManifest(rootFolder).then(function (manifest) {
+      var allKeys = Object.keys(manifest.systems);
+      h.expect(allKeys).to.have.contains('node1');
+      h.expect(allKeys).to.have.contains('node2');
+    });
   });
 });

@@ -52,17 +52,21 @@ describe('Azk generator db', function() {
 
   var generateAndReturnManifest = (project) => {
     var manifest = path.join(project, config('manifest'));
-    generator.render({
-      systems: generator.findSystems(project),
-    }, manifest);
-    return new Manifest(project);
+    return generator.findSystems(project).then(function (all_systems) {
+      generator.render({
+        systems: all_systems,
+      }, manifest);
+      return new Manifest(project);
+    });
   };
 
   describe('2 rails and 2 databases', function() {
     var manifest;
 
     before(function() {
-      manifest = generateAndReturnManifest(rootFolder);
+      return generateAndReturnManifest(rootFolder).then(function (manifest_generated) {
+        manifest = manifest_generated;
+      });
     });
 
     it('should detect 4 systems', function() {
