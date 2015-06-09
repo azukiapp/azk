@@ -1,5 +1,5 @@
 import h from 'spec/spec_helper';
-import { config, path, t, utils } from 'azk';
+import { config, path, t, utils, fsAsync } from 'azk';
 import { Cli } from 'azk/cli';
 import { Manifest } from 'azk/manifest';
 
