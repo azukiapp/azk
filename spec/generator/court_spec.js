@@ -1,62 +1,60 @@
 import h from 'spec/spec_helper';
-import { path, fs, _, fsAsync } from 'azk';
+import { path, _, fsAsync } from 'azk';
+import { async } from 'azk/utils/promises';
 import { Court } from 'azk/generator/court';
 
 describe('Azk generator tool court veredict:', function() {
 
-  var outputs = [];
-  var UI  = h.mockUI(beforeEach, outputs);
   var rootFullPath;
   var court;
 
-  var createTestFolders = h.tmp_dir().then((dir) => {
-    // -------
-    // Gemfile
-    // -------
-    rootFullPath = dir;
-    var frontFolder = path.join(rootFullPath, 'front');
-    fs.mkdirSync(frontFolder);
-    var  gemfilePath = path.join(frontFolder, 'Gemfile');
-    h.touchSync(gemfilePath);
-    var gemfileContent = [
-      'source \'https://rubygems.org\'',
-      '',
-      'gem \'rails\', \'4.1.6\'',
-      'gem \'pg\', \'~> 0.17.1\'',
-    ].join('\n');
-    return fsAsync.writeFile(gemfilePath, gemfileContent);
+  before(function () {
+    return async(this, function* () {
+      var outputs = [];
+      var UI  = h.mockUI(beforeEach, outputs);
+      var dir = yield h.tmp_dir();
 
-  }).then(() => {
-    // -------
-    // package.json
-    // -------
-    var apiFolder = path.join(rootFullPath, 'api');
-    fs.mkdirSync(apiFolder);
-    var packageJsonPath = path.join(apiFolder, 'package.json');
-    h.touchSync(packageJsonPath);
-    var packageJsonContent = [
-      '{',
-      '  "name": "best-practices",',
-      '  "description": "A package using versioning best-practices",',
-      '  "author": "Charlie Robbins <charlie@nodejitsu.com>",',
-      '  "dependencies": {',
-      '    "colors": "0.x.x",',
-      '    "express": "2.3.x",',
-      '    "optimist": "0.2.x"',
-      '  },',
-      '  "devDependencies": {',
-      '    "vows": "0.5.x"',
-      '  },',
-      '  "engine": "node >= 0.4.1"',
-      '}',
-    ].join('\n');
-    return fsAsync.writeFile(packageJsonPath, packageJsonContent);
-  });
+      // -------
+      // Gemfile
+      // -------
+      rootFullPath = dir;
+      var frontFolder = path.join(rootFullPath, 'front');
+      yield fsAsync.mkdirs(frontFolder);
+      var  gemfilePath = path.join(frontFolder, 'Gemfile');
+      var gemfileContent = [
+        'source \'https://rubygems.org\'',
+        '',
+        'gem \'rails\', \'4.1.6\'',
+        'gem \'pg\', \'~> 0.17.1\'',
+      ].join('\n');
+      yield fsAsync.writeFile(gemfilePath, gemfileContent);
 
-  before(function() {
-    var realRulesFolder = path.join(__dirname, '../../azk/generator/rules');
-    court = new Court(realRulesFolder, UI);
-    return createTestFolders;
+      // -------
+      // package.json
+      // -------
+      var apiFolder = path.join(rootFullPath, 'api');
+      yield fsAsync.mkdirs(apiFolder);
+      var packageJsonPath = path.join(apiFolder, 'package.json');
+      var packageJsonContent = [
+        '{',
+        '  "name": "best-practices",',
+        '  "description": "A package using versioning best-practices",',
+        '  "author": "Charlie Robbins <charlie@nodejitsu.com>",',
+        '  "dependencies": {',
+        '    "colors": "0.x.x",',
+        '    "express": "2.3.x",',
+        '    "optimist": "0.2.x"',
+        '  },',
+        '  "devDependencies": {',
+        '    "vows": "0.5.x"',
+        '  },',
+        '  "engine": "node >= 0.4.1"',
+        '}',
+      ].join('\n');
+      yield fsAsync.writeFile(packageJsonPath, packageJsonContent);
+      var realRulesFolder = path.join(__dirname, '../../azk/generator/rules');
+      court = new Court(realRulesFolder, UI);
+    });
   });
 
   it('rules should return all relevant files', function() {
