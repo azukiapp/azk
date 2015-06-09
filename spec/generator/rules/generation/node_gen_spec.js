@@ -20,10 +20,9 @@ describe('Azk generator generation node rule', function() {
   var generateAndReturnManifest = (folder) => {
     var manifest = path.join(folder, config('manifest'));
     return generator.findSystems(folder).then(function (all_systems) {
-      generator.render({
-        systems: all_systems,
-      }, manifest);
-      return new Manifest(folder);
+      return generator.render({ systems: all_systems }, manifest).then(function() {
+        return new Manifest(folder);
+      });
     });
   };
 

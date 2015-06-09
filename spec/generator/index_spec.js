@@ -50,9 +50,10 @@ describe('Azk generator tool index:', function() {
     // Generates manifest file
     var generate_manifest = (dir, data) => {
       var file = path.join(dir, config('manifest'));
-      generator.render(data, file);
-      var manifest = new Manifest(dir);
-      return manifest;
+      return generator.render(data, file).then(function() {
+        var manifest = new Manifest(dir);
+        return manifest;
+      });
     };
 
     var export_db = '#{envs.USER}:#{envs.PASSWORD}@#{net.host}:#{net.port.3666}';
@@ -64,56 +65,61 @@ describe('Azk generator tool index:', function() {
         }
       });
 
-      var manifest = generate_manifest(dir, extra);
-      return fsAsync.readFile(manifest.file).then(function (data) {
-        h.expect(data.toString()).to.match(/^\s{2}db: {$/m);
-        h.expect(data.toString()).to.match(/^\s{6}RACK_ENV: "dev",$/m);
-        h.expect(data.toString()).to.match(/^\s{6}'F-O_O': "BAR",$/m);
+      return generate_manifest(dir, extra).then(function(manifest) {
+        return fsAsync.readFile(manifest.file).then(function (data) {
+          h.expect(data.toString()).to.match(/^\s{2}db: {$/m);
+          h.expect(data.toString()).to.match(/^\s{6}RACK_ENV: "dev",$/m);
+          h.expect(data.toString()).to.match(/^\s{6}'F-O_O': "BAR",$/m);
+        });
       });
 
     });
 
     it('should generete a valid manifest file', function() {
-      var manifest = generate_manifest(dir, default_data);
-      var system   = manifest.systemDefault;
-      var name     = path.basename(dir);
+      return generate_manifest(dir, default_data).then(function(manifest) {
+        var system   = manifest.systemDefault;
+        var name     = path.basename(dir);
 
-      h.expect(system).to.have.deep.property('name', 'front');
-      h.expect(system).to.have.deep.property('image.name', 'base:0.1');
-      h.expect(system).to.have.deep.property('depends').and.to.eql(['db']);
-      h.expect(system).to.have.deep.property('options.workdir', '/azk/' + name);
-      h.expect(system).to.have.deep.property('options.scalable').and.ok;
-      h.expect(system).to.have.deep.property('options.command')
-        .and.to.eql('bundle exec rackup config.ru');
+        h.expect(system).to.have.deep.property('name', 'front');
+        h.expect(system).to.have.deep.property('image.name', 'base:0.1');
+        h.expect(system).to.have.deep.property('depends').and.to.eql(['db']);
+        h.expect(system).to.have.deep.property('options.workdir', '/azk/' + name);
+        h.expect(system).to.have.deep.property('options.scalable').and.ok;
+        h.expect(system).to.have.deep.property('options.command')
+          .and.to.eql('bundle exec rackup config.ru');
+      });
     });
 
     it('should generate a mounts options', function() {
-      var manifest = generate_manifest(dir, default_data);
-      var system   = manifest.systemDefault;
-      var name     = path.basename(dir);
+      return generate_manifest(dir, default_data).then(function(manifest) {
+        var system   = manifest.systemDefault;
+        var name     = path.basename(dir);
 
-      var persist_base = config('paths:persistent_folders');
-      persist_base = path.join(persist_base, manifest.namespace);
+        var persist_base = config('paths:persistent_folders');
+        persist_base = path.join(persist_base, manifest.namespace);
 
-      var mounts = system.mounts;
-      h.expect(system).to.have.property('mounts');
+        var mounts = system.mounts;
+        h.expect(system).to.have.property('mounts');
 
-      if (config('agent:requires_vm')) {
-        h.expect(mounts).to.have.property('/azk/root', config('agent:vm:mount_point') + '/');
-      } else {
-        h.expect(mounts).to.have.property('/azk/root', '/');
-      }
-      h.expect(mounts).to.have.property('/azk/data', path.join(persist_base, 'data'));
-      h.expect(mounts).to.have.property('/azk/' + name, utils.docker.resolvePath(manifest.manifestPath));
+        if (config('agent:requires_vm')) {
+          h.expect(mounts).to.have.property('/azk/root', config('agent:vm:mount_point') + '/');
+        } else {
+          h.expect(mounts).to.have.property('/azk/root', '/');
+        }
+
+        h.expect(mounts).to.have.property('/azk/' + name, utils.docker.resolvePath(manifest.manifestPath));
+        h.expect(mounts).to.have.property('/azk/data', path.join(persist_base, 'data'));
+      });
     });
 
     it('should generate export envs', function() {
-      var manifest = generate_manifest(dir, default_data);
-      var system   = manifest.system('db');
-      h.expect(system).to.have.deep.property('options.export_envs')
-        .and.to.eql({
-          DB_URL: '#{envs.USER}:#{envs.PASSWORD}@#{net.host}:#{net.port.3666}'
-        });
+      return generate_manifest(dir, default_data).then(function(manifest) {
+        var system   = manifest.system('db');
+        h.expect(system).to.have.deep.property('options.export_envs')
+          .and.to.eql({
+            DB_URL: '#{envs.USER}:#{envs.PASSWORD}@#{net.host}:#{net.port.3666}'
+          });
+      });
     });
 
     it('should support instances in scalable', function() {
@@ -122,21 +128,23 @@ describe('Azk generator tool index:', function() {
           scalable: { default: 5 }
         }
       }});
-      var manifest = generate_manifest(dir, data);
-      var system   = manifest.systemDefault;
+      return generate_manifest(dir, data).then(function(manifest) {
+        var system   = manifest.systemDefault;
 
-      h.expect(system).to.have.deep.property('options.scalable')
-        .and.eql({ default: 5});
+        h.expect(system).to.have.deep.property('options.scalable')
+          .and.eql({ default: 5});
+      });
     });
 
     describe('with httop options', function() {
       it('should generate a simple default host name', function() {
-        var manifest  = generate_manifest(dir, default_data);
-        var system    = manifest.systemDefault;
-        var re_domain = RegExp(h.escapeRegExp(`${system.name}.${config('agent:balancer:host')}`));
+        return generate_manifest(dir, default_data).then(function(manifest) {
+          var system    = manifest.systemDefault;
+          var re_domain = RegExp(h.escapeRegExp(`${system.name}.${config('agent:balancer:host')}`));
 
-        h.expect(system).to.have.deep.property('hosts').and.length(1);
-        h.expect(system).to.have.deep.property('hosts[0]').and.match(re_domain);
+          h.expect(system).to.have.deep.property('hosts').and.length(1);
+          h.expect(system).to.have.deep.property('hosts[0]').and.match(re_domain);
+        });
       });
 
       it('should generate a multiple hosts', function() {
@@ -146,14 +154,15 @@ describe('Azk generator tool index:', function() {
           'custom.#{azk.default_domain}',
         ];
 
-        var manifest   = generate_manifest(dir, data);
-        var system     = manifest.systemDefault;
-        var re_default = RegExp(h.escapeRegExp(`${system.name}.${config('agent:balancer:host')}`));
-        var re_custom  = RegExp(h.escapeRegExp(`custom.${config('agent:balancer:host')}`));
+        return generate_manifest(dir, data).then(function(manifest) {
+          var system     = manifest.systemDefault;
+          var re_default = RegExp(h.escapeRegExp(`${system.name}.${config('agent:balancer:host')}`));
+          var re_custom  = RegExp(h.escapeRegExp(`custom.${config('agent:balancer:host')}`));
 
-        h.expect(system).to.have.deep.property('hosts').and.length(2);
-        h.expect(system).to.have.deep.property('hosts[0]').and.match(re_default);
-        h.expect(system).to.have.deep.property('hosts[1]').and.match(re_custom);
+          h.expect(system).to.have.deep.property('hosts').and.length(2);
+          h.expect(system).to.have.deep.property('hosts[0]').and.match(re_default);
+          h.expect(system).to.have.deep.property('hosts[1]').and.match(re_custom);
+        });
       });
     });
   });

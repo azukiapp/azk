@@ -33,7 +33,7 @@ class Init extends CliController {
         systemsData = { [lazy.example_system.name]: lazy.example_system };
       }
 
-      generator.render({ systems: systemsData }, file);
+      yield generator.render({ systems: systemsData }, file);
       this.ui.ok(this.ui.tKeyPath(this.name, 'generated'), manifest);
 
       // Only show tips if is a git dir

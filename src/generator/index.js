@@ -1,10 +1,10 @@
-import { _, config, log } from 'azk';
+import { _, config, log, fsAsync } from 'azk';
 import { example_system } from 'azk/generator/rules';
+import { promiseResolve } from 'azk/utils/promises';
 import { UIProxy } from 'azk/cli/ui';
 import { Court } from 'azk/generator/court';
 
 var path = require('path');
-var fs   = require('fs');
 var Handlebars = require('handlebars');
 
 var template = path.join(
@@ -19,9 +19,13 @@ export class Generator extends UIProxy {
 
   get tpl() {
     if (!this._tpl) {
-      this._tpl = Handlebars.compile(fs.readFileSync(template).toString());
+      return fsAsync.readFile(template).then(function(content) {
+        content = content.toString();
+        this._tpl = Handlebars.compile(content);
+        return promiseResolve((data) => this._tpl(data));
+      }.bind(this));
     }
-    return this._tpl;
+    return promiseResolve((data) => this._tpl(data));
   }
 
   findSystems(dir) {
@@ -39,8 +43,9 @@ export class Generator extends UIProxy {
       },
     }, data);
 
-    var renderedTemplate = this.trim(this.tpl(data));
-    fs.writeFileSync(file, renderedTemplate);
+    return this.tpl.then(function (renderedTemplate) {
+      return fsAsync.writeFile(file, renderedTemplate(data));
+    });
   }
 
   trim(context) {

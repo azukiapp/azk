@@ -34,10 +34,9 @@ describe('Azk generator generation mysql rule', function() {
   var generateAndReturnManifest = (project) => {
     var manifest = path.join(project, config('manifest'));
     return generator.findSystems(project).then(function (all_systems) {
-      generator.render({
-        systems: all_systems,
-      }, manifest);
-      return new Manifest(project);
+      return generator.render({ systems: all_systems }, manifest).then(function() {
+        return new Manifest(project);
+      });
     });
   };
 
