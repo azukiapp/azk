@@ -1,4 +1,4 @@
-import { config, path, fs, _, utils } from 'azk';
+import { config, path, fsAsync, _, utils } from 'azk';
 import h from 'spec/spec_helper';
 import { Generator } from 'azk/generator';
 import { Manifest } from 'azk/manifest';
@@ -65,11 +65,12 @@ describe('Azk generator tool index:', function() {
       });
 
       var manifest = generate_manifest(dir, extra);
-      var data = fs.readFileSync(manifest.file).toString();
+      return fsAsync.readFile(manifest.file).then(function (data) {
+        h.expect(data.toString()).to.match(/^\s{2}db: {$/m);
+        h.expect(data.toString()).to.match(/^\s{6}RACK_ENV: "dev",$/m);
+        h.expect(data.toString()).to.match(/^\s{6}'F-O_O': "BAR",$/m);
+      });
 
-      h.expect(data).to.match(/^\s{2}db: {$/m);
-      h.expect(data).to.match(/^\s{6}RACK_ENV: "dev",$/m);
-      h.expect(data).to.match(/^\s{6}'F-O_O': "BAR",$/m);
     });
 
     it('should generete a valid manifest file', function() {
