@@ -332,9 +332,6 @@ describe("Azk manifest class, main set", function() {
           );
         });
       });
-
     });
-
   });
-
 });

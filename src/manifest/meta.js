@@ -35,7 +35,7 @@ export class Meta {
         this.__cache = null;
         return fsAsync.remove(path);
       }
-      return promiseResolve('cache_dir_exists does not exists');
+      return promiseResolve(false);
     }.bind(this));
   }
 
