@@ -22,7 +22,8 @@ var path = require('path');
   * ## Main Flow
   *
   * - Cmd Init():
-  *     var systemsData = generator.findSystems(cwd);
+  *     return generator.findSystems(cwd).then(function (systemsData) {
+  *     });
   *
   * - Generator findSystems(dir):
   *     this.court.judge(dir);
