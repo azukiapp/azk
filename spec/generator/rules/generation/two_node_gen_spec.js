@@ -1,7 +1,8 @@
-import { config, path, fs, fsAsync } from 'azk';
+import { config, path, fsAsync } from 'azk';
 import h from 'spec/spec_helper';
 import { Generator } from 'azk/generator';
 import { Manifest } from 'azk/manifest';
+import { async } from 'azk/utils/promises';
 
 describe('Azk generator generation two nodes systems', function() {
   var outputs = [];
@@ -11,20 +12,23 @@ describe('Azk generator generation two nodes systems', function() {
   var rootFolder;
 
   before(function() {
-    return h.tmp_dir().then((dir) => {
+    return async(this, function* () {
+      var dir = yield h.tmp_dir();
       rootFolder = dir;
 
       // `node 1` system folder
       var projectFolder = path.join(dir, 'node1');
-      fs.mkdirSync(projectFolder);
+      yield fsAsync.mkdirs(projectFolder);
+
       var  packageJson = path.join(projectFolder, 'package.json');
-      h.touchSync(packageJson);
+      yield fsAsync.createFile(packageJson);
 
       // `node 2` system folder
       projectFolder = path.join(dir, 'node2');
-      fs.mkdirSync(projectFolder);
+      yield fsAsync.mkdirs(projectFolder);
+
       packageJson = path.join(projectFolder, 'package.json');
-      h.touchSync(packageJson);
+      yield fsAsync.createFile(packageJson);
 
       return fsAsync.writeFile(packageJson, '');
     });

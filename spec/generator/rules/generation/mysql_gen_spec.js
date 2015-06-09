@@ -1,4 +1,4 @@
-import { config, path, fs, fsAsync } from 'azk';
+import { config, path, fsAsync } from 'azk';
 import h from 'spec/spec_helper';
 import { Generator } from 'azk/generator';
 import { Manifest } from 'azk/manifest';
@@ -14,16 +14,16 @@ describe('Azk generator generation mysql rule', function() {
     // Gemfile
     // -------
     projectFolder = path.join(dir, 'project');
-    fs.mkdirSync(projectFolder);
-    var  gemfilePath = path.join(projectFolder, 'Gemfile');
-    h.touchSync(gemfilePath);
-    var gemfileContent = [
-      'source \'https://rubygems.org\'',
-      '',
-      'gem \'rails\', \'4.1.6\'',
-      'gem \'mysql2\'',
-    ].join('\n');
-    return fsAsync.writeFile(gemfilePath, gemfileContent);
+    return fsAsync.mkdirs(projectFolder).then(function(){
+      var  gemfilePath = path.join(projectFolder, 'Gemfile');
+      var gemfileContent = [
+        'source \'https://rubygems.org\'',
+        '',
+        'gem \'rails\', \'4.1.6\'',
+        'gem \'mysql2\'',
+      ].join('\n');
+      return fsAsync.writeFile(gemfilePath, gemfileContent);
+    });
 
   });
 
