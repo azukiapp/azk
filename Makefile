@@ -183,4 +183,4 @@ ${PATH_MAC_PACKAGE}: ${AZK_PACKAGE_PREFIX}
 
 package_build: bootstrap $(FILES_TARGETS) copy_transpiled_files ${PATH_NODE_MODULES}
 
-.PHONY: bootstrap clean fast_clean package package_brew package_mac package_deb package_rpm package_build package_clean copy_files copy_transpiled_files fix_permissions creating_symbolic_links dependencies check_version slow_test test
+.PHONY: bootstrap clean package_brew package_mac package_deb package_rpm package_build package_clean copy_transpiled_files fix_permissions creating_symbolic_links dependencies check_version slow_test test
