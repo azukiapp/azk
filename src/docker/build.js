@@ -6,7 +6,6 @@ import { DockerBuildError } from 'azk/utils/errors';
 var lazy = lazy_require({
   JStream : 'jstream',
   XRegExp : ['xregexp', 'XRegExp'],
-  qfs     : 'q-io/fs',
   archiver: 'archiver',
 });
 
@@ -63,10 +62,10 @@ export function build(docker, options) {
 
     // Filter with .dockerignore
     var ignore  = path.join(cwd, '.dockerignore');
-    var exists_ignore = yield lazy.qfs.exists(ignore);
+    var exists_ignore = yield fsAsync.exists(ignore);
     if (exists_ignore) {
-      var ignore_content = yield lazy.qfs.read(ignore);
-      ignore_content = ignore_content.trim().split('\n');
+      var ignore_content = yield fsAsync.readFile(ignore);
+      ignore_content = ignore_content.toString().trim().split('\n');
       src = src.concat(ignore_content.map((entry) => `!${entry}`));
     }
 
