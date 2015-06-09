@@ -1,5 +1,6 @@
 import { CliController } from 'cli-router';
 import { _, config, fs, path, lazy_require, log } from 'azk';
+import { promiseResolve } from 'azk/utils/promises';
 
 var lazy = lazy_require({
   Generator: ['azk/generator'],
@@ -19,7 +20,7 @@ class Init extends CliController {
 
     if (fs.existsSync(file) && !params.force) {
       this.ui.fail(this.ui.tKeyPath(this.name, "already_exists"), manifest);
-      return 1;
+      return promiseResolve(1);
     }
 
     var systemsData = generator.findSystems(cwd);
@@ -38,7 +39,7 @@ class Init extends CliController {
       this.ui.tOutput(this.ui.tKeyPath(this.name, 'github'));
     }
 
-    return 0;
+    return promiseResolve(0);
   }
 
   showFilename() {

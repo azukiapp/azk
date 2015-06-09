@@ -54,11 +54,11 @@ describe('Azk cli, init controller', function() {
       var options = cli.router.cleanParams(cli.docopt(doc_opts));
 
       // Check generated manifest
-      var manifest = new Manifest(project);
-      var system   = manifest.systemDefault;
-      var name     = path.basename(project);
-
       return cli.run(doc_opts, run_options).then((code) => {
+        var manifest = new Manifest(project);
+        var system   = manifest.systemDefault;
+        var name     = path.basename(project);
+
         h.expect(code).to.equal(0);
         h.expect(options).to.have.property('path', null);
         h.expect(options).to.have.property('filename', false);

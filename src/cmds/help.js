@@ -1,12 +1,13 @@
 import { CliControllers } from 'cli-router';
 import { _, t } from 'azk';
+import { promiseResolve } from 'azk/utils/promises';
 
 class Help extends CliControllers.Help {
   index(params, cli) {
     var usage = super.index(params, cli);
     usage = this.colorizeSections(params, usage);
     this.ui.output(usage);
-    return 0;
+    return promiseResolve(0);
   }
 
   colorizeSections(params, usage) {
