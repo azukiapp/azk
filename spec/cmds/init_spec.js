@@ -21,7 +21,7 @@ describe('Azk cli, init controller', function() {
     before(() => {
       return h.tmp_dir().then((project) => {
         run_options.cwd = project;
-        h.touchSync(path.join(project, manifest));
+        return fsAsync.createFile(path.join(project, manifest));
       });
     });
 
