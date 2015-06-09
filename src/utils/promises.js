@@ -152,6 +152,10 @@ var PromisesHelper = {
     return BB.promisifyAll(...args);
   },
 
+  mapPromises(...args) {
+    return BB.map(...args);
+  },
+
 };
 
 module.exports = PromisesHelper;

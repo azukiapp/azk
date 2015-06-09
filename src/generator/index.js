@@ -26,8 +26,9 @@ export class Generator extends UIProxy {
 
   findSystems(dir) {
     log.debug('court.judge(\'%s\')', dir);
-    this.court.judge(dir);
-    return this.court.systems_suggestions;
+    return this.court.judge(dir).then(function () {
+      return this.court.systems_suggestions;
+    }.bind(this));
   }
 
   render(data, file) {

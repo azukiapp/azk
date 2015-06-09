@@ -1,10 +1,10 @@
-import { _, log } from 'azk';
+import { _, log, fsAsync } from 'azk';
+import { async, mapPromises } from 'azk/utils/promises';
 import { UIProxy } from 'azk/cli/ui';
 import { SugestionChooser } from 'azk/generator/sugestion_chooser';
 
 var glob = require('glob');
 var path = require('path');
-var fs   = require('fs');
 
 /**
   * -------------------
@@ -145,49 +145,52 @@ export class Court extends UIProxy {
   }
 
   _investigate(dir) {
-    var evidences = [],
-        filesToSearch = [],
-        relevantFiles = [],
-        projectFiles = [];
+    return async(this, function* () {
+      var evidences = [],
+          filesToSearch = [],
+          relevantFiles = [],
+          projectFiles = [];
 
-    // rules's files to search
-    filesToSearch = _.map(this.rules, (rule) => {
-      return rule.relevantsFiles();
-    });
-    filesToSearch = _.flatten(filesToSearch);
-    log.debug('Court._investigate', { filesToSearch });
-
-    // relevant files in the project folders
-    projectFiles = this._relevantProjectFiles(
-      dir, filesToSearch);
-
-    projectFiles = _.flatten(projectFiles);
-    projectFiles = _.union(projectFiles);
-    log.debug('Court._investigate', { projectFiles });
-
-    // relevant files with its contents
-    relevantFiles = _.map(projectFiles, (fullpath) => {
-      return {
-        fullpath: fullpath,
-        content: fs.readFileSync(fullpath).toString()
-      };
-    });
-
-    // get evidence for each rule
-    _.forEach (relevantFiles, function(file) {
-      var basename = path.basename(file.fullpath);
-      _.forEach(this.rules, function(rule) {
-        var isRelevantFile = _.contains(rule.relevantsFiles(), basename);
-        if (isRelevantFile) {
-          var evidence = rule.getEvidence(file.fullpath, file.content);
-          if (evidence) {
-            evidences.push(evidence);
-          }
-        }
+      // rules's files to search
+      filesToSearch = _.map(this.rules, (rule) => {
+        return rule.relevantsFiles();
       });
-    }, this);
+      filesToSearch = _.flatten(filesToSearch);
+      log.debug('Court._investigate', { filesToSearch });
 
-    this.__evidences = evidences;
+      // relevant files in the project folders
+      projectFiles = this._relevantProjectFiles(dir, filesToSearch);
+
+      projectFiles = _.flatten(projectFiles);
+      projectFiles = _.union(projectFiles);
+      log.debug('Court._investigate', { projectFiles });
+
+      // relevant files with its contents
+      relevantFiles = yield mapPromises(projectFiles, function(fullpath) {
+        return async(this, function* () {
+          var content = yield fsAsync.readFile(fullpath);
+          return {
+            fullpath: fullpath,
+            content: content.toString()
+          };
+        });
+      });
+
+      // get evidence for each rule
+      _.forEach (relevantFiles, function(file) {
+        var basename = path.basename(file.fullpath);
+        _.forEach(this.rules, function(rule) {
+          var isRelevantFile = _.contains(rule.relevantsFiles(), basename);
+          if (isRelevantFile) {
+            var evidence = rule.getEvidence(file.fullpath, file.content);
+            if (evidence) {
+              evidences.push(evidence);
+            }
+          }
+        });
+      }, this);
+      this.__evidences = evidences;
+    });
   }
 
   _replacesEvidences() {
@@ -345,9 +348,10 @@ export class Court extends UIProxy {
 
   judge(dir) {
     this.__root_folder = dir;
-    this._investigate(dir);
-    this._analysis();
-    this._veredict();
+    return this._investigate(dir).then(function () {
+      this._analysis();
+      this._veredict();
+    }.bind(this));
   }
 
 }
