@@ -1,4 +1,5 @@
-import { config, path, fs, fsAsync } from 'azk';
+import { config, path, fsAsync } from 'azk';
+import { async } from 'azk/utils/promises';
 import h from 'spec/spec_helper';
 import { Generator } from 'azk/generator';
 import { Manifest } from 'azk/manifest';
@@ -12,37 +13,40 @@ describe('Azk generator db', function() {
   var rootFolderBasename;
 
   before(function() {
-    return h.tmp_dir().then((dir) => {
+    return async(this, function* () {
+      var dir;
+      var projectFolder;
+      var gemfilePath;
+      var gemfileContent;
+
+      dir = yield h.tmp_dir();
       // save root dir
       rootFolder = dir;
       rootFolderBasename = path.basename(dir);
 
-      //create rails folder with mysql dependency
-      var projectFolder = path.join(rootFolder, 'railsMysql');
-      fs.mkdirSync(projectFolder);
-      var gemfilePath = path.join(projectFolder, 'Gemfile');
-      h.touchSync(gemfilePath);
-      var gemfileContent = [
+      // rails + mysql
+      projectFolder = path.join(rootFolder, 'railsMysql');
+      yield fsAsync.mkdirs(projectFolder);
+      gemfilePath = path.join(projectFolder, 'Gemfile');
+      gemfileContent = [
         'source \'https://rubygems.org\'',
         '',
         'gem \'rails\', \'4.1.6\'',
         'gem \'mysql2\'',
       ].join('\n');
-      return fsAsync.writeFile(gemfilePath, gemfileContent);
-    }).then(() => {
+      yield fsAsync.writeFile(gemfilePath, gemfileContent);
 
-      //create rails folder with postgres dependency
-      var projectFolder = path.join(rootFolder, 'railsPostgres');
-      fs.mkdirSync(projectFolder);
-      var gemfilePath = path.join(projectFolder, 'Gemfile');
-      h.touchSync(gemfilePath);
-      var gemfileContent = [
+      // rails + postgres
+      projectFolder = path.join(rootFolder, 'railsPostgres');
+      yield fsAsync.mkdirs(projectFolder);
+      gemfilePath = path.join(projectFolder, 'Gemfile');
+      gemfileContent = [
         'source \'https://rubygems.org\'',
         '',
         'gem \'rails\', \'4.1.6\'',
         'gem \'pg\'',
       ].join('\n');
-      return fsAsync.writeFile(gemfilePath, gemfileContent);
+      yield fsAsync.writeFile(gemfilePath, gemfileContent);
     });
   });
 
