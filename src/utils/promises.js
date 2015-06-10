@@ -1,6 +1,14 @@
 var BB = require('bluebird');
-var _ = require('lodash');
-BB.longStackTraces();
+var _  = require('lodash');
+
+BB.onPossiblyUnhandledRejection((error) => {
+  var log = require('azk/utils/log').log;
+  error = error.stack ? error.stack : error;
+  log.warn('[promise]', error);
+  if (process.env.BLUEBIRD_DEBUG) {
+    console.error(error);
+  }
+});
 
 var PromisesHelper = {
   __esModule: true,
