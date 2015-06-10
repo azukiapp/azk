@@ -28,6 +28,7 @@ export function cli(args, cwd, ui = UI) {
       .route('doctor')
       .route('info')
       .route('init')
+      .route('add')
       .route('scale')
       .route('shell')
       .route('status')

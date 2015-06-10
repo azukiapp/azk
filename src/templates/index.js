@@ -1,13 +1,11 @@
-import { _, Q, async, utils, lazy_require, path } from 'azk';
+import { _, utils, lazy_require, path, fsAsync } from 'azk';
 import { UIProxy } from 'azk/cli/ui';
 import { ManifestError } from 'azk/utils/errors';
+import { async, nfcall, promiseResolve } from 'azk/utils/promises';
 
-var qfs   = require('q-io/fs');
-var check = require('syntax-error');
-
-/* global runInNewContext */
-lazy_require(this, {
+var lazy = lazy_require({
   runInNewContext: ['vm'],
+  check: 'syntax-error',
 });
 
 var not_implemented = function() {
@@ -87,19 +85,19 @@ export class Template extends UIProxy {
   }
 
   static fetch(source, user_interface) {
-    return qfs.read(source)
+    return fsAsync.readFile(source)
       .then((content) => {
         return new this(content, source, user_interface);
       });
   }
 
   parse() {
-    var err = check(this.content, this.source);
+    var err = lazy.check(this.content, this.source);
     if (err) {
       throw new ManifestError(this.source, err);
     } else {
       try {
-        runInNewContext(this.content, Template.createDslContext(this), this.source);
+        lazy.runInNewContext(this.content, Template.createDslContext(this), this.source);
       } catch (e) {
         if (!(e instanceof ManifestError)) {
           var stack = e.stack.split('\n');
@@ -188,9 +186,9 @@ export class Template extends UIProxy {
 
   _callOrResolve(func, context) {
     if (_.isFunction(func)) {
-      return Q.nfcall(func, context);
+      return nfcall(func, context);
     } else {
-      return Q();
+      return promiseResolve();
     }
   }
 
@@ -200,7 +198,7 @@ export class Template extends UIProxy {
       _.each(this.envs, (v, k) => {
         return envs_str += `${k}=${v}\r\n`;
       });
-      return yield qfs.append(path.join(manifest.manifestPath, '.env'), envs_str);
+      return yield fsAsync.appendFile(path.join(manifest.manifestPath, '.env'), envs_str);
     });
   }
 

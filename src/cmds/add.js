@@ -1,33 +1,29 @@
-// import { _, async, config, fs, path, lazy_require, log } from 'azk';
-import { _ } from 'azk';
-import { async, lazy_require, path } from 'azk';
-import { InteractiveCmds } from 'azk/cli/interactive_cmds';
+import { _, lazy_require, path } from 'azk';
+import { CliController } from 'cli-router';
 import { Helpers } from 'azk/cli/command';
 import { Template } from 'azk/templates';
+import { async } from 'azk/utils/promises';
 
-require('babel/polyfill');
-
-/* global Manifest, Generator */
-lazy_require(this, {
+var lazy = lazy_require({
   Manifest: ['azk/manifest'],
   Generator() {
     return require('azk/generator').Generator;
   },
 });
 
-class Cmd extends InteractiveCmds {
-  action(opts) {
+class Add extends CliController {
+  index(params) {
     return async(this, function* () {
       // TOOD: Should not require agent
-      yield Helpers.requireAgent(this);
+      yield Helpers.requireAgent(this.ui);
 
-      var generator = new Generator(this);
+      var generator = new lazy.Generator(this.ui);
 
-      var manifest = new Manifest(this.cwd, true);
-      Helpers.manifestValidate(this, manifest);
+      var manifest = new lazy.Manifest(this.cwd, true);
+      Helpers.manifestValidate(this.ui, manifest);
 
       // TOOD: Get template from a url
-      var template    = yield Template.fetch(opts.template, this);
+      var template    = yield Template.fetch(params.template, this.ui);
       var proc_result = yield template.process(manifest);
 
       var tmpFile = path.join('/tmp', 'tmp_Azkfile.js');
@@ -39,14 +35,12 @@ class Cmd extends InteractiveCmds {
       var result = yield azkParserCli.add(file, tmpFile, proc_result.depends);
 
       _.each(proc_result.systems, (system, name) => {
-        this.ok(this.tKeyPath('system_add'), { system: name, file: manifest._file_relative() });
-      })
+        this.ui.ok('commands.add.system_add', { system: name, file: manifest._file_relative() });
+      });
 
       return result;
     });
   }
 }
 
-export function init(cli) {
-  return new Cmd('add {*template}', cli);
-}
+module.exports = Add;
