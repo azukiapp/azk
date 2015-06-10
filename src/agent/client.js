@@ -1,6 +1,6 @@
 import { _, lazy_require, log } from 'azk';
 import { publish } from 'azk/utils/postal';
-import { defer, ninvoke } from 'azk/utils/promises';
+import { defer, promiseResolve, ninvoke } from 'azk/utils/promises';
 import { config, set_config } from 'azk';
 import { Agent } from 'azk/agent';
 import { AgentNotRunning } from 'azk/utils/errors';
@@ -129,24 +129,19 @@ var WebSocketClient = {
 };
 
 var Client = {
-  status(action_name) {
+  status(action_name, pub = true) {
     var status_obj = {
-      agent   : false,
+      agent   : Agent.agentPid().running,
       docker  : false,
       balancer: false,
     };
 
-    return defer((resolve) => {
-      if (Agent.agentPid().running) {
-        publish("agent.client.status", { type: "status", status: "running" });
-        status_obj.agent = true;
-      } else {
-        if (action_name !== 'start') {
-          publish("agent.client.status", { type: "status", status: "not_running" });
-        }
-      }
-      resolve(status_obj);
-    });
+    if (pub) {
+      var status = status_obj.agent ? "running" : "not_running";
+      publish("agent.client.status", { type: "status", status });
+    }
+
+    return promiseResolve(status_obj);
   },
 
   start(opts) {

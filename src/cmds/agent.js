@@ -40,7 +40,7 @@ class Agent extends CliTrackerController {
           params.configs = yield this.getConfig(true, params);
         } else {
           // And no running
-          var status = yield lazy.Client.status(opts.action);
+          var status = yield lazy.Client.status(opts.action, false);
           if (!status.agent) {
             // Check and load configures
             this.ui.warning('status.agent.wait');
