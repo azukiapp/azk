@@ -1,13 +1,16 @@
-import { _, t } from 'azk';
+import { _, t, lazy_require } from 'azk';
 import { defer, nfcall } from 'azk/utils/promises';
 import { AzkError } from 'azk/utils/errors';
 
 require('colors');
 
-var Table     = require('cli-table');
-var printf    = require('printf');
-var inquirer  = require('inquirer');
-var execShLib = require('exec-sh');
+var lazy = lazy_require({
+  'Table'    : 'cli-table',
+  'printf'   : 'printf',
+  'inquirer' : 'inquirer',
+  'execShLib': 'exec-sh',
+});
+
 var tables    = {};
 
 // Status labels
@@ -26,7 +29,7 @@ var UI = {
   },
 
   output(string, ...args) {
-    this.stdout().write(printf(string || "", ...args) + "\n");
+    this.stdout().write(lazy.printf(string || "", ...args) + "\n");
   },
 
   tOutput(...args) {
@@ -115,7 +118,7 @@ var UI = {
       delete(options.text);
     }
 
-    tables[name] = new Table(options);
+    tables[name] = new lazy.Table(options);
     return name;
   },
 
@@ -134,7 +137,7 @@ var UI = {
   // User interactions methods
   execSh(...args) {
     var result = (err) => { return (err) ? err.code : 0; };
-    return nfcall(execShLib, ...args).spread(result, result);
+    return nfcall(lazy.execShLib, ...args).spread(result, result);
   },
 
   prompt(questions) {
@@ -151,7 +154,7 @@ var UI = {
     });
 
     return defer((resolve) => {
-      inquirer.prompt(questions, (answers) => resolve(answers));
+      lazy.inquirer.prompt(questions, (answers) => resolve(answers));
     });
   },
 
