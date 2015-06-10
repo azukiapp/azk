@@ -12,7 +12,7 @@ rpm --import http://repo.azukiapp.com/keys/azuki.asc
 tee /etc/yum.repos.d/azuki.repo <<EOF
 [azuki]
 name=azk
-baseurl=${PACKAGE_URL}/${DISTRO}
+baseurl=http://package.azk.${AZK_NAMESPACE}/${DISTRO}
 enabled=1
 gpgcheck=1
 EOF

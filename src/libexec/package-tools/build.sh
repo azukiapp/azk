@@ -1,7 +1,7 @@
 #! /bin/bash
 
 if [[ $# < 1 ]]; then
-    echo "Usage: ${0##*/} {secret_key} [deb] [rpm] [mac] [--no-make] [--no-agent] [--no-test] [-v]"
+    echo "Usage: ${0##*/} [deb] [rpm] [mac] {--gpg-key=SECRET_KEY} [--release={nightly|rc|stable}] [--publish] [--no-make] [--no-agent] [--no-test] [-v]"
     exit 1
 fi
 
@@ -11,11 +11,9 @@ abs_dir() {
   if [ -z "$link" ]; then pwd; else abs_dir $link; fi
 }
 
+export PATH=${AZK_ROOT_PATH}/bin:$PATH
 export AZK_ROOT_PATH=`cd \`abs_dir ${BASH_SOURCE:-$0}\`/../../..; pwd`
 export AZK_BUILD_TOOLS_PATH=${AZK_ROOT_PATH}/src/libexec/package-tools
-
-export PATH=${AZK_ROOT_PATH}/bin:$PATH
-SECRET_KEY=$1; shift
 
 AZK_AGENT_LOG_FILE='/tmp/azk-agent-start.log'
 TEST_DIR='/tmp/azk-test'
@@ -23,32 +21,54 @@ TEST_PROJECT='https://github.com/azukiapp/azkdemo.git'
 
 while [[ $# -gt 0 ]]; do
     opt="$1"; shift
-    case "$opt" in
-        "--" ) break 2;;
-        "deb" )
+    case $opt in
+        -- ) break 2;;
+        deb )
             BUILD_DEB=true;;
-        "rpm" )
+        rpm )
             BUILD_RPM=true;;
-        "mac" )
+        mac )
             BUILD_MAC=true;;
-        "--no-make" )
+        --gpg-key=* )
+            SECRET_KEY="${opt#*=}";;
+        --release=* )
+            RELEASE_CHANNEL="${opt#*=}";;
+        --no-make )
             NO_MAKE=true;;
-        "--no-clean-linux" )
+        --no-clean-linux )
             NO_CLEAN_LINUX=true;;
-        "--no-agent" )
+        --no-agent )
             NO_AGENT=true;;
-        "--no-test" )
+        --no-test )
             NO_TEST=true;;
-        "-v" )
+        --publish )
+            PUBLISH=true;;
+        -v )
             VERBOSE=true;;
-        *) echo >&2 "Invalid option: $@"; exit 1;;
+        *) echo >&2 "Invalid option: $opt"; exit 1;;
    esac
 done
+
+[[ -z $RELEASE_CHANNEL ]] && RELEASE_CHANNEL='stable'
+
+case $RELEASE_CHANNEL in
+    nightly )
+        export AZK_BALANCER_IP=192.168.60.4;;
+    rc )
+        export AZK_BALANCER_IP=192.168.61.4;;
+    stable )
+        export AZK_BALANCER_IP=192.168.62.4;;
+    * ) echo >&2 "Invalid release channel: ${RELEASE_CHANNEL}." && exit 2;;
+esac
 
 if [[ -z $BUILD_DEB ]] && [[ -z $BUILD_RPM ]] && [[ -z $BUILD_MAC ]]; then
     BUILD_DEB=true
     BUILD_RPM=true
     BUILD_MAC=true
+fi
+
+if [[ ! -z $BUILD_DEB ]] || [[! -z $BUILD_RPM ]]; then
+    [[ ! -e $SECRET_KEY ]] && echo >&2 "Please inform an valid GPG key." && exit 3
 fi
 
 quiet() {
@@ -104,10 +124,16 @@ step_skip() {
 }
 
 start_agent() {
+    export AZK_NAMESPACE="${RELEASE_CHANNEL}.release.azk.io"
+    export AZK_BALANCER_HOST=$AZK_NAMESPACE
+    export AZK_VM_MEMORY=768
+
     azk agent stop
     sleep 3
 
-    AZK_VM_MEMORY=3072 ./bin/azk agent start --no-daemon > $AZK_AGENT_LOG_FILE 2>&1 &
+    sudo /usr/bin/create-resolver-file
+
+    ./bin/azk agent start --no-daemon > $AZK_AGENT_LOG_FILE 2>&1 &
     AGENT_PID="$!"
     tail -F $AZK_AGENT_LOG_FILE &
     TAIL_PID="$!"
