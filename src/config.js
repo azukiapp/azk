@@ -62,8 +62,8 @@ var options = mergeConfig({
       analytics         : path.join(data_path, azk_dir, "analytics"),
     },
     logs_level: {
-      console: (envs('AZK_DEBUG') ? 'debug' : 'warn'),
-      file: envs('AZK_LOG_LEVEL', 'info'),
+      console: (envs('AZK_DEBUG') ? 'debug' : envs('AZK_OUTPUT_LOG_LEVEL', 'error')),
+      file: envs('AZK_LOG_LEVEL', 'warn'),
     },
     docker: {
       socket        : envs('AZK_DOCKER_SOCKER', "/var/run/docker.sock"),
