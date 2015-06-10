@@ -11,10 +11,40 @@ describe('Azk generator tool index:', function() {
   describe('run in a directory', function() {
     var dir;
 
+    var default_data;
     before(() => {
       return h.tmp_dir().then((tmp) => {
         dir = tmp;
       });
+    });
+
+    beforeEach(function () {
+      default_data = {
+        systems: {
+          front: {
+            depends: ['db'],
+            workdir: '/azk/#{manifest.dir}',
+            image: { provider: 'docker', repository: 'base', tag: '0.1' },
+            scalable: true,
+            http: true,
+            mounts: {
+              '/azk/root': '/',
+              '/azk/#{manifest.dir}': { type: 'path', value: '.' },
+              '/azk/data': { type: 'persistent', value: 'data' },
+            },
+            command: 'bundle exec rackup config.ru',
+            envs: { RACK_ENV: 'dev' },
+          },
+          db: {
+            image: { docker: 'base' },
+            export_envs: { DB_URL: export_db }
+          }
+        },
+        defaultSystem: 'front',
+        bins: [
+          { name: 'console', command: ['bundler', 'exec'] }
+        ]
+      };
     });
 
     // Generates manifest file
@@ -26,33 +56,6 @@ describe('Azk generator tool index:', function() {
     };
 
     var export_db = '#{envs.USER}:#{envs.PASSWORD}@#{net.host}:#{net.port.3666}';
-
-    var default_data = {
-      systems: {
-        front: {
-          depends: ['db'],
-          workdir: '/azk/#{manifest.dir}',
-          image: { provider: 'docker', repository: 'base', tag: '0.1' },
-          scalable: true,
-          http: true,
-          mounts: {
-            '/azk/root': '/',
-            '/azk/#{manifest.dir}': { type: 'path', value: '.' },
-            '/azk/data': { type: 'persistent', value: 'data' },
-          },
-          command: 'bundle exec rackup config.ru',
-          envs: { RACK_ENV: 'dev' },
-        },
-        db: {
-          image: { docker: 'base' },
-          export_envs: { DB_URL: export_db }
-        }
-      },
-      defaultSystem: 'front',
-      bins: [
-        { name: 'console', command: ['bundler', 'exec'] }
-      ]
-    };
 
     it('should generate with a valid format', function() {
       var extra = _.merge({}, default_data, {
@@ -99,9 +102,8 @@ describe('Azk generator tool index:', function() {
       } else {
         h.expect(mounts).to.have.property('/azk/root', '/');
       }
-
-      h.expect(mounts).to.have.property('/azk/' + name, utils.docker.resolvePath(manifest.manifestPath));
       h.expect(mounts).to.have.property('/azk/data', path.join(persist_base, 'data'));
+      h.expect(mounts).to.have.property('/azk/' + name, utils.docker.resolvePath(manifest.manifestPath));
     });
 
     it('should generate export envs', function() {
