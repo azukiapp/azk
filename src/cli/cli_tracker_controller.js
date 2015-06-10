@@ -47,6 +47,12 @@ export class CliTrackerController extends CliController {
       });
   }
 
+  addDataToTracker(data) {
+    if (this.trackerEvent) {
+      return this.trackerEvent.addData(data);
+    }
+  }
+
   sendTrackerData() {
     if (this.trackerEvent) {
       return this.trackerEvent.send();
