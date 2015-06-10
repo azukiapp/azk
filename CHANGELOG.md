@@ -9,7 +9,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Cli] Fixing `start` (or `restart`) just opens the default system;
 
 * Enhancements
-  * [Suggesting] Now node.js suggestions have a env `PORT` for to get a `HTTP_PORT`, this change makes this suggestion more "compatible" with most of the apps that await env `PORT`.
   * [Code] Replaced Promises: Q with bluebird #386;
   * [Code] Replaced `q-io/fs` with `utils/file_async` a bluebird promisified `fs-extra` #386;
   * [Code] No more direct call to Q or any other Promise lib, only by `utils/promises` #386;
@@ -17,6 +16,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Code] Removing `async`, `defer`, `publish`, `subscribe` and `asyncUnsubscribe` from `azk` module;
   * [Cli] Replacing `cli` to [`cli-router`](https://github.com/azukiapp/cli-router), #382 #418 #259;
   * [Cli] Adding scripts to bash completion, #171;
+  * [Suggesting] Now node.js suggestions have a env `PORT` for to get a `HTTP_PORT`, this change makes this suggestion more "compatible" with most of the apps that await env `PORT`.
+  * [Suggesting] Refactor Rule and Suggestion base class;
+  * [Suggesting] Removing (trim) multiple new_line before generate a new Manifestfile;
+  * [Suggesting] Adding `elixir` suggestions;
+  * [Suggesting] Adding `elixir_phoenix` suggestions;
 
 ## v0.13.1 - (2015-30-05)
 
