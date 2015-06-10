@@ -92,6 +92,7 @@
     "xregexp": "^2.0.0"
   },
   "devDependencies": {
+    "archy": "^1.0.0",
     "azk-dev": "0.0.15",
     "babel": "^5.1.9",
     "chai-subset": "^1.0.0",
@@ -104,6 +105,7 @@
     "gulp-if": "^1.2.5",
     "gulp-rename": "^1.2.2",
     "hotswap": "^1.1.0",
+    "pretty-hrtime": "^1.0.0",
     "tmp": "0.0.23"
   }
 }
