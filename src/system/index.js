@@ -29,6 +29,7 @@ export class System {
 
     // Options
     this.__options = {};
+
     this.options   = _.merge({}, this.default_options, options);
     this.options   = this._expand_template(this.options);
   }

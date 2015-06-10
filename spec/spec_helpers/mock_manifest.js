@@ -47,16 +47,18 @@ export function extend(h) {
     var mounts    = {
       '/azk/#{manifest.dir}': '.'
     };
+
     var mounts_with_persitent = _.merge(mounts, {
       '/data': { type: 'persistent', value: 'data' },
     });
+
     var mounts_with_sync = {
       '/azk'           : { type: 'sync', value: '.' },
       '/azk/bin'       : { type: 'sync', value: 'bin', shell: true },
       '/azk/lib'       : { type: 'sync', value: 'lib', shell: true, daemon: false },
       '/azk/tmp'       : { type: 'persistent', value: 'tmp' },
       '/azk/log'       : { type: 'persistent', value: 'log' },
-    } ;
+    };
 
     // Data merge
     data = _.merge({
@@ -65,7 +67,7 @@ export function extend(h) {
           depends: ["db", "api"],
           workdir: '/azk/#{manifest.dir}',
           image: { docker: default_img },
-          mounts: mounts_with_persitent,
+          mounts: _.cloneDeep(mounts_with_persitent),
           scalable: { default: 3 },
           http: true,
           command, provision,
@@ -81,7 +83,7 @@ export function extend(h) {
           depends: ["db"],
           workdir: '/azk/#{manifest.dir}',
           image: { docker: default_img },
-          mounts: mounts,
+          mounts: _.cloneDeep(mounts),
           scalable: true,
           http: true,
           command, provision,
@@ -92,7 +94,7 @@ export function extend(h) {
         db: {
           workdir: '/azk/#{manifest.dir}',
           image: { docker: default_img },
-          mounts: mounts_with_persitent,
+          mounts: _.cloneDeep(mounts_with_persitent),
           scalable: false,
           envs: {
             USER: "username",
@@ -167,7 +169,7 @@ export function extend(h) {
         },
         'example-sync': {
           extends: "example",
-          mounts: mounts_with_sync,
+          mounts: _.cloneDeep(mounts_with_sync),
         },
       },
       defaultSystem: 'api',
