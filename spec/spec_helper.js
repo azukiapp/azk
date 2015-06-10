@@ -8,8 +8,7 @@ import Utils from 'azk/utils';
 var lazy = lazy_require({
   MemoryStream: 'memorystream',
   dirdiff : 'dirdiff',
-  tmp     : 'tmp',
-  touch   : 'touch',
+  tmp     : 'tmp'
 });
 
 var chai = require('azk-dev/chai');
@@ -46,10 +45,6 @@ var Helpers = {
     return nfcall(lazy.tmp.file, opts).spread((file) => {
       return Utils.resolve(file);
     });
-  },
-
-  touchSync(path) {
-    return lazy.touch.sync(path);
   },
 
   copyToTmp(origin) {

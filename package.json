@@ -83,7 +83,6 @@
     "source-map-support": "^0.2.10",
     "ssh2": "0.2.22",
     "syntax-error": "^1.1.0",
-    "touch": "0.0.3",
     "underscore": "^1.6.0",
     "vboxmanage": "git+https://github.com/nuxlli/node-vboxmanage",
     "which": "^1.0.5",
