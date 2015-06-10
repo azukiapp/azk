@@ -18,9 +18,13 @@ class Docker extends CliTrackerController {
         // Require agent is started
         yield Helpers.requireAgent(this.ui);
         var point = config('agent:vm:mount_point');
+        var extra_args = [];
         _path = utils.docker.resolvePath(this.cwd || '', point);
         args  = _.map(args, (arg) => arg.match(/^.* .*$/) ? `\\"${arg}\\"` : arg);
-        cmd   = `azk vm ssh -- 'cd ${_path}; docker ${args.join(" ")}'`;
+        if (this.ui.isInteractive()) {
+          extra_args.push("-t");
+        }
+        cmd = `azk vm ssh -- ${extra_args.join(" ")} 'cd ${_path}; docker ${args.join(" ")}'`;
       }
 
       log.debug("docker options: %s", cmd);
