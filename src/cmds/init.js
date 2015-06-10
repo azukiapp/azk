@@ -25,7 +25,7 @@ class Init extends CliController {
         return promiseResolve(1);
       }
 
-      var systemsData = generator.findSystems(cwd);
+      var systemsData = yield generator.findSystems(cwd);
       log.debug('generator.findSystems(\'%s\')', cwd);
 
       if (_.isEmpty(systemsData)) {

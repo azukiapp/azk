@@ -44,7 +44,8 @@ export class Generator extends UIProxy {
     }, data);
 
     return this.tpl.then(function (renderedTemplate) {
-      return fsAsync.writeFile(file, renderedTemplate(data));
+      var rendered_template_content = renderedTemplate(data);
+      return fsAsync.writeFile(file, rendered_template_content);
     });
   }
 
