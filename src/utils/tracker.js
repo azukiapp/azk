@@ -1,5 +1,5 @@
 import Azk from 'azk';
-import { _, config, log, t } from 'azk';
+import { _, config, log, t, lazy_require } from 'azk';
 import { meta as azkMeta } from 'azk';
 import { calculateHash } from 'azk/utils';
 import { promiseResolve } from 'azk/utils/promises';
@@ -7,7 +7,10 @@ import { promiseResolve } from 'azk/utils/promises';
 var util = require('util');
 var os = require('os');
 var osName = require('os-name');
-var InsightKeenIo = require('insight-keen-io');
+
+var lazy = lazy_require({
+  InsightKeenIo: 'insight-keen-io',
+});
 
 export class TrackerEvent {
   constructor(collection, tracker) {
@@ -92,9 +95,9 @@ export class Tracker {
       use_fork : true,
     }, opts);
 
-    this.ids_keys = ids_keys;
-    this.insight  = new InsightKeenIo(opts);
-    this.meta     = {
+    this.ids_keys      = ids_keys;
+    this.insight_opts  = opts;
+    this.meta          = {
       "ip_address"      : "${keen.ip}",
       "agent_session_id": this.loadAgentSessionId(),
       "command_id"      : this.generateRandomId('command_id'),
@@ -110,6 +113,13 @@ export class Tracker {
         "cpu_count"   : os.cpus().length
       }
     };
+  }
+
+  get insight() {
+    if (!this.__insight) {
+      this.__insight = new lazy.InsightKeenIo(this.insight_opts);
+    }
+    return this.__insight;
   }
 
   newEvent(collection, data = {}) {
