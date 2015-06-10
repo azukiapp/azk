@@ -26,6 +26,7 @@ class VM extends CliTrackerController {
 
   require_running(vm_info) {
     this.require_installed(vm_info);
+    log.info('[vm] vm is running: %s', vm_info.running);
     if (!vm_info.running) {
       throw new RequiredError("commands.vm.not_running");
     }
@@ -79,7 +80,7 @@ class VM extends CliTrackerController {
           return this.ui.execSh(script);
         });
     } catch (e) {
-      promiseReject(e);
+      result = promiseReject(e);
     }
     return result;
   }
