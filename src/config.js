@@ -41,10 +41,11 @@ var options = mergeConfig({
     },
     paths    : {
       azk_root,
-      data  : data_path,
-      logs  : paths.logs,
-      log   : path.join(paths.logs, 'azk.log'),
-      shared: path.join(azk_root, "shared"),
+      data   : data_path,
+      logs   : paths.logs,
+      log    : path.join(paths.logs, 'azk.log'),
+      shared : path.join(azk_root, "shared"),
+      locales: path.join(azk_root, "shared", "locales"),
 
       azk_meta          : path.join(data_path, azk_dir, "shared", "Azkfile.js"),
       pems              : path.join(paths.vm , '.docker'),
@@ -61,8 +62,8 @@ var options = mergeConfig({
       analytics         : path.join(data_path, azk_dir, "analytics"),
     },
     logs_level: {
-      console: (envs('AZK_DEBUG') ? 'debug' : 'warn'),
-      file: envs('AZK_LOG_LEVEL', 'info'),
+      console: (envs('AZK_DEBUG') ? 'debug' : envs('AZK_OUTPUT_LOG_LEVEL', 'error')),
+      file: envs('AZK_LOG_LEVEL', 'warn'),
     },
     docker: {
       socket        : envs('AZK_DOCKER_SOCKER', "/var/run/docker.sock"),

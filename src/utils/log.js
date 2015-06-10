@@ -30,9 +30,11 @@ _.each(winston.levels, (__, method) => {
 });
 
 log.setConsoleLevel = (level) => {
-  log.remove(winston.transports.Console);
-  console_opts.level = level;
-  log.add(winston.transports.Console, console_opts);
+  if (config('env') != 'test') {
+    log.remove(winston.transports.Console);
+    console_opts.level = level;
+    log.add(winston.transports.Console, console_opts);
+  }
 };
 
 export { log };

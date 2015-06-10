@@ -5,6 +5,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## dev
 
+* Bug
+  * [Cli] Fixing `start` (or `restart`) just opens the default system;
+
 * Enhancements
   * [Suggesting] Now node.js suggestions have a env `PORT` for to get a `HTTP_PORT`, this change makes this suggestion more "compatible" with most of the apps that await env `PORT`.
   * [Code] Replaced Promises: Q with bluebird #386;
@@ -12,6 +15,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Code] No more direct call to Q or any other Promise lib, only by `utils/promises` #386;
   * [Code] Removed `progress()` Promises helper. Included postal: subscribe and publish functions #385;
   * [Code] Removing `async`, `defer`, `publish`, `subscribe` and `asyncUnsubscribe` from `azk` module;
+  * [Cli] Replacing `cli` to [`cli-router`](https://github.com/azukiapp/cli-router), #382 #418 #259;
+  * [Cli] Adding scripts to bash completion, #171;
 
 ## v0.13.1 - (2015-30-05)
 

@@ -73,6 +73,12 @@ export class ProvisionNotFound extends AzkError {
   }
 }
 
+export class InvalidCommandError extends AzkError {
+  constructor(command, key = 'invalid_command_error') {
+    super(key);
+    this.command = command;
+  }
+}
 export class InvalidOptionError extends AzkError {
   constructor(option, key = 'invalid_option_error') {
     super(key);

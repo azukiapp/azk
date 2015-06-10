@@ -1,13 +1,11 @@
-import { Command } from 'azk/cli/command';
+import { CliTrackerController } from 'azk/cli/cli_tracker_controller.js';
 import Azk from 'azk';
 
-class HelpCmd extends Command {
-  action() {
-    this.output("azk %s", Azk.version);
+class Version extends CliTrackerController {
+  index() {
+    this.ui.output("azk %s", Azk.version);
     return 0;
   }
 }
 
-export function init(cli) {
-  (new HelpCmd('version', cli));
-}
+module.exports = Version;

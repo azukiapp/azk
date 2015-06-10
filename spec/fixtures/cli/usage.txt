@@ -1,0 +1,11 @@
+azk help
+
+Usage:
+  azk test_options -n=<kn>
+  azk [help | -h | --help]
+  azk --version
+
+Options:
+  -h, --help          Show this screen.
+  --version           Show version.
+  -n=<kn>, --number=<kn>   Receive a number [default: 10].

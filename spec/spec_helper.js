@@ -74,6 +74,13 @@ var Helpers = {
     );
   },
 
+  fixture_require_path(...fixture) {
+    var lib  = process.env.AZK_LIB_PATH || 'lib';
+    return Utils.resolve(
+      lib, 'spec', 'fixtures', ...fixture
+    );
+  },
+
   makeMemoryStream(...args) {
     return new lazy.MemoryStream(...args);
   },

@@ -1,23 +1,22 @@
+import { CliTrackerController } from 'azk/cli/cli_tracker_controller.js';
+import { Helpers } from 'azk/cli/helpers';
 import { _, lazy_require } from 'azk';
-import { async, defer, thenAll } from 'azk/utils/promises';
-import { InteractiveCmds } from 'azk/cli/interactive_cmds';
-import { Helpers } from 'azk/cli/command';
+import { defer, thenAll } from 'azk/utils/promises';
 
 var lazy = lazy_require({
   Manifest: ['azk/manifest'],
   docker: ['azk/docker', 'default'],
 });
 
-class Cmd extends InteractiveCmds {
-  action(opts) {
-    return async(this, function* () {
-      yield Helpers.requireAgent(this);
-
-      var manifest = new lazy.Manifest(this.cwd, true);
-      var systems  = manifest.getSystemsByName(opts.system);
-
-      yield this.logs(manifest, systems, opts);
-    });
+class Logs extends CliTrackerController {
+  index(opts) {
+    return Helpers.requireAgent(this.ui)
+      .then(() => {
+        var manifest = new lazy.Manifest(this.cwd, true);
+        var systems  = manifest.getSystemsByName(opts.system);
+        return this.logs(manifest, systems, opts);
+      })
+      .then(() => 0);
   }
 
   make_out(output, name) {
@@ -55,7 +54,7 @@ class Cmd extends InteractiveCmds {
       stdout: true,
       stderr: true,
       tail: opts.lines,
-      timestamps: opts.timestamps,
+      timestamps: !opts['no-timestamps'],
     };
 
     if (opts.follow) {
@@ -82,10 +81,4 @@ class Cmd extends InteractiveCmds {
   }
 }
 
-export { Cmd };
-export function init(cli) {
-  (new Cmd('logs [system] [instances]', cli))
-    .addOption(['--follow', '--tail', '-f'], { default: false })
-    .addOption(['--lines', '-n'], { type: Number, default: "all" })
-    .addOption(['--timestamps'], { default: true });
-}
+module.exports = Logs;

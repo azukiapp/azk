@@ -1,22 +1,22 @@
-import { _, t, log, config, lazy_require } from 'azk';
-import { subscribe } from 'azk/utils/postal';
+import { CliTrackerController } from 'azk/cli/cli_tracker_controller.js';
+import { Helpers } from 'azk/cli/helpers';
+import { _, config, lazy_require, log, t } from 'azk';
 import { defer, asyncUnsubscribe } from 'azk/utils/promises';
-import { InteractiveCmds } from 'azk/cli/interactive_cmds';
-import { Helpers } from 'azk/cli/command';
+import { subscribe } from 'azk/utils/postal';
 
 var lazy = lazy_require({
-  Client : [ 'azk/agent/client' ],
-  spawn  : ['child-process-promise'],
-  net    : 'net',
+  Client      : [ 'azk/agent/client' ],
+  spawn       : ['child-process-promise'],
+  net         : 'net',
+  VMController: 'azk/cmds/vm',
 });
 
-class Cmd extends InteractiveCmds {
-
+class Agent extends CliTrackerController {
   get docker() {
     return require('azk/docker').default;
   }
 
-  action(opts) {
+  index(opts) {
     return this
       .callAgent(opts)
       .then((result) => {
@@ -26,40 +26,41 @@ class Cmd extends InteractiveCmds {
   }
 
   callAgent(opts) {
+    var params = {
+      action: _.head(this.route.actions) || opts.action
+    };
     // Create a progress output
     var _subscription = subscribe('#.status', (data) => {
-      Helpers.vmStartProgress(this)(data);
+      Helpers.vmStartProgress(this.ui)(data);
     });
 
     return asyncUnsubscribe(this, _subscription, function* () {
-      switch (opts.action) {
-        case 'startchild':
-          opts.configs = yield this.getConfig(true, opts);
-          opts.action  = "start";
-          break;
-
-        case 'start':
+      if (params.action === 'start') {
+        if (opts.child) {
+          params.configs = yield this.getConfig(true, params);
+        } else {
           // And no running
-          var status = yield lazy.Client.status(opts.action);
+          var status = yield lazy.Client.status(opts.action, false);
           if (!status.agent) {
             // Check and load configures
-            this.warning('status.agent.wait');
-            opts.configs = yield this.getConfig(false, opts);
+            this.ui.warning('status.agent.wait');
+            params.configs = yield this.getConfig(false, params);
 
             // Remove and adding vm (to refresh vm configs)
-            if (config('agent:requires_vm') && opts['reload-vm']) {
-              var cmd_vm = this.parent.commands.vm;
-              yield cmd_vm.action({ action: 'remove', fail: () => {} });
+            if (config('agent:requires_vm') && !opts['no-reload-vm']) {
+              var cmd_vm = new lazy.VMController({ ui: this.ui });
+              yield cmd_vm.index({ action: 'remove', fail: () => {} });
             }
 
             // Generate a new tracker agent session id
-            this.tracker.generateNewAgentSessionId();
+            this.ui.tracker.generateNewAgentSessionId();
 
             // Spaw daemon
-            if (opts.daemon) {
-              return this.spawChild(opts);
+            if (!opts['no-daemon']) {
+              return this.spawChild(params);
             }
           }
+        }
       }
 
       // Changing directory for security
@@ -67,7 +68,6 @@ class Cmd extends InteractiveCmds {
 
       // use VM?
       var _agent_started_subscription = subscribe("agent.agent.started.event", (/* data, envelope */) => {
-
         // auto-unsubscribe
         _agent_started_subscription.unsubscribe();
 
@@ -94,9 +94,9 @@ class Cmd extends InteractiveCmds {
       });
 
       // Call action in agent
-      var promise = lazy.Client[opts.action](opts);
+      var promise = lazy.Client[params.action](params);
       return promise.then((result) => {
-        if (opts.action != "status") {
+        if (params.action != "status") {
           return result;
         }
         return (result.agent) ? 0 : 1;
@@ -104,9 +104,10 @@ class Cmd extends InteractiveCmds {
     });
   }
 
-  spawChild(cmd_options) {
-    var args = ["agent", "startchild", ..._.rest(process.argv, 4)];
-    var opts = {
+  spawChild(controller_params) {
+    var options = ["--child"].concat(process.argv.slice(4) || []);
+    var args    = _.uniq(["agent", "start", ...options]);
+    var params = {
       detached: true,
       stdio   : [null, null, null, 'pipe'],
       cwd     : config('paths:azk_root'),
@@ -116,9 +117,9 @@ class Cmd extends InteractiveCmds {
     return defer((resolve) => {
       this.installSignals(resolve);
       log.debug('fork process to start agent in daemon');
-      lazy.spawn("azk", args, opts)
+      lazy.spawn("azk", args, params)
         .progress((child) => {
-          this.child = child;
+          this.ui.child = child;
 
           // Conect outputs
           child.stderr.pipe(process.stderr);
@@ -138,7 +139,7 @@ class Cmd extends InteractiveCmds {
 
           // Send configs to child
           var pipe = child.stdio[3];
-          var buff = Buffer(JSON.stringify(cmd_options.configs));
+          var buff = Buffer(JSON.stringify(controller_params.configs));
           pipe.write(buff);
         })
         .then(() => { return 0; })
@@ -151,8 +152,8 @@ class Cmd extends InteractiveCmds {
     var gracefullExit = () => {
       if (!stopping) {
         stopping = true;
-        if (this.child) {
-          this.child.kill('SIGTERM');
+        if (this.ui.child) {
+          this.ui.child.kill('SIGTERM');
         } else {
           done(1);
         }
@@ -178,18 +179,10 @@ class Cmd extends InteractiveCmds {
           reject(err);
         }
       } else {
-        return Helpers.configure(this);
+        return Helpers.configure(this.ui);
       }
     });
   }
 }
 
-export function init(cli) {
-  cli = (new Cmd('agent {action}', cli))
-    .setOptions('action', { options: ['start', 'status', 'stop', 'startchild'], hidden: ['startchild'] })
-    .addOption(['--daemon'], { default: true });
-
-  if (config('agent:requires_vm')) {
-    cli.addOption(['--reload-vm'], { default: true });
-  }
-}
+module.exports = Agent;

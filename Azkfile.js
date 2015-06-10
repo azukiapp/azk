@@ -103,7 +103,7 @@ systems({
   'pkg-fedora-test'  : test_package_system('azukiapp/dind:fedora20'),
 
   grunt: {
-    image: { docker: "dockerfile/nodejs" },
+    image: { docker: "azukiapp/node" },
     workdir: "/azk/#{manifest.dir}",
     mounts: {
       "/azk/#{manifest.dir}": ".",
@@ -114,7 +114,7 @@ systems({
   },
 
   docs: {
-    image: { docker: "dockerfile/python" },
+    image: { docker: "azukiapp/python" },
     //provision: [
       //'export INSTALL_DIR=/azk/<%= manifest.dir %>/vendor/python',
       //'pip install --target=$INSTALL_DIR --install-option="--install-scripts=$INSTALL_DIR/bin" sphinx',

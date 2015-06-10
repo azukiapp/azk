@@ -32,12 +32,12 @@ var Helpers = {
       });
   },
 
-  askPermissionToTrack(cli) {
+  askPermissionToTrack(cli, force = false) {
     return async(this, function* () {
       // check if user already answered
       var trackerPermission = cli.tracker.loadTrackerPermission(); // Boolean
 
-      var should_ask_permission = (typeof trackerPermission === 'undefined');
+      var should_ask_permission = (force || typeof trackerPermission === 'undefined');
       if (should_ask_permission) {
         if (!cli.isInteractive()) { return false; }
 
