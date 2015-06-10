@@ -21,7 +21,7 @@ export function cli(args, cwd, ui = UI) {
       .route('help', (p, args) => p.help || p['--help'] || _.isEmpty(args))
       .route('version', (p) => p.version || p['--version'])
       // Commands
-      .route('agent', (p, args) => p.vm && /(start|status|stop)/.test(args))
+      .route('agent', (p, args) => p.agent && /(start|status|stop)/.test(args))
       .route('vm', (p, args) => p.vm && /(ssh|start|status|installed|stop|remove)/.test(args))
       .route('config')
       .route('docker')
