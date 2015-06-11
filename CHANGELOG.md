@@ -16,6 +16,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Code] Removing `async`, `defer`, `publish`, `subscribe` and `asyncUnsubscribe` from `azk` module;
   * [Cli] Replacing `cli` to [`cli-router`](https://github.com/azukiapp/cli-router), #382 #418 #259;
   * [Cli] Adding scripts to bash completion, #171;
+  * [Agent] The start process of the "agent" was redesigned to become safer and less complex. The code responsible for starting it in the background has been moved to the ./bin/bash;
   * [Suggesting] Now node.js suggestions have a env `PORT` for to get a `HTTP_PORT`, this change makes this suggestion more "compatible" with most of the apps that await env `PORT`.
   * [Suggesting] Refactor Rule and Suggestion base class;
   * [Suggesting] Removing (trim) multiple new_line before generate a new Manifestfile;
