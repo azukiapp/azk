@@ -40,8 +40,9 @@ export function cli(args, cwd, ui = UI) {
     result = azk_cli.run({
       argv: args.slice(2)
     }, {
-      ui: ui,
-      cwd: process.cwd()
+      args: args.slice(2),
+      ui  : ui,
+      cwd : process.cwd()
     });
   } catch (e) {
     result = (e instanceof InvalidCommandError) ?

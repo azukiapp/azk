@@ -1,7 +1,7 @@
 import { CliTrackerController } from 'azk/cli/cli_tracker_controller.js';
 import { Helpers } from 'azk/cli/helpers';
-import { _, config, lazy_require, log, t } from 'azk';
-import { defer, asyncUnsubscribe } from 'azk/utils/promises';
+import { _, config, lazy_require, log } from 'azk';
+import { asyncUnsubscribe } from 'azk/utils/promises';
 import { subscribe } from 'azk/utils/postal';
 
 var lazy = lazy_require({
@@ -36,62 +36,37 @@ class Agent extends CliTrackerController {
 
     return asyncUnsubscribe(this, _subscription, function* () {
       if (params.action === 'start') {
-        if (opts.child) {
-          params.configs = yield this.getConfig(true, params);
-        } else {
-          // And no running
-          var status = yield lazy.Client.status(opts.action, false);
-          if (!status.agent) {
-            // Check and load configures
-            this.ui.warning('status.agent.wait');
-            params.configs = yield this.getConfig(false, params);
-
-            // Remove and adding vm (to refresh vm configs)
-            if (config('agent:requires_vm') && !opts['no-reload-vm']) {
-              var cmd_vm = new lazy.VMController({ ui: this.ui });
-              yield cmd_vm.index({ action: 'remove', fail: () => {} });
-            }
-
-            // Generate a new tracker agent session id
-            this.ui.tracker.generateNewAgentSessionId();
-
-            // Spaw daemon
-            if (!opts['no-daemon']) {
-              return this.spawChild(params);
-            }
+        // And no running
+        var status = yield lazy.Client.status(opts.action, false);
+        if (!status.agent) {
+          // Run in daemon mode
+          if (!opts['no-daemon']) {
+            var args = _.clone(this.args);
+            var cmd  = `azk agent-daemon --no-daemon "${args.join('" "')}"`;
+            return this.ui.execSh(cmd, {
+              detached: false,
+              stdio: [ 'ignore', process.stdout, process.stderr ]
+            });
           }
+
+          // Check and load configures
+          this.ui.warning('status.agent.wait');
+          params.configs = yield Helpers.configure(this.ui);
+
+          // Remove and adding vm (to refresh vm configs)
+          if (config('agent:requires_vm') && !opts['no-reload-vm']) {
+            var cmd_vm = new lazy.VMController({ ui: this.ui });
+            yield cmd_vm.index({ action: 'remove', fail: () => {} });
+          }
+
+          // Generate a new tracker agent session id
+          this.ui.tracker.generateNewAgentSessionId();
+          this.trackStart();
         }
       }
 
       // Changing directory for security
       process.chdir(config('paths:azk_root'));
-
-      // use VM?
-      var _agent_started_subscription = subscribe("agent.agent.started.event", (/* data, envelope */) => {
-        // auto-unsubscribe
-        _agent_started_subscription.unsubscribe();
-
-        var vm_data = {};
-
-        if (config("agent:requires_vm")) {
-          vm_data = {
-            cpus: config("agent:vm:cpus"),
-            memory: config("agent:vm:memory")
-          };
-        }
-
-        // Track agent start
-        this.docker.version().then((result) => {
-          this.addDataToTracker({
-            vm: vm_data,
-            docker: {
-              version: result
-            }
-          });
-
-          return this.sendTrackerData();
-        });
-      });
 
       // Call action in agent
       var promise = lazy.Client[params.action](params);
@@ -104,83 +79,34 @@ class Agent extends CliTrackerController {
     });
   }
 
-  spawChild(controller_params) {
-    var options = ["--child"].concat(process.argv.slice(4) || []);
-    var args    = _.uniq(["agent", "start", ...options]);
-    var params = {
-      detached: true,
-      stdio   : [null, null, null, 'pipe'],
-      cwd     : config('paths:azk_root'),
-      env     : _.extend({}, process.env),
-    };
+  trackStart() {
+    // use VM?
+    var _subscription = subscribe("agent.agent.started.event", (/* data, envelope */) => {
+      // auto-unsubscribe
+      _subscription.unsubscribe();
 
-    return defer((resolve) => {
-      this.installSignals(resolve);
-      log.debug('fork process to start agent in daemon');
-      lazy.spawn("azk", args, params)
-        .progress((child) => {
-          this.ui.child = child;
+      var vm_data = {};
 
-          // Conect outputs
-          child.stderr.pipe(process.stderr);
-          child.stdout.pipe(process.stdout);
-
-          // Capture agent sucess
-          var started = new RegExp(t('status.agent.started'));
-          child.stderr.on('data', (data) => {
-            data = data.toString('utf8');
-            if (data.match(started)) {
-              child.stderr.unpipe(process.stderr);
-              child.stdout.unpipe(process.stdout);
-              process.kill(child.pid, 'SIGUSR2');
-              resolve(0);
-            }
-          });
-
-          // Send configs to child
-          var pipe = child.stdio[3];
-          var buff = Buffer(JSON.stringify(controller_params.configs));
-          pipe.write(buff);
-        })
-        .then(() => { return 0; })
-        .catch(() => { process.stdin.pause(); });
-    });
-  }
-
-  installSignals(done) {
-    var stopping = false;
-    var gracefullExit = () => {
-      if (!stopping) {
-        stopping = true;
-        if (this.ui.child) {
-          this.ui.child.kill('SIGTERM');
-        } else {
-          done(1);
-        }
+      if (config("agent:requires_vm")) {
+        vm_data = {
+          cpus: config("agent:vm:cpus"),
+          memory: config("agent:vm:memory")
+        };
       }
-    };
 
-    process.on('SIGTERM', gracefullExit);
-    process.on('SIGINT' , gracefullExit);
-    process.on('SIGQUIT', gracefullExit);
-  }
+      // Track agent start
+      this.docker.version().then((result) => {
+        this.addDataToTracker({
+          vm: vm_data,
+          docker: {
+            version: result
+          }
+        });
 
-  getConfig(waitpipe) {
-    return defer((resolve, reject) => {
-      if (waitpipe) {
-        try {
-          var pipe = new lazy.net.Socket({ fd: 3 });
-          pipe.on('data', (buf) => {
-            var configs = JSON.parse(buf.toString('utf8'));
-            pipe.end();
-            resolve(configs);
-          });
-        } catch (err) {
-          reject(err);
-        }
-      } else {
-        return Helpers.configure(this.ui);
-      }
+        return this.sendTrackerData();
+      }, (error) => {
+        log.info(error);
+      });
     });
   }
 }
