@@ -150,9 +150,7 @@ var Client = {
 
   stop(opts) {
     return defer(() => {
-      publish("agent.client.stop.status", { type: "status", status: "stopping" });
       return Agent.stop(opts).then((result) => {
-        if (result) { publish("agent.client.stop.status", { type: "status", status: "stopped" }); }
         return { agent: result };
       });
     });

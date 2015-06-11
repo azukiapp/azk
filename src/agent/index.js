@@ -46,9 +46,15 @@ var Agent = {
 
   // TODO: Capture agent error and show
   stop() {
-    if (this.stopping) { return promiseResolve(); }
+    if (this.stopping) { return promiseResolve(true); }
+    publish("agent.stop.status", { type: "status", status: "stopping" });
     var pid = this.agentPid();
-    return pid.killAndWait().catch(() => {
+    return pid.killAndWait()
+    .then((result) => {
+      if (result) { publish("agent.stop.status", { type: "status", status: "stopped" }); }
+      return result;
+    })
+    .catch(() => {
       throw new AgentStopError();
     });
   },
