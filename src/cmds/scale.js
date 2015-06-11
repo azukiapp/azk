@@ -6,13 +6,23 @@ import { async } from 'azk/utils/promises';
 import { AzkError } from 'azk/utils/errors';
 
 var lazy = lazy_require({
-  Manifest: ['azk/manifest'],
-  Status  : 'azk/cmds/status',
+  Manifest  : ['azk/manifest'],
+  Status    : 'azk/cmds/status',
+  GetProject: ['azk/manifest/get_project'],
 });
 
 class Scale extends CliTrackerController {
   index(opts) {
     return async(this, function* () {
+      // Button :)
+      if (this.name === "start") {
+        if (lazy.GetProject.valid(opts.system)) {
+          var getter = new lazy.GetProject(this.ui);
+          this.cwd = yield getter.run(opts.system, opts);
+          opts.system = null;
+        }
+      }
+
       yield Helpers.requireAgent(this.ui);
 
       var manifest = new lazy.Manifest(this.cwd, true);
