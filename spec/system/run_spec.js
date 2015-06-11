@@ -22,7 +22,7 @@ describe("Azk system class, run set", function() {
 
   describe("in valid azk project", function() {
     afterEach(() => {
-      manifest.cleanMeta();
+      return manifest.cleanMetaAsync();
     });
 
     it("should run a command in a shell for a system", function() {

@@ -300,8 +300,8 @@ export class Manifest {
     return this;
   }
 
-  cleanMeta(...args) {
-    return this.meta.clean(...args);
+  cleanMetaAsync(...args) {
+    return this.meta.cleanAsync(...args);
   }
 
   // Default system

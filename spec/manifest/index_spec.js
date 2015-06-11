@@ -51,8 +51,9 @@ describe("Azk manifest class, main set", function() {
     it("should support meta data", function() {
       manifest.setMeta('anykey', 'anyvalue');
       h.expect(manifest.getMeta('anykey')).to.equal('anyvalue');
-      manifest.cleanMeta();
-      h.expect(manifest.getMeta('anykey')).to.empty;
+      return manifest.cleanMetaAsync().then(function() {
+        return h.expect(manifest.getMeta('anykey')).to.empty;
+      });
     });
 
     it("should raise an error if not found a required system", function() {
