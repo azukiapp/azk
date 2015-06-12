@@ -1,13 +1,14 @@
 #! /bin/bash
 
-if [[ $# < 3 ]] || [[ $# > 4 ]]; then
-    echo "Usage: ${0##*/} {distro} {codename} {version} [--run-test-app]"
+if [[ $# < 4 ]] || [[ $# > 5 ]]; then
+    echo "Usage: ${0##*/} {distro} {codename} {version} {azk_namespace} [--run-test-app]"
     exit 1
 fi
 
 export DISTRO=$1; shift
 export CODENAME=$1; shift
 export VERSION=$1; shift
+export AZK_NAMESPACE=$1; shift
 
 BASE_DIR=$( echo $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd ) | sed s#$(pwd)/##g )
 
@@ -70,7 +71,7 @@ run_test() {
     fi
 
     if [[ $RUN_TEST_APP = true ]]; then
-        TEST_URL=$( azk status -t | tail -1 | awk '{print $3}' | sed -r "s:\x1B\[[0-9;]*[mK]::g" )
+        TEST_URL=$( azk status --text | tail -1 | awk '{print $3}' | sed -r "s:\x1B\[[0-9;]*[mK]::g" )
         RESULT=$( curl -sI $TEST_URL | head -1 | sed s/\\r//g)
         echo "GET ${TEST_URL}"
         echo "${RESULT}"
