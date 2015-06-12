@@ -1,20 +1,27 @@
 import { config, log, fsAsync } from 'azk';
 import { publish } from 'azk/utils/postal';
-import { async } from 'azk/utils/promises';
+import { async, promiseResolve } from 'azk/utils/promises';
 import { VM  }   from 'azk/agent/vm';
 import { Balancer } from 'azk/agent/balancer';
 import { Api } from 'azk/agent/api';
 import { VmStartError } from 'azk/utils/errors';
 
 var Server = {
+  starting: false,
+  stopping: false,
   server: null,
   vm_started: false,
+
+  // stop handler
+  stop_handler() {},
 
   // Warning: Only use test in mac
   vm_enabled: true,
 
   // TODO: log start machine steps
-  start() {
+  start(stop_handler) {
+    this.stop_handler = stop_handler;
+    this.starting = true;
     return async(this, function* () {
       log.info_t("commands.agent.starting");
 
@@ -30,16 +37,20 @@ var Server = {
       yield this.installBalancer();
 
       log.info_t("commands.agent.started");
+      this.starting = false;
     });
   },
 
   stop() {
+    if (this.stopping) { return promiseResolve(); }
+    this.stopping = true;
     return async(this, function* () {
       yield Api.stop();
       yield this.removeBalancer();
-      if (config('agent:requires_vm')) {
+      if (config('agent:requires_vm') && this.vm_started) {
         yield this.stopVM();
       }
+      this.stopping = false;
     });
   },
 
@@ -88,6 +99,8 @@ var Server = {
         }
       }
 
+      this._activeVMMonitor(vm_name);
+
       // Mount shared
       vm_publish("mounting");
       yield VM.mount(vm_name, "Root", config("agent:vm:mount_point"));
@@ -107,6 +120,26 @@ var Server = {
       }
     });
   },
+
+  _activeVMMonitor(vm_name) {
+    var interval, stop = () => {
+      clearTimeout(interval);
+      publish("agent.server.installVM.status", {
+        type: "status", context: "vm", status: "down"
+      });
+      return this.stop_handler();
+    };
+
+    interval = setInterval(() => {
+      if (this.stopping) {
+        return clearTimeout(interval);
+      }
+      VM.isRunnig(vm_name).then((result) => {
+        if (!result) { stop(); }
+      })
+      .catch(stop);
+    }, 5000);
+  }
 };
 
 export { Server };

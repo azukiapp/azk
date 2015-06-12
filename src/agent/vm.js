@@ -338,7 +338,7 @@ var vm = {
 
   // TODO: Move install to start
   start(vm_name, wait = false) {
-    log.debug("call to start vm %s", vm_name);
+    log.debug("[vm] call to start vm %s", vm_name);
     return Tools.async_status("vm", this, function* (status_change) {
       var info = yield vm.info(vm_name);
 
@@ -382,7 +382,7 @@ var vm = {
   },
 
   waitReady(vm_name, timeout) {
-    log.debug("waiting for the vm `%s` becomes available", vm_name);
+    log.debug("[vm] waiting for the vm `%s` becomes available", vm_name);
     return Tools.async_status("vm", this, function* (status_change) {
       var info = yield vm.info(vm_name);
       var key  = "/VirtualBox/D2D/Done";
@@ -391,7 +391,7 @@ var vm = {
         var status = yield guestproperty.get(vm_name, key);
         if (status.Value !== "true") {
           status_change("waiting");
-          status = yield guestproperty.wait(vm_name, key, timeout);
+          status = yield guestproperty.wait(vm_name, key, timeout, false);
           if (status.Value === "true") {
             status_change("ready");
             return true;

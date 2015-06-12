@@ -143,6 +143,7 @@ module.exports = {
       docker_keys: "Downloading required keys to connect to docker",
       mounting   : "Mounting the shared folder in virtual machine...",
       mounted    : "Shared folder has been successfully mounted.",
+      down       : "Virtual machine is down",
     },
 
     socat: {

@@ -97,9 +97,8 @@ var Helpers = {
           // running, starting, not_running, already_installed
           switch (event.status) {
             case "not_running":
-              cmd.fail([...keys].concat(event.status), event.data);
-              break;
             case "already_installed":
+            case "down":
               cmd.fail([...keys].concat(event.status), event.data);
               break;
             case "error":
