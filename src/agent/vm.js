@@ -405,14 +405,16 @@ var vm = {
     });
   },
 
-  stop(vm_name, force = false) {
-    log.debug("call to stop vm %s", vm_name);
+  // TODO: Add treatment to when the lock virtualbox
+  stop(vm_name, force = false, timeout = 30) {
+    log.debug("[vm] call to stop vm %s", vm_name);
 
     return Tools.async_status("vm", this, function* (status_change) {
       var info = yield vm.info(vm_name);
       if (info.running) {
         status_change("stopping");
 
+        var hrend, hrstart = process.hrtime();
         if (force) {
           yield instance.stop(vm_name);
         } else {
@@ -421,8 +423,14 @@ var vm = {
 
         // Wait for shutdown
         while (true) {
-          info = yield this.info(vm_name);
-          if (!info.running) {
+          info  = yield this.info(vm_name);
+          hrend = process.hrtime(hrstart);
+          // Force after timeout
+          if ((!force) && info.running && hrend[0] > timeout) {
+            force = true;
+            status_change("forced");
+            yield instance.stop(vm_name);
+          } else if (!info.running) {
             break;
           }
         }
