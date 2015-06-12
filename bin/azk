@@ -113,23 +113,29 @@ azk_main() {
       trap gracefulExit INT
       azk_node_run "${@}" > $AZK_AGENT_LOG_FILE 2>&1 &
       AGENT_PID="$!"
-      tail -n0 -f $AZK_AGENT_LOG_FILE &
+      tail -n0 -f $AZK_AGENT_LOG_FILE 2>/dev/null &
       TAIL_PID="$!"
+
+      kill_and_wait() {
+        kill -s TERM ${1} 2>/dev/null
+        while kill -0 ${1} 2>/dev/null; do
+          sleep 1;
+        done
+      }
 
       gracefulExit() {
         set +e
-        kill -s KILL ${TAIL_PID} || echo
-        kill -s TERM ${AGENT_PID} || echo
-        while kill -0 ${AGENT_PID} 2>/dev/null; do
-          sleep 1;
-        done
+        kill_and_wait ${AGENT_PID}
+        disown ${TAIL_PID}
+        kill_and_wait ${TAIL_PID}
+        echo "exit";
         exit 1;
       }
 
       # Wait for start
       until tail -1 $AZK_AGENT_LOG_FILE | grep -q 'Agent has been successfully started.'; do
-        sleep 2;
-        kill -0 ${AGENT_PID} || exit 1;
+        kill -0 ${AGENT_PID} 2>/dev/null || gracefulExit;
+        sleep 1;
       done
 
       kill -9 $TAIL_PID
