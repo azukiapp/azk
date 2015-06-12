@@ -1,18 +1,24 @@
 ## azk config
 
-Controls azk configuration options
+Controls azk configuration options.
 
 ### azk config track
 
 #### Usage:
 
-```
-$ azk config track-status
-```
+    $ azk config (track-toggle|track-status) [options]
 
-```
-$ azk config track-toggle
-```
+#### Actions:
+
+  track-toggle              Toggles tracking behavior on/off.
+  track-status              Shows tracking status (on or off).
+
+#### Options:
+
+  --quiet, -q               Never prompt.
+  --help, -h                Shows help usage.
+  --env=<data>, -e          Additional environment variables - multiple supported (`-e HTTP_PORT=5000 -e PORT=5000`).
+  --verbose, -v             Sets the level of detail - multiple supported (-vv == --verbose 2) [default: 0].
 
 #### Examples:
 

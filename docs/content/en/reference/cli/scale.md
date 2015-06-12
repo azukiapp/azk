@@ -1,52 +1,59 @@
 ## azk scale
 
-Increase/decrease the number of applications instances.
-
-#### Options:
-
-	- `--quiet, -q`           Never prompt (default: false)
-	- `--remove, -r`          Removes the instances before stopping (default: true)
-    - `--verbose, -v, -vv`    Sets the level of detail (default: false) - multiple supported
+  Scales (up or down) one or more systems.
 
 #### Usage:
 
-    $ azk [options] scale [options] [system] [to]
+    $ azk scale [<system>] [<to>] [options]
+
+#### Arguments:
+
+  system                    System name where the action will take place.
+  to                        Number of available instances after scaling.
+
+#### Options:
+
+  --no-remove, -r           Do not remove container instances after stopping.
+  --quiet, -q               Never prompt.
+  --help, -h                Shows help usage.
+  --log=<level>, -l         Sets a log level (default: error).
+  --verbose, -v             Sets the level of detail - multiple supported (-vv == --verbose 2) [default: 0].
 
 #### Example:
 
-###### Changes node010 system instances number to one.
+###### Changes azkdemo system instances number to one.
 
 ```
-$ azk scale node010 1
-azk: ↓ scaling `node010` system from 0 to 1 instances...
+$ azk scale azkdemo 1
+azk: ↓ scaling `azkdemo` system from 2 to 1 instances...
 
-┌───┬─────────┬───────────┬───────────────────────────┬─────────────────┬──────────────┐
-│   │ System  │ Instances │ Hostname/url              │ Instances-Ports │ Provisioned  │
-├───┼─────────┼───────────┼───────────────────────────┼─────────────────┼──────────────┤
-│ ↑ │ node010 │ 1         │ http://node010.dev.azk.io │ 1-http:49173    │ 2 months ago │
-└───┴─────────┴───────────┴───────────────────────────┴─────────────────┴──────────────┘
+┌───┬─────────┬───────────┬───────────────────────────┬─────────────────┬───────────────┐
+│   │ System  │ Instances │ Hostname/url              │ Instances-Ports │ Provisioned   │
+├───┼─────────┼───────────┼───────────────────────────┼─────────────────┼───────────────┤
+│ ↑ │ azkdemo │ 1         │ http://azkdemo.dev.azk.io │ 1-http:32771    │ 4 minutes ago │
+└───┴─────────┴───────────┴───────────────────────────┴─────────────────┴───────────────┘
 ```
 
 --------------
 
-###### Changes node010 system instances's number to 8.
+###### Changes azkdemo system instances's number to 4.
 
 ```
-$ azk scale node010 8
-azk: ↑ scaling `node010` system from 1 to 8 instances...
-azk: ✓ checking `library/node:0.10` image...
-azk: ◴ waiting for `node010` system to start, trying connection to port http/tcp...
-azk: ◴ waiting for `node010` system to start, trying connection to port http/tcp...
+$ azk scale azkdemo 4
+azk: ↑ scaling `azkdemo` system from 1 to 4 instances...
+azk: ✓ checking `azukiapp/node:0.12` image...
+azk: ⎘ syncing files for `azkdemo` system...
+azk: ◴ waiting for `azkdemo` system to start, trying connection to port http/tcp...
+azk: ◴ waiting for `azkdemo` system to start, trying connection to port http/tcp...
+azk: ◴ waiting for `azkdemo` system to start, trying connection to port http/tcp...
 
-┌───┬─────────┬───────────┬───────────────────────────┬────────────────────────────┬──────────────┐
-│   │ System  │ Instances │ Hostname/url              │ Instances-Ports            │ Provisioned  │
-├───┼─────────┼───────────┼───────────────────────────┼────────────────────────────┼──────────────┤
-│ ↑ │ node010 │ 8         │ http://node010.dev.azk.io │ 8-http:49218, 7-http:49217 │ 2 months ago │
-│   │         │           │                           │ 6-http:49216, 5-http:49215 │              │
-│   │         │           │                           │ 4-http:49214, 3-http:49213 │              │
-│   │         │           │                           │ 2-http:49212, 1-http:49211 │              │
-│   │         │           │                           │                            │              │
-└───┴─────────┴───────────┴───────────────────────────┴────────────────────────────┴──────────────┘
-
+┌───┬─────────┬───────────┬───────────────────────────┬────────────────────────────┬───────────────┐
+│   │ System  │ Instances │ Hostname/url              │ Instances-Ports            │ Provisioned   │
+├───┼─────────┼───────────┼───────────────────────────┼────────────────────────────┼───────────────┤
+│ ↑ │ azkdemo │ 4         │ http://azkdemo.dev.azk.io │ 4-http:32782, 3-http:32781 │ 6 minutes ago │
+│   │         │           │                           │ 2-http:32780, 1-http:32771 │               │
+│   │         │           │                           │                            │               │
+└───┴─────────┴───────────┴───────────────────────────┴────────────────────────────┴───────────────┘
 ```
-Each time the user accesses http://node010.dev.azk.io he will be redirected to one of _node010 system 8 instances_ by `azk`'s _load balancer_.
+
+Each time the user accesses http://azkdemo.dev.azk.io he will be redirected to one of _azkdemo system 4 instances_ by `azk`'s _load balancer_.

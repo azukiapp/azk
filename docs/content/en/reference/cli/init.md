@@ -1,23 +1,40 @@
 ## azk init
 
-Initializes the `Azkfile.js` file, and suggests an initial configuration based on systems contained within the current folder.
-
-#### Options:
-
-- `--force, -f`     Replaces the `Azkfile.js` file if it already exists (default: false)
+  Initializes a project by adding Azkfile.js.
 
 #### Usage:
 
-    $ azk [options] init [options] [path]
+  $ azk init [<path>] [--filename --force -q -h -l <level>] [-v]...
+
+#### Arguments:
+
+  path                      Path where manifest file can be found.
+
+#### Options:
+
+  --filename                Shows the manifest filename.
+  --force, -F               Force mode on.
+  --quiet, -q               Never prompt.
+  --help, -h                Shows help usage.
+  --log=<level>, -l         Sets a log level (default: error).
+  --verbose, -v             Sets the level of detail - multiple supported (-vv == --verbose 2) [default: 0].
 
 #### Example:
 
 ```
-$ azk init
+$ azk init -F
 
-azk init --force
-azk: `node` system was detected at 'azkfile-init-examples/node010' as 'node010'
-azk: `php` system was detected at 'azkfile-init-examples/phpSample' as 'phpSample'
-azk: `phplaravel` system was detected at 'azkfile-init-examples/phpLaravel' as 'phpLaravel'
-azk: `django` system was detected at 'azkfile-init-examples/django15' as 'django15'
+azk: [elixir-app] `A elixir` system was detected at '~/azuki/azkfile-init-examples/elixir_app'.
+azk: [elixir-app] The image suggested was `{"docker":"azukiapp/elixir"}`.
+
+azk: [elixir-phoenix] `A elixir_phoenix` system was detected at '~/azuki/azkfile-init-examples/elixir_phoenix'.
+azk: [elixir-phoenix] The image suggested was `{"docker":"azukiapp/elixir"}`.
+
+azk: [node012] `A node` system was detected at '~/azuki/azkfile-init-examples/node012'.
+azk: [node012] The image suggested was `{"docker":"azukiapp/node:0.12"}`.
+azk: 'Azkfile.js' generated
+
+Tip:
+  Adds the `.azk` to .gitignore
+  echo '.azk' >> .gitignore
 ```
