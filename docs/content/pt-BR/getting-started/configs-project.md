@@ -7,12 +7,18 @@ O `Azkfile.js` pode ser criado manualmente, mas para facilitar esse processo tem
 > Nota: Lembre-se que você ainda pode precisar editar o `Azkfile.js` gerado pelo `azk init` para que ele funcione corretamente com sua aplicação.
 
 ```bash
-$ cd [path_demo]/azkdemo
+$ cd azkdemo
 $ azk init
-
-azk: [node010] A `node` system was detected at '[path_demo]/azkdemo'.
-azk: [node010] The image suggested was `{"docker":"node:0.10"}`.
+azk: [azkdemo] A `node` system was detected at '/Users/gmmaster/Works/azuki/azkdemo'.
+azk: [azkdemo] The image suggested was `{"docker":"azukiapp/node:0.12"}`.
+azk: [azkdemo] ! It was not possible to detect the `node` specific version, so the standard version was suggested instead.
+azk: [azkdemo] ! To change the image version you must edit the `Azkfile.js` file.
+azk: [azkdemo] ! For more information see the documentation at http://docs.azk.io/en/images/index.html.
 azk: 'Azkfile.js' generated
+
+Tip:
+  Adds the `.azk` to .gitignore
+  echo '.azk' >> .gitignore
 ```
 
 Isso deve gerar o `Azkfile.js`:

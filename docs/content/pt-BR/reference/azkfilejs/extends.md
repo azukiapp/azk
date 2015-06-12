@@ -36,9 +36,9 @@ Outro exemplo:
 
 ```js
 systems({
-  node010: {
+  azkdemo: {
     depends: [],
-    image: {"docker": "node:0.10"},
+    image: {"docker": "azukiapp/node"},
     provision: [
       "npm install",
     ],
@@ -59,10 +59,10 @@ systems({
     },
   },
   other: {
-    extends: "node010",
+    extends: "azkdemo",
     envs: {
       NODE_ENV: "production",
-    }, 
+    },
   }
 });
 ```

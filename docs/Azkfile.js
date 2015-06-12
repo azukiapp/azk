@@ -5,7 +5,7 @@
 // Adds the systems that shape your system
 systems({
   'docs-azk': {
-    image: { docker: "node:0.10" },
+    image: { docker: "azukiapp/node" },
 
     // Steps to execute before running instances
     provision: [

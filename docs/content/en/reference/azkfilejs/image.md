@@ -60,7 +60,7 @@ image: { docker: "azukiapp/azktcl:0.0.2" },
 // Note that for the official docker images, it is not
 // necessary to inform the namespace (library, in this case).
 image: { docker: "node:0" },
-image: { docker: "node:0.10" },
+image: { docker: "azukiapp/node" },
 image: { docker: "node:latest" },
 // library/ is optional only in this case, for the standard Docker repositories
 image: { docker: "library/node:latest" },
