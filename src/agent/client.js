@@ -149,10 +149,15 @@ var Client = {
   },
 
   stop(opts) {
-    return defer(() => {
-      return Agent.stop(opts).then((result) => {
-        return { agent: result };
-      });
+    return this.status()
+    .then((status) => {
+      if (status.agent) {
+        return Agent.stop(opts).then((result) => {
+          return { agent: result };
+        });
+      } else {
+        return { agent: false };
+      }
     });
   },
 
