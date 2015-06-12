@@ -1,6 +1,6 @@
 import { _ } from 'azk';
 import { promiseResolve } from 'azk/utils/promises';
-import { UI as OriginalUI } from 'azk/cli/command';
+import { UI as OriginalUI } from 'azk/cli/ui';
 
 export function extend(h) {
   h.mockUI = function(func, outputs, extra) {
