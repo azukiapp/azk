@@ -30,8 +30,9 @@ class Agent extends CliTrackerController {
       action: _.head(this.route.actions) || opts.action
     };
     // Create a progress output
+    var view = Helpers.vmStartProgress(this.ui);
     var _subscription = subscribe('#.status', (data) => {
-      Helpers.vmStartProgress(this.ui)(data);
+      view(data);
     });
 
     return asyncUnsubscribe(this, _subscription, function* () {
@@ -43,11 +44,24 @@ class Agent extends CliTrackerController {
           if (!opts['no-daemon']) {
             var args = _.clone(this.args);
             var cmd  = `azk agent-daemon --no-daemon "${args.join('" "')}"`;
-            return this.ui.execSh(cmd, {
-              detached: false,
-              stdio: [ 'ignore', process.stdout, process.stderr ]
-            });
+            return this._runDaemon(cmd);
           }
+
+          // Save pid and connect signals
+          var stopping = false;
+          this._captureSignal(() => {
+            if (!stopping) {
+              stopping = true;
+              _subscription.unsubscribe();
+              view({
+                type  : "status",
+                status: "stopped"
+              });
+              status.pid.unlink();
+              this.ui.exit(1);
+            }
+          });
+          status.pid.update(process.pid);
 
           // Check and load configures
           this.ui.warning('status.agent.wait');
@@ -61,7 +75,7 @@ class Agent extends CliTrackerController {
 
           // Generate a new tracker agent session id
           this.ui.tracker.generateNewAgentSessionId();
-          this.trackStart();
+          this._trackStart();
         }
       }
 
@@ -79,7 +93,21 @@ class Agent extends CliTrackerController {
     });
   }
 
-  trackStart() {
+  _runDaemon(cmd) {
+    this._captureSignal(() => {});
+    return this.ui.execSh(cmd, {
+      detached: false,
+      stdio: [ 'ignore', process.stdout, process.stderr ]
+    });
+  }
+
+  _captureSignal(handler) {
+    process.on('SIGTERM', () => handler('SIGTERM'));
+    process.on('SIGINT' , () => handler('SIGINT'));
+    process.on('SIGQUIT', () => handler('SIGQUIT'));
+  }
+
+  _trackStart() {
     // use VM?
     var _subscription = subscribe("agent.agent.started.event", (/* data, envelope */) => {
       // auto-unsubscribe

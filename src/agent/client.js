@@ -130,8 +130,10 @@ var WebSocketClient = {
 
 var Client = {
   status(action_name, pub = true) {
+    var pid = Agent.agentPid();
     var status_obj = {
-      agent   : Agent.agentPid().running,
+      pid     : pid,
+      agent   : pid.running,
       docker  : false,
       balancer: false,
     };
