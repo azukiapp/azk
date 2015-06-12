@@ -42,9 +42,10 @@ abs_dir() {
   if [ -z "$link" ]; then pwd; else abs_dir $link; fi
 }
 
-export PATH=${AZK_ROOT_PATH}/bin:$PATH
 export AZK_ROOT_PATH=`cd \`abs_dir ${BASH_SOURCE:-$0}\`/../../..; pwd`
 export AZK_BUILD_TOOLS_PATH=${AZK_ROOT_PATH}/src/libexec/package-tools
+
+export PATH=${AZK_ROOT_PATH}/bin:$PATH
 
 AZK_AGENT_LOG_FILE='/tmp/azk-agent-start.log'
 TEST_DIR='/tmp/azk-test'
@@ -204,9 +205,9 @@ source .dependencies
 
 LINUX_BUILD_WAS_EXECUTED=false
 [[ $NO_VERSION != true ]] && step_run "Bumping version" bump_version
-[[ $NO_MAKE != true ]]  && step_run "Running make" --exit run_make
+[[ $NO_MAKE != true ]]    && step_run "Running make" --exit run_make
 [[ $NO_AGENT != true ]]   && step_run "Starting agent" --exit start_agent
-[[ $NO_TEST != true ]]  && step_run "Preparing testing env" setup_test && TEST_ARGS=$TEST_DIR
+[[ $NO_TEST != true ]]    && step_run "Preparing testing env" setup_test && TEST_ARGS=$TEST_DIR
 
 
 LIBNSS_RESOLVER_REPO="https://github.com/azukiapp/libnss-resolver/releases/download/v${LIBNSS_RESOLVER_VERSION}"
@@ -229,19 +230,19 @@ if [[ $BUILD_DEB == true ]]; then
 
     EXTRA_FLAGS=""
     if [[ $LINUX_BUILD_WAS_EXECUTED == true || $NO_CLEAN_LINUX == true ]]; then
-    EXTRA_FLAGS="LINUX_CLEAN="
+      EXTRA_FLAGS="LINUX_CLEAN="
     fi
 
     step_run "Creating deb packages" make package_deb ${EXTRA_FLAGS}
 
     step_run "Generating Ubuntu 12.04 repository" azk shell package -c "src/libexec/package-tools/ubuntu/generate.sh ${LIBNSS_RESOLVER_VERSION} precise ${SECRET_KEY}"
     if [[ $NO_TEST != true ]]; then
-    step_run "Testing Ubuntu 12.04 repository" ${AZK_BUILD_TOOLS_PATH}/test.sh ubuntu12 $TEST_ARGS
+      step_run "Testing Ubuntu 12.04 repository" ${AZK_BUILD_TOOLS_PATH}/test.sh ubuntu12 $TEST_ARGS
     fi
 
     step_run "Generating Ubuntu 14.04 repository" azk shell package -c "src/libexec/package-tools/ubuntu/generate.sh ${LIBNSS_RESOLVER_VERSION} trusty ${SECRET_KEY}"
     if [[ $NO_TEST != true ]]; then
-    step_run "Testing Ubuntu 14.04 repository" ${AZK_BUILD_TOOLS_PATH}/test.sh ubuntu14 $TEST_ARGS
+      step_run "Testing Ubuntu 14.04 repository" ${AZK_BUILD_TOOLS_PATH}/test.sh ubuntu14 $TEST_ARGS
     fi
   ) && LINUX_BUILD_WAS_EXECUTED=true
 
@@ -264,13 +265,13 @@ if [[ $BUILD_RPM == true ]]; then
 
     EXTRA_FLAGS=""
     if [[ $LINUX_BUILD_WAS_EXECUTED == true || $NO_CLEAN_LINUX == true ]]; then
-    EXTRA_FLAGS="LINUX_CLEAN="
+      EXTRA_FLAGS="LINUX_CLEAN="
     fi
 
     step_run "Creating rpm packages" make package_rpm ${EXTRA_FLAGS}
     step_run "Generating Fedora 20 repository" azk shell package -c "src/libexec/package-tools/fedora/generate.sh fedora20 ${SECRET_KEY}"
     if [[ $NO_TEST != true ]]; then
-    step_skip "Testing Fedora 20 repository" ${AZK_BUILD_TOOLS_PATH}/test.sh fedora20 $TEST_ARGS
+      step_skip "Testing Fedora 20 repository" ${AZK_BUILD_TOOLS_PATH}/test.sh fedora20 $TEST_ARGS
     fi
   ) && LINUX_BUILD_WAS_EXECUTED=true
 
@@ -288,7 +289,7 @@ if [[ $BUILD_MAC == true ]]; then
     step_run "Creating Mac packages" make package_mac
     step_run "Generating Mac repository" ${AZK_BUILD_TOOLS_PATH}/mac/generate.sh
     if [[ $NO_TEST != true ]]; then
-    step_run "Testing Mac repository" ${AZK_BUILD_TOOLS_PATH}/mac/test.sh $TEST_ARGS
+      step_run "Testing Mac repository" ${AZK_BUILD_TOOLS_PATH}/mac/test.sh $TEST_ARGS
     fi
   )
 
