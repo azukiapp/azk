@@ -39,7 +39,7 @@ class Init extends CliController {
       // Only show tips if is a git dir
       var has_git_dir = yield fsAsync.exists(path.join(cwd, ".git"));
       if (has_git_dir) {
-        this.tOutput(this.tKeyPath('github'));
+        this.ui.ok(this.ui.tKeyPath(this.name, 'github'));
       }
 
       return promiseResolve(0);

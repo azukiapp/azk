@@ -119,7 +119,8 @@ export class Image {
         retryDelay: 500
       };
 
-      var syncronizer = new lazy.Syncronizer(docker_socket, request_options);
+      var syncronizer = new lazy.Syncronizer();
+      yield syncronizer.initialize(docker_socket, request_options);
       var tag = repo_tag;
 
       // get token from Docker Hub

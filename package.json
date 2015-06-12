@@ -41,7 +41,7 @@
     "colors": "^0.6.2",
     "connectivity": "^0.1.1",
     "dns-sync": "^0.1.0",
-    "docker-registry-downloader": "^0.1.36",
+    "docker-registry-downloader": "^0.2.1",
     "dockerode": "^2.1.2",
     "esprima": "^1.2.2",
     "exec-sh": "^0.1.3",
