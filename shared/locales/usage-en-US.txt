@@ -38,9 +38,12 @@ Commands:
   vm       Controls the Virtual Machine.
 
 Actions:
-  start                     Starts azk agent.
-  stop                      Stops azk agent.
-  status                    Shows azk agent status.
+  installed                 Checks if the virtual machine is installed.
+  remove                    Removes the virtual machine.
+  start                     Starts azk agent or virtual machine.
+  stop                      Stops azk agent or virtual machine.
+  status                    Shows azk agent or virtual machine status.
+  ssh                       Gets access to the virtual machine via SSH protocol.
   track-status              Shows tracking status (on or off).
   track-toggle              Toggles tracking behavior on/off.
 
