@@ -236,7 +236,8 @@ var Balancer = {
           });
         change_status("stopped_" + system_name);
       } catch (err) {
-        log.err(`[agent] Error to stop balance system ${system_name}`, err);
+        var msg = err.stack ? err.stack : err.toString();
+        log.warn(`[agent] Error to stop balance system ${system_name}`, msg);
       }
 
       // Save state
@@ -270,7 +271,8 @@ var Balancer = {
       max    : 1,
       silent : true,
       fork   : true,
-      pidFile: pid
+      pidFile: pid,
+      detached: false,
     };
 
     return Tools.defer_status("balancer", (resolve, reject, change_status) => {

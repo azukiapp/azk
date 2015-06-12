@@ -100,7 +100,7 @@ azk_main() {
     nvm)
       extra_path=`pwd`/node_modules/.bin
       [ -d "$extra_path" ] && { export PATH=$extra_path:$PATH; }
-      shift; "${@}"
+      shift; exec "${@}"
       ;;
     agent-daemon)
       # Removing agent-daemon
