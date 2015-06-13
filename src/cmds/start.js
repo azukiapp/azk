@@ -106,17 +106,8 @@ class Start extends Scale {
 
   restart(manifest, systems, opts) {
     return async(this, function* () {
-      var scale_options = _.clone(opts);
-      scale_options.instances = scale_options.instances || {};
-
-      // save instances count
-      for (var system of systems) {
-        var instances = yield system.instances({ type: "daemon" });
-        scale_options.instances[system.name] = instances.length;
-      }
-
       yield this.stop(manifest, systems, opts);
-      return this.start(manifest, systems, scale_options);
+      return this.start(manifest, systems, opts);
     });
   }
 }
