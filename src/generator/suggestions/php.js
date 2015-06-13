@@ -21,7 +21,7 @@ export class Suggestion extends UIProxy {
         http: "80/tcp",
       },
       command: null,
-      scalable: { default: 2 },
+      scalable: { default: 1 },
       mounts  : {
         '/azk/#{manifest.dir}': {type: 'path', value: '.'}
       },

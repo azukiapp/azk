@@ -14,7 +14,7 @@ export class Suggestion extends UIProxy {
         'bundle install --path /azk/bundler',
       ],
       http    : true,
-      scalable: { default: 2 },
+      scalable: { default: 1 },
       command : 'bundle exec rackup config.ru --pid /tmp/ruby.pid --port $HTTP_PORT --host 0.0.0.0',
       mounts  : {
         '/azk/#{manifest.dir}': {type: 'sync', value: '.'},

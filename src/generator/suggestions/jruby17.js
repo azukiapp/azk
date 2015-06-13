@@ -20,7 +20,7 @@ export class Suggestion extends UIProxy {
         'bundle install --path /azk/bundler',
       ],
       http    : true,
-      scalable: { default: 2 },
+      scalable: { default: 1 },
       command : 'bundle exec rackup config.ru --port $HTTP_PORT',
       mounts  : {
         '/azk/#{manifest.dir}': {type: 'path', value: '.'},

@@ -22,7 +22,7 @@ export class Suggestion extends UIProxy {
         'bundle exec rake db:migrate',
       ],
       http    : true,
-      scalable: { default: 2 },
+      scalable: { default: 1 },
       command : 'bundle exec rackup config.ru --pid /tmp/rails.pid --port $HTTP_PORT --host 0.0.0.0',
       mounts  : {
         '/azk/#{manifest.dir}'     : {type: 'sync', value: '.'},
