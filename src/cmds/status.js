@@ -45,9 +45,20 @@ class Status extends CliTrackerController {
         } else {
           hostname = system.hostname;
         }
+        var name;
+        var status;
+        if (instances.length > 0) {
+          name   = `${system.name}`.green;
+          status = `↑`.green;
+        } else if (!system.auto_start) {
+          name   = `${system.name}`.yellow;
+          status = `−`.yellow;
+        } else {
+          name   = `${system.name}`.red;
+          status = `↓`.red;
+        }
+
         var ports   = Status._ports_map(system, instances);
-        var name    = instances.length > 0 ? `${system.name}`.green : `${system.name}`.red;
-        var status  = instances.length > 0 ? `↑`.green : `↓`.red;
         var counter = instances.length.toString().blue;
 
         // Provisioned
