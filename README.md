@@ -10,23 +10,16 @@
 
 ### Installing
 
-**tl;dr;**
-
 ```
 $ curl -Ls http://azk.io/install.sh | bash
 ```
 
-#### Mac OS X
+Requirements:
 
-**Requirements:** [VirtualBox](https://www.virtualbox.org/), version 4.3.6+
+* **Mac OS X:** [VirtualBox](https://www.virtualbox.org/), version 4.3.6+
+* **Linux:** [Docker][docker], version 1.2+
 
-```
-brew install azukiapp/azk/azk
-```
-
-#### Linux
-
-For Linux instructions see the [docs](http://docs.azk.io/en/installation/linux.html).
+For further details, please see the [docs](http://docs.azk.io/en/installation/index.html).
 
 ### Using `azk`
 
