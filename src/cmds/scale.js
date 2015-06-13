@@ -24,7 +24,7 @@ class Scale extends CliTrackerController {
 
       Helpers.manifestValidate(this.ui, manifest);
       var systems = manifest.getSystemsByName(opts.system);
-      var status_systems = _.flatten(_.map(systems, (system) => {
+      var status_systems = _.map(systems, (system) => {
         var result = [system];
         if (!_.isEmpty(system.depends)) {
           result = result.concat(
@@ -34,8 +34,8 @@ class Scale extends CliTrackerController {
           );
         }
         return result;
-      }));
-      status_systems = _.flatten(status_systems);
+      });
+      status_systems = _.uniq(_.flatten(status_systems)).reverse();
 
       var result  = yield this[`${this.name}`](manifest, systems, opts);
 
