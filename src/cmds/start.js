@@ -10,11 +10,15 @@ var lazy = lazy_require({
 var action_opts = {
   start: { instances: {}, key: "already_started" },
   stop:  { instances: 0 , key: "not_running" },
+  skip_start: { key: "skip" },
+  skip_stop: { key: "skip" },
 };
 
 class Start extends Scale {
   _scale(systems, action, opts) {
-    var scale_options = action_opts[action];
+    var args = this.normalized_params.arguments;
+    var args_systems = (args.system || '').split(',');
+    args_systems = _.map(args_systems, (s) => (s || '').trim());
 
     opts.instances = opts.instances || {};
 
@@ -23,7 +27,10 @@ class Start extends Scale {
       systems = _.clone(systems);
 
       while ( (system = systems.shift()) ) {
+        var ui_status = 'fail';
+        var scale_options = action_opts[action];
         var ns = ["commands", action], instances;
+        system.force = _.contains(args_systems, system.name);
 
         if (action == "start") {
           // The number of instances is not set to system.name use "{}"
@@ -32,11 +39,14 @@ class Start extends Scale {
           instances = _.clone(scale_options.instances);
         }
 
-        // Force start scalable = { default: 0 }
+        // Force start if scalable.default == 0
         // Only if specified
-        if (!(opts.systems) && action == "start" && _.isObject(scale_options.instances)) {
-          if (system.scalable.default === 0 && !system.disabled) {
+        if (!system.auto_start) {
+          if (system.force && action === 'start') {
             instances = 1;
+          } else {
+            scale_options = action_opts[`skip_${action}`];
+            ui_status = 'warning';
           }
         }
 
@@ -44,8 +54,10 @@ class Start extends Scale {
         var icc = yield super._scale(system, instances, opts);
 
         if (icc === 0) {
-          this.ui.fail([...ns].concat(scale_options.key), system);
-          result = SYSTEMS_CODE_ERROR;
+          if (ui_status === 'fail') {
+            result = SYSTEMS_CODE_ERROR;
+          }
+          this.ui[ui_status]([...ns].concat(scale_options.key), system);
         }
       }
 

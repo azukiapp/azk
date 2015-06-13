@@ -402,6 +402,7 @@ module.exports = {
     start: {
       description: "Starts an instance of the system(s)",
       already_started: "System `%(name)s` already started",
+      skip: "Skip starting, system `" + "%(name)s".blue + "` does not scale.",
       fail: "Due to the above error azk will stop all instances already running.\n",
       options: {
         verbose: verbose,
@@ -419,7 +420,8 @@ module.exports = {
     },
     stop: {
       description: "Stops an instance of the system(s)",
-      not_running: "System `%(name)s` not running",
+      not_running: "System `" + "%(name)s".blue + "` not running",
+      skip: "Skip stoping, system `" + "%(name)s".blue + "` does not scale.",
       options: {
         verbose : verbose,
         quiet   : quiet,
