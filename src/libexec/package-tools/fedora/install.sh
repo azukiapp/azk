@@ -1,11 +1,13 @@
 #! /bin/bash
 
-if [[ $# != 1 ]]; then
-    echo "Usage: ${0##*/} {distro}"
+if [[ $# < 1 ]] || [[ $# > 2 ]]; then
+    echo "Usage: ${0##*/} {distro} [pkg_suffix]"
     exit 1
 fi
 
-export DISTRO=$1
+export PATH=`pwd`/bin:$PATH
+DISTRO=$1
+[[ $# == 2 ]] && PKG_SUFFIX=$2
 
 rm -rf /etc/yum.repos.d/*
 rpm --import http://repo.azukiapp.com/keys/azuki.asc
@@ -17,4 +19,4 @@ enabled=1
 gpgcheck=1
 EOF
 yum -y update
-yum -y install azk
+yum -y install azk${PKG_SUFFIX}

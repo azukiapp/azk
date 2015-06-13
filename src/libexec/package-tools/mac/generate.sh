@@ -27,6 +27,7 @@ require "formula"
 class ${CLASS_NAME} < Formula
   homepage "http://azk.io"
   url "http://${REPO_URL}/mac/azk_${VERSION}.tar.gz"
+  version ${VERSION}
   sha256 "${SHA256}"
   ${CONFLICTS}
   depends_on :macos => :mountain_lion
@@ -41,3 +42,6 @@ end
 
 EOF
 
+cd /usr/local/Library/Taps/azukiapp/homebrew-azk/
+git add Formula/azk${CHANNEL_SUFFIX}.rb
+git commit -m "Bumping version azk ${VERSION}."

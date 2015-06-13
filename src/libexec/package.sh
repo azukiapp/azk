@@ -11,10 +11,16 @@ abs_dir() {
 export AZK_ROOT_PATH=`cd \`abs_dir ${BASH_SOURCE:-$0}\`/../..; pwd`
 cd $AZK_ROOT_PATH;
 
-PKG="azk"
 URL="https://github.com/azukiapp/azk"
 DESCRIPTION="Development environments with agility and automation"
 VERSION=${PKG_VERSION:-`cat package.json | grep -e "version" | cut -d' ' -f4 | sed -n 's/\"//p' | sed -n 's/\"//p' | sed -n 's/,//p'`}
+RELEASE_CHANNEL=$( echo "${VERSION}" | sed s/[^\\-]*// | sed s/^\\-// | sed s/\\..*// )
+if [[ -z $RELEASE_CHANNEL ]]; then
+  PKG_SUFFIX=
+else
+  PKG_SUFFIX="-${RELEASE_CHANNEL}"
+fi
+PKG="azk${PKG_SUFFIX}"
 
 LICENSE="Apache 2.0"
 VENDOR="Azuki (http://azukiapp.com)"
