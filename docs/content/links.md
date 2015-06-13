@@ -1,5 +1,5 @@
 [docker]: http://docker.io
-[virtualbox_dl]: http://www.vagrantup.com/downloads.html
+[virtualbox_dl]: https://www.virtualbox.org/wiki/Downloads
 [homebrew_cask]: https://github.com/phinze/homebrew-cask
 [libnss-resolver]: https://github.com/azukiapp/libnss-resolver
 [docker_install]: https://docs.docker.com/installation/#installation
