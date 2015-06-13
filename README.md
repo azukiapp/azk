@@ -36,9 +36,9 @@ If you are starting a new application project, you can already use `azk` to obta
 
 ```bash
 $ cd ~/projects
-$ azk shell --image dockerfile/node # obtaining the runtime
+$ azk shell --image azukiapp/node # obtaining the runtime
     # mkdir app-name
-    # npm init                      # building the application's basic structure
+    # npm init                    # building the application's basic structure
     ...
     # exit
 $ cd app-name
@@ -63,7 +63,7 @@ $ azk start
 
 ## Main features
 
-* Multiplatform: Works on Linux & Mac OS X (requires 64 bit platform in both cases)
+* Multiplatform: Works both on Linux & Mac OS X (requires 64-bit platform)
 * Images: via [azk images][azk_images] or [Docker Registry][docker_registry]
 * Built in load-balancer
 * Built in file sync
