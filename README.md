@@ -1,6 +1,6 @@
 # azk [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/azukiapp/azk?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Code Climate](https://codeclimate.com/github/azukiapp/azk/badges/gpa.svg)](https://codeclimate.com/github/azukiapp/azk)  
 
-### A development environment orchestrator tool
+### A development environment orchestration tool
 
 `azk` lets web developers easily and quickly to create, maintain and isolate their development environments through automation, in a powerful yet flexible way.
 
@@ -63,13 +63,14 @@ $ azk start
 
 ## Main features
 
-* Multiplatform: Works both on Linux & Mac OS X (requires 64-bit platform)
-* Images: via [azk images][azk_images] or [Docker Registry][docker_registry]
-* Built in load-balancer
-* Built in file sync
-* Automatic start-up (and reload) script
-* Logging
-* And simple and easy to use DSL to describe its architecture
+* Multiplatform: Works both on Linux & Mac OS X (requires 64-bit platform);
+  * Windows planned. Want azk to run in Windows? Thumbs up here: https://github.com/azukiapp/azk/issues/334
+* Images: via [azk images][azk_images], [Docker Registry][docker_registry] or run your own Dockerfile;
+* Built-in load-balancer;
+* Built-in file sync;
+* Automatic start-up (and reload) script;
+* Logging;
+* And simple and easy to use DSL to describe systems architecture;
 
 ## Documentation
 
@@ -83,7 +84,7 @@ You can find our documentation online at: http://docs.azk.io/
 
 #### Images
 
-In order to automate the provisioning of development environments, `azk` uses pre-built custom images. These images follow the [Docker][docker] standard and can be found in: [azk images][azk_images], [Docker Index][docker_index] or [Dockerfile][dockerfile].
+In order to automate the provisioning of development environments, `azk` uses pre-built custom images. These images follow the [Docker][docker] standard and can be found in: [azk images][azk_images], [Docker Index][docker_hub] or [Dockerfile][dockerfile].
 
 #### Azkfile.js
 
@@ -94,6 +95,8 @@ More information [here](http://docs.azk.io/en/azkfilejs/README.html).
 ## Contributions
 
 Check our [Contributing Guide](CONTRIBUTING.md) for instructions on how to help the project!
+
+Share the love and star us here in Github.
 
 ## License
 
@@ -106,10 +109,6 @@ Check LEGAL and LICENSE files for more information.
 [sos]: http://en.wikipedia.org/wiki/System_of_systems
 [docker]: http://docker.io
 [azk_images]: http://images.azk.io
-[docker_index]: http://index.docker.io
+[docker_hub]: https://registry.hub.docker.com/
 [dockerfile]: http://dockerfile.github.io
 [docker_registry]: http://registry.hub.docker.com
-[virtualbox_dl]: http://www.vagrantup.com/downloads.html
-[homebrew_cask]: https://github.com/phinze/homebrew-cask
-[libnss-resolver]: https://github.com/azukiapp/libnss-resolver
-[bats]: https://github.com/sstephenson/bats
