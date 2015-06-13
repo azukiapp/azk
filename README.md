@@ -4,7 +4,7 @@
 
 `azk` lets web developers easily and quickly to create, maintain and isolate their development environments through automation, in a powerful yet flexible way.
 
-![Usage of azk](http://www.azk.io/assets/images/azk-screenflow.gif)
+![Usage of azk](https://github.com/fearenales/azk/blob/feature/improving_readme/src/pres/azk-screenflow-slow.gif?raw=true)
 
 ## Quick start
 
