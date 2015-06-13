@@ -1,6 +1,6 @@
 ## azk version
 
-Displays the current version of `azk`
+  Displays the current version of `azk`
 
 #### Usage:
 

@@ -10,9 +10,9 @@
 
   installed                 Checks if the virtual machine is installed.
   remove                    Removes the virtual machine.
-  start                     Starts azk agent or virtual machine.
-  stop                      Stops azk agent or virtual machine.
-  status                    Shows azk agent or virtual machine status.
+  start                     Starts virtual machine.
+  stop                      Stops virtual machine.
+  status                    Shows virtual machine status.
   ssh                       Gets access to the virtual machine via SSH protocol.
 
 #### Arguments:

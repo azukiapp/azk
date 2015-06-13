@@ -2,8 +2,6 @@
 
 Controls azk configuration options.
 
-### azk config track
-
 #### Usage:
 
     $ azk config (track-toggle|track-status) [options]
@@ -17,7 +15,7 @@ Controls azk configuration options.
 
   --quiet, -q               Never prompt.
   --help, -h                Shows help usage.
-  --env=<data>, -e          Additional environment variables - multiple supported (`-e HTTP_PORT=5000 -e PORT=5000`).
+  --log=<level>, -l         Sets a log level (default: error).
   --verbose, -v             Sets the level of detail - multiple supported (-vv == --verbose 2) [default: 0].
 
 #### Examples:

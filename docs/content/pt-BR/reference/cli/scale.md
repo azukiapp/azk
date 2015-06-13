@@ -1,50 +1,59 @@
 ## azk scale
 
-Aumenta/dimunui o número de instâncias da aplicação.
-
-#### Opções:
-
-	- `--quiet, -q`           Sem mensagens (default: falso)
-	- `--remove, -r`          Remove as instâncias antes de parar (padrão: verdadeiro)
-    - `--verbose, -v, -vv`    Aumenta o nível de detalhes (padrão: falso) - suporta múltiplos
+Escalona (para cima ou para baixo) um ou mais sistemas.
 
 #### Uso:
 
-    $ azk [options] scale [options] [system] [to]
+    $ azk scale [<system>] [<to>] [options]
 
-#### Exemplo:
+#### Argumentos:
 
-###### Altera o número de instâncias do sistema node010 para uma instância.
+  system                    Nome do sistema que receberá a ação.
+  to                        Número de instâncias disponívels após o escalonamento.
+
+#### Opções:
+
+  --no-remove, -r           Não remove a instância do container após a parada.
+  --quiet, -q               Nunca perguntar.
+  --help, -h                Mostrar ajuda de uso.
+  --log=<level>, -l         Defini o nível de log (padrão: error).
+  --verbose, -v             Defini o nível de detalhes da saída - suporta múltiplos (-vv == --verbose 2) [padrão: 0].
+
+#### Exemplos:
+
+###### Altera o número de instâncias do sistema azkdemo para uma instância.
 
 ```
-$ azk scale node010 1
-azk: ↓ scaling `node010` system from 0 to 1 instances...
+$ azk scale azkdemo 1
+azk: ↓ scaling `azkdemo` system from 2 to 1 instances...
 
-┌───┬─────────┬───────────┬───────────────────────────┬─────────────────┬──────────────┐
-│   │ System  │ Instances │ Hostname/url              │ Instances-Ports │ Provisioned  │
-├───┼─────────┼───────────┼───────────────────────────┼─────────────────┼──────────────┤
-│ ↑ │ node010 │ 1         │ http://node010.dev.azk.io │ 1-http:49173    │ 2 months ago │
-└───┴─────────┴───────────┴───────────────────────────┴─────────────────┴──────────────┘
+┌───┬─────────┬───────────┬───────────────────────────┬─────────────────┬───────────────┐
+│   │ System  │ Instances │ Hostname/url              │ Instances-Ports │ Provisioned   │
+├───┼─────────┼───────────┼───────────────────────────┼─────────────────┼───────────────┤
+│ ↑ │ azkdemo │ 1         │ http://azkdemo.dev.azk.io │ 1-http:32771    │ 4 minutes ago │
+└───┴─────────┴───────────┴───────────────────────────┴─────────────────┴───────────────┘
 ```
 
 --------------
 
-###### Altera o número de instâncias do sistema node010 para 10 instâncias.
+###### Altera o número de instâncias do sistema azkdemo para 4 instâncias.
+
 ```
-$ azk scale node010 10
-azk: ↑ scaling `node010` system from 1 to 10 instances...
-azk: ✓ checking `library/node:0.10` image...
-azk: ◴ waiting for `node010` system to start, trying connection to port http/tcp...
-...
-┌───┬─────────┬───────────┬───────────────────────────┬─────────────────────────────┬──────────────┐
-│   │ System  │ Instances │ Hostname/url              │ Instances-Ports             │ Provisioned  │
-├───┼─────────┼───────────┼───────────────────────────┼─────────────────────────────┼──────────────┤
-│ ↑ │ node010 │ 10        │ http://node010.dev.azk.io │ 9-http:49209, 8-http:49208  │ 2 months ago │
-│   │         │           │                           │ 7-http:49207, 6-http:49206  │              │
-│   │         │           │                           │ 5-http:49205, 4-http:49204  │              │
-│   │         │           │                           │ 3-http:49203, 2-http:49202  │              │
-│   │         │           │                           │ 10-http:49210, 1-http:49173 │              │
-│   │         │           │                           │                             │              │
-└───┴─────────┴───────────┴───────────────────────────┴─────────────────────────────┴──────────────┘
+$ azk scale azkdemo 4
+azk: ↑ scaling `azkdemo` system from 1 to 4 instances...
+azk: ✓ checking `azukiapp/node:0.12` image...
+azk: ⎘ syncing files for `azkdemo` system...
+azk: ◴ waiting for `azkdemo` system to start, trying connection to port http/tcp...
+azk: ◴ waiting for `azkdemo` system to start, trying connection to port http/tcp...
+azk: ◴ waiting for `azkdemo` system to start, trying connection to port http/tcp...
+
+┌───┬─────────┬───────────┬───────────────────────────┬────────────────────────────┬───────────────┐
+│   │ System  │ Instances │ Hostname/url              │ Instances-Ports            │ Provisioned   │
+├───┼─────────┼───────────┼───────────────────────────┼────────────────────────────┼───────────────┤
+│ ↑ │ azkdemo │ 4         │ http://azkdemo.dev.azk.io │ 4-http:32782, 3-http:32781 │ 6 minutes ago │
+│   │         │           │                           │ 2-http:32780, 1-http:32771 │               │
+│   │         │           │                           │                            │               │
+└───┴─────────┴───────────┴───────────────────────────┴────────────────────────────┴───────────────┘
 ```
-Cada vez que o usuário acessar http://node010.dev.azk.io ele será redirecionado para uma das instâncias pelo _load balancer_ do `azk`.
+
+Cada vez que o usuário acessar http://azkdemo.dev.azk.io ele será redirecionado para uma das instâncias pelo _load balancer_ do `azk`.

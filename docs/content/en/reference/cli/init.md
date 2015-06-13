@@ -1,10 +1,10 @@
 ## azk init
 
-  Initializes a project by adding Azkfile.js.
+  Initializes a project by adding `Azkfile.js`.
 
 #### Usage:
 
-  $ azk init [<path>] [--filename --force -q -h -l <level>] [-v]...
+  $ azk init [<path>] [options]
 
 #### Arguments:
 

@@ -1,6 +1,6 @@
 ## azk restart
 
-Stop all instances of the specified systems in the current `Azkfile.js`, or the one specified, and starts them again. If an error occurs during reboot, all systems will be stopped.
+  Stop all instances of the specified systems in the current `Azkfile.js`, or the one specified, and starts them again. If an error occurs during reboot, all systems will be stopped.
 
 #### Usage:
 
