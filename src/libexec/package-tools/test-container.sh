@@ -10,6 +10,8 @@ export CODENAME=$1; shift
 export VERSION=$1; shift
 export AZK_NAMESPACE=$1; shift
 
+[[ -z $AZK_NAMESPACE ]] && export AZK_NAMESPACE='dev.azk.io'
+
 RELEASE_CHANNEL=$( echo "${VERSION}" | sed s/[^\\-]*// | sed s/^\\-// | sed s/\\..*// )
 if [[ -z $RELEASE_CHANNEL ]]; then
   PKG_SUFFIX=

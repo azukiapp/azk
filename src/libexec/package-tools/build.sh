@@ -19,6 +19,7 @@ Options:
   --no-version            Don't bump version (adding release channel and date)
   --no-make               Don't run \`make\` before packaging
   --no-linux-clean        Don't clean Linux build files before running first \`make -e package_linux\`
+  --clean-repo            Force cleaning repo with previous version. Use it with wisdom!
   --no-agent              Don't run \`azk agent\` for builds (assumes it's running somewhere else)
   --no-test               Don't test generated packages
   --versbose, -v          Displays more detailed info about each building  and packaging step
@@ -71,6 +72,8 @@ while [[ $# -gt 0 ]]; do
       NO_MAKE=true;;
     --no-linux-clean )
       NO_CLEAN_LINUX=true;;
+    --clean-repo )
+      CLEAN_REPO='--clean-repo';;
     --no-agent )
       NO_AGENT=true;;
     --no-test )
@@ -221,7 +224,7 @@ if [[ $BUILD_DEB == true ]]; then
     set -e
 
     step_run "Cleaning current aptly repo" azk shell package -c "rm -Rf /azk/aptly/*"
-    step_run "Cleaning environment" rm -Rf package/deb package/public
+    step_run "Cleaning environment" [[ ! -z CLEAN_REPO ]] && rm -Rf package/deb package/public
 
     step_run "Downloading libnss-resolver" \
     mkdir -p package/deb \
@@ -235,12 +238,12 @@ if [[ $BUILD_DEB == true ]]; then
 
     step_run "Creating deb packages" make package_deb ${EXTRA_FLAGS}
 
-    step_run "Generating Ubuntu 12.04 repository" azk shell package -c "src/libexec/package-tools/ubuntu/generate.sh ${LIBNSS_RESOLVER_VERSION} precise ${SECRET_KEY}"
+    step_run "Generating Ubuntu 12.04 repository" azk shell package -c "src/libexec/package-tools/ubuntu/generate.sh ${LIBNSS_RESOLVER_VERSION} precise ${SECRET_KEY} ${CLEAN_REPO}"
     if [[ $NO_TEST != true ]]; then
       step_run "Testing Ubuntu 12.04 repository" ${AZK_BUILD_TOOLS_PATH}/test.sh ubuntu12 $TEST_ARGS
     fi
 
-    step_run "Generating Ubuntu 14.04 repository" azk shell package -c "src/libexec/package-tools/ubuntu/generate.sh ${LIBNSS_RESOLVER_VERSION} trusty ${SECRET_KEY}"
+    step_run "Generating Ubuntu 14.04 repository" azk shell package -c "src/libexec/package-tools/ubuntu/generate.sh ${LIBNSS_RESOLVER_VERSION} trusty ${SECRET_KEY} ${CLEAN_REPO}"
     if [[ $NO_TEST != true ]]; then
       step_run "Testing Ubuntu 14.04 repository" ${AZK_BUILD_TOOLS_PATH}/test.sh ubuntu14 $TEST_ARGS
     fi
@@ -257,7 +260,7 @@ if [[ $BUILD_RPM == true ]]; then
   (
     set -e
 
-    step_run "Cleaning environment" rm -Rf package/rpm package/fedora20
+    step_run "Cleaning environment" [[ ! -z CLEAN_REPO ]] && rm -Rf package/rpm package/fedora20
 
     step_run "Downloading libnss-resolver" \
     mkdir -p package/rpm \
@@ -269,7 +272,7 @@ if [[ $BUILD_RPM == true ]]; then
     fi
 
     step_run "Creating rpm packages" make package_rpm ${EXTRA_FLAGS}
-    step_run "Generating Fedora 20 repository" azk shell package -c "src/libexec/package-tools/fedora/generate.sh fedora20 ${SECRET_KEY}"
+    step_run "Generating Fedora 20 repository" azk shell package -c "src/libexec/package-tools/fedora/generate.sh fedora20 ${SECRET_KEY} ${CLEAN_REPO}"
     if [[ $NO_TEST != true ]]; then
       step_skip "Testing Fedora 20 repository" ${AZK_BUILD_TOOLS_PATH}/test.sh fedora20 $TEST_ARGS
     fi
