@@ -23,7 +23,7 @@ For further details, please see the [docs](http://docs.azk.io/en/installation/in
 
 ### Using `azk`
 
-#### Using `azk` in a brand new project
+#### Starting a new project
 
 If you are starting a new application project, you can already use `azk` to obtain the proper runtime as well the corresponding generators for your chosen language and then generate the application's basic structure. An example in Node.js would look like this:
 
@@ -89,7 +89,7 @@ More information [here](http://docs.azk.io/en/azkfilejs/README.html).
 
 Check our [Contributing Guide](CONTRIBUTING.md) for instructions on how to help the project!
 
-Share the love and star us here in Github.
+Share the love and star us here in Github!
 
 ## License
 
