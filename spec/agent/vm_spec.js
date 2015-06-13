@@ -101,10 +101,10 @@ h.describeRequireVm("Azk agent vm", function() {
         return aux_tools.install_vm.apply(this).then((i => info = i));
       });
 
-      it("should configure cpus", function() {
+      it("should configure cpus and memory", function() {
         h.expect(info).has.property("ostype").and.match(/Linux.*64/);
-        h.expect(info).has.property("cpus", os.cpus().length);
-        h.expect(info).has.property("memory", Math.floor(os.totalmem() / 1024 / 1024 / 4));
+        h.expect(info).has.property("cpus", parseInt(config('agent:vm:cpus')));
+        h.expect(info).has.property("memory", parseInt(config('agent:vm:memory')));
       });
 
       it("should configure network", function() {
