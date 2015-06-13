@@ -224,7 +224,7 @@ if [[ $BUILD_DEB == true ]]; then
     set -e
 
     step_run "Cleaning current aptly repo" azk shell package -c "rm -Rf /azk/aptly/*"
-    step_run "Cleaning environment" [[ ! -z CLEAN_REPO ]] && rm -Rf package/deb package/public
+    [[ ! -z CLEAN_REPO ]] && step_run "Cleaning environment" rm -Rf package/deb package/public
 
     step_run "Downloading libnss-resolver" \
     mkdir -p package/deb \
@@ -260,7 +260,7 @@ if [[ $BUILD_RPM == true ]]; then
   (
     set -e
 
-    step_run "Cleaning environment" [[ ! -z CLEAN_REPO ]] && rm -Rf package/rpm package/fedora20
+    [[ ! -z CLEAN_REPO ]] && step_run "Cleaning environment" rm -Rf package/rpm package/fedora20
 
     step_run "Downloading libnss-resolver" \
     mkdir -p package/rpm \
