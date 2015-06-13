@@ -18,7 +18,7 @@
   --open-with=<app>, -a     Opens system URL in specified browser application.
   --quiet, -q               Never prompt.
   --help, -h                Shows help usage.
-  --log=<level>, -l         Sets a log level (default: error).
+  --log=<level>, -l         Sets log level (default: error).
   --verbose, -v             Sets the level of detail - multiple supported (-vv == --verbose 2) [default: 0].
 
 #### Example:

@@ -1,6 +1,6 @@
 ## azk restart
 
-  Stop all instances of the specified systems in the current `Azkfile.js`, or the one specified, and starts them again. If an error occurs during reboot, all systems will be stopped.
+  Stops either all instances of the systems in the current `Azkfile.js` or the one specified and starts them back again. If an error occurs during reboot, all systems will be stopped.
 
 #### Usage:
 
@@ -18,7 +18,7 @@
   --open-with=<app>, -a     Opens system URL in specified browser application.
   --quiet, -q               Never prompt.
   --help, -h                Shows help usage.
-  --log=<level>, -l         Sets a log level (default: error).
+  --log=<level>, -l         Sets log level (default: error).
   --verbose, -v             Sets the level of detail - multiple supported (-vv == --verbose 2) [default: 0].
 
 #### Example:

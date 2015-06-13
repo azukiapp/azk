@@ -9,7 +9,7 @@ The `Azkfile.js` file can be created manually, but to make that process easier w
 ```bash
 $ cd azkdemo
 $ azk init
-azk: [azkdemo] A `node` system was detected at '/Users/gmmaster/Works/azuki/azkdemo'.
+azk: [azkdemo] A `node` system was detected at '/path/to/azkdemo'.
 azk: [azkdemo] The image suggested was `{"docker":"azukiapp/node:0.12"}`.
 azk: [azkdemo] ! It was not possible to detect the `node` specific version, so the standard version was suggested instead.
 azk: [azkdemo] ! To change the image version you must edit the `Azkfile.js` file.

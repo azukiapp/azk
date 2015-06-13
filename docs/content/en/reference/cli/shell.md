@@ -14,7 +14,7 @@
 #### Options:
 
   --command=<cmd>, -c       Runs the specified command.
-  --cwd=<dir>, -C           Current working directory.
+  --cwd=<dir>, -C           Sets the current working directory.
   --image=<name>, -i        Defines the image in which the command will be executed.
   --shell=<bin>             Path to shell binary file.
   --rebuild, -B             Forces rebuilding or pull image and reprovision system before starting an instance.
@@ -24,7 +24,7 @@
   --no-tty, -T              Disables pseudo-tty allocation.
   --quiet, -q               Never prompt.
   --help, -h                Shows help usage.
-  --log=<level>, -l         Sets a log level (default: error).
+  --log=<level>, -l         Sets log level (default: error).
   --mount=<paths>, -m       Additional mounting points - multiple supported (`-m ~/Home:/azk/user -m ~/data:/var/data`).
   --env=<data>, -e          Additional environment variables - multiple supported (`-e HTTP_PORT=5000 -e PORT=5000`).
   --verbose, -v             Sets the level of detail - multiple supported (-vv == --verbose 2) [default: 0].

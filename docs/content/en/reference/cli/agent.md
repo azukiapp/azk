@@ -1,6 +1,6 @@
 ## azk agent
 
-Controls the `azk agent` service. For more information about the agent [acesse](../agent/README.md).
+Controls the `azk agent` service. For further information about the agent see its [documentation](../agent/README.md).
 
 #### Usage:
 
@@ -18,7 +18,7 @@ Controls the `azk agent` service. For more information about the agent [acesse](
   --no-reload-vm            Do not reload Virtual Machine settings.
   --quiet, -q               Never prompt.
   --help, -h                Shows help usage.
-  --log=<level>, -l         Sets a log level (default: error).
+  --log=<level>, -l         Sets log level (default: error).
   --verbose, -v             Sets the level of detail - multiple supported (-vv == --verbose 2) [default: 0].
 
 #### Examples:

@@ -58,14 +58,14 @@ Arguments:
 
 Options:
   --command=<cmd>, -c       Runs the specified command.
-  --cwd=<dir>, -C           Current working directory.
+  --cwd=<dir>, -C           Sets the current working directory.
   --env=<data>, -e          Additional environment variables - multiple supported (`-e HTTP_PORT=5000 -e PORT=5000`).
   --filename                Shows the manifest filename.
   --force, -F               Force mode on.
   --follow, -f              Follows log output.
   --help, -h                Shows help usage.
   --image=<name>, -i        Defines the image in which the command will be executed.
-  --log=<level>, -l         Sets a log level (default: error).
+  --log=<level>, -l         Sets log level (default: error).
   --logo                    Shows the azk logo before showing health information.
   --long                    Show all columns.
   --mount=<paths>, -m       Additional mounting points - multiple supported (`-m ~/Home:/azk/user -m ~/data:/var/data`).
@@ -73,7 +73,7 @@ Options:
   --no-colored              Single color output.
   --no-daemon               Runs `azk agent` in foreground.
   --no-reload-vm            Do not reload Virtual Machine settings.
-  --no-remove, -r           Do not remove container instances after stopping.
+  --no-remove, -r           Do not remove container instances after stopping them.
   --no-timestamps           Hides log timestamps.
   --open, -o                Opens system URL in default browser application.
   --open-with=<app>, -a     Opens system URL in specified browser application.
