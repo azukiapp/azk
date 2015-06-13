@@ -1,12 +1,11 @@
 import { _, config, log, lazy_require, set_config } from 'azk';
 import { defer, promiseResolve } from 'azk/utils/promises';
-import { unsubscribeAll, publish } from 'azk/utils/postal';
+import { publish } from 'azk/utils/postal';
 import { Pid } from 'azk/utils/pid';
 import { AgentStopError } from 'azk/utils/errors';
 
 var lazy = lazy_require({
   Server : ['azk/agent/server'],
-  StdOutFixture: 'fixture-stdout'
 });
 
 var blank_observer = {
@@ -29,7 +28,7 @@ var Agent = {
       // Connect observer
       this.observer = observer;
 
-      if (pid.running) {
+      if (pid.running && pid.pid != process.pid) {
         this.change_status('already_running');
         observer.resolve(1);
       } else {
@@ -37,8 +36,11 @@ var Agent = {
         this
           .processWrapper(options.configs || {} )
           .catch((err) => {
-            this.change_status("error", err.stack || err);
-            this.gracefullyStop();
+            this.change_status("error", err);
+            if (!this.stopping) {
+              this.stopping = true;
+              this.gracefullyStop();
+            }
           });
       }
     });
@@ -46,9 +48,15 @@ var Agent = {
 
   // TODO: Capture agent error and show
   stop() {
-    if (this.stopping) { return promiseResolve(); }
+    if (this.stopping) { return promiseResolve(true); }
+    publish("agent.stop.status", { type: "status", status: "stopping" });
     var pid = this.agentPid();
-    return pid.killAndWait().catch(() => {
+    return pid.killAndWait()
+    .then((result) => {
+      if (result) { publish("agent.stop.status", { type: "status", status: "stopped" }); }
+      return result;
+    })
+    .catch(() => {
       throw new AgentStopError();
     });
   },
@@ -67,7 +75,6 @@ var Agent = {
         try { pid.unlink(); } catch (e) {}
         error = error.stack || error;
         log.error('[agent] agent stop error: ' + error);
-        this.change_status("error", error);
         return 1;
       })
       .then(this.observer.resolve);
@@ -82,18 +89,16 @@ var Agent = {
 
   processStateHandler() {
     var gracefullExit = (signal) => {
-      return () => {
-        if (!this.stopping) {
-          var catch_err = (err) => log.error('stop error' + err.stack || err);
-          try {
-            this.stopping = true;
-            log.info('[agent] azk agent has been killed by signal: %s', signal);
-            this.gracefullyStop().catch(catch_err);
-          } catch (err) {
-            catch_err(err);
-          }
+      if (!this.stopping) {
+        var catch_err = (err) => log.error('[agent] stop error' + err.stack || err);
+        try {
+          this.stopping = true;
+          log.info('[agent] azk agent has been killed by signal: %s', signal);
+          this.gracefullyStop().catch(catch_err);
+        } catch (err) {
+          catch_err(err);
         }
-      };
+      }
     };
 
     try {
@@ -101,25 +106,13 @@ var Agent = {
       pid.update(process.pid);
     } catch (e) {}
 
-    process.on('SIGTERM', gracefullExit('SIGTERM'));
-    process.on('SIGINT' , gracefullExit('SIGINT'));
-    process.on('SIGQUIT', gracefullExit('SIGQUIT'));
-    process.on('SIGUSR2', () => {
-      log.info('[azk] mock output');
-      var writer = (string) => {
-        log.info('[agent] backgrund output: ', string);
-        return false;
-      };
+    var signals = ['SIGTERM', 'SIGINT', 'SIGQUIT'];
+    _.each(signals, (signal) => this._connectSignal(signal, gracefullExit));
+  },
 
-      var out_fixture = new lazy.StdOutFixture();
-      out_fixture.capture(writer);
-
-      var err_fixture = new lazy.StdOutFixture({ stream: process.stderr });
-      err_fixture.capture(writer);
-
-      unsubscribeAll();
-      this.observer = blank_observer;
-    });
+  _connectSignal(signal, gracefullExit) {
+    process.removeAllListeners(signal);
+    process.on(signal, () => gracefullExit(signal));
   },
 
   processWrapper(configs) {
@@ -135,10 +128,12 @@ var Agent = {
     this.processStateHandler();
 
     // Start server and subsistems
-    return lazy.Server.start().then(() => {
-      this.change_status("started");
-      publish("agent.agent.started.event", {});
-      log.info("[azk] agent start with pid: " + process.pid);
+    return lazy.Server.start(this.stop.bind(this)).then(() => {
+      if (!this.stopping) {
+        this.change_status("started");
+        publish("agent.agent.started.event", {});
+        log.info("[azk] agent start with pid: " + process.pid);
+      }
     });
   },
 };

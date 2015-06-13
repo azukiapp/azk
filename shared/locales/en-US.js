@@ -130,7 +130,8 @@ module.exports = {
       installed  : "Virtual machine has been successfully installed.",
       starting   : "Starting virtual machine...",
       started    : "Virtual machine has been successfully started.",
-      stopping   : "Stopping virtual machine...",
+      stopping   : "Trying to stop virtual machine...",
+      forced     : "Forcing the stop virtual machine...",
       stopped    : "Virtual machine has been successfully stopped.",
       removing   : "Removing virtual machine...",
       removed    : "Virtual machine has been successfully removed.",
@@ -142,6 +143,7 @@ module.exports = {
       docker_keys: "Downloading required keys to connect to docker",
       mounting   : "Mounting the shared folder in virtual machine...",
       mounted    : "Shared folder has been successfully mounted.",
+      down       : "Virtual machine is down",
     },
 
     socat: {

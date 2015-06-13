@@ -130,8 +130,10 @@ var WebSocketClient = {
 
 var Client = {
   status(action_name, pub = true) {
+    var pid = Agent.agentPid();
     var status_obj = {
-      agent   : Agent.agentPid().running,
+      pid     : pid,
+      agent   : pid.running,
       docker  : false,
       balancer: false,
     };
@@ -149,12 +151,15 @@ var Client = {
   },
 
   stop(opts) {
-    return defer(() => {
-      publish("agent.client.stop.status", { type: "status", status: "stopping" });
-      return Agent.stop(opts).then((result) => {
-        if (result) { publish("agent.client.stop.status", { type: "status", status: "stopped" }); }
-        return { agent: result };
-      });
+    return this.status()
+    .then((status) => {
+      if (status.agent) {
+        return Agent.stop(opts).then((result) => {
+          return { agent: result };
+        });
+      } else {
+        return { agent: false };
+      }
     });
   },
 

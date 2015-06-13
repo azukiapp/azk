@@ -6,13 +6,12 @@ import { net } from 'azk/utils';
 import { Tools } from 'azk/agent/tools';
 import { AgentStartError } from 'azk/utils/errors';
 
-var forever = require('forever-monitor');
-var MemoryStream    = require('memorystream');
-var MemcachedDriver = require('memcached');
-
 var lazy = lazy_require({
+  forever : 'forever-monitor',
   Manifest: ['azk/manifest'],
   Client  : ['azk/agent/client'],
+  MemoryStream   : 'memorystream',
+  MemcachedDriver: 'memcached',
 });
 
 // TODO: Reaplce forever for a better solution :/
@@ -30,7 +29,7 @@ var Balancer = {
   get memCached() {
     if (!this.mem_client) {
       var socket = config('paths:memcached_socket');
-      this.mem_client = new MemcachedDriver(socket);
+      this.mem_client = new lazy.MemcachedDriver(socket);
     }
     return this.mem_client;
   },
@@ -193,7 +192,7 @@ var Balancer = {
 
       // Save outputs to use in error
       var output = "";
-      options.stdout = new MemoryStream();
+      options.stdout = new lazy.MemoryStream();
       options.stdout.on('data', (data) => {
         output += data.toString();
       });
@@ -237,7 +236,8 @@ var Balancer = {
           });
         change_status("stopped_" + system_name);
       } catch (err) {
-        log.err(`[agent] Error to stop balance system ${system_name}`, err);
+        var msg = err.stack ? err.stack : err.toString();
+        log.warn(`[agent] Error to stop balance system ${system_name}`, msg);
       }
 
       // Save state
@@ -268,9 +268,11 @@ var Balancer = {
   _start_service(name, cmd, pid) {
     cmd = [path.join(config('paths:azk_root'), 'bin', 'azk'), ...cmd];
     var options = {
-      max : 1,
+      max    : 1,
       silent : true,
-      pidFile: pid
+      fork   : true,
+      pidFile: pid,
+      detached: false,
     };
 
     return Tools.defer_status("balancer", (resolve, reject, change_status) => {
@@ -278,7 +280,7 @@ var Balancer = {
       log.info("starting " + name);
       change_status("starting_" + name);
 
-      var child = forever.start(cmd, options);
+      var child = lazy.forever.start(cmd, options);
       child.on('exit', () => {
         reject();
         lazy.Client.stop();

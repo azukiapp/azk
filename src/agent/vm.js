@@ -338,7 +338,7 @@ var vm = {
 
   // TODO: Move install to start
   start(vm_name, wait = false) {
-    log.debug("call to start vm %s", vm_name);
+    log.debug("[vm] call to start vm %s", vm_name);
     return Tools.async_status("vm", this, function* (status_change) {
       var info = yield vm.info(vm_name);
 
@@ -382,7 +382,7 @@ var vm = {
   },
 
   waitReady(vm_name, timeout) {
-    log.debug("waiting for the vm `%s` becomes available", vm_name);
+    log.debug("[vm] waiting for the vm `%s` becomes available", vm_name);
     return Tools.async_status("vm", this, function* (status_change) {
       var info = yield vm.info(vm_name);
       var key  = "/VirtualBox/D2D/Done";
@@ -391,7 +391,7 @@ var vm = {
         var status = yield guestproperty.get(vm_name, key);
         if (status.Value !== "true") {
           status_change("waiting");
-          status = yield guestproperty.wait(vm_name, key, timeout);
+          status = yield guestproperty.wait(vm_name, key, timeout, false);
           if (status.Value === "true") {
             status_change("ready");
             return true;
@@ -405,14 +405,16 @@ var vm = {
     });
   },
 
-  stop(vm_name, force = false) {
-    log.debug("call to stop vm %s", vm_name);
+  // TODO: Add treatment to when the lock virtualbox
+  stop(vm_name, force = false, timeout = 30) {
+    log.debug("[vm] call to stop vm %s", vm_name);
 
     return Tools.async_status("vm", this, function* (status_change) {
       var info = yield vm.info(vm_name);
       if (info.running) {
         status_change("stopping");
 
+        var hrend, hrstart = process.hrtime();
         if (force) {
           yield instance.stop(vm_name);
         } else {
@@ -421,8 +423,14 @@ var vm = {
 
         // Wait for shutdown
         while (true) {
-          info = yield this.info(vm_name);
-          if (!info.running) {
+          info  = yield this.info(vm_name);
+          hrend = process.hrtime(hrstart);
+          // Force after timeout
+          if ((!force) && info.running && hrend[0] > timeout) {
+            force = true;
+            status_change("forced");
+            yield instance.stop(vm_name);
+          } else if (!info.running) {
             break;
           }
         }

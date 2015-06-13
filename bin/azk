@@ -49,6 +49,9 @@ export AZK_ISO_VERSION=${AZK_ISO_VERSION}
 export LIBNSS_RESOLVER_VERSION=${LIBNSS_RESOLVER_VERSION}
 export RSYNC_MIN_VERSION=${RSYNC_MIN_VERSION}
 
+# Agent opts
+export AZK_AGENT_LOG_FILE=$AZK_DATA_PATH/logs/agent.log
+
 # No use DOCKER_HOST
 unset DOCKER_HOST
 
@@ -97,7 +100,45 @@ azk_main() {
     nvm)
       extra_path=`pwd`/node_modules/.bin
       [ -d "$extra_path" ] && { export PATH=$extra_path:$PATH; }
-      shift; "${@}"
+      shift; exec "${@}"
+      ;;
+    agent-daemon)
+      # Removing agent-daemon
+      shift;
+
+      # Reset log
+      echo "" > $AZK_AGENT_LOG_FILE
+
+      # Run agent
+      trap gracefulExit INT
+      azk_node_run "${@}" > $AZK_AGENT_LOG_FILE 2>&1 &
+      AGENT_PID="$!"
+      tail -n0 -f $AZK_AGENT_LOG_FILE 2>/dev/null &
+      TAIL_PID="$!"
+
+      kill_and_wait() {
+        kill -s TERM ${1} 2>/dev/null
+        while kill -0 ${1} 2>/dev/null; do
+          sleep 1;
+        done
+      }
+
+      gracefulExit() {
+        set +e
+        kill_and_wait ${AGENT_PID}
+        disown ${TAIL_PID}
+        kill_and_wait ${TAIL_PID}
+        echo "exit";
+        exit 1;
+      }
+
+      # Wait for start
+      until tail -1 $AZK_AGENT_LOG_FILE | grep -q 'Agent has been successfully started.'; do
+        kill -0 ${AGENT_PID} 2>/dev/null || gracefulExit;
+        sleep 1;
+      done
+
+      kill -9 $TAIL_PID
       ;;
     *)
       azk_load_nvm
