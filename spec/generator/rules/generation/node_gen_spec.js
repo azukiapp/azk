@@ -44,7 +44,7 @@ describe('Azk generator generation node rule', function() {
     h.expect(system).to.have.deep.property('options.provision')
       .and.to.eql(['npm install']);
 
-    h.expect(system).to.have.property('scalable').and.eql({ default: 2, limit: -1 });
+    h.expect(system).to.have.property('scalable').and.eql({ default: 1, limit: -1 });
     h.expect(system).to.have.property('hostname').and.match(new RegExp(project_folder_name));
   });
 
