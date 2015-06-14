@@ -24,10 +24,23 @@ class Scale extends CliTrackerController {
 
       Helpers.manifestValidate(this.ui, manifest);
       var systems = manifest.getSystemsByName(opts.system);
+      var status_systems = _.map(systems, (system) => {
+        var result = [system];
+        if (!_.isEmpty(system.depends)) {
+          result = result.concat(
+            _.map(system.depends, (depend) => {
+              return manifest.getSystemsByName(depend);
+            })
+          );
+        }
+        return result;
+      });
+      status_systems = _.uniq(_.flatten(status_systems)).reverse();
+
       var result  = yield this[`${this.name}`](manifest, systems, opts);
 
       this.ui.output("");
-      yield lazy.Status.status(this, manifest, systems);
+      yield lazy.Status.status(this, manifest, status_systems);
 
       return result;
     })

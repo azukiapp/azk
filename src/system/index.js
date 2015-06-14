@@ -134,6 +134,10 @@ export class System {
     return this.scalable.default === 0 && this.scalable.limit === 0;
   }
 
+  get auto_start() {
+    return this.scalable.default !== 0;
+  }
+
   get wait_scale() {
     var wait = this.options.wait;
     return _.isEmpty(wait) && wait !== false ? true : wait;

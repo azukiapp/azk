@@ -25,7 +25,7 @@ export class Suggestion extends DefaultSuggestion {
         "/azk/#{manifest.dir}/deps"           : {type: 'persistent', value: "#{manifest.dir}/deps"},
         "/azk/#{manifest.dir}/_build"         : {type: 'persistent', value: "#{manifest.dir}/_build"},
       },
-      scalable: { default: 2 },
+      scalable: { default: 1 },
       http    : true,
       ports: {
         http: "4000",

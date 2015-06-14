@@ -20,7 +20,7 @@ export class Suggestion extends UIProxy {
         'pip install --user --allow-all-external -r requirements.txt',
       ],
       http    : true,
-      scalable: { default: 2 },
+      scalable: { default: 1 },
       command : 'python server.py',
       mounts  : {
         '/azk/#{manifest.dir}': {type: 'path',       value: '.'},

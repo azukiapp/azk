@@ -14,7 +14,7 @@ export class Suggestion extends UIProxy {
         "npm install"
       ],
       http: true,
-      scalable: { default: 2 },
+      scalable: { default: 1 },
       command : "npm start",
       mounts  : {
         '/azk/#{manifest.dir}': {type: 'path', value: '.'},

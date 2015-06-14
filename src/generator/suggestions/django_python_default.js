@@ -14,7 +14,7 @@ export class Suggestion extends UIProxy {
         'pip install --user --allow-all-external -r requirements.txt',
       ],
       http    : true,
-      scalable: { default: 2 },
+      scalable: { default: 1 },
       command : 'python manage.py runserver 0.0.0.0:$HTTP_PORT',
       mounts  : {
         '/azk/#{manifest.dir}': {type: 'sync',       value: '.'},
