@@ -1,4 +1,5 @@
-import { _, fs, lazy_require } from 'azk';
+import { _, fsAsync, lazy_require } from 'azk';
+import { promiseResolve } from 'azk/utils/promises';
 import Utils from 'azk/utils';
 
 var lazy = lazy_require({
@@ -27,12 +28,15 @@ export class Meta {
     return this.options.cache_dir;
   }
 
-  clean() {
+  cleanAsync() {
     var path = this.cache_dir;
-    if (fs.existsSync(path)) {
-      this.__cache = null;
-      return fs.removeSync(path);
-    }
+    return fsAsync.exists(path).then(function(cache_dir_exists) {
+      if (cache_dir_exists) {
+        this.__cache = null;
+        return fsAsync.remove(path);
+      }
+      return promiseResolve(false);
+    }.bind(this));
   }
 
   get cache() {

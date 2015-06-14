@@ -119,7 +119,8 @@ export class Image {
         retryDelay: 500
       };
 
-      var syncronizer = new lazy.Syncronizer(docker_socket, request_options);
+      var syncronizer = new lazy.Syncronizer();
+      yield syncronizer.initialize(docker_socket, request_options);
       var tag = repo_tag;
 
       // get token from Docker Hub
@@ -179,6 +180,9 @@ export class Image {
 
     if (this.system.hasOwnProperty('manifest') && this.system.manifest.cwd) {
       var dockerfile_cwd = path.resolve(this.system.manifest.cwd, dockerfile_path);
+      // FIXME: to change this `Sync` codes we have to change system and image contructors
+      //        there is no way to call promises on contructors
+      //        new system -> new image -> set path -> _findDockerfile -> sync calls
       var exists = fs.existsSync(dockerfile_cwd);
 
       if (exists) {

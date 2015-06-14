@@ -1,4 +1,4 @@
-import { _, t, path, fs, config, log } from 'azk';
+import { _, t, path, fsAsync, config, log } from 'azk';
 import { async, defer, ninvoke, thenAll, promiseResolve } from 'azk/utils/promises';
 
 import { lazy_require } from 'azk';
@@ -14,7 +14,7 @@ var lazy = lazy_require({
   MemcachedDriver: 'memcached',
 });
 
-// TODO: Reaplce forever for a better solution :/
+// TODO: Replace forever for a better solution :/
 var Balancer = {
   memcached : null,
   hipache   : null,
@@ -107,32 +107,36 @@ var Balancer = {
   },
 
   start_hipache(ip, port, socket) {
-    var pid  = config("paths:hipache_pid");
-    var file = this._check_config(ip, port, socket);
-    var cmd  = [ 'nvm', 'hipache', '--config', file ];
-    var name = "hipache";
-
-    return this._start_service(name, cmd, pid).then((child) => {
+    return async(this, function* () {
+      var pid  = config("paths:hipache_pid");
+      var file = yield this._check_config(ip, port, socket);
+      var cmd  = [ 'nvm', 'hipache', '--config', file ];
+      var name = "hipache";
+      var child = yield this._start_service(name, cmd, pid);
       this.hipache = child;
       log.info("hipache started in %s port with file config", port, file);
       this._handleChild(name, child);
+      return promiseResolve({});
     });
   },
 
   start_memcached(socket) {
-    var pid  = config("paths:memcached_pid");
-    var cmd  = [ 'nvm', 'memcachedjs', '--socket', socket ];
-    var name = "memcached";
+    return async(this, function* () {
+      var pid  = config("paths:memcached_pid");
+      var cmd  = [ 'nvm', 'memcachedjs', '--socket', socket ];
+      var name = "memcached";
 
-    // Remove socket before start
-    if (fs.existsSync(socket)) {
-      fs.unlinkSync(socket);
-    }
+      // Remove socket before start
+      var socket_exists = yield fsAsync.exists(socket);
+      if (socket_exists) {
+        yield fsAsync.unlink(socket);
+      }
 
-    return this._start_service(name, cmd, pid).then((child) => {
+      var child = yield this._start_service(name, cmd, pid);
       this.memcached = child;
       log.info("memcachedjs started in socket: ", socket);
       this._handleChild(name, child);
+      return promiseResolve({});
     });
   },
 
@@ -250,7 +254,7 @@ var Balancer = {
       log.info(name + ' stopped');
     });
 
-    // Log child erro if exited
+    // Log child error if exited
     child.on('exit:code', (code) => {
       if (code && code !== 0) {
         log.error(name + ' exit code: ' + code);
@@ -335,8 +339,9 @@ var Balancer = {
     };
 
     // set content
-    fs.writeFileSync(file, JSON.stringify(data, null, '  '));
-    return file;
+    return fsAsync.writeFile(file, JSON.stringify(data, null, '  ')).then(function () {
+      return file;
+    });
   }
 };
 

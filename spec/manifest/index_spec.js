@@ -1,4 +1,4 @@
-import { t, _, fs, config } from 'azk';
+import { t, _, fsAsync, config } from 'azk';
 import { Manifest, file_name } from 'azk/manifest';
 import { System } from 'azk/system';
 import { ManifestError, ManifestRequiredError, SystemNotFoundError } from 'azk/utils/errors';
@@ -51,8 +51,9 @@ describe("Azk manifest class, main set", function() {
     it("should support meta data", function() {
       manifest.setMeta('anykey', 'anyvalue');
       h.expect(manifest.getMeta('anykey')).to.equal('anyvalue');
-      manifest.cleanMeta();
-      h.expect(manifest.getMeta('anykey')).to.empty;
+      return manifest.cleanMetaAsync().then(function() {
+        return h.expect(manifest.getMeta('anykey')).to.empty;
+      });
     });
 
     it("should raise an error if not found a required system", function() {
@@ -168,45 +169,58 @@ describe("Azk manifest class, main set", function() {
     });
 
     var mock_manifest = (data) => {
-      fs.writeFileSync(file, data);
-      return () => new Manifest(project);
+      return fsAsync.writeFile(file, data).then(function () {
+        return () => new Manifest(project);
+      });
     };
 
     it("should raise a invalid system name", function() {
-      var func = mock_manifest('system("system.1", { image: { docker: "foo" } });');
-      var msgs = t("manifest.system_name_invalid", { system: "system.1" });
-      h.expect(func).to.throw(ManifestError).and.match(RegExp(msgs));
+      return mock_manifest('system("system.1", { image: { docker: "foo" } });')
+      .then(function (func) {
+        var msgs = t("manifest.system_name_invalid", { system: "system.1" });
+        h.expect(func).to.throw(ManifestError).and.match(RegExp(msgs));
+      });
     });
 
     it("should raise a sytax error", function() {
-      var func = mock_manifest("var a; \n var = ;");
-      h.expect(func).to.throw(ManifestError).and.match(/Unexpected token/);
+      return mock_manifest("var a; \n var = ;")
+      .then(function (func) {
+        h.expect(func).to.throw(ManifestError).and.match(/Unexpected token/);
+      });
     });
 
     it("should raise a if use balancer option", function() {
-      var func = mock_manifest('system("system", { image: { docker: "foo" }, balancer: { key: "value" } });');
-      var msgs = t("manifest.balancer_deprecated", { system: "system" });
-      h.expect(func).to.throw(ManifestError).and.match(RegExp(msgs));
+      return mock_manifest('system("system", { image: { docker: "foo" }, balancer: { key: "value" } });')
+      .then(function (func) {
+        var msgs = t("manifest.balancer_deprecated", { system: "system" });
+        h.expect(func).to.throw(ManifestError).and.match(RegExp(msgs));
+      });
     });
 
     it("should raise a if use mounts_folders option", function() {
-      var func = mock_manifest('system("system", { image: { docker: "foo" }, mount_folders: { key: "value" } });');
-      var opts = { option: 'mount_folders', system: 'system', manifest: file };
-      var msgs = h.escapeRegExp(t("manifest.mount_and_persistent_deprecated", opts));
-      h.expect(func).to.throw(ManifestError).and.match(RegExp(msgs));
+      return mock_manifest('system("system", { image: { docker: "foo" }, mount_folders: { key: "value" } });')
+      .then(function (func) {
+        var opts = { option: 'mount_folders', system: 'system', manifest: file };
+        var msgs = h.escapeRegExp(t("manifest.mount_and_persistent_deprecated", opts));
+        h.expect(func).to.throw(ManifestError).and.match(RegExp(msgs));
+      });
     });
 
     it("should raise a if use persistent_folders option", function() {
-      var func = mock_manifest('system("system", { image: { docker: "foo" }, persistent_folders: { key: "value" } });');
-      var opts = { option: 'persistent_folders', system: 'system', manifest: file };
-      var msgs = h.escapeRegExp(t("manifest.mount_and_persistent_deprecated", opts));
-      h.expect(func).to.throw(ManifestError).and.match(RegExp(msgs));
+      return mock_manifest('system("system", { image: { docker: "foo" }, persistent_folders: { key: "value" } });')
+      .then(function (func) {
+        var opts = { option: 'persistent_folders', system: 'system', manifest: file };
+        var msgs = h.escapeRegExp(t("manifest.mount_and_persistent_deprecated", opts));
+        h.expect(func).to.throw(ManifestError).and.match(RegExp(msgs));
+      });
     });
 
     it("should raise error if an image has not been configured", function() {
-      var func = mock_manifest('system("system1", { });');
-      var msgs = t("manifest.image_required", { system: "system1" });
-      h.expect(func).to.throw(ManifestError).and.match(RegExp(msgs));
+      return mock_manifest('system("system1", { });')
+      .then(function (func) {
+        var msgs = t("manifest.image_required", { system: "system1" });
+        h.expect(func).to.throw(ManifestError).and.match(RegExp(msgs));
+      });
     });
 
     it("should raise an exception if the dependency is circular systems", function() {
@@ -214,33 +228,41 @@ describe("Azk manifest class, main set", function() {
       data += 'system("system1", { image: { docker: "foo" }, depends: ["system2"] });';
       data += 'system("system2", { image: { docker: "foo" }, depends: ["system1"] });';
 
-      var func = mock_manifest(data);
-      var msgs = t("manifest.circular_dependency", {system1: "system1", system2: "system2"});
-      h.expect(func).to.throw(ManifestError).and.match(RegExp(msgs));
+      return mock_manifest(data)
+      .then(function (func) {
+        var msgs = t("manifest.circular_dependency", {system1: "system1", system2: "system2"});
+        h.expect(func).to.throw(ManifestError).and.match(RegExp(msgs));
+      });
     });
 
     it("should raise an exception if the dependency it's not declared", function() {
       var data = "";
       data += 'system("system1", { image: { docker: "foo" }, depends: ["system2"] });';
 
-      var func = mock_manifest(data);
-      var msgs = t("manifest.depends_not_declared", {system: "system1", depend: "system2"});
-      h.expect(func).to.throw(ManifestError).and.match(RegExp(msgs));
+      return mock_manifest(data)
+      .then(function (func) {
+        var msgs = t("manifest.depends_not_declared", {system: "system1", depend: "system2"});
+        h.expect(func).to.throw(ManifestError).and.match(RegExp(msgs));
+      });
     });
 
     it("should raise invalid function error", function() {
-      var func = mock_manifest("__not_exist()");
-      h.expect(func).to.throw(ManifestError).and.match(
-        /ReferenceError: __not_exist is not defined/
-      );
+      return mock_manifest("__not_exist()")
+      .then(function (func) {
+        h.expect(func).to.throw(ManifestError).and.match(
+          /ReferenceError: __not_exist is not defined/
+        );
+      });
     });
 
     it("should raise invalid default system", function() {
-      var func = mock_manifest("setDefault('not_exist')");
-      var msg  = t('manifest.invalid_default', { system: "not_exist" });
-      h.expect(func).to.throw(ManifestError).and.match(
-        RegExp(h.escapeRegExp(msg))
-      );
+      return mock_manifest("setDefault('not_exist')")
+      .then(function (func) {
+        var msg  = t('manifest.invalid_default', { system: "not_exist" });
+        h.expect(func).to.throw(ManifestError).and.match(
+          RegExp(h.escapeRegExp(msg))
+        );
+      });
     });
   });
 
@@ -296,20 +318,20 @@ describe("Azk manifest class, main set", function() {
       });
 
       var mock_manifest = (data) => {
-        fs.writeFileSync(file, data);
-        return () => new Manifest(project);
+        return fsAsync.writeFile(file, data).then(function () {
+          return () => new Manifest(project);
+        });
       };
 
       it("should raise an exception when trying to extend from itself", function() {
-        var func = mock_manifest('system("system1", { extends: "system1" });');
-        var msg  = t('manifest.cannot_extends_itself', { system: "system1" });
-        h.expect(func).to.throw(ManifestError).and.match(
-          RegExp(h.escapeRegExp(msg))
-        );
+        return mock_manifest('system("system1", { extends: "system1" });')
+        .then(function (func) {
+          var msg  = t('manifest.cannot_extends_itself', { system: "system1" });
+          h.expect(func).to.throw(ManifestError).and.match(
+            RegExp(h.escapeRegExp(msg))
+          );
+        });
       });
-
     });
-
   });
-
 });

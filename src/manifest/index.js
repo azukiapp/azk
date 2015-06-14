@@ -101,7 +101,7 @@ export class Manifest {
 
   parse() {
     var content = fs.readFileSync(this.file);
-    var err = check(content, this.file);
+    var err = check(content.toString(), this.file);
     if (err) {
       throw new ManifestError(this.file, err);
     } else {
@@ -300,8 +300,8 @@ export class Manifest {
     return this;
   }
 
-  cleanMeta(...args) {
-    return this.meta.clean(...args);
+  cleanMetaAsync(...args) {
+    return this.meta.cleanAsync(...args);
   }
 
   // Default system

@@ -33,7 +33,7 @@ export function extend(h) {
 
       // Read and write
       var generator = new Generator({});
-      generator.render(data, path.join(tmp, config('manifest')));
+      yield generator.render(data, path.join(tmp, config('manifest')));
 
       // Return a new project dir
       return new Manifest(tmp);
