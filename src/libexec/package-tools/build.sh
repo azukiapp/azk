@@ -108,7 +108,7 @@ if [[ -z $BUILD_DEB ]] && [[ -z $BUILD_RPM ]] && [[ -z $BUILD_MAC ]]; then
   BUILD_MAC=true
 fi
 
-if [[ ! -z $BUILD_DEB ]] || [[! -z $BUILD_RPM ]]; then
+if [[ ! -z $BUILD_DEB ]] || [[ ! -z $BUILD_RPM ]]; then
   [[ ! -e $SECRET_KEY ]] && echo >&2 "Please inform an valid GPG key." && exit 3
 fi
 
