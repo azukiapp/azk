@@ -1,21 +1,29 @@
 ## azk start
 
-Starts all instances of the specified systems in the current `Azkfile.js`, or the one specified.
-
-#### Options:
-
-- `--verbose, -v, -vv`          Increase the level of detail (default: false) - supports multiple
-- `--reprovision, -R`           Forces reprovisioning before starting the system instance (default: false)
-- `--open="application", -o`    Opens the url of the standard system in the specific application (default: standard machine browser)
-- `--rebuild, --pull`           Forces _build_ or _pull_, according to the system _provider_ (default: false)
+  Starts one or more systems.
 
 #### Usage:
 
-    $ azk [options] start [system] [options]
+    $ azk start [<system>] [options]
+
+#### Arguments:
+
+  system                    System name where the action will take place.
+
+#### Options:
+
+  --reprovision, -R         Forces provisioning actions before starting an instance.
+  --rebuild, -B             Forces rebuilding or pull image and reprovision system before starting an instance.
+  --open, -o                Opens system URL in default browser application.
+  --open-with=<app>, -a     Opens system URL in specified browser application.
+  --quiet, -q               Never prompt.
+  --help, -h                Shows help usage.
+  --log=<level>, -l         Sets log level (default: error).
+  --verbose, -v             Sets the level of detail - multiple supported (-vv == --verbose 2) [default: 0].
 
 #### Example:
 
 ```bash
-# start the node010 system and opens the default browser
-$ azk start node010 --open
+# start the azkdemo system and opens the default browser
+$ azk start azkdemo --open
 ```

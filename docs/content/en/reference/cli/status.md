@@ -1,32 +1,41 @@
 ## azk status
 
-Displays the _status_ of a system instance or all systems from the _Azkfile.js_.
-
-#### Options:
-
-- `--text, -t`  Displays in text mode (default: false)
-- `--long, -l`  Displays all the columns (default: false)
+Shows system(s) status.
 
 #### Usage:
 
-    $ azk [options] status [system] [options]
+    $ azk status [<system>] [options]
+
+#### Arguments:
+
+  system                    System name where the action will take place.
+
+#### Options:
+
+  --long                    Show all columns.
+  --short                   Hides 'Provisioned' column.
+  --text                    Shows output in plain text mode.
+  --quiet, -q               Never prompt.
+  --help, -h                Shows help usage.
+  --log=<level>, -l         Sets log level (default: error).
+  --verbose, -v             Sets the level of detail - multiple supported (-vv == --verbose 2) [default: 0].
 
 #### Examples:
 
 ```sh
-# Displays the 'status' of the node010 system showing all columns
-$ azk status node010 -l
+# Displays the 'status' of the azkdemo system showing all columns
+$ azk status azkdemo --long
+┌───┬─────────┬───────────┬───────────────────────────┬────────────────────────────┬─────────────┬────────────────────┐
+│   │ System  │ Instances │ Hostname/url              │ Instances-Ports            │ Provisioned │ Image              │
+├───┼─────────┼───────────┼───────────────────────────┼────────────────────────────┼─────────────┼────────────────────┤
+│ ↑ │ azkdemo │ 4         │ http://azkdemo.dev.azk.io │ 4-http:32782, 3-http:32781 │ an hour ago │ azukiapp/node:0.12 │
+│   │         │           │                           │ 2-http:32780, 1-http:32771 │             │                    │
+│   │         │           │                           │                            │             │                    │
+└───┴─────────┴───────────┴───────────────────────────┴────────────────────────────┴─────────────┴────────────────────┘
 
-┌───┬─────────┬────────────┬────────────────────────┬────────────────────────────┬───────────────────┬───────────┐
-│   │ System  │ Instances  │ Hostname                  │ Instances-Ports            │ Provisioned    │ Image     │
-├───┼─────────┼────────────┼────────────────────────┼────────────────────────────┼───────────────────┼───────────┤
-│ ↑ │ node010 │ 2          │ http://node010.dev.azk.io │ 2-http:49166, 1-http:49165 │ 21 minutes ago │ node:0.10 │
-│   │         │            │                           │                            │                │           │
-└───┴─────────┴────────────┴────────────────────────┴────────────────────────────┴───────────────────┴───────────┘
-
-# Displays the 'status' of the node010 system in text mode
-$ azk status node010 -t
-    System   Instancies  Hostname                Instances-Ports             Provisioned
- ↑  node010  2           http://node010.dev.azk.io  2-http:49166, 1-http:49165  23 minutes ago
+# Displays the 'status' of the azkdemo system in text mode
+$ azk status azkdemo --text
+ System   Instances  Hostname/url               Instances-Ports                                         Provisioned
+ azkdemo  4          http://azkdemo.dev.azk.io  4-http:32782, 3-http:32781, 2-http:32780, 1-http:32771  an hour ago
 
 ```

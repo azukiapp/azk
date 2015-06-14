@@ -39,7 +39,20 @@ var Utils = {
 
   envs(key, defaultValue = null) {
     var value = process.env[key];
-    if (value === 'undefined') { value = undefined; }
+    switch (value) {
+      case 'undefined':
+        value = undefined;
+        break;
+      case 'null':
+        value = null;
+        break;
+      case 'false':
+        value = false;
+        break;
+      case 'true':
+        value = true;
+        break;
+    }
     return value || (_.isFunction(defaultValue) ? defaultValue() : defaultValue);
   },
 

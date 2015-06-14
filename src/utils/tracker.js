@@ -1,15 +1,13 @@
 import Azk from 'azk';
 import { _, config, log, t, lazy_require } from 'azk';
 import { meta as azkMeta } from 'azk';
-import { calculateHash } from 'azk/utils';
 import { promiseResolve } from 'azk/utils/promises';
-
-var util = require('util');
-var os = require('os');
-var osName = require('os-name');
 
 var lazy = lazy_require({
   InsightKeenIo: 'insight-keen-io',
+  os           : 'os',
+  osName       : 'os-name',
+  calculateHash: ['azk/utils'],
 });
 
 export class TrackerEvent {
@@ -80,7 +78,7 @@ export class TrackerEvent {
         }
         return tracking_result;
       }, () => {
-        log.info(t("tracking.timeout"));
+        log.warn('[tracker] > timeout:', t("tracking.timeout"));
         return false;
       });
   }
@@ -106,11 +104,11 @@ export class Tracker {
 
       // device config
       "device_info": {
-        "os"          : osName(),
-        "proc_arch"   : os.arch(),
-        "total_memory": Math.floor(os.totalmem() / 1024 / 1024),
-        "cpu_info"    : os.cpus()[0].model,
-        "cpu_count"   : os.cpus().length
+        "os"          : lazy.osName(),
+        "proc_arch"   : lazy.os.arch(),
+        "total_memory": Math.floor(lazy.os.totalmem() / 1024 / 1024),
+        "cpu_info"    : lazy.os.cpus()[0].model,
+        "cpu_count"   : lazy.os.cpus().length
       }
     };
   }
@@ -138,7 +136,7 @@ export class Tracker {
   }
 
   generateRandomId(label) {
-    return label + ':' + calculateHash(String(Math.floor(Date.now() * Math.random()))).slice(0, 8);
+    return label + ':' + lazy.calculateHash(String(Math.floor(Date.now() * Math.random()))).slice(0, 8);
   }
 
   generateNewAgentSessionId() {
@@ -161,8 +159,9 @@ export class Tracker {
   }
 
   loadTrackerPermission() {
-    if (config('tracker:disable')) { return false; }
-    return azkMeta.get(this.ids_keys.permission);
+    var permission = (config('tracker:disable')) ? false : azkMeta.get(this.ids_keys.permission);
+    log.debug(`[tracker] permission: ${permission}`);
+    return permission;
   }
 
   checkTrackingPermission() {
@@ -170,34 +169,15 @@ export class Tracker {
   }
 
   logAnalyticsError(err) {
-    if (process.env.AZK_ANALYTICS_ERRORS === '1') {
-      log.warn('[Analytics:tracking:error]');
-      if (err.stack) {
-        log.warn(err.stack);
-      } else {
-        log.warn(err);
-      }
-    }
+    log.warn('[tracker] >', err.stack || err.toString());
   }
 
   logAnalyticsData(analytics_data) {
-    this.analytics_level_env = this.analytics_level_env || process.env.AZK_ANALYTICS_LEVEL || '0';
-
-    switch (this.analytics_level_env) {
-      case '1':
-        log.info('[Analytics:tracking:data]');
-        log.info(util.inspect(analytics_data, { showHidden: false, depth: null, colors: true }));
-        break;
-      case '2':
-        log.info('[Analytics:tracking]', analytics_data.eventCollection, analytics_data.data.event_type);
-        break;
-      case '3':
-        log.info('[track] >', analytics_data.eventCollection, ':', analytics_data.data.event_type);
-        log.info('        >', analytics_data.data.meta.agent_session_id);
-        log.info('        >', analytics_data.data.meta.command_id);
-        log.info('        >', analytics_data.data.meta.user_id, '\n');
-        break;
-    }
+    log.info (`[tracker] ${analytics_data.eventCollection}:${analytics_data.data.event_type}`);
+    log.info (`[tracker]`, analytics_data.data.meta.agent_session_id);
+    log.info (`[tracker]`, analytics_data.data.meta.command_id);
+    log.info (`[tracker]`, analytics_data.data.meta.user_id);
+    log.debug(`[tracker] data:`, analytics_data);
   }
 }
 

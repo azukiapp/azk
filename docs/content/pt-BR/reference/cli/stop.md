@@ -1,17 +1,19 @@
 ## azk stop
 
-Para todas as instâncias dos sistemas especificados no `Azkfile.js` atual, ou aquele especificado.
-
-#### Options:
-
-- `--verbose, -v, -vv`   Aumenta o nível de detalhes (padrão: falso) - suporta múltiplos
-- `--remove, -r`         Remove a instância antes de pará-la (padrão: verdadeiro)
+  Para um ou mais sistemas.
 
 #### Uso:
 
-    $ azk [options] stop [options] [system]
+    $ azk stop [<system>] [options]
 
-#### Exemplo:
+#### Argumentos:
 
-    $ azk stop
+  system                    Nome do sistema que receberá a ação.
 
+#### Opções:
+
+  --no-remove, -r           Não remove a instância do container após a parada.
+  --quiet, -q               Nunca perguntar.
+  --help, -h                Mostrar ajuda de uso.
+  --log=<level>, -l         Defini o nível de log (padrão: error).
+  --verbose, -v             Defini o nível de detalhes da saída - suporta múltiplos (-vv == --verbose 2) [padrão: 0].

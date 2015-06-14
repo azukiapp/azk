@@ -1,72 +1,28 @@
 ## azk vm
 
-Controla a máquina virtual utilizada no Mac OS X.
+Controla a Maquina Virtual.
 
 #### Uso:
 
-    $ azk [options] vm [options] {action}
+  azk vm (ssh|start|status|installed|stop|remove) [options] [-- <ssh-args>...]
 
-_______________
-### azk vm installed
+#### Ações:
 
-Verifica se a máquina virtual está instalada.
+  installed                 Checa se a maquina virtual está instalada.
+  remove                    Remove a maquina virtual.
+  start                     Inicia a maquina virtual.
+  stop                      Para a maquina virtual.
+  status                    Exibe o status da maquina virtual.
+  ssh                       Acessa a maquina virtual através do protocolo SSH.
 
-#### Exemplo:
+#### Argumentos:
 
-    $ azk vm installed
-    azk: Virtual machine is not installed.
-
-_______________
-### azk vm start
-
-Inicia a máquina virtual.
-
-#### Exemplo:
-
-    $ azk vm start
-
-_______________
-### azk vm stop
-
-Para a máquina virtual.
-
-#### Exemplo:
-
-    $ azk vm stop
-
-_______________
-### azk vm status
-
-Exibe a situção atual da máquina virtual.
-
-#### Exemplo:
-
-	$ azk vm status
-
-_______________	
-### azk vm ssh
-
-Acessa a máquina virtual via protocolo SSH.
-
-#### Exemplo:
-
-    $ azk vm ssh
-    
-_______________	
-### azk vm remove
-
-Remove a máquina virtual.
+  ssh-args                  Opções ou argumentos que serão passados para a maquina virtual através do ssh.
 
 #### Opções:
 
-- `--force`      Tenta forçar a remoção da máquina virtual. É útil quando o comando `azk vm remove` não funciona devido a algum problema desconhecido.
-
-#### Exemplos:
-
-##### Tenta remover a máquina virtual normalmente:
-
-    $ azk vm remove
-
-##### Força a remoção da máquina virtual:
-    
-    $ azk vm remove --force
+  --force, -F               Ativa o forçamento.
+  --quiet, -q               Nunca perguntar.
+  --help, -h                Mostrar ajuda de uso.
+  --log=<level>, -l         Defini o nível de log (padrão: error).
+  --verbose, -v             Defini o nível de detalhes da saída - suporta múltiplos (-vv == --verbose 2) [padrão: 0].

@@ -23,7 +23,11 @@ class Info extends CliTrackerController {
           depends : system.options.depends,
           image   : obj,
           command : this._format_command(system.command),
+          hostname: system.url.underline,
           ports   : system.ports,
+          scalable: system.scalable,
+          mounts  : system.mounts,
+          envs    : system.envs,
         };
 
         // Adjust
@@ -38,8 +42,8 @@ class Info extends CliTrackerController {
         data.systems[system.name.yellow] = system_data;
         return data;
       }, {
-        manifest      : manifest.file,
         manifest_id   : manifest.namespace,
+        manifest      : manifest.file,
         cache_dir     : manifest.cache_dir,
         default_system: manifest.systemDefault.name,
         systems       : {}

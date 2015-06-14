@@ -44,24 +44,26 @@ export function extend(Helpers) {
   };
 
   // Remove all containers before run
-  var _subscription;
+  if (!Helpers.no_required_agent) {
+    var _subscription;
 
-  before(function() {
-    this.timeout(0);
-    _subscription = subscribe('spec.dustman.#', (event) => console.log(`  ${event}`) );
+    before(function() {
+      this.timeout(0);
+      _subscription = subscribe('spec.dustman.#', (event) => console.log(`  ${event}`) );
 
-    var funcs = [
-      Helpers.remove_containers(),
-      Helpers.remove_images(),
-      () => console.log("\n")
-    ];
+      var funcs = [
+        Helpers.remove_containers(),
+        Helpers.remove_images(),
+        () => console.log("\n")
+      ];
 
-    return funcs.reduce(when, promiseResolve());
-  });
+      return funcs.reduce(when, promiseResolve());
+    });
 
-  after(() => {
-    if (_subscription) {
-      _subscription.unsubscribe();
-    }
-  });
+    after(() => {
+      if (_subscription) {
+        _subscription.unsubscribe();
+      }
+    });
+  }
 }

@@ -79,19 +79,6 @@ export class InvalidCommandError extends AzkError {
     this.command = command;
   }
 }
-export class InvalidOptionError extends AzkError {
-  constructor(option, key = 'invalid_option_error') {
-    super(key);
-    this.option = option;
-  }
-}
-
-export class InvalidValueError extends InvalidOptionError {
-  constructor(option, value) {
-    super(option, "invalid_value_error");
-    this.value   = value;
-  }
-}
 
 export class DockerBuildError extends AzkError {
   constructor(type, options = {}) {
@@ -105,13 +92,6 @@ export class ProvisionPullError extends AzkError {
     super('provision_pull_error');
     this.image = image;
     this.msg   = msg;
-  }
-}
-
-export class RequiredOptionError extends AzkError {
-  constructor(option) {
-    super('required_option_error');
-    this.option  = option;
   }
 }
 

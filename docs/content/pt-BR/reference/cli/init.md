@@ -1,35 +1,40 @@
 ## azk init
 
-Inicializa o arquivo `Azkfile.js` e sugere uma configuração inicial, baseando-se nos sistemas contidos na pasta atual.
-
-#### Opções:
-
-- `--force, -f`     Substitui o arquivo Azkfile.js se este já existir (padrão: falso)
+  Inicializa um projeto adicionando um `Azkfile.js`.
 
 #### Uso:
 
-    $ azk [options] init [options] [path]
+  $ azk init [<path>] [options]
 
-#### Exemplo:
+#### Argumentos:
+
+  path                      Caminho do arquivo de manifesto a ser gerado.
+
+#### Opções:
+
+  --filename                Mostra o nome do arquivo de manifesto.
+  --force, -F               Força a sobrescrita.
+  --quiet, -q               Nunca perguntar.
+  --help, -h                Mostrar ajuda de uso.
+  --log=<level>, -l         Defini o nível de log (padrão: error).
+  --verbose, -v             Defini o nível de detalhes da saída - suporta múltiplos (-vv == --verbose 2) [padrão: 0].
+
+#### Exemplos:
 
 ```
-$ azk init
+$ azk init -F
 
-azk: [phpLaravel] A `php` system was detected at '/home/projects/main-project/phpLaravel'.
-azk: [phpLaravel] The image suggested was `{"docker":"azukiapp/php-fpm:5.6"}`.
+azk: [elixir-app] `A elixir` system was detected at '~/azuki/azkfile-init-examples/elixir_app'.
+azk: [elixir-app] The image suggested was `{"docker":"azukiapp/elixir"}`.
 
-azk: [django15] A `django` system was detected at '/home/projects/main-project/django15'.
-azk: [django15] The image suggested was `{"docker":"python:2.7"}`.
+azk: [elixir-phoenix] `A elixir_phoenix` system was detected at '~/azuki/azkfile-init-examples/elixir_phoenix'.
+azk: [elixir-phoenix] The image suggested was `{"docker":"azukiapp/elixir"}`.
 
-azk: [phpSample] A `php` system was detected at '/home/projects/main-project/phpSample'.
-azk: [phpSample] The image suggested was `{"docker":"azukiapp/php-fpm"}`.
-azk: [phpSample] ! It was not possible to detect the `php` specific version, so the standard version was suggested instead.
-azk: [phpSample] ! To change the image version you must edit the `Azkfile.js` file.
-azk: [phpSample] ! For more information see the documentation at http://docs.azk.io/en/images/index.html.
+azk: [node012] `A node` system was detected at '~/azuki/azkfile-init-examples/node012'.
+azk: [node012] The image suggested was `{"docker":"azukiapp/node:0.12"}`.
 azk: 'Azkfile.js' generated
 
 Tip:
-  Adds the `.azk` in .gitignore
+  Adds the `.azk` to .gitignore
   echo '.azk' >> .gitignore
-
 ```

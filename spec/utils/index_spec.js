@@ -37,4 +37,57 @@ describe("Azk utils module", function() {
     result = utils.template("<%= value %> - #{hash.key}", data);
     h.expect(result).to.equal("foo - bar");
   });
+
+  describe('envs', function () {
+    beforeEach(() => {
+      delete process.env.ENV_TEST;
+    });
+
+    describe('without default, should', function () {
+      it('null from "null"', function () {
+        var key = 'ENV_TEST';
+        process.env[key] = 'null';
+        h.expect(utils.envs(key)).to.eql(null);
+      });
+
+      it('null from "undefined"', function () {
+        var key = 'ENV_TEST';
+        process.env[key] = 'undefined';
+        h.expect(utils.envs(key)).to.eql(null);
+      });
+
+      it('null from "false"', function () {
+        var key = 'ENV_TEST';
+        process.env[key] = 'false';
+        h.expect(utils.envs(key)).to.eql(null);
+      });
+
+      it('should true', function () {
+        var key = 'ENV_TEST';
+        process.env[key] = 'true';
+        h.expect(utils.envs(key)).to.eql(true);
+      });
+    });
+
+    describe('with default, should "default_value"', function () {
+      var should = "default_value";
+
+      it('should undefined', function () {
+        var key = 'ENV_TEST';
+        process.env[key] = 'undefined';
+        h.expect(utils.envs(key, should)).to.eql(should);
+      });
+
+      it('should false from "false"', function () {
+        var key = 'ENV_TEST';
+        process.env[key] = 'false';
+        h.expect(utils.envs(key, should)).to.eql(should);
+      });
+
+      it('default from undefined env', function () {
+        var key = 'ENV_TEST';
+        h.expect(utils.envs(key, should)).to.eql(should);
+      });
+    });
+  });
 });

@@ -1,17 +1,19 @@
 ## azk stop
 
-Stop all instances of the specified systems in the `current Azkfile.js`, or the one specified.
-
-#### Options:
-
-- `--verbose, -v, -vv`   Increase the level of detail (default: false) - supports multiple
-- `--remove, -r`         Remove the instance before stopping it (default: true)
+  Stops one or more systems.
 
 #### Usage:
 
-    $ azk [options] stop [options] [system]
+    $ azk stop [<system>] [options]
 
-#### Example:
+#### Arguments:
 
-    $ azk stop
+  system                    System name where the action will take place.
 
+#### Options:
+
+  --no-remove, -r           Do not remove container instances after stopping.
+  --quiet, -q               Never prompt.
+  --help, -h                Shows help usage.
+  --log=<level>, -l         Sets log level (default: error).
+  --verbose, -v             Sets the level of detail - multiple supported (-vv == --verbose 2) [default: 0].
