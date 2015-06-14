@@ -14,7 +14,7 @@ if [[ -z $RELEASE_CHANNEL ]]; then
 else
   CHANNEL_SUFFIX="-${RELEASE_CHANNEL}"
   CONFLICTS="
-  conflicts_with 'azk', :because => 'installation of azk in path'
+  conflicts_with 'azukiapp/azk/azk', :because => 'installation of azk in path'
   "
 fi
 REPO_URL="repo${CHANNEL_SUFFIX}.azukiapp.com"
@@ -27,7 +27,7 @@ require "formula"
 class ${CLASS_NAME} < Formula
   homepage "http://azk.io"
   url "http://${REPO_URL}/mac/azk_${VERSION}.tar.gz"
-  version ${VERSION}
+  version "${VERSION}"
   sha256 "${SHA256}"
   ${CONFLICTS}
   depends_on :macos => :mountain_lion

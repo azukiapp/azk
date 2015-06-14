@@ -17,20 +17,24 @@ fi
 # Clean same version
 (
   set -e
-  brew unlink azk
+  brew unlink azk${CHANNEL_SUFFIX}
   rm -Rf /usr/local/Cellar/azk${CHANNEL_SUFFIX}/${VERSION}
-  rm -Rf /Library/Caches/Homebrew/azk-${VERSION}.tar.gz
+  rm -Rf /Library/Caches/Homebrew/azk*.tar.gz
 ) || true
 
-sed -i "s#url.*#url \"file://${BASE_DIR}/package/brew/azk_${VERSION}.tar.gz\"#"
+TMP_FILE="/tmp/azk${CHANNEL_SUFFIX}.rb"
+FORMULA_DIR="/usr/local/Library/Taps/azukiapp/homebrew-azk/Formula"
+FORMULA_FILE="azk${CHANNEL_SUFFIX}.rb"
+cat $FORMULA_DIR/$FORMULA_FILE | sed "s#url.*#url \"file://${BASE_DIR}/package/brew/azk_${VERSION}.tar.gz\"#" > $TMP_FILE
+mv $TMP_FILE $FORMULA_DIR/$FORMULA_FILE
 
-brew unlink azk > /dev/null 2>&1
+brew unlink azk${CHANNEL_SUFFIX} > /dev/null 2>&1
 brew install azukiapp/azk/azk${CHANNEL_SUFFIX}
 
-cd /usr/local/Library/Taps/azukiapp/homebrew-azk/
-git checkout Formula/azk${CHANNEL_SUFFIX}.rb
+cd $FORMULA_DIR
+git checkout $FORMULA_FILE
 
-if [[ "$( azk version )" == "azk ${VERSION}" ]]; then
+if [[ "$( /usr/local/bin/azk version )" == "azk ${VERSION}" ]]; then
     echo "azk ${VERSION} has been successfully installed."
 else
     echo "Failed to install azk ${VERSION}."
