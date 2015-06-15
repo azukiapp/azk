@@ -332,7 +332,7 @@ fi
 
 step_run "Tearing down" tear_down
 
-[[ $NO_TAG != true ]] && step_run "Tagging to v${VERSION_NO_META}" make_tag
+[[ $NO_TAG != true ]] && [[ $SUCCESS_BUILD == true ]] && step_run "Tagging to v${VERSION_NO_META}" make_tag
 
 if [[ $PUBLISH == true ]]; then
   if [[ $SUCCESS_BUILD == true ]]; then

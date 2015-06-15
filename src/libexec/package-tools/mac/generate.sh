@@ -34,8 +34,13 @@ MAC_FORMULA_FILE="azk${CHANNEL_SUFFIX}.rb"
 MAC_BUCKET_URL="repo-stage.azukiapp.com"
 
 rm -Rf ${MAC_REPO_DIR}
-git clone ${MAC_REPO_URL} ${MAC_REPO_DIR}
-tee ${MAC_FORMULA_DIR}/${MAC_FORMULA_FILE} <<EOF
+(
+  set -e
+  git clone ${MAC_REPO_URL} ${MAC_REPO_DIR}
+  cd ${MAC_REPO_DIR}
+  git checkout ${MAC_REPO_STAGE_BRANCH}
+
+  tee ${MAC_FORMULA_DIR}/${MAC_FORMULA_FILE} <<EOF
 require "formula"
 
 class ${CLASS_NAME} < Formula
@@ -56,10 +61,6 @@ end
 
 EOF
 
-(
-  set -e
-  cd ${MAC_REPO_DIR}
-  git checkout ${MAC_REPO_STAGE_BRANCH}
   git add ${MAC_FORMULA_DIR}/${MAC_FORMULA_FILE}
   git commit -m "Bumping version to azk v${VERSION}."
 )
