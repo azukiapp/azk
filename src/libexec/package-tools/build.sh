@@ -128,7 +128,7 @@ bump_version() {
 
   VERSION_LINE_NUMBER=`cat package.json | grep -n "version" | cut -d ":" -f1`
   sed -ir "${VERSION_LINE_NUMBER}s/\([[:digit:]]*\.[[:digit:]]*\.[[:digit:]]*\)[^\"]*/\1${VERSION_SUFFIX}/" package.json
-  rm package.jsonr
+  rm -Rf package.jsonr
 }
 
 make_tag() {
@@ -312,12 +312,8 @@ if [[ $BUILD_MAC == true ]]; then
   echo "Building Mac packages"
   echo
 
-  export MAC_REPO_URL="https://github.com/azukiapp/homebrew-azk"
   export MAC_REPO_DIR="/usr/local/Library/Taps/azukiapp/homebrew-azk"
   export MAC_REPO_STAGE_BRANCH="stage"
-  export MAC_FORMULA_DIR="${REPO_DIR}/Formula"
-  export MAC_FORMULA_FILE="azk${CHANNEL_SUFFIX}.rb"
-  export MAC_BUCKET_URL="repo-stage.azukiapp.com"
 
   (
     set -e

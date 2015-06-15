@@ -2,21 +2,14 @@
 
 set -x
 
-if [[ -z ${MAC_REPO_URL} ]] || \
-   [[ -z ${MAC_REPO_DIR} ]] || \
-   [[ -z ${MAC_REPO_STAGE_BRANCH} ]] || \
-   [[ -z ${MAC_FORMULA_DIR} ]] || \
-   [[ -z ${MAC_FORMULA_FILE} ]] || \
-   [[ -z ${MAC_BUCKET_URL} ]]; then
-  echo "Missing env varible. Please check:
-  MAC_REPO_URL: ${MAC_REPO_URL}
-  MAC_REPO_DIR: ${MAC_REPO_DIR}
-  MAC_REPO_STAGE_BRANCH: ${MAC_REPO_STAGE_BRANCH}
-  MAC_FORMULA_DIR: ${MAC_FORMULA_DIR}
-  MAC_FORMULA_FILE: ${MAC_FORMULA_FILE}
-  MAC_BUCKET_URL: ${MAC_BUCKET_URL}
-  "
+if [[ -z ${MAC_REPO_DIR} ]]; then
+  echo "Missing MAC_REPO_DIR env varible."
   exit 1
+fi
+
+if [[ -z ${MAC_REPO_STAGE_BRANCH} ]]; then
+  echo "Missing MAC_REPO_STAGE_BRANCH env varible."
+  exit 2
 fi
 
 export VERSION=$( azk version | awk '{ print $2 }' )
@@ -34,6 +27,11 @@ else
   conflicts_with 'azukiapp/azk/azk', :because => 'installation of azk in path'
   "
 fi
+
+MAC_REPO_URL="https://github.com/azukiapp/homebrew-azk"
+MAC_FORMULA_DIR="${MAC_REPO_DIR}/Formula"
+MAC_FORMULA_FILE="azk${CHANNEL_SUFFIX}.rb"
+MAC_BUCKET_URL="repo-stage.azukiapp.com"
 
 rm -Rf ${MAC_REPO_DIR}
 git clone ${MAC_REPO_URL} ${MAC_REPO_DIR}
