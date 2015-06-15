@@ -280,19 +280,21 @@ var Run = {
         var data = yield container.inspect();
         var exitCode = data.State.ExitCode;
 
+        var log = t('errors.run_timeout_error', {
+          system: system.name,
+          port: port_data && port_data.port,
+          retry: retry,
+          timeout: timeout,
+          hostname: system.url.underline,
+        });
+
         if (exitCode === 0) {
           throw new SystemRunError(
             system.name,
             container,
             data.Config.Cmd.join(' '),
             exitCode,
-            promiseResolve(t('errors.run_timeout_error', {
-              system: system.name,
-              port: port_data && port_data.port,
-              retry: retry,
-              timeout: timeout,
-              hostname: system.url.underline,
-            }))
+            log
           );
         } else {
           yield this.throwRunError(system, container, null, true);
