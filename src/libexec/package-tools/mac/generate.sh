@@ -17,7 +17,7 @@ else
   conflicts_with 'azukiapp/azk/azk', :because => 'installation of azk in path'
   "
 fi
-REPO_URL="repo${CHANNEL_SUFFIX}.azukiapp.com"
+REPO_URL="repo-stage.azukiapp.com"
 
 rm -Rf /usr/local/Library/Taps/azukiapp
 git clone https://github.com/azukiapp/homebrew-azk /usr/local/Library/Taps/azukiapp/homebrew-azk
