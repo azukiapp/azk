@@ -15,14 +15,15 @@ Arguments:
 Options:
   --gpg-key=<gpg-file>    The GPG private key to sign deb and rpm packages (not required in mac package case)
   --channel=<channel>     Release channel <channel>=(nightly|rc|stable)
-  --publish, -p           Publish the generated packages after build
   --no-version            Don't bump version (adding release channel and date)
   --no-make               Don't run \`make\` before packaging
   --no-linux-clean        Don't clean Linux build files before running first \`make -e package_linux\`
   --clean-repo            Force cleaning repo with previous version. Use it with wisdom!
   --no-agent              Don't run \`azk agent\` for builds (assumes it's running somewhere else)
   --no-test               Don't test generated packages
-  --versbose, -v          Displays more detailed info about each building  and packaging step
+  --publish, -p           Publish the generated packages after build
+  --no-tag                Don't create git tag and commit bumping current version
+  --verbose, -v           Displays more detailed info about each building  and packaging step
   --help, -h              Show this message
 "
 }
@@ -47,6 +48,8 @@ export AZK_ROOT_PATH=`cd \`abs_dir ${BASH_SOURCE:-$0}\`/../../..; pwd`
 export AZK_BUILD_TOOLS_PATH=${AZK_ROOT_PATH}/src/libexec/package-tools
 
 export PATH=${AZK_ROOT_PATH}/bin:$PATH
+
+[[ -e .env ]] && source .env
 
 AZK_AGENT_LOG_FILE='/tmp/azk-agent-start.log'
 TEST_DIR='/tmp/azk-test'
@@ -80,6 +83,8 @@ while [[ $# -gt 0 ]]; do
       NO_TEST=true;;
     --publish | -p )
       PUBLISH=true;;
+    --no-tag )
+      NO_TAG=true;;
     --verbose | -v )
       VERBOSE=true;;
     --help | -h )
@@ -122,9 +127,14 @@ bump_version() {
   fi
 
   VERSION_LINE_NUMBER=`cat package.json | grep -n "version" | cut -d ":" -f1`
-  sed -ir "${VERSION_LINE_NUMBER}s/\([[:digit:]]*\.[[:digit:]]*\.[[:digit:]]*\)[^\"]*/\1${VERSION_SUFFIX}/" package.json
-  VERSION=$( cat package.json | grep -e "version" | cut -d' ' -f4 | sed -n 's/\"//p' | sed -n 's/\"//p' | sed -n 's/,//p' )
-  echo "Version bumped to v${VERSION}."
+  sed -i "${VERSION_LINE_NUMBER}s/\([[:digit:]]*\.[[:digit:]]*\.[[:digit:]]*\)[^\"]*/\1${VERSION_SUFFIX}/" package.json
+}
+
+make_tag() {
+  git add package.json
+  git commit -m "Bumping version to azk v${VERSION_NO_META}"
+  LAST_COMMIT=$( git log | head -1 | awk '{ print substr($2, 0, 7)}' )
+  git tag "v${VERSION_NO_META}" ${LAST_COMMIT}
 }
 
 run_make() {
@@ -207,15 +217,22 @@ cd $AZK_ROOT_PATH
 source .dependencies
 
 LINUX_BUILD_WAS_EXECUTED=false
-[[ $NO_VERSION != true ]] && step_run "Bumping version" bump_version
+
+[[ $NO_VERSION != true ]] && step_run "Bumping version" --exit bump_version
+VERSION=$( cat package.json | grep -e "version" | cut -d' ' -f4 | sed -n 's/\"//p' | sed -n 's/\"//p' | sed -n 's/,//p' )
+VERSION_NO_META=$( echo $VERSION | sed 's/+.*//' )
+echo "Version bumped to v${VERSION}."
+
 [[ $NO_MAKE != true ]]    && step_run "Running make" --exit run_make
 [[ $NO_AGENT != true ]]   && step_run "Starting agent" --exit start_agent
 [[ $NO_TEST != true ]]    && step_run "Preparing testing env" setup_test && TEST_ARGS=$TEST_DIR
 
-
 LIBNSS_RESOLVER_REPO="https://github.com/azukiapp/libnss-resolver/releases/download/v${LIBNSS_RESOLVER_VERSION}"
 
+SUCCESS_BUILD=true
+
 if [[ $BUILD_DEB == true ]]; then
+  SUCCESS_STEP=false
   echo
   echo "Building deb packages"
   echo
@@ -247,12 +264,16 @@ if [[ $BUILD_DEB == true ]]; then
     if [[ $NO_TEST != true ]]; then
       step_run "Testing Ubuntu 14.04 repository" ${AZK_BUILD_TOOLS_PATH}/test.sh ubuntu14 $TEST_ARGS
     fi
+
+    SUCCESS_STEP=true
   ) && LINUX_BUILD_WAS_EXECUTED=true
 
+  if `$SUCCESS_BUILD && $SUCCESS_STEP`; then SUCCESS_BUILD=true; else SUCCESS_BUILD=false; fi
   echo
 fi
 
 if [[ $BUILD_RPM == true ]]; then
+  SUCCESS_STEP=false
   echo
   echo "Building rpm packages"
   echo
@@ -276,15 +297,26 @@ if [[ $BUILD_RPM == true ]]; then
     if [[ $NO_TEST != true ]]; then
       step_skip "Testing Fedora 20 repository" ${AZK_BUILD_TOOLS_PATH}/test.sh fedora20 $TEST_ARGS
     fi
+
+    SUCCESS_STEP=true
   ) && LINUX_BUILD_WAS_EXECUTED=true
 
+  if `$SUCCESS_BUILD && $SUCCESS_STEP`; then SUCCESS_BUILD=true; else SUCCESS_BUILD=false; fi
   echo
 fi
 
 if [[ $BUILD_MAC == true ]]; then
+  SUCCESS_STEP=false
   echo
   echo "Building Mac packages"
   echo
+
+  export MAC_REPO_URL="https://github.com/azukiapp/homebrew-azk"
+  export MAC_REPO_DIR="/usr/local/Library/Taps/azukiapp/homebrew-azk"
+  export MAC_REPO_STAGE_BRANCH="stage"
+  export MAC_FORMULA_DIR="${REPO_DIR}/Formula"
+  export MAC_FORMULA_FILE="azk${CHANNEL_SUFFIX}.rb"
+  export MAC_BUCKET_URL="repo-stage.azukiapp.com"
 
   (
     set -e
@@ -294,9 +326,26 @@ if [[ $BUILD_MAC == true ]]; then
     if [[ $NO_TEST != true ]]; then
       step_run "Testing Mac repository" ${AZK_BUILD_TOOLS_PATH}/mac/test.sh $TEST_ARGS
     fi
+    SUCCESS_STEP=true
   )
 
+  if `$SUCCESS_BUILD && $SUCCESS_STEP`; then SUCCESS_BUILD=true; else SUCCESS_BUILD=false; fi
   echo
 fi
 
 step_run "Tearing down" tear_down
+
+[[ $NO_TAG != true ]] && step_run "Tagging to v${VERSION_NO_META}" make_tag
+
+if [[ $PUBLISH == true ]]; then
+  if [[ $SUCCESS_BUILD == true ]]; then
+    step_run "Publishing generated packages to ${AWS_PACKAGE_BUCKET_STAGE}" azk nvm gulp publish
+    cd ${MAC_REPO_DIR}
+    step_run "Pushing homebrew formula into ${MAC_REPO_STAGE_BRANCH} branch" git push origin stage
+    cd -
+    [[ $NO_TAG != true ]] && step_run "Pushing generated git tag" git push origin "v${VERSION_NO_META}"
+  else
+    echo "Due to some failed step, packages won't be published."
+    echo "Check which one has failed, generate it again and then publish."
+  fi
+fi
