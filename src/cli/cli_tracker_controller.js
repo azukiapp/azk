@@ -36,7 +36,14 @@ export class CliTrackerController extends CliController {
           'quiet', 'open', 'verbose', 'to', 'force', 'log', 'colored', 'child',
         ]);
 
-        command_opts.action = action_name;
+        if (this.route.actions && this.route.actions.length > 0) {
+          var route_first_action = this.route.actions[0];
+          if (route_first_action !== 'index') {
+            command_opts.action = route_first_action;
+          } else {
+            command_opts.action = action_name;
+          }
+        }
 
         this.trackerEvent = this.ui.tracker.newEvent('command', {
           event_type: this.name,
