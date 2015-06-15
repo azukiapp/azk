@@ -14,7 +14,7 @@ describe('Azk generator generation mysql rule', function() {
     // Gemfile
     // -------
     projectFolder = path.join(dir, 'project');
-    return fsAsync.mkdirs(projectFolder).then(function(){
+    return fsAsync.mkdirs(projectFolder).then(function() {
       var  gemfilePath = path.join(projectFolder, 'Gemfile');
       var gemfileContent = [
         'source \'https://rubygems.org\'',
