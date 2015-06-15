@@ -340,10 +340,9 @@ step_run "Tearing down" tear_down
 if [[ $PUBLISH == true ]]; then
   if [[ $SUCCESS_BUILD == true ]]; then
     step_run "Publishing generated packages to ${AWS_PACKAGE_BUCKET_STAGE}" azk nvm gulp publish
-    step_run "Pushing homebrew formula into ${MAC_REPO_STAGE_BRANCH} branch" \
-    cd ${MAC_REPO_DIR} \
-    && git push origin stage \
-    && cd -
+    cd ${MAC_REPO_DIR}
+    step_run "Pushing homebrew formula into ${MAC_REPO_STAGE_BRANCH} branch" git push origin stage
+    cd -
     [[ $NO_TAG != true ]] && step_run "Pushing generated git tag" git push origin "v${VERSION_NO_META}"
   else
     echo "Due to some failed step, packages won't be published."
