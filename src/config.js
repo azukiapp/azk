@@ -127,6 +127,9 @@ var options = mergeConfig({
         api:{
           url: "https://api.github.com/repos/azukiapp/azk",
           tags_url: "https://api.github.com/repos/azukiapp/azk/tags",
+        },
+        content: {
+          package_json: "https://raw.githubusercontent.com/azukiapp/azk/stable/package.json",
         }
       }
     },
