@@ -127,7 +127,8 @@ bump_version() {
   fi
 
   VERSION_LINE_NUMBER=`cat package.json | grep -n "version" | cut -d ":" -f1`
-  sed -i "${VERSION_LINE_NUMBER}s/\([[:digit:]]*\.[[:digit:]]*\.[[:digit:]]*\)[^\"]*/\1${VERSION_SUFFIX}/" package.json
+  sed -ir "${VERSION_LINE_NUMBER}s/\([[:digit:]]*\.[[:digit:]]*\.[[:digit:]]*\)[^\"]*/\1${VERSION_SUFFIX}/" package.json
+  rm package.jsonr
 }
 
 make_tag() {
