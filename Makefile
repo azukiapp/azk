@@ -53,7 +53,7 @@ clean:
 	@rm -Rf ${AZK_NPM_PATH}/..?* ${AZK_NPM_PATH}/.[!.]* ${AZK_NPM_PATH}/*
 	@rm -Rf ${NVM_DIR}/..?* ${NVM_DIR}/.[!.]* ${NVM_DIR}/*
 
-bootstrap: ${AZK_LIB_PATH}/azk ${AZK_LIB_PATH}/azk dependencies
+bootstrap: ${AZK_LIB_PATH}/azk dependencies
 
 dependencies: ${AZK_LIB_PATH}/bats ${VM_DISKS_DIR}/azk.iso ${VM_DISKS_DIR}/azk-agent.vmdk.gz
 
@@ -160,14 +160,10 @@ FILES_TARGETS = $(foreach file,$(addprefix $(PATH_USR_LIB_AZK)/, $(FILES_ALL)),$
 $(foreach file,$(FILES_ALL),$(eval $(call COPY_FILES,$(AZK_ROOT_PATH),$(PATH_USR_LIB_AZK),$(file))))
 
 # Copy transpiled files
-FILES_JS         = $(shell cd ${AZK_LIB_PATH}/azk 2>/dev/null && find ./ -name '*.*' -print 2>/dev/null)
-FILES_JS_TARGETS = $(foreach file,$(addprefix ${PATH_AZK_LIB}/azk/, $(FILES_JS)),$(abspath $(file)))
-$(foreach file,$(FILES_JS),$(eval $(call COPY_FILES,$(AZK_LIB_PATH)/azk,$(PATH_AZK_LIB)/azk,$(file))))
-
-# Debug opts
-#$(warning $(FILES_JS))
-#$(foreach file,$(FILES_ALL),$(warning $(file)))
-# $(warning $(abspath $(2)/$(3)): $(abspath $(1)/$(3)))
+copy_transpiled_files:
+	@echo "task: $@"
+	@mkdir -p ${PATH_AZK_LIB}/azk
+	@cp -R $(AZK_LIB_PATH)/azk ${PATH_AZK_LIB}
 
 fix_permissions:
 	@chmod 755 ${PATH_USR_LIB_AZK}/bin/*
@@ -185,6 +181,6 @@ ${PATH_AZK_LIB}/vm/${AZK_ISO_VERSION}: ${AZK_LIB_PATH}/vm
 ${PATH_MAC_PACKAGE}: ${AZK_PACKAGE_PREFIX}
 	@cd ${PATH_USR_LIB_AZK}/.. && tar -czf ${PATH_MAC_PACKAGE} ./
 
-package_build: bootstrap ${AZK_LIB_PATH}/azk $(FILES_TARGETS) $(FILES_JS_TARGETS) ${PATH_NODE_MODULES}
+package_build: bootstrap $(FILES_TARGETS) copy_transpiled_files ${PATH_NODE_MODULES}
 
-.PHONY: bootstrap clean fast_clean package package_brew package_mac package_deb package_rpm package_build package_clean copy_files fix_permissions creating_symbolic_links dependencies check_version slow_test test
+.PHONY: bootstrap clean package_brew package_mac package_deb package_rpm package_build package_clean copy_transpiled_files fix_permissions creating_symbolic_links dependencies check_version slow_test test

@@ -15,7 +15,7 @@ var lazy = lazy_require({
   }
 });
 
-var os   = require('os');
+var os = require('os');
 
 h.describeRequireVm("Azk agent vm", function() {
   var data_path = config("agent:vm:data_disk");
@@ -103,8 +103,8 @@ h.describeRequireVm("Azk agent vm", function() {
 
       it("should configure cpus and memory", function() {
         h.expect(info).has.property("ostype").and.match(/Linux.*64/);
-        h.expect(info).has.property("cpus", parseInt(config('agent:vm:cpus')));
-        h.expect(info).has.property("memory", parseInt(config('agent:vm:memory')));
+        h.expect(info).has.property("cpus", parseInt(config("agent:vm:cpus")));
+        h.expect(info).has.property("memory", parseInt(config("agent:vm:memory")));
       });
 
       it("should configure network", function() {

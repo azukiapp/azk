@@ -1,8 +1,12 @@
 #! /bin/bash
 
-if [[ $# != 2 ]]; then
-    echo "Usage: ${0##*/} {distro} {secret_key}"
+if [[ $# < 2 ]] || [[ $# > 3 ]]; then
+    echo "Usage: ${0##*/} {distro} {secret_key} [--clean-repo]"
     exit 1
+fi
+
+if [[ $# == 3 ]] && [[ "$3" == "--clean_repo" ]]; then
+  CLEAN_REPO=true
 fi
 
 if [[ ! -e Azkfile.js ]]; then
@@ -19,7 +23,7 @@ export SECRET_KEY=$2
 
 gpg --import $SECRET_KEY
 
-[ -d package/${DISTRO} ] && rm -Rf package/${DISTRO}
+[[ $CLEAN_REPO == true ]] && rm -Rf package/${DISTRO}
 mkdir -p package/${DISTRO}/packages
 cp -Rf package/rpm/* package/${DISTRO}/packages
 

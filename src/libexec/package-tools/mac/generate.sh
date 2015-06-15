@@ -6,16 +6,30 @@ export VERSION=$( azk version | awk '{ print $2 }' )
 
 SHA256=$(shasum -a 256 shasum -a 256 "package/brew/azk_${VERSION}.tar.gz" | awk '{print $1}')
 
+RELEASE_CHANNEL=$( echo "${VERSION}" | sed s/[^\\-]*// | sed s/^\\-// | sed s/\\..*// )
+CLASS_NAME="Azk${RELEASE_CHANNEL^}"
+if [[ -z $RELEASE_CHANNEL ]]; then
+  CHANNEL_SUFFIX=
+  CONFLICTS=
+else
+  CHANNEL_SUFFIX="-${RELEASE_CHANNEL}"
+  CONFLICTS="
+  conflicts_with 'azukiapp/azk/azk', :because => 'installation of azk in path'
+  "
+fi
+REPO_URL="repo-stage.azukiapp.com"
+
 rm -Rf /usr/local/Library/Taps/azukiapp
 git clone https://github.com/azukiapp/homebrew-azk /usr/local/Library/Taps/azukiapp/homebrew-azk
-tee /usr/local/Library/Taps/azukiapp/homebrew-azk/Formula/azk.rb <<EOF
+tee /usr/local/Library/Taps/azukiapp/homebrew-azk/Formula/azk${CHANNEL_SUFFIX}.rb <<EOF
 require "formula"
 
-class Azk < Formula
+class ${CLASS_NAME} < Formula
   homepage "http://azk.io"
-  url "http://repo.azukiapp.com/mac/azk_${VERSION}.tar.gz"
+  url "http://${REPO_URL}/mac/azk_${VERSION}.tar.gz"
+  version "${VERSION}"
   sha256 "${SHA256}"
-
+  ${CONFLICTS}
   depends_on :macos => :mountain_lion
   depends_on :arch => :x86_64
 
@@ -28,3 +42,6 @@ end
 
 EOF
 
+cd /usr/local/Library/Taps/azukiapp/homebrew-azk/
+git add Formula/azk${CHANNEL_SUFFIX}.rb
+git commit -m "Bumping version azk ${VERSION}."
