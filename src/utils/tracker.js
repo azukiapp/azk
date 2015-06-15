@@ -4,10 +4,28 @@ import { meta as azkMeta } from 'azk';
 import { promiseResolve } from 'azk/utils/promises';
 
 var lazy = lazy_require({
-  InsightKeenIo: 'insight-keen-io',
   os           : 'os',
   osName       : 'os-name',
   calculateHash: ['azk/utils'],
+  InsightKeenIo: 'insight-keen-io',
+  InsightKeenIoWithMeta: () => {
+    class InsightKeenIoWithMeta extends lazy.InsightKeenIo {
+      constructor(opts) {
+        super(opts);
+        this._opt_out_key = opts.opt_out_key;
+      }
+
+      get optOut() {
+        return !azkMeta.get(this._opt_out_key);
+      }
+
+      set optOut(val) {
+        azkMeta.set(this._opt_out_key, !val);
+      }
+    }
+
+    return InsightKeenIoWithMeta;
+  }
 });
 
 export class TrackerEvent {
@@ -88,18 +106,15 @@ export class Tracker {
 
   constructor(opts, ids_keys) {
     opts = _.merge({}, {
-      projectId: config('tracker:projectId'),
-      writeKey : config('tracker:writeKey'),
-      use_fork : true,
+      projectId  : config('tracker:projectId'),
+      writeKey   : config('tracker:writeKey'),
+      use_fork   : true,
+      opt_out_key: ids_keys.permission,
     }, opts);
 
     this.ids_keys      = ids_keys;
     this.insight_opts  = opts;
     this.meta          = {
-
-    /**/console.log('\n>>---------\n this.insight:\n', require('util').inspect(this.insight, { showHidden: false, depth: null, colors: true }), '\n>>---------\n');/*-debug-*/
-
-    this.meta     = {
       "ip_address"      : "${keen.ip}",
       "agent_session_id": this.loadAgentSessionId(),
       "command_id"      : this.generateRandomId('command_id'),
@@ -119,7 +134,7 @@ export class Tracker {
 
   get insight() {
     if (!this.__insight) {
-      this.__insight = new InsightKeenIoWithMeta(this.insight_opts);
+      this.__insight = new lazy.InsightKeenIoWithMeta(this.insight_opts);
     }
     return this.__insight;
   }
@@ -182,16 +197,6 @@ export class Tracker {
     log.info (`[tracker]`, analytics_data.data.meta.command_id);
     log.info (`[tracker]`, analytics_data.data.meta.user_id);
     log.debug(`[tracker] data:`, analytics_data);
-  }
-}
-
-export class InsightKeenIoWithMeta extends lazy.InsightKeenIo {
-  get optOut() {
-    return azkMeta.get('optOut');
-  }
-
-  set optOut(val) {
-    azkMeta.set('optOut', val);
   }
 }
 
