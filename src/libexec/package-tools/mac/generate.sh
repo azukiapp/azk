@@ -7,7 +7,7 @@ if [[ -z ${MAC_REPO_URL} ]] || \
    [[ -z ${MAC_REPO_STAGE_BRANCH} ]] || \
    [[ -z ${MAC_FORMULA_DIR} ]] || \
    [[ -z ${MAC_FORMULA_FILE} ]] || \
-   [[ -z ${MAC_BUCKET_URL}]]; then
+   [[ -z ${MAC_BUCKET_URL} ]]; then
   echo "Missing env varible. Please check:
   MAC_REPO_URL: ${MAC_REPO_URL}
   MAC_REPO_DIR: ${MAC_REPO_DIR}
