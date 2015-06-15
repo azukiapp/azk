@@ -2,6 +2,23 @@
 
 set -x
 
+if [[ -z ${MAC_REPO_URL} ]] || \
+   [[ -z ${MAC_REPO_DIR} ]] || \
+   [[ -z ${MAC_REPO_STAGE_BRANCH} ]] || \
+   [[ -z ${MAC_FORMULA_DIR} ]] || \
+   [[ -z ${MAC_FORMULA_FILE} ]] || \
+   [[ -z ${MAC_BUCKET_URL}]]; then
+  echo "Missing env varible. Please check:
+  MAC_REPO_URL: ${MAC_REPO_URL}
+  MAC_REPO_DIR: ${MAC_REPO_DIR}
+  MAC_REPO_STAGE_BRANCH: ${MAC_REPO_STAGE_BRANCH}
+  MAC_FORMULA_DIR: ${MAC_FORMULA_DIR}
+  MAC_FORMULA_FILE: ${MAC_FORMULA_FILE}
+  MAC_BUCKET_URL: ${MAC_BUCKET_URL}
+  "
+  exit 1
+fi
+
 export VERSION=$( azk version | awk '{ print $2 }' )
 
 SHA256=$(shasum -a 256 shasum -a 256 "package/brew/azk_${VERSION}.tar.gz" | awk '{print $1}')
@@ -17,16 +34,15 @@ else
   conflicts_with 'azukiapp/azk/azk', :because => 'installation of azk in path'
   "
 fi
-REPO_URL="repo-stage.azukiapp.com"
 
-rm -Rf /usr/local/Library/Taps/azukiapp
-git clone https://github.com/azukiapp/homebrew-azk /usr/local/Library/Taps/azukiapp/homebrew-azk
-tee /usr/local/Library/Taps/azukiapp/homebrew-azk/Formula/azk${CHANNEL_SUFFIX}.rb <<EOF
+rm -Rf ${MAC_REPO_DIR}
+git clone ${MAC_REPO_URL} ${MAC_REPO_DIR}
+tee ${MAC_FORMULA_DIR}/${MAC_FORMULA_FILE} <<EOF
 require "formula"
 
 class ${CLASS_NAME} < Formula
   homepage "http://azk.io"
-  url "http://${REPO_URL}/mac/azk_${VERSION}.tar.gz"
+  url "http://${MAC_BUCKET_URL}/mac/azk_${VERSION}.tar.gz"
   version "${VERSION}"
   sha256 "${SHA256}"
   ${CONFLICTS}
@@ -42,6 +58,10 @@ end
 
 EOF
 
-cd /usr/local/Library/Taps/azukiapp/homebrew-azk/
-git add Formula/azk${CHANNEL_SUFFIX}.rb
-git commit -m "Bumping version azk ${VERSION}."
+(
+  set -e
+  cd ${MAC_REPO_DIR}
+  git checkout ${MAC_REPO_STAGE_BRANCH}
+  git add ${MAC_FORMULA_DIR}/${MAC_FORMULA_FILE}
+  git commit -m "Bumping version to azk v${VERSION}."
+)
