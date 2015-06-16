@@ -1,28 +1,56 @@
-import { log, _, async, t, lazy_require } from 'azk';
-import { Helpers } from 'azk/cli/command';
-import { InteractiveCmds } from 'azk/cli/interactive_cmds';
-import { Cmd as StatusCmd } from 'azk/cmds/status';
+import { CliTrackerController } from 'azk/cli/cli_tracker_controller';
+import { Helpers } from 'azk/cli/helpers';
+import { _, log, t, lazy_require } from 'azk';
+import { subscribe } from 'azk/utils/postal';
+import { async } from 'azk/utils/promises';
+import { AzkError } from 'azk/utils/errors';
 
 var lazy = lazy_require({
   Manifest: ['azk/manifest'],
+  Status  : 'azk/cmds/status',
 });
 
-class Cmd extends InteractiveCmds {
-  action(opts) {
+class Scale extends CliTrackerController {
+  index(opts) {
     return async(this, function* () {
-      yield Helpers.requireAgent(this);
+      yield Helpers.requireAgent(this.ui);
 
       var manifest = new lazy.Manifest(this.cwd, true);
-      Helpers.manifestValidate(this, manifest);
+
+      if (/^\d*$/.test(opts.system) && _.isNull(opts.to)) {
+        opts.to     = opts.system;
+        opts.system = manifest.systemDefault.name;
+      }
+
+      Helpers.manifestValidate(this.ui, manifest);
       var systems = manifest.getSystemsByName(opts.system);
+      var status_systems = _.map(systems, (system) => {
+        var result = [system];
+        if (!_.isEmpty(system.depends)) {
+          result = result.concat(
+            _.map(system.depends, (depend) => {
+              return manifest.getSystemsByName(depend);
+            })
+          );
+        }
+        return result;
+      });
+      status_systems = _.uniq(_.flatten(status_systems)).reverse();
 
-      var result = yield this[`${this.name}`](manifest, systems, opts);
+      var result  = yield this[`${this.name}`](manifest, systems, opts);
 
-      this.output("");
-      yield StatusCmd.status(this, manifest, systems);
+      this.ui.output("");
+      yield lazy.Status.status(this, manifest, status_systems);
 
       return result;
-    });
+    })
+    .catch(function (err) {
+      // Unhandled rejection overtakes synchronous exception through done() #471
+      // https://github.com/petkaantonov/bluebird/issues/471
+      if (err instanceof AzkError) {
+        this.ui.fail(err.toString());
+      }
+    }.bind(this));
   }
 
   scale(manifest, systems, opts) {
@@ -45,17 +73,17 @@ class Cmd extends InteractiveCmds {
       this.images_checked[data.image] = true;
     }
 
-    this.ok([...keys].concat(event.action), data);
+    this.ui.ok([...keys].concat(event.action), data);
   }
 
   _scale(system, instances = {}, opts = undefined) {
     var flags    = {};
-    var progress = (event) => {
+    var _subscription = subscribe('#.status', (event) => {
       if (!event) { return; }
       var type;
-      var pull_progress = Helpers.newPullProgress(this);
       if (event.type === "pull_msg") {
-        pull_progress(event);
+        var pullProgressBar = Helpers.newPullProgressBar(this.ui);
+        pullProgressBar(event);
       } else {
         var keys = ["commands", "scale"];
         switch (event.type) {
@@ -70,46 +98,50 @@ class Cmd extends InteractiveCmds {
               type = event.from > event.to ? "scaling_down" : "scaling_up";
             }
 
-            this.ok([...keys].concat(type), event);
+            this.ui.ok([...keys].concat(type), event);
             break;
           case "sync":
             flags.sync = flags.sync || {};
             if (!flags.sync[event.system]) {
               flags.sync[event.system] = true;
-              this.ok([...keys].concat(event.type), event);
+              this.ui.ok([...keys].concat(event.type), event);
             }
             log.debug({ log_label: "[scale]", data: event});
             break;
           case "wait_port" :
           case "provision" :
-            this.ok([...keys].concat(event.type), event);
+            this.ui.ok([...keys].concat(event.type), event);
             break;
           default:
             log.debug({ log_label: "[scale]", data: event});
         }
       }
-    };
+    });
 
     var options = {
-      build_force: opts.rebuild || false,
+      build_force    : opts.rebuild || false,
       provision_force: (opts.rebuild ? true : opts.reprovision) || false,
-      remove: opts.remove,
+      remove         : !opts['no-remove'],
     };
 
     this.verbose_msg(1, () => {
       options = _.merge(options, {
         provision_verbose: true,
-        stdout: this.stdout(),
-        stderr: this.stderr(),
+        stdout: this.ui.stdout(),
+        stderr: this.ui.stderr(),
       });
     });
 
-    return system.scale(instances, options).progress(progress);
+    return system.scale(instances, options)
+      .then(function (result) {
+        _subscription.unsubscribe();
+        return result;
+      })
+      .catch(function (err) {
+        _subscription.unsubscribe();
+        throw err;
+      });
   }
 }
 
-export { Cmd };
-export function init(cli) {
-  return (new Cmd('scale [system] [to]', cli))
-    .addOption(['--remove', '-r'], { default: true });
-}
+module.exports = Scale;

@@ -10,8 +10,8 @@ var data_path = envs('AZK_DATA_PATH');
 var namespace = envs('AZK_NAMESPACE');
 
 // Use virtual machine or not?
-var default_vm  = os.platform() == "linux" ? "false" : "true";
-var requires_vm = (envs('AZK_USE_VM', default_vm) == "true");
+var default_vm  = os.platform() == "linux" ? false : true;
+var requires_vm = envs('AZK_USE_VM', default_vm);
 
 // Data mount folder path
 var data_mnt_path = requires_vm ? '/mnt/sda1/azk' : data_path;
@@ -41,10 +41,11 @@ var options = mergeConfig({
     },
     paths    : {
       azk_root,
-      data  : data_path,
-      logs  : paths.logs,
-      log   : path.join(paths.logs, 'azk.log'),
-      shared: path.join(azk_root, "shared"),
+      data   : data_path,
+      logs   : paths.logs,
+      log    : path.join(paths.logs, 'azk.log'),
+      shared : path.join(azk_root, "shared"),
+      locales: path.join(azk_root, "shared", "locales"),
 
       azk_meta          : path.join(data_path, azk_dir, "shared", "Azkfile.js"),
       pems              : path.join(paths.vm , '.docker'),
@@ -61,8 +62,8 @@ var options = mergeConfig({
       analytics         : path.join(data_path, azk_dir, "analytics"),
     },
     logs_level: {
-      console: (envs('AZK_DEBUG') ? 'debug' : 'warn'),
-      file: envs('AZK_LOG_LEVEL', 'info'),
+      console: (envs('AZK_DEBUG') ? 'debug' : envs('AZK_OUTPUT_LOG_LEVEL', 'error')),
+      file: envs('AZK_LOG_LEVEL', 'warn'),
     },
     docker: {
       socket        : envs('AZK_DOCKER_SOCKER', "/var/run/docker.sock"),
@@ -79,6 +80,7 @@ var options = mergeConfig({
     },
     // jscs:disable maximumLineLength
     tracker: {
+      permission_key: 'tracker_permission',
       disable: envs('AZK_DISABLE_TRACKER', false),
       projectId: envs('AZK_KEEN_PROJECT_ID', '552818c790e4bd7f7bd8baba'),
       writeKey:  envs('AZK_KEEN_WRITE_KEY', 'e2c70b3dd3ed3003a09a1bc7d8622ad9220fe33069d81164f0fafa13baf11458e48736f6cbcc995a8346183b290597504feb4bef06f71350f4859df5eb271a1d845f7cff5c9dfddf2f03de1e39760c6e51a06fb9e347c2e1fb98d3c6d370e6916e5db8810ddd9c0d5d83540386ccfe2e'),
@@ -126,17 +128,17 @@ var options = mergeConfig({
         api:{
           url: "https://api.github.com/repos/azukiapp/azk",
           tags_url: "https://api.github.com/repos/azukiapp/azk/tags",
+        },
+        content: {
+          package_json: "https://raw.githubusercontent.com/azukiapp/azk/stable/package.json",
         }
       }
     },
   },
   test: {
     paths: {
-      // jscs:disable maximumLineLength
-      log : path.join(paths.logs, 'azk_test.log'),
-      projectId: envs('AZK_KEEN_PROJECT_ID', '5526968d672e6c5a0d0ebec6'),
-      writeKey:  envs('AZK_KEEN_WRITE_KEY', '5dbce13e376070e36eec0c7dd1e7f42e49f39b4db041f208054617863832309c14a797409e12d976630c3a4b479004f26b362506e82a46dd54df0c977a7378da280c05ae733c97abb445f58abb56ae15f561ac9ad774cea12c3ad8628d896c39f6e702f6b035541fc1a562997cb05768'),
-      // jscs:enabled maximumLineLength
+      log     : path.join(paths.logs, 'azk_test.log'),
+      azk_meta: path.join(data_path, azk_dir, "shared", "test-Azkfile.js"),
     },
     docker: {
       namespace   : 'azk.test',
@@ -146,6 +148,11 @@ var options = mergeConfig({
     },
     tracker: {
       disable: true,
+      // jscs:disable maximumLineLength
+      permission_key: 'tracker_permission_test',
+      projectId : envs('AZK_KEEN_PROJECT_ID', '5526968d672e6c5a0d0ebec6'),
+      writeKey  : envs('AZK_KEEN_WRITE_KEY', '5dbce13e376070e36eec0c7dd1e7f42e49f39b4db041f208054617863832309c14a797409e12d976630c3a4b479004f26b362506e82a46dd54df0c977a7378da280c05ae733c97abb445f58abb56ae15f561ac9ad774cea12c3ad8628d896c39f6e702f6b035541fc1a562997cb05768'),
+      // jscs:enabled maximumLineLength
     },
     logs_level: {
       console: (envs('AZK_DEBUG') ? 'debug' : 'warn'),

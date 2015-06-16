@@ -1,12 +1,13 @@
-import { _, async, log, config, utils } from 'azk';
-import { InteractiveCmds } from 'azk/cli/interactive_cmds';
-import { Helpers } from 'azk/cli/command';
+import { CliTrackerController } from 'azk/cli/cli_tracker_controller.js';
+import { Helpers } from 'azk/cli/helpers';
+import { _, log, config, utils } from 'azk';
+import { async } from 'azk/utils/promises';
 
-class Cmd extends InteractiveCmds {
-  run_docker(opts) {
+class Docker extends CliTrackerController {
+  index(opts) {
     return async(this, function* () {
       var cmd, _path;
-      var args = _.map([opts.dockerargs, ...opts.__leftover], (arg) => {
+      var args = _.map(opts['docker-args'], (arg) => {
         return arg.replace(/'/g, "'\"'\"'");
       });
 
@@ -15,24 +16,21 @@ class Cmd extends InteractiveCmds {
         cmd  = `/bin/sh -c 'docker ${args.join(" ")}'`;
       } else {
         // Require agent is started
-        yield Helpers.requireAgent(this);
-
+        yield Helpers.requireAgent(this.ui);
         var point = config('agent:vm:mount_point');
-        _path = utils.docker.resolvePath(this.cwd, point);
+        var extra_args = [];
+        _path = utils.docker.resolvePath(this.cwd || '', point);
         args  = _.map(args, (arg) => arg.match(/^.* .*$/) ? `\\"${arg}\\"` : arg);
-        cmd   = `azk vm ssh -t 'cd ${_path}; docker ${args.join(" ")}'`;
+        if (this.ui.isInteractive()) {
+          extra_args.push("-t");
+        }
+        cmd = `azk vm ssh -- ${extra_args.join(" ")} 'cd ${_path}; docker ${args.join(" ")}'`;
       }
 
       log.debug("docker options: %s", cmd);
-      return this.execSh(cmd);
+      return this.ui.execSh(cmd);
     });
   }
-
-  action(opts) {
-    return this.run_docker(opts);
-  }
 }
 
-export function init(cli) {
-  return (new Cmd('docker [*dockerargs]', cli));
-}
+module.exports = Docker;

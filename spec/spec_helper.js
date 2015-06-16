@@ -1,19 +1,24 @@
 require('source-map-support').install();
 
-import { Q, pp, config, t, _, lazy_require } from 'azk';
+import { pp, config, t, _, fsAsync, lazy_require } from 'azk';
+import { nfcall } from 'azk/utils/promises';
 import { Client as AgentClient } from 'azk/agent/client';
 import Utils from 'azk/utils';
 
 var lazy = lazy_require({
   MemoryStream: 'memorystream',
   dirdiff : 'dirdiff',
-  tmp     : 'tmp',
-  qfs     : 'q-io/fs',
-  touch   : 'touch',
+  tmp     : 'tmp'
 });
 
 var chai = require('azk-dev/chai');
 chai.use(require('chai-subset'));
+
+if (process.env.AZK_SUBSCRIBE_POSTAL) {
+  var SubscriptionLogger = require("azk/utils/postal").SubscriptionLogger;
+  var subscriptionLogger = new SubscriptionLogger();
+  subscriptionLogger.subscribeTo(process.env.AZK_SUBSCRIBE_POSTAL);
+}
 
 var Helpers = {
   pp: pp,
@@ -27,37 +32,31 @@ var Helpers = {
   },
 
   get docker() {
-    if (!Helpers.no_required_agent) {
-      return require('azk/docker').default;
-    }
+    return require('azk/docker').default;
   },
 
   tmp_dir(opts = { prefix: "azk-test-"}) {
-    return Q.nfcall(lazy.tmp.dir, opts).then((dir) => {
+    return nfcall(lazy.tmp.dir, opts).then((dir) => {
       return Utils.resolve(dir);
     });
   },
 
   tmpFile(opts = { prefix: "azk-test-"}) {
-    return Q.nfcall(lazy.tmp.file, opts).spread((file) => {
+    return nfcall(lazy.tmp.file, opts).spread((file) => {
       return Utils.resolve(file);
     });
   },
 
-  touchSync(path) {
-    return lazy.touch.sync(path);
-  },
-
   copyToTmp(origin) {
     return this.tmp_dir({ prefix: 'azk-test-'}).then((dir) => {
-      return lazy.qfs.copyTree(origin, dir).then(() => {
+      return fsAsync.copy(origin, dir).then(() => {
         return dir;
       });
     });
   },
 
   diff(origin, dest) {
-    return Q.nfcall(lazy.dirdiff, origin, dest, { fileContents: true })
+    return nfcall(lazy.dirdiff, origin, dest, { fileContents: true })
       .then((diffs) => {
         diffs.deviation = diffs.length;
         return diffs;
@@ -67,6 +66,13 @@ var Helpers = {
   fixture_path(...fixture) {
     return Utils.resolve(
       '.', 'spec', 'fixtures', ...fixture
+    );
+  },
+
+  fixture_require_path(...fixture) {
+    var lib  = process.env.AZK_LIB_PATH || 'lib';
+    return Utils.resolve(
+      lib, 'spec', 'fixtures', ...fixture
     );
   },
 
@@ -95,6 +101,7 @@ after(() => {
   if (process.env.AZK_ENABLE_NJS_TRACE_PROFILER) {
     global.njstrace.save('/home/julio/_git/njstrace/examples/02-es5/execute/TRACE_RESULT.json');
   }
+  require('azk/utils/postal').unsubscribeAll();
 });
 
 // Helpers

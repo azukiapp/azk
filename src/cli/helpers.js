@@ -1,4 +1,5 @@
-import { _, log, lazy_require, config, async } from 'azk';
+import { _, log, lazy_require, config } from 'azk';
+import { async } from 'azk/utils/promises';
 import { SmartProgressBar } from 'azk/cli/smart_progress_bar';
 
 var lazy = lazy_require({
@@ -31,12 +32,12 @@ var Helpers = {
       });
   },
 
-  askPermissionToTrack(cli) {
+  askPermissionToTrack(cli, force = false) {
     return async(this, function* () {
       // check if user already answered
       var trackerPermission = cli.tracker.loadTrackerPermission(); // Boolean
 
-      var should_ask_permission = (typeof trackerPermission === 'undefined');
+      var should_ask_permission = (force || typeof trackerPermission === 'undefined');
       if (should_ask_permission) {
         if (!cli.isInteractive()) { return false; }
 
@@ -97,6 +98,7 @@ var Helpers = {
           switch (event.status) {
             case "not_running":
             case "already_installed":
+            case "down":
               cmd.fail([...keys].concat(event.status), event.data);
               break;
             case "error":
@@ -132,7 +134,7 @@ var Helpers = {
     };
   },
 
-  newPullProgress(cmd) {
+  newPullProgressBar(cmd) {
     return (msg) => {
       if (msg.type !== "pull_msg") {
         return msg;
@@ -221,7 +223,7 @@ var Helpers = {
             stream.write(key);
           } else {
             if (escape) {
-              stopped = callback(ch, container);
+              stopped = callback(ch, container, () => stopped = false);
               escape = false;
             } else {
               stream.write(key);

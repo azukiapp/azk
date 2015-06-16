@@ -22,8 +22,15 @@ if (process.env.AZK_ENABLE_NJS_TRACE_PROFILER) {
   });
 }
 
+var require_tree = null;
 if (process.env.AZK_PROFILE_REQUIRES) {
-  require('azk/utils/require_debug');
+  require_tree = require('azk/utils/require_debug');
+}
+
+if (process.env.AZK_SUBSCRIBE_POSTAL) {
+  var SubscriptionLogger = require("azk/utils/postal").SubscriptionLogger;
+  var subscriptionLogger = new SubscriptionLogger();
+  subscriptionLogger.subscribeTo(process.env.AZK_SUBSCRIBE_POSTAL);
 }
 
 // Load source-map to support transpiled files
@@ -35,10 +42,14 @@ if (process.env.AZK_DISABLE_SOURCE_MAP) {
     }
   };
 }
+
 require('source-map-support').install(map_opts);
 
 // Process exit events
 process.once("azk:command:exit", function(code) {
+  if (require_tree) {
+    console.log(require_tree());
+  }
   process.stdin.pause();
   process.exit(code);
 });

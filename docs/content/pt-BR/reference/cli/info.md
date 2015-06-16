@@ -1,15 +1,15 @@
 ## azk info
 
-Exibe informações dos sistemas listados no `Azkfile.js`.
-
-#### Opções:
-
-- `--colored, -C`     Exibe saída em cores (padrão: verdadeiro)
+  Exite informações dos sistemas do atual `Azkfile.js`.
 
 #### Uso:
 
-     $ azk [options] info [path]
+    azk info [options]
 
-#### Exemplo:
+####  Opções:
 
-![Figure 1-1](../../resources/images/azk_info.png)
+  --no-colored              Não colore o texto.
+  --quiet, -q               Nunca perguntar.
+  --help, -h                Mostrar ajuda de uso.
+  --log=<level>, -l         Defini o nível de log (padrão: error).
+  --verbose, -v             Defini o nível de detalhes da saída - suporta múltiplos (-vv == --verbose 2) [padrão: 0].

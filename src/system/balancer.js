@@ -1,4 +1,5 @@
-import { async, config, Q } from 'azk';
+import { config } from 'azk';
+import { async, promiseResolve } from 'azk/utils/promises';
 
 var SystemBalancer = {
   get balancer() {
@@ -9,7 +10,7 @@ var SystemBalancer = {
     if (system.balanceable) {
       return this.balancer.removeAll(system.hostname);
     }
-    return Q(false);
+    return promiseResolve(false);
   },
 
   add(system, container) {
@@ -24,7 +25,7 @@ var SystemBalancer = {
     if (system.balanceable) {
       return this.balancer.getBackends(system.hostname);
     } else {
-      return Q([]);
+      return promiseResolve([]);
     }
   },
 

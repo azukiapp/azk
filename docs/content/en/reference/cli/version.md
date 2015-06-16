@@ -1,14 +1,15 @@
 ## azk version
 
-Displays the current version of `azk`
+  Displays the current version of `azk`
 
 #### Usage:
 
     $ azk version
+    $ azk --version
 
 #### Example:
 
-    $ azk version
-    Azk 0.8.3
-
-
+```
+$ azk version
+azk 0.13.1
+```

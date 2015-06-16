@@ -1,4 +1,6 @@
-import { Q, config, defer, async, utils } from 'azk';
+import { config, utils } from 'azk';
+import { subscribe } from 'azk/utils/postal';
+import { async, defer, delay } from 'azk/utils/promises';
 import h from 'spec/spec_helper';
 
 var default_img = config('docker:image_default');
@@ -31,16 +33,24 @@ describe("Azk docker module, run method @slow", function() {
       { tty: true, stdin: stdin, stdout: mocks.stdout }
     );
 
-    result = result.progress((event) => {
+    var _subscription = subscribe('docker.run.status', (event) => {
       if (event.type == "started") {
         stdin.write("uname; exit\n");
       }
     });
 
     return result.then((container) => {
+      _subscription.unsubscribe();
+
       h.expect(outputs.stdout).to.match(/Linux/);
       return container.remove();
+    })
+    .catch(function (err) {
+      _subscription.unsubscribe();
+
+      throw err;
     });
+
   });
 
   it("should support envs", function() {
@@ -130,7 +140,7 @@ describe("Azk docker module, run method @slow", function() {
       var data = yield container.inspect();
       h.expect(data).to.have.deep.property("State.Running", true);
 
-      yield Q.delay(timeout * 0.1);
+      yield delay(timeout * 0.1);
       var log = yield container.logs({stdout: true, stderr: true}).then((stream) => {
         var buffer = "";
         return defer((resolve) => {

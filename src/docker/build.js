@@ -1,10 +1,11 @@
-import { _, Q, async, lazy_require, path } from 'azk';
+import { _, lazy_require, path, fsAsync } from 'azk';
+import { publish } from 'azk/utils/postal';
+import { async, originalDefer } from 'azk/utils/promises';
 import { DockerBuildError } from 'azk/utils/errors';
 
 var lazy = lazy_require({
   JStream : 'jstream',
   XRegExp : ['xregexp', 'XRegExp'],
-  qfs     : 'q-io/fs',
   archiver: 'archiver',
 });
 
@@ -39,14 +40,14 @@ function parse_stream(msg) {
 }
 
 export function build(docker, options) {
-  return async(function* (notify) {
+  return async(function* () {
     var opts = _.extend({
       cache: true
     }, options);
 
     // Check if "Dockerfile" exist
     var dockerfile = opts.dockerfile;
-    if (!(yield lazy.qfs.exists(dockerfile))) {
+    if (!(yield fsAsync.exists(dockerfile))) {
       throw new DockerBuildError('cannot_find_dockerfile', { dockerfile });
     }
 
@@ -61,10 +62,10 @@ export function build(docker, options) {
 
     // Filter with .dockerignore
     var ignore  = path.join(cwd, '.dockerignore');
-    var exists_ignore = yield lazy.qfs.exists(ignore);
+    var exists_ignore = yield fsAsync.exists(ignore);
     if (exists_ignore) {
-      var ignore_content = yield lazy.qfs.read(ignore);
-      ignore_content = ignore_content.trim().split('\n');
+      var ignore_content = yield fsAsync.readFile(ignore);
+      ignore_content = ignore_content.toString().trim().split('\n');
       src = src.concat(ignore_content.map((entry) => `!${entry}`));
     }
 
@@ -77,7 +78,7 @@ export function build(docker, options) {
     archive.finalize();
 
     // Options and defer
-    var done = Q.defer();
+    var done = originalDefer();
     var build_options = { t: opts.tag, forcerm: true, nocache: !opts.cache, q: !opts.verbose };
 
     // Start stream
@@ -97,7 +98,7 @@ export function build(docker, options) {
           opts.stdout.write('  ' + msg.stream);
         }
         if (msg.statusParsed) {
-          notify(msg);
+          publish("docker.build.status", msg);
           if (msg.statusParsed.type == "building_from") {
             from = msg.statusParsed.FROM;
           }

@@ -4,47 +4,23 @@ Controla o serviço `azk agent`. Para mais informações sobre o agent [acesse](
 
 #### Uso:
 
-    $ azk [options] agent [options] {action}
+    $ azk agent (start|status|stop) [options]
 
-_______________
-### azk agent start
+#### Ações:
 
-Inicia o `agent`.
+  start                     Inicia o agent do azk.
+  status                    Exibi o agent do azk.
+  stop                      Para o agent do azk.
 
 #### Opções:
 
-- `--daemon`      inicia em modo background
-- `--no-daemon`   inicia em modo foreground
+  --no-daemon               Executa o agent em primeiro plano (foreground).
+  --no-reload-vm            Não recarregar as configurações da maquina virtual.
+  --quiet, -q               Nunca perguntar.
+  --help, -h                Mostrar ajuda de uso.
+  --log=<level>, -l         Defini o nível de log (padrão: error).
+  --verbose, -v             Defini o nível de detalhes da saída - suporta múltiplos (-vv == --verbose 2) [padrão: 0].
 
 #### Exemplos:
-
-##### Inicia o _agent_ em _background_:
-
-    $ azk agent start
-
-##### Inicia o _agent_ em _foreground_:
 
     $ azk agent start --no-daemon
-
-![Figure 1-1](../../resources/images/agent_start.png)
-
-_______________
-### azk agent stop
-
-Pára o `agent` quando este está em background.
-
-#### Exemplos:
-
-    $ azk agent stop
-
-_______________
-### azk agent status
-
-Exibe a situção atual do `agent`.
-
-#### Exemplos:
-
-```
-$ azk agent status
-azk: Agent is running...
-```

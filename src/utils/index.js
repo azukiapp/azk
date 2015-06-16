@@ -1,21 +1,19 @@
 var { join, basename, dirname } = require('path');
 var crypto = require('crypto');
-var Q      = require('q');
 var _      = require('lodash');
 var fs     = require('fs');
+var defer = require('azk/utils/promises').defer;
 
 var Utils = {
   __esModule: true,
 
   get default() { return Utils; },
-  get Q      () { return Q; },
   get _      () { return _; },
   get net    () { return require('azk/utils/net'); },
   get docker () { return require('azk/utils/docker'); },
 
   lazy_require(loads) {
     var lazy = {};
-    var _ = this._;
     _.each(loads, (func, getter) => {
       if (!_.isFunction(func)) {
         var opts = func;
@@ -41,7 +39,20 @@ var Utils = {
 
   envs(key, defaultValue = null) {
     var value = process.env[key];
-    if (value === 'undefined') { value = undefined; }
+    switch (value) {
+      case 'undefined':
+        value = undefined;
+        break;
+      case 'null':
+        value = null;
+        break;
+      case 'false':
+        value = false;
+        break;
+      case 'true':
+        value = true;
+        break;
+    }
     return value || (_.isFunction(defaultValue) ? defaultValue() : defaultValue);
   },
 
@@ -80,78 +91,8 @@ var Utils = {
     });
   },
 
-  defer(func) {
-    return Q.Promise((resolve, reject, notify) => {
-      setImmediate(() => {
-        var result;
-
-        try {
-          resolve = _.extend(resolve, { resolve: resolve, reject: reject, notify: notify });
-          result = func(resolve, reject, notify);
-        } catch (e) {
-          return reject(e);
-        }
-
-        if (Q.isPromise(result)) {
-          result.progress(notify).then(resolve, reject);
-        } else if (typeof(result) != "undefined") {
-          resolve(result);
-        }
-      });
-    });
-  },
-
-  async(obj, func, ...args) {
-    return Utils.defer((_resolve, _reject, notify) => {
-      if (typeof obj == "function") {
-        [func, obj] = [obj, null];
-      }
-
-      if (typeof obj == "object") {
-        func = func.bind(obj);
-      }
-
-      return Q.async(func).apply(func, [...args].concat(notify));
-    });
-  },
-
-  qify(Klass) {
-    if (_.isString(Klass)) {
-      Klass = require(Klass);
-    }
-
-    var NewClass = function(...args) {
-      Klass.call(this, ...args);
-    };
-
-    NewClass.prototype = Object.create(Klass.prototype);
-    NewClass.prototype.constructor = Klass;
-
-    _.each(_.methods(Klass.prototype), (method) => {
-      var original = Klass.prototype[method];
-      NewClass.prototype[method] = function(...args) {
-        return Q.nbind(original, this)(...args);
-      };
-    });
-
-    return NewClass;
-  },
-
-  qifyModule(mod) {
-    var newMod = _.clone(mod);
-
-    _.each(_.methods(mod), (method) => {
-      var original = mod[method];
-      newMod[method] = function(...args) {
-        return Q.nbind(original, this)(...args);
-      };
-    });
-
-    return newMod;
-  },
-
   unzip(origin, target) {
-    return Utils.defer((done) => {
+    return defer((done) => {
       try {
         var input  = fs.createReadStream(origin);
         var output = fs.createWriteStream(target);
@@ -207,7 +148,8 @@ var Utils = {
   envDefaultArray(key, defaultValue) {
     var value = Utils.envs(key);
     return (!value || _.isEmpty(value)) ? defaultValue : _.invoke(value.split(','), 'trim');
-  }
+  },
+
 };
 
 module.exports = Utils;

@@ -1,28 +1,35 @@
-import { _, async } from 'azk';
-import { SYSTEMS_CODE_ERROR } from 'azk/utils/errors';
-import { Cmd as ScaleCmd } from 'azk/cmds/scale';
+import Scale from 'azk/cmds/scale';
+import { _, lazy_require } from 'azk';
+import { async } from 'azk/utils/promises';
 
-var open = require('open');
+var lazy = lazy_require({
+  open: 'open',
+});
 
 var action_opts = {
   start: { instances: {}, key: "already_started" },
   stop:  { instances: 0 , key: "not_running" },
+  skip_start: { key: "skip" },
+  skip_stop: { key: "skip" },
 };
 
-class Cmd extends ScaleCmd {
+class Start extends Scale {
   _scale(systems, action, opts) {
-    var scale_options = action_opts[action];
+    var args = this.normalized_params.arguments;
+    var args_systems = (args.system || '').split(',');
+    args_systems = _.map(args_systems, (s) => (s || '').trim());
 
-    opts = _.defaults(opts, {
-      instances: {},
-    });
+    opts.instances = opts.instances || {};
 
     return async(this, function* () {
       var system, result = 0;
       systems = _.clone(systems);
 
       while ( (system = systems.shift()) ) {
+        var ui_status = 'fail';
+        var scale_options = action_opts[action];
         var ns = ["commands", action], instances;
+        system.force = _.contains(args_systems, system.name);
 
         if (action == "start") {
           // The number of instances is not set to system.name use "{}"
@@ -31,11 +38,14 @@ class Cmd extends ScaleCmd {
           instances = _.clone(scale_options.instances);
         }
 
-        // Force start scalable = { default: 0 }
+        // Force start if scalable.default == 0
         // Only if specified
-        if (!(opts.systems) && action == "start" && _.isObject(scale_options.instances)) {
-          if (system.scalable.default === 0 && !system.disabled) {
+        if (!system.auto_start) {
+          if (system.force && action === 'start') {
             instances = 1;
+          } else {
+            scale_options = action_opts[`skip_${action}`];
+            ui_status = 'warning';
           }
         }
 
@@ -43,8 +53,7 @@ class Cmd extends ScaleCmd {
         var icc = yield super._scale(system, instances, opts);
 
         if (icc === 0) {
-          this.fail([...ns].concat(scale_options.key), system);
-          result = SYSTEMS_CODE_ERROR;
+          this.ui[ui_status]([...ns].concat(scale_options.key), system);
         }
       }
 
@@ -57,37 +66,41 @@ class Cmd extends ScaleCmd {
       var result = yield this._scale(systems, 'start', opts);
 
       // if flag --open
-      if (!_.isUndefined(opts.open)) {
+      if (opts.open || opts['open-with']) {
         var open_with;
-        var system = manifest.systemDefault;
+        var system;
+        var system_name = opts.system && opts.system.split(',');
+        system_name = _.head(system_name || []);
+        if (system_name) {
+          system = _.head(_.filter(systems, (s) => s.name === system_name));
+        }
+        system = system || manifest.systemDefault;
+
         var tKey   = 'commands.start.option_errors.open';
         var tOpt   = { name : system.name };
 
-        if (_.isNull(opts.open) || !_.isString(opts.open) ) {
-          open_with = null;
-        } else {
-          open_with = opts.open;
+        if (_.isString(opts['open-with']) ) {
+          open_with = opts['open-with'];
         }
 
         if (system.balanceable) {
           var instances = yield system.instances({ type: "daemon" });
 
           if (instances.length > 0) {
-            open(system.url, open_with);
+            lazy.open(system.url, open_with);
           } else {
-            this.warning(`${tKey}.system_not_running`, tOpt);
+            this.ui.warning(`${tKey}.system_not_running`, tOpt);
           }
-
         } else {
-          this.warning(`${tKey}.default_system_not_balanceable`, tOpt);
+          this.ui.warning(`${tKey}.default_system_not_balanceable`, tOpt);
         }
       }
 
       return result;
     })
-    .fail((error) => {
-      this.fail(error);
-      this.fail('commands.start.fail', error);
+    .catch((error) => {
+      this.ui.fail(error);
+      this.ui.fail('commands.start.fail', error);
       return this
         .stop(manifest, systems, opts)
         .then(() => { return error.code ? error.code : 127; });
@@ -99,44 +112,12 @@ class Cmd extends ScaleCmd {
     return this._scale(systems, 'stop', opts);
   }
 
-  reload(manifest, systems, opts) {
-    this.fail('commands.reload.deprecation');
-    return this.restart(manifest, systems, opts);
-  }
-
   restart(manifest, systems, opts) {
     return async(this, function* () {
-      var scale_options = _.merge({
-        instances: {}
-      }, opts);
-
-      // save instances count
-      for (var system of systems) {
-        var instances = yield system.instances({ type: "daemon" });
-        scale_options.instances[system.name] = instances.length;
-      }
-
       yield this.stop(manifest, systems, opts);
-      return this.start(manifest, systems, scale_options);
+      return this.start(manifest, systems, opts);
     });
   }
 }
 
-export function init(cli) {
-  var cmds = {
-    start   : (new Cmd('start [system]'   , cli))
-                .addOption(['--reprovision', '-R'], { default: false })
-                .addOption(['--rebuild', '--pull', '-B'], { default: false })
-                .addOption(['--open', '-o'], { type: String, placeholder: "application" }),
-    stop    : (new Cmd('stop [system]'    , cli))
-                .addOption(['--remove', '-r'], { default: true }),
-    restart : (new Cmd('restart [system]' , cli))
-                .addOption(['--reprovision', '-R'], { default: false })
-                .addOption(['--rebuild', '--pull', '-B'], { default: false })
-                .addOption(['--open', '-o'], { type: String, placeholder: "application" }),
-    reload  : (new Cmd('reload [system]'  , cli))
-                .addOption(['--reprovision', '-R'], { default: true }),
-  };
-
-  return cmds;
-}
+module.exports = Start;

@@ -1,18 +1,22 @@
 ## azk config
 
-Controla as opções de configuração do azk
-
-### azk config track
+Controla as opções de configuração do azk.
 
 #### Uso:
 
-```
-$ azk config track-status
-```
+    $ azk config (track-toggle|track-status) [options]
 
-```
-$ azk config track-toggle
-```
+#### Ações:
+
+  track-toggle              Ativa/Desativa o rastreamento.
+  track-status              Exibe o status de rastreamento (on or off).
+
+#### Opções:
+
+  --quiet, -q               Nunca perguntar.
+  --help, -h                Mostrar ajuda de uso.
+  --log=<level>, -l         Defini o nível de log (padrão: error).
+  --verbose, -v             Defini o nível de detalhes da saída - suporta múltiplos (-vv == --verbose 2) [padrão: 0].
 
 #### Exemplos:
 

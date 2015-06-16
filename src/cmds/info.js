@@ -1,18 +1,18 @@
-import { _, async, lazy_require } from 'azk';
-import { InteractiveCmds } from 'azk/cli/interactive_cmds';
-import { Helpers } from 'azk/cli/command';
+import { CliTrackerController } from 'azk/cli/cli_tracker_controller.js';
+import { Helpers } from 'azk/cli/helpers';
+import { _, lazy_require } from 'azk';
+import { async } from 'azk/utils/promises';
 
 var lazy = lazy_require({
   Manifest: ['azk/manifest'],
   prettyjson: 'prettyjson'
 });
 
-class Cmd extends InteractiveCmds {
-  action(opts) {
+class Info extends CliTrackerController {
+  index(opts) {
     return async(this, function* () {
-
       // Requirements
-      yield Helpers.requireAgent(this);
+      yield Helpers.requireAgent(this.ui);
       var manifest = new lazy.Manifest(this.cwd, true);
 
       // Mount data to show
@@ -23,7 +23,11 @@ class Cmd extends InteractiveCmds {
           depends : system.options.depends,
           image   : obj,
           command : this._format_command(system.command),
+          hostname: system.url.underline,
           ports   : system.ports,
+          scalable: system.scalable,
+          mounts  : system.mounts,
+          envs    : system.envs,
         };
 
         // Adjust
@@ -38,16 +42,16 @@ class Cmd extends InteractiveCmds {
         data.systems[system.name.yellow] = system_data;
         return data;
       }, {
-        manifest: manifest.file,
-        manifest_id: manifest.namespace,
-        cache_dir: manifest.cache_dir,
+        manifest_id   : manifest.namespace,
+        manifest      : manifest.file,
+        cache_dir     : manifest.cache_dir,
         default_system: manifest.systemDefault.name,
-        systems: {}
+        systems       : {}
       });
 
       // Show result
-      this.output(lazy.prettyjson.render(data, {
-        noColor: opts.colored ? false : true,
+      this.ui.output(lazy.prettyjson.render(data, {
+        noColor: opts['no-colored'],
         dashColor: "magenta",
         stringColor: "blue",
       }));
@@ -64,7 +68,4 @@ class Cmd extends InteractiveCmds {
   }
 }
 
-export function init(cli) {
-  return (new Cmd('info', cli))
-    .addOption(['--colored', '-C'], { default: true });
-}
+module.exports = Info;

@@ -1,4 +1,5 @@
-import { Q, lazy_require, log } from 'azk';
+import { lazy_require, log } from 'azk';
+import { promiseResolve } from 'azk/utils/promises';
 
 // Hotswap configure
 module.change_code = 1;
@@ -40,7 +41,7 @@ export class ApiWs {
     } else {
       delete module.cache.reload;
     }
-    return Q.resolve();
+    return promiseResolve();
   }
 }
 
@@ -57,13 +58,13 @@ var Controller = {
     var guest_folder = data.guest_folder;
     var opts         = data.opts;
 
-    // TODO: add progress to log single file sync
+    // TODO: add log single file sync
     this._send(ws, req_id, { status: 'start' });
     this.rsync_watcher.watch(host_folder, guest_folder, opts)
     .then(() => {
       this._send(ws, req_id, { status: 'done' });
     })
-    .fail((err) => {
+    .catch((err) => {
       this._send(ws, req_id, { status: 'fail', err: err});
     });
   },

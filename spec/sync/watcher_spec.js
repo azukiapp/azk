@@ -1,11 +1,10 @@
 import h from 'spec/spec_helper';
-import { _, path, lazy_require } from 'azk';
-import { Q } from 'azk';
+import { _, path, lazy_require, fsAsync } from 'azk';
+import { all } from 'azk/utils/promises';
 
 var lazy = lazy_require({
   Watcher: ['azk/sync/watcher'],
   Sync   : ['azk/sync'],
-  qfs    : 'q-io/fs',
   semver : 'semver'
 });
 
@@ -14,7 +13,7 @@ describe("Azk sync, Watcher module", function() {
   var example_fixtures = h.fixture_path('sync/test_1/');
 
   function make_copy() {
-    return Q.all([
+    return all([
       h.copyToTmp(example_fixtures),
       h.tmp_dir()
     ]);
@@ -63,15 +62,15 @@ describe("Azk sync, Watcher module", function() {
       var dest_file   = path.join(origin, file);
 
       var wait_msg = h.wait_msg("sync.watcher.*");
-      yield lazy.qfs.write(origin_file, "foobar");
+      yield fsAsync.writeFile(origin_file, "foobar");
       var msg = yield wait_msg;
 
       h.expect(msg).to.have.deep.property('op', 'change');
       h.expect(msg).to.have.deep.property('filepath', file);
       h.expect(msg).to.have.deep.property('status', 'done');
 
-      var content = yield lazy.qfs.read(dest_file);
-      h.expect(content).to.equal("foobar");
+      var content = yield fsAsync.readFile(dest_file);
+      h.expect(content.toString()).to.equal("foobar");
     });
 
     it("should reuse a watcher", function* () {
@@ -112,15 +111,15 @@ describe("Azk sync, Watcher module", function() {
       var dest_file   = path.join(origin, file);
       var wait_msgs   = h.wait_msg('sync.watcher.*');
 
-      yield lazy.qfs.write(origin_file, "foobar");
+      yield fsAsync.writeFile(origin_file, "foobar");
 
       var msg_change = yield wait_msgs;
       h.expect(msg_change).to.have.property('op', 'change');
       h.expect(msg_change).to.have.property('filepath', file);
       h.expect(msg_change).to.have.property('status', 'done');
 
-      var content = yield lazy.qfs.read(dest_file);
-      h.expect(content).to.equal("foobar");
+      var content = yield fsAsync.readFile(dest_file);
+      h.expect(content.toString()).to.equal("foobar");
     });
   });
 

@@ -1,6 +1,5 @@
 import h from 'spec/spec_helper';
 import utils from 'azk/utils';
-import { Q } from 'azk/utils';
 
 var { join } = require('path');
 
@@ -39,127 +38,56 @@ describe("Azk utils module", function() {
     h.expect(result).to.equal("foo - bar");
   });
 
-  describe("in a class with async method", function() {
-    var FooBar = function(name) {
-      this.name = name;
-    };
-    FooBar.prototype.getAsyncName = function(callback) {
-      setImmediate( () => {
-        if (this.name) {
-          callback(null, this.name);
-        } else {
-          callback(new Error());
-        }
-      });
-    };
-
-    var OtherBar = utils.qify(FooBar);
-
-    it("should not qify a original class", function(done) {
-      var a = new FooBar('aname');
-      h.expect(a.getAsyncName(function(err, name) {
-        h.expect(err).not.exist;
-        h.expect(name).to.equal('aname');
-        done();
-      })).not.exist;
+  describe('envs', function () {
+    beforeEach(() => {
+      delete process.env.ENV_TEST;
     });
 
-    it("should qify a class methods", function() {
-      var b = new OtherBar('bname');
-      var c = new OtherBar('cname');
-
-      return Q.all([
-        b.getAsyncName(), c.getAsyncName()
-      ]).then((results) => {
-        h.expect(results).to.eql(['bname', 'cname']);
-      });
-    });
-  });
-
-  describe("in a module with async functions", function() {
-    var mod = {
-      getAsyncName(name, callback) {
-        setImmediate( () => {
-          callback(null, name);
-        });
-      }
-    };
-
-    var a = utils.qifyModule(mod);
-
-    it("should qify a methods", function() {
-      return h.expect(a.getAsyncName('name')).to.eventually.equal('name');
-    });
-
-    it("should not change original method", function(done) {
-      mod.getAsyncName('oname', function(err, name) {
-        h.expect(err).to.not.exist;
-        h.expect(name).to.equal('oname');
-        done();
-      });
-    });
-  });
-
-  describe("provides facilities to use Q", function() {
-    var defer = utils.defer;
-    var async = utils.async;
-
-    var will_solve = () => {
-      return defer((resolve, reject, notify) => {
-        process.nextTick(() => {
-          notify("notify");
-          resolve(1);
-        });
-      });
-    };
-
-    var will_fail = () => {
-      return defer((resolve, reject) => {
-        process.nextTick(() => reject(new Error()));
-      });
-    };
-
-    it("should return a error in promise scope", function() {
-      var promise = defer(() => {
-        self.test(); // jshint ignore:line
+    describe('without default, should', function () {
+      it('null from "null"', function () {
+        var key = 'ENV_TEST';
+        process.env[key] = 'null';
+        h.expect(utils.envs(key)).to.eql(null);
       });
 
-      return h.expect(promise).to.eventually.rejectedWith(Error);
-    });
+      it('null from "undefined"', function () {
+        var key = 'ENV_TEST';
+        process.env[key] = 'undefined';
+        h.expect(utils.envs(key)).to.eql(null);
+      });
 
-    it("should support create a promise in a short alias", function() {
-      return Q.all([
-        h.expect(will_solve()).to.eventually.equal(1),
-        h.expect(will_fail()).to.eventually.rejectedWith(Error),
-      ]);
-    });
+      it('null from "false"', function () {
+        var key = 'ENV_TEST';
+        process.env[key] = 'false';
+        h.expect(utils.envs(key)).to.eql(null);
+      });
 
-    it("should support a async alias", function() {
-      var events   = [];
-      var progress = (event) => events.push(event);
-
-      var promise = async(function* (notify) {
-        notify("fromasync");
-        var number = yield will_solve();
-        h.expect(number).to.equal(1);
-        return true;
-      }).progress(progress);
-
-      return promise.then((result) => {
-        h.expect(result).to.equal(true);
-        h.expect(events).to.include("notify");
-        h.expect(events).to.include("fromasync");
+      it('should true', function () {
+        var key = 'ENV_TEST';
+        process.env[key] = 'true';
+        h.expect(utils.envs(key)).to.eql(true);
       });
     });
 
-    it("should support a sync with bind", function() {
-      this.var = 'onevalue';
-      /* jshint ignore:start */
-      return h.expect(async(this, function* () {
-        h.expect(this.var).to.equal('onevalue');
-        return true;
-      })).to.eventually.ok;
-      /* jshint ignore:end */
+    describe('with default, should "default_value"', function () {
+      var should = "default_value";
+
+      it('should undefined', function () {
+        var key = 'ENV_TEST';
+        process.env[key] = 'undefined';
+        h.expect(utils.envs(key, should)).to.eql(should);
+      });
+
+      it('should false from "false"', function () {
+        var key = 'ENV_TEST';
+        process.env[key] = 'false';
+        h.expect(utils.envs(key, should)).to.eql(should);
+      });
+
+      it('default from undefined env', function () {
+        var key = 'ENV_TEST';
+        h.expect(utils.envs(key, should)).to.eql(should);
+      });
     });
   });
 });

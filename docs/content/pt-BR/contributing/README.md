@@ -122,7 +122,7 @@ Informação adicional:
 
 O código do `azk` é escrito em [Node.js][node.js]. Ele usa vários recursos de ES6 que ainda não estão disponíveis em uma versão estável, e por isso o código passa por uma etapa de _compilação_ para que ele possa ser interpretado corretamente pela versão atual do [Node.js][node.js]. Nós usamos o [babeljs] para isso, que oferece muitos recursos de ES6 (ver: [babeljs compat-table]). Durante o processo de "transpilation", nós sempre configuramos o `source-map` para "on". Isso permite que o código gerado mostre os erros que apontando corretamente para o código-fonte original.
 
-Uma coisa que você vai notar logo que começar a mergulhar no código do `azk` é o uso de `promises` com `generators`. Isso permite que o nosso código assíncrono torne-se mais semelhante ao código síncrono, tornando-o mais fácil de ler. Usamos a biblioteca de promessas [Q] que suporta `generators`.
+Uma coisa que você vai notar logo que começar a mergulhar no código do `azk` é o uso de `promises` com `generators`. Isso permite que o nosso código assíncrono torne-se mais semelhante ao código síncrono, tornando-o mais fácil de ler. Usamos a biblioteca de promessas [bluebird-generators] que suporta `generators`.
 
 
 ### Qualidade e estilo do código
@@ -157,7 +157,7 @@ $ make clean
 $ make
 ```
 
-Então adicione o caminho para o binário do azk a variável de ambiente PATH, ou crie um alias para ele. 
+Então adicione o caminho para o binário do azk a variável de ambiente PATH, ou crie um alias para ele.
 
 Existem passos adicionais que você precisará seguir caso esteja realizando a instalação no Mac ou no Linux (por exemplo, realizar a instalação do `libnss-resolver`). Olhe [essa página da documentação](../installation/source-code.md) para instruções mais detalhadas.
 
@@ -237,7 +237,7 @@ Lembre-se de fazer um fork diretamente no [GitHub][github]. Todas as contribuiç
 - `stable` é a versão estável.
 
   A branch **`stable`** é a versão mais recente e estável do `azk`. É ela que utilizamos para construir os binários, disponíveis nos gerenciadores de pacotes.
-  
+
 
 ### Convenções
 
@@ -401,4 +401,4 @@ Informação adicional:
 [mocha]: http://visionmedia.github.io/mocha/
 [node.js]: http://nodejs.org/
 [pull requests]: https://github.com/azukiapp/azk/pulls
-[Q]: https://github.com/kriskowal/q/wiki/API-Reference#generators
+[bluebird-generators]: https://github.com/kriskowal/q/wiki/API-Reference#generators

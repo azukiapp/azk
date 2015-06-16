@@ -1,50 +1,26 @@
 ## azk agent
 
-Controls the `azk agent` service. This command must be executed before starting any system.
+Controls the `azk agent` service. For further information about the agent see its [documentation](../agent/README.md).
 
 #### Usage:
 
-    $ azk [options] agent [options] {action}
+    $ azk agent (start|status|stop) [options]
 
-_______________
-### azk agent start
+#### Actions:
 
-Starts the `agent`.
+  start                     Starts azk agent.
+  status                    Shows azk agent status.
+  stop                      Stops azk agent.
 
 #### Options:
 
-- `--daemon`      starts in background mode
-- `--no-daemon`   starts in foreground mode
+  --no-daemon               Runs `azk agent` in foreground.
+  --no-reload-vm            Do not reload Virtual Machine settings.
+  --quiet, -q               Never prompt.
+  --help, -h                Shows help usage.
+  --log=<level>, -l         Sets log level (default: error).
+  --verbose, -v             Sets the level of detail - multiple supported (-vv == --verbose 2) [default: 0].
 
 #### Examples:
-
-##### Start the _agent_ in _background_:
-
-    $ azk agent start
-
-##### Start the _agent_ in _foreground_:
 
     $ azk agent start --no-daemon
-
-![Figure 1-1](../../resources/images/agent_start.png)
-
-_______________
-### azk agent stop
-
-Stop the `agent` when it's in the background.
-
-#### Examples:
-
-    $ azk agent stop
-
-_______________
-### azk agent status
-
-Displays the current status of the `agent`.
-
-#### Examples:
-
-```
-$ azk agent status
-azk: Agent is running...
-```

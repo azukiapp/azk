@@ -1,19 +1,20 @@
-import { _, Q, t, path, fs, config, log, defer, async } from 'azk';
+import { _, t, path, fsAsync, config, log } from 'azk';
+import { async, defer, ninvoke, thenAll, promiseResolve } from 'azk/utils/promises';
+
 import { lazy_require } from 'azk';
 import { net } from 'azk/utils';
 import { Tools } from 'azk/agent/tools';
 import { AgentStartError } from 'azk/utils/errors';
 
-var forever = require('forever-monitor');
-var MemoryStream    = require('memorystream');
-var MemcachedDriver = require('memcached');
-
 var lazy = lazy_require({
+  forever : 'forever-monitor',
   Manifest: ['azk/manifest'],
   Client  : ['azk/agent/client'],
+  MemoryStream   : 'memorystream',
+  MemcachedDriver: 'memcached',
 });
 
-// TODO: Reaplce forever for a better solution :/
+// TODO: Replace forever for a better solution :/
 var Balancer = {
   memcached : null,
   hipache   : null,
@@ -28,19 +29,19 @@ var Balancer = {
   get memCached() {
     if (!this.mem_client) {
       var socket = config('paths:memcached_socket');
-      this.mem_client = new MemcachedDriver(socket);
+      this.mem_client = new lazy.MemcachedDriver(socket);
     }
     return this.mem_client;
   },
 
   removeAll(host) {
     var key = 'frontend:' + host;
-    return Q.ninvoke(this.memCached, 'delete', key);
+    return ninvoke(this.memCached, 'delete', key);
   },
 
   getBackends(host) {
     var key = 'frontend:' + host;
-    return Q.ninvoke(this.memCached, 'get', key).then((entries) => {
+    return ninvoke(this.memCached, 'get', key).then((entries) => {
       return entries ? entries : [host];
     });
   },
@@ -52,7 +53,7 @@ var Balancer = {
         var entries = yield this.getBackends(host);
         entries = this._removeEntry(entries, backend);
         entries.push(backend);
-        yield Q.ninvoke(this.memCached, 'set', key, entries, 0);
+        yield ninvoke(this.memCached, 'set', key, entries, 0);
       }
     });
   },
@@ -63,7 +64,7 @@ var Balancer = {
         var key = 'frontend:' + host;
         var entries = yield this.getBackends(host);
         entries = this._removeEntry(entries, backend);
-        yield Q.ninvoke(this.memCached, 'set', key, entries, 0);
+        yield ninvoke(this.memCached, 'set', key, entries, 0);
       }
     });
   },
@@ -106,33 +107,36 @@ var Balancer = {
   },
 
   start_hipache(ip, port, socket) {
-    var pid  = config("paths:hipache_pid");
-    var file = this._check_config(ip, port, socket);
-    var cmd = [ 'nvm', 'hipache', '--config', file ];
-    var name = "hipache";
-
-    return this._start_service(name, cmd, pid).then((child) => {
+    return async(this, function* () {
+      var pid  = config("paths:hipache_pid");
+      var file = yield this._check_config(ip, port, socket);
+      var cmd  = [ 'nvm', 'hipache', '--config', file ];
+      var name = "hipache";
+      var child = yield this._start_service(name, cmd, pid);
       this.hipache = child;
       log.info("hipache started in %s port with file config", port, file);
       this._handleChild(name, child);
+      return promiseResolve({});
     });
   },
 
   start_memcached(socket) {
-    var pid  = config("paths:memcached_pid");
-    var cmd  = [ 'nvm', 'memcachedjs', '--socket', socket ];
-    var name = "memcached";
+    return async(this, function* () {
+      var pid  = config("paths:memcached_pid");
+      var cmd  = [ 'nvm', 'memcachedjs', '--socket', socket ];
+      var name = "memcached";
 
-    // Remove socket before start
-    // TODO: replace by q-io
-    if (fs.existsSync(socket)) {
-      fs.unlinkSync(socket);
-    }
+      // Remove socket before start
+      var socket_exists = yield fsAsync.exists(socket);
+      if (socket_exists) {
+        yield fsAsync.unlink(socket);
+      }
 
-    return this._start_service(name, cmd, pid).then((child) => {
+      var child = yield this._start_service(name, cmd, pid);
       this.memcached = child;
       log.info("memcachedjs started in socket: ", socket);
       this._handleChild(name, child);
+      return promiseResolve({});
     });
   },
 
@@ -140,7 +144,7 @@ var Balancer = {
     if (this.isRunnig()) {
       log.debug("call to stop balancer");
       return Tools.async_status("balancer", this, function* (change_status) {
-        yield Q.all([
+        yield thenAll([
           this._stop_system('balancer-redirect', change_status),
           this._stop_system('dns', change_status),
         ]);
@@ -148,7 +152,7 @@ var Balancer = {
         yield this._stop_sub_service("memcached", change_status);
       });
     } else {
-      return Q();
+      return promiseResolve();
     }
   },
 
@@ -168,14 +172,14 @@ var Balancer = {
     return manifest.system(system, true);
   },
 
-  _waitDocker() {
+  _waitDocker(retry = 10) {
     var docker_host = config("docker:host");
-    var promise = net.waitService(docker_host, 10, { timeout: 2000, context: "balancer" });
+    var promise = net.waitService(docker_host, retry, { timeout: 2000, context: "balancer" });
     return promise.then((success) => {
       if (!success) {
         throw new AgentStartError(t('errors.connect_docker_unavailable'));
       }
-      return true;
+      return success;
     });
   },
 
@@ -192,7 +196,7 @@ var Balancer = {
 
       // Save outputs to use in error
       var output = "";
-      options.stdout = new MemoryStream();
+      options.stdout = new lazy.MemoryStream();
       options.stdout.on('data', (data) => {
         output += data.toString();
       });
@@ -220,20 +224,25 @@ var Balancer = {
       var system = this._getSystem(system_name);
 
       // Wait docker
-      yield this._waitDocker();
+      try {
+        yield this._waitDocker(3);
 
-      // Stop
-      change_status("stopping_" + system_name);
-      yield system
-        .stop()
-        .catch((err) => {
-          try {
-            log.error(err);
-            change_status("error", err);
-          } catch (err) {}
-          return true;
-        });
-      change_status("stopped_" + system_name);
+        // Stop
+        change_status("stopping_" + system_name);
+        yield system
+          .stop()
+          .catch((err) => {
+            try {
+              log.error(err);
+              change_status("error", err);
+            } catch (err) {}
+            return true;
+          });
+        change_status("stopped_" + system_name);
+      } catch (err) {
+        var msg = err.stack ? err.stack : err.toString();
+        log.warn(`[agent] Error to stop balance system ${system_name}`, msg);
+      }
 
       // Save state
       this.running[system_name] = false;
@@ -245,7 +254,7 @@ var Balancer = {
       log.info(name + ' stopped');
     });
 
-    // Log child erro if exited
+    // Log child error if exited
     child.on('exit:code', (code) => {
       if (code && code !== 0) {
         log.error(name + ' exit code: ' + code);
@@ -263,17 +272,19 @@ var Balancer = {
   _start_service(name, cmd, pid) {
     cmd = [path.join(config('paths:azk_root'), 'bin', 'azk'), ...cmd];
     var options = {
-      max : 1,
+      max    : 1,
       silent : true,
-      pidFile: pid
+      fork   : true,
+      pidFile: pid,
+      detached: false,
     };
 
     return Tools.defer_status("balancer", (resolve, reject, change_status) => {
-      // Log and notify
+      // Log and post msgs
       log.info("starting " + name);
       change_status("starting_" + name);
 
-      var child = forever.start(cmd, options);
+      var child = lazy.forever.start(cmd, options);
       child.on('exit', () => {
         reject();
         lazy.Client.stop();
@@ -328,8 +339,9 @@ var Balancer = {
     };
 
     // set content
-    fs.writeFileSync(file, JSON.stringify(data, null, '  '));
-    return file;
+    return fsAsync.writeFile(file, JSON.stringify(data, null, '  ')).then(function () {
+      return file;
+    });
   }
 };
 

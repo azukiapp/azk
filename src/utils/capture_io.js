@@ -1,4 +1,5 @@
-import { Q, _ } from 'azk/utils';
+import { _ } from 'azk/utils';
+import { promiseResolve } from 'azk/utils/promises';
 
 var StdOutFixture = require('fixture-stdout');
 
@@ -8,7 +9,7 @@ var fixtures = {
 };
 
 function capture_io(block) {
-  return Q.when(null, () => {
+  return promiseResolve(null).then(() => {
     var writes = { stdout: '', stderr: '' };
     var result;
 
@@ -29,11 +30,12 @@ function capture_io(block) {
       result = block();
     } catch (err) { return fail(err); }
 
-    return Q.when(result, (value) => {
+    return promiseResolve(result).then((value) => {
       _.each(fixtures, (fixture) => fixture.release());
       return [value, writes];
     }, fail);
   });
 }
 
+export { capture_io };
 export default capture_io;

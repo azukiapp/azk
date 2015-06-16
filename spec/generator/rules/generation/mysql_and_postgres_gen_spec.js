@@ -1,8 +1,8 @@
-import { config, path, fs } from 'azk';
+import { config, path, fsAsync } from 'azk';
+import { async } from 'azk/utils/promises';
 import h from 'spec/spec_helper';
 import { Generator } from 'azk/generator';
 import { Manifest } from 'azk/manifest';
-var qfs = require('q-io/fs');
 
 describe('Azk generator db', function() {
   var outputs = [];
@@ -13,53 +13,61 @@ describe('Azk generator db', function() {
   var rootFolderBasename;
 
   before(function() {
-    return h.tmp_dir().then((dir) => {
+    return async(this, function* () {
+      var dir;
+      var projectFolder;
+      var gemfilePath;
+      var gemfileContent;
+
+      dir = yield h.tmp_dir();
       // save root dir
       rootFolder = dir;
       rootFolderBasename = path.basename(dir);
 
-      //create rails folder with mysql dependency
-      var projectFolder = path.join(rootFolder, 'railsMysql');
-      fs.mkdirSync(projectFolder);
-      var gemfilePath = path.join(projectFolder, 'Gemfile');
-      h.touchSync(gemfilePath);
-      var gemfileContent = [
+      // rails + mysql
+      projectFolder = path.join(rootFolder, 'railsMysql');
+      yield fsAsync.mkdirs(projectFolder);
+      gemfilePath = path.join(projectFolder, 'Gemfile');
+      gemfileContent = [
         'source \'https://rubygems.org\'',
         '',
         'gem \'rails\', \'4.1.6\'',
         'gem \'mysql2\'',
       ].join('\n');
-      return qfs.write(gemfilePath, gemfileContent);
-    }).then(() => {
+      yield fsAsync.writeFile(gemfilePath, gemfileContent);
 
-      //create rails folder with postgres dependency
-      var projectFolder = path.join(rootFolder, 'railsPostgres');
-      fs.mkdirSync(projectFolder);
-      var gemfilePath = path.join(projectFolder, 'Gemfile');
-      h.touchSync(gemfilePath);
-      var gemfileContent = [
+      // rails + postgres
+      projectFolder = path.join(rootFolder, 'railsPostgres');
+      yield fsAsync.mkdirs(projectFolder);
+      gemfilePath = path.join(projectFolder, 'Gemfile');
+      gemfileContent = [
         'source \'https://rubygems.org\'',
         '',
         'gem \'rails\', \'4.1.6\'',
         'gem \'pg\'',
       ].join('\n');
-      return qfs.write(gemfilePath, gemfileContent);
+      yield fsAsync.writeFile(gemfilePath, gemfileContent);
     });
   });
 
   var generateAndReturnManifest = (project) => {
     var manifest = path.join(project, config('manifest'));
-    generator.render({
-      systems: generator.findSystems(project),
-    }, manifest);
-    return new Manifest(project);
+    return generator.findSystems(project)
+    .then(function (all_systems) {
+      return generator.render({ systems: all_systems }, manifest)
+      .then(function() {
+        return new Manifest(project);
+      });
+    });
   };
 
   describe('2 rails and 2 databases', function() {
     var manifest;
 
     before(function() {
-      manifest = generateAndReturnManifest(rootFolder);
+      return generateAndReturnManifest(rootFolder).then(function (manifest_generated) {
+        manifest = manifest_generated;
+      });
     });
 
     it('should detect 4 systems', function() {

@@ -1,8 +1,7 @@
-import { path, _, config, async } from 'azk';
+import { path, _, config, fsAsync } from 'azk';
+import { async } from 'azk/utils/promises';
 import { Generator } from 'azk/generator';
 import { Manifest } from  'azk/manifest';
-
-var qfs = require('q-io/fs');
 
 export function extend(h) {
 
@@ -20,7 +19,7 @@ export function extend(h) {
       var tmp = yield fixture_path();
 
       // Write content to manifest file
-      yield qfs.write(path.join(tmp, config('manifest')), content);
+      yield fsAsync.writeFile(path.join(tmp, config('manifest')), content);
 
       // Return a new project dir
       return new Manifest(tmp);
@@ -34,7 +33,7 @@ export function extend(h) {
 
       // Read and write
       var generator = new Generator({});
-      generator.render(data, path.join(tmp, config('manifest')));
+      yield generator.render(data, path.join(tmp, config('manifest')));
 
       // Return a new project dir
       return new Manifest(tmp);
@@ -48,16 +47,18 @@ export function extend(h) {
     var mounts    = {
       '/azk/#{manifest.dir}': '.'
     };
+
     var mounts_with_persitent = _.merge(mounts, {
       '/data': { type: 'persistent', value: 'data' },
     });
+
     var mounts_with_sync = {
       '/azk'           : { type: 'sync', value: '.' },
       '/azk/bin'       : { type: 'sync', value: 'bin', shell: true },
       '/azk/lib'       : { type: 'sync', value: 'lib', shell: true, daemon: false },
       '/azk/tmp'       : { type: 'persistent', value: 'tmp' },
       '/azk/log'       : { type: 'persistent', value: 'log' },
-    } ;
+    };
 
     // Data merge
     data = _.merge({
@@ -66,7 +67,7 @@ export function extend(h) {
           depends: ["db", "api"],
           workdir: '/azk/#{manifest.dir}',
           image: { docker: default_img },
-          mounts: mounts_with_persitent,
+          mounts: _.cloneDeep(mounts_with_persitent),
           scalable: { default: 3 },
           http: true,
           command, provision,
@@ -82,7 +83,7 @@ export function extend(h) {
           depends: ["db"],
           workdir: '/azk/#{manifest.dir}',
           image: { docker: default_img },
-          mounts: mounts,
+          mounts: _.cloneDeep(mounts),
           scalable: true,
           http: true,
           command, provision,
@@ -93,7 +94,7 @@ export function extend(h) {
         db: {
           workdir: '/azk/#{manifest.dir}',
           image: { docker: default_img },
-          mounts: mounts_with_persitent,
+          mounts: _.cloneDeep(mounts_with_persitent),
           scalable: false,
           envs: {
             USER: "username",
@@ -168,7 +169,7 @@ export function extend(h) {
         },
         'example-sync': {
           extends: "example",
-          mounts: mounts_with_sync,
+          mounts: _.cloneDeep(mounts_with_sync),
         },
       },
       defaultSystem: 'api',

@@ -98,7 +98,7 @@ Additional info:
 
 `azk`'s code is written in [Node.js][node.js]. It uses several features of ES6 that are not yet available in a stable version, so the code goes through a _compilation_ step for it to be correctly interpreted by the current version of [Node][node.js]. We use [babeljs] for that, which provides many features from ES6 (see: [babeljs compat-table]). During the transpilation process, we always set the `source-map` to on. This allows the generated code to show errors that correctly point to the original source code.
 
-One thing that you'll note as soon as you start diving in `azk`'s code is the use of `promises` with `generators`. This allows our asynchronous code to become more similar to synchronous code, making it easier to read. We use the promises library [Q] that supports generators.
+One thing that you'll note as soon as you start diving in `azk`'s code is the use of `promises` with `generators`. This allows our asynchronous code to become more similar to synchronous code, making it easier to read. We use the promises library [bluebird-generators] that supports generators.
 
 
 ### Code quality and style
@@ -133,9 +133,9 @@ $ make clean
 $ make
 ```
 
-Then add the path to your azk binary to your PATH environment variable, or create an alias to it. 
+Then add the path to your azk binary to your PATH environment variable, or create an alias to it.
 
-There's additional steps that you need to go through if you're installing it on a Mac or a Linux (for example, installing the `libnss-resolver`). Check [this page](../installation/source-code.md) for more detailed instructions. 
+There's additional steps that you need to go through if you're installing it on a Mac or a Linux (for example, installing the `libnss-resolver`). Check [this page](../installation/source-code.md) for more detailed instructions.
 
 
 ### JavaScript and Node.js
@@ -214,7 +214,7 @@ Remember to make a fork directly on [GitHub][github]. All contributions are made
 - `stable` is the stable version.
 
   The **`stable`** branch is the latest stable version of `azk`. It's the one which we use to build the binaries, available on package managers.
-  
+
 
 ### Conventions
 
@@ -361,4 +361,4 @@ Additional info:
 [mocha]: http://visionmedia.github.io/mocha/
 [node.js]: http://nodejs.org/
 [pull requests]: https://github.com/azukiapp/azk/pulls
-[Q]: https://github.com/kriskowal/q/wiki/API-Reference#generators
+[bluebird-generators]: https://github.com/petkaantonov/bluebird/blob/master/API.md#generators

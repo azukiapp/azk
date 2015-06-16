@@ -1,10 +1,10 @@
-import { _, config, log } from 'azk';
+import { _, config, log, fsAsync } from 'azk';
 import { example_system } from 'azk/generator/rules';
+import { promiseResolve } from 'azk/utils/promises';
 import { UIProxy } from 'azk/cli/ui';
 import { Court } from 'azk/generator/court';
 
 var path = require('path');
-var fs   = require('fs');
 var Handlebars = require('handlebars');
 
 var template = path.join(
@@ -19,15 +19,20 @@ export class Generator extends UIProxy {
 
   get tpl() {
     if (!this._tpl) {
-      this._tpl = Handlebars.compile(fs.readFileSync(template).toString());
+      return fsAsync.readFile(template).then(function(content) {
+        content = content.toString();
+        this._tpl = Handlebars.compile(content);
+        return promiseResolve((data) => this._tpl(data));
+      }.bind(this));
     }
-    return this._tpl;
+    return promiseResolve((data) => this._tpl(data));
   }
 
   findSystems(dir) {
     log.debug('court.judge(\'%s\')', dir);
-    this.court.judge(dir);
-    return this.court.systems_suggestions;
+    return this.court.judge(dir).then(function () {
+      return this.court.systems_suggestions;
+    }.bind(this));
   }
 
   render(data, file) {
@@ -38,8 +43,17 @@ export class Generator extends UIProxy {
       },
     }, data);
 
-    var renderedTemplate = this.tpl(data);
-    fs.writeFileSync(file, renderedTemplate);
+    return this.tpl.then(function (renderedTemplate) {
+      var rendered_template_content = renderedTemplate(data);
+      return fsAsync.writeFile(file, rendered_template_content);
+    });
+  }
+
+  trim(context) {
+    while (/\n\n/.test(context)) {
+      context = context.replace(/\n\n/, '\n');
+    }
+    return context;
   }
 }
 
@@ -73,12 +87,16 @@ function mount(data) {
   // args
   var args  = [];
   if (!_.isUndefined(data.value)) {
+    // Support unescape
+    // https://regex101.com/r/hR4rY3/2
+    var regex = /^_{3}(.*)_{3}$/;
+    var isEscaped = regex.test(data.value);
+    data.value = (isEscaped) ? data.value.replace(regex, "$1") : json(data.value);
     args.push(data.value);
   }
   if (!_.isEmpty(options)) {
-    args.push(options);
+    args.push(json(options));
   }
-  args = _.map(args, (arg) => { return json(arg); });
 
   switch (data.type) {
     default:

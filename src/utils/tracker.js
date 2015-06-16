@@ -1,12 +1,32 @@
 import Azk from 'azk';
-import { Q, _, config, log, t } from 'azk';
+import { _, config, log, t, lazy_require } from 'azk';
 import { meta as azkMeta } from 'azk';
-import { calculateHash } from 'azk/utils';
+import { promiseResolve } from 'azk/utils/promises';
 
-var util = require('util');
-var os = require('os');
-var osName = require('os-name');
-var InsightKeenIo = require('insight-keen-io');
+var lazy = lazy_require({
+  os           : 'os',
+  osName       : 'os-name',
+  calculateHash: ['azk/utils'],
+  InsightKeenIo: 'insight-keen-io',
+  InsightKeenIoWithMeta: () => {
+    class InsightKeenIoWithMeta extends lazy.InsightKeenIo {
+      constructor(opts) {
+        super(opts);
+        this._opt_out_key = opts.opt_out_key;
+      }
+
+      get optOut() {
+        return !azkMeta.get(this._opt_out_key);
+      }
+
+      set optOut(val) {
+        azkMeta.set(this._opt_out_key, !val);
+      }
+    }
+
+    return InsightKeenIoWithMeta;
+  }
+});
 
 export class TrackerEvent {
   constructor(collection, tracker) {
@@ -51,7 +71,7 @@ export class TrackerEvent {
   }
 
   send(extra_func = null) {
-    if (!this.tracker.loadTrackerPermission()) { return Q.resolve(false); }
+    if (!this.tracker.loadTrackerPermission()) { return promiseResolve(false); }
 
     if (_.isFunction(extra_func)) {
       extra_func(this);
@@ -76,7 +96,7 @@ export class TrackerEvent {
         }
         return tracking_result;
       }, () => {
-        log.info(t("tracking.timeout"));
+        log.warn('[tracker] > timeout:', t("tracking.timeout"));
         return false;
       });
   }
@@ -86,14 +106,15 @@ export class Tracker {
 
   constructor(opts, ids_keys) {
     opts = _.merge({}, {
-      projectId: config('tracker:projectId'),
-      writeKey : config('tracker:writeKey'),
-      use_fork : true,
+      projectId  : config('tracker:projectId'),
+      writeKey   : config('tracker:writeKey'),
+      use_fork   : true,
+      opt_out_key: ids_keys.permission,
     }, opts);
 
-    this.ids_keys = ids_keys;
-    this.insight  = new InsightKeenIo(opts);
-    this.meta     = {
+    this.ids_keys      = ids_keys;
+    this.insight_opts  = opts;
+    this.meta          = {
       "ip_address"      : "${keen.ip}",
       "agent_session_id": this.loadAgentSessionId(),
       "command_id"      : this.generateRandomId('command_id'),
@@ -102,13 +123,20 @@ export class Tracker {
 
       // device config
       "device_info": {
-        "os"          : osName(),
-        "proc_arch"   : os.arch(),
-        "total_memory": Math.floor(os.totalmem() / 1024 / 1024),
-        "cpu_info"    : os.cpus()[0].model,
-        "cpu_count"   : os.cpus().length
+        "os"          : lazy.osName(),
+        "proc_arch"   : lazy.os.arch(),
+        "total_memory": Math.floor(lazy.os.totalmem() / 1024 / 1024),
+        "cpu_info"    : lazy.os.cpus()[0].model,
+        "cpu_count"   : lazy.os.cpus().length
       }
     };
+  }
+
+  get insight() {
+    if (!this.__insight) {
+      this.__insight = new lazy.InsightKeenIoWithMeta(this.insight_opts);
+    }
+    return this.__insight;
   }
 
   newEvent(collection, data = {}) {
@@ -127,7 +155,7 @@ export class Tracker {
   }
 
   generateRandomId(label) {
-    return label + ':' + calculateHash(String(Math.floor(Date.now() * Math.random()))).slice(0, 8);
+    return label + ':' + lazy.calculateHash(String(Math.floor(Date.now() * Math.random()))).slice(0, 8);
   }
 
   generateNewAgentSessionId() {
@@ -150,8 +178,9 @@ export class Tracker {
   }
 
   loadTrackerPermission() {
-    if (config('tracker:disable')) { return false; }
-    return azkMeta.get(this.ids_keys.permission);
+    var permission = (config('tracker:disable')) ? false : azkMeta.get(this.ids_keys.permission);
+    log.debug(`[tracker] permission: ${permission}`);
+    return permission;
   }
 
   checkTrackingPermission() {
@@ -159,40 +188,21 @@ export class Tracker {
   }
 
   logAnalyticsError(err) {
-    if (process.env.AZK_ANALYTICS_ERRORS === '1') {
-      log.warn('[Analytics:tracking:error]');
-      if (err.stack) {
-        log.warn(err.stack);
-      } else {
-        log.warn(err);
-      }
-    }
+    log.warn('[tracker] >', err.stack || err.toString());
   }
 
   logAnalyticsData(analytics_data) {
-    this.analytics_level_env = this.analytics_level_env || process.env.AZK_ANALYTICS_LEVEL || '0';
-
-    switch (this.analytics_level_env) {
-      case '1':
-        log.info('[Analytics:tracking:data]');
-        log.info(util.inspect(analytics_data, { showHidden: false, depth: null, colors: true }));
-        break;
-      case '2':
-        log.info('[Analytics:tracking]', analytics_data.eventCollection, analytics_data.data.event_type);
-        break;
-      case '3':
-        log.info('[track] >', analytics_data.eventCollection, ':', analytics_data.data.event_type);
-        log.info('        >', analytics_data.data.meta.agent_session_id);
-        log.info('        >', analytics_data.data.meta.command_id);
-        log.info('        >', analytics_data.data.meta.user_id, '\n');
-        break;
-    }
+    log.info (`[tracker] ${analytics_data.eventCollection}:${analytics_data.data.event_type}`);
+    log.info (`[tracker]`, analytics_data.data.meta.agent_session_id);
+    log.info (`[tracker]`, analytics_data.data.meta.command_id);
+    log.info (`[tracker]`, analytics_data.data.meta.user_id);
+    log.debug(`[tracker] data:`, analytics_data);
   }
 }
 
 // Default tracker
 var default_tracker = new Tracker({}, {
-  permission: 'tracker_permission',
+  permission: config('tracker:permission_key'),
   user_id   : 'tracker_user_id',
   agent_id  : 'agent_session_id',
 });

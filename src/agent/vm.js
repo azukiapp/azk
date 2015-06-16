@@ -1,16 +1,17 @@
-import { _, Q, path, config, async, log, isBlank } from 'azk';
+import { _, path, config, log, isBlank, fsAsync } from 'azk';
+import { subscribe, publish } from 'azk/utils/postal';
+import { async, nbind, nfcall, thenAll, promisifyModule } from 'azk/utils/promises';
 import Utils from 'azk/utils';
 import { Tools } from 'azk/agent/tools';
 import { SSH } from 'azk/agent/ssh';
 
 var vbm  = require('vboxmanage');
-var qfs  = require('q-io/fs');
 
-var machine  = Utils.qifyModule(vbm.machine );
-var instance = Utils.qifyModule(vbm.instance);
-var hostonly = Utils.qifyModule(vbm.hostonly);
-var dhcp     = Utils.qifyModule(vbm.dhcp    );
-var _exec    = Q.nbind(vbm.command.exec, vbm.command);
+var machine  = promisifyModule(vbm.machine );
+var instance = promisifyModule(vbm.instance);
+var hostonly = promisifyModule(vbm.hostonly);
+var dhcp     = promisifyModule(vbm.dhcp    );
+var _exec    = nbind(vbm.command.exec, vbm.command);
 
 function exec(...args) {
   return _exec(...args).then((result) => {
@@ -106,7 +107,7 @@ var hdds = {
             closes.push(self.close(hdd.Location), hdd.Location == origin);
           }
         });
-        return Q.all(closes);
+        return thenAll(closes);
       });
   },
 };
@@ -166,7 +167,7 @@ function config_net_interfaces(name, ip, use_dhcp) {
       yield config_dhcp(inter, gateway, netmask, ip);
     } else {
       var key_base = "/VirtualBox/D2D/eth0";
-      return Q.all([
+      return thenAll([
         guestproperty.set(name, `${key_base}/address`, ip),
         guestproperty.set(name, `${key_base}/netmask`, netmask),
         guestproperty.set(name, `${key_base}/network`, network),
@@ -222,7 +223,7 @@ function config_disks(name, boot, data) {
   ];
 
   return async(function* () {
-    if (!(yield qfs.exists(data))) {
+    if (!(yield fsAsync.exists(data))) {
       var file   = data + ".tmp";
       var origin = config("agent:vm:blank_disk");
       yield Utils.unzip(origin, file).catch((err) => {
@@ -232,8 +233,8 @@ function config_disks(name, boot, data) {
     }
 
     if (use_link) {
-      yield qfs.remove(data_link).fail(() => {});
-      yield qfs.symbolicLink(data_link, data_origin, 'file');
+      yield fsAsync.remove(data_link).catch(() => {});
+      yield fsAsync.symlink(data_origin, data_link, 'file');
     }
 
     yield exec.apply(null, storage_opts);
@@ -299,7 +300,7 @@ var vm = {
         "--boot1", "dvd",
       ];
 
-      var usage = yield Q.nfcall(vbm.command.exec, "modifyvm");
+      var usage = yield nfcall(vbm.command.exec, "modifyvm");
       if (usage.join("\n").match(/--vtxux/)) {
         cmd.push('--vtxux', 'on');
       }
@@ -310,6 +311,7 @@ var vm = {
       yield config_share(name);
 
       status_change("installed");
+
       return yield this.info(name);
     });
   },
@@ -336,7 +338,7 @@ var vm = {
 
   // TODO: Move install to start
   start(vm_name, wait = false) {
-    log.debug("call to start vm %s", vm_name);
+    log.debug("[vm] call to start vm %s", vm_name);
     return Tools.async_status("vm", this, function* (status_change) {
       var info = yield vm.info(vm_name);
 
@@ -371,7 +373,7 @@ var vm = {
       if (info.installed && info.running) {
         var dir  = config("agent:vm:screen_path");
         var file = path.join(dir, `${(new Date()).getTime()}.png`);
-        yield qfs.makeTree(dir);
+        yield fsAsync.mkdirs(dir);
         yield exec('controlvm', vm_name, 'screenshotpng', file);
         return file;
       }
@@ -380,7 +382,7 @@ var vm = {
   },
 
   waitReady(vm_name, timeout) {
-    log.debug("waiting for the vm `%s` becomes available", vm_name);
+    log.debug("[vm] waiting for the vm `%s` becomes available", vm_name);
     return Tools.async_status("vm", this, function* (status_change) {
       var info = yield vm.info(vm_name);
       var key  = "/VirtualBox/D2D/Done";
@@ -389,7 +391,7 @@ var vm = {
         var status = yield guestproperty.get(vm_name, key);
         if (status.Value !== "true") {
           status_change("waiting");
-          status = yield guestproperty.wait(vm_name, key, timeout);
+          status = yield guestproperty.wait(vm_name, key, timeout, false);
           if (status.Value === "true") {
             status_change("ready");
             return true;
@@ -403,14 +405,16 @@ var vm = {
     });
   },
 
-  stop(vm_name, force = false) {
-    log.debug("call to stop vm %s", vm_name);
+  // TODO: Add treatment to when the lock virtualbox
+  stop(vm_name, force = false, timeout = 30) {
+    log.debug("[vm] call to stop vm %s", vm_name);
 
     return Tools.async_status("vm", this, function* (status_change) {
       var info = yield vm.info(vm_name);
       if (info.running) {
         status_change("stopping");
 
+        var hrend, hrstart = process.hrtime();
         if (force) {
           yield instance.stop(vm_name);
         } else {
@@ -419,8 +423,14 @@ var vm = {
 
         // Wait for shutdown
         while (true) {
-          info = yield this.info(vm_name);
-          if (!info.running) {
+          info  = yield this.info(vm_name);
+          hrend = process.hrtime(hrstart);
+          // Force after timeout
+          if ((!force) && info.running && hrend[0] > timeout) {
+            force = true;
+            status_change("forced");
+            yield instance.stop(vm_name);
+          } else if (!info.running) {
             break;
           }
         }
@@ -442,8 +452,10 @@ var vm = {
         // Removing disk if it's not a link (old disk style)
         var disk_file = info['SATA-1-0'];
         if (!_.isEmpty(disk_file)) {
-          var is_link = yield qfs.isSymbolicLink(disk_file);
-          if (!is_link) {
+
+          var is_link = yield fsAsync.lstat(disk_file);
+
+          if (!is_link.isSymbolicLink()) {
             yield exec("storagectl", vm_name, "--name", "SATA", "--remove");
             yield exec("closemedium", "disk", disk_file);
           }
@@ -514,17 +526,23 @@ var vm = {
     ].join(" ");
 
     var stderr = "";
-    var progress = (event) => {
+
+    var _subscription = subscribe('agent.vm.ssh.status', (event) => {
       if (event.type == "ssh" && event.context == "stderr") {
         stderr += event.data.toString();
       }
-      return event;
-    };
+      publish('agent.vm.mount.status', event);
+    });
 
-    return VM.ssh(vm_name, cmd).progress(progress).then((code) => {
+    return VM.ssh(vm_name, cmd).then((code) => {
       if (code !== 0) {
         throw new Error('not mount share files, error:\n' + stderr);
       }
+      _subscription.unsubscribe();
+    })
+    .catch(function (err) {
+      _subscription.unsubscribe();
+      throw err;
     });
   },
 };

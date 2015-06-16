@@ -1,14 +1,8 @@
-import { Q, _, defer, async, isBlank } from 'azk/utils';
-
-Q.longStackSupport = true;
+import { _, isBlank } from 'azk/utils';
 
 class Azk {
   static get version() {
     return require('package.json').version;
-  }
-
-  static pp(...args) {
-    return console.log(...args);
   }
 }
 
@@ -20,8 +14,6 @@ module.exports = {
   __esModule: true,
 
   get default() { return Azk; },
-  get pp() { return Azk.pp; },
-  get Q() {  return Q; },
   get _() {  return _; },
   get t() {
     if (!_t) {
@@ -44,14 +36,11 @@ module.exports = {
     return new (require('azk/manifest/meta').Meta)({ cache_dir });
   },
 
-  // Promise helpers
-  get defer() { return defer; },
-  get async() { return async; },
-
   // Internals alias
   get os     () { return require('os'); },
   get path   () { return require('path'); },
-  get fs     () { return require('fs-extra'); },
+  get fs     () { return require('fs'); },
+  get fsAsync() { return require('file-async'); },
   get utils  () { return require('azk/utils'); },
   get version() { return Azk.version; },
   get isBlank() { return isBlank; },

@@ -11,10 +11,16 @@ abs_dir() {
 export AZK_ROOT_PATH=`cd \`abs_dir ${BASH_SOURCE:-$0}\`/../..; pwd`
 cd $AZK_ROOT_PATH;
 
-PKG="azk"
 URL="https://github.com/azukiapp/azk"
 DESCRIPTION="Development environments with agility and automation"
 VERSION=${PKG_VERSION:-`cat package.json | grep -e "version" | cut -d' ' -f4 | sed -n 's/\"//p' | sed -n 's/\"//p' | sed -n 's/,//p'`}
+RELEASE_CHANNEL=$( echo "${VERSION}" | sed s/[^\\-]*// | sed s/^\\-// | sed s/\\..*// )
+if [[ -z $RELEASE_CHANNEL ]]; then
+  PKG_SUFFIX=
+else
+  PKG_SUFFIX="-${RELEASE_CHANNEL}"
+fi
+PKG="azk${PKG_SUFFIX}"
 
 LICENSE="Apache 2.0"
 VENDOR="Azuki (http://azukiapp.com)"
@@ -40,74 +46,84 @@ azk_shell() {
 
 # options
 
-  fpm_extra_options=""
-  pkg_type="$1"
-  PKG="${PKG}"
+fpm_extra_options=""
+pkg_type="$1"
+PKG="${PKG}"
 
-  if [[ $# == 2 ]] && [[ $2 == "--clean" ]]; then
-    CLEAN=true
-  fi
+if [[ $# == 2 ]] && [[ $2 == "--clean" ]]; then
+  CLEAN=true
+fi
 
-  case $pkg_type in
-    rpm)
-      fpm_extra_options=" \
-        --depends \"docker-io\" \
-        --depends \"libnss-resolver >= ${LIBNSS_RESOLVER_VERSION}\" \
-        --depends \"rsync >= ${RSYNC_MIN_VERSION}\" \
-        --rpm-use-file-permissions \
-        --rpm-user root --rpm-group root \
-      "
-      ;;
-    deb)
-      fpm_extra_options=" \
-        --depends \"lxc-docker\" \
-        --depends \"libnss-resolver (>= ${LIBNSS_RESOLVER_VERSION})\" \
-        --depends \"rsync (>= ${RSYNC_MIN_VERSION})\" \
-        --deb-user root --deb-group root \
-      "
-      ;;
-    *)
-      [ -n "$pkg_type" ] && echo "Package format not supported"
-      usage
-  esac
+case $pkg_type in
+  rpm)
+    fpm_extra_options=" \
+      --depends \"docker-io\" \
+      --depends \"libnss-resolver >= ${LIBNSS_RESOLVER_VERSION}\" \
+      --depends \"rsync >= ${RSYNC_MIN_VERSION}\" \
+      --rpm-use-file-permissions \
+      --rpm-user root --rpm-group root \
+    "
+    ;;
+  deb)
+    fpm_extra_options=" \
+      --depends \"lxc-docker\" \
+      --depends \"libnss-resolver (>= ${LIBNSS_RESOLVER_VERSION})\" \
+      --depends \"rsync (>= ${RSYNC_MIN_VERSION})\" \
+      --deb-user root --deb-group root \
+    "
+    ;;
+  *)
+    [ -n "$pkg_type" ] && echo "Package format not supported"
+    usage
+esac
 
-  CURRENT_PATH=`pwd`
-  THIS_FOLDER=${CURRENT_PATH##*/}
-  # echo "\$CURRENT_PATH = [ $CURRENT_PATH ]"
-  # echo "\$THIS_FOLDER  = [ $THIS_FOLDER ]"
+case $PKG in
+  azk )
+    fpm_conflicts="--conflicts azk-rc --conflicts azk-nightly";;
+  azk-rc )
+    fpm_conflicts="--conflicts azk --conflicts azk-nightly";;
+  azk-nightly )
+    fpm_conflicts="--conflicts azk --conflicts azk-rc";;
+esac
 
-  echo
-  echo "Building $pkg_type for $PKG, $VERSION version..."
-  echo
+CURRENT_PATH=`pwd`
+THIS_FOLDER=${CURRENT_PATH##*/}
+# echo "\$CURRENT_PATH = [ $CURRENT_PATH ]"
+# echo "\$THIS_FOLDER  = [ $THIS_FOLDER ]"
+
+echo
+echo "Building $pkg_type for $PKG, $VERSION version..."
+echo
 
 # build!
 
-  sources="/azk/build/v${VERSION}/"
-  prefix="usr"
-  destdir="/azk/${THIS_FOLDER}/package/${pkg_type}"
-  mkdir -p package/${pkg_type}
+sources="/azk/build/v${VERSION}/"
+prefix="usr"
+destdir="/azk/${THIS_FOLDER}/package/${pkg_type}"
+mkdir -p package/${pkg_type}
 
-  [[ ! -z $CLEAN ]] && azk_shell package "make -e clean && rm -Rf /azk/build/v${VERSION}"
+[[ ! -z $CLEAN ]] && azk_shell package "make -e clean && rm -Rf /azk/build/v${VERSION}"
 
-  azk_shell package "make -e package_linux"
+azk_shell package "make -e package_linux"
 
 # package!
 
-  azk_shell package "fpm \
-      -s dir -t ${pkg_type} \
-      -n ${PKG} -v ${VERSION} \
-      --provides ${PKG}\
-      --provides ${system}-${PKG}\
-      --url \"${URL}\" \
-      --description \"${DESCRIPTION}\" \
-      --vendor \"${VENDOR}\" \
-      --license \"${LICENSE}\" \
-      --category \"admin\" \
-      --depends \"iproute\" \
-      ${fpm_extra_options} \
-      --maintainer \"${MAINTAINER}\" \
-      -f -p ${destdir} -C ${sources} usr/bin usr/lib/azk \
-  "
+azk_shell package "fpm \
+    -s dir -t ${pkg_type} \
+    -n ${PKG} -v ${VERSION} \
+    --provides ${PKG}\
+    --provides ${system}-${PKG}\
+    --url \"${URL}\" \
+    --description \"${DESCRIPTION}\" \
+    --vendor \"${VENDOR}\" \
+    --license \"${LICENSE}\" \
+    --category \"admin\" \
+    --depends \"iproute\" \
+    ${fpm_extra_options} \
+    ${fpm_conflicts} \
+    --maintainer \"${MAINTAINER}\" \
+    -f -p ${destdir} -C ${sources} usr/bin usr/lib/azk \
+"
 # ${prefix} etc
 # --after-install scripts/after-install.sh \
 # --after-remove scripts/after-remove.sh \

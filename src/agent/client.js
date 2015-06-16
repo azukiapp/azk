@@ -1,4 +1,6 @@
-import { _, Q, defer, lazy_require, log } from 'azk';
+import { _, lazy_require, log } from 'azk';
+import { publish } from 'azk/utils/postal';
+import { defer, promiseResolve, ninvoke } from 'azk/utils/promises';
 import { config, set_config } from 'azk';
 import { Agent } from 'azk/agent';
 import { AgentNotRunning } from 'azk/utils/errors';
@@ -17,7 +19,7 @@ var HttpClient = {
   },
 
   request(method, path, opts = {}) {
-    return Q.ninvoke(req, method, _.defaults(opts, {
+    return ninvoke(req, method, _.defaults(opts, {
       url : this.url(path),
       json: true,
     }));
@@ -96,7 +98,7 @@ var WebSocketClient = {
 
   send(message, callback = null, retry = 0) {
     this.init()
-      .fail((err) => {
+      .catch((err) => {
         log.error('Failed to init websocket: ', err);
       })
       .then(() => {
@@ -109,7 +111,7 @@ var WebSocketClient = {
         }
         return true;
       })
-      .fail((err) => {
+      .catch((err) => {
         if (retry-- > 0) {
           log.debug('Failed to send message: ', message);
           log.debug('Retry: ', retry);
@@ -127,22 +129,21 @@ var WebSocketClient = {
 };
 
 var Client = {
-  status() {
+  status(action_name, pub = true) {
+    var pid = Agent.agentPid();
     var status_obj = {
-      agent   : false,
+      pid     : pid,
+      agent   : pid.running,
       docker  : false,
       balancer: false,
     };
 
-    return defer((resolve, _reject, notify) => {
-      if (Agent.agentPid().running) {
-        notify({ type: "status", status: "running" });
-        status_obj.agent = true;
-      } else {
-        notify({ type: "status", status: "not_running" });
-      }
-      resolve(status_obj);
-    });
+    if (pub) {
+      var status = status_obj.agent ? "running" : "not_running";
+      publish("agent.client.status", { type: "status", status });
+    }
+
+    return promiseResolve(status_obj);
   },
 
   start(opts) {
@@ -150,12 +151,15 @@ var Client = {
   },
 
   stop(opts) {
-    return defer((_resolve, _reject, notify) => {
-      notify({ type: "status", status: "stopping" });
-      return Agent.stop(opts).then((result) => {
-        if (result) { notify({ type: "status", status: "stopped" }); }
-        return { agent: result };
-      });
+    return this.status()
+    .then((status) => {
+      if (status.agent) {
+        return Agent.stop(opts).then((result) => {
+          return { agent: result };
+        });
+      } else {
+        return { agent: false };
+      }
     });
   },
 
@@ -166,15 +170,15 @@ var Client = {
   },
 
   watch(host_folder, guest_folder, opts = {}) {
-    return defer((resolve, reject, notify) => {
+    return defer((resolve, reject) => {
       var req = { action: 'watch', data: { host_folder, guest_folder, opts } };
       WebSocketClient.send(req, (res, end) => {
         switch (res.status) {
           case 'start':
-            notify({ type: "status", status: "starting" });
+            publish("sync.status", { type: "starting" });
             break;
           case 'sync':
-            notify({ type: "sync", status: res.data });
+            publish("sync.status", { type: "sync", status: res.data });
             break;
           case 'done' :
             end();
@@ -202,7 +206,6 @@ var Client = {
             end();
             resolve(true);
             break;
-
         }
       });
     });

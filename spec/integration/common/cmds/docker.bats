@@ -13,7 +13,7 @@ image_name="azukiapp/azktcl"
 
 @test "$test_label pass parameters to docker" {
   cmd="ls -l /; echo 'foo bar'; echo \"David\""
-  run azk --log=debug docker run --rm "${image_name}:${image_tag}" /bin/bash -c "${cmd}"
+  run azk --log=debug docker -- run --rm "${image_name}:${image_tag}" /bin/bash -c "${cmd}"
   assert_success
   assert_match "d.*bin"
   assert_match "d.*etc"
@@ -26,7 +26,7 @@ image_name="azukiapp/azktcl"
   app_path=$(spec.fixtures_tmp "build")
   cd $app_path
 
-  run azk docker build -t $image .
+  run azk docker -- build -t $image .
   assert_success
   assert_match "Step 0 : FROM ${image_name}:${image_tag}"
 

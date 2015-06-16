@@ -5,17 +5,37 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## dev
 
-## v0.13.0 - (2015-X-05)
+* Bug
+  * [Cli] Fixing `start` (or `restart`) just opens the default system;
+
+* Enhancements
+  * [Code] Replaced Promises: Q with bluebird #386;
+  * [Code] Replaced `q-io/fs` with `utils/file_async` a bluebird promisified `fs-extra` #386;
+  * [Code] No more direct call to Q or any other Promise lib, only by `utils/promises` #386;
+  * [Code] Removed `progress()` Promises helper. Included postal: subscribe and publish functions #385;
+  * [Code] Removing `async`, `defer`, `publish`, `subscribe` and `asyncUnsubscribe` from `azk` module;
+  * [Code] Using file-async npm lib
+  * [Code] Removing fs-extra dependency
+  * [Cli] Replacing `cli` to [`cli-router`](https://github.com/azukiapp/cli-router), #382 #418 #259;
+  * [Cli] Adding scripts to bash completion, #171;
+  * [Agent] The start process of the "agent" was redesigned to become safer and less complex. The code responsible for starting it in the background has been moved to the ./bin/bash;
+  * [Suggesting] Now node.js suggestions have a env `PORT` for to get a `HTTP_PORT`, this change makes this suggestion more "compatible" with most of the apps that await env `PORT`.
+  * [Suggesting] Refactor Rule and Suggestion base class;
+  * [Suggesting] Removing (trim) multiple new_line before generate a new Manifestfile;
+  * [Suggesting] Adding `elixir` suggestions;
+  * [Suggesting] Adding `elixir_phoenix` suggestions;
+
+## v0.13.1 - (2015-30-05)
 
 * Bug
   * [Imagens] Fixing registry download error #407
   * [File sharing] Fixing bug when trying to capture the version of rsync.
-  * [File sharing] Adding support exclude files from sync through the files `.syncignore` and `.gitignore`
-  * [Docker] Fixing bug that could prevent the work instruction `ADD . /folder/` when used in a Dockerfile;
+  * [File sharing] Adding support to exclude files from sync through the files `.syncignore` and `.gitignore`
+  * [Docker] Fixing bug that could prevent the instruction `ADD . /folder/` to work properly when used in a Dockerfile;
 
 * Enhancements
   * [Docker] Now support `Dockerfile` is complete, and similar to the docker, including support `.dockerignore`;
-  * [Suggesting] Changing the suggestions of python and ruby ​​to give preference to sync instead of path;
+  * [Suggesting] Changing the suggestions of Python/Django, Ruby and Rails to give preference to sync instead of path;
 
 ## v0.13.0 - (2015-27-05)
 

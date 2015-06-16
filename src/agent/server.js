@@ -1,20 +1,27 @@
-import { config, async, log } from 'azk';
+import { config, log, fsAsync } from 'azk';
+import { publish } from 'azk/utils/postal';
+import { async, promiseResolve } from 'azk/utils/promises';
 import { VM  }   from 'azk/agent/vm';
 import { Balancer } from 'azk/agent/balancer';
 import { Api } from 'azk/agent/api';
 import { VmStartError } from 'azk/utils/errors';
 
-var qfs = require('q-io/fs');
-
 var Server = {
+  starting: false,
+  stopping: false,
   server: null,
   vm_started: false,
+
+  // stop handler
+  stop_handler() {},
 
   // Warning: Only use test in mac
   vm_enabled: true,
 
   // TODO: log start machine steps
-  start() {
+  start(stop_handler) {
+    this.stop_handler = stop_handler;
+    this.starting = true;
     return async(this, function* () {
       log.info_t("commands.agent.starting");
 
@@ -30,16 +37,20 @@ var Server = {
       yield this.installBalancer();
 
       log.info_t("commands.agent.started");
+      this.starting = false;
     });
   },
 
   stop() {
+    if (this.stopping) { return promiseResolve(); }
+    this.stopping = true;
     return async(this, function* () {
       yield Api.stop();
       yield this.removeBalancer();
-      if (config('agent:requires_vm')) {
+      if (config('agent:requires_vm') && this.vm_started) {
         yield this.stopVM();
       }
+      this.stopping = false;
     });
   },
 
@@ -53,10 +64,14 @@ var Server = {
 
   installVM(start = false) {
     var vm_name = config("agent:vm:name");
-    return async(this, function* (notify) {
-      var installed = yield VM.isInstalled(vm_name);
-      var running   = (installed) ? yield VM.isRunnig(vm_name) : false;
-      var vm_notify = (status) => notify({ type: "status", context: "vm", status });
+    return async(this, function* () {
+      var installed  = yield VM.isInstalled(vm_name);
+      var running    = (installed) ? yield VM.isRunnig(vm_name) : false;
+      var vm_publish = (status) => {
+        publish("agent.server.installVM.status", {
+          type: "status", context: "vm", status
+        });
+      };
 
       if (!installed) {
         var opts = {
@@ -69,10 +84,10 @@ var Server = {
         yield VM.init(opts);
 
         // Set ssh key
-        vm_notify("sshkey");
+        vm_publish("sshkey");
         var file    = config("agent:vm:ssh_key") + ".pub";
-        var content = yield qfs.read(file);
-        VM.setProperty(vm_name, "/VirtualBox/D2D/SSH_KEY", content);
+        var content = yield fsAsync.readFile(file);
+        VM.setProperty(vm_name, "/VirtualBox/D2D/SSH_KEY", content.toString());
       }
 
       if (!running && start) {
@@ -84,10 +99,12 @@ var Server = {
         }
       }
 
+      this._activeVMMonitor(vm_name);
+
       // Mount shared
-      vm_notify("mounting");
+      vm_publish("mounting");
       yield VM.mount(vm_name, "Root", config("agent:vm:mount_point"));
-      vm_notify("mounted");
+      vm_publish("mounted");
 
       // Mark installed
       this.vm_started = true;
@@ -103,6 +120,26 @@ var Server = {
       }
     });
   },
+
+  _activeVMMonitor(vm_name) {
+    var interval, stop = () => {
+      clearTimeout(interval);
+      publish("agent.server.installVM.status", {
+        type: "status", context: "vm", status: "down"
+      });
+      return this.stop_handler();
+    };
+
+    interval = setInterval(() => {
+      if (this.stopping) {
+        return clearTimeout(interval);
+      }
+      VM.isRunnig(vm_name).then((result) => {
+        if (!result) { stop(); }
+      })
+      .catch(stop);
+    }, 5000);
+  }
 };
 
 export { Server };

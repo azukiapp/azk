@@ -1,21 +1,29 @@
 ## azk start
 
-Inicia todas instâncias dos sistemas especificados no `Azkfile.js` atual, ou aquele especificado.
-
-#### Opções:
-
-- `--verbose, -v, -vv`          Aumenta o nível de detalhes (padrão: falso) - suporta múltiplos
-- `--reprovision, -R`           Força o reprovisionamento antes de iniciar a instância do sistema (padrão: falso)
-- `--open="application", -o`    Abre a url do sistema padrão na aplicação definida (padrão: browser padrão da máquina)
-- `--rebuild, --pull`           Força o _build_ ou _pull_, conforme o _provider_ do sistema (padrão: falso)
+  Inicia um ou mais sistemas.
 
 #### Uso:
 
-    $ azk [options] start [system] [options]
+    $ azk start [<system>] [options]
 
-#### Exemplo:
+#### Argumentos:
+
+  system                    Nome do sistema que receberá a ação.
+
+#### Opções:
+
+  --reprovision, -R         Força o provisionamento do sistema antes de iniciar a instância.
+  --rebuild, -B             Força a recriação ou o download da imagem antes de iniciar a instância.
+  --open, -o                Abre a URL do sistema no navegador padrão.
+  --open-with=<app>, -a     Abre a URL do sistema no navegador espeficado.
+  --quiet, -q               Nunca perguntar.
+  --help, -h                Mostrar ajuda de uso.
+  --log=<level>, -l         Defini o nível de log (padrão: error).
+  --verbose, -v             Defini o nível de detalhes da saída - suporta múltiplos (-vv == --verbose 2) [padrão: 0].
+
+#### Exemplos:
 
 ```bash
-# inicia o sistema node010 e já abre o browser padrão
-$ azk start node010 --open
+# inicia o sistema azkdemo e já abre o browser padrão
+$ azk start azkdemo --open
 ```

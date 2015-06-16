@@ -1,5 +1,6 @@
-import { Q, _ } from 'azk';
-import { UI as OriginalUI } from 'azk/cli/command';
+import { _ } from 'azk';
+import { promiseResolve } from 'azk/utils/promises';
+import { UI as OriginalUI } from 'azk/cli/ui';
 
 export function extend(h) {
   h.mockUI = function(func, outputs, extra) {
@@ -9,6 +10,7 @@ export function extend(h) {
     UI.stdout = () => {
       return {
         write(data) {
+          data = (data || '').toString();
           outputs.push(data.replace(/(.*)\n/, "$1"));
         }
       };
@@ -18,7 +20,7 @@ export function extend(h) {
 
     UI.execSh = (cmd) => {
       UI.dir(cmd);
-      return Q(0);
+      return promiseResolve(0);
     };
 
     func(() => {

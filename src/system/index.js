@@ -1,10 +1,13 @@
-import { _, t, path, fs, utils, isBlank } from 'azk';
+import { _, t, path, fs, utils, isBlank, lazy_require } from 'azk';
 import { version, config } from 'azk';
-import { Image } from 'azk/images';
 import { net } from 'azk/utils';
-import { Run } from 'azk/system/run';
-import { Scale } from 'azk/system/scale';
-import { Balancer } from 'azk/system/balancer';
+
+var lazy = lazy_require({
+  Image    : ['azk/images'],
+  Run      : ['azk/system/run'],
+  Scale    : ['azk/system/scale'],
+  Balancer : ['azk/system/balancer'],
+});
 
 var XRegExp = require('xregexp').XRegExp;
 var regex_port = new XRegExp(
@@ -22,10 +25,11 @@ export class System {
     }
 
     image.system = this;
-    this.image   = new Image(image);
+    this.image   = new lazy.Image(image);
 
     // Options
     this.__options = {};
+
     this.options   = _.merge({}, this.default_options, options);
     this.options   = this._expand_template(this.options);
   }
@@ -52,20 +56,20 @@ export class System {
   }
 
   // System run operations
-  runShell(...args) { return Run.runShell(this, ...args); }
-  runDaemon(...args) { return Run.runDaemon(this, ...args); }
-  runProvision(...args) { return Run.runProvision(this, ...args); }
-  runWatch(...args) { return Run.runWatch(this, ...args); }
-  stopWatching(...args) { return Run.stopWatching(this, ...args); }
-  stop(...args) { return Run.stop(this, ...args); }
-  instances(...args) { return Run.instances(this, ...args); }
-  throwRunError(...args) { return Run.throwRunError(this, ...args); }
+  runShell(...args) { return lazy.Run.runShell(this, ...args); }
+  runDaemon(...args) { return lazy.Run.runDaemon(this, ...args); }
+  runProvision(...args) { return lazy.Run.runProvision(this, ...args); }
+  runWatch(...args) { return lazy.Run.runWatch(this, ...args); }
+  stopWatching(...args) { return lazy.Run.stopWatching(this, ...args); }
+  stop(...args) { return lazy.Run.stop(this, ...args); }
+  instances(...args) { return lazy.Run.instances(this, ...args); }
+  throwRunError(...args) { return lazy.Run.throwRunError(this, ...args); }
 
   // Scale operations
-  start(...args) { return Scale.start(this, ...args); }
-  scale(...args) { return Scale.scale(this, ...args); }
-  killAll(...args) { return Scale.killAll(this, ...args); }
-  checkDependsAndReturnEnvs(...args) { return Scale.checkDependsAndReturnEnvs(this, ...args); }
+  start(...args) { return lazy.Scale.start(this, ...args); }
+  scale(...args) { return lazy.Scale.scale(this, ...args); }
+  killAll(...args) { return lazy.Scale.killAll(this, ...args); }
+  checkDependsAndReturnEnvs(...args) { return lazy.Scale.checkDependsAndReturnEnvs(this, ...args); }
 
   // Save provision info
   get provision_steps() {
@@ -130,6 +134,10 @@ export class System {
     return this.scalable.default === 0 && this.scalable.limit === 0;
   }
 
+  get auto_start() {
+    return this.scalable.default !== 0;
+  }
+
   get wait_scale() {
     var wait = this.options.wait;
     return _.isEmpty(wait) && wait !== false ? true : wait;
@@ -167,7 +175,7 @@ export class System {
     return `http://${host}${ port == 80 ? '' : ':' + port }`;
   }
 
-  backends() { return Balancer.list(this); }
+  backends() { return lazy.Balancer.list(this); }
 
   get http_port() {
     var ports = this._parse_ports(this.ports);

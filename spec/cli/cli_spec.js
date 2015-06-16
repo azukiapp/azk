@@ -1,35 +1,36 @@
-var path = require('path');
 import h from 'spec/spec_helper';
-import { t }  from 'azk';
-import { Cli, Command } from 'azk/cli/cli';
-import { InvalidValueError } from 'azk/utils/errors';
+import { Cli } from 'azk/cli';
+import { InvalidCommandError } from 'azk/utils/errors';
 
 describe('Azk cli module', function() {
   var outputs = [];
-  var UI = h.mockUI(beforeEach, outputs);
+  var ui = h.mockUI(beforeEach, outputs);
 
-  var cmds = path.join(__dirname, '../fixtures/cmds');
-  var cli  = new Cli('azk-test', UI, cmds);
+  var cli_options = {
+    controllers_root: h.fixture_require_path('cmds'),
+    path: h.fixture_path('cli', 'usage.txt'),
+  };
+  var cli = new Cli(cli_options)
+    .route('test_options');
 
-  it("should load and connect commands", function() {
-    h.expect(cli).have.deep.property('commands.test_options')
-      .and.instanceOf(Command);
-  });
+  var doc_opts    = { exit: false };
+  var run_options = {
+    ui: ui,
+    cwd: process.cwd()
+  };
 
   it("should run a command", function() {
-    cli.run(['test_options', '-n', '20']);
-    h.expect(outputs).to.eql([{ number: 20, __leftover: []}]);
+    doc_opts.argv = ['test_options', '-n', '20'];
+    var options = cli.docopt(doc_opts);
+    return cli.run(doc_opts, run_options).then((result) => {
+      h.expect(result).to.eql([{ number: "20" }]);
+      h.expect(options).to.have.property('--number', "20");
+    });
   });
 
   it("should raise a invalid command", function() {
-    var func = () => cli.run(['invalid_cmd']);
-    h.expect(func).to.throw(InvalidValueError, /invalid_cmd.*command/);
-  });
-
-  it("should show a usage subcommand", function() {
-    cli.showUsage("test_options");
-    h.expect(outputs).to.deep.property("[00]",
-      t("commands.help.usage", 'azk-test test_options [options]')
-    );
+    doc_opts.argv = ['invalid_cmd'];
+    var result = () => cli.run(doc_opts, run_options);
+    h.expect(result).to.throw(InvalidCommandError, /Invalid command\: invalid_cmd/);
   });
 });

@@ -1,4 +1,6 @@
-import { Q, async, _, lazy_require } from 'azk';
+import { _, lazy_require } from 'azk';
+import { publish } from 'azk/utils/postal';
+import { async, promiseReject } from 'azk/utils/promises';
 import { calculateHash } from 'azk/utils';
 import { SystemDependError, SystemNotScalable } from 'azk/utils/errors';
 import { Balancer } from 'azk/system/balancer';
@@ -27,7 +29,7 @@ var Scale = {
       dependencies: true,
     });
 
-    return async(this, function* (notify) {
+    return async(this, function* () {
       // how many times the
       var containers = yield this.instances(system);
 
@@ -38,11 +40,11 @@ var Scale = {
       // Protect not scalable systems
       var limit = system.scalable.limit;
       if (limit > 0 && icc > 0 && (from + icc > limit)) {
-        return Q.reject(new SystemNotScalable(system));
+        return promiseReject(new SystemNotScalable(system));
       }
 
       if (icc !== 0) {
-        notify({ type: "scale", from: from, to: from + icc, system: system.name });
+        publish("system.scale.status", { type: "scale", from: from, to: from + icc, system: system.name });
       }
 
       if (icc > 0) {

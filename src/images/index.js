@@ -1,5 +1,6 @@
-import { _, fs, t, path, isBlank } from 'azk';
-import { async, defer, lazy_require } from 'azk';
+import { _, fs, t, path, isBlank, lazy_require } from 'azk';
+import { publish } from 'azk/utils/postal';
+import { async, defer } from 'azk/utils/promises';
 import { ManifestError, NoInternetConnection, LostInternetConnection } from 'azk/utils/errors';
 import { net } from 'azk/utils';
 import Utils from 'azk/utils';
@@ -43,14 +44,14 @@ export class Image {
   }
 
   check() {
-    return defer((_resolve, _reject, notify) => {
-      notify({ type: "action", context: "image", action: "check_image" });
+    return defer(() => {
+      publish("image.check.status", { type: "action", context: "image", action: "check_image" });
       return lazy.docker.findImage(this.name);
     });
   }
 
   pull(options, stdout) {
-    return async(this, function* (notify) {
+    return async(this, function* () {
       // split docker namespace and docker repository
       var namespace   = '';
       var repository  = '';
@@ -76,7 +77,7 @@ export class Image {
       // download from registry
       if (isBlank(image) || options.build_force) {
         this.repository = namespace + '/' + repository;
-        notify({ type: "action", context: "image", action: "pull_image", data: this });
+        publish("image.pull.status", { type: "action", context: "image", action: "pull_image", data: this });
 
         var registry_result;
         var output;
@@ -109,7 +110,7 @@ export class Image {
   }
 
   getDownloadInfo(dockerode_modem, namespace, repository, repo_tag) {
-    return async(this, function* (notify) {
+    return async(this, function* () {
 
       var docker_socket   = { dockerode_modem: dockerode_modem };
       var request_options = {
@@ -119,6 +120,7 @@ export class Image {
       };
 
       var syncronizer = new lazy.Syncronizer(docker_socket, request_options);
+      yield syncronizer.initialize();
       var tag = repo_tag;
 
       // get token from Docker Hub
@@ -127,14 +129,11 @@ export class Image {
       var getLayersDiff_result;
 
       hubResult = yield syncronizer.dockerHub.images(namespace, repository);
-      // Check what layer we do not have locally
-      notify({  type       : "pull_msg",
-                traslation : "commands.helpers.pull.pull_getLayersDiff",
-                data       : registry_infos });
 
       // Get layers diff
       getLayersDiff_result = yield syncronizer.getLayersDiff(hubResult, tag);
 
+      // Check what layer we do not have locally
       var registry_layers_ids       = getLayersDiff_result.registry_layers_ids;
       var non_existent_locally_ids  = getLayersDiff_result.non_existent_locally_ids;
 
@@ -143,15 +142,22 @@ export class Image {
         non_existent_locally_ids_count : non_existent_locally_ids.length
       };
 
+      publish("image.getDownloadInfo.status", {
+        type       : "pull_msg",
+        traslation : "commands.helpers.pull.pull_getLayersDiff",
+        data       : registry_infos
+      });
+
       return registry_infos;
     });
   }
 
   build(options) {
-    return async(this, function* (notify) {
+    return async(this, function* () {
       var image = yield this.check();
       if (options.build_force || isBlank(image)) {
-        notify({ type: 'action', context: 'image', action: 'build_image', data: this });
+        publish("image.build.status",
+          { type: 'action', context: 'image', action: 'build_image', data: this });
         image = yield lazy.docker.build({
                                     dockerfile: this.path,
                                     tag: this.name,
@@ -174,6 +180,9 @@ export class Image {
 
     if (this.system.hasOwnProperty('manifest') && this.system.manifest.cwd) {
       var dockerfile_cwd = path.resolve(this.system.manifest.cwd, dockerfile_path);
+      // FIXME: to change this `Sync` codes we have to change system and image contructors
+      //        there is no way to call promises on contructors
+      //        new system -> new image -> set path -> _findDockerfile -> sync calls
       var exists = fs.existsSync(dockerfile_cwd);
 
       if (exists) {
