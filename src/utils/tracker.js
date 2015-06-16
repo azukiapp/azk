@@ -202,7 +202,7 @@ export class Tracker {
 
 // Default tracker
 var default_tracker = new Tracker({}, {
-  permission: 'tracker_permission',
+  permission: config('tracker:permission_key'),
   user_id   : 'tracker_user_id',
   agent_id  : 'agent_session_id',
 });
