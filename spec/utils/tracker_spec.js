@@ -1,7 +1,6 @@
 import h from 'spec/spec_helper';
 import { default as tracker } from 'azk/utils/tracker';
-
-// azk nvm grunt --grep='Azk Tracker'
+import { meta as azkMeta } from 'azk';
 
 describe("Azk Tracker", function() {
   this.timeout(2000);
@@ -21,5 +20,13 @@ describe("Azk Tracker", function() {
     var sessionId = tracker.generateNewAgentSessionId();
     var expectedSessionId = tracker.loadAgentSessionId();
     h.expect(sessionId).to.equal(expectedSessionId);
+  });
+
+  it("should override insight get/set for optout", function() {
+    return azkMeta.cleanAsync().then(() => {
+      tracker.insight.optOut = true;
+      var metaOptout = azkMeta.get(tracker.insight_opts.opt_out_key);
+      h.expect(metaOptout).to.equal(false);
+    });
   });
 });

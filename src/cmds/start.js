@@ -1,7 +1,6 @@
 import Scale from 'azk/cmds/scale';
 import { _, lazy_require } from 'azk';
 import { async } from 'azk/utils/promises';
-import { SYSTEMS_CODE_ERROR } from 'azk/utils/errors';
 
 var lazy = lazy_require({
   open: 'open',
@@ -54,9 +53,6 @@ class Start extends Scale {
         var icc = yield super._scale(system, instances, opts);
 
         if (icc === 0) {
-          if (ui_status === 'fail') {
-            result = SYSTEMS_CODE_ERROR;
-          }
           this.ui[ui_status]([...ns].concat(scale_options.key), system);
         }
       }

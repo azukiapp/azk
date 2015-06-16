@@ -81,8 +81,8 @@ class Scale extends CliTrackerController {
     var _subscription = subscribe('#.status', (event) => {
       if (!event) { return; }
       var type;
-      var pullProgressBar = Helpers.newPullProgressBar(this.ui);
       if (event.type === "pull_msg") {
+        var pullProgressBar = Helpers.newPullProgressBar(this.ui);
         pullProgressBar(event);
       } else {
         var keys = ["commands", "scale"];

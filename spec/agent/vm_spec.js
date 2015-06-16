@@ -15,8 +15,6 @@ var lazy = lazy_require({
   }
 });
 
-var os = require('os');
-
 h.describeRequireVm("Azk agent vm", function() {
   var data_path = config("agent:vm:data_disk");
   var data_test = path.join(path.dirname(data_path), "test-" + path.basename(data_path));

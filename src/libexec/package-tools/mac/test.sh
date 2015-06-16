@@ -35,8 +35,8 @@ cd $FORMULA_DIR
 git checkout $FORMULA_FILE
 
 if [[ "$( /usr/local/bin/azk version )" == "azk ${VERSION}" ]]; then
-    echo "azk ${VERSION} has been successfully installed."
+  echo "azk ${VERSION} has been successfully installed."
 else
-    echo "Failed to install azk ${VERSION}."
-    exit 3
+  echo "Failed to install azk ${VERSION}."
+  exit 3
 fi

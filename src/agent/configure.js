@@ -122,10 +122,7 @@ export class Configure extends UIProxy {
 
         if ( !currentOnline ) {
           log.debug('isOnline == false');
-          this.warning('configure.check_version_no_internet', {
-            current_version: Azk.version,
-            new_version: tagNameGithubParsed
-          });
+          this.warning('configure.check_version_no_internet');
           return {}; //can't check version
         }
 
@@ -136,21 +133,20 @@ export class Configure extends UIProxy {
         };
 
         publish("agent.configure.check_version.status", { type: "status", keys: "configure.check_version"});
-        var [response, body] = yield ninvoke(request, 'get', config('urls:github:api:tags_url'), options);
+        var [response, body] = yield ninvoke(request, 'get', config('urls:github:content:package_json'), options);
         var statusCode = response.statusCode;
 
         if (statusCode !== 200) {
           throw Error(t('configure.github_azk_version_error'));
         }
 
-        var tagNameGithub = body[0].name;
-        var tagNameGithubParsed = semver.clean(tagNameGithub);
-        var newAzkVersionExists = semver.lt(Azk.version, tagNameGithubParsed);
+        var azkLatestVersion    = semver.clean(body.version);
+        var newAzkVersionExists = semver.lt(Azk.version, azkLatestVersion);
         if ( newAzkVersionExists ) {
           // just warn user that new AZK version is available
           this.warning('errors.dependencies.*.upgrade', {
             current_version: Azk.version,
-            new_version: tagNameGithubParsed
+            new_version: azkLatestVersion
           });
         } else {
           this.ok('configure.latest_azk_version', { current_version: Azk.version });
