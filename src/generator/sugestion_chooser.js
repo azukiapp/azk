@@ -39,5 +39,4 @@ export class SugestionChooser extends UIProxy {
       return evidence;
     });
   }
-
 }
