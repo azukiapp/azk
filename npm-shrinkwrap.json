@@ -1,6 +1,6 @@
 {
   "name": "azk",
-  "version": "0.13.1",
+  "version": "0.14.1",
   "dependencies": {
     "archiver": {
       "version": "0.13.1",

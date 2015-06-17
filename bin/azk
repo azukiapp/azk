@@ -50,7 +50,10 @@ export LIBNSS_RESOLVER_VERSION=${LIBNSS_RESOLVER_VERSION}
 export RSYNC_MIN_VERSION=${RSYNC_MIN_VERSION}
 
 # Agent opts
-export AZK_AGENT_LOG_FILE=$AZK_DATA_PATH/logs/agent.log
+export AZK_AGENT_LOG_OUT_FILE=$AZK_DATA_PATH/logs/agent.log.out
+export AZK_AGENT_LOG_ERR_FILE=$AZK_DATA_PATH/logs/agent.log.err
+export AZK_AGENT_CONF_FILE=$AZK_DATA_PATH/run/agent.json
+export AZK_AGENT_PING_FILE=$AZK_DATA_PATH/run/ping
 
 # No use DOCKER_HOST
 unset DOCKER_HOST
@@ -86,12 +89,50 @@ azk_load_nvm() {
   fi
 }
 
+npm() {
+  exec $AZK_NODE_PATH/npm --cache=${AZK_DATA_PATH}/nvm/cache ${@}
+}
+
 azk_node_run() {
   exec $AZK_NODE_PATH/node --harmony $AZK_ROOT_PATH/bin/azk.js "${@}"
 }
 
-npm() {
-  exec $AZK_NODE_PATH/npm --cache=${AZK_DATA_PATH}/nvm/cache ${@}
+azk_agent_daemon() {
+  # Clean log
+  echo "" > ${AZK_AGENT_LOG_OUT_FILE}
+  echo "" > ${AZK_AGENT_LOG_ERR_FILE}
+
+  # Run agent
+  set -m
+  tail -n0 -f ${AZK_AGENT_LOG_OUT_FILE} &
+  tail -n0 -f ${AZK_AGENT_LOG_ERR_FILE} 1>&2 &
+
+  quiet() {
+    "${@}" >/dev/null 2>&1
+  }
+
+  wait_started() {
+    while quiet kill -0 "${AGENT_PID}" && [ ! -f "${AZK_AGENT_PING_FILE}" ]; do
+      sleep 1;
+    done
+  }
+
+  trap "graceExit" INT TERM
+  graceExit() {
+    quiet kill -TERM ${AGENT_PID} || true
+    while quiet kill -0 "${AGENT_PID}"; do
+      sleep 1;
+    done
+    quiet kill %1 %2 || true
+    exit 1;
+  }
+
+  rm -f "${AZK_AGENT_PING_FILE}"
+  azk_node_run "${@}" >> "${AZK_AGENT_LOG_OUT_FILE}" 2>> "${AZK_AGENT_LOG_ERR_FILE}" &
+  AGENT_PID="$!"
+  wait_started &
+  wait $!
+  quiet kill %1 %2 || true
 }
 
 azk_main() {
@@ -105,40 +146,7 @@ azk_main() {
     agent-daemon)
       # Removing agent-daemon
       shift;
-
-      # Reset log
-      echo "" > $AZK_AGENT_LOG_FILE
-
-      # Run agent
-      trap gracefulExit INT
-      azk_node_run "${@}" > $AZK_AGENT_LOG_FILE 2>&1 &
-      AGENT_PID="$!"
-      tail -n0 -f $AZK_AGENT_LOG_FILE 2>/dev/null &
-      TAIL_PID="$!"
-
-      kill_and_wait() {
-        kill -s TERM ${1} 2>/dev/null
-        while kill -0 ${1} 2>/dev/null; do
-          sleep 1;
-        done
-      }
-
-      gracefulExit() {
-        set +e
-        kill_and_wait ${AGENT_PID}
-        disown ${TAIL_PID}
-        kill_and_wait ${TAIL_PID}
-        echo "exit";
-        exit 1;
-      }
-
-      # Wait for start
-      until tail -1 $AZK_AGENT_LOG_FILE | grep -q 'Agent has been successfully started.'; do
-        kill -0 ${AGENT_PID} 2>/dev/null || gracefulExit;
-        sleep 1;
-      done
-
-      kill -9 $TAIL_PID
+      azk_agent_daemon "${@}"
       ;;
     *)
       azk_load_nvm

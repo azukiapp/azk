@@ -1,5 +1,5 @@
-import { _, config, log, lazy_require, set_config } from 'azk';
-import { defer, promiseResolve } from 'azk/utils/promises';
+import { _, config, log, lazy_require, set_config, fsAsync } from 'azk';
+import { defer, async, promiseResolve } from 'azk/utils/promises';
 import { publish } from 'azk/utils/postal';
 import { Pid } from 'azk/utils/pid';
 import { AgentStopError } from 'azk/utils/errors';
@@ -128,8 +128,10 @@ var Agent = {
     this.processStateHandler();
 
     // Start server and subsistems
-    return lazy.Server.start(this.stop.bind(this)).then(() => {
+    return async(this, function* () {
+      yield lazy.Server.start(this.stop.bind(this));
       if (!this.stopping) {
+        yield fsAsync.writeFile(config("paths:agent_ping"), "");
         this.change_status("started");
         publish("agent.agent.started.event", {});
         log.info("[azk] agent start with pid: " + process.pid);
