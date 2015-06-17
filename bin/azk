@@ -128,7 +128,7 @@ azk_agent_daemon() {
   }
 
   rm -f "${AZK_AGENT_PING_FILE}"
-  azk_node_run "${@}" > "${AZK_AGENT_LOG_OUT_FILE}" 2> "${AZK_AGENT_LOG_ERR_FILE}" &
+  azk_node_run "${@}" >> "${AZK_AGENT_LOG_OUT_FILE}" 2>> "${AZK_AGENT_LOG_ERR_FILE}" &
   AGENT_PID="$!"
   wait_started &
   wait $!

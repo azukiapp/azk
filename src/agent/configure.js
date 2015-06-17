@@ -72,10 +72,10 @@ export class Configure extends UIProxy {
           { 'agent:dns:port': ports.dns, 'agent:balancer:port': ports.balancer },
           yield this._checkDockerSocket(socket),
           yield this._checkAndConfigureNetwork(ports, false),
+          yield this._cleanContainers(),
           yield this._checkPorts(ports.dns, dns_key, 'dns', 'AZK_DNS_PORT'),
           yield this._checkPorts(ports.balancer, balancer_key, 'balancer', 'AZK_BALANCER_PORT'),
-          yield this._loadDnsServers(),
-          yield this._cleanContainers()
+          yield this._loadDnsServers()
         );
       })
       .catch(function (err) {

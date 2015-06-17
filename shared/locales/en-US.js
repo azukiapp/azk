@@ -244,7 +244,7 @@ module.exports = {
     github_azk_version_error : 'Failed to access Github to get azk latest version number',
     check_version_no_internet: 'Checking version: there is no internet connection to check azk version.',
     check_version_error      : 'Checking version: %(error_message)s',
-    clean_containers         : "Clearing %(count)d lost containers",
+    clean_containers         : "Cleaning %(count)d lost containers",
     migrations: {
       alert          : "azk updated, checking update procedures...",
       changing_domain: "Changing domain upgrading, (issue: #255)",
