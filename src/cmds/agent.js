@@ -1,7 +1,7 @@
 import { CliTrackerController } from 'azk/cli/cli_tracker_controller.js';
 import { Helpers } from 'azk/cli/helpers';
-import { _, config, lazy_require, log } from 'azk';
-import { defer, asyncUnsubscribe } from 'azk/utils/promises';
+import { _, path, config, lazy_require, log, fsAsync } from 'azk';
+import { defer, async, asyncUnsubscribe } from 'azk/utils/promises';
 import { subscribe } from 'azk/utils/postal';
 
 var lazy = lazy_require({
@@ -35,11 +35,20 @@ class Agent extends CliTrackerController {
         // And no running
         var status = yield lazy.Client.status(opts.action, false);
         if (!status.agent) {
+          // Check and load configures
+          var configure_file = this.normalized_params.options['configure-file'];
+          if (!_.isEmpty(configure_file)) {
+            configure_file = path.resolve(this.cwd, configure_file);
+            params.configs = require(configure_file);
+          } else {
+            this.ui.warning('status.agent.wait');
+            params.configs = yield Helpers.configure(this.ui);
+          }
+
           // Run in daemon mode
           if (!opts['no-daemon']) {
             var args = _.clone(this.args);
-            var cmd  = `azk agent-daemon --no-daemon "${args.join('" "')}"`;
-            return this._runDaemon(cmd);
+            return this._runDaemon(args, params.configs);
           }
 
           // Save pid and connect signals
@@ -57,10 +66,6 @@ class Agent extends CliTrackerController {
             }
           });
           status.pid.update(process.pid);
-
-          // Check and load configures
-          this.ui.warning('status.agent.wait');
-          params.configs = yield Helpers.configure(this.ui);
 
           // Remove and adding vm (to refresh vm configs)
           if (config('agent:requires_vm') && !opts['no-reload-vm']) {
@@ -88,11 +93,24 @@ class Agent extends CliTrackerController {
     });
   }
 
-  _runDaemon(cmd) {
+  _runDaemon(args, configs) {
+    return async(this, function* () {
+      var file = config("paths:agent_config");
+      log.debug("[agent] save config file", file);
+      yield fsAsync.writeFile(file, JSON.stringify(configs));
+
+      args = args.concat(["--configure", file]);
+      var cmd  = `azk agent-daemon --no-daemon "${args.join('" "')}"`;
+      return this._runDaemonCommand(cmd);
+    });
+
+  }
+
+  _runDaemonCommand(cmd) {
     return defer((resolve) => {
       var opts  = {
-        detached: true,
-        stdio: [ process.stdin, process.stdout, process.stderr ]
+        detached: false,
+        stdio: [ 'ignore', process.stdout, process.stderr ]
       };
 
       var child = this.ui.execSh(cmd, opts, (err) => {
