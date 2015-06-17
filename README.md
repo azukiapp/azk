@@ -2,7 +2,7 @@
 
 ### A development environment orchestration tool
 
-`azk` lets developers easily and quickly to create, maintain and isolate their development environments through automation, in a powerful yet flexible way.
+`azk` lets developers easily and quickly install and configure their development environments. Period.
 
 ![Usage of azk](https://github.com/azukiapp/azk/blob/master/src/pres/azk-screenflow-slow.gif?raw=true)
 
