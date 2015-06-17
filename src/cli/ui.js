@@ -135,9 +135,17 @@ var UI = {
   },
 
   // User interactions methods
-  execSh(...args) {
-    var result = (err) => { return (err) ? err.code : 0; };
-    return nfcall(lazy.execShLib, ...args).spread(result, result);
+  execSh(command, options = {}, callback = null) {
+    if (_.isFunction(options)) {
+      [callback, options] = [options, {}];
+    }
+
+    if (callback) {
+      return lazy.execShLib(command, options, callback);
+    } else {
+      var result = (err) => { return (err) ? err.code : 0; };
+      return nfcall(lazy.execShLib, command, options).spread(result, result);
+    }
   },
 
   prompt(questions) {

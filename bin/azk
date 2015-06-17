@@ -111,34 +111,34 @@ azk_main() {
 
       # Run agent
       trap gracefulExit INT
+      set -m
       azk_node_run "${@}" > $AZK_AGENT_LOG_FILE 2>&1 &
       AGENT_PID="$!"
       tail -n0 -f $AZK_AGENT_LOG_FILE 2>/dev/null &
       TAIL_PID="$!"
 
       kill_and_wait() {
-        kill -s TERM ${1} 2>/dev/null
-        while kill -0 ${1} 2>/dev/null; do
+        kill -s TERM ${1} 2>&1 >/dev/null || true
+        while kill -0 ${1} 2>&1 >/dev/null; do
           sleep 1;
         done
       }
 
       gracefulExit() {
-        set +e
-        kill_and_wait ${AGENT_PID}
-        disown ${TAIL_PID}
-        kill_and_wait ${TAIL_PID}
-        echo "exit";
+        kill_and_wait ${AGENT_PID} 2>&1 >/dev/null || true
+        disown ${TAIL_PID} || true
+        kill_and_wait ${TAIL_PID} 2>&1 >/dev/null || true
         exit 1;
       }
 
       # Wait for start
-      until tail -1 $AZK_AGENT_LOG_FILE | grep -q 'Agent has been successfully started.'; do
-        kill -0 ${AGENT_PID} 2>/dev/null || gracefulExit;
+      msg='Agent has been successfully started.'
+      until grep -q "${msg}" "${AZK_AGENT_LOG_FILE}"; do
+        kill -0 ${AGENT_PID} 2>&1 >/dev/null || gracefulExit;
         sleep 1;
       done
 
-      kill -9 $TAIL_PID
+      kill -9 $TAIL_PID 2>&1 >/dev/null || true
       ;;
     *)
       azk_load_nvm

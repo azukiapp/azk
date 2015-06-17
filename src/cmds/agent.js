@@ -1,7 +1,7 @@
 import { CliTrackerController } from 'azk/cli/cli_tracker_controller.js';
 import { Helpers } from 'azk/cli/helpers';
 import { _, config, lazy_require, log } from 'azk';
-import { asyncUnsubscribe } from 'azk/utils/promises';
+import { defer, asyncUnsubscribe } from 'azk/utils/promises';
 import { subscribe } from 'azk/utils/postal';
 
 var lazy = lazy_require({
@@ -17,12 +17,7 @@ class Agent extends CliTrackerController {
   }
 
   index(opts) {
-    return this
-      .callAgent(opts)
-      .then((result) => {
-        process.stdin.pause();
-        return result;
-      });
+    return this.callAgent(opts);
   }
 
   callAgent(opts) {
@@ -94,10 +89,19 @@ class Agent extends CliTrackerController {
   }
 
   _runDaemon(cmd) {
-    this._captureSignal(() => {});
-    return this.ui.execSh(cmd, {
-      detached: false,
-      stdio: [ 'ignore', process.stdout, process.stderr ]
+    return defer((resolve) => {
+      var opts  = {
+        detached: true,
+        stdio: [ process.stdin, process.stdout, process.stderr ]
+      };
+
+      var child = this.ui.execSh(cmd, opts, (err) => {
+        resolve(err ? err.code : 0);
+      });
+
+      this._captureSignal((signal) => {
+        child.kill(signal);
+      });
     });
   }
 
