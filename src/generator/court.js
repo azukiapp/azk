@@ -312,10 +312,19 @@ export class Court extends UIProxy {
         } else if (_.isObject(elm)) {
           var new_elm = {};
           _.map(elm, (data, key) => {
-            var value = data.value;
-            key   = (key   === '.') ? folder_relative_template : key.replace(folder_base_regex, folder_base_template);
-            value = (value === '.') ? folder_relative_template : value.replace(folder_base_regex, folder_base_template);
-            data.value = value;
+            key   = (!_.isString(key)) ? key :
+              (key   === '.') ? folder_relative_template : key.replace(folder_base_regex, folder_base_template);
+
+            var value = (_.isObject(data)) ? data.value : data;
+
+            value = (!_.isString(value)) ? value :
+              (value === '.') ? folder_relative_template : value.replace(folder_base_regex, folder_base_template);
+
+            if (_.isObject(data)) {
+              data.value = value;
+            } else {
+              data = value;
+            }
             new_elm[key] = data;
           });
           elm = new_elm;
@@ -345,10 +354,10 @@ export class Court extends UIProxy {
           });
         }
 
-        // when in a sub-folder change `workdir`
+        // replace `#{app.dir}` by system template path
         systemSuggestion.workdir = replaceFolderTemplate(systemSuggestion.workdir);
-        // when in a sub-folder change default `path('.')` or `sync('.')` to the subfolder
-        systemSuggestion.mounts = replaceFolderTemplate(systemSuggestion.mounts);
+        systemSuggestion.mounts  = replaceFolderTemplate(systemSuggestion.mounts);
+        systemSuggestion.envs    = replaceFolderTemplate(systemSuggestion.envs);
       }, this);
     }, this);
 
