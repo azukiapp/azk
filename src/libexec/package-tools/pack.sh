@@ -15,14 +15,14 @@ Arguments:
 Options:
   --gpg-key=<gpg-file>    The GPG private key to sign deb and rpm packages (not required in mac package case)
   --channel=<channel>     Release channel <channel>=(nightly|rc|stable)
-  --no-version            Don't bump azk version into package.json (adding release channel and date)
   --no-make               Don't run \`make\` before packaging
   --no-linux-clean        Don't clean Linux build files before running first \`make -e package_linux\`
   --clean-repo            Force cleaning repo with previous version. Use it with wisdom!
   --no-agent              Don't run \`azk agent\` for builds (assumes it's running somewhere else)
   --no-test               Don't test generated packages
   --publish, -p           Publish the generated packages after build
-  --no-tag                Don't create git tag and commit bumping current version
+  --no-version            Don't create a new commit bumping azk version into package.json (adding release channel and date)
+  --no-tag                Don't create git version tag to last commit
   --verbose, -v           Displays more detailed info about each building  and packaging step
   --help, -h              Show this message
 "
@@ -129,13 +129,12 @@ bump_version() {
   VERSION_LINE_NUMBER=`cat package.json | grep -n "version" | cut -d ":" -f1`
   sed -ir "${VERSION_LINE_NUMBER}s/\([[:digit:]]*\.[[:digit:]]*\.[[:digit:]]*\)[^\"]*/\1${VERSION_SUFFIX}/" package.json
   rm -Rf package.jsonr
+  git add package.json
+  git commit -m "Bumping version to azk v${VERSION_NO_META}"
 }
 
 make_tag() {
-  git add package.json
-  git commit -m "Bumping version to azk v${VERSION_NO_META}"
-  LAST_COMMIT=$( git log | head -1 | awk '{ print substr($2, 0, 7)}' )
-  git tag "v${VERSION_NO_META}" ${LAST_COMMIT}
+  git tag -a "v${VERSION_NO_META}"
 }
 
 run_make() {
