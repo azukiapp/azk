@@ -15,7 +15,7 @@ Arguments:
 Options:
   --gpg-key=<gpg-file>    The GPG private key to sign deb and rpm packages (not required in mac package case)
   --channel=<channel>     Release channel <channel>=(nightly|rc|stable)
-  --no-version            Don't bump version (adding release channel and date)
+  --no-version            Don't bump azk version into package.json (adding release channel and date)
   --no-make               Don't run \`make\` before packaging
   --no-linux-clean        Don't clean Linux build files before running first \`make -e package_linux\`
   --clean-repo            Force cleaning repo with previous version. Use it with wisdom!
