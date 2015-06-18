@@ -4827,11 +4827,6 @@
       "from": "https://registry.npmjs.org/dotenv/-/dotenv-1.1.0.tgz",
       "resolved": "https://registry.npmjs.org/dotenv/-/dotenv-1.1.0.tgz"
     },
-    "esprima": {
-      "version": "1.2.2",
-      "from": "https://registry.npmjs.org/esprima/-/esprima-1.2.2.tgz",
-      "resolved": "https://registry.npmjs.org/esprima/-/esprima-1.2.2.tgz"
-    },
     "exec-sh": {
       "version": "0.1.4",
       "from": "https://registry.npmjs.org/exec-sh/-/exec-sh-0.1.4.tgz",
@@ -7579,7 +7574,7 @@
       "dependencies": {
         "minimist": {
           "version": "0.0.8",
-          "from": "https://registry.npmjs.org/minimist/-/minimist-0.0.8.tgz",
+          "from": "minimist@0.0.8",
           "resolved": "https://registry.npmjs.org/minimist/-/minimist-0.0.8.tgz"
         }
       }
