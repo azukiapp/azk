@@ -23,9 +23,6 @@ if (process.env.AZK_SUBSCRIBE_POSTAL) {
 var Helpers = {
   pp: pp,
   expect: chai.expect,
-  get capture_io() {
-    return require('azk/utils/capture_io').capture_io;
-  },
 
   get no_required_agent() {
     return (_.contains(process.argv, '--no-required-agent') || process.env.AZK_NO_REQUIRED_AGENT);

@@ -6,7 +6,6 @@ import { subscribe } from 'azk/utils/postal';
 
 var lazy = lazy_require({
   Client      : [ 'azk/agent/client' ],
-  spawn       : ['child-process-promise'],
   net         : 'net',
   VMController: 'azk/cmds/vm',
 });
