@@ -11,7 +11,7 @@ export class Suggestion extends UIProxy {
       depends : [],
       shell   : '/bin/bash',
       image   : { docker: '[repository]:[tag]' },
-      workdir : '/azk/#{manifest.dir}',
+      workdir : '/azk/#{app.dir}',
       wait: {
         retry: 20,
         timeout: 1000
@@ -19,7 +19,7 @@ export class Suggestion extends UIProxy {
       balancer: true,
       command : '# command to run app',
       mounts  : {
-        '/azk/#{manifest.dir}': {type: 'path', value: '.'},
+        '/azk/#{app.dir}': {type: 'path', value: '.'},
       },
       envs: {
         EXAMPLE: 'value'
