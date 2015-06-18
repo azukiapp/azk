@@ -1,5 +1,63 @@
 #! /bin/bash
 
+start_agent() {
+  azk agent start --no-daemon > $AZK_AGENT_LOG_FILE 2>&1 &
+  AGENT_PID="$!"
+  tail -F $AZK_AGENT_LOG_FILE &
+  TAIL_PID="$!"
+  until tail -1 $AZK_AGENT_LOG_FILE | grep -q 'Agent has been successfully started.'; do
+    sleep 2;
+    kill -0 ${AGENT_PID} || exit 3;
+  done
+
+  kill -9 $TAIL_PID > /dev/null 2>&1
+}
+
+setup_test() {
+  set -e
+  start_agent
+
+  if [[ $RUN_TEST_APP == true ]]; then
+    cd /azk/test
+    rm -Rf Azkfile.js .azk/
+    azk init
+    ls Azkfile.js > /dev/null 2>&1
+    azk start --reprovision
+  fi
+}
+
+run_test() {
+  set -e
+  DETECTED_VERSION=$( azk --version )
+
+  if [[ "${DETECTED_VERSION}" != "azk ${VERSION}" ]]; then
+    echo "Version check failed."
+    echo "Detected: ${DETECTED_VERSION}"
+    echo "Expected: azk ${VERSION}"
+    fail 4
+  else
+    echo "Version is ok!"
+  fi
+
+  if [[ $RUN_TEST_APP = true ]]; then
+    TEST_URL=$( azk status --text | tail -1 | awk '{print $3}' | sed -r "s:\x1B\[[0-9;]*[mK]::g" )
+    RESULT=$( curl -sI $TEST_URL | head -1 | sed s/\\r//g)
+    echo "GET ${TEST_URL}"
+    echo "${RESULT}"
+    if [[ "$RESULT" != "HTTP/1.1 200 OK" ]]; then
+      fail 5
+    fi
+  fi
+}
+
+tear_down() {
+  if [[ $RUN_TEST_APP == true ]]; then
+    azk stop
+    rm -Rf Azkfile.js .azk/
+  fi
+  azk agent stop
+}
+
 set -x
 
 export VERSION=$( azk version | awk '{ print $2 }' )
