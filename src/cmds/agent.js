@@ -1,7 +1,7 @@
 import { CliTrackerController } from 'azk/cli/cli_tracker_controller.js';
 import { Helpers } from 'azk/cli/helpers';
 import { _, path, config, lazy_require, log, fsAsync } from 'azk';
-import { defer, async, asyncUnsubscribe } from 'azk/utils/promises';
+import { defer, async, promiseResolve, asyncUnsubscribe } from 'azk/utils/promises';
 import { subscribe } from 'azk/utils/postal';
 
 var lazy = lazy_require({
@@ -68,10 +68,7 @@ class Agent extends CliTrackerController {
           status.pid.update(process.pid);
 
           // Remove and adding vm (to refresh vm configs)
-          if (config('agent:requires_vm') && !opts['no-reload-vm']) {
-            var cmd_vm = new lazy.VMController({ ui: this.ui });
-            yield cmd_vm.index({ action: 'remove', fail: () => {} });
-          }
+          if (!opts['no-reload-vm']) { yield this._removeVM(); }
 
           // Generate a new tracker agent session id
           this.ui.tracker.generateNewAgentSessionId();
@@ -93,6 +90,18 @@ class Agent extends CliTrackerController {
     });
   }
 
+  _removeVM() {
+    if (config('agent:requires_vm')) {
+      if (!config('agent:dev:force_disable_vm')) {
+        var cmd_vm = new lazy.VMController({ ui: this.ui });
+        return cmd_vm.index({ action: 'remove', fail: () => {} });
+      } else {
+        this.ui.ok("Force skip use vm");
+      }
+    }
+    return promiseResolve(true);
+  }
+
   _runDaemon(args, configs) {
     return async(this, function* () {
       var file = config("paths:agent_config");
@@ -103,7 +112,6 @@ class Agent extends CliTrackerController {
       var cmd  = `azk agent-daemon --no-daemon "${args.join('" "')}"`;
       return this._runDaemonCommand(cmd);
     });
-
   }
 
   _runDaemonCommand(cmd) {

@@ -16,7 +16,7 @@ var Server = {
   stop_handler() {},
 
   // Warning: Only use test in mac
-  vm_enabled: true,
+  vm_enabled: !config('agent:dev:force_disable_vm'),
 
   // TODO: log start machine steps
   start(stop_handler) {

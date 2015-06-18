@@ -24,13 +24,15 @@ var Api = {
 
   start() {
     log.debug("[api] starting server api");
-    try {
-      lazy.hotswap.on('swap', () => {
-        log.debug("[api] reloading server api");
-        this._make_new_app();
-      });
-    } catch (err) {
-      log.debug("[api] install hotswap.", err.stack ? err.stack : err.toString());
+    if (config('agent:dev:hotswap_code')) {
+      try {
+        lazy.hotswap.on('swap', () => {
+          log.debug("[api] reloading server api");
+          this._make_new_app();
+        });
+      } catch (err) {
+        log.debug("[api] install hotswap.", err.stack ? err.stack : err.toString());
+      }
     }
 
     return this._make_new_app();
