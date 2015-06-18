@@ -1,7 +1,18 @@
 #! /bin/bash
 
+set -x
+
+export VERSION=$( azk version | awk '{ print $2 }' )
+
+alias bazk='/usr/local/bin/azk'
+
+BASE_DIR=$( pwd )
+SHA256=$(shasum -a 256 shasum -a 256 "package/brew/azk_${VERSION}.tar.gz" | awk '{print $1}')
+
+AZK_AGENT_LOG_FILE='/tmp/azk-agent-start.log'
+
 start_agent() {
-  azk agent start --no-daemon > $AZK_AGENT_LOG_FILE 2>&1 &
+  bazk agent start --no-daemon > $AZK_AGENT_LOG_FILE 2>&1 &
   AGENT_PID="$!"
   tail -F $AZK_AGENT_LOG_FILE &
   TAIL_PID="$!"
@@ -20,15 +31,15 @@ setup_test() {
   if [[ $RUN_TEST_APP == true ]]; then
     cd /azk/test
     rm -Rf Azkfile.js .azk/
-    azk init
+    bazk init
     ls Azkfile.js > /dev/null 2>&1
-    azk start --reprovision
+    bazk start --reprovision
   fi
 }
 
 run_test() {
   set -e
-  DETECTED_VERSION=$( azk --version )
+  DETECTED_VERSION=$( bazk --version )
 
   if [[ "${DETECTED_VERSION}" != "azk ${VERSION}" ]]; then
     echo "Version check failed."
@@ -40,7 +51,7 @@ run_test() {
   fi
 
   if [[ $RUN_TEST_APP = true ]]; then
-    TEST_URL=$( azk status --text | tail -1 | awk '{print $3}' | sed -r "s:\x1B\[[0-9;]*[mK]::g" )
+    TEST_URL=$( bazk status --text | tail -1 | awk '{print $3}' | sed -r "s:\x1B\[[0-9;]*[mK]::g" )
     RESULT=$( curl -sI $TEST_URL | head -1 | sed s/\\r//g)
     echo "GET ${TEST_URL}"
     echo "${RESULT}"
@@ -55,15 +66,8 @@ tear_down() {
     azk stop
     rm -Rf Azkfile.js .azk/
   fi
-  azk agent stop
+  bazk agent stop
 }
-
-set -x
-
-export VERSION=$( azk version | awk '{ print $2 }' )
-
-BASE_DIR=$( pwd )
-SHA256=$(shasum -a 256 shasum -a 256 "package/brew/azk_${VERSION}.tar.gz" | awk '{print $1}')
 
 RELEASE_CHANNEL=$( echo "${VERSION}" | sed s/[^\\-]*// | sed s/^\\-// | sed s/\\..*// )
 if [[ -z $RELEASE_CHANNEL ]]; then
@@ -92,9 +96,17 @@ brew install azukiapp/azk/azk${CHANNEL_SUFFIX}
 cd $FORMULA_DIR
 git checkout $FORMULA_FILE
 
-if [[ "$( /usr/local/bin/azk version )" == "azk ${VERSION}" ]]; then
+if [[ "$( bazk version )" == "azk ${VERSION}" ]]; then
   echo "azk ${VERSION} has been successfully installed."
 else
   echo "Failed to install azk ${VERSION}."
   exit 3
 fi
+
+set -e
+
+setup_test
+run_test
+tear_down
+
+exit 0
