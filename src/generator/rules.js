@@ -73,7 +73,7 @@ export class BaseRule extends UIProxy {
       fullpath: path,
       ruleType: this.type,
       name    : this.name,
-      ruleName: this.getRuleByVersion(version) || this.rule_name,
+      ruleName: this.getRuleByVersion(framework || version) || this.rule_name,
       version : version,
       replaces: this.replaces,
       framework,
