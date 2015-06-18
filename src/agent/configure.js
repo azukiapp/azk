@@ -201,6 +201,9 @@ export class Configure extends UIProxy {
       .info()
       .then(() => {
         return { 'docker:host': host };
+      })
+      .catch(() => {
+        throw new DependencyError('docker_access', { socket });
       });
   }
 
