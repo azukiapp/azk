@@ -22,9 +22,9 @@ export class Suggestion extends ElixirSuggestion {
       ],
       command: "mix phoenix.server --no-deps-check",
       mounts: this.extend(this.suggestion.mounts, {
-        "/azk/#{manifest.dir}/node_modules"   : {type: 'persistent', value: "#{manifest.dir}/node_modules"},
-        "/azk/#{manifest.dir}/priv/static/js" : {type: 'persistent', value: "#{manifest.dir}/priv/static/js"},
-        "/azk/#{manifest.dir}/priv/static/css": {type: 'persistent', value: "#{manifest.dir}/priv/static/css"},
+        "/azk/#{app.dir}/node_modules"   : {type: 'persistent', value: "#{app.dir}/node_modules"},
+        "/azk/#{app.dir}/priv/static/js" : {type: 'persistent', value: "#{app.dir}/priv/static/js"},
+        "/azk/#{app.dir}/priv/static/css": {type: 'persistent', value: "#{app.dir}/priv/static/css"},
       }),
       http    : true,
       ports: {
