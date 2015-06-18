@@ -10,6 +10,7 @@ abs_dir() {
 }
 
 export AZK_ROOT_PATH=`cd \`abs_dir ${BASH_SOURCE:-$0}\`/..; pwd`
+export PATH=$AZK_ROOT_PATH/bin:$PATH
 
 # Namespace and domain
 default_namespace="dev.azk.io"
