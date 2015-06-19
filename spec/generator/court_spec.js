@@ -68,9 +68,7 @@ describe('Azk generator tool court veredict:', function() {
   it('should find relevant files on project folder', function() {
     // Asks rule about which files to lookup
     var relevantFiles = court.relevantsFiles();
-
-    var relevantProjectFiles = court._relevantProjectFiles(
-      rootFullPath, relevantFiles);
+    var relevantProjectFiles = court._relevantProjectFiles(rootFullPath, relevantFiles);
 
     h.expect(relevantProjectFiles.length).to.equal(2);
   });
@@ -131,7 +129,6 @@ describe('Azk generator tool court veredict:', function() {
       var folders = Object.keys(court.__folder_evidences_suggestion);
       h.expect(folders).to.have.length(2);
     });
-
   });
 
   it('should judge and suggest a valid node system', function() {
@@ -141,16 +138,15 @@ describe('Azk generator tool court veredict:', function() {
       var firstEvidence = evidence0;
       h.expect(firstEvidence).to.have.property('ruleType', 'runtime');
       h.expect(firstEvidence).to.have.property('name', 'node');
-      h.expect(firstEvidence).to.have.property('ruleName', 'node012');
+      h.expect(firstEvidence).to.have.property('ruleName', 'node-0.12');
       h.expect(firstEvidence).to.have.property('version', '0.4.1');
 
       // first suggestion
       var firstSuggestion = evidence0.suggestionChoosen.suggestion;
       h.expect(firstSuggestion).to.have.property('name', 'api');
-      h.expect(evidence0.suggestionChoosen.ruleNamesList).to.contains('node012');
-      h.expect(firstSuggestion).have.property('__type', 'node.js');
+      h.expect(evidence0.suggestionChoosen.ruleNamesList).to.contains('node-0.12');
+      h.expect(firstSuggestion).have.property('__type', 'node 0.12');
     });
-
   });
 
   it('should suggest systems for the Azkfile.js template', function() {
@@ -163,5 +159,4 @@ describe('Azk generator tool court veredict:', function() {
       h.expect(folders).to.contains('postgres');
     });
   });
-
 });
