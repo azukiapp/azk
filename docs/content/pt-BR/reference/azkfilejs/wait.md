@@ -5,10 +5,18 @@ Define o número e o tempo entre cada tentativa de conexão com a porta a ser di
 #### Uso:
 
 ```js
+wait: [NUM_TENTATIVAS],
+// ou
 wait: { retry: [NUM_TENTATIVAS], timeout: [TEMPO_ENTRE_TENTATIVAS_EM_MILISEGUNDOS] },
 ```
 
 ##### Exemplos:
+
+20 tentativas com 1 segundo de pausa entre elas:
+
+```js
+wait: 20,
+```
 
 10 tentativas com 2 segundos de pausa entre elas:
 
