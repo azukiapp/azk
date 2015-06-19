@@ -1,51 +1,15 @@
-import { _ } from 'azk';
-import { BaseRule } from 'azk/generator/rules';
-var semver = require('semver');
+import { Rule as PythonRule } from 'azk/generator/rules/python';
 
-var getDjangoVersion = function(content) {
-
-  // http://regex101.com/r/kI9wQ3/1
-  var gemDjangoRegex = /^\s*Django==(\d+\.\d+(\.\d+)?)\s*$/gm;
-
-  var capture = gemDjangoRegex.exec(content);
-  var djangoVersion = capture && capture.length >= 1 && capture[1];
-  if (!djangoVersion) {
-    return false;
-  }
-  var djangoVersionLastPart = capture && capture.length >= 2 && capture[2];
-  if (!djangoVersionLastPart) {
-    djangoVersion = djangoVersion + '.0';
-  }
-
-  return semver.clean(djangoVersion);
-};
-
-export class Rule extends BaseRule {
+export class Rule extends PythonRule {
   constructor(ui) {
     super(ui);
-    this.type = 'framework';
-  }
+    this.type      = 'framework';
+    this.name      = "python_django";
+    this.rule_name = "python_django";
+    this.replaces  = ['python'];
 
-  relevantsFiles () {
-    return ['requirements.txt'];
-  }
-
-  getEvidence(path, content) {
-    var evidence = {
-      fullpath: path,
-      ruleType: 'framework',
-      name    : 'django',
-      ruleName: 'django',
-      replaces: ['python']
-    };
-
-    var djangoVersion = getDjangoVersion(content);
-    evidence.version = djangoVersion;
-
-    if (!djangoVersion) {
-      return null;
-    }
-
+    // Suggest a docker image
+    // http://images.azk.io/#/python
     /*
       What Python version can I use with Django?
       (https://docs.djangoproject.com/en/dev/faq/install/)
@@ -56,16 +20,30 @@ export class Rule extends BaseRule {
       1.6                  2.6, 2.7 and 3.2, 3.3
       1.7, 1.8             2.7 and 3.2, 3.3, 3.4
     */
-    var versionRules = {
-      'djangoPython27': '<1.7.0',
-      'djangoPython34': '>=1.7.0',
+    this.version_rules = {
+      'python_django-2.7': '<1.7.0',
+      'python_django-3.4': '>=1.7.0',
     };
-
-    evidence.ruleName = _.findKey(versionRules, (value) => {
-      return semver.satisfies(evidence.version, value);
-    });
-
-    return evidence;
   }
 
+  relevantsFiles () {
+    return ['requirements.txt'];
+  }
+
+  getFrameworkVersion(content) {
+    // http://regex101.com/r/kI9wQ3/1
+    var gemDjangoRegex = /^\s*Django==(\d+\.\d+(\.\d+)?)\s*$/gm;
+
+    var capture = gemDjangoRegex.exec(content);
+    var djangoVersion = capture && capture.length >= 1 && capture[1];
+    if (!djangoVersion) {
+      return false;
+    }
+    var djangoVersionLastPart = capture && capture.length >= 2 && capture[2];
+    if (!djangoVersionLastPart) {
+      djangoVersion = djangoVersion + '.0';
+    }
+
+    return this.semver.clean(djangoVersion);
+  }
 }
