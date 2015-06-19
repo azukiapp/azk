@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## dev
+
+* Bug
+  * [Tracking] Updating `insight-keen-io`, which was changed to use the `child_process.spaw` use in place of `child_process.fork`, which ensures sending the tracker data in the background.
+
 ## v0.14.2 - (2015-06-18)
 
 * Bug
