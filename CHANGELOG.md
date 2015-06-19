@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## v0.14.2 - (2015-06-18)
+
+* Bug
+  * [Agent] Fixing agent error handlers
+  * [Kernel] Adds current `azk` bin folder to the PATH
+
+* Enhancements
+ * [Kernel] Removing unused dependencies
+
 ## v0.14.1 - (2015-06-17)
 
 * Bug
