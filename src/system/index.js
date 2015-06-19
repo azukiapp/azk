@@ -572,18 +572,17 @@ export class System {
   _mounts_to_syncs(mounts) {
     var syncs = {};
 
-    return _.reduce(mounts, (syncs, mount) => {
+    return _.reduce(mounts, (syncs, mount, mount_key) => {
       if (mount.type === 'sync') {
 
         var host_sync_path = this._resolved_path(mount.value);
 
-        var mounted_subpaths = _.reduce(mounts, (subpaths, mount) => {
-          var mount_path = this._resolved_path(mount.value);
-          if ( mount_path !== host_sync_path &&  mount_path.indexOf(host_sync_path) === 0) {
-            return subpaths.concat([path.join(mount.value, '/')]);
-          } else {
-            return subpaths;
+        var mounted_subpaths = _.reduce(mounts, (subpaths, mount, dir) => {
+          if ( dir !== mount_key && dir.indexOf(mount_key) === 0) {
+            var regex = new RegExp(`^${mount_key}`);
+            subpaths = subpaths.concat([path.normalize(dir.replace(regex, './'))]);
           }
+          return subpaths;
         }, []);
 
         mount.options        = mount.options || {};
