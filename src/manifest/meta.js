@@ -3,7 +3,6 @@ import { promiseResolve } from 'azk/utils/promises';
 import Utils from 'azk/utils';
 
 var lazy = lazy_require({
-  mkdir      : ['mkdirp', 'sync'],
   createCache: ['fscache', 'createSync'],
 });
 
@@ -42,7 +41,7 @@ export class Meta {
   get cache() {
     if (!this.__cache) {
       var cache_dir = this.cache_dir;
-      lazy.mkdir(cache_dir);
+      fsAsync.mkdirpSync(cache_dir);
       this.__cache = lazy.createCache(cache_dir);
     }
     return this.__cache;

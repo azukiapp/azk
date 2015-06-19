@@ -123,6 +123,12 @@ var options = mergeConfig({
 
       // Used to carry global configuration switches the agent
       config_keys: [],
+
+      // Azk develop helpers
+      dev: {
+        force_disable_vm: envs('AZK_AGENT_FORCE_VM_DISABLE', false),
+        hotswap_code    : envs('AZK_AGENT_HOTSWAP', false),
+      }
     },
 
     urls: {

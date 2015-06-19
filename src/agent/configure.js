@@ -77,14 +77,7 @@ export class Configure extends UIProxy {
           yield this._checkPorts(ports.balancer, balancer_key, 'balancer', 'AZK_BALANCER_PORT'),
           yield this._loadDnsServers()
         );
-      })
-      .catch(function (err) {
-        // Unhandled rejection overtakes synchronous exception through done() #471
-        // https://github.com/petkaantonov/bluebird/issues/471
-        if (err instanceof AzkError) {
-          this.fail(err.toString());
-        }
-      }.bind(this));
+      });
     }
   }
 
@@ -208,6 +201,9 @@ export class Configure extends UIProxy {
       .info()
       .then(() => {
         return { 'docker:host': host };
+      })
+      .catch(() => {
+        throw new DependencyError('docker_access', { socket });
       });
   }
 
