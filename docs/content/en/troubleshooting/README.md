@@ -8,10 +8,11 @@
 
 1. [There's no Internet available / I'm not connected to any network. `azk` starts but the browser shows I'm offline. How do I fix it?](README.html#theres-no-internet-available--im-not-connected-to-any-network-azk-starts-but-the-browser-shows-im-offline-how-do-i-fix-it)
 
-1. [My HD has no more free space. How can I clean my old or stoped containers? What about Docker images?](README.html#my-hd-has-no-more-free-space-how-can-i-clean-my-old-or-stoped-containers-what-about-docker-images)
+1. [How can I clean Docker files?](README.html#how-can-i-clean-docker-files)
+
+1. [How can I clean azk persistent files?](README.html#how-can-i-clean-azk-persistent-files)
 
 -------------------------
-
 
 ### I can't access any URL *.azk.dev.io
 
@@ -216,7 +217,7 @@ $ sed '/^.*#azk$/ { N; d; }' /etc/hosts
 
 -------------------------
 
-### My HD has no more free space. How can I clean my old or stoped containers? What about Docker images?
+### How can I clean Docker files?
 
 #### Running Containers
 
@@ -267,3 +268,45 @@ Just be sure to run all commands as `adocker`,
 especially if you are using a virtual machine.
 
 - https://github.com/wsargent/docker-cheat-sheet#tips
+
+----------------------
+
+### How can I clean azk persistent files?
+
+#### VM (Mac or Linux + VM): `persistent_folders` eand`sync_folders` (caution!)
+
+You can erase `persistent_folder` and `sync_folder`.
+Let's check this folders disk usage:
+
+```sh
+azk vm ssh -- du -sh /mnt/sda1/azk/sync_folders
+azk vm ssh -- du -sh /mnt/sda1/azk/persistent_folders
+```
+
+This will delete all files on `persistent_folders` and `sync_folders`.
+You will lose all database persinted data.
+After that you need to run `azk start -R` to reprovision each system.
+
+```sh
+azk vm ssh -- sudo rm -rf /mnt/sda1/azk/sync_folders
+azk vm ssh -- sudo rm -rf /mnt/sda1/azk/persistent_folders
+```
+
+#### Linux: `persistent_folders` and `sync_folders` (caution!)
+
+You can erase `persistent_folder` and `sync_folder`.
+Let's check this folders disk usage:
+
+```sh
+sudo du -hs ~/.azk/data/persistent_folders
+sudo du -hs ~/.azk/data/sync_folders
+```
+
+This will delete all files on `persistent_folders` and `sync_folders`.
+You will lose all database persinted data.
+After that you need to run `azk start -R` to reprovision each system.
+
+```sh
+sudo rm -rf ~/.azk/data/sync_folders
+sudo rm -rf ~/.azk/data/persistent_folders
+```

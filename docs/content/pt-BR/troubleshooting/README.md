@@ -8,7 +8,10 @@
 
 1. [Não há Internet disponível / Eu não estou conectado a nenhuma rede. O `azk` é iniciado, mas o navegador mostra que eu estou offline. Como faço para corrigir isso?](README.html#no-h-internet-disponvel--eu-no-estou-conectado-a-nenhuma-rede-o-azk--iniciado-mas-o-navegador-mostra-que-eu-estou-offline-como-fao-para-corrigir-isso)
 
-1. [Estou sem espaço em disco. Como posso limpar meus containers parados ou velhos? E as imagens do Docker?](README.html#estou-sem-espao-em-disco-como-posso-limpar-meus-containers-parados-ou-velhos-e-as-imagens-do-docker)
+
+1. [Como posso limpar os dados do Docker?](README.html#como-posso-limpar-os-dados-do-docker)
+
+1. [Como posso limpar os dados persistidos do azk](README.html#como-posso-limpar-os-dados-persistidos-do-azk)
 
 -------------------------
 
@@ -168,7 +171,8 @@ Isto vai limpar completamente as `persistent_folders` e `sync_folders` dentro da
 Atente para o fato que perderá todos os dados persistidos pelos bancos de dados de todos os sistemas já levantados.
 
 ```sh
-azk vm ssh -- sudo rm -rf /mnt/sda1/azk
+azk vm ssh -- sudo rm -rf /mnt/sda1/azk/sync_folders
+azk vm ssh -- sudo rm -rf /mnt/sda1/azk/persistent_folders
 ```
 
 #### Linux - limpar todos `persistent_folders` e `sync_folders` (cuidado!)
@@ -232,9 +236,7 @@ $ sed '/^.*#azk$/ { N; d; }' /etc/hosts
 
 -------------------------
 
-### Estou sem espaço em disco. Como posso limpar os dados do Docker? Como posso limpar os dados persistidos do `azk`?
-
-###### Dados do Docker
+### Como posso limpar os dados do Docker?
 
 #### Containers parados
 
@@ -287,29 +289,29 @@ O link a seguir possui várias dicas para o dia a dia com Docker. Só não se es
 
 ----------------
 
-###### Dados do azk
+### Como posso limpar os dados persistidos do azk?
 
 #### VM (Mac ou Linux + VM): `persistent_folders` e `sync_folders` (cuidado!)
 
 Você ainda pode apagar seus persistent_folder e sync_folder.
-Primeiro vamos verificar o quanto estes diretórios estão ocupando em disco.
+Verifique o tamnho ocupado em disco, dentro da VM:
 
 ```sh
-sudo du -hs ~/.azk/data/persistent_folders
-sudo du -hs ~/.azk/data/sync_folders
+azk vm ssh -- du -sh /mnt/sda1/azk/sync_folders
+azk vm ssh -- du -sh /mnt/sda1/azk/persistent_folders
 ```
 
 Isto vai limpar completamente as `persistent_folders` e `sync_folders`.
 Atente para o fato que **perderá todos os dados persistidos pelos bancos de dados** de todos os sistemas já levantados. Será ainda necessário que todos os sistemas sejam executados com a opção `--reprovision`. Só use esta opção em último caso.
 
 ```sh
-sudo rm -rf ~/.azk/data/sync_folders
-sudo rm -rf ~/.azk/data/persistent_folders
+azk vm ssh -- sudo rm -rf /mnt/sda1/azk/sync_folders
+azk vm ssh -- sudo rm -rf /mnt/sda1/azk/persistent_folders
 ```
 
 #### Linux: `persistent_folders` e `sync_folders` (cuidado!)
 
-Você ainda pode apagar seus persistent_folder e sync_folder.
+Você ainda pode apagar seus `persistent_folder` e `sync_folder`.
 Primeiro vamos verificar o quanto estes diretórios estão ocupando em disco.
 
 ```sh
