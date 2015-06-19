@@ -21,6 +21,11 @@ export class Suggestion extends UIProxy {
       mounts  : {
         '/azk/#{app.dir}': {type: 'path', value: '.'},
       },
+      envs_comment: [
+        'Make sure that the PORT value is the same as the one',
+        'in ports/http below, and that it\'s also the same',
+        'if you\'re setting it in a .env file'
+      ],
       envs: {
         EXAMPLE: 'value'
       }
