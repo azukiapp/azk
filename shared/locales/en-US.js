@@ -218,7 +218,17 @@ module.exports = {
     validate           : {
       deprecated : "The `%(option)s` used in `%(system)s` is deprecated, check the documentation for `%(new_option)s`",
       no_system_set: "No system has been set yet, check the documentation",
-    }
+      invalid_option_value: [
+        "Invalid value for `%(option)s`. Value: `%(value)s`.",
+        "Please, change `%(system_name)s` system to a valid `%(option)s` value.",
+        "Check %(docs_url)s for further information.",
+      ].join("\n"),
+      invalid_option_type: [
+        "Error parsing `%(option)s` value. Invalid type. Value: `%(value)s`.",
+        "Please, change `%(system_name)s` system to a valid `%(option)s` type and value.",
+        "Check %(docs_url)s for further information.",
+      ].join("\n"),
+    },
   },
 
   system: {

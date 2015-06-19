@@ -138,8 +138,19 @@ export class System {
     return this.scalable.default !== 0;
   }
 
+  get wait() {
+    if (_.isNumber(this.options.wait)) {
+      var wait = {
+        retry: this.options.wait,
+        timeout: 1000
+      };
+      return wait;
+    }
+    return this.options.wait || {};
+  }
+
   get wait_scale() {
-    var wait = this.options.wait;
+    var wait = this.wait;
     return _.isEmpty(wait) && wait !== false ? true : wait;
   }
 
