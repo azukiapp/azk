@@ -67,10 +67,13 @@ export class Rule extends BaseRule {
 
   getEvidence(path, content) {
     var evidence = super.getEvidence(path, content);
-    var engine = this.getEngineVersion(content);
-    if (engine === 'jruby') {
-      evidence.ruleName = `${engine}-1.7`;
+    if (evidence) {
+      var engine = this.getEngineVersion(content);
+      if (engine === 'jruby') {
+        evidence.ruleName = `${engine}-1.7`;
+      }
     }
+
     return evidence;
   }
 }

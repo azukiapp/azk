@@ -77,7 +77,7 @@ describe('Azk generator tool court veredict:', function() {
     var node = court.rule('node');
     h.expect(node).to.have.property('type', 'runtime');
 
-    var rails = court.rule('rails');
+    var rails = court.rule('ruby_on_rails');
     h.expect(rails).to.have.property('type', 'framework');
   });
 
@@ -120,7 +120,7 @@ describe('Azk generator tool court veredict:', function() {
 
       h.expect(filteredEvidences[0][0]).to.have.property('ruleName', 'node012');
       h.expect(filteredEvidences[1][0]).to.have.property('ruleName', 'postgres93');
-      h.expect(filteredEvidences[1][1]).to.have.property('ruleName', 'rails');
+      h.expect(filteredEvidences[1][1]).to.have.property('ruleName', 'ruby_on_rails');
     });
   });
 
