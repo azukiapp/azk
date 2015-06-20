@@ -63,12 +63,18 @@ export class BaseRule extends UIProxy {
    */
   getEvidence(path, content) {
     var framework;
+
     if (this.type === 'framework') {
       framework = this.getFrameworkVersion(content);
       if (!framework) { return null; }
     }
 
     var version = this.getVersion(content);
+
+    if (this.type === 'database') {
+      if (!this.checkDatabase(content)) { return null; }
+    }
+
     var evidence = {
       fullpath: path,
       ruleType: this.type,
@@ -83,6 +89,7 @@ export class BaseRule extends UIProxy {
 
   getVersion(/*content*/) { return; }
   getFrameworkVersion(/*content*/) { return; }
+  checkDatabase(/*content*/) { return; }
 
   /**
    * Find `ruleName` in `version_rules` by `version`

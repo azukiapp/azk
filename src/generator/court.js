@@ -257,7 +257,7 @@ export class Court extends UIProxy {
         } else if ( evidence_suggestion.ruleType === 'database') {
           systemName = evidence_suggestion.name;
         }
-        var suggestion     = evidence_suggestion.suggestionChoosen.suggestion;
+        var suggestion = evidence_suggestion.suggestionChoosen.suggestion;
         suggestion.name = systemName;
       }, this);
 
