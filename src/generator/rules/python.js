@@ -20,19 +20,11 @@ export class Rule extends BaseRule {
   }
 
   getVersion(content) {
-    var pythonVersion = null;
-
     // Pyhton Version
     // http://regex101.com/r/hH2uY1/1
-    var pythonVersionRegex = /^python-(\d+\.\d+\.\d+)/gm;
-    var capturePyhtonVersionRegex = pythonVersionRegex.exec(content);
-    var extractedPyhtonVersionRegex = capturePyhtonVersionRegex &&
-                                      capturePyhtonVersionRegex.length >= 1 &&
-                                      capturePyhtonVersionRegex[1];
-    if (extractedPyhtonVersionRegex) {
-      pythonVersion = this.semver.clean(extractedPyhtonVersionRegex);
-    }
-
-    return pythonVersion;
+    var regex   = /^python-(\d+\.\d+\.\d+)/gm;
+    var match   = regex.exec(content);
+    var version = match && match.length >= 1 && match[1];
+    return version && this.semver.clean(version);
   }
 }

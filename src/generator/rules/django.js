@@ -32,18 +32,15 @@ export class Rule extends PythonRule {
 
   getFrameworkVersion(content) {
     // http://regex101.com/r/kI9wQ3/1
-    var gemDjangoRegex = /^\s*Django==(\d+\.\d+(\.\d+)?)\s*$/gm;
+    var regex   = /^\s*Django==(\d+\.\d+(\.\d+)?)\s*$/gm;
+    var match   = regex.exec(content);
+    var version = match && match.length >= 1 && match[1];
+    var last_part = match && match.length >= 2 && match[2];
 
-    var capture = gemDjangoRegex.exec(content);
-    var djangoVersion = capture && capture.length >= 1 && capture[1];
-    if (!djangoVersion) {
-      return false;
-    }
-    var djangoVersionLastPart = capture && capture.length >= 2 && capture[2];
-    if (!djangoVersionLastPart) {
-      djangoVersion = djangoVersion + '.0';
+    if (version && !last_part) {
+      version += '.0';
     }
 
-    return this.semver.clean(djangoVersion);
+    return version && this.semver.clean(version);
   }
 }

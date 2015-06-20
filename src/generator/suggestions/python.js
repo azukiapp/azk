@@ -23,7 +23,7 @@ export class Suggestion extends DefaultSuggestion {
       command : 'python server.py',
       mounts  : {
         "/azk/#{app.dir}"    : {type: 'sync', value: '.'},
-        '/azk/pythonuserbase':  {type: 'persistent', value: 'pythonuserbase'},
+        '/azk/pythonuserbase': {type: 'persistent', value: 'pythonuserbase'},
       },
       envs    : {
         PATH : '/azk/pythonuserbase/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
