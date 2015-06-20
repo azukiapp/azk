@@ -1,117 +1,76 @@
-import { _, isBlank } from 'azk';
 import { BaseRule } from 'azk/generator/rules';
-var semver = require('semver');
-
-// i.e.: ruby "1.8.7", :engine => "jruby", :engine_version => "1.6.7"
-var getVersion = function(content) {
-
-  var rubyVersion, rubyEngine, rubyEngineVersion;
-
-  // Ruby Version
-  // http://regex101.com/r/rO8iA0/3
-  var rubyVersionRegex = /\s*\bruby ['"]?(\d+\.\d+\.\d+)['"]?/gm;
-  var captureRubyVersionRegex = rubyVersionRegex.exec(content);
-  var extractedRubyVersionRegex = captureRubyVersionRegex &&
-                                  captureRubyVersionRegex.length >= 1 &&
-                                  captureRubyVersionRegex[1];
-  if (extractedRubyVersionRegex) {
-    rubyVersion = semver.clean(extractedRubyVersionRegex);
-  }
-
-  // Engine
-  // http://regex101.com/r/rO8iA0/4
-  var engineRegex1 = /\s*:engine\s*\=\>\s*['"](\w+)['"]/gm;
-  var captureEngineRegex1 = engineRegex1.exec(content);
-  var extractedEngineRegex1 = captureEngineRegex1 && captureEngineRegex1.length >= 1 && captureEngineRegex1[1];
-  if (extractedEngineRegex1) {
-    rubyEngine = extractedEngineRegex1;
-  }
-  // http://regex101.com/r/rO8iA0/5
-  var engineRegex2 = /\s*\bruby ['"]?\d+\.\d+\.\d+['"]?\s*\((\w+)/gm;
-  var captureEngineRegex2 = engineRegex2.exec(content);
-  var extractedEngineRegex2 = captureEngineRegex2 && captureEngineRegex2.length >= 1 && captureEngineRegex2[1];
-  if (extractedEngineRegex2) {
-    rubyEngine = extractedEngineRegex2;
-  }
-
-  // Engine Version
-  // http://regex101.com/r/rO8iA0/2
-  var engineVersionRegex1 = /\s*:engine_version\s*\=\>\s*['"](\d+\.\d+\.\d+)['"]/gm;
-  var captureEngineVersionRegex1 = engineVersionRegex1.exec(content);
-  var extractedEngineVersionRegex1 = captureEngineVersionRegex1 &&
-                                     captureEngineVersionRegex1.length >= 1 &&
-                                     captureEngineVersionRegex1[1];
-  if (extractedEngineVersionRegex1) {
-    rubyEngineVersion = semver.clean(extractedEngineVersionRegex1);
-  }
-  // http://regex101.com/r/rO8iA0/6
-  var engineVersionRegex2 = /\s*\bruby ['"]?\d+\.\d+\.\d+['"]?\s*\(\w+\s+(\d+\.\d+\.\d+)/gm;
-  var captureEngineVersionRegex2 = engineVersionRegex2.exec(content);
-  var extractedEngineVersionRegex2 = captureEngineVersionRegex2 &&
-                                     captureEngineVersionRegex2.length >= 1 &&
-                                     captureEngineVersionRegex2[1];
-  if (extractedEngineVersionRegex2) {
-    rubyEngineVersion = semver.clean(extractedEngineVersionRegex2);
-  }
-
-  if (rubyVersion) {
-    return {
-      rubyVersion: rubyVersion,
-      rubyEngine: rubyEngine,
-      rubyEngineVersion: rubyEngineVersion
-    };
-  } else {
-    return null;
-  }
-
-};
+import { _ } from 'azk';
 
 export class Rule extends BaseRule {
   constructor(ui) {
     super(ui);
-    this.type = "runtime";
+    this.type      = "runtime";
+    this.name      = "ruby";
+    this.rule_name = "ruby";
+
+    // Suggest a docker image
+    // http://images.azk.io/#/elixir
+    this.version_rules = {
+      'ruby-1.9': '>=1.9.3 <2.0.0',
+      'ruby-2.0': '>=2.0.0 <2.1.0',
+      'ruby-2.1': '>=2.1.0 <2.2.0',
+      'ruby-2.2': '<1.9.3 || >=2.2.0',
+    };
   }
 
   relevantsFiles () {
     return ['Gemfile'];
   }
 
-  getEvidence(path, content) {
-    var evidence = {
-      fullpath: path,
-      ruleType: 'runtime',
-      name    : 'ruby',
-      ruleName: 'ruby22'
-    };
-
-    var versions = getVersion(content);
-    evidence.version = versions && versions.rubyVersion;
-
-    // cant find node version, will use default node:latest
-    if (isBlank(versions)) {
-      return evidence;
-    }
-
-    // JRuby
-    // https://registry.hub.docker.com/u/library/jruby/
-    if (versions.rubyEngine === 'jruby') {
-      evidence.ruleName = 'jruby17';
-      return evidence;
-    }
-
-    // MRI
-    var versionRules = {
-      'ruby19': '>=1.9.3 <2.0.0',
-      'ruby20': '>=2.0.0 <2.1.0',
-      'ruby21': '>=2.1.0 <2.2.0',
-      'ruby22': '<1.9.3 || >=2.2.0',
-    };
-
-    evidence.ruleName = _.findKey(versionRules, (value) => {
-      return semver.satisfies(evidence.version, value);
-    });
-
-    return evidence;
+  getVersion(content) {
+    // Ruby Version
+    // http://regex101.com/r/rO8iA0/3
+    var regex = /\s*\bruby ['"]?(\d+\.\d+\.\d+)['"]?/gm;
+    var match   = regex.exec(content);
+    var version = match && match.length >= 1 && match[1];
+    return version && this.semver.clean(version);
   }
 
+  getEngineVersion(content) {
+    // Engine and version
+    var regexs = [
+      {
+        // http://regex101.com/r/rO8iA0/4
+        engine: /\s*:engine\s*\=\>\s*['"](\w+)['"]/gm,
+        // http://regex101.com/r/rO8iA0/2
+        version: /\s*:engine_version\s*\=\>\s*['"](\d+\.\d+\.\d+)['"]/gm,
+      }, {
+        // http://regex101.com/r/rO8iA0/5
+        engine: /\s*\bruby ['"]?\d+\.\d+\.\d+['"]?\s*\((\w+)/gm,
+        // http://regex101.com/r/rO8iA0/6
+        version: /\s*\bruby ['"]?\d+\.\d+\.\d+['"]?\s*\(\w+\s+(\d+\.\d+\.\d+)/gm,
+      }
+    ];
+
+    var engines = [];
+    _.map(regexs, (regex) => {
+      // engine
+      var engine_match = regex.engine.exec(content);
+      var name         = engine_match && engine_match.length >= 1 && engine_match[1];
+      if (name) {
+        // version
+        // var version_match = regex.version.exec(content);
+        // var version       = version_match && version_match.length >= 1 && version_match[1];
+        // version = version && this.semver.clean(version);
+        // engines.push({ name, version });
+        engines.push(name);
+      }
+    });
+
+    return _.head(engines);
+  }
+
+  getEvidence(path, content) {
+    var evidence = super.getEvidence(path, content);
+    var engine = this.getEngineVersion(content);
+    if (engine === 'jruby') {
+      evidence.ruleName = `${engine}-1.7`;
+    }
+    return evidence;
+  }
 }

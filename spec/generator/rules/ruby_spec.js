@@ -24,7 +24,7 @@ describe('Azk generators Ruby rule', function() {
     h.expect(evidence).to.have.deep.property('fullpath', gemfilePath);
     h.expect(evidence).to.have.deep.property('ruleType', 'runtime');
     h.expect(evidence).to.have.deep.property('name'    , 'ruby');
-    h.expect(evidence).to.have.deep.property('ruleName', 'ruby19');
+    h.expect(evidence).to.have.deep.property('ruleName', 'ruby-1.9');
     h.expect(evidence).to.have.deep.property('version' , '1.9.3');
 
   });
@@ -36,7 +36,7 @@ describe('Azk generators Ruby rule', function() {
     ].join('\n');
 
     var evidence = rule.getEvidence(gemfilePath, gemfileContent);
-    h.expect(evidence).to.have.deep.property('ruleName', 'ruby22');
+    h.expect(evidence).to.have.deep.property('ruleName', 'ruby');
   });
 
   it('should get latest ruby version when version is too low', () => {
@@ -47,7 +47,7 @@ describe('Azk generators Ruby rule', function() {
     ].join('\n');
 
     var evidence = rule.getEvidence(gemfilePath, gemfileContent);
-    h.expect(evidence).to.have.deep.property('ruleName', 'ruby22');
+    h.expect(evidence).to.have.deep.property('ruleName', 'ruby-2.2');
   });
 
   it('should get 1.9 ruby version when detected', () => {
@@ -58,7 +58,7 @@ describe('Azk generators Ruby rule', function() {
     ].join('\n');
 
     var evidence = rule.getEvidence(gemfilePath, gemfileContent);
-    h.expect(evidence).to.have.deep.property('ruleName', 'ruby19');
+    h.expect(evidence).to.have.deep.property('ruleName', 'ruby-1.9');
   });
 
   it('should get 2.0 ruby version when detected', () => {
@@ -69,7 +69,7 @@ describe('Azk generators Ruby rule', function() {
     ].join('\n');
 
     var evidence = rule.getEvidence(gemfilePath, gemfileContent);
-    h.expect(evidence).to.have.deep.property('ruleName', 'ruby20');
+    h.expect(evidence).to.have.deep.property('ruleName', 'ruby-2.0');
   });
 
   it('should get 2.1 ruby version when detected', () => {
@@ -80,7 +80,7 @@ describe('Azk generators Ruby rule', function() {
     ].join('\n');
 
     var evidence = rule.getEvidence(gemfilePath, gemfileContent);
-    h.expect(evidence).to.have.deep.property('ruleName', 'ruby21');
+    h.expect(evidence).to.have.deep.property('ruleName', 'ruby-2.1');
   });
 
   it('should get 2.2 ruby version when detected', () => {
@@ -91,7 +91,7 @@ describe('Azk generators Ruby rule', function() {
     ].join('\n');
 
     var evidence = rule.getEvidence(gemfilePath, gemfileContent);
-    h.expect(evidence).to.have.deep.property('ruleName', 'ruby22');
+    h.expect(evidence).to.have.deep.property('ruleName', 'ruby-2.2');
   });
 
   it('should get jruby if detected', () => {
@@ -102,7 +102,6 @@ describe('Azk generators Ruby rule', function() {
     ].join('\n');
 
     var evidence = rule.getEvidence(gemfilePath, gemfileContent);
-    h.expect(evidence).to.have.deep.property('ruleName', 'jruby17');
+    h.expect(evidence).to.have.deep.property('ruleName', 'jruby-1.7');
   });
-
 });
