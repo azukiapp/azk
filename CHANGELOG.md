@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## v0.14.3 - (2015-06-19)
+
+* Bug
+  * [Sync] Fixing sync excluded folders based on mount value instead of relative dir of sync;
+  * [Tracking] Updating `insight-keen-io`, which was changed to use `child_process.spaw` instead of `child_process.fork`, ensuring sending the tracker data in background.
+
 ## v0.14.2 - (2015-06-18)
 
 * Bug
