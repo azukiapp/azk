@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## dev
+
+* Bug
+  * [Sync] Fixing sync exclude folders based in mount value instead of relative to dir of sync;
+
 ## v0.14.2 - (2015-06-18)
 
 * Bug

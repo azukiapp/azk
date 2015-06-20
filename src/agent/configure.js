@@ -3,7 +3,7 @@ import { publish } from 'azk/utils/postal';
 import { async, ninvoke, nfcall, thenAll } from 'azk/utils/promises';
 import { config, set_config } from 'azk';
 import { UIProxy } from 'azk/cli/ui';
-import { AzkError, OSNotSupported, DependencyError } from 'azk/utils/errors';
+import { OSNotSupported, DependencyError } from 'azk/utils/errors';
 import { net, envDefaultArray } from 'azk/utils';
 import Azk from 'azk';
 
