@@ -129,20 +129,10 @@ export class Court extends UIProxy {
   }
 
   _searchFile(dir, file_name) {
-    var patterns = [
-      path.join(dir, file_name),
-      path.join(dir, '*', file_name),
-    ];
+    var pattern = path.join(dir, file_name);
 
-    var files = _.reduce(patterns, (files, pattern, ix) => {
-      if (!(ix >= 1 && files.length > 0)) {
-        var file = glob.sync(pattern);
-        files = files.concat(file);
-      }
-      return files;
-    }, []);
-
-    return _.map(files, (file) => { return file; });
+    var files = glob.sync(pattern);
+    return _.filter(files, (file) => !_.isEmpty(file));
   }
 
   _investigate(dir) {
@@ -159,8 +149,12 @@ export class Court extends UIProxy {
       filesToSearch = _.flatten(filesToSearch);
       log.debug('Court._investigate', { filesToSearch });
 
-      // relevant files in the project folders
+      // relevant files in the project folder
       projectFiles = this._relevantProjectFiles(dir, filesToSearch);
+      // search in project subfolders if projectFiles is empty
+      if (_.isEmpty(projectFiles)) {
+        projectFiles = this._relevantProjectFiles(path.join(dir, '*'), filesToSearch);
+      }
 
       projectFiles = _.flatten(projectFiles);
       projectFiles = _.union(projectFiles);
@@ -366,9 +360,10 @@ export class Court extends UIProxy {
 
   judge(dir) {
     this.__root_folder = dir;
-    return this._investigate(dir).then(function () {
-      this._analysis();
-      this._veredict();
-    }.bind(this));
+    return this._investigate(dir)
+      .then(function () {
+        this._analysis();
+        this._veredict();
+      }.bind(this));
   }
 }

@@ -69,8 +69,17 @@ describe('Azk generator tool court veredict:', function() {
     // Asks rule about which files to lookup
     var relevantFiles = court.relevantsFiles();
     var relevantProjectFiles = court._relevantProjectFiles(rootFullPath, relevantFiles);
+    h.expect(relevantProjectFiles.length).to.equal(0);
 
-    h.expect(relevantProjectFiles.length).to.equal(2);
+    var relevantProjectSubFiles = court._relevantProjectFiles(path.join(rootFullPath, '*'), relevantFiles);
+    h.expect(relevantProjectSubFiles.length).to.equal(2);
+  });
+
+  it('should find relevant files on front project folder', function() {
+    // Asks rule about which files to lookup
+    var relevantFiles = court.relevantsFiles();
+    var relevantProjectFiles = court._relevantProjectFiles(path.join(rootFullPath, 'front'), relevantFiles);
+    h.expect(relevantProjectFiles.length).to.equal(1);
   });
 
   it('should load rules when calling court.rule()', function() {
