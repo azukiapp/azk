@@ -1,53 +1,34 @@
 import { log } from 'azk';
-import { BaseRule } from 'azk/generator/rules';
-var semver = require('semver');
-
-var getVersion = function(path, content) {
-  var parsedJson;
-  try {
-    parsedJson = JSON.parse(content);
-  } catch (err) {
-    log.error('JSON.parse error [', path, ']', err.stack || err);
-  }
-
-  if (parsedJson &&
-      parsedJson.require &&
-      parsedJson.require['laravel/framework']) {
-    // remove garbage
-    var versionCleaned = parsedJson.require['laravel/framework'];
-    // strip non valid chars
-    versionCleaned = versionCleaned.replace(/[^*.\d]/g, "");
-    // * -> 0
-    versionCleaned = versionCleaned.replace(/\*/g, "0");
-    return semver.clean(versionCleaned);
-  }
-
-  return null;
-};
+import { Rule as BaseRule } from 'azk/generator/rules/php_composer';
 
 export class Rule extends BaseRule {
   constructor(ui) {
     super(ui);
-    this.type = 'framework';
+    this.type      = "framework";
+    this.name      = "php_laravel";
+    this.rule_name = "php_laravel";
+    this.replaces  = ['php', 'php_composer', 'node'];
+
+    // Suggest a docker image
+    // http://images.azk.io/#/php-fpm
+    this.version_rules = {};
   }
 
-  relevantsFiles() {
-    return ['composer.json'];
+  getFrameworkVersion(content) {
+    var parsedJson, version;
+    try {
+      parsedJson = JSON.parse(content);
+    } catch (err) {
+      log.error('JSON.parse error', err.stack || err);
+    }
+    // remove garbage
+    version = parsedJson && parsedJson.require && parsedJson.require['laravel/framework'];
+    if (version) {
+      // strip non valid chars
+      version = version.replace(/[^*.\d]/g, "");
+      // * -> 0
+      version = version.replace(/\*/g, "0");
+    }
+    return version && this.semver.clean(version);
   }
-
-  getEvidence(path, content) {
-    var evidence = {
-      fullpath: path,
-      ruleType: 'framework',
-      name    : 'phplaravel',
-      ruleName: 'phplaravel',
-      replaces: ['php', 'node', 'phpcomposer']
-    };
-
-    var laravelVersion = getVersion(path, content);
-    evidence.version = laravelVersion;
-
-    return evidence;
-  }
-
 }
