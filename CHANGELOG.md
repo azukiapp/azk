@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## dev
+
+* Bug
+  * [Suggesting] Fixed `Court` investigates subfolder even when finding files on the root.
+
+* Enhancements
+  * [Suggesting] Adding support to use `app.dir` in templates.
+  * [Suggesting] Refactored suggestions for cleaner code.
+
 ## v0.14.3 - (2015-06-19)
 
 * Bug
