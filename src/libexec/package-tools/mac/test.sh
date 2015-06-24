@@ -11,6 +11,8 @@ SHA256=$(shasum -a 256 shasum -a 256 "package/brew/azk_${VERSION}.tar.gz" | awk 
 
 AZK_AGENT_LOG_FILE='/tmp/azk-agent-start.log'
 
+[[ $# == 2 ]] && TEST_DIR=$2;
+
 start_agent() {
   bazk agent start --no-daemon > $AZK_AGENT_LOG_FILE 2>&1 &
   AGENT_PID="$!"
@@ -29,7 +31,7 @@ setup_test() {
   start_agent
 
   if [[ $RUN_TEST_APP == true ]]; then
-    cd /azk/test
+    cd $TEST_DIR
     rm -Rf Azkfile.js .azk/
     bazk init
     ls Azkfile.js > /dev/null 2>&1
@@ -103,10 +105,13 @@ else
   exit 3
 fi
 
-set -e
-
-setup_test
-run_test
-tear_down
+if [[ ! -z $TEST_DIR ]]; then
+  (
+    set -e
+    setup_test
+    run_test
+    tear_down
+  )
+fi
 
 exit 0
