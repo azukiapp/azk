@@ -240,7 +240,7 @@ if [[ $BUILD_DEB == true ]]; then
   (
     set -e
 
-    step_run "Cleaning current aptly repo" azk shell package -c "rm -Rf /azk/aptly/*"
+    [[ ! -z CLEAN_REPO ]] && step_run "Cleaning current aptly repo" azk shell package -c "rm -Rf /azk/aptly/*"
     [[ ! -z CLEAN_REPO ]] && step_run "Cleaning environment" rm -Rf package/deb package/public
 
     step_run "Downloading libnss-resolver" \
