@@ -1,31 +1,41 @@
 ## wait
 
-Sets the number and the time between each attempt to connect to the port to be available by the system. If there is no response by the container, a _timeout_ error is triggered.
+Represents total time to wait connection until port be available by the system container.
+If there is no response by the container, a _timeout_ error is triggered.
 
 #### Usage:
 
 ```js
-wait: [ATTEMPT_NUM],
-// or
-wait: { retry: [ATTEMPT_NUM], timeout: [TIME_BETWEEN_ATTEMPTS_IN_MILLISECONDS] },
+wait: [MAX_TIMEOUT],
+```
+
+##### Deprecation warning
+
+The old way to set `wait` option will now only multiply retry and timeout.
+
+```js
+// will be deprecated
+wait: { retry: [RETRY_ATTEMPTS], timeout: [TIME_IN_MILLISECONDS] },
 ```
 
 ##### Examples:
 
-20 attempts with a 1 second interval between them:
+Will try to connect for 20 seconds:
 
 ```js
 wait: 20,
 ```
 
-10 attempts with a 2 second interval between them:
+Will try to connect for 20 seconds:
 
 ```js
+// will be deprecated
 wait: { retry: 10, timeout: 2000 },
 ```
 
-20 attempts with a 1 second interval between them:
+Will try to connect for 20 seconds:
 
 ```js
+// will be deprecated
 wait: { retry: 20, timeout: 1000 },
 ```

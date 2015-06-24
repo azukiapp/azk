@@ -1,11 +1,11 @@
 require('colors');
 
-var version = "Shows azk version";
-var verbose = "Sets the level of detail";
-var quiet   = "Never prompt";
-//var systems_options = "Targets systems of action";
-var rebuild     = "Force the rebuild, or pull image and reprovision before starting an instance";
-var reprovision = "Force the provisioning actions before starting an instance";
+// var version = "Shows azk version";
+// var verbose = "Sets the level of detail";
+// var quiet   = "Never prompt";
+// //var systems_options = "Targets systems of action";
+// var rebuild     = "Force the rebuild, or pull image and reprovision before starting an instance";
+// var reprovision = "Force the provisioning actions before starting an instance";
 
 // jscs:disable maximumLineLength
 module.exports = {

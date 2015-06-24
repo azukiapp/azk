@@ -259,7 +259,7 @@ var Run = {
 
       // Wait for available
       var wait_opts = {
-        timeout: timeout,
+        timeout: retry * timeout,
         context: `${system.name}_connect`,
         retry_if: () => {
           return container.inspect().then((data) => {
@@ -274,7 +274,7 @@ var Run = {
       }));
 
       var address = `tcp://${host}:${port_data.port}`;
-      var running = yield net.waitService(address, retry, wait_opts);
+      var running = yield net.waitService(address, wait_opts);
 
       if (!running) {
         var data = yield container.inspect();

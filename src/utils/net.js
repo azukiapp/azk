@@ -19,6 +19,7 @@ var lazy = lazy_require({
 
 var portrange = config("agent:portrange_start");
 var cache_key = "agent:dns:file_cache";
+var nodeRetry     = require('retry');
 
 var net = {
   getPort(host = 'localhost') {
@@ -179,12 +180,21 @@ var net = {
     });
   },
 
-  waitService(uri, retry = 15, opts = {}) {
+  waitService(uri, opts = {}) {
     opts = _.defaults(opts, {
       timeout: 10000,
       retry_if: () => { return promiseResolve(true); },
       publish_retry: true,
+      nodeRetry_opts: {
+        retries: 100,
+        factor: 1.2,
+        minTimeout: 75,
+        maxTimeout: 5000,
+        randomize: true,
+      }
     });
+
+    var timeoutsArray = nodeRetry.timeouts(opts.nodeRetry_opts);
 
     // Parse options to try connect
     var address = url.parse(uri);
@@ -199,7 +209,7 @@ var net = {
 
     return defer((resolve) => {
       var client   = null;
-      var attempts = 1, max = retry;
+      var attempts = 1, max = opts.nodeRetry_opts.retries;
       var connect  = () => {
         var t = null;
 
@@ -226,12 +236,16 @@ var net = {
             attempts += 1;
             connect();
           }, () => resolve(false));
-        }, opts.timeout);
+        }, timeoutsArray[attempts - 1]);
 
         // Ignore connect error
         client.on('error', () => { return false; });
       };
       connect();
+    })
+    .timeout(opts.timeout)
+    .catch(function () {
+      return promiseResolve(false);
     });
   },
 
