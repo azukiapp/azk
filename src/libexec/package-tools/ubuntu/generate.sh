@@ -37,12 +37,13 @@ gpg --import $SECRET_KEY
 (
   set +e
   aptly publish drop ${DISTRO}
-  aptly snapshot drop ${REPO}-${VERSION}
-  [[ $CLEAN_REPO == true ]] && aptly repo drop ${REPO}
+  if [[ $CLEAN_REPO == true ]]; then
+    aptly repo drop ${REPO}
+    aptly repo create -distribution=${DISTRO} -component=main ${REPO}
+  fi
 ) || true
 
 # Publish a new release
-aptly repo create -distribution=${DISTRO} -component=main ${REPO}
 aptly repo add -force-replace=true ${REPO} package/deb/azk*.deb package/deb/${DISTRO}-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb
 aptly repo show -with-packages ${REPO} | grep "azk${PKG_SUFFIX}_${VERSION}_amd64"
 aptly repo show -with-packages ${REPO} | grep "libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64"
