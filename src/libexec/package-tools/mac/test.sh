@@ -4,71 +4,47 @@ set -x
 
 export VERSION=$( azk version | awk '{ print $2 }' )
 
-alias bazk='/usr/local/bin/azk'
-
 BASE_DIR=$( pwd )
 SHA256=$(shasum -a 256 shasum -a 256 "package/brew/azk_${VERSION}.tar.gz" | awk '{print $1}')
 
 AZK_AGENT_LOG_FILE='/tmp/azk-agent-start.log'
 
-[[ $# == 2 ]] && TEST_DIR=$2;
+[[ $# == 1 ]] && TEST_DIR=$1;
 
-start_agent() {
-  bazk agent start --no-daemon > $AZK_AGENT_LOG_FILE 2>&1 &
-  AGENT_PID="$!"
-  tail -F $AZK_AGENT_LOG_FILE &
-  TAIL_PID="$!"
-  until tail -1 $AZK_AGENT_LOG_FILE | grep -q 'Agent has been successfully started.'; do
-    sleep 2;
-    kill -0 ${AGENT_PID} || exit 3;
-  done
-
-  kill -9 $TAIL_PID > /dev/null 2>&1
+bazk() {
+  /usr/local/bin/azk $@
 }
 
 setup_test() {
   set -e
-  start_agent
 
-  if [[ $RUN_TEST_APP == true ]]; then
-    cd $TEST_DIR
-    rm -Rf Azkfile.js .azk/
-    bazk init
-    ls Azkfile.js > /dev/null 2>&1
-    bazk start --reprovision
-  fi
+  cd $TEST_DIR
+  rm -Rf Azkfile.js .azk/
+  bazk init
+  ls Azkfile.js > /dev/null 2>&1
+  bazk start --reprovision
 }
 
 run_test() {
   set -e
-  DETECTED_VERSION=$( bazk --version )
 
-  if [[ "${DETECTED_VERSION}" != "azk ${VERSION}" ]]; then
-    echo "Version check failed."
-    echo "Detected: ${DETECTED_VERSION}"
-    echo "Expected: azk ${VERSION}"
-    fail 4
-  else
-    echo "Version is ok!"
-  fi
-
-  if [[ $RUN_TEST_APP = true ]]; then
-    TEST_URL=$( bazk status --text | tail -1 | awk '{print $3}' | sed -r "s:\x1B\[[0-9;]*[mK]::g" )
-    RESULT=$( curl -sI $TEST_URL | head -1 | sed s/\\r//g)
-    echo "GET ${TEST_URL}"
-    echo "${RESULT}"
-    if [[ "$RESULT" != "HTTP/1.1 200 OK" ]]; then
-      fail 5
-    fi
+  TEST_URL=$( bazk status --text | tail -1 | awk '{print $3}' | tr -d '[:cntrl:]' | sed "s:\[[0-9;]*[mK]::g" )
+  RESULT=$( curl -sI $TEST_URL | head -1 | sed s/\\r//g | tr -d '[:cntrl:]' )
+  echo "GET ${TEST_URL}"
+  echo "${RESULT}"
+  if [[ "${RESULT}" != "HTTP/1.1 200 OK" ]]; then
+    fail 5
   fi
 }
 
 tear_down() {
-  if [[ $RUN_TEST_APP == true ]]; then
-    azk stop
-    rm -Rf Azkfile.js .azk/
-  fi
-  bazk agent stop
+  azk stop
+  rm -Rf Azkfile.js .azk/
+}
+
+fail() {
+  tear_down
+  exit $@
 }
 
 RELEASE_CHANNEL=$( echo "${VERSION}" | sed s/[^\\-]*// | sed s/^\\-// | sed s/\\..*// )

@@ -80,8 +80,8 @@ run_test() {
   fi
 
   if [[ $RUN_TEST_APP = true ]]; then
-    TEST_URL=$( azk status --text | tail -1 | awk '{print $3}' | sed -r "s:\x1B\[[0-9;]*[mK]::g" )
-    RESULT=$( curl -sI $TEST_URL | head -1 | sed s/\\r//g)
+    TEST_URL=$( azk status --text | tail -1 | awk '{print $3}' | tr -d '[:cntrl:]' | sed "s:\[[0-9;]*[mK]::g" )
+    RESULT=$( curl -sI $TEST_URL | head -1 | sed s/\\r//g | tr -d '[:cntrl:]' )
     echo "GET ${TEST_URL}"
     echo "${RESULT}"
     if [[ "$RESULT" != "HTTP/1.1 200 OK" ]]; then
