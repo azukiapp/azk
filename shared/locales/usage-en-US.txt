@@ -11,7 +11,7 @@ Usage:
   azk restart [<system>] [--reprovision --rebuild --open --open-with <app> -q -h -l <level>] [-v]...
   azk scale [<system>] [<to>] [--no-remove -q -h -l <level>] [-v]...
   azk shell [<system>] [--command <cmd> --cwd <dir> --image <name> --shell <bin> --rebuild --no-remove --silent --tty --no-tty -q -h -l <level>] [-m <mounts> -e <data> -v]... [-- <shell-args>...]
-  azk start [<system>] [--reprovision --rebuild --open --open-with <app> -q -h -l <level>] [-v]...
+  azk start [<system> | <git-repo-url#ref> | <github-user/repo#ref> ] [--reprovision --rebuild --open --open-with <app> -q -h -l <level>] [--ref [<branch> | <tag> | <commit>]] [-v]...
   azk status [<system>] [--long --short --text -q -h -l <level>] [-v]...
   azk stop [<system>] [--no-remove -q -h -l <level>] [-v]...
   azk vm (ssh|start|status|installed|stop|remove) [--force -q -h -l <level>] [-v]... [-- <ssh-args>...]
@@ -54,6 +54,7 @@ Arguments:
   ssh-args                  Options and arguments to be passed to VM over ssh.
   shell-args                Options and arguments to be passed to the system.
   system                    System name where the action will take place.
+  git-repo                  Github URL to clone and start
   to                        Number of available instances after scaling.
 
 Options:
@@ -86,6 +87,7 @@ Options:
   --tty, -t                 Forces pseudo-tty allocation.
   --text                    Shows output in plain text mode.
   --verbose, -v             Sets the level of detail - multiple supported (-vv == --verbose 2) [default: 0].
+  --ref                     Git branch, tag or commit to clone
   --silent                  Prevents any log message about command execution. It's useful when using the `-c` option and the output is used as input to another command using the pipe `|` operator.
   --version                 Shows azk version.
 
@@ -99,3 +101,11 @@ Examples:
   azk docker -- ps
   azk status [system_name]
   azk scale [system_name] 2
+  azk start [system_name] -R                           # starts a system and reprovision
+  azk start git@github.com:azukiapp/azkdemo.git        # clone and start (SSH)
+  azk start https://github.com/azukiapp/azkdemo        # clone and start (https)
+  azk start https://github.com/azukiapp/azkdemo#master # clone master
+  azk start azukiapp/azkdemo                           # clone and start (short)
+  azk start azukiapp/azkdemo --ref master              # branch master
+  azk start azukiapp/azkdemo --ref 0.0.1               # tag 0.0.1
+  azk start azukiapp/azkdemo --ref 880d01a             # commit 880d01a
