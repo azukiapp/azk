@@ -10,7 +10,6 @@ describe('Validate manifest option - wait:', function () {
     return h.mockManifestWithContent(manifest_content).then((mf) => {
       var err = mf.validate();
       h.expect(err).to.instanceof(Array);
-      h.expect(err).to.length(0);
     });
   };
 
@@ -42,6 +41,29 @@ describe('Validate manifest option - wait:', function () {
           wait: { retry: 10, timeout: 2000 },
         });
       `);
+    });
+
+    it("should deprecate use of wait", function() {
+      var content = `
+        system('system1', {
+          image: { docker: "any" },
+          wait: { retry: 10, timeout: 2000 },
+        });
+      `;
+
+      return h.mockManifestWithContent(content).then((mf) => {
+        var valid_errors = mf.validate();
+
+        h.expect(valid_errors).to.instanceof(Array);
+        h.expect(valid_errors).to.length(1);
+
+        h.expect(valid_errors[0]).to.have.property("key", "deprecated");
+        h.expect(valid_errors[0]).to.have.property("option", "wait");
+        h.expect(valid_errors[0]).to.have.property("new_option", "wait");
+        h.expect(valid_errors[0]).to.have.property("manifest").and.eql(mf);
+        h.expect(valid_errors[0]).to.have.property("level", "deprecate");
+        h.expect(valid_errors[0]).to.have.property("system", "system1");
+      });
     });
 
   });

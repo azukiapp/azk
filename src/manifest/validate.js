@@ -129,6 +129,12 @@ export class Validate {
         }
       }
 
+      if (_.isObject(system.options.wait)) {
+        return errors.concat(
+          this._deprecate((system.image || {}), manifest, system.name, 'wait', 'wait')
+        );
+      }
+
       return errors;
     }, []);
   }
