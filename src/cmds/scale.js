@@ -4,6 +4,7 @@ import { _, log, t, lazy_require } from 'azk';
 import { subscribe } from 'azk/utils/postal';
 import { async } from 'azk/utils/promises';
 import { AzkError } from 'azk/utils/errors';
+import { matchFirstRegex } from 'azk/utils/regex_helper';
 
 var lazy = lazy_require({
   Manifest: ['azk/manifest'],
@@ -13,6 +14,14 @@ var lazy = lazy_require({
 class Scale extends CliTrackerController {
   index(opts) {
     return async(this, function* () {
+
+      var parse_result = this._parseOptions(opts);
+
+      if (this.just_parse && parse_result) {
+        // FIXME: find a way to test this without return
+        return parse_result;
+      }
+
       yield Helpers.requireAgent(this.ui);
 
       var manifest = new lazy.Manifest(this.cwd, true);
@@ -51,6 +60,50 @@ class Scale extends CliTrackerController {
         this.ui.fail(err.toString());
       }
     }.bind(this));
+  }
+
+  _parseOptions(opts) {
+    var is_start = opts.start;
+    var system_name = opts.system;
+    var git_repo = opts['git-repo'];
+    var git_ref = opts['git-ref'];
+
+    if (!is_start) {
+      return false;
+    }
+
+    if (system_name) {
+      var valid_system_name = system_name.match(/^[a-zA-Z0-9-]+$/);
+      if (!valid_system_name) {
+        git_repo = system_name;
+      }
+    }
+
+    // https://regex101.com/r/wG9dS2/1
+    // parsing git_repo
+    var match = matchFirstRegex(git_repo, /^(.*?)(#(.*))?$/g);
+    git_repo = match[1];
+    var git_repo_ref = match[3];
+    if (!git_repo_ref && !git_ref) {
+      git_ref = 'master';
+    } else if (git_repo_ref && !git_ref) {
+      git_ref = git_repo_ref;
+    }
+
+    // prepare URL
+    match = matchFirstRegex(git_repo, /^(\w+?)\/(\w+)$/g);
+    if (match) {
+      git_repo = `git@github.com:${match[1]}/${match[2]}.git`
+    }
+
+    var parse_result = {
+      url: git_repo,
+      branch: git_ref,
+      commit: null,
+      tag: null,
+    };
+
+    return parse_result;
   }
 
   scale(manifest, systems, opts) {
