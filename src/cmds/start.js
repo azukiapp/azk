@@ -63,6 +63,7 @@ class Start extends Scale {
 
   start(manifest, systems, opts) {
     return async(this, function* () {
+      this._parseOptions(manifest, systems, opts);
       var result = yield this._scale(systems, 'start', opts);
 
       // if flag --open
@@ -105,6 +106,23 @@ class Start extends Scale {
         .stop(manifest, systems, opts)
         .then(() => { return error.code ? error.code : 127; });
     });
+  }
+
+  _parseOptions(manifest, systems, opts) {
+    // has system and system exists
+    var system;
+    var system_name = opts.system && opts.system.split(',');
+    system_name = _.head(system_name || []);
+    if (system_name) {
+      system = _.head(_.filter(systems, (s) => s.name === system_name));
+    }
+    /**/console.log('\n>>---------\n system:\n', system, '\n>>---------\n');/*-debug-*/
+
+    //   - scale
+    // has system and system not exists
+    //   - verify git regex
+    /**/console.log('\n>>---------\n START: _parseOptions:\n',/*-debug-*/
+    /**/  require('util').inspect(opts, { showHidden: false, depth: null, colors: true }), '\n>>---------\n');/*-debug-*/
   }
 
   stop(manifest, systems, opts) {

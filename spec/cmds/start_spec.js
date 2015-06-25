@@ -26,4 +26,16 @@ describe('Azk cli, start controller', function() {
       h.expect(outputs[0]).to.match(RegExp('starting `example`...', 'gi'));
     });
   });
+
+  it("should accept git-repo argument", function() {
+    doc_opts.argv = ['start', 'git@github.com:azukiapp/azkdemo.git', '--git-ref', 'master'];
+    var options = cli.router.cleanParams(cli.docopt(doc_opts));
+    return cli.run(doc_opts, run_options).then((code) => {
+      h.expect(code).to.equal(0);
+      h.expect(options).to.have.property('start', true);
+      h.expect(options).to.have.property('git-repo', 'git@github.com:azukiapp/azkdemo.git');
+      h.expect(options).to.have.property('git-ref', 'master');
+    });
+  });
+
 });
