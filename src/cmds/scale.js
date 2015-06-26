@@ -1,3 +1,4 @@
+
 import { CliTrackerController } from 'azk/cli/cli_tracker_controller';
 import { Helpers } from 'azk/cli/helpers';
 import { _, log, t, lazy_require } from 'azk';
@@ -9,6 +10,7 @@ import { matchFirstRegex } from 'azk/utils/regex_helper';
 var lazy = lazy_require({
   Manifest: ['azk/manifest'],
   Status  : 'azk/cmds/status',
+  GetProject: ['azk/manifest/get_project'],
 });
 
 class Scale extends CliTrackerController {
@@ -16,11 +18,18 @@ class Scale extends CliTrackerController {
     return async(this, function* () {
 
       var parse_result = this._parseOptions(opts);
-
       if (this.just_parse && parse_result) {
         // FIXME: find a way to test this without return
         return parse_result;
       }
+      if (this.name === "start") {
+        if (lazy.GetProject.valid(opts.system)) {
+          var getter = new lazy.GetProject(this.ui);
+          this.cwd = yield getter.run(opts.system, opts);
+          opts.system = null;
+        }
+      }
+
 
       yield Helpers.requireAgent(this.ui);
 
@@ -75,7 +84,15 @@ class Scale extends CliTrackerController {
     if (system_name) {
       var valid_system_name = system_name.match(/^[a-zA-Z0-9-]+$/);
       if (!valid_system_name) {
+        // invalid system name, must be a git repository link
         git_repo = system_name;
+      } else {
+        // must be a system name, continue to scale process
+        return {
+          git_url: null,
+          git_branch_tag_commit: null,
+          git_destination_path: null,
+        };
       }
     }
 
@@ -93,14 +110,17 @@ class Scale extends CliTrackerController {
     // prepare URL
     match = matchFirstRegex(git_repo, /^(\w+?)\/(\w+)$/g);
     if (match) {
-      git_repo = `git@github.com:${match[1]}/${match[2]}.git`
+      git_repo = `https://github.com/${match[1]}/${match[2]}.git`;
     }
 
+    var git_dest_path = opts['dest-path'];
+    // var git_clone = `git clone ${git_repo} --branch ${git_ref}
+    // --single-branch --depth 1 ${git_dest_path}`;
+
     var parse_result = {
-      url: git_repo,
-      branch: git_ref,
-      commit: null,
-      tag: null,
+      git_url: git_repo,
+      git_branch_tag_commit: git_ref,
+      git_destination_path: git_dest_path,
     };
 
     return parse_result;

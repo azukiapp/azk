@@ -21,7 +21,7 @@ describe('Azk cli, start controller', function() {
     var options = cli.router.cleanParams(cli.docopt(doc_opts));
     return cli.run(doc_opts, run_options).then((code) => {
       h.expect(code).to.equal(0);
-      h.expect(options).to.have.property('start', true);
+      h.expect(options).to.have.property('start',  true);
       h.expect(options).to.have.property('system', 'example');
       h.expect(outputs[0]).to.match(RegExp('starting `example`...', 'gi'));
     });
@@ -39,10 +39,10 @@ describe('Azk cli, start controller', function() {
 
       cli.router.cleanParams(cli.docopt(doc_opts));
       return cli.run(doc_opts, run_options).then((parsed_options) => {
-        h.expect(parsed_options).to.have.property('url',    'git@github.com:azukiapp/azkdemo.git');
-        h.expect(parsed_options).to.have.property('branch', 'master');
-        h.expect(parsed_options).to.have.property('commit', null);
-        h.expect(parsed_options).to.have.property('tag',    null);
+        h.expect(parsed_options).to.have.property('git_url',
+                                                  'git@github.com:azukiapp/azkdemo.git');
+        h.expect(parsed_options).to.have.property('git_branch_tag_commit',
+                                                  'master');
       });
     });
 
@@ -52,10 +52,10 @@ describe('Azk cli, start controller', function() {
 
       cli.router.cleanParams(cli.docopt(doc_opts));
       return cli.run(doc_opts, run_options).then((parsed_options) => {
-        h.expect(parsed_options).to.have.property('url',    'git@github.com:azukiapp/azkdemo.git');
-        h.expect(parsed_options).to.have.property('branch', 'master');
-        h.expect(parsed_options).to.have.property('commit', null);
-        h.expect(parsed_options).to.have.property('tag',    null);
+        h.expect(parsed_options).to.have.property('git_url',
+                                                  'git@github.com:azukiapp/azkdemo.git');
+        h.expect(parsed_options).to.have.property('git_branch_tag_commit',
+                                                  'master');
       });
     });
 
@@ -64,10 +64,10 @@ describe('Azk cli, start controller', function() {
 
       cli.router.cleanParams(cli.docopt(doc_opts));
       return cli.run(doc_opts, run_options).then((parsed_options) => {
-        h.expect(parsed_options).to.have.property('url',    'git@github.com:azukiapp/azkdemo.git');
-        h.expect(parsed_options).to.have.property('branch', 'dev');
-        h.expect(parsed_options).to.have.property('commit', null);
-        h.expect(parsed_options).to.have.property('tag',    null);
+        h.expect(parsed_options).to.have.property('git_url',
+                                                  'git@github.com:azukiapp/azkdemo.git');
+        h.expect(parsed_options).to.have.property('git_branch_tag_commit',
+                                                  'dev');
       });
     });
 
@@ -77,10 +77,10 @@ describe('Azk cli, start controller', function() {
 
       cli.router.cleanParams(cli.docopt(doc_opts));
       return cli.run(doc_opts, run_options).then((parsed_options) => {
-        h.expect(parsed_options).to.have.property('url',    'git@github.com:azukiapp/azkdemo.git');
-        h.expect(parsed_options).to.have.property('branch', 'dev');
-        h.expect(parsed_options).to.have.property('commit', null);
-        h.expect(parsed_options).to.have.property('tag',    null);
+        h.expect(parsed_options).to.have.property('git_url',
+                                                  'git@github.com:azukiapp/azkdemo.git');
+        h.expect(parsed_options).to.have.property('git_branch_tag_commit',
+                                                  'dev');
       });
     });
 
@@ -90,22 +90,36 @@ describe('Azk cli, start controller', function() {
 
       cli.router.cleanParams(cli.docopt(doc_opts));
       return cli.run(doc_opts, run_options).then((parsed_options) => {
-        h.expect(parsed_options).to.have.property('url',    'git@github.com:azukiapp/azkdemo.git');
-        h.expect(parsed_options).to.have.property('branch', 'dev');
-        h.expect(parsed_options).to.have.property('commit', null);
-        h.expect(parsed_options).to.have.property('tag',    null);
+        h.expect(parsed_options).to.have.property('git_url',
+                                                  'git@github.com:azukiapp/azkdemo.git');
+        h.expect(parsed_options).to.have.property('git_branch_tag_commit',
+                                                  'dev');
       });
     });
 
-    it('should get a full git url with only user/repo', function() {
+    it('should get a full git https url with only user/repo', function() {
       doc_opts.argv = ['start', 'azukiapp/azkdemo'];
 
       cli.router.cleanParams(cli.docopt(doc_opts));
       return cli.run(doc_opts, run_options).then((parsed_options) => {
-        h.expect(parsed_options).to.have.property('url',    'git@github.com:azukiapp/azkdemo.git');
-        h.expect(parsed_options).to.have.property('branch', 'master');
-        h.expect(parsed_options).to.have.property('commit', null);
-        h.expect(parsed_options).to.have.property('tag',    null);
+        h.expect(parsed_options).to.have.property('git_url',
+                                                  'https://github.com/azukiapp/azkdemo.git');
+        h.expect(parsed_options).to.have.property('git_branch_tag_commit',
+                                                  'master');
+      });
+    });
+
+    it('should set destination path', function() {
+      doc_opts.argv = ['start', 'azukiapp/azkdemo', 'DEST_FOLDER'];
+
+      cli.router.cleanParams(cli.docopt(doc_opts));
+      return cli.run(doc_opts, run_options).then((parsed_options) => {
+        h.expect(parsed_options).to.have.property('git_url',
+                                                  'https://github.com/azukiapp/azkdemo.git');
+        h.expect(parsed_options).to.have.property('git_branch_tag_commit',
+                                                  'master');
+        h.expect(parsed_options).to.have.property('git_destination_path',
+                                                  'DEST_FOLDER');
       });
     });
 
