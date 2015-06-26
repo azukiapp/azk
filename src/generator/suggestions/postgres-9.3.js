@@ -24,7 +24,7 @@ export class Suggestion extends UIProxy {
       command: null,
       workdir: null,
       mounts  : {
-        '/var/lib/postgresql' : {type: 'persistent', value: 'postgresql'},
+        '/var/lib/postgresql/data' : {type: 'persistent', value: 'postgresql'},
         '/var/log/postgresql' : {type: 'path', value: './log/postgresql'},
       },
       envs: {
