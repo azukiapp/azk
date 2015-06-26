@@ -16,14 +16,10 @@ class Scale extends CliTrackerController {
     return async(this, function* () {
 
       // check if needs a "git cloning"
-      var parse_result = lazy.GetProject.parseCommandOptions(opts);
-      if (parse_result) {
-        if (this.just_parse) {
-          // FIXME: find a way to test this without return
-          return parse_result;
-        }
+      var command_parse_result = lazy.GetProject.parseCommandOptions(opts);
+      if (command_parse_result) {
         var getter = new lazy.GetProject(this.ui);
-        this.cwd = yield getter.run(opts.system, opts);
+        this.cwd = yield getter.run(command_parse_result);
         opts.system = null;
       }
 

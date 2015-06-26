@@ -14,14 +14,20 @@ export class GetProject extends UIProxy {
     return isValid.test(url);
   }
 
-  parseCommandOptions(opts) {
+  static parseCommandOptions(opts) {
     var is_start = opts.start;
     var system_name = opts.system;
     var git_repo = opts['git-repo'];
     var git_ref = opts['git-ref'];
 
     if (!is_start) {
-      return false;
+      // it's not azk start - continue 'azk scale'
+      return null;
+    }
+
+    if (!system_name && !opts['git-repo']) {
+      // nothing was passed - continue 'azk scale'
+      return null;
     }
 
     if (system_name) {
@@ -30,12 +36,8 @@ export class GetProject extends UIProxy {
         // invalid system name, must be a git repository link
         git_repo = system_name;
       } else {
-        // must be a system name, continue to scale process
-        return {
-          git_url: null,
-          git_branch_tag_commit: null,
-          git_destination_path: null,
-        };
+        // must be a system name - continue 'azk scale'
+        return null;
       }
     }
 
@@ -57,42 +59,37 @@ export class GetProject extends UIProxy {
     }
 
     var git_dest_path = opts['dest-path'];
-    // var git_clone = `git clone ${git_repo} --branch ${git_ref}
-    // --single-branch --depth 1 ${git_dest_path}`;
+    if (!git_dest_path) {
+      var schema = url.parse(git_repo);
+      git_dest_path = path.join("./", path.basename(schema.path).replace(/\.git/, ''));
+    }
 
-    var parse_result = {
+    return {
       git_url: git_repo,
       git_branch_tag_commit: git_ref,
       git_destination_path: git_dest_path,
     };
-
-    return parse_result;
   }
 
-  run(url_target, params) {
+  run(parsed_args) {
     return async(this, function* () {
       try {
-        var dest, target;
-
-        var isUrlRegex = /\b(?:(?:https?|ftp|file|ircs?):\/\/|www\.|ftp\.)[-A-Z0-9+&@#/%=~_|$?!:,.;]*[A-Z0-9+&@#/%=~_|$]/gmi;
-        if (isUrlRegex.test(url_target)) {
-          target = url_target;
+        var dest;
+        if (parsed_args.git_destination_path[0] === "/") {
+          dest = parsed_args.git_destination_path;
         } else {
-          target = "https://github.com/" + url_target;
+          dest = "./" + parsed_args.git_destination_path;
         }
 
-        // Target
-        if (!params.path) {
-          var schema = url.parse(target);
-          dest = path.join("./", path.basename(schema.path));
-        } else {
-          dest = params.path;
-        }
-
-        this.ok(`Cloning ${target} to ${dest[0] == "/" ? dest : "./" + dest } ...`);
-        yield this.clone(target, dest);
-
+        this.ok([
+          `Cloning ${parsed_args.git_url}#${parsed_args.git_branch_tag_commit}`,
+          ` to ${dest} ...`,
+        ].join(''));
+        yield this.clone(parsed_args.git_url,
+                         parsed_args.git_branch_tag_commit,
+                         parsed_args.git_destination_path);
         return dest;
+
       } catch (e) {
         console.error(e.stack);
         throw e;
@@ -100,7 +97,16 @@ export class GetProject extends UIProxy {
     });
   }
 
-  clone(url, dest) {
-    return ninvoke(lazy.Repository, "clone", url, dest);
+  clone(git_url, git_branch_tag_commit, dest_folder) {
+    return ninvoke(lazy.Repository,
+      'clone',
+      git_url,
+      dest_folder,
+      {
+        branch: git_branch_tag_commit,
+        'single-branch': true,
+        'recursive': true,
+        //'depth': 1,
+      });
   }
 }
