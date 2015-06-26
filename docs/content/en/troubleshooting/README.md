@@ -1,10 +1,20 @@
 # Troubleshooting
 
 1. [I can't access any URL *.azk.dev.io](README.html#i-cant-access-any-url-azkdevio)
-2. [I'm experiencing slowness when running an application with azk in my Mac. What might be the cause?](README.html#im-experiencing-slowness-when-running-an-application-with-azk-in-my-mac-what-might-be-the-cause)
-3. [There's no Internet available / I'm not connected to any network. `azk` starts but the browser shows I'm offline. How do I fix it?](README.html#theres-no-internet-available--im-not-connected-to-any-network-azk-starts-but-the-browser-shows-im-offline-how-do-i-fix-it)
 
-#### I can't access any URL *.azk.dev.io
+1. [The `azk start` command is not working](README.html#the-azk-start-command-is-not-working)
+
+1. [I'm experiencing slowness when running an application with azk in my Mac. What might be the cause?](README.html#im-experiencing-slowness-when-running-an-application-with-azk-in-my-mac-what-might-be-the-cause)
+
+1. [There's no Internet available / I'm not connected to any network. `azk` starts but the browser shows I'm offline. How do I fix it?](README.html#theres-no-internet-available--im-not-connected-to-any-network-azk-starts-but-the-browser-shows-im-offline-how-do-i-fix-it)
+
+1. [How can I clean Docker files?](README.html#how-can-i-clean-docker-files)
+
+1. [How can I clean azk persistent files?](README.html#how-can-i-clean-azk-persistent-files)
+
+-------------------------
+
+### I can't access any URL *.azk.dev.io
 
 During the instalation process, azk creates a file inside `/etc/resolver/` called `azk.dev.io`. This file is responsible for resolving every URL in the format *.azk.dev.io. In case this is not working, follow these steps:
 
@@ -45,13 +55,147 @@ During the instalation process, azk creates a file inside `/etc/resolver/` calle
 
 Thanks to [pow](https://github.com/basecamp/pow/wiki/Troubleshooting#dns) for the troubleshooting tips. :)
 
-#### I'm experiencing slowness when running an application with azk in my Mac. What might be the cause?
+
+----------------------------------
+
+### The `azk start` command is not working.
+
+Sometimes was a corrupted database. Sometimes was the application files. The common solutions can vary from a simple restart to a total Docker image cleanup.
+
+Here there are some steps to get your `Azkfile.js` to work again:
+
+#### restart agent
+
+When you restart agent you restart balancer and DNS too.
+
+```sh
+azk agent stop
+azk agent start
+```
+
+#### restart system(s)
+
+Stop and start your system:
+
+```sh
+azk restart <system_name>
+# or
+azk stop  <system_name>
+azk start <system_name>
+```
+
+#### reprovision system(s)
+
+Stop and start your system with 'reprovision'.
+
+```sh
+azk restart -R <system_name>
+# or
+azk stop <system_name>
+azk start -R <system_name>
+```
+
+#### checking logs
+
+Check logs to get more information about errors.
+
+```sh
+azk logs <system_name>
+```
+
+#### execute Azkfile.js `command` on azk shell
+
+Get into azk shell and run your `command: ` Azkfile.js instruction yourself:
+
+```sh
+azk shell <system_name>
+
+# for example in a node.js container you can run:
+$> npm start
+```
+
+#### Azkfile: replace sync by path
+
+Edit your `Azkfile.js` and change `sync mounts` with `path mounts`. The `path` option is slower but is older and more stable.
+
+```js
+// from
+mounts: {
+  '/azk/#{manifest.dir}': sync("."),
+},
+
+// to
+mounts: {
+  '/azk/#{manifest.dir}': path("."),
+},
+```
+
+
+#### Azkfile: clean persistent folders
+
+1) Check persistent folders
+
+```sh
+azk info
+```
+
+2) Remove folders ..../persistent_folders/0x0x0x0x0x0x from systems that is getting errors to start
+
+```sh
+sudo rm -rf ".../persistent_folders/0x0x0x0x0x0x"
+sudo rm -rf ".../persistent_folders/1x1x1x1x1x1x"
+...
+```
+
+3) Restart systems with reprovision
+
+```sh
+azk stop
+azk start -R
+```
+
+#### VM (Mac or Linux + VM) - clean all persistent_folders e sync_folders (caution!)
+
+This will clean all `persistent_folders` and `sync_folders` inside VM.
+All data persisted will be lost forever. Every database persistent data will be lost forever.
+
+```sh
+# caution -- All data persisted will be lost forever
+azk vm ssh -- sudo rm -rf /mnt/sda1/azk
+```
+
+#### Linux - clean all persistent_folders and sync_folders (caution!)
+
+This will clean all `persistent_folders` and `sync_folders`.
+All data persisted will be lost forever. Every database persistent data will be lost forever.
+
+```sh
+# caution -- All data persisted will be lost forever
+sudo rm -rf ~/.azk/data/sync_folders
+sudo rm -rf ~/.azk/data/persistent_folders
+```
+
+#### Dockerfile
+
+Check your Dockerfile. Maybe an `environment variable` is not set.
+
+#### Azkfile.js
+
+Check your `Azkfile.js` against older versions. Worked before? See some examples at http://images.azk.io/. Reade carefully the azk documentation: [Azkfile.js](../azkfilejs/README.html).
+
+Just in case you could not fix your problem to get up your systems you always can get support at Gitter: https://gitter.im/azukiapp/azk/.
+
+-------------------------
+
+### I'm experiencing slowness when running an application with azk in my Mac. What might be the cause?
 
 This is a known issue, caused when you use `path` mount option with your project folder. To solve this, simply change the `path` option to `sync` in your Azkfile.js.
 
 We strongly recommend you to read the [`mounts` section](/en/reference/azkfilejs/mounts.html) of Azkfile.js documentation.
 
-#### There's no Internet available / I'm not connected to any network. `azk` starts but the browser shows I'm offline. How do I fix it?
+-------------------------
+
+### There's no Internet available / I'm not connected to any network. `azk` starts but the browser shows I'm offline. How do I fix it?
 
 This issue is Mac OS X-related only. In Linux-based OSes, `azk` should work either if Internet is available or not.
 
@@ -69,4 +213,100 @@ Just keep in mind to remove that line after you have Internet connection again. 
 
 ```bash
 $ sed '/^.*#azk$/ { N; d; }' /etc/hosts
+```
+
+-------------------------
+
+### How can I clean Docker files?
+
+#### Running Containers
+
+To kill running containers:
+
+```bash
+adocker kill $(adocker ps -q | tr '\r\n' ' '); \
+```
+
+#### Stopped Containers
+
+To delete stopped containers:
+
+```bash
+adocker rm -f $(adocker ps -f status=exited -q | tr '\r\n' ' ')
+```
+
+#### Docker Images
+
+Remove images using filters. In this example the filter is 'azkbuild':
+
+```bash
+adocker rmi $(adocker images | grep "azkbuild" | awk '{print $3}' | tr '\r\n' ' ')
+```
+
+#### Dangling Images
+
+To delete dangling images:
+
+```bash
+adocker rmi $(adocker images -q -f dangling=true | tr '\r\n' ' ')
+```
+
+#### Delete all images
+
+The following command deletes all Docker images downloaded.
+After that in the next execution you will have to download
+all future images.
+
+```bash
+adocker rmi $(adocker images -q)
+```
+
+#### Other tips
+
+The following link has several Docker tips.
+Just be sure to run all commands as `adocker`,
+especially if you are using a virtual machine.
+
+- https://github.com/wsargent/docker-cheat-sheet#tips
+
+----------------------
+
+### How can I clean azk persistent files?
+
+#### VM (Mac or Linux + VM): `persistent_folders` eand`sync_folders` (caution!)
+
+You can erase `persistent_folder` and `sync_folder`.
+Let's check this folders disk usage:
+
+```sh
+azk vm ssh -- du -sh /mnt/sda1/azk/sync_folders
+azk vm ssh -- du -sh /mnt/sda1/azk/persistent_folders
+```
+
+This will delete all files on `persistent_folders` and `sync_folders`.
+You will lose all database persinted data.
+After that you need to run `azk start -R` to reprovision each system.
+
+```sh
+azk vm ssh -- sudo rm -rf /mnt/sda1/azk/sync_folders
+azk vm ssh -- sudo rm -rf /mnt/sda1/azk/persistent_folders
+```
+
+#### Linux: `persistent_folders` and `sync_folders` (caution!)
+
+You can erase `persistent_folder` and `sync_folder`.
+Let's check this folders disk usage:
+
+```sh
+sudo du -hs ~/.azk/data/persistent_folders
+sudo du -hs ~/.azk/data/sync_folders
+```
+
+This will delete all files on `persistent_folders` and `sync_folders`.
+You will lose all database persinted data.
+After that you need to run `azk start -R` to reprovision each system.
+
+```sh
+sudo rm -rf ~/.azk/data/sync_folders
+sudo rm -rf ~/.azk/data/persistent_folders
 ```
