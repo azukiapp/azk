@@ -199,7 +199,7 @@ Verifique como foi montado o Dockerfile que esta usando. Pode existir, por exemp
 #### Azkfile.js
 
 Verifique as versão anteriores do seu `Azkfile.js`. Mudou algo? Antes funcionava?
-Veja os exemplos pelo site http://images.azk.io/. Leia atentamente a documentação do azk: ../azkfilejs/README.html.
+Veja os exemplos pelo site http://images.azk.io/. Leia atentamente a documentação do azk: [Azkfile.js](../azkfilejs/README.html).
 
 
 Caso não esteja conseguindo levantar o seu `Azkfile.js` você sempre pode contar com nossa ajuda pelo https://gitter.im/azukiapp/azk/pt.

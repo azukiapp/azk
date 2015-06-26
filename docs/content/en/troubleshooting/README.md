@@ -181,7 +181,7 @@ Check your Dockerfile. Maybe an `environment variable` is not set.
 
 #### Azkfile.js
 
-Check your `Azkfile.js` against older versions. Worked before? See some examples at http://images.azk.io/. Reade carefully the azk documentation: ../azkfilejs/README.html.
+Check your `Azkfile.js` against older versions. Worked before? See some examples at http://images.azk.io/. Reade carefully the azk documentation: [Azkfile.js](../azkfilejs/README.html).
 
 Just in case you could not fix your problem to get up your systems you always can get support at Gitter: https://gitter.im/azukiapp/azk/.
 
