@@ -27,7 +27,7 @@ describe('Azk generators Node.js rule', function() {
     h.expect(evidence).to.have.deep.property('fullpath', packageJsonfilePath);
     h.expect(evidence).to.have.deep.property('ruleType', 'runtime');
     h.expect(evidence).to.have.deep.property('name'    , 'node');
-    h.expect(evidence).to.have.deep.property('ruleName', 'node012');
+    h.expect(evidence).to.have.deep.property('ruleName', 'node-0.12');
     h.expect(evidence).to.have.deep.property('version' , '0.4.1');
   });
 
@@ -41,7 +41,7 @@ describe('Azk generators Node.js rule', function() {
     ].join('\n');
 
     var evidence = rule.getEvidence(packageJsonfilePath, packageJsonContent);
-    h.expect(evidence).to.have.deep.property('ruleName', 'node012');
+    h.expect(evidence).to.have.deep.property('ruleName', 'node');
   });
 
   it('should get latest node version when version is too low', () => {
@@ -55,7 +55,7 @@ describe('Azk generators Node.js rule', function() {
     ].join('\n');
 
     var evidence = rule.getEvidence(packageJsonfilePath, packageJsonContent);
-    h.expect(evidence).to.have.deep.property('ruleName', 'node012');
+    h.expect(evidence).to.have.deep.property('ruleName', 'node-0.12');
   });
 
   it('should get 0.8 version when required', () => {
@@ -71,7 +71,7 @@ describe('Azk generators Node.js rule', function() {
     ].join('\n');
 
     var evidence = rule.getEvidence(packageJsonfilePath, packageJsonContent);
-    h.expect(evidence).to.have.deep.property('ruleName', 'node08');
+    h.expect(evidence).to.have.deep.property('ruleName', 'node-0.8');
   });
 
   it('should get latest version when version is v0.12', () => {
@@ -87,7 +87,7 @@ describe('Azk generators Node.js rule', function() {
     ].join('\n');
 
     var evidence = rule.getEvidence(packageJsonfilePath, packageJsonContent);
-    h.expect(evidence).to.have.deep.property('ruleName', 'node012');
+    h.expect(evidence).to.have.deep.property('ruleName', 'node-0.12');
   });
 
   it('should get 0.12 version when version is >= v0.11', () => {
@@ -96,14 +96,14 @@ describe('Azk generators Node.js rule', function() {
       '{',
       '  "name": "best-practices",',
       '  "engines": {',
-      '    "node": "v0.11.02"',
+      '    "node": "v0.11.2"',
       '  },',
       '  "author": "Charlie Robbins <charlie@nodejitsu.com>"',
       '}',
     ].join('\n');
 
     var evidence = rule.getEvidence(packageJsonfilePath, packageJsonContent);
-    h.expect(evidence).to.have.deep.property('ruleName', 'node012');
+    h.expect(evidence).to.have.deep.property('ruleName', 'node-0.12');
   });
 
   it('should get 0.12 version when version is >= v0.12', () => {
@@ -112,14 +112,14 @@ describe('Azk generators Node.js rule', function() {
       '{',
       '  "name": "best-practices",',
       '  "engines": {',
-      '    "node": "v0.13.00"',
+      '    "node": "v0.13.0"',
       '  },',
       '  "author": "Charlie Robbins <charlie@nodejitsu.com>"',
       '}',
     ].join('\n');
 
     var evidence = rule.getEvidence(packageJsonfilePath, packageJsonContent);
-    h.expect(evidence).to.have.deep.property('ruleName', 'node012');
+    h.expect(evidence).to.have.deep.property('ruleName', 'node-0.12');
   });
 
   it('should get latest version when version is not found', () => {
@@ -135,7 +135,7 @@ describe('Azk generators Node.js rule', function() {
     ].join('\n');
 
     var evidence = rule.getEvidence(packageJsonfilePath, packageJsonContent);
-    h.expect(evidence).to.have.deep.property('ruleName', 'node012');
+    h.expect(evidence).to.have.deep.property('ruleName', 'node');
   });
 
 });

@@ -63,26 +63,35 @@ export class BaseRule extends UIProxy {
    */
   getEvidence(path, content) {
     var framework;
+
     if (this.type === 'framework') {
       framework = this.getFrameworkVersion(content);
       if (!framework) { return null; }
     }
 
     var version = this.getVersion(content);
+
+    if (this.type === 'database') {
+      if (!this.checkDatabase(content)) { return null; }
+    }
+
+    var ruleFilter = framework && !_.isEmpty(this.version_rules) ? framework : version;
+
     var evidence = {
       fullpath: path,
       ruleType: this.type,
       name    : this.name,
-      ruleName: this.getRuleByVersion(version) || this.rule_name,
-      version : version,
-      replaces: this.replaces,
+      ruleName: this.getRuleByVersion(ruleFilter) || this.rule_name,
+      version,
       framework,
+      replaces: this.replaces,
     };
     return evidence;
   }
 
   getVersion(/*content*/) { return; }
   getFrameworkVersion(/*content*/) { return; }
+  checkDatabase(/*content*/) { return; }
 
   /**
    * Find `ruleName` in `version_rules` by `version`

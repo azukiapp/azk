@@ -129,20 +129,10 @@ export class Court extends UIProxy {
   }
 
   _searchFile(dir, file_name) {
-    var patterns = [
-      path.join(dir, file_name),
-      path.join(dir, '*', file_name),
-    ];
+    var pattern = path.join(dir, file_name);
 
-    var files = _.reduce(patterns, (files, pattern, ix) => {
-      if (!(ix >= 1 && files.length > 0)) {
-        var file = glob.sync(pattern);
-        files = files.concat(file);
-      }
-      return files;
-    }, []);
-
-    return _.map(files, (file) => { return file; });
+    var files = glob.sync(pattern);
+    return _.filter(files, (file) => !_.isEmpty(file));
   }
 
   _investigate(dir) {
@@ -159,8 +149,12 @@ export class Court extends UIProxy {
       filesToSearch = _.flatten(filesToSearch);
       log.debug('Court._investigate', { filesToSearch });
 
-      // relevant files in the project folders
+      // relevant files in the project folder
       projectFiles = this._relevantProjectFiles(dir, filesToSearch);
+      // search in project subfolders if projectFiles is empty
+      if (_.isEmpty(projectFiles)) {
+        projectFiles = this._relevantProjectFiles(path.join(dir, '*'), filesToSearch);
+      }
 
       projectFiles = _.flatten(projectFiles);
       projectFiles = _.union(projectFiles);
@@ -257,7 +251,7 @@ export class Court extends UIProxy {
         } else if ( evidence_suggestion.ruleType === 'database') {
           systemName = evidence_suggestion.name;
         }
-        var suggestion     = evidence_suggestion.suggestionChoosen.suggestion;
+        var suggestion = evidence_suggestion.suggestionChoosen.suggestion;
         suggestion.name = systemName;
       }, this);
 
@@ -294,10 +288,43 @@ export class Court extends UIProxy {
     var systems = {};
 
     _.forEach(this.__folder_evidences_suggestion, function(folder_evidence_suggestion) {
-
       var folderName = folder_evidence_suggestion.path;
-      var folderBasename = this._folderBasename(folderName);
       var evidences_suggestion = folder_evidence_suggestion.suggestions;
+
+      var folder_base_regex        = /#\{app\.dir\}/gm;
+      var folder_base_template     = '#{manifest.dir}';
+      var folder_relative_template = '.';
+
+      if (folderName !== this.__root_folder) {
+        folder_base_template     += '/#{system.name}';
+        folder_relative_template = './#{system.name}';
+      }
+
+      var replaceFolderTemplate = (elm) => {
+        if (_.isString(elm)) {
+          elm = elm.replace(folder_base_regex, folder_base_template);
+        } else if (_.isObject(elm)) {
+          var new_elm = {};
+          _.map(elm, (data, key) => {
+            key   = (!_.isString(key)) ? key :
+              (key   === '.') ? folder_relative_template : key.replace(folder_base_regex, folder_base_template);
+
+            var value = (_.isObject(data)) ? data.value : data;
+
+            value = (!_.isString(value)) ? value :
+              (value === '.') ? folder_relative_template : value.replace(folder_base_regex, folder_base_template);
+
+            if (_.isObject(data)) {
+              data.value = value;
+            } else {
+              data = value;
+            }
+            new_elm[key] = data;
+          });
+          elm = new_elm;
+        }
+        return elm;
+      };
 
       _.forEach(evidences_suggestion, function(evidence_suggestion) {
         var suggestion = evidence_suggestion.suggestionChoosen.suggestion;
@@ -321,26 +348,10 @@ export class Court extends UIProxy {
           });
         }
 
-        // when in a sub-folder change `workdir`
-        if (folderName !== this.__root_folder && systemSuggestion.workdir) {
-          systemSuggestion.workdir = path.join(systemSuggestion.workdir, folderBasename);
-        }
-
-        // when in a sub-folder change default `path('.')` or `sync('.')` to the subfolder
-        var default_mount_path = _.findKey(systemSuggestion.mounts, function(mount) {
-          return (mount.type === 'path' && mount.value === '.' ||
-                  mount.type === 'sync' && mount.value === '.');
-        });
-
-        if (default_mount_path && folderName !== this.__root_folder) {
-          var keyBackup = systemSuggestion.mounts[default_mount_path];
-          keyBackup.value = './' + folderBasename;
-
-          delete systemSuggestion.mounts[default_mount_path];
-          var newPathKey = default_mount_path.replace(/^(\/azk\/#\{manifest\.dir\})$/gm, '$1/' + folderBasename);
-          systemSuggestion.mounts[newPathKey] = keyBackup;
-        }
-
+        // replace `#{app.dir}` by system template path
+        systemSuggestion.workdir = replaceFolderTemplate(systemSuggestion.workdir);
+        systemSuggestion.mounts  = replaceFolderTemplate(systemSuggestion.mounts);
+        systemSuggestion.envs    = replaceFolderTemplate(systemSuggestion.envs);
       }, this);
     }, this);
 
@@ -349,10 +360,10 @@ export class Court extends UIProxy {
 
   judge(dir) {
     this.__root_folder = dir;
-    return this._investigate(dir).then(function () {
-      this._analysis();
-      this._veredict();
-    }.bind(this));
+    return this._investigate(dir)
+      .then(function () {
+        this._analysis();
+        this._veredict();
+      }.bind(this));
   }
-
 }

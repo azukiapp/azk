@@ -1,21 +1,20 @@
-import { _ } from 'azk';
-import { UIProxy } from 'azk/cli/ui';
-import { example_system } from 'azk/generator/rules';
+import { Suggestion as DefaultSuggestion } from 'azk/generator/suggestions';
 
-export class Suggestion extends UIProxy {
+export class Suggestion extends DefaultSuggestion {
   constructor(...args) {
     super(...args);
 
+    var name    = 'python';
     // Readable name for this suggestion
-    this.name = 'python34';
+    this.name = `${name}`;
 
     // Which rules they suggestion is valid
-    this.ruleNamesList = ['python34'];
+    this.ruleNamesList = [`${name}`];
 
     // Initial Azkfile.js suggestion
-    this.suggestion = _.extend({}, example_system, {
-      __type  : 'python 3.4',
-      image   : { docker: 'azukiapp/python:3.4' },
+    this.suggestion = this.extend(this.suggestion, {
+      __type   : `${name}`,
+      image    : { docker: `azukiapp/${name}` },
       provision: [
         'pip install --user --allow-all-external -r requirements.txt',
       ],
@@ -23,17 +22,13 @@ export class Suggestion extends UIProxy {
       scalable: { default: 1 },
       command : 'python server.py',
       mounts  : {
-        '/azk/#{manifest.dir}': {type: 'path',       value: '.'},
-        '/azk/pythonuserbase':  {type: 'persistent', value: 'pythonuserbase'},
+        "/azk/#{app.dir}"    : {type: 'sync', value: '.'},
+        '/azk/pythonuserbase': {type: 'persistent', value: 'pythonuserbase'},
       },
       envs    : {
         PATH : '/azk/pythonuserbase/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
         PYTHONUSERBASE: '/azk/pythonuserbase',
       }
     });
-  }
-
-  suggest() {
-    return this.suggestion;
   }
 }

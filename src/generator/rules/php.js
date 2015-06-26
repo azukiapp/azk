@@ -3,22 +3,12 @@ import { BaseRule } from 'azk/generator/rules';
 export class Rule extends BaseRule {
   constructor(ui) {
     super(ui);
-    this.type = 'runtime';
+    this.type      = "runtime";
+    this.name      = "php";
+    this.rule_name = "php";
   }
 
-  relevantsFiles() {
+  relevantsFiles () {
     return ['index.php'];
   }
-
-  getEvidence(path) {
-    var evidence = {
-      fullpath: path,
-      ruleType: 'runtime',
-      name    : 'php',
-      ruleName: 'php'
-    };
-
-    return evidence;
-  }
-
 }

@@ -1,62 +1,30 @@
-import { _, isBlank } from 'azk';
 import { BaseRule } from 'azk/generator/rules';
-var semver = require('semver');
-
-var getVersion = function(content) {
-
-  var pythonVersion = null;
-
-  // Pyhton Version
-  // http://regex101.com/r/hH2uY1/1
-  var pythonVersionRegex = /^python-(\d+\.\d+\.\d+)/gm;
-  var capturePyhtonVersionRegex = pythonVersionRegex.exec(content);
-  var extractedPyhtonVersionRegex = capturePyhtonVersionRegex &&
-                                    capturePyhtonVersionRegex.length >= 1 &&
-                                    capturePyhtonVersionRegex[1];
-  if (extractedPyhtonVersionRegex) {
-    pythonVersion = semver.clean(extractedPyhtonVersionRegex);
-  }
-
-  return pythonVersion;
-};
 
 export class Rule extends BaseRule {
   constructor(ui) {
     super(ui);
-    this.type = "runtime";
+    this.type      = "runtime";
+    this.name      = "python";
+    this.rule_name = "python";
+
+    // Suggest a docker image
+    // http://images.azk.io/#/elixir
+    this.version_rules = {
+      'python-2.7': '>=2.7.8 <3.4.2',
+      'python-3.4': '<2.7.8 || >=3.4.2',
+    };
   }
 
   relevantsFiles () {
     return ['runtime.txt'];
   }
 
-  getEvidence(path, content) {
-    var evidence = {
-      fullpath: path,
-      ruleType: 'runtime',
-      name    : 'python',
-      ruleName: 'python34'
-    };
-
-    var pythonVersion = getVersion(content);
-    evidence.version = pythonVersion;
-
-    // cant find version, will use latest
-    if (isBlank(pythonVersion)) {
-      return evidence;
-    }
-
-    // MRI
-    var versionRules = {
-      'python27': '>=2.7.8 <3.4.2',
-      'python34': '<2.7.8 || >=3.4.2',
-    };
-
-    evidence.ruleName = _.findKey(versionRules, (value) => {
-      return semver.satisfies(evidence.version, value);
-    });
-
-    return evidence;
+  getVersion(content) {
+    // Pyhton Version
+    // http://regex101.com/r/hH2uY1/1
+    var regex   = /^python-(\d+\.\d+\.\d+)/gm;
+    var match   = regex.exec(content);
+    var version = match && match.length >= 1 && match[1];
+    return version && this.semver.clean(version);
   }
-
 }

@@ -24,7 +24,7 @@ describe('Azk generators Pyhton rule', function() {
     h.expect(evidence).to.have.deep.property('fullpath', runtimePath);
     h.expect(evidence).to.have.deep.property('ruleType', 'runtime');
     h.expect(evidence).to.have.deep.property('name'    , 'python');
-    h.expect(evidence).to.have.deep.property('ruleName', 'python34');
+    h.expect(evidence).to.have.deep.property('ruleName', 'python-3.4');
     h.expect(evidence).to.have.deep.property('version' , '3.4.2');
 
   });
@@ -36,7 +36,7 @@ describe('Azk generators Pyhton rule', function() {
     ].join('\n');
 
     var evidence = rule.getEvidence(runtimePath, runtimeContent);
-    h.expect(evidence).to.have.deep.property('ruleName', 'python34');
+    h.expect(evidence).to.have.deep.property('ruleName', 'python-3.4');
   });
 
   it('should get latest python version when version is too low', () => {
@@ -46,7 +46,7 @@ describe('Azk generators Pyhton rule', function() {
     ].join('\n');
 
     var evidence = rule.getEvidence(runtimePath, runtimeContent);
-    h.expect(evidence).to.have.deep.property('ruleName', 'python34');
+    h.expect(evidence).to.have.deep.property('ruleName', 'python-3.4');
   });
 
   it('should get 2.7 python version when detected', () => {
@@ -56,7 +56,6 @@ describe('Azk generators Pyhton rule', function() {
     ].join('\n');
 
     var evidence = rule.getEvidence(runtimePath, runtimeContent);
-    h.expect(evidence).to.have.deep.property('ruleName', 'python27');
+    h.expect(evidence).to.have.deep.property('ruleName', 'python-2.7');
   });
-
 });
