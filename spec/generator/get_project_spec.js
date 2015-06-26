@@ -3,11 +3,11 @@ import { GetProject } from 'azk/manifest/get_project';
 import { Cli } from 'azk/cli';
 
 describe('GetProject:', function() {
-  var outputs = [];
 
   // GetProject with mocked UI
-  var ui      = h.mockUI(beforeEach, outputs);
-  var getProject = new GetProject(ui);
+  // var outputs = [];
+  // var ui      = h.mockUI(beforeEach, outputs);
+  // var getProject = new GetProject(ui);
 
   describe('parseCommandOptions:', function () {
     // cli-router to parse arguments
@@ -23,7 +23,7 @@ describe('GetProject:', function() {
       var cli_options = cli.router.cleanParams(cli.docopt(doc_opts));
 
       // azk start git repo parsed arguments
-      return getProject.parseCommandOptions(cli_options);
+      return GetProject.parseCommandOptions(cli_options);
     };
 
     it('should ref=master with git-repo argument only', function() {
