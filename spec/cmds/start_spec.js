@@ -39,8 +39,10 @@ describe('Azk cli, start controller', function() {
 
       cli.router.cleanParams(cli.docopt(doc_opts));
       return cli.run(doc_opts, run_options).then((parsed_options) => {
+
         h.expect(parsed_options).to.have.property('git_url',
                                                   'git@github.com:azukiapp/azkdemo.git');
+
         h.expect(parsed_options).to.have.property('git_branch_tag_commit',
                                                   'master');
       });
@@ -52,8 +54,10 @@ describe('Azk cli, start controller', function() {
 
       cli.router.cleanParams(cli.docopt(doc_opts));
       return cli.run(doc_opts, run_options).then((parsed_options) => {
+
         h.expect(parsed_options).to.have.property('git_url',
                                                   'git@github.com:azukiapp/azkdemo.git');
+
         h.expect(parsed_options).to.have.property('git_branch_tag_commit',
                                                   'master');
       });
@@ -64,8 +68,10 @@ describe('Azk cli, start controller', function() {
 
       cli.router.cleanParams(cli.docopt(doc_opts));
       return cli.run(doc_opts, run_options).then((parsed_options) => {
+
         h.expect(parsed_options).to.have.property('git_url',
                                                   'git@github.com:azukiapp/azkdemo.git');
+
         h.expect(parsed_options).to.have.property('git_branch_tag_commit',
                                                   'dev');
       });
@@ -77,8 +83,10 @@ describe('Azk cli, start controller', function() {
 
       cli.router.cleanParams(cli.docopt(doc_opts));
       return cli.run(doc_opts, run_options).then((parsed_options) => {
+
         h.expect(parsed_options).to.have.property('git_url',
                                                   'git@github.com:azukiapp/azkdemo.git');
+
         h.expect(parsed_options).to.have.property('git_branch_tag_commit',
                                                   'dev');
       });
@@ -90,8 +98,10 @@ describe('Azk cli, start controller', function() {
 
       cli.router.cleanParams(cli.docopt(doc_opts));
       return cli.run(doc_opts, run_options).then((parsed_options) => {
+
         h.expect(parsed_options).to.have.property('git_url',
                                                   'git@github.com:azukiapp/azkdemo.git');
+
         h.expect(parsed_options).to.have.property('git_branch_tag_commit',
                                                   'dev');
       });
@@ -102,8 +112,10 @@ describe('Azk cli, start controller', function() {
 
       cli.router.cleanParams(cli.docopt(doc_opts));
       return cli.run(doc_opts, run_options).then((parsed_options) => {
+
         h.expect(parsed_options).to.have.property('git_url',
                                                   'https://github.com/azukiapp/azkdemo.git');
+
         h.expect(parsed_options).to.have.property('git_branch_tag_commit',
                                                   'master');
       });
@@ -114,10 +126,13 @@ describe('Azk cli, start controller', function() {
 
       cli.router.cleanParams(cli.docopt(doc_opts));
       return cli.run(doc_opts, run_options).then((parsed_options) => {
+
         h.expect(parsed_options).to.have.property('git_url',
                                                   'https://github.com/azukiapp/azkdemo.git');
+
         h.expect(parsed_options).to.have.property('git_branch_tag_commit',
                                                   'master');
+
         h.expect(parsed_options).to.have.property('git_destination_path',
                                                   'DEST_FOLDER');
       });
