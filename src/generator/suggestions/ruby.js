@@ -25,7 +25,7 @@ export class Suggestion extends DefaultSuggestion {
         http: '3000/tcp'
       },
       mounts  : {
-        '/azk/#{app.dir}'        : {type: 'sync', value: '#{app.dir}'},
+        '/azk/#{app.dir}'        : {type: 'sync', value: '.'},
         '/azk/bundler'           : {type: 'persistent', value: '#{app.dir}/bundler'},
         '/azk/#{app.dir}/tmp'    : {type: 'persistent', value: '#{app.dir}/tmp'},
         '/azk/#{app.dir}/log'    : {type: 'path', value: '#{app.dir}/log'},

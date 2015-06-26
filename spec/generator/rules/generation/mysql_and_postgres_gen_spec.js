@@ -129,7 +129,7 @@ describe('Azk generator db', function() {
         h.expect(system).to.have.deep.property('options.wait.timeout', 1000);
         h.expect(system).to.not.have.deep.property('options.workdir');
         h.expect(system).to.have.deep.property('options.mounts').and.to.eql(
-          { '/var/lib/postgresql': { type: 'persistent', value: 'postgresql', options: {} },
+          { '/var/lib/postgresql/data': { type: 'persistent', value: 'postgresql', options: {} },
             '/var/log/postgresql': { type: 'path',       value: './log/postgresql', options: {} } } );
       });
     });
@@ -160,10 +160,9 @@ describe('Azk generator db', function() {
 
         var expectedMounts = {};
         var folderSystem = `${rootFolderBasename}/${systemName}`;
-        expectedMounts[workdir] = { type: 'sync', value: `${folderSystem}`, options: {} };
         // /azk/azk-test-60957fmnsb4/railsPostgres
         expectedMounts[path.join('/azk', folderSystem)] = {
-          type: 'sync', value: `${folderSystem}`, options: {}
+          type: 'sync', value: `./${systemName}`, options: {}
         };
         expectedMounts[path.join('/azk', folderSystem, '.bundle')] = {
           type: 'path', value: `${folderSystem}/.bundle`, options: {}
@@ -206,10 +205,9 @@ describe('Azk generator db', function() {
 
         var expectedMounts = {};
         var folderSystem = `${rootFolderBasename}/${systemName}`;
-        expectedMounts[workdir] = { type: 'sync', value: `${folderSystem}`, options: {} };
         // /azk/azk-test-60957fmnsb4/railsPostgres
         expectedMounts[path.join('/azk', folderSystem)] = {
-          type: 'sync', value: `${folderSystem}`, options: {}
+          type: 'sync', value: `./${systemName}`, options: {}
         };
         expectedMounts[path.join('/azk', folderSystem, '.bundle')] = {
           type: 'path', value: `${folderSystem}/.bundle`, options: {}

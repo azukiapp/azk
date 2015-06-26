@@ -14,9 +14,7 @@ describe('Azk generator tool court veredict:', function() {
       var UI  = h.mockUI(beforeEach, outputs);
       var dir = yield h.tmp_dir();
 
-      // -------
       // Gemfile
-      // -------
       rootFullPath = dir;
       var frontFolder = path.join(rootFullPath, 'front');
       yield fsAsync.mkdirs(frontFolder);
@@ -29,9 +27,7 @@ describe('Azk generator tool court veredict:', function() {
       ].join('\n');
       yield fsAsync.writeFile(gemfilePath, gemfileContent);
 
-      // -------
       // package.json
-      // -------
       var apiFolder = path.join(rootFullPath, 'api');
       yield fsAsync.mkdirs(apiFolder);
       var packageJsonPath = path.join(apiFolder, 'package.json');
@@ -160,12 +156,11 @@ describe('Azk generator tool court veredict:', function() {
 
   it('should suggest systems for the Azkfile.js template', function() {
     return court.judge(rootFullPath).then(function () {
-      var folders = Object.keys(court.systems_suggestions);
-      h.expect(folders).to.have.length(3);
-
-      h.expect(folders).to.contains('api');
-      h.expect(folders).to.contains('front');
-      h.expect(folders).to.contains('postgres');
+      var systems = Object.keys(court.systems_suggestions);
+      h.expect(systems).to.have.length(3);
+      h.expect(systems).to.contains('api');
+      h.expect(systems).to.contains('front');
+      h.expect(systems).to.contains('postgres');
     });
   });
 });

@@ -80,8 +80,8 @@ export class Court extends UIProxy {
 
   get rules() {
     return this.__rules.runtime
-      .concat(this.__rules.database)
       .concat(this.__rules.framework)
+      .concat(this.__rules.database)
       .concat(this.__rules.worker)
       .concat(this.__rules.task);
   }
