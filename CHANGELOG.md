@@ -9,6 +9,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Suggesting] Fixed postgresql suggestion mounts path;
   * [Suggesting] Fixed the order in which the suggestion creates systems in `Azkfile.js`, applications comes first and database after;
   * [Suggesting] Fixed `Court` investigates subfolder even when finding files on the root;
+  * [Agent] Replacing periodic check agent from vm to docker;
 
 * Enhancements
   * [Suggesting] Adding support to use `app.dir` in templates;
