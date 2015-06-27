@@ -4,7 +4,7 @@ export class Suggestion extends DefaultSuggestion {
   constructor(...args) {
     super(...args);
 
-    var name = `elixir`;
+    var name    = 'node';
     // Readable name for this suggestion
     this.name = `${name}`;
 
@@ -16,23 +16,22 @@ export class Suggestion extends DefaultSuggestion {
       __type   : `${name}`,
       image    : { docker: `azukiapp/${name}` },
       provision: [
-        "mix do deps.get, compile",
+        'npm install',
       ],
-      command: "mix phoenix.server --no-deps-check",
-      mounts: {
-        "/azk/#{app.dir}"       : {type: 'sync', value: '.'},
-        "/azk/#{app.dir}/deps"  : {type: 'persistent', value: "#{system.name}/deps"},
-        "/azk/#{app.dir}/_build": {type: 'persistent', value: "#{system.name}/_build"},
-        "/root/.hex"            : {type: 'path', value: '___env.HOME + \'/.hex\'___'},
-      },
+      http    : true,
       scalable: { default: 1 },
-      http: true,
+      command : "npm start",
       ports: {
-        http: "4000",
+        http: '3000/tcp'
       },
-      envs    : {
-        MIX_ENV: 'dev',
-      }
+      mounts  : {
+        "/azk/#{app.dir}"             : {type: 'sync', value: '.'},
+        "/azk/#{app.dir}/node_modules": {type: 'persistent', value: "#{system.name}/node_modules"},
+      },
+      envs: {
+        NODE_ENV: "dev",
+        PORT: 3000
+      },
     });
   }
 }

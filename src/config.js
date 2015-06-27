@@ -89,8 +89,9 @@ var options = mergeConfig({
     },
     // jscs:enable maximumLineLength
     agent: {
-      requires_vm: requires_vm,
+      requires_vm    : requires_vm,
       portrange_start: 11000,
+      check_interval : envs('AZK_AGENT_CHECK_INTERVAL', 10000),
       balancer: {
         ip  : new Dynamic("agent:balancer:ip"),
         host: envs('AZK_BALANCER_HOST'),
@@ -105,7 +106,7 @@ var options = mergeConfig({
         defaultserver: ['8.8.8.8', '8.8.4.4'],
       },
       vm: {
-        wait_ready : 180000,
+        wait_ready : envs('AZK_VM_WAIT_READY', 180000),
         ip         : new Dynamic("agent:vm:ip"),
         name       : envs('AZK_AGENT_VM_NAME', "azk-vm-" + namespace),
         user       : "docker",

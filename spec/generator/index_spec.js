@@ -136,7 +136,7 @@ describe('Azk generator tool index:', function() {
       });
     });
 
-    describe('with httop options', function() {
+    describe('with http options', function() {
       it('should generate a simple default host name', function() {
         return generate_manifest(dir, default_data).then(function(manifest) {
           var system    = manifest.systemDefault;

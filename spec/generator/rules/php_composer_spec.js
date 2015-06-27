@@ -34,8 +34,8 @@ describe('Azk generators PHP with composer rule', function() {
 
     h.expect(evidence).to.have.deep.property('fullpath', packageJsonfilePath);
     h.expect(evidence).to.have.deep.property('ruleType', 'runtime');
-    h.expect(evidence).to.have.deep.property('name'    , 'phpcomposer');
-    h.expect(evidence).to.have.deep.property('ruleName', 'php56');
+    h.expect(evidence).to.have.deep.property('name'    , 'php_composer');
+    h.expect(evidence).to.have.deep.property('ruleName', 'php_composer');
     h.expect(evidence).to.have.deep.property('version' , '5.6.3');
     h.expect(evidence).to.have.deep.property('replaces[0]', 'php');
     h.expect(evidence).to.have.deep.property('replaces[1]', 'node');
@@ -58,8 +58,8 @@ describe('Azk generators PHP with composer rule', function() {
     ].join('\n');
 
     var evidence = rule.getEvidence(packageJsonfilePath, packageJsonContent);
-    h.expect(evidence).to.have.deep.property('ruleName', 'php56');
-    h.expect(evidence).to.have.deep.property('version' , null);
+    h.expect(evidence).to.have.deep.property('ruleName', 'php_composer');
+    h.expect(evidence).to.have.deep.property('version' , undefined);
   });
 
   it('should get latest php with composer version when version is too low', () => {
@@ -84,8 +84,8 @@ describe('Azk generators PHP with composer rule', function() {
 
     h.expect(evidence).to.have.deep.property('fullpath', packageJsonfilePath);
     h.expect(evidence).to.have.deep.property('ruleType', 'runtime');
-    h.expect(evidence).to.have.deep.property('name'    , 'phpcomposer');
-    h.expect(evidence).to.have.deep.property('ruleName', 'php55');
+    h.expect(evidence).to.have.deep.property('name'    , 'php_composer');
+    h.expect(evidence).to.have.deep.property('ruleName', 'php_composer-5.5');
     h.expect(evidence).to.have.deep.property('version' , '5.5.9');
   });
 

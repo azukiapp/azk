@@ -31,12 +31,12 @@ describe('Azk generators Django rule', function() {
 
     h.expect(evidence).to.have.deep.property('fullpath', frameworkPath);
     h.expect(evidence).to.have.deep.property('ruleType', 'framework');
-    h.expect(evidence).to.have.deep.property('name'    , 'django');
-    h.expect(evidence).to.have.deep.property('ruleName', 'djangoPython27');
-    h.expect(evidence).to.have.deep.property('version' , '1.4.0');
+    h.expect(evidence).to.have.deep.property('name'    , 'python_django');
+    h.expect(evidence).to.have.deep.property('ruleName', 'python_django-2.7');
+    h.expect(evidence).to.have.deep.property('framework' , '1.4.0');
   });
 
-  it('should return djangoPython27 when django version is too low', () => {
+  it('should return python_django-2.7 when django framework version is too low', () => {
     var frameworkPath = '/tmp/djangoProject/requirements.txt';
     var frameworkContent = [
       'Django==1.5.3',
@@ -44,11 +44,11 @@ describe('Azk generators Django rule', function() {
 
     var evidence = rule.getEvidence(frameworkPath, frameworkContent);
 
-    h.expect(evidence).to.have.deep.property('version' , '1.5.3');
-    h.expect(evidence).to.have.deep.property('ruleName', 'djangoPython27');
+    h.expect(evidence).to.have.deep.property('framework' , '1.5.3');
+    h.expect(evidence).to.have.deep.property('ruleName', 'python_django-2.7');
   });
 
-  it('should return djangoPython34 when django version is above 1.7', () => {
+  it('should return python_django-3.4 when django framework version is above 1.7', () => {
     var frameworkPath = '/tmp/djangoProject/requirements.txt';
     var frameworkContent = [
       'Django==1.7.0',
@@ -56,8 +56,7 @@ describe('Azk generators Django rule', function() {
 
     var evidence = rule.getEvidence(frameworkPath, frameworkContent);
 
-    h.expect(evidence).to.have.deep.property('version' , '1.7.0');
-    h.expect(evidence).to.have.deep.property('ruleName', 'djangoPython34');
+    h.expect(evidence).to.have.deep.property('framework' , '1.7.0');
+    h.expect(evidence).to.have.deep.property('ruleName', 'python_django-3.4');
   });
-
 });

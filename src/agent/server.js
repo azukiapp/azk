@@ -4,6 +4,7 @@ import { async, promiseResolve } from 'azk/utils/promises';
 import { VM  }   from 'azk/agent/vm';
 import { Balancer } from 'azk/agent/balancer';
 import { Api } from 'azk/agent/api';
+import { net } from 'azk/utils';
 import { VmStartError } from 'azk/utils/errors';
 
 var Server = {
@@ -11,6 +12,7 @@ var Server = {
   stopping: false,
   server: null,
   vm_started: false,
+  docker_down: false,
 
   // stop handler
   stop_handler() {},
@@ -36,6 +38,9 @@ var Server = {
       // Load balancer
       yield this.installBalancer();
 
+      // acive docker monitor
+      this._activeDockerMonitor();
+
       log.info_t("commands.agent.started");
       this.starting = false;
     });
@@ -46,7 +51,7 @@ var Server = {
     this.stopping = true;
     return async(this, function* () {
       yield Api.stop();
-      yield this.removeBalancer();
+      yield this.removeBalancer(this.docker_down);
       if (config('agent:requires_vm') && this.vm_started) {
         yield this.stopVM();
       }
@@ -58,8 +63,8 @@ var Server = {
     return Balancer.start(this.vm_enabled);
   },
 
-  removeBalancer() {
-    return Balancer.stop();
+  removeBalancer(skip_containers) {
+    return Balancer.stop(skip_containers);
   },
 
   installVM(start = false) {
@@ -99,8 +104,6 @@ var Server = {
         }
       }
 
-      this._activeVMMonitor(vm_name);
-
       // Mount shared
       vm_publish("mounting");
       yield VM.mount(vm_name, "Root", config("agent:vm:mount_point"));
@@ -111,35 +114,47 @@ var Server = {
     });
   },
 
-  stopVM(running) {
+  stopVM() {
     var vm_name = config("agent:vm:name");
     return async(this, function* () {
-      running = yield VM.isRunnig(vm_name);
+      var running = yield VM.isRunnig(vm_name);
       if (running) {
         yield VM.stop(vm_name, !this.vm_started);
       }
     });
   },
 
-  _activeVMMonitor(vm_name) {
-    var interval, stop = () => {
-      clearTimeout(interval);
-      publish("agent.server.installVM.status", {
-        type: "status", context: "vm", status: "down"
+  _activeDockerMonitor(retry = 3) {
+    var docker_host = config("docker:host");
+    log.debug(`[agent] enable docker monitor with ${retry} retry.`);
+
+    var stop = () => {
+      publish("agent.docker.check.status", {
+        type: "status", context: "docker", status: "down"
       });
+      this.docker_down = true;
       return this.stop_handler();
     };
 
-    interval = setInterval(() => {
-      if (this.stopping) {
-        return clearTimeout(interval);
-      }
-      VM.isRunnig(vm_name).then((result) => {
-        if (!result) { stop(); }
-      })
-      .catch(stop);
-    }, 5000);
-  }
+    var wait_options = {
+      timeout: config('agent:check_interval'),
+      publish_retry: false,
+    };
+
+    var interval_fn = () => {
+      net
+        .waitService(docker_host, retry, wait_options)
+        .then((success) => {
+          if (!success) {
+            return stop();
+          }
+          setTimeout(interval_fn, config('agent:vm:check_interval'));
+        })
+        .catch(stop);
+    };
+
+    setTimeout(interval_fn, config('agent:vm:check_interval'));
+  },
 };
 
 export { Server };

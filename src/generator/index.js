@@ -43,13 +43,13 @@ export class Generator extends UIProxy {
       },
     }, data);
 
-    return this.tpl.then(function (renderedTemplate) {
-      var rendered_template_content = renderedTemplate(data);
+    return this.tpl.then((renderedTemplate) => {
+      var rendered_template_content = this.trimContext(renderedTemplate(data));
       return fsAsync.writeFile(file, rendered_template_content);
     });
   }
 
-  trim(context) {
+  trimContext(context) {
     while (/\n\n/.test(context)) {
       context = context.replace(/\n\n/, '\n');
     }

@@ -1,21 +1,21 @@
-import { _ } from 'azk';
-import { UIProxy } from 'azk/cli/ui';
-import { example_system } from 'azk/generator/rules';
+import { Suggestion as DefaultSuggestion } from 'azk/generator/suggestions';
 
-export class Suggestion extends UIProxy {
+export class Suggestion extends DefaultSuggestion {
   constructor(...args) {
     super(...args);
 
+    var name    = 'mysql';
+    var version = '5.6';
     // Readable name for this suggestion
-    this.name = 'mysql';
+    this.name = `${name}-${version}`;
 
     // Which rules they suggestion is valid
-    this.ruleNamesList = ['mysql56'];
+    this.ruleNamesList = [`${name}-${version}`];
 
     // Initial Azkfile.js suggestion
-    this.suggestion = _.extend({}, example_system, {
-      __type  : 'mysql',
-      image   : { docker: 'azukiapp/mysql:5.6' }, //https://registry.hub.docker.com/u/library/mysql/
+    this.suggestion = this.extend({}, this.suggestion, {
+      __type: `${name} ${version}`,
+      image : { docker: `azukiapp/${name}:${version}` },
       ports:{
         data: "3306/tcp",
       },
@@ -24,7 +24,7 @@ export class Suggestion extends UIProxy {
       command: null,
       workdir: null,
       mounts: {
-        '/var/lib/mysql': {type: 'persistent', value: 'mysql_lib#{system.name}'},
+        '/var/lib/mysql': {type: 'persistent', value: '#{manifest.dir}/mysql'},
       },
       wait: {
         retry: 25,
@@ -33,9 +33,9 @@ export class Suggestion extends UIProxy {
       envs: {
         // set instances variables
         MYSQL_ROOT_PASSWORD: "mysecretpassword",
-        MYSQL_USER: "azk",
-        MYSQL_PASS: "azk",
-        MYSQL_DATABASE: "mysql_development",
+        MYSQL_USER         : "azk",
+        MYSQL_PASS         : "azk",
+        MYSQL_DATABASE     : "#{manifest.dir}_development",
       },
       export_envs_comment: [
         'check this gist to configure your database',
@@ -46,10 +46,5 @@ export class Suggestion extends UIProxy {
                       ":#{net.port.data}/${envs.MYSQL_DATABASE}",
       },
     });
-  }
-
-  suggest() {
-    var suggestion = this.suggestion;
-    return suggestion;
   }
 }

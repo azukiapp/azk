@@ -10,7 +10,7 @@ export class Suggestion extends UIProxy {
     this.name = 'postgres';
 
     // Which rules they suggestion is valid
-    this.ruleNamesList = ['postgres93'];
+    this.ruleNamesList = ['postgres-9.3'];
 
     // Initial Azkfile.js suggestion
     this.suggestion = _.extend({}, example_system, {
@@ -24,7 +24,7 @@ export class Suggestion extends UIProxy {
       command: null,
       workdir: null,
       mounts  : {
-        '/var/lib/postgresql' : {type: 'persistent', value: 'postgresql'},
+        '/var/lib/postgresql/data' : {type: 'persistent', value: 'postgresql'},
         '/var/log/postgresql' : {type: 'path', value: './log/postgresql'},
       },
       envs: {
@@ -33,8 +33,6 @@ export class Suggestion extends UIProxy {
         POSTGRESQL_USER: "azk",
         POSTGRESQL_PASS: "azk",
         POSTGRESQL_DB  : "postgres_development",
-        POSTGRESQL_HOST: "#{net.host}",
-        POSTGRESQL_PORT: "#{net.port.data}",
       },
       export_envs_comment: [
         'check this gist to configure your database',
@@ -45,13 +43,5 @@ export class Suggestion extends UIProxy {
           "@#{net.host}:#{net.port.data}/${envs.POSTGRESQL_DB}",
       },
     });
-  }
-
-  suggest() {
-    var suggestion = this.suggestion;
-
-    delete suggestion.command;
-
-    return suggestion;
   }
 }

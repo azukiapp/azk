@@ -54,8 +54,11 @@ Utilizando o `sync`, é preciso garantir que os dados gerados pelo [`provision`]
 * __Ruby/Rails__:
   ```js
   mounts: {
-    '/azk/#{manifest.dir}' : sync('.'),
-    '/azk/bundler'         : persistent('bundler'),
+    '/azk/#{manifest.dir}'         : sync("."),
+    '/azk/bundler'                 : persistent("bundler"),
+    '/azk/#{manifest.dir}/tmp'     : persistent("tmp"),
+    '/azk/#{manifest.dir}/.bundle' : path(".bundle"),
+    '/azk/#{manifest.dir}/log'     : path("log"),
   },
   ```
 
