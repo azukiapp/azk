@@ -94,7 +94,8 @@ export class GetProject extends UIProxy {
                        parsed_args.verbose_level)
                        .catch(function (err) {
                          //FIXME: process errors here
-                         /**/console.log('\n>>---------\n err:\n', err, '\n>>---------\n');/*-debug-*/
+                         /**/console.log('\n>>---------\n err.error_code:\n', err.error_code, '\n>>---------\n');/*-debug-*/
+                         /**/console.log('\n>>---------\n err.message:\n', err.message, '\n>>---------\n');/*-debug-*/
                        });
       return dest;
     });
@@ -102,23 +103,16 @@ export class GetProject extends UIProxy {
 
   clone(git_url, git_branch_tag_commit, dest_folder, verbose_level) {
     var git_arguments = [
-      '--quiet',
-      '--return',
-      '-c',
-      [
-        'git',
-        'clone',
-        git_url,
-        dest_folder,
-        '--branch',
-        git_branch_tag_commit,
-        '--single-branch',
-        '--recursive',
-        '--verbose',
-      ].join(' '),
+      'clone',
+      git_url,
+      dest_folder,
+      '--branch',
+      git_branch_tag_commit,
+      '--single-branch',
+      '--recursive',
     ];
 
     // http://stackoverflow.com/questions/18002585/trying-to-redirect-git-gc-output/18004259#18004259
-    return spawnAsync('script', git_arguments, verbose_level);
+    return spawnAsync('git', git_arguments, verbose_level);
   }
 }
