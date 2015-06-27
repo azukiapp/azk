@@ -109,6 +109,10 @@ module.exports = {
   },
 
   status: {
+    docker: {
+      down: "Docker is down",
+    },
+
     agent: {
       running        : "Agent is running...",
       not_running    : "Agent is not running (try: `azk agent start`).",
@@ -140,7 +144,6 @@ module.exports = {
       docker_keys: "Downloading required keys to connect to docker",
       mounting   : "Mounting the shared folder in virtual machine...",
       mounted    : "Shared folder has been successfully mounted.",
-      down       : "Virtual machine is down",
     },
 
     socat: {

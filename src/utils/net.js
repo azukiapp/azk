@@ -182,7 +182,8 @@ var net = {
   waitService(uri, retry = 15, opts = {}) {
     opts = _.defaults(opts, {
       timeout: 10000,
-      retry_if: () => { return promiseResolve(true); }
+      retry_if: () => { return promiseResolve(true); },
+      publish_retry: true,
     });
 
     // Parse options to try connect
@@ -202,10 +203,12 @@ var net = {
       var connect  = () => {
         var t = null;
 
-        publish("utils.net.waitService.status", _.merge({
-          uri : uri,
-          type: 'try_connect', attempts: attempts, max: max, context: opts.context
-        }, address ));
+        if (opts.publish_retry) {
+          publish("utils.net.waitService.status", _.merge({
+            uri : uri,
+            type: 'try_connect', attempts: attempts, max: max, context: opts.context
+          }, address ));
+        }
 
         client = nativeNet.connect(address, function() {
           client.end();

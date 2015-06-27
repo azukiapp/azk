@@ -140,14 +140,16 @@ var Balancer = {
     });
   },
 
-  stop() {
+  stop(skip_containers = false) {
     if (this.isRunnig()) {
       log.debug("call to stop balancer");
       return Tools.async_status("balancer", this, function* (change_status) {
-        yield thenAll([
-          this._stop_system('balancer-redirect', change_status),
-          this._stop_system('dns', change_status),
-        ]);
+        if (!skip_containers) {
+          yield thenAll([
+            this._stop_system('balancer-redirect', change_status),
+            this._stop_system('dns', change_status),
+          ]);
+        }
         yield this._stop_sub_service("hipache", change_status);
         yield this._stop_sub_service("memcached", change_status);
       });
