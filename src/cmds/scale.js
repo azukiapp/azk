@@ -14,7 +14,6 @@ var lazy = lazy_require({
 class Scale extends CliTrackerController {
   index(opts) {
     return async(this, function* () {
-
       // check if needs a "git cloning"
       var command_parse_result = lazy.GetProject.parseCommandOptions(opts);
       if (command_parse_result) {

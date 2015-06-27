@@ -2,6 +2,7 @@ import { path, lazy_require } from 'azk';
 import { async, ninvoke } from 'azk/utils/promises';
 import { UIProxy } from 'azk/cli/ui';
 import { matchFirstRegex } from 'azk/utils/regex_helper';
+import { spawnAsync } from 'azk/utils/spawn_helper';
 
 var url  = require('url');
 var lazy = lazy_require({
@@ -19,6 +20,7 @@ export class GetProject extends UIProxy {
     var system_name = opts.system;
     var git_repo = opts['git-repo'];
     var git_ref = opts['git-ref'];
+    var verbose_level = opts.verbose;
 
     if (!is_start) {
       // it's not azk start - continue 'azk scale'
@@ -68,45 +70,55 @@ export class GetProject extends UIProxy {
       git_url: git_repo,
       git_branch_tag_commit: git_ref,
       git_destination_path: git_dest_path,
+      verbose_level: verbose_level
     };
   }
 
   run(parsed_args) {
     return async(this, function* () {
-      try {
-        var dest;
-        if (parsed_args.git_destination_path[0] === "/") {
-          dest = parsed_args.git_destination_path;
-        } else {
-          dest = "./" + parsed_args.git_destination_path;
-        }
-
-        this.ok([
-          `Cloning ${parsed_args.git_url}#${parsed_args.git_branch_tag_commit}`,
-          ` to ${dest} ...`,
-        ].join(''));
-        yield this.clone(parsed_args.git_url,
-                         parsed_args.git_branch_tag_commit,
-                         parsed_args.git_destination_path);
-        return dest;
-
-      } catch (e) {
-        console.error(e.stack);
-        throw e;
+      var dest;
+      if (parsed_args.git_destination_path[0] === "/") {
+        dest = parsed_args.git_destination_path;
+      } else {
+        dest = "./" + parsed_args.git_destination_path;
       }
+
+      this.ok([
+        `Cloning ${parsed_args.git_url}#${parsed_args.git_branch_tag_commit}`,
+        ` to ${dest} ...`,
+      ].join(''));
+
+      yield this.clone(parsed_args.git_url,
+                       parsed_args.git_branch_tag_commit,
+                       parsed_args.git_destination_path,
+                       parsed_args.verbose_level)
+                       .catch(function (err) {
+                         //FIXME: process errors here
+                         /**/console.log('\n>>---------\n err:\n', err, '\n>>---------\n');/*-debug-*/
+                       });
+      return dest;
     });
   }
 
-  clone(git_url, git_branch_tag_commit, dest_folder) {
-    return ninvoke(lazy.Repository,
-      'clone',
-      git_url,
-      dest_folder,
-      {
-        branch: git_branch_tag_commit,
-        'single-branch': true,
-        'recursive': true,
-        //'depth': 1,
-      });
+  clone(git_url, git_branch_tag_commit, dest_folder, verbose_level) {
+    var git_arguments = [
+      '--quiet',
+      '--return',
+      '-c',
+      [
+        'git',
+        'clone',
+        git_url,
+        dest_folder,
+        '--branch',
+        git_branch_tag_commit,
+        '--single-branch',
+        '--recursive',
+        '--verbose',
+      ].join(' '),
+    ];
+
+    // http://stackoverflow.com/questions/18002585/trying-to-redirect-git-gc-output/18004259#18004259
+    return spawnAsync('script', git_arguments, verbose_level);
   }
 }
