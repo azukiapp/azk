@@ -3,13 +3,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## dev
+## v0.14.4 - (2015-06-26)
 
 * Bug
-  * [Suggesting] Fixed postgresql suggestion mounts path;
-  * [Suggesting] Fixed the order in which the suggestion creates systems in `Azkfile.js`, applications comes first and database after;
-  * [Suggesting] Fixed `Court` investigates subfolder even when finding files on the root;
-  * [Agent] Replacing periodic check agent from vm to docker;
+  * [Suggesting] Fixed PostgreSQL suggestion mounts path;
+  * [Suggesting] Fixed the order in which the suggestion creates systems in `Azkfile.js`: applications comes first and database after;
+  * [Suggesting] Fixed `Court` logic: now it doesn't investigate subfolders if evidences are found in the root folder;
+  * [Agent] Replacing periodic agent check from VM to Docker;
 
 * Enhancements
   * [Suggesting] Adding support to use `app.dir` in templates;
