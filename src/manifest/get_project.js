@@ -1,13 +1,10 @@
-import { path, lazy_require } from 'azk';
-import { async, ninvoke } from 'azk/utils/promises';
+import { path } from 'azk';
+import { async } from 'azk/utils/promises';
 import { UIProxy } from 'azk/cli/ui';
-import { matchFirstRegex } from 'azk/utils/regex_helper';
+import { matchFirstRegex, matchAllRegex } from 'azk/utils/regex_helper';
 import { spawnAsync } from 'azk/utils/spawn_helper';
 
 var url  = require('url');
-var lazy = lazy_require({
-  Repository: ['git-cli'],
-});
 
 export class GetProject extends UIProxy {
   static valid(url) {
@@ -74,7 +71,62 @@ export class GetProject extends UIProxy {
     };
   }
 
-  run(parsed_args) {
+  getGitRemoteInfo(parsed_args) {
+    return async(this, function* () {
+
+      this.ok([
+        `Getting ${parsed_args.git_url}`,
+        ` remote info ...`,
+      ].join(''));
+
+      var git_result_obj = yield this.lsRemote(parsed_args.git_url, parsed_args.verbose_level)
+                                  .catch(this.checkGitError);
+
+      var parsed_result = this._parseGitLsRemoteResult(git_result_obj.message);
+
+      return parsed_result;
+    });
+  }
+
+  _parseGitLsRemoteResult(git_result_message) {
+    var maches = matchAllRegex(git_result_message, /^(\w+?)\s(HEAD|refs\/heads\/(.*)|refs\/tags\/(.*))$/gm);
+    return maches.map(function (match) {
+      if (match[3]) {
+        return {
+          commit: match[1],
+          git_ref: match[3]
+        };
+      } else if (match[4]) {
+        return {
+          commit: match[1],
+          git_ref: match[4]
+        };
+      } else {
+        return {
+          commit: match[1],
+          git_ref: null
+        };
+      }
+    });
+  }
+
+  lsRemote(git_url, verbose_level) {
+    var git_arguments = [
+      'ls-remote',
+
+      git_url
+    ];
+
+    // http://stackoverflow.com/questions/18002585/trying-to-redirect-git-gc-output/18004259#18004259
+    return spawnAsync('git', git_arguments, verbose_level);
+  }
+
+  checkGitError(err) {
+    //FIXME: process errors here
+    /**/console.log('\n>>---------\n err:\n [' + err.error_code + ']', err.message, '\n>>---------\n');/*-debug-*/
+  }
+
+  cloneToFolder(parsed_args) {
     return async(this, function* () {
       var dest;
       if (parsed_args.git_destination_path[0] === "/") {
@@ -91,12 +143,7 @@ export class GetProject extends UIProxy {
       yield this.clone(parsed_args.git_url,
                        parsed_args.git_branch_tag_commit,
                        parsed_args.git_destination_path,
-                       parsed_args.verbose_level)
-                       .catch(function (err) {
-                         //FIXME: process errors here
-                         /**/console.log('\n>>---------\n err.error_code:\n', err.error_code, '\n>>---------\n');/*-debug-*/
-                         /**/console.log('\n>>---------\n err.message:\n', err.message, '\n>>---------\n');/*-debug-*/
-                       });
+                       parsed_args.verbose_level).catch(this.checkGitError);
       return dest;
     });
   }
@@ -115,4 +162,5 @@ export class GetProject extends UIProxy {
     // http://stackoverflow.com/questions/18002585/trying-to-redirect-git-gc-output/18004259#18004259
     return spawnAsync('git', git_arguments, verbose_level);
   }
+
 }

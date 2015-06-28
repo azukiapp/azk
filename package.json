@@ -48,7 +48,6 @@
     "forever-monitor": "^1.2.3",
     "fscache": "git+https://github.com/nuxlli/fscache",
     "gaia-tsort": "^0.1.0",
-    "git-cli": "^0.8.3",
     "glob": "^3.2.9",
     "handlebars": "2.0.0-alpha.4",
     "hipache": "git+https://github.com/hipache/hipache#c32e3d2138590cbdb70a67e696c5f8252f7143dc",

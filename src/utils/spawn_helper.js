@@ -24,13 +24,15 @@ var SpawnHelper = {
       });
 
       spawn_cmd.on('close', function (code) {
+        var result_object = {
+          error_code: code,
+          message: outputs.join('\n')
+        };
+
         if (code !== 0) {
-          reject({
-            error_code: code,
-            message: outputs.join('\n')
-          });
+          reject(result_object);
         } else {
-          resolve(code);
+          resolve(result_object);
         }
       });
     });

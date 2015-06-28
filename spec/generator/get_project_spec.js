@@ -4,11 +4,6 @@ import { Cli } from 'azk/cli';
 
 describe('GetProject:', function() {
 
-  // GetProject with mocked UI
-  // var outputs = [];
-  // var ui      = h.mockUI(beforeEach, outputs);
-  // var getProject = new GetProject(ui);
-
   describe('parseCommandOptions:', function () {
     // cli-router to parse arguments
     var cli_options = {};
@@ -114,6 +109,59 @@ describe('GetProject:', function() {
 
       h.expect(parsed_options).to.have.property('git_destination_path',
                                                 'DEST_FOLDER');
+    });
+
+  });
+
+  describe('_parseGitLsRemoteResult:', function () {
+
+    var outputs = [];
+    var ui      = h.mockUI(beforeEach, outputs);
+    var getProject = new GetProject(ui);
+
+    it('should get commit and branch', function() {
+      var input_string = [
+        '284b608a5b9301c3df8e4ddcf371ff74eec2d754	HEAD',
+        '24af92c4701b6bb45c314e8b62be785b595ba74f	refs/heads/feature/adding_services',
+        '9fa9093f65e110ae036341861c0e8801e03591e1	refs/heads/final',
+        '284b608a5b9301c3df8e4ddcf371ff74eec2d754	refs/heads/master',
+        'b6852f0c25461b2cc376b5339975a16747b412f8	refs/heads/two',
+        'f1ae4ba97ac97e615bb3e0d718e0565c3d303dcb	refs/tags/v0.1.2',
+        'b6852f0c25461b2cc376b5339975a16747b412f8	refs/tags/v0.1.2^{}',
+      ].join('\n');
+
+      var parsed_result = getProject._parseGitLsRemoteResult(input_string);
+
+      h.expect(parsed_result).to.containSubset([
+        {
+          commit: '284b608a5b9301c3df8e4ddcf371ff74eec2d754',
+          git_ref: null
+        },
+        {
+          commit: '24af92c4701b6bb45c314e8b62be785b595ba74f',
+          git_ref: 'feature/adding_services'
+        },
+        {
+          commit: '9fa9093f65e110ae036341861c0e8801e03591e1',
+          git_ref: 'final'
+        },
+        {
+          commit: '284b608a5b9301c3df8e4ddcf371ff74eec2d754',
+          git_ref: 'master'
+        },
+        {
+          commit: 'b6852f0c25461b2cc376b5339975a16747b412f8',
+          git_ref: 'two'
+        },
+        {
+          commit: 'f1ae4ba97ac97e615bb3e0d718e0565c3d303dcb',
+          git_ref: 'v0.1.2'
+        },
+        {
+          commit: 'b6852f0c25461b2cc376b5339975a16747b412f8',
+          git_ref: 'v0.1.2^{}'
+        },
+      ]);
     });
 
   });
