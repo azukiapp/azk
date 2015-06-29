@@ -314,7 +314,12 @@ module.exports = {
           default_system_not_balanceable: "\nThe default system `%(name)s` does not have ports http to open.",
           system_not_running: "System `%(name)s` is not running to open.",
         }
-      }
+      },
+      get_project: {
+        getting_remote_info: "Getting remote info from `%(git_url)s`...",
+        cloning_to_folder: "Cloning `%(git_url)s#%(git_branch_tag_commit)s` to `%(dest)s` ...",
+        checkout_to_commit: "Checkout to `%(git_branch_tag_commit)s` in `%(git_destination_path)s`...",
+      },
     },
     stop: {
       not_running: "System `" + "%(name)s".blue + "` not running",

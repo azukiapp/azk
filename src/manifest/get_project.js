@@ -100,9 +100,7 @@ export class GetProject extends UIProxy {
   getGitRemoteInfo(git_url, verbose_level) {
     return async(this, function* () {
 
-      this.ok([
-        `Getting remote info from ${git_url}...`,
-      ].join(''));
+      this.ok('commands.start.get_project.getting_remote_info', {git_url});
 
       var git_result_obj = yield this.lsRemote(git_url, verbose_level)
                                   .catch(this.checkGitError);
@@ -186,10 +184,11 @@ export class GetProject extends UIProxy {
         dest = "./" + git_destination_path;
       }
 
-      this.ok([
-        `Cloning ${git_url}#${git_branch_tag_commit}`,
-        ` to ${dest} ...`,
-      ].join(''));
+      this.ok('commands.start.get_project.cloning_to_folder', {
+        git_url,
+        git_branch_tag_commit,
+        dest,
+      });
 
       yield this.clone(git_url,
                        git_branch_tag_commit,
@@ -216,15 +215,14 @@ export class GetProject extends UIProxy {
   checkoutToCommit(parsed_args) {
     return async(this, function* () {
 
-      this.ok([
-        `Checkout to ${parsed_args.git_branch_tag_commit}`,
-        ` in ${parsed_args.git_destination_path} ...`,
-      ].join(''));
+      this.ok('commands.start.get_project.checkout_to_commit', parsed_args);
 
-      yield this.checkoutInFolder(parsed_args.git_url,
-                       parsed_args.git_branch_tag_commit,
-                       parsed_args.git_destination_path,
-                       parsed_args.verbose_level).catch(this.checkGitError);
+      yield this.checkoutInFolder(
+          parsed_args.git_url,
+          parsed_args.git_branch_tag_commit,
+          parsed_args.git_destination_path,
+          parsed_args.verbose_level)
+        .catch(this.checkGitError);
     });
   }
 
