@@ -89,7 +89,7 @@ Options:
   --tty, -t                 Forces pseudo-tty allocation.
   --text                    Shows output in plain text mode.
   --verbose, -v             Sets the level of detail - multiple supported (-vv == --verbose 2) [default: 0].
-  --ref                     Git branch, tag or commit to clone
+  --git-ref=<git-ref>       Git branch, tag or commit to clone
   --silent                  Prevents any log message about command execution. It's useful when using the `-c` option and the output is used as input to another command using the pipe `|` operator.
   --version                 Shows azk version.
 

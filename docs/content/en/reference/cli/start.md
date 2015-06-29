@@ -27,7 +27,7 @@ $ azk start [<git-repo>] [<dest-path>] [--git-ref=<git-ref>] [--reprovision --re
   --help, -h                Shows help usage.
   --log=<level>, -l         Sets log level (default: error).
   --verbose, -v             Sets the level of detail - multiple supported (-vv == --verbose 2) [default: 0].
-  --git-ref                 Git branch, tag or commit to clone
+  --git-ref=<git-ref>       Git branch, tag or commit to clone
 ```
 
 #### Example:

@@ -26,7 +26,7 @@
   --help, -h                Mostrar ajuda de uso.
   --log=<level>, -l         Defini o nível de log (padrão: error).
   --verbose, -v             Defini o nível de detalhes da saída - suporta múltiplos (-vv == --verbose 2) [padrão: 0].
-  --git-ref                 branch, tag ou commit para clonar no Git
+  --git-ref=<git-ref>       branch, tag ou commit para clonar no Git
 ```
 
 #### Exemplos:
