@@ -71,15 +71,24 @@ export class GetProject extends UIProxy {
     };
   }
 
-  getGitRemoteInfo(parsed_args) {
+  startProject(command_parse_result) {
+    return async(this, function* () {
+      var parsed = this.command_parse_result;
+      var remoteInfo = yield this.getGitRemoteInfo(parsed.git_url, parsed.verbose_level);
+      var branch_tag_name = this.command_parse_result.git_branch_tag_commit;
+      var _isBranchOrTag = this._isBranchOrTag(remoteInfo, branch_tag_name);
+    });
+  }
+
+  getGitRemoteInfo(git_url, verbose_level) {
     return async(this, function* () {
 
       this.ok([
-        `Getting ${parsed_args.git_url}`,
+        `Getting ${git_url}`,
         ` remote info ...`,
       ].join(''));
 
-      var git_result_obj = yield this.lsRemote(parsed_args.git_url, parsed_args.verbose_level)
+      var git_result_obj = yield this.lsRemote(git_url, verbose_level)
                                   .catch(this.checkGitError);
 
       var parsed_result = this._parseGitLsRemoteResult(git_result_obj.message);
@@ -89,6 +98,7 @@ export class GetProject extends UIProxy {
   }
 
   _parseGitLsRemoteResult(git_result_message) {
+    // https://regex101.com/r/pW4vY1/1
     var maches = matchAllRegex(git_result_message, /^(\w+?)\s(HEAD|refs\/heads\/(.*)|refs\/tags\/(.*))$/gm);
     return maches.map(function (match) {
       if (match[3]) {
@@ -100,6 +110,11 @@ export class GetProject extends UIProxy {
         return {
           commit: match[1],
           git_ref: match[4]
+        };
+      } else if (match[2] === 'HEAD') {
+        return {
+          commit: match[1],
+          git_ref: 'HEAD'
         };
       } else {
         return {
@@ -124,6 +139,15 @@ export class GetProject extends UIProxy {
   checkGitError(err) {
     //FIXME: process errors here
     /**/console.log('\n>>---------\n err:\n [' + err.error_code + ']', err.message, '\n>>---------\n');/*-debug-*/
+  }
+
+  _isBranchOrTag(git_result_obj_array, branch_tag_name) {
+    function _checkBranchOrTag(obj) {
+      return obj.git_ref === branch_tag_name;
+    }
+
+    var filtered = git_result_obj_array.filter(_checkBranchOrTag);
+    return filtered.length > 0;
   }
 
   cloneToFolder(parsed_args) {

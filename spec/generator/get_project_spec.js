@@ -135,7 +135,7 @@ describe('GetProject:', function() {
       h.expect(parsed_result).to.containSubset([
         {
           commit: '284b608a5b9301c3df8e4ddcf371ff74eec2d754',
-          git_ref: null
+          git_ref: 'HEAD'
         },
         {
           commit: '24af92c4701b6bb45c314e8b62be785b595ba74f',
@@ -162,6 +162,53 @@ describe('GetProject:', function() {
           git_ref: 'v0.1.2^{}'
         },
       ]);
+    });
+
+  });
+
+  describe('_isBranchOrTag:', function () {
+
+    var outputs = [];
+    var ui      = h.mockUI(beforeEach, outputs);
+    var getProject = new GetProject(ui);
+
+    it('should get commit and branch', function() {
+      var input_array = [
+        {
+          commit: '284b608a5b9301c3df8e4ddcf371ff74eec2d754',
+          git_ref: 'HEAD'
+        },
+        {
+          commit: '24af92c4701b6bb45c314e8b62be785b595ba74f',
+          git_ref: 'feature/adding_services'
+        },
+        {
+          commit: '9fa9093f65e110ae036341861c0e8801e03591e1',
+          git_ref: 'final'
+        },
+        {
+          commit: '284b608a5b9301c3df8e4ddcf371ff74eec2d754',
+          git_ref: 'master'
+        },
+        {
+          commit: 'b6852f0c25461b2cc376b5339975a16747b412f8',
+          git_ref: 'two'
+        },
+        {
+          commit: 'f1ae4ba97ac97e615bb3e0d718e0565c3d303dcb',
+          git_ref: 'v0.1.2'
+        },
+        {
+          commit: 'b6852f0c25461b2cc376b5339975a16747b412f8',
+          git_ref: 'v0.1.2^{}'
+        },
+      ];
+
+      h.expect(getProject._isBranchOrTag(input_array, 'two')).to.be.true;
+      h.expect(getProject._isBranchOrTag(input_array, 'v0.1.2')).to.be.true;
+      h.expect(getProject._isBranchOrTag(input_array, 'HEAD')).to.be.true;
+      h.expect(getProject._isBranchOrTag(input_array, 'NONE')).to.be.false;
+
     });
 
   });
