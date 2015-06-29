@@ -5,12 +5,14 @@ var MANIFEST_CODE_ERROR = 2;
 var SYSTEMS_CODE_ERROR  = 3;
 var IMAGES_CODE_ERROR   = 4;
 var AGENT_CODE_ERROR    = 5;
+var SPAWN_CODE_ERROR    = 6;
 
 export { BASE_CODE_ERROR };
 export { MANIFEST_CODE_ERROR };
 export { SYSTEMS_CODE_ERROR };
 export { IMAGES_CODE_ERROR };
 export { AGENT_CODE_ERROR };
+export { SPAWN_CODE_ERROR };
 
 function copyOwnFrom(target, source) {
   Object.getOwnPropertyNames(source).forEach(function(propName) {
@@ -226,5 +228,17 @@ export class VmStartError extends AzkError {
     this.timeout = timeout;
     this.screen  = screen;
     this.code = AGENT_CODE_ERROR;
+  }
+}
+
+export class GitCallError extends AzkError {
+  constructor(error_type, git_repo, git_branch_tag_commit, git_destination_path, original_error) {
+    super('get_project.' + error_type);
+
+    this.git_repo              = git_repo;
+    this.git_branch_tag_commit = git_branch_tag_commit;
+    this.git_destination_path  = git_destination_path;
+    this.original_error        = original_error;
+    this.code                  = SPAWN_CODE_ERROR;
   }
 }

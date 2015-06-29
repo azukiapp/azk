@@ -14,7 +14,8 @@ var lazy = lazy_require({
 class Scale extends CliTrackerController {
   index(opts) {
     return async(this, function* () {
-      // check if needs a "git cloning"
+
+      // GetProject: clone and start a project from a git repo
       var command_parse_result = lazy.GetProject.parseCommandOptions(opts);
       if (command_parse_result) {
         var getter = new lazy.GetProject(this.ui, command_parse_result);
@@ -54,8 +55,6 @@ class Scale extends CliTrackerController {
       return result;
     })
     .catch(function (err) {
-      // Unhandled rejection overtakes synchronous exception through done() #471
-      // https://github.com/petkaantonov/bluebird/issues/471
       if (err instanceof AzkError) {
         this.ui.fail(err.toString());
       }
