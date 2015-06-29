@@ -9,6 +9,7 @@
 
 #### Commands:
 
+```
   agent    Controls azk agent.
   config   Controls azk configuration options.
   docker   Alias for calling docker in azk configuration scope.
@@ -24,8 +25,11 @@
   stop     Stops one or more systems.
   version  Shows azk version.
   vm       Controls the Virtual Machine.
+```
 
 #### Exemplos:
 
+```
   azk agent --help
   azk help start
+```
