@@ -73,10 +73,27 @@ export class GetProject extends UIProxy {
 
   startProject(command_parse_result) {
     return async(this, function* () {
-      var parsed = this.command_parse_result;
-      var remoteInfo = yield this.getGitRemoteInfo(parsed.git_url, parsed.verbose_level);
-      var branch_tag_name = this.command_parse_result.git_branch_tag_commit;
+      var remoteInfo = yield this.getGitRemoteInfo(command_parse_result.git_url, command_parse_result.verbose_level);
+      var branch_tag_name = command_parse_result.git_branch_tag_commit;
       var _isBranchOrTag = this._isBranchOrTag(remoteInfo, branch_tag_name);
+
+      var cwd_result;
+      if (_isBranchOrTag) {
+        cwd_result = yield this.cloneToFolder(
+          command_parse_result.git_url,
+          command_parse_result.git_branch_tag_commit,
+          command_parse_result.git_destination_path,
+          command_parse_result.verbose_level);
+      } else {
+        cwd_result = yield this.cloneToFolder(
+          command_parse_result.git_url,
+          'master',
+          command_parse_result.git_destination_path,
+          command_parse_result.verbose_level);
+        yield this.checkoutToCommit(command_parse_result);
+      }
+
+      return cwd_result;
     });
   }
 
@@ -84,8 +101,7 @@ export class GetProject extends UIProxy {
     return async(this, function* () {
 
       this.ok([
-        `Getting ${git_url}`,
-        ` remote info ...`,
+        `Getting remote info from ${git_url}...`,
       ].join(''));
 
       var git_result_obj = yield this.lsRemote(git_url, verbose_level)
@@ -132,13 +148,24 @@ export class GetProject extends UIProxy {
       git_url
     ];
 
-    // http://stackoverflow.com/questions/18002585/trying-to-redirect-git-gc-output/18004259#18004259
     return spawnAsync('git', git_arguments, verbose_level);
   }
 
   checkGitError(err) {
     //FIXME: process errors here
     /**/console.log('\n>>---------\n err:\n [' + err.error_code + ']', err.message, '\n>>---------\n');/*-debug-*/
+
+    // commit not found
+    // https://regex101.com/r/bB2fZ9/1
+
+    // branch not found
+    // https://regex101.com/r/bB2fZ9/2
+
+    // destination path exists
+    // https://regex101.com/r/bB2fZ9/3
+
+    // repo not found
+    // https://regex101.com/r/bB2fZ9/4
   }
 
   _isBranchOrTag(git_result_obj_array, branch_tag_name) {
@@ -150,24 +177,24 @@ export class GetProject extends UIProxy {
     return filtered.length > 0;
   }
 
-  cloneToFolder(parsed_args) {
+  cloneToFolder(git_url, git_branch_tag_commit, git_destination_path, verbose_level) {
     return async(this, function* () {
       var dest;
-      if (parsed_args.git_destination_path[0] === "/") {
-        dest = parsed_args.git_destination_path;
+      if (git_destination_path[0] === "/") {
+        dest = git_destination_path;
       } else {
-        dest = "./" + parsed_args.git_destination_path;
+        dest = "./" + git_destination_path;
       }
 
       this.ok([
-        `Cloning ${parsed_args.git_url}#${parsed_args.git_branch_tag_commit}`,
+        `Cloning ${git_url}#${git_branch_tag_commit}`,
         ` to ${dest} ...`,
       ].join(''));
 
-      yield this.clone(parsed_args.git_url,
-                       parsed_args.git_branch_tag_commit,
-                       parsed_args.git_destination_path,
-                       parsed_args.verbose_level).catch(this.checkGitError);
+      yield this.clone(git_url,
+                       git_branch_tag_commit,
+                       git_destination_path,
+                       verbose_level).catch(this.checkGitError);
       return dest;
     });
   }
@@ -183,8 +210,32 @@ export class GetProject extends UIProxy {
       '--recursive',
     ];
 
-    // http://stackoverflow.com/questions/18002585/trying-to-redirect-git-gc-output/18004259#18004259
     return spawnAsync('git', git_arguments, verbose_level);
   }
 
+  checkoutToCommit(parsed_args) {
+    return async(this, function* () {
+
+      this.ok([
+        `Checkout to ${parsed_args.git_branch_tag_commit}`,
+        ` in ${parsed_args.git_destination_path} ...`,
+      ].join(''));
+
+      yield this.checkoutInFolder(parsed_args.git_url,
+                       parsed_args.git_branch_tag_commit,
+                       parsed_args.git_destination_path,
+                       parsed_args.verbose_level).catch(this.checkGitError);
+    });
+  }
+
+  checkoutInFolder(git_url, git_branch_tag_commit, dest_folder, verbose_level) {
+    var git_arguments = [
+      '-C',
+      dest_folder,
+      'checkout',
+      git_branch_tag_commit
+    ];
+
+    return spawnAsync('git', git_arguments, verbose_level);
+  }
 }

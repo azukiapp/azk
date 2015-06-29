@@ -17,11 +17,8 @@ class Scale extends CliTrackerController {
       // check if needs a "git cloning"
       var command_parse_result = lazy.GetProject.parseCommandOptions(opts);
       if (command_parse_result) {
-        var getter = new lazy.GetProject(this.ui);
-        var remoteInfo = yield getter.getGitRemoteInfo(command_parse_result);
-        /**/console.log('\n>>---------\n remoteInfo:\n',/*-debug-*/
-        /**/  require('util').inspect(remoteInfo, { showHidden: false, depth: null, colors: true }), '\n>>---------\n');/*-debug-*/
-        // this.cwd = yield getter.cloneToFolder(command_parse_result);
+        var getter = new lazy.GetProject(this.ui, command_parse_result);
+        this.cwd = yield getter.startProject(command_parse_result);
         opts.system = null;
       }
 

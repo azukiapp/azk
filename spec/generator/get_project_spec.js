@@ -172,7 +172,7 @@ describe('GetProject:', function() {
     var ui      = h.mockUI(beforeEach, outputs);
     var getProject = new GetProject(ui);
 
-    it('should get commit and branch', function() {
+    it('should check if is a valid branch or tag name', function() {
       var input_array = [
         {
           commit: '284b608a5b9301c3df8e4ddcf371ff74eec2d754',
