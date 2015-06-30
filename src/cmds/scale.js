@@ -58,6 +58,7 @@ class Scale extends CliTrackerController {
       if (err instanceof AzkError) {
         this.ui.fail(err.toString());
       }
+      this.ui.fail(err.stack);
     }.bind(this));
   }
 

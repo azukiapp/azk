@@ -153,16 +153,6 @@ export class GetProject extends UIProxy {
     });
   }
 
-  lsRemote(git_url, verbose_level) {
-    var git_arguments = [
-      'ls-remote',
-
-      git_url
-    ];
-
-    return spawnAsync('git', git_arguments, verbose_level);
-  }
-
   checkGitError(git_repo, git_branch_tag_commit, git_destination_path) {
     return function (err) {
       //FIXME: process errors here
@@ -207,17 +197,6 @@ export class GetProject extends UIProxy {
       if (/could not create work tree dir/.test(err.message)) {
         error_type = 'cannot_create_folder';
       }
-
-      // /**/console.log('\n%% will show fail \n');/*-debug-*/
-
-      // this.fail('errors.get_project.cloning_not_a_git_repo', {
-      //   git_repo,
-      //   git_branch_tag_commit,
-      //   git_destination_path,
-      //   original_error
-      // });
-
-      // /**/console.log('\n%% will throw \n');/*-debug-*/
 
       return promiseReject(new GitCallError(
         error_type,
@@ -265,20 +244,6 @@ export class GetProject extends UIProxy {
     });
   }
 
-  clone(git_url, git_branch_tag_commit, dest_folder, verbose_level) {
-    var git_arguments = [
-      'clone',
-      git_url,
-      dest_folder,
-      '--branch',
-      git_branch_tag_commit,
-      '--single-branch',
-      '--recursive',
-    ];
-
-    return spawnAsync('git', git_arguments, verbose_level);
-  }
-
   checkoutToCommit(parsed_args) {
     this.ok('commands.start.get_project.checkout_to_commit', parsed_args);
 
@@ -293,14 +258,52 @@ export class GetProject extends UIProxy {
           parsed_args.git_destination_path));
   }
 
-  checkoutInFolder(git_url, git_branch_tag_commit, dest_folder, verbose_level) {
-    var git_arguments = [
-      '-C',
-      dest_folder,
-      'checkout',
-      git_branch_tag_commit
-    ];
+  // //////////////
+  // GIT spawnAsync
+  // //////////////
+  lsRemote(git_url, verbose_level) {
+    return spawnAsync({
+      executable: 'git',
+      params_array: [
+        'ls-remote',
+        git_url
+      ],
+      verbose_level: verbose_level,
+      uiOk: this.ok.bind(this),
+      spawn_prefix: '[git]'
+    });
+  }
 
-    return spawnAsync('git', git_arguments, verbose_level);
+  clone(git_url, git_branch_tag_commit, dest_folder, verbose_level) {
+    return spawnAsync({
+      executable: 'git',
+      params_array: [
+        'clone',
+        git_url,
+        dest_folder,
+        '--branch',
+        git_branch_tag_commit,
+        '--single-branch',
+        '--recursive',
+      ],
+      verbose_level: verbose_level,
+      uiOk: this.ok.bind(this),
+      spawn_prefix: '[git]'
+    });
+  }
+
+  checkoutInFolder(git_url, git_branch_tag_commit, dest_folder, verbose_level) {
+    return spawnAsync({
+      executable: 'git',
+      params_array: [
+        '-C',
+        dest_folder,
+        'checkout',
+        git_branch_tag_commit
+      ],
+      verbose_level: verbose_level,
+      uiOk: this.ok.bind(this),
+      spawn_prefix: '[git]'
+    });
   }
 }
