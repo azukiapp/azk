@@ -62,6 +62,12 @@ export class GetProject extends UIProxy {
     if (!git_dest_path) {
       var schema = url.parse(git_repo);
       git_dest_path = path.join("./", path.basename(schema.path).replace(/\.git/, ''));
+    } else {
+      if (git_dest_path[0] === "/") {
+        git_dest_path = git_dest_path;
+      } else {
+        git_dest_path = "./" + git_dest_path;
+      }
     }
 
     return {
@@ -155,47 +161,35 @@ export class GetProject extends UIProxy {
 
   checkGitError(git_repo, git_branch_tag_commit, git_destination_path) {
     return function (err) {
-      //FIXME: process errors here
-      /**/console.log('\n>>---------\n err:\n [' + err.error_code + ']', err.message, '\n>>---------\n');/*-debug-*/
       var original_error = err.message;
       var error_type;
 
       original_error = fulltrim(original_error);
 
-      // commit not found
-      // https://regex101.com/r/bB2fZ9/1
-      if (/pathspec ['"]\w+['"] did not match any file/.test(err.message)) {
+      if (/pathspec ['"].+?['"] did not match any file/.test(err.message)) {
+        // commit not found
+        // https://regex101.com/r/bB2fZ9/1
         error_type = 'commit_not_exist';
-      }
-
-      // branch not found
-      // https://regex101.com/r/bB2fZ9/2
-      if (/Could not find remote branch/.test(err.message)) {
+      } else if (/Could not find remote branch/.test(err.message)) {
+        // branch not found
+        // https://regex101.com/r/bB2fZ9/2
         error_type = 'cloning_not_a_git_repo';
-      }
-
-      // destination path exists
-      // https://regex101.com/r/bB2fZ9/3
-      if (/destination path ['"](.+?)['"] already exists and is not an empty directory/.test(err.message)) {
+      } else if (/destination path ['"].+?['"] already exists and is not an empty directory/.test(err.message)) {
+        // destination path exists
+        // https://regex101.com/r/bB2fZ9/3
         error_type = 'folder_already_exists';
-      }
-
-      // repo not found
-      // https://regex101.com/r/bB2fZ9/4
-      if (/Repository not found/.test(err.message)) {
-        error_type = 'cloning_error';
-      }
-
-      if (/Could not resolve host/.test(err.message)) {
-        error_type = 'not_resolve_host';
-      }
-
-      if (/repository ['"].*?['"] not found/.test(err.message)) {
+      } else if (/Repository not found/.test(err.message)) {
+        // repo not found
+        // https://regex101.com/r/bB2fZ9/4
         error_type = 'repo_not_found';
-      }
-
-      if (/could not create work tree dir/.test(err.message)) {
+      } else if (/Could not resolve host/.test(err.message)) {
+        error_type = 'not_resolve_host';
+      } else if (/repository ['"].*?['"] not found/.test(err.message)) {
+        error_type = 'repo_not_found';
+      } else if (/could not create work tree dir/.test(err.message)) {
         error_type = 'cannot_create_folder';
+      } else {
+        error_type = 'git_error';
       }
 
       return promiseReject(new GitCallError(
@@ -218,17 +212,11 @@ export class GetProject extends UIProxy {
 
   cloneToFolder(git_url, git_branch_tag_commit, git_destination_path, verbose_level) {
     return async(this, function* () {
-      var dest;
-      if (git_destination_path[0] === "/") {
-        dest = git_destination_path;
-      } else {
-        dest = "./" + git_destination_path;
-      }
 
       this.ok('commands.start.get_project.cloning_to_folder', {
         git_url,
         git_branch_tag_commit,
-        dest,
+        git_destination_path,
       });
 
       yield this.clone(git_url,
@@ -238,9 +226,9 @@ export class GetProject extends UIProxy {
         .catch(this.checkGitError(
           git_url,
           git_branch_tag_commit,
-          dest));
+          git_destination_path));
 
-      return dest;
+      return git_destination_path;
     });
   }
 
