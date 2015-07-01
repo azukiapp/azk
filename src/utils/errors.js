@@ -232,13 +232,14 @@ export class VmStartError extends AzkError {
 }
 
 export class GitCallError extends AzkError {
-  constructor(error_type, git_repo, git_branch_tag_commit, git_destination_path, original_error) {
+  constructor(error_type, git_repo, git_branch_tag_commit, git_destination_path, original_error, stack_trace) {
     super('get_project.' + error_type);
 
     this.git_repo              = git_repo;
     this.git_branch_tag_commit = git_branch_tag_commit;
     this.git_destination_path  = git_destination_path;
     this.original_error        = original_error;
+    this.stack_trace           = stack_trace;
     this.code                  = SPAWN_CODE_ERROR;
   }
 }

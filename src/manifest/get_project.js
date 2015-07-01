@@ -1,13 +1,22 @@
-import { path } from 'azk';
+import { path, lazy_require } from 'azk';
 import { async, promiseReject } from 'azk/utils/promises';
 import { UIProxy } from 'azk/cli/ui';
-import { matchFirstRegex, matchAllRegex, fulltrim } from 'azk/utils/regex_helper';
+import { matchFirstRegex, matchAllRegex, fulltrim, groupFromRegex } from 'azk/utils/regex_helper';
 import { spawnAsync } from 'azk/utils/spawn_helper';
 import { GitCallError } from 'azk/utils/errors';
 
-var url  = require('url');
+var lazy = lazy_require({
+  semver: 'semver',
+});
 
 export class GetProject extends UIProxy {
+
+  constructor(...args) {
+    super(...args);
+    this.IS_NEW_GIT_VERSION_AFTER = '1.7.10';
+    this.is_new_git = null;
+  }
+
   static valid(url) {
     var isValid = /\//;
     return isValid.test(url);
@@ -60,7 +69,8 @@ export class GetProject extends UIProxy {
 
     var git_dest_path = opts['dest-path'];
     if (!git_dest_path) {
-      var schema = url.parse(git_repo);
+      var url_lib   = require('url');
+      var schema    = url_lib.parse(git_repo);
       git_dest_path = path.join("./", path.basename(schema.path).replace(/\.git/, ''));
     } else {
       if (git_dest_path[0] === "/") {
@@ -71,17 +81,19 @@ export class GetProject extends UIProxy {
     }
 
     return {
-      git_url: git_repo,
-      git_branch_tag_commit: git_ref,
-      git_destination_path: git_dest_path,
-      verbose_level: verbose_level
+      git_url               : git_repo,
+      git_branch_tag_commit : git_ref,
+      git_destination_path  : git_dest_path,
+      verbose_level         : verbose_level
     };
   }
 
   startProject(command_parse_result) {
     return async(this, function* () {
 
-      var remoteInfo      = yield this.getGitRemoteInfo(
+      yield this._checkGitVersion(command_parse_result.verbose_level);
+
+      var remoteInfo = yield this._getGitRemoteInfo(
         command_parse_result.git_url,
         command_parse_result.verbose_level);
 
@@ -89,46 +101,54 @@ export class GetProject extends UIProxy {
       var _isBranchOrTag  = this._isBranchOrTag(remoteInfo, branch_tag_name);
 
       var cwd_result;
-      if (_isBranchOrTag) {
+      if (_isBranchOrTag && this.is_new_git) {
         // clone to specific branch
-        cwd_result = yield this.cloneToFolder(
+        cwd_result = yield this._cloneToFolder(
           command_parse_result.git_url,
           command_parse_result.git_branch_tag_commit,
           command_parse_result.git_destination_path,
           command_parse_result.verbose_level);
       } else {
         // clone to master
-        cwd_result = yield this.cloneToFolder(
+        cwd_result = yield this._cloneToFolder(
           command_parse_result.git_url,
           'master',
           command_parse_result.git_destination_path,
           command_parse_result.verbose_level);
         // checkout to specific commit
-        yield this.checkoutToCommit(command_parse_result);
+        yield this._checkoutToCommit(command_parse_result);
       }
-
-      // // check if manifest file exists on destination folder
-      // yield this.checkForManifest(command_parse_result.git_destination_path);
 
       return cwd_result;
     });
   }
 
-  getGitRemoteInfo(git_url, verbose_level) {
-    return async(this, function* () {
+  _checkGitVersion(verbose_level) {
+    this.ok('commands.start.get_project.getting_git_version');
 
+    return this._gitspawn_VersionAsync(verbose_level)
+    .then((git_result_obj) => {
+      var git_version = groupFromRegex(git_result_obj.message, /.*?(\d+\.\d+\.\d+)/, 1);
+      this.is_new_git = lazy.semver.gte(git_version, this.IS_NEW_GIT_VERSION_AFTER);
+      return git_version;
+    })
+    .catch(this._checkGitError(
+      null,
+      null,
+      null));
+  }
+
+  _getGitRemoteInfo(git_url, verbose_level) {
+    return this._gitspawn_LsRemoteAsync(git_url, verbose_level)
+    .then((git_result_obj) => {
       this.ok('commands.start.get_project.getting_remote_info', {git_url});
-
-      var git_result_obj = yield this.lsRemote(git_url, verbose_level)
-        .catch(this.checkGitError(
-          git_url,
-          null,
-          null));
-
       var parsed_result = this._parseGitLsRemoteResult(git_result_obj.message);
-
       return parsed_result;
-    });
+    })
+    .catch(this._checkGitError(
+      git_url,
+      null,
+      null));
   }
 
   _parseGitLsRemoteResult(git_result_message) {
@@ -137,31 +157,32 @@ export class GetProject extends UIProxy {
     return maches.map(function (match) {
       if (match[3]) {
         return {
-          commit: match[1],
-          git_ref: match[3]
+          commit  : match[1],
+          git_ref : match[3]
         };
       } else if (match[4]) {
         return {
-          commit: match[1],
-          git_ref: match[4]
+          commit  : match[1],
+          git_ref : match[4]
         };
       } else if (match[2] === 'HEAD') {
         return {
-          commit: match[1],
-          git_ref: 'HEAD'
+          commit  : match[1],
+          git_ref : 'HEAD'
         };
       } else {
         return {
-          commit: match[1],
-          git_ref: null
+          commit  : match[1],
+          git_ref : null
         };
       }
     });
   }
 
-  checkGitError(git_repo, git_branch_tag_commit, git_destination_path) {
+  _checkGitError(git_repo, git_branch_tag_commit, git_destination_path) {
     return function (err) {
       var original_error = err.message;
+      var stack_trace = err.stack;
       var error_type;
 
       original_error = fulltrim(original_error);
@@ -197,7 +218,8 @@ export class GetProject extends UIProxy {
         git_repo,
         git_branch_tag_commit,
         git_destination_path,
-        original_error));
+        original_error,
+        stack_trace));
     };
   }
 
@@ -210,88 +232,100 @@ export class GetProject extends UIProxy {
     return filtered.length > 0;
   }
 
-  cloneToFolder(git_url, git_branch_tag_commit, git_destination_path, verbose_level) {
-    return async(this, function* () {
+  _cloneToFolder(git_url, git_branch_tag_commit, git_destination_path, verbose_level) {
+    this.ok('commands.start.get_project.cloning_to_folder', {
+      git_url,
+      git_branch_tag_commit,
+      git_destination_path,
+    });
 
-      this.ok('commands.start.get_project.cloning_to_folder', {
-        git_url,
-        git_branch_tag_commit,
-        git_destination_path,
-      });
+    return this._gitspawn_CloneAsync(git_url,
+                                     git_branch_tag_commit,
+                                     git_destination_path,
+                                     verbose_level)
+      .then(() => {
+        return git_destination_path;
+      })
+      .catch(this._checkGitError(git_url, git_branch_tag_commit, git_destination_path));
+  }
 
-      yield this.clone(git_url,
-                       git_branch_tag_commit,
-                       git_destination_path,
-                       verbose_level)
-        .catch(this.checkGitError(
-          git_url,
-          git_branch_tag_commit,
-          git_destination_path));
+  _checkoutToCommit(parsed_args) {
+    this.ok('commands.start.get_project.checkout_to_commit', parsed_args);
 
-      return git_destination_path;
+    return this._gitspawn_CheckoutInFolderAsync(parsed_args.git_url,
+                                                parsed_args.git_branch_tag_commit,
+                                                parsed_args.git_destination_path,
+                                                parsed_args.verbose_level)
+    .catch(this._checkGitError(
+      parsed_args.git_url,
+      parsed_args.git_branch_tag_commit,
+      parsed_args.git_destination_path));
+  }
+
+  /**********************
+    gitspaw _Async calls *
+   **********************/
+  _gitspawn_VersionAsync(verbose_level) {
+    return spawnAsync({
+      executable   : 'git',
+      params_array : [
+        '--version'
+      ],
+      verbose_level : verbose_level,
+      uiOk          : this.ok.bind(this),
+      spawn_prefix  : '[git]'
     });
   }
 
-  checkoutToCommit(parsed_args) {
-    this.ok('commands.start.get_project.checkout_to_commit', parsed_args);
-
-    return this.checkoutInFolder(
-        parsed_args.git_url,
-        parsed_args.git_branch_tag_commit,
-        parsed_args.git_destination_path,
-        parsed_args.verbose_level)
-        .catch(this.checkGitError(
-          parsed_args.git_url,
-          parsed_args.git_branch_tag_commit,
-          parsed_args.git_destination_path));
-  }
-
-  // //////////////
-  // GIT spawnAsync
-  // //////////////
-  lsRemote(git_url, verbose_level) {
+  _gitspawn_LsRemoteAsync(git_url, verbose_level) {
     return spawnAsync({
-      executable: 'git',
-      params_array: [
+      executable   : 'git',
+      params_array : [
         'ls-remote',
         git_url
       ],
-      verbose_level: verbose_level,
-      uiOk: this.ok.bind(this),
-      spawn_prefix: '[git]'
+      verbose_level : verbose_level,
+      uiOk          : this.ok.bind(this),
+      spawn_prefix  : '[git]'
     });
   }
 
-  clone(git_url, git_branch_tag_commit, dest_folder, verbose_level) {
+  _gitspawn_CloneAsync(git_url, git_branch_tag_commit, dest_folder, verbose_level) {
+
+    var git_params = [
+      'clone',
+      git_url,
+      dest_folder,
+      '--recursive'
+    ];
+
+    if (this.is_new_git) {
+      git_params.push('--single-branch');
+      git_params.push('--branch');
+      git_params.push(git_branch_tag_commit);
+    }
+
     return spawnAsync({
-      executable: 'git',
-      params_array: [
-        'clone',
-        git_url,
-        dest_folder,
-        '--branch',
-        git_branch_tag_commit,
-        '--single-branch',
-        '--recursive',
-      ],
-      verbose_level: verbose_level,
-      uiOk: this.ok.bind(this),
-      spawn_prefix: '[git]'
+      executable    : 'git',
+      params_array  : git_params,
+      verbose_level : verbose_level,
+      uiOk          : this.ok.bind(this),
+      spawn_prefix  : '[git]'
     });
   }
 
-  checkoutInFolder(git_url, git_branch_tag_commit, dest_folder, verbose_level) {
+  _gitspawn_CheckoutInFolderAsync(git_url, git_branch_tag_commit, dest_folder, verbose_level) {
     return spawnAsync({
-      executable: 'git',
-      params_array: [
+      executable   : 'git',
+      params_array : [
         '-C',
         dest_folder,
         'checkout',
         git_branch_tag_commit
       ],
-      verbose_level: verbose_level,
-      uiOk: this.ok.bind(this),
-      spawn_prefix: '[git]'
+      verbose_level : verbose_level,
+      uiOk          : this.ok.bind(this),
+      spawn_prefix  : '[git]'
     });
   }
 }

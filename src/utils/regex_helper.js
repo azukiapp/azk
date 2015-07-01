@@ -25,6 +25,12 @@ var RegexHelper = {
     return text;
   },
 
+  /**
+   * get first regex and return
+   * @param  {string} str content
+   * @param  {regex}  re  regexobj
+   * @return {match}      match object
+   */
   matchFirstRegex(str, re) {
     var m;
     while ((m = re.exec(str)) !== null) {
@@ -35,11 +41,24 @@ var RegexHelper = {
     }
   },
 
-  getGroupStringFromRegex(str, re, groupIndex) {
+  /**
+   * get the result string from group index
+   * @param  {string} str
+   * @param  {regex}  re
+   * @param  {number} groupIndex
+   * @return {string}
+   */
+  groupFromRegex(str, re, groupIndex) {
     var match = RegexHelper.matchFirstRegex(str, re);
     return match[groupIndex];
   },
 
+  /**
+   * return all maches from regex exec
+   * @param  {string} str
+   * @param  {regex}  re
+   * @return {array}
+   */
   matchAllRegex(str, re) {
     var m;
     var all_matches = [];
@@ -71,8 +90,6 @@ var RegexHelper = {
   trimEmptyBorderLines(str) {
     return str.replace(/^$\n/g, '');
   },
-
-  RegexHelper,
 
 };
 

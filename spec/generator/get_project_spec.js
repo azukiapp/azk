@@ -1,6 +1,7 @@
 import h from 'spec/spec_helper';
 import { GetProject } from 'azk/manifest/get_project';
 import { Cli } from 'azk/cli';
+import { promiseResolve } from 'azk/utils/promises';
 
 describe('GetProject:', function() {
 
@@ -21,7 +22,7 @@ describe('GetProject:', function() {
       return GetProject.parseCommandOptions(cli_options);
     };
 
-    it('should ref=master with git-repo argument only', function() {
+    it('should git-ref=master with git-repo argument only', function() {
       var parsed_options = cliRouterCleanParams([
         'azk start git@github.com:azukiapp/azkdemo.git'
       ].join(' '));
@@ -33,7 +34,7 @@ describe('GetProject:', function() {
                                       'master');
     });
 
-    it('should ref=master with --git-ref', function() {
+    it('should git-ref=master with --git-ref', function() {
       var parsed_options = cliRouterCleanParams([
         'azk start git@github.com:azukiapp/azkdemo.git',
         '--git-ref master',
@@ -46,7 +47,7 @@ describe('GetProject:', function() {
                                                 'master');
     });
 
-    it('should ref=dev with git-repo argument only', function() {
+    it('should git-ref=dev with git-repo argument only', function() {
       var parsed_options = cliRouterCleanParams([
         'azk start git@github.com:azukiapp/azkdemo.git#dev'
       ].join(' '));
@@ -58,7 +59,7 @@ describe('GetProject:', function() {
                                                 'dev');
     });
 
-    it('should ref=dev with --git-ref', function() {
+    it('should git-ref=dev with --git-ref', function() {
       var parsed_options = cliRouterCleanParams([
         'azk start git@github.com:azukiapp/azkdemo.git',
         '--git-ref dev'
@@ -71,7 +72,7 @@ describe('GetProject:', function() {
                                                 'dev');
     });
 
-    it('should ref=dev with --git-ref and repo#ref', function() {
+    it('should prioritize `--git-ref` with both `--git-ref` and `repo#ref`', function() {
       var parsed_options = cliRouterCleanParams([
         'azk start git@github.com:azukiapp/azkdemo.git#master',
         '--git-ref dev'
@@ -108,7 +109,35 @@ describe('GetProject:', function() {
                                                 'master');
 
       h.expect(parsed_options).to.have.property('git_destination_path',
-                                                'DEST_FOLDER');
+                                                './DEST_FOLDER');
+    });
+
+  });
+
+  describe('git version:', function () {
+
+    var outputs    = [];
+    var ui         = h.mockUI(beforeEach, outputs);
+    var getProject;
+
+    beforeEach(function () {
+      getProject = new GetProject(ui);
+    });
+
+    it('should be an old git version when <  1.7.10', function() {
+      getProject._gitspawn_VersionAsync = () => promiseResolve({code: 0, message: '1.7.9'});
+      return getProject._checkGitVersion(0)
+      .then(function() {
+        h.expect(getProject.is_new_git).to.be.false;
+      });
+    });
+
+    it('should be a  new git version when >= 1.7.10', function() {
+      getProject._gitspawn_VersionAsync = () => promiseResolve({code: 0, message: '1.7.10'});
+      return getProject._checkGitVersion(0)
+      .then(function() {
+        h.expect(getProject.is_new_git).to.be.true;
+      });
     });
 
   });
