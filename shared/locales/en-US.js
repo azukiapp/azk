@@ -327,10 +327,11 @@ module.exports = {
         }
       },
       get_project: {
-        getting_git_version : "Checking Git version...",
-        getting_remote_info : "Getting remote info from `%(git_url)s`...",
-        cloning_to_folder   : "Cloning `%(git_url)s#%(git_branch_tag_commit)s` to `%(git_destination_path)s` ...",
-        checkout_to_commit  : "Checkout to `%(git_branch_tag_commit)s` in `%(git_destination_path)s`...",
+        getting_git_version      : "Checking Git version...",
+        getting_remote_info      : "Getting remote info from `%(git_url)s`...",
+        cloning_to_folder        : "Cloning `%(git_url)s#%(git_branch_tag_commit)s` to `%(git_destination_path)s`...",
+        cloning_master_to_folder : "Cloning `%(git_url)s` to `%(git_destination_path)s`...",
+        checkout_to_commit       : "Checkout to `%(git_branch_tag_commit)s` in `%(git_destination_path)s`...",
       },
     },
     stop: {

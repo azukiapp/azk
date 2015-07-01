@@ -233,11 +233,19 @@ export class GetProject extends UIProxy {
   }
 
   _cloneToFolder(git_url, git_branch_tag_commit, git_destination_path, verbose_level) {
-    this.ok('commands.start.get_project.cloning_to_folder', {
-      git_url,
-      git_branch_tag_commit,
-      git_destination_path,
-    });
+    if (git_branch_tag_commit === 'master') {
+      this.ok('commands.start.get_project.cloning_master_to_folder', {
+        git_url,
+        git_branch_tag_commit,
+        git_destination_path,
+      });
+    } else {
+      this.ok('commands.start.get_project.cloning_to_folder', {
+        git_url,
+        git_branch_tag_commit,
+        git_destination_path,
+      });
+    }
 
     return this._gitspawn_CloneAsync(git_url,
                                      git_branch_tag_commit,
