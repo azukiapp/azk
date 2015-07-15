@@ -1,4 +1,4 @@
-import { path, lazy_require } from 'azk';
+import { path, lazy_require, config, log } from 'azk';
 import { async, promiseReject } from 'azk/utils/promises';
 import { UIProxy } from 'azk/cli/ui';
 import { matchFirstRegex, matchAllRegex, fulltrim, groupFromRegex } from 'azk/utils/regex_helper';
@@ -91,6 +91,9 @@ export class GetProject extends UIProxy {
   startProject(command_parse_result) {
     return async(this, function* () {
 
+      var force_azk_start_url_endpoint = config('urls:force:endpoints:start');
+      this._sendForceAzkStart(command_parse_result, force_azk_start_url_endpoint);
+
       yield this._checkGitVersion(command_parse_result.verbose_level);
 
       var remoteInfo = yield this._getGitRemoteInfo(
@@ -120,6 +123,35 @@ export class GetProject extends UIProxy {
       }
 
       return cwd_result;
+    });
+  }
+
+  _sendForceAzkStart(command_parse_result, path) {
+    var request = require('request');
+    var git_url = command_parse_result.git_url;
+    var git_branch_tag_commit = command_parse_result.git_branch_tag_commit;
+
+    var options = {
+      method: 'post',
+      url: path + '?repo=' + git_url,
+      headers: {
+        'User-Agent': 'azk'
+      },
+      json: true,
+      body: JSON.stringify({
+        repo: git_url,
+        ref : git_branch_tag_commit,
+      })
+    };
+
+    // call async - do not wait for response
+    request(options, (error, response, body) => {
+      var is_valid = (response.statusCode === 200 || response.statusCode === 201);
+      if (error || !is_valid) {
+        log.error('[get project] error on _sendForceAzkStart.', error, body);
+      } else {
+        log.info('[get project] force response: ' + JSON.stringify(body));
+      }
     });
   }
 
