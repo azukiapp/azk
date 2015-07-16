@@ -15,11 +15,11 @@ var lazy = lazy_require({
   hostonly       : ['azk/agent/vm'],
   VM             : ['azk/agent/vm'],
   connectivity   : 'connectivity',
+  nodeRetry      : 'retry',
 });
 
 var portrange = config("agent:portrange_start");
 var cache_key = "agent:dns:file_cache";
-var nodeRetry     = require('retry');
 
 var net = {
   getPort(host = 'localhost') {
@@ -194,7 +194,7 @@ var net = {
       }
     });
 
-    var timeoutsArray = nodeRetry.timeouts(opts.nodeRetry_opts);
+    var timeoutsArray = lazy.nodeRetry.timeouts(opts.nodeRetry_opts);
 
     // Parse options to try connect
     var address = url.parse(uri);
