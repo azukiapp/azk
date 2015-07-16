@@ -17,6 +17,7 @@ export class Suggestion extends DefaultSuggestion {
       image    : { docker: `azukiapp/${name}-fpm` },
       http    : true,
       scalable: { default: 1 },
+      command : null,
       mounts  : {
         "/azk/#{app.dir}": {type: 'path', value: '.'},
       },
