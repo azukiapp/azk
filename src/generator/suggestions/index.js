@@ -11,11 +11,8 @@ export class Suggestion extends UIProxy {
       depends : [],
       shell   : '/bin/bash',
       image   : { docker: '[repository]:[tag]' },
-      workdir : '/azk/#{app.dir}',
-      wait: {
-        retry: 20,
-        timeout: 1000
-      },
+      workdir : '/azk/#{manifest.dir}',
+      wait    : 20,
       balancer: true,
       command : '# command to run app',
       mounts  : {
