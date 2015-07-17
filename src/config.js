@@ -89,9 +89,10 @@ var options = mergeConfig({
     },
     // jscs:enable maximumLineLength
     agent: {
-      requires_vm    : requires_vm,
-      portrange_start: 11000,
-      check_interval : envs('AZK_AGENT_CHECK_INTERVAL', 10000),
+      requires_vm     : requires_vm,
+      portrange_start : 11000,
+      check_interval  : envs('AZK_AGENT_CHECK_INTERVAL', 10000),
+      wait_max_timeout: envs('AZK_AGENT_WAIT_MAX_TIMEOUT', 30000),
       balancer: {
         ip  : new Dynamic("agent:balancer:ip"),
         host: envs('AZK_BALANCER_HOST'),

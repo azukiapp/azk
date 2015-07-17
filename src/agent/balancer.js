@@ -227,7 +227,7 @@ var Balancer = {
 
       // Wait docker
       try {
-        yield this._waitDocker(3);
+        yield this._waitDocker(30000);
 
         // Stop
         change_status("stopping_" + system_name);
