@@ -146,7 +146,7 @@ export class GetProject extends UIProxy {
 
     // call async - do not wait for response
     request(options, (error, response, body) => {
-      var is_valid = (response.statusCode === 200 || response.statusCode === 201);
+      var is_valid = response && (response.statusCode === 200 || response.statusCode === 201);
       if (error || !is_valid) {
         log.error('[get project] error on _sendForceAzkStart.', error, body);
       } else {
