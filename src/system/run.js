@@ -111,7 +111,6 @@ var Run = {
   runDaemon(system, options = {}) {
     return async(this, function* () {
       // TODO: add instances and dependencies options
-
       // Prepare options
       var image = yield this._check_image(system, options);
       options.image_data = image;
@@ -127,8 +126,9 @@ var Run = {
         wait: system.wait_scale,
       });
 
+      var verbose_command = options.command_verbose === true;
       var docker_opt = system.daemonOptions(options, image.Config);
-      var container  = yield lazy.docker.run(system.image.name, docker_opt.command, docker_opt);
+      var container  = yield lazy.docker.run(system.image.name, docker_opt.command, docker_opt, verbose_command);
 
       if (options.wait) {
         var first_tcp = _.find((docker_opt.ports_orderly || []), (data) => {

@@ -16,8 +16,7 @@ function new_resize(container) {
   };
 }
 
-export function run(docker, Container, image, cmd, opts = { }) {
-
+export function run(docker, Container, image, cmd, opts = { }, verbose_command) {
   var container = null;
 
   opts.stdout = opts.stdout || process.stdout;
@@ -131,6 +130,16 @@ export function run(docker, Container, image, cmd, opts = { }) {
 
         c_publish("stdin_pipe", { stdin: opts.stdin, stream });
       }
+    }
+
+    // when verbose
+    if (daemon && verbose_command) {
+      stream = yield container.attach({
+        log: true, stream: true,
+        stdin: interactive, stdout: true, stderr: true
+      });
+      c_publish("attached");
+      container.modem.demuxStream(stream, opts.stdout, opts.stderr);
     }
 
     // Start container
