@@ -14,7 +14,7 @@ export class Suggestion extends UIProxy {
       workdir : '/azk/#{app.dir}',
       wait    : 20,
       balancer: true,
-      command : '# command to run app',
+      // command : '# command to run app',
       mounts  : {
         '/azk/#{app.dir}': {type: 'path', value: '.'},
       },
