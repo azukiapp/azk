@@ -23,7 +23,7 @@ export class Suggestion extends DefaultSuggestion {
         "/azk/#{app.dir}"       : {type: 'sync', value: '.'},
         "/azk/#{app.dir}/deps"  : {type: 'persistent', value: "#{system.name}/deps"},
         "/azk/#{app.dir}/_build": {type: 'persistent', value: "#{system.name}/_build"},
-        "/root/.hex"            : {type: 'path', value: '___env.HOME + \'/.hex\'___'},
+        "/root/.hex"            : {type: 'persistent', value: "#{system.name}/.hex"},
       },
       scalable: { default: 1 },
       http: true,
