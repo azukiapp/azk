@@ -115,6 +115,8 @@ module.exports = {
         " > original_error        : %(original_error)s",
         " > stack_trace           : %(stack_trace)s",
       ].join('\n'),
+      post_to_force_warning : "Failed to post to azk global stats.",
+      force_response_ok     : "stats response: `%(response_json)s`",
     },
 
   },
