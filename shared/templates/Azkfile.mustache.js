@@ -39,7 +39,7 @@ systems({
     command: {{&json command}},
     {{~/if}}
     {{~#if wait}}
-    wait: {{&json wait}},
+    wait: {{&wait}},
     {{~/if}}
     {{~#if mounts }}
     mounts: {

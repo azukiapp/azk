@@ -76,8 +76,7 @@ var options = mergeConfig({
       build_name    : 'azkbuild',
       image_default : 'azukiapp/azktcl:0.0.2',
       run: {
-        timeout: 1000,
-        retry: 10,
+        timeout: 10000
       }
     },
     // jscs:disable maximumLineLength
@@ -89,9 +88,10 @@ var options = mergeConfig({
     },
     // jscs:enable maximumLineLength
     agent: {
-      requires_vm    : requires_vm,
-      portrange_start: 11000,
-      check_interval : envs('AZK_AGENT_CHECK_INTERVAL', 10000),
+      requires_vm     : requires_vm,
+      portrange_start : 11000,
+      check_interval  : envs('AZK_AGENT_CHECK_INTERVAL', 10000),
+      wait_max_timeout: envs('AZK_AGENT_WAIT_MAX_TIMEOUT', 30000),
       balancer: {
         ip  : new Dynamic("agent:balancer:ip"),
         host: envs('AZK_BALANCER_HOST'),

@@ -137,13 +137,13 @@ var Server = {
     };
 
     var wait_options = {
-      timeout: config('agent:check_interval'),
+      timeout: config('agent:wait_max_timeout'),
       publish_retry: false,
     };
 
     var interval_fn = () => {
       net
-        .waitService(docker_host, retry, wait_options)
+        .waitService(docker_host, wait_options)
         .then((success) => {
           if (!success) {
             return stop();

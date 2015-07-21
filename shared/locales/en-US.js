@@ -1,11 +1,11 @@
 require('colors');
 
-var version = "Shows azk version";
-var verbose = "Sets the level of detail";
-var quiet   = "Never prompt";
-//var systems_options = "Targets systems of action";
-var rebuild     = "Force the rebuild, or pull image and reprovision before starting an instance";
-var reprovision = "Force the provisioning actions before starting an instance";
+// var version = "Shows azk version";
+// var verbose = "Sets the level of detail";
+// var quiet   = "Never prompt";
+// //var systems_options = "Targets systems of action";
+// var rebuild     = "Force the rebuild, or pull image and reprovision before starting an instance";
+// var reprovision = "Force the provisioning actions before starting an instance";
 
 // jscs:disable maximumLineLength
 module.exports = {
@@ -52,7 +52,7 @@ module.exports = {
     os_not_supported            : "System not supported (see http://azk.io)",
     run_timeout_error: [
       "[timeout] `azk` has timed out on `%(system)s` system.",
-      "[timeout] Failure to reach port `%(port)s` from `%(hostname)s` after %(retry)s attempt[s] of %(timeout)s milliseconds.",
+      "[timeout] Failure to reach port `%(port)s` from `%(hostname)s` after %(timeout)s milliseconds.",
       "[timeout] Make sure the start command binds `port` to the `0.0.0.0` interface, not only to the `localhost` interface.",
       "[timeout] You might want to edit your `Azkfile.js` in order to increase the maximum timeout.",
     ].join("\n"),
@@ -218,7 +218,17 @@ module.exports = {
     validate           : {
       deprecated : "The `%(option)s` used in `%(system)s` is deprecated, check the documentation for `%(new_option)s`",
       no_system_set: "No system has been set yet, check the documentation",
-    }
+      invalid_option_value: [
+        "Invalid value for `%(option)s`. Value: `%(value)s`.",
+        "Please, change `%(system_name)s` system to a valid `%(option)s` value.",
+        "Check %(docs_url)s for further information.",
+      ].join("\n"),
+      invalid_option_type: [
+        "Error parsing `%(option)s` value. Invalid type. Value: `%(value)s`.",
+        "Please, change `%(system_name)s` system to a valid `%(option)s` type and value.",
+        "Check %(docs_url)s for further information.",
+      ].join("\n"),
+    },
   },
 
   system: {

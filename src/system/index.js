@@ -138,8 +138,27 @@ export class System {
     return this.scalable.default !== 0;
   }
 
+  get wait() {
+    var wait_opts;
+    if (_.isNumber(this.options.wait)) {
+      wait_opts = {
+        // wait in seconds
+        timeout: this.options.wait * 1000
+      };
+      return wait_opts;
+    } else if (this.options.wait) {
+      // will be deprecated: now, timeout is the max timeout to wait
+      wait_opts = {
+        timeout: this.options.wait.retry * this.options.wait.timeout
+      };
+      return wait_opts;
+    } else {
+      return {};
+    }
+  }
+
   get wait_scale() {
-    var wait = this.options.wait;
+    var wait = this.wait;
     return _.isEmpty(wait) && wait !== false ? true : wait;
   }
 

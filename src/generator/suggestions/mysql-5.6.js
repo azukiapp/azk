@@ -26,10 +26,7 @@ export class Suggestion extends DefaultSuggestion {
       mounts: {
         '/var/lib/mysql': {type: 'persistent', value: '#{manifest.dir}/mysql'},
       },
-      wait: {
-        retry: 25,
-        timeout: 1000
-      },
+      wait: 25,
       envs: {
         // set instances variables
         MYSQL_ROOT_PASSWORD: "mysecretpassword",
