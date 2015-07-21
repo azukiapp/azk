@@ -142,11 +142,12 @@ export class System {
     var wait_opts;
     if (_.isNumber(this.options.wait)) {
       wait_opts = {
+        // wait in seconds
         timeout: this.options.wait * 1000
       };
       return wait_opts;
     } else if (this.options.wait) {
-      // deprecated: now, timeout is the max timeout to wait
+      // will be deprecated: now, timeout is the max timeout to wait
       wait_opts = {
         timeout: this.options.wait.retry * this.options.wait.timeout
       };

@@ -182,14 +182,14 @@ var net = {
 
   waitService(uri, opts = {}) {
     opts = _.defaults(opts, {
-      timeout: 10000,
+      timeout: 10000,      // maximum timeout - this may be override
       retry_if: () => { return promiseResolve(true); },
       publish_retry: true,
       nodeRetry_opts: {
-        retries: 100,
+        retries: 100,      // maximum tries
         factor: 1.2,
-        minTimeout: 75,
-        maxTimeout: 5000,
+        minTimeout: 75,    // min delay
+        maxTimeout: 5000,  // max delay
         randomize: true,
       }
     });

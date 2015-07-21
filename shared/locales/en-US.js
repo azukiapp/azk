@@ -52,7 +52,7 @@ module.exports = {
     os_not_supported            : "System not supported (see http://azk.io)",
     run_timeout_error: [
       "[timeout] `azk` has timed out on `%(system)s` system.",
-      "[timeout] Failure to reach port `%(port)s` from `%(hostname)s` after %(retry)s attempt[s] of %(timeout)s milliseconds.",
+      "[timeout] Failure to reach port `%(port)s` from `%(hostname)s` after %(timeout)s milliseconds.",
       "[timeout] Make sure the start command binds `port` to the `0.0.0.0` interface, not only to the `localhost` interface.",
       "[timeout] You might want to edit your `Azkfile.js` in order to increase the maximum timeout.",
     ].join("\n"),

@@ -76,8 +76,7 @@ var options = mergeConfig({
       build_name    : 'azkbuild',
       image_default : 'azukiapp/azktcl:0.0.2',
       run: {
-        timeout: 1000,
-        retry: 10,
+        timeout: 10000
       }
     },
     // jscs:disable maximumLineLength
