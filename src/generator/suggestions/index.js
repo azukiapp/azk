@@ -17,7 +17,7 @@ export class Suggestion extends UIProxy {
         timeout: 1000
       },
       balancer: true,
-      command : '# command to run app',
+      // command : '# command to run app',
       mounts  : {
         '/azk/#{app.dir}': {type: 'path', value: '.'},
       },
