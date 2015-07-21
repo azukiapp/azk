@@ -207,12 +207,16 @@ var net = {
       };
     }
 
+    var client = null, t = null;
+    var end = () => {
+      if (client) { client.end(); }
+      if (t) { clearTimeout(t); }
+      client = t = null;
+    };
+
     return defer((resolve) => {
-      var client   = null;
       var attempts = 1, max = opts.nodeRetry_opts.retries;
       var connect  = () => {
-        var t = null;
-
         if (opts.publish_retry) {
           publish("utils.net.waitService.status", _.merge({
             uri : uri,
@@ -221,14 +225,12 @@ var net = {
         }
 
         client = nativeNet.connect(address, function() {
-          client.end();
-          clearTimeout(t);
+          end();
           resolve(true);
         });
 
         t = setTimeout(() => {
-          client.end();
-
+          end();
           opts.retry_if().then((result) => {
             if (attempts >= max || !result) {
               return resolve(false);
@@ -245,6 +247,7 @@ var net = {
     })
     .timeout(opts.timeout)
     .catch(function () {
+      end();
       return promiseResolve(false);
     });
   },

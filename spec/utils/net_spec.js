@@ -96,7 +96,7 @@ describe("Azk utils.net module", function() {
         });
     };
 
-    it("should wait for server", function() {
+    it("should wait for server running in a host:port", function() {
 
       var _subscription;
 
