@@ -8,16 +8,20 @@
 
 #### Argumentos:
 
+```
   path                      Caminho do arquivo de manifesto a ser gerado.
+```
 
 #### Opções:
 
+```
   --filename                Mostra o nome do arquivo de manifesto.
   --force, -F               Força a sobrescrita.
   --quiet, -q               Nunca perguntar.
   --help, -h                Mostrar ajuda de uso.
   --log=<level>, -l         Defini o nível de log (padrão: error).
   --verbose, -v             Defini o nível de detalhes da saída - suporta múltiplos (-vv == --verbose 2) [padrão: 0].
+```
 
 #### Exemplos:
 

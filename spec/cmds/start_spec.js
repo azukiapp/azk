@@ -14,16 +14,17 @@ describe('Azk cli, start controller', function() {
     });
 
   var doc_opts    = { exit: false };
-  var run_options = { ui: ui, cwd: h.fixture_path('slim-app') };
+  var run_options = { ui: ui, cwd: h.fixture_path('slim-app'), just_parse: true };
 
-  it("should run a `start example` command", function() {
+  it('should run a `start example` command', function() {
     doc_opts.argv = ['start', 'example'];
     var options = cli.router.cleanParams(cli.docopt(doc_opts));
     return cli.run(doc_opts, run_options).then((code) => {
       h.expect(code).to.equal(0);
-      h.expect(options).to.have.property('start', true);
+      h.expect(options).to.have.property('start',  true);
       h.expect(options).to.have.property('system', 'example');
       h.expect(outputs[0]).to.match(RegExp('starting `example`...', 'gi'));
     });
   });
+
 });

@@ -141,6 +141,11 @@ var options = mergeConfig({
         content: {
           package_json: "https://raw.githubusercontent.com/azukiapp/azk/stable/package.json",
         }
+      },
+      force: {
+        endpoints: {
+          start: 'http://force.dev.azk.io/systems/start'
+        }
       }
     },
   },

@@ -60,6 +60,7 @@ case $pkg_type in
       --depends \"docker-io\" \
       --depends \"libnss-resolver >= ${LIBNSS_RESOLVER_VERSION}\" \
       --depends \"rsync >= ${RSYNC_MIN_VERSION}\" \
+      --depends \"git\" \
       --rpm-use-file-permissions \
       --rpm-user root --rpm-group root \
     "
@@ -69,6 +70,7 @@ case $pkg_type in
       --depends \"lxc-docker\" \
       --depends \"libnss-resolver (>= ${LIBNSS_RESOLVER_VERSION})\" \
       --depends \"rsync (>= ${RSYNC_MIN_VERSION})\" \
+      --depends \"git\" \
       --deb-user root --deb-group root \
     "
     ;;

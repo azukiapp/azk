@@ -1,12 +1,5 @@
 require('colors');
 
-// var version = "Shows azk version";
-// var verbose = "Sets the level of detail";
-// var quiet   = "Never prompt";
-// //var systems_options = "Targets systems of action";
-// var rebuild     = "Force the rebuild, or pull image and reprovision before starting an instance";
-// var reprovision = "Force the provisioning actions before starting an instance";
-
 // jscs:disable maximumLineLength
 module.exports = {
   analytics: {
@@ -37,8 +30,8 @@ module.exports = {
     agent_stop                  :  "azk agent stop error (try `azk agent status`)",
     not_been_implemented        : "This feature: `%(feature)s` has not been implemented yet",
     system_not_found            : "System `%(system)s` not found in `%(manifest)s`",
-    manifest_required           : "Manifest is required, but was not found in `%(cwd)s`",
-    manifest_error              : "Manifest not valid (see http://doc.azk.io), error:\n%(err_message)s",
+    manifest_required           : "Manifest file (`Azkfile.js`) was not found at `%(cwd)s` (see more at http://docs.azk.io/en/azkfilejs/)",
+    manifest_error              : "Manifest file (`Azkfile.js`) is not valid (see  more at http://docs.azk.io/en/azkfilejs/), error:\n%(err_message)s",
     system_depend_error         : "System `%(system)s` depends on the system `%(depend)s`",
     system_run_error            : "Run system `%(system)s` return: (%(exitCode)d), for command: %(command)s:\n%(log)s",
     system_not_scalable         : "System `%(system)s` is not scalable only one instance is allowed.",
@@ -104,8 +97,27 @@ module.exports = {
           "Check if docker service is running.",
           "Also check if you have write permission to socket: '%(socket)s'",
         ].join('\n'),
-      }
-    }
+      },
+    },
+
+    get_project: {
+      cloning_not_a_git_repo : "`%(git_repo)s` is not a git valid repository.",
+      folder_already_exists  : "Folder `%(git_destination_path)s` already exists.",
+      commit_not_exist       : "Branch or Commit `%(git_branch_tag_commit)s` does not exist.",
+      not_resolve_host       : "Invalid git URL: `%(git_repo)s`.",
+      repo_not_found         : "Repository not found `%(git_repo)s`.",
+      cannot_create_folder   : "Cannot create folder `%(git_destination_path)s`",
+      git_error              : [
+        "Uncaught git error",
+        " > git_repo              : %(git_repo)s",
+        " > git_branch_tag_commit : %(git_branch_tag_commit)s",
+        " > git_destination_path  : %(git_destination_path)s",
+        " > original_error        : %(original_error)s",
+        " > stack_trace           : %(stack_trace)s",
+      ].join('\n'),
+      force_response_ok     : "stats response: `%(response_json)s`",
+    },
+
   },
 
   status: {
@@ -324,7 +336,14 @@ module.exports = {
           default_system_not_balanceable: "\nThe default system `%(name)s` does not have ports http to open.",
           system_not_running: "System `%(name)s` is not running to open.",
         }
-      }
+      },
+      get_project: {
+        getting_git_version      : "Checking Git version...",
+        getting_remote_info      : "Getting remote info from `%(git_url)s`...",
+        cloning_to_folder        : "Cloning `%(git_url)s#%(git_branch_tag_commit)s` to `%(git_destination_path)s`...",
+        cloning_master_to_folder : "Cloning `%(git_url)s` to `%(git_destination_path)s`...",
+        checkout_to_commit       : "Checkout to `%(git_branch_tag_commit)s` in `%(git_destination_path)s`...",
+      },
     },
     stop: {
       not_running: "System `" + "%(name)s".blue + "` not running",

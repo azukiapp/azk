@@ -8,14 +8,18 @@
 
 #### Argumentos:
 
+```
   docker-args               Opções ou argumentos passados para o Docker.
+```
 
 #### Opções:
 
+```
   --quiet, -q               Nunca perguntar.
   --help, -h                Mostrar ajuda de uso.
   --log=<level>, -l         Defini o nível de log (padrão: error).
   --verbose, -v             Defini o nível de detalhes da saída - suporta múltiplos (-vv == --verbose 2) [padrão: 0].
+```
 
 #### Exemplos:
 
@@ -28,9 +32,7 @@ redis                    latest              0f3059144681        7 days ago     
 azukiapp/elixir          latest              1fb7ad9cdb2f        11 days ago         722.1 MB
 azukiapp/erlang          latest              d7bac40697e3        11 days ago         711.9 MB
 azukiapp/node            0.12                e468894e1308        11 days ago         900.8 MB
-```
 
-```
 $ azk docker -- ps
 CONTAINER ID        IMAGE                   COMMAND                CREATED             STATUS              PORTS                             NAMES
 af8d6faa53cb        azukiapp/azktcl:0.0.2   "/bin/bash -c 'env;    54 minutes ago      Up 54 minutes       53/udp, 192.168.51.4:80->80/tcp   dev.azk.io_type.daemon_mid.345dada3aa_sys.balancer-redirect_seq.1_uid.b34a6aa011

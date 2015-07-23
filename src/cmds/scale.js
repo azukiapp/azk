@@ -8,11 +8,21 @@ import { AzkError } from 'azk/utils/errors';
 var lazy = lazy_require({
   Manifest: ['azk/manifest'],
   Status  : 'azk/cmds/status',
+  GetProject: ['azk/manifest/get_project'],
 });
 
 class Scale extends CliTrackerController {
   index(opts) {
     return async(this, function* () {
+
+      // GetProject: clone and start a project from a git repo
+      var command_parse_result = lazy.GetProject.parseCommandOptions(opts);
+      if (command_parse_result) {
+        var getter = new lazy.GetProject(this.ui, command_parse_result);
+        this.cwd = yield getter.startProject(command_parse_result);
+        opts.system = null;
+      }
+
       yield Helpers.requireAgent(this.ui);
 
       var manifest = new lazy.Manifest(this.cwd, true);
@@ -45,10 +55,10 @@ class Scale extends CliTrackerController {
       return result;
     })
     .catch(function (err) {
-      // Unhandled rejection overtakes synchronous exception through done() #471
-      // https://github.com/petkaantonov/bluebird/issues/471
       if (err instanceof AzkError) {
         this.ui.fail(err.toString());
+      } else {
+        this.ui.fail(err.stack);
       }
     }.bind(this));
   }
