@@ -148,12 +148,9 @@ export class GetProject extends UIProxy {
     request(options, (error, response, body) => {
       var is_valid = response && (response.statusCode === 200 || response.statusCode === 201);
       if (error || !is_valid) {
-        this.warning('errors.get_project.post_to_force_warning');
-        log.debug('[get project] Error on GetProject._sendForceAzkStart()', error, body);
+        log.error('[get project] Error on GetProject._sendForceAzkStart()', error, body);
       } else {
-        this.ok('errors.get_project.force_response_ok', {
-          response_json: JSON.stringify(body)
-        })
+        log.info('[start][force]', { response_json: JSON.stringify(body) });
       }
     });
   }
