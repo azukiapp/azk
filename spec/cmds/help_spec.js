@@ -119,7 +119,7 @@ describe('Azk cli, help controller', function() {
       h.expect(outputs[0]).to.match(RegExp('Arguments:', 'gi'));
       h.expect(outputs[0]).to.match(RegExp('Options:'  , 'gi'));
       // must show only one log option
-      var matches = getRegexMatches(outputs[0], /log=<level>/g);
+      var matches = getRegexMatches(outputs[0], /<level>, -l/g);
       h.expect(matches).to.have.length(1);
     });
   });
