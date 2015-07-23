@@ -134,7 +134,7 @@ module.exports = {
       stopping       : "Agent is being stopped...",
       stopped        : "Agent has been successfully stopped.",
       error          : "Agent starting error: %(data)s.",
-      wait           : "Wait, this process may take several minutes",
+      wait           : "Please wait, this process may take several minutes",
       progress       : "progress...",
     },
 
