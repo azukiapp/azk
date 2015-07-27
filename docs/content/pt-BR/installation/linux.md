@@ -1,5 +1,7 @@
 # Linux
 
+> A forma mais simples de instalar o azk é seguindo a sessão [Instalação expressa do azk](./README.html#instalao-expressa-do-azk)
+
 !INCLUDE "warning.md"
 
 ## Requisitos
@@ -14,9 +16,9 @@
 
 1. Instale o Docker:
 
-  >Observe que pelas instruções de instalação do Docker no [site][docker_ubuntu-trusty-1404-lts-64-bit] deles, a primeira instrução de instalação é para um pacote mantido pela Ubuntu (_docker-io_) e não para a versão correta, mantida pelo Docker (_lxc-docker_).
+  >Observe que pelas instruções de instalação do Docker no [site][docker_ubuntu-trusty-1404-lts-64-bit] deles, a primeira instrução de instalação é para um pacote mantido pela Ubuntu (_docker.com_) e não para a versão correta, mantida pelo Docker (_docker-engine_).
 
-  - Instale a versão mais recente do Docker [**lxc-docker**][docker_ubuntu_14_04_maintained-package-installation]. Observe que no final das instruções, eles dispõem um `script curl` para facilitar a instalação.
+  - Instale a versão mais recente do Docker [**docker-engine**][docker_ubuntu_14_04_maintained-package-installation]. Observe que no final das instruções, eles dispõem um `script curl` para facilitar a instalação.
   - Inclua seu usuário local no [grupo docker][docker_root_access]; Faça um _logoff_ para que as configurações de grupo de usuários sejam ativadas;
   - [Desabilite o uso de dnsmasq][docker_ubuntu_dns];
   - Pare o serviço do dnsmasq e garanta que ele não será iniciado automaticamente após o login:
