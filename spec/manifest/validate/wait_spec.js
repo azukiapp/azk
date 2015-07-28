@@ -25,6 +25,15 @@ describe('Validate manifest option - wait:', function () {
 
   describe('valid:', function () {
 
+    it('should accept false value', function () {
+      return check_valid(`
+        system('system1', {
+          image: { docker: "any" },
+          wait: false,
+        });
+      `);
+    });
+
     it('should accept positive numbers', function () {
       return check_valid(`
         system('system1', {

@@ -50,8 +50,8 @@ export class Validate {
   static _validate_wait_option(manifest) {
     return _.reduce(manifest.systems, (errors, system) => {
 
-      // ignore if it is not present
-      if (typeof system.options.wait === 'undefined') {
+      // ignore if it is not present or equal false
+      if (typeof system.options.wait === 'undefined' || system.options.wait === false) {
         return errors;
       }
 
