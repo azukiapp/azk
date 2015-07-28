@@ -54,10 +54,13 @@ else
   CHANNEL_SUFFIX="-${RELEASE_CHANNEL}"
 fi
 
-# Clean same version
+# Clean older versions
 (
-  set -e
-  brew unlink azk${CHANNEL_SUFFIX}
+  # Unlink all channels to avoid conflict
+  taps=( azk azk-rc azk-nightly )
+  for tap in "${taps[@]}"; do
+    brew unlink ${tap}
+  done
   rm -Rf /usr/local/Cellar/azk${CHANNEL_SUFFIX}/${VERSION}
   rm -Rf /Library/Caches/Homebrew/azk*.tar.gz
 ) || true
