@@ -126,10 +126,13 @@ bump_version() {
     VERSION_SUFFIX="${VERSION_SUFFIX}.${RELEASE_COUNTER}+${RELEASE_DATE}"
   fi
 
-  VERSION_LINE_NUMBER=`cat package.json | grep -n "version" | cut -d ":" -f1`
-  sed -ir "${VERSION_LINE_NUMBER}s/\([[:digit:]]*\.[[:digit:]]*\.[[:digit:]]*\)[^\"]*/\1${VERSION_SUFFIX}/" package.json
-  rm -Rf package.jsonr
-  git add package.json
+  files=( package.json npm-shrinkwrap.json )
+  for f in "${files[@]}"; do
+    VERSION_LINE_NUMBER=`cat ${f} | grep -n "version" | head -1 | cut -d ":" -f1`
+    sed -ir "${VERSION_LINE_NUMBER}s/\([[:digit:]]*\.[[:digit:]]*\.[[:digit:]]*\)[^\"]*/\1${VERSION_SUFFIX}/" ${f}
+    rm -Rf ${f}r
+    git add ${f}
+  done
   git commit -m "Bumping version to azk v${VERSION_NO_META}"
 }
 
