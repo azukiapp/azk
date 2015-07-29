@@ -48,7 +48,7 @@ fail() {
 }
 
 RELEASE_CHANNEL=$( echo "${VERSION}" | sed s/[^\\-]*// | sed s/^\\-// | sed s/\\..*// )
-if [[ -z $RELEASE_CHANNEL ]]; then
+if [[ -z "${RELEASE_CHANNEL}" ]]; then
   CHANNEL_SUFFIX=
 else
   CHANNEL_SUFFIX="-${RELEASE_CHANNEL}"
@@ -84,7 +84,7 @@ else
   exit 3
 fi
 
-if [[ ! -z $TEST_DIR ]]; then
+if [[ ! -z "${TEST_DIR}" ]]; then
   (
     set -e
     setup_test
