@@ -25,7 +25,7 @@ export DISTRO=$2 && export REPO=azk-${DISTRO}
 export SECRET_KEY=$3
 
 RELEASE_CHANNEL=$( echo "${VERSION}" | sed s/[^\\-]*// | sed s/^\\-// | sed s/\\..*// )
-if [[ -z $RELEASE_CHANNEL ]]; then
+if [[ -z "${RELEASE_CHANNEL}" ]]; then
   PKG_SUFFIX=
 else
   PKG_SUFFIX="-${RELEASE_CHANNEL}"

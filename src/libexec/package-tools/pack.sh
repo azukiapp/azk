@@ -93,7 +93,7 @@ while [[ $# -gt 0 ]]; do
    esac
 done
 
-[[ -z $RELEASE_CHANNEL ]] && RELEASE_CHANNEL='stable'
+[[ -z "${RELEASE_CHANNEL}" ]] && RELEASE_CHANNEL='stable'
 VERSION_SUFFIX="-${RELEASE_CHANNEL}"
 
 case $RELEASE_CHANNEL in
@@ -107,13 +107,13 @@ case $RELEASE_CHANNEL in
   * ) echo >&2 "Invalid release channel: ${RELEASE_CHANNEL}." && exit 2;;
 esac
 
-if [[ -z $BUILD_DEB ]] && [[ -z $BUILD_RPM ]] && [[ -z $BUILD_MAC ]]; then
+if [[ -z "${BUILD_DEB}" ]] && [[ -z "${BUILD_RPM}" ]] && [[ -z "${BUILD_MAC}" ]]; then
   BUILD_DEB=true
   BUILD_RPM=true
   BUILD_MAC=true
 fi
 
-if [[ ! -z $BUILD_DEB ]] || [[ ! -z $BUILD_RPM ]]; then
+if [[ ! -z "${BUILD_DEB}" ]] || [[ ! -z "${BUILD_RPM}" ]]; then
   [[ ! -e $SECRET_KEY ]] && echo >&2 "Please inform an valid GPG key." && exit 3
 fi
 
@@ -247,8 +247,8 @@ if [[ $BUILD_DEB == true ]]; then
   (
     set -e
 
-    [[ ! -z $CLEAN_REPO ]] && step_run "Cleaning current aptly repo" azk shell package -c "rm -Rf /azk/aptly/*"
-    [[ ! -z $CLEAN_REPO ]] && step_run "Cleaning environment" rm -Rf package/deb package/public
+    [[ ! -z "${CLEAN_REPO}" ]] && step_run "Cleaning current aptly repo" azk shell package -c "rm -Rf /azk/aptly/*"
+    [[ ! -z "${CLEAN_REPO}" ]] && step_run "Cleaning environment" rm -Rf package/deb package/public
 
     step_run "Downloading libnss-resolver" \
     mkdir -p package/deb \
@@ -288,7 +288,7 @@ if [[ $BUILD_RPM == true ]]; then
   (
     set -e
 
-    [[ ! -z $CLEAN_REPO ]] && step_run "Cleaning environment" rm -Rf package/rpm package/fedora20
+    [[ ! -z "${CLEAN_REPO}" ]] && step_run "Cleaning environment" rm -Rf package/rpm package/fedora20
 
     step_run "Downloading libnss-resolver" \
     mkdir -p package/rpm \
