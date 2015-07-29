@@ -123,17 +123,23 @@ bump_version() {
     RELEASE_COUNTER=$(curl -s https://api.github.com/repos/azukiapp/azk/tags | grep 'name' | \
       grep -c "${VERSION_NUMBER}-${RELEASE_CHANNEL}" | awk '{print $1 + 1}' )
     RELEASE_DATE=$( date +%Y%m%d )
-    VERSION_SUFFIX="${VERSION_SUFFIX}.${RELEASE_COUNTER}+${RELEASE_DATE}"
+    VERSION_SUFFIX_NO_META="${VERSION_SUFFIX}.${RELEASE_COUNTER}"
+    VERSION_SUFFIX="${VERSION_SUFFIX_NO_META}+${RELEASE_DATE}"
   fi
+
+  VERSION="${VERSION_NUMBER}${VERSION_SUFFIX}"
+  VERSION_NO_META="${VERSION_NUMBER}${VERSION_SUFFIX_NO_META}"
 
   files=( package.json npm-shrinkwrap.json )
   for f in "${files[@]}"; do
     VERSION_LINE_NUMBER=`cat ${f} | grep -n "version" | head -1 | cut -d ":" -f1`
     sed -ir "${VERSION_LINE_NUMBER}s/\([[:digit:]]*\.[[:digit:]]*\.[[:digit:]]*\)[^\"]*/\1${VERSION_SUFFIX}/" ${f}
     rm -Rf ${f}r
-    git add ${f}
+    [[ $NO_VERSION != true ]] && git add ${f}
   done
-  git commit -m "Bumping version to azk v${VERSION_NO_META}"
+  [[ $NO_VERSION != true ]] && git commit -m "Bumping version to azk v${VERSION_NO_META}"
+
+  echo "Version bumped to v${VERSION}."
 }
 
 make_tag() {
@@ -221,10 +227,7 @@ source .dependencies
 
 LINUX_BUILD_WAS_EXECUTED=false
 
-[[ $NO_VERSION != true ]] && step_run "Bumping version" --exit bump_version
-VERSION=$( cat package.json | grep -e "version" | cut -d' ' -f4 | sed -n 's/\"//p' | sed -n 's/\"//p' | sed -n 's/,//p' )
-VERSION_NO_META=$( echo $VERSION | sed 's/+.*//' )
-echo "Version bumped to v${VERSION}."
+step_run "Bumping version" --exit bump_version
 
 [[ $NO_MAKE != true ]]    && step_run "Running make" --exit run_make
 [[ $NO_AGENT != true ]]   && step_run "Starting agent" --exit start_agent
