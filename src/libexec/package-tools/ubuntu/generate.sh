@@ -37,10 +37,9 @@ gpg --import $SECRET_KEY
 (
   set +e
   aptly publish drop ${DISTRO}
-  if [[ $CLEAN_REPO == true ]]; then
-    aptly repo drop ${REPO}
-    aptly repo create -distribution=${DISTRO} -component=main ${REPO}
-  fi
+  aptly snapshot drop ${REPO}-${VERSION}
+  [[ $CLEAN_REPO == true ]] && aptly repo drop ${REPO}
+  ! aptly repo show -with-packages ${REPO} && aptly repo create -distribution=${DISTRO} -component=main ${REPO}
 ) || true
 
 # Publish a new release
