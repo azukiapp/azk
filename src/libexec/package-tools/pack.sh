@@ -133,6 +133,7 @@ bump_version() {
   files=( package.json npm-shrinkwrap.json )
   for f in "${files[@]}"; do
     VERSION_LINE_NUMBER=`cat ${f} | grep -n "version" | head -1 | cut -d ":" -f1`
+    rm -Rf ${f}r # Avoiding conflicts
     sed -ir "${VERSION_LINE_NUMBER}s/\([[:digit:]]*\.[[:digit:]]*\.[[:digit:]]*\)[^\"]*/\1${VERSION_SUFFIX}/" ${f}
     rm -Rf ${f}r
     [[ $NO_VERSION != true ]] && git add ${f}
@@ -287,7 +288,7 @@ if [[ $BUILD_RPM == true ]]; then
   (
     set -e
 
-    [[ ! -z CLEAN_REPO ]] && step_run "Cleaning environment" rm -Rf package/rpm package/fedora20
+    [[ ! -z $CLEAN_REPO ]] && step_run "Cleaning environment" rm -Rf package/rpm package/fedora20
 
     step_run "Downloading libnss-resolver" \
     mkdir -p package/rpm \
