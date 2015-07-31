@@ -19,9 +19,7 @@ class Scale extends CliTrackerController {
       var command_parse_result = lazy.GetProject.parseCommandOptions(opts);
       if (command_parse_result) {
         var getter = new lazy.GetProject(this.ui, command_parse_result);
-        var startProject_result = yield getter.startProject(command_parse_result);
-        var git_destination_path = startProject_result.git_destination_path || startProject_result;
-        this.cwd = git_destination_path;
+        this.cwd = yield getter.startProject(command_parse_result);
         opts.system = null;
       }
 

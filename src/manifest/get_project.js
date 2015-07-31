@@ -90,8 +90,6 @@ export class GetProject extends UIProxy {
 
   startProject(command_parse_result) {
     return async(this, function* () {
-      var cwd_result;
-
       var force_azk_start_url_endpoint = config('urls:force:endpoints:start');
       this._sendForceAzkStart(command_parse_result, force_azk_start_url_endpoint);
 
@@ -117,14 +115,14 @@ export class GetProject extends UIProxy {
       } else {
         // clone to specific branch
         if (_isBranchOrTag && this.is_new_git) {
-          cwd_result = yield this._cloneToFolder(
+          yield this._cloneToFolder(
             command_parse_result.git_url,
             command_parse_result.git_branch_tag_commit,
             command_parse_result.git_destination_path,
             command_parse_result.verbose_level);
         } else {
           // clone to master
-          cwd_result = yield this._cloneToFolder(
+          yield this._cloneToFolder(
             command_parse_result.git_url,
             'master',
             command_parse_result.git_destination_path,
@@ -134,7 +132,7 @@ export class GetProject extends UIProxy {
         }
       }
 
-      return cwd_result || command_parse_result.git_destination_path;
+      return command_parse_result.git_destination_path;
     });
   }
 
@@ -326,9 +324,6 @@ export class GetProject extends UIProxy {
                                      git_branch_tag_commit,
                                      git_destination_path,
                                      verbose_level)
-      .then((result) => {
-        return git_destination_path;
-      })
       .catch(this._checkGitError(git_url, git_branch_tag_commit, git_destination_path));
   }
 
