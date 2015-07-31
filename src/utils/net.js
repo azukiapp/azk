@@ -220,7 +220,9 @@ var net = {
         if (opts.publish_retry) {
           publish("utils.net.waitService.status", _.merge({
             uri : uri,
-            type: 'try_connect', attempts: attempts, max: max, context: opts.context
+            type: 'try_connect',
+            timeout: (opts.timeout / 1000), // show in seconds
+            context: opts.context
           }, address ));
         }
 

@@ -141,19 +141,23 @@ var Server = {
       publish_retry: false,
     };
 
+    var check_docker_interval = config('agent:check_interval');
     var interval_fn = () => {
       net
         .waitService(docker_host, wait_options)
         .then((success) => {
           if (!success) {
+            log.debug(`[agent] _activeDockerMonitor - docker_host is stopped!`);
             return stop();
           }
-          setTimeout(interval_fn, config('agent:vm:check_interval'));
+
+          log.debug(`[agent] _activeDockerMonitor - docker_host checked (${docker_host}). Waiting for more ${check_docker_interval / 1000} seconds.`);
+          setTimeout(interval_fn, check_docker_interval);
         })
         .catch(stop);
     };
 
-    setTimeout(interval_fn, config('agent:vm:check_interval'));
+    setTimeout(interval_fn, check_docker_interval);
   },
 };
 
