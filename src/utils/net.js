@@ -222,8 +222,6 @@ var net = {
             uri : uri,
             type: 'try_connect',
             timeout: (opts.timeout / 1000), // show in seconds
-            attempts: attempts,
-            max: max,
             context: opts.context
           }, address ));
         }
