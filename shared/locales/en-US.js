@@ -138,7 +138,7 @@ module.exports = {
       removed    : "Virtual machine has been successfully removed.",
       waiting    : "Waiting for virtual machine boot...",
       ready      : "Virtual machine is ready to use.",
-      progress   : "Trying to connect to vm (%(uri)s) (%(attempts)d/%(max)d)...",
+      progress   : "Trying to connect to vm (%(uri)s) (timeout: %(timeout)ds)...",
       sshkey     : "Setting the ssh key to vm...",
       error      : "Error in vm process: %(data)s",
       docker_keys: "Downloading required keys to connect to docker",
@@ -147,11 +147,11 @@ module.exports = {
     },
 
     socat: {
-      progress: "Trying to connect to docker (%(attempts)d/%(max)d)...",
+      progress: "Trying to connect to docker (timeout: %(timeout)ds)...",
     },
 
     'balancer-redirect_connect': {
-      progress: "Check if balancer redirect service is up (%(uri)s) (%(attempts)d/%(max)d)...",
+      progress: "Check if balancer redirect service is up (%(uri)s) (timeout: %(timeout)ds)...",
     },
 
     balancer: {
@@ -176,7 +176,7 @@ module.exports = {
       started_dns : "Dns service started.",
       stopping_dns: "Stopping dns service...",
       stopped_dns : "Dns service was stopped.",
-      progress    : "Trying to connect to docker (%(uri)s) (%(attempts)d/%(max)d)...",
+      progress    : "Trying to connect to docker (%(uri)s) (timeout: %(timeout)ds)...",
     },
   },
 
