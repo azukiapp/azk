@@ -372,9 +372,9 @@ export class GetProject extends UIProxy {
 
     var git_params = [
       '--git-dir',
-      path.join(dest_folder, '.git'),
+      path.resolve(dest_folder, '.git'),
       '--work-tree',
-      dest_folder,
+      path.resolve(dest_folder),
       'pull',
       git_url,
       git_branch_tag_commit
