@@ -118,8 +118,9 @@ if [[ ! -z "${BUILD_DEB}" ]] || [[ ! -z "${BUILD_RPM}" ]]; then
 fi
 
 bump_version() {
+  VERSION_NUMBER=$( cat package.json | grep -e "version" | cut -d' ' -f4 | sed -n 's/\"//p' | sed -n 's/\"//p' | sed -n 's/,//p' | sed s/-.*// )
+
   if [[ $RELEASE_CHANNEL != 'stable' ]]; then
-    VERSION_NUMBER=$( cat package.json | grep -e "version" | cut -d' ' -f4 | sed -n 's/\"//p' | sed -n 's/\"//p' | sed -n 's/,//p' | sed s/-.*// )
     RELEASE_COUNTER=$(curl -s https://api.github.com/repos/azukiapp/azk/tags | grep 'name' | \
       grep -c "${VERSION_NUMBER}-${RELEASE_CHANNEL}" | awk '{print $1 + 1}' )
     RELEASE_DATE=$( date +%Y%m%d )
