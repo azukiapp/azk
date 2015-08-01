@@ -25,7 +25,7 @@ export DISTRO=$2 && export REPO=azk-${DISTRO}
 export SECRET_KEY=$3
 
 RELEASE_CHANNEL=$( echo "${VERSION}" | sed s/[^\\-]*// | sed s/^\\-// | sed s/\\..*// )
-if [[ -z $RELEASE_CHANNEL ]]; then
+if [[ -z "${RELEASE_CHANNEL}" ]]; then
   PKG_SUFFIX=
 else
   PKG_SUFFIX="-${RELEASE_CHANNEL}"
@@ -39,10 +39,10 @@ gpg --import $SECRET_KEY
   aptly publish drop ${DISTRO}
   aptly snapshot drop ${REPO}-${VERSION}
   [[ $CLEAN_REPO == true ]] && aptly repo drop ${REPO}
+  ! aptly repo show -with-packages ${REPO} && aptly repo create -distribution=${DISTRO} -component=main ${REPO}
 ) || true
 
 # Publish a new release
-aptly repo create -distribution=${DISTRO} -component=main ${REPO}
 aptly repo add -force-replace=true ${REPO} package/deb/azk*.deb package/deb/${DISTRO}-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb
 aptly repo show -with-packages ${REPO} | grep "azk${PKG_SUFFIX}_${VERSION}_amd64"
 aptly repo show -with-packages ${REPO} | grep "libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64"

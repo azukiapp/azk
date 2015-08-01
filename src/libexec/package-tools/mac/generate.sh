@@ -2,12 +2,12 @@
 
 set -x
 
-if [[ -z ${MAC_REPO_DIR} ]]; then
+if [[ -z "${MAC_REPO_DIR}" ]]; then
   echo "Missing MAC_REPO_DIR env varible."
   exit 1
 fi
 
-if [[ -z ${MAC_REPO_STAGE_BRANCH} ]]; then
+if [[ -z "${MAC_REPO_STAGE_BRANCH}" ]]; then
   echo "Missing MAC_REPO_STAGE_BRANCH env varible."
   exit 2
 fi
@@ -18,7 +18,7 @@ SHA256=$(shasum -a 256 shasum -a 256 "package/brew/azk_${VERSION}.tar.gz" | awk 
 
 RELEASE_CHANNEL=$( echo "${VERSION}" | sed s/[^\\-]*// | sed s/^\\-// | sed s/\\..*// )
 CLASS_NAME="Azk${RELEASE_CHANNEL^}"
-if [[ -z $RELEASE_CHANNEL ]]; then
+if [[ -z "${RELEASE_CHANNEL}" ]]; then
   CHANNEL_SUFFIX=
   CONFLICTS=
 else
