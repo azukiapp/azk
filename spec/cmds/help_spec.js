@@ -98,29 +98,20 @@ describe('Azk cli, help controller', function() {
   });
 
   it("should run `start --help` command to not duplicated itens", function() {
-
-    function getRegexMatches (content, regex) {
-      var match, matches = [];
-
-      while ((match = regex.exec(content)) !== null) {
-        if (match.index === regex.lastIndex) {
-          regex.lastIndex++;
-        }
-        matches.push(match);
-      }
-      return matches;
-    }
-
     doc_opts.argv = ['start', '--help'];
     return cli.run(doc_opts, run_options).then((code) => {
       h.expect(code).to.eql(0);
-      h.expect(outputs[0]).to.match(RegExp('Usage:'    , 'gi'));
-      h.expect(outputs[0]).to.match(RegExp('Actions:'  , 'gi'));
-      h.expect(outputs[0]).to.match(RegExp('Arguments:', 'gi'));
-      h.expect(outputs[0]).to.match(RegExp('Options:'  , 'gi'));
-      // must show only one log option
-      var matches = getRegexMatches(outputs[0], /<level>, -l/g);
-      h.expect(matches).to.have.length(1);
+      var regex_log = RegExp('^  --log=<level>', 'gmi');
+      var match_log = outputs[0].match(regex_log);
+
+      var regex_open = RegExp('^  --open-with=<app>', 'gmi');
+      var match_open = outputs[0].match(regex_open);
+
+      h.expect(match_log).to.have.length(1);
+      h.expect(match_open).to.have.length(1);
+
+      h.expect(match_log).to.eql([ '  --log=<level>' ]);
+      h.expect(match_open).to.eql([ '  --open-with=<app>' ]);
     });
   });
 });

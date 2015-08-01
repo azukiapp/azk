@@ -1,18 +1,18 @@
 $ azk [options] [*command]
 
 Usage:
-  azk agent (start|status|stop) [--no-daemon --child --no-reload-vm --configure-file <file>] [-qh] [-l <level>] [-v]...
+  azk agent (start|status|stop) [--no-daemon --child --no-reload-vm --configure-file=<file>] [-qh] [-l <level>] [-v]...
   azk config (track-toggle|track-status) [-qh] [-l <level>] [-v]...
   azk doctor [--logo] [-qh] [-l <level>] [-v]...
   azk docker [-qh] [-l <level>] [-v]... [-- <docker-args>...]
   azk info [--no-colored] [-qh] [-l <level>] [-v]...
   azk init [<path>] [--filename --force] [-qh] [-l <level>] [-v]...
-  azk logs [<system> <instances>] [--no-timestamps --follow --lines <n>] [-qh] [-l <level>] [-v]...
-  azk restart [<system>] [--reprovision --rebuild --open --open-with <app>] [-qh] [-l <level>] [-v]...
+  azk logs [<system> <instances>] [--no-timestamps --follow --lines=<n>] [-qh] [-l <level>] [-v]...
+  azk restart [<system>] [--reprovision --rebuild --open --open-with=<app>] [-qh] [-l <level>] [-v]...
   azk scale [<system>] [<to>] [--no-remove] [-qh] [-l <level>] [-v]...
-  azk shell [<system>] [--command <cmd> --cwd <dir> --image <name> --shell <bin> --rebuild --no-remove --silent --tty --no-tty] [-m <mounts> -e <data>]... [-qh] [-l <level>] [-v]... [-- <shell-args>...]
-  azk start [<system>] [--reprovision --rebuild --open --open-with <app>] [-qh] [-l <level>] [-v]...
-  azk start [<git-repo>] [<dest-path>] [--git-ref <git-ref>] [--reprovision --rebuild --open --open-with <app>] [-qh] [-l <level>] [-v]...
+  azk shell [<system>] [--command=<cmd> --cwd=<dir> --image=<name> --shell=<bin> --rebuild --no-remove --silent --tty --no-tty] [-m <mounts> -e <data>]... [-qh] [-l <level>] [-v]... [-- <shell-args>...]
+  azk start [<system>] [--reprovision --rebuild --open --open-with=<app>] [-qh] [-l <level>] [-v]...
+  azk start [<git-repo>] [<dest-path>] [--git-ref=<git-ref>] [--reprovision --rebuild --open --open-with=<app>] [-qh] [-l <level>] [-v]...
   azk status [<system>] [--long --short --text] [-qh] [-l <level>] [-v]...
   azk stop [<system>] [--no-remove] [-qh] [-l <level>] [-v]...
   azk vm (ssh|start|status|installed|stop|remove) [--force] [-qh] [-l <level>] [-v]... [-- <ssh-args>...]
@@ -60,36 +60,36 @@ Arguments:
   to                        Number of available instances after scaling.
 
 Options:
-  --command <cmd>, -c       Runs the specified command.
-  --cwd <dir>, -C           Sets the current working directory.
-  --env <data>, -e          Additional environment variables - multiple supported (`-e HTTP_PORT=5000 -e PORT=5000`).
+  --command=<cmd>, -c       Runs the specified command.
+  --cwd=<dir>, -C           Sets the current working directory.
+  --env=<data>, -e          Additional environment variables - multiple supported (`-e HTTP_PORT=5000 -e PORT=5000`).
   --filename                Shows the manifest filename.
   --force, -F               Force mode on.
   --follow, -f              Follows log output.
   --help, -h                Shows help usage.
-  --image <name>, -i        Defines the image in which the command will be executed.
-  --log <level>, -l         Sets log level (default: error).
+  --image=<name>, -i        Defines the image in which the command will be executed.
+  --log=<level>, -l         Sets log level (default: error).
   --logo                    Shows the azk logo before showing health information.
   --long                    Show all columns.
-  --mount <paths>, -m       Additional mounting points - multiple supported (`-m ~/Home:/azk/user -m ~/data:/var/data`).
-  --lines <n>, -n           Outputs the specified number of lines at the end of logs [default: all].
+  --mount=<paths>, -m       Additional mounting points - multiple supported (`-m ~/Home:/azk/user -m ~/data:/var/data`).
+  --lines=<n>, -n           Outputs the specified number of lines at the end of logs [default: all].
   --no-colored              Single color output.
   --no-daemon               Runs `azk agent` in foreground.
   --no-reload-vm            Do not reload Virtual Machine settings.
   --no-remove, -r           Do not remove container instances after stopping them.
   --no-timestamps           Hides log timestamps.
   --open, -o                Opens system URL in default browser application.
-  --open-with <app>, -a     Opens system URL in specified browser application.
+  --open-with=<app>, -a     Opens system URL in specified browser application.
   --quiet, -q               Never prompt.
   --rebuild, -B             Forces rebuilding or pull image and reprovision system before starting an instance.
   --reprovision, -R         Forces provisioning actions before starting an instance.
-  --shell <bin>             Path to shell binary file.
+  --shell=<bin>             Path to shell binary file.
   --short                   Hides 'Provisioned' column.
   --no-tty, -T              Disables pseudo-tty allocation.
   --tty, -t                 Forces pseudo-tty allocation.
   --text                    Shows output in plain text mode.
   --verbose, -v             Sets the level of detail - multiple supported (-vv == --verbose 2) [default: 0].
-  --git-ref <git-ref>       Git branch, tag or commit to clone
+  --git-ref=<git-ref>       Git branch, tag or commit to clone
   --silent                  Prevents any log message about command execution. It's useful when using the `-c` option and the output is used as input to another command using the pipe `|` operator.
   --version                 Shows azk version.
 
