@@ -10,10 +10,10 @@ export CODENAME=$1; shift
 export VERSION=$1; shift
 export AZK_NAMESPACE=$1; shift
 
-[[ -z $AZK_NAMESPACE ]] && export AZK_NAMESPACE='dev.azk.io'
+[[ -z "${AZK_NAMESPACE}" ]] && export AZK_NAMESPACE='dev.azk.io'
 
 RELEASE_CHANNEL=$( echo "${VERSION}" | sed s/[^\\-]*// | sed s/^\\-// | sed s/\\..*// )
-if [[ -z $RELEASE_CHANNEL ]]; then
+if [[ -z "${RELEASE_CHANNEL}" ]]; then
   PKG_SUFFIX=
 else
   PKG_SUFFIX="-${RELEASE_CHANNEL}"
@@ -80,8 +80,8 @@ run_test() {
   fi
 
   if [[ $RUN_TEST_APP = true ]]; then
-    TEST_URL=$( azk status --text | tail -1 | awk '{print $3}' | sed -r "s:\x1B\[[0-9;]*[mK]::g" )
-    RESULT=$( curl -sI $TEST_URL | head -1 | sed s/\\r//g)
+    TEST_URL=$( azk status --text | tail -1 | awk '{print $3}' | tr -d '[:cntrl:]' | sed "s:\[[0-9;]*[mK]::g" )
+    RESULT=$( curl -sI $TEST_URL | head -1 | sed s/\\r//g | tr -d '[:cntrl:]' )
     echo "GET ${TEST_URL}"
     echo "${RESULT}"
     if [[ "$RESULT" != "HTTP/1.1 200 OK" ]]; then

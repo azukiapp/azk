@@ -15,14 +15,14 @@ Arguments:
 Options:
   --gpg-key=<gpg-file>    The GPG private key to sign deb and rpm packages (not required in mac package case)
   --channel=<channel>     Release channel <channel>=(nightly|rc|stable)
-  --no-version            Don't bump version (adding release channel and date)
   --no-make               Don't run \`make\` before packaging
   --no-linux-clean        Don't clean Linux build files before running first \`make -e package_linux\`
   --clean-repo            Force cleaning repo with previous version. Use it with wisdom!
   --no-agent              Don't run \`azk agent\` for builds (assumes it's running somewhere else)
   --no-test               Don't test generated packages
   --publish, -p           Publish the generated packages after build
-  --no-tag                Don't create git tag and commit bumping current version
+  --no-version            Don't create a new commit bumping azk version into package.json (adding release channel and date)
+  --no-tag                Don't create git version tag to last commit
   --verbose, -v           Displays more detailed info about each building  and packaging step
   --help, -h              Show this message
 "
@@ -93,7 +93,7 @@ while [[ $# -gt 0 ]]; do
    esac
 done
 
-[[ -z $RELEASE_CHANNEL ]] && RELEASE_CHANNEL='stable'
+[[ -z "${RELEASE_CHANNEL}" ]] && RELEASE_CHANNEL='stable'
 VERSION_SUFFIX="-${RELEASE_CHANNEL}"
 
 case $RELEASE_CHANNEL in
@@ -107,35 +107,45 @@ case $RELEASE_CHANNEL in
   * ) echo >&2 "Invalid release channel: ${RELEASE_CHANNEL}." && exit 2;;
 esac
 
-if [[ -z $BUILD_DEB ]] && [[ -z $BUILD_RPM ]] && [[ -z $BUILD_MAC ]]; then
+if [[ -z "${BUILD_DEB}" ]] && [[ -z "${BUILD_RPM}" ]] && [[ -z "${BUILD_MAC}" ]]; then
   BUILD_DEB=true
   BUILD_RPM=true
   BUILD_MAC=true
 fi
 
-if [[ ! -z $BUILD_DEB ]] || [[ ! -z $BUILD_RPM ]]; then
+if [[ ! -z "${BUILD_DEB}" ]] || [[ ! -z "${BUILD_RPM}" ]]; then
   [[ ! -e $SECRET_KEY ]] && echo >&2 "Please inform an valid GPG key." && exit 3
 fi
 
 bump_version() {
+  VERSION_NUMBER=$( cat package.json | grep -e "version" | cut -d' ' -f4 | sed -n 's/\"//p' | sed -n 's/\"//p' | sed -n 's/,//p' | sed s/-.*// )
+
   if [[ $RELEASE_CHANNEL != 'stable' ]]; then
-    VERSION_NUMBER=$( cat package.json | grep -e "version" | cut -d' ' -f4 | sed -n 's/\"//p' | sed -n 's/\"//p' | sed -n 's/,//p' | sed s/-.*// )
     RELEASE_COUNTER=$(curl -s https://api.github.com/repos/azukiapp/azk/tags | grep 'name' | \
       grep -c "${VERSION_NUMBER}-${RELEASE_CHANNEL}" | awk '{print $1 + 1}' )
     RELEASE_DATE=$( date +%Y%m%d )
-    VERSION_SUFFIX="${VERSION_SUFFIX}.${RELEASE_COUNTER}+${RELEASE_DATE}"
+    VERSION_SUFFIX_NO_META="${VERSION_SUFFIX}.${RELEASE_COUNTER}"
+    VERSION_SUFFIX="${VERSION_SUFFIX_NO_META}+${RELEASE_DATE}"
   fi
 
-  VERSION_LINE_NUMBER=`cat package.json | grep -n "version" | cut -d ":" -f1`
-  sed -ir "${VERSION_LINE_NUMBER}s/\([[:digit:]]*\.[[:digit:]]*\.[[:digit:]]*\)[^\"]*/\1${VERSION_SUFFIX}/" package.json
-  rm -Rf package.jsonr
+  VERSION="${VERSION_NUMBER}${VERSION_SUFFIX}"
+  VERSION_NO_META="${VERSION_NUMBER}${VERSION_SUFFIX_NO_META}"
+
+  files=( package.json npm-shrinkwrap.json )
+  for f in "${files[@]}"; do
+    VERSION_LINE_NUMBER=`cat ${f} | grep -n "version" | head -1 | cut -d ":" -f1`
+    rm -Rf ${f}r # Avoiding conflicts
+    sed -ir "${VERSION_LINE_NUMBER}s/\([[:digit:]]*\.[[:digit:]]*\.[[:digit:]]*\)[^\"]*/\1${VERSION_SUFFIX}/" ${f}
+    rm -Rf ${f}r
+    [[ $NO_VERSION != true ]] && git add ${f}
+  done
+  [[ $NO_VERSION != true ]] && git commit -m "Bumping version to azk v${VERSION_NO_META}"
+
+  echo "Version bumped to v${VERSION}."
 }
 
 make_tag() {
-  git add package.json
-  git commit -m "Bumping version to azk v${VERSION_NO_META}"
-  LAST_COMMIT=$( git log | head -1 | awk '{ print substr($2, 0, 7)}' )
-  git tag "v${VERSION_NO_META}" ${LAST_COMMIT}
+  git tag -a "v${VERSION_NO_META}"
 }
 
 run_make() {
@@ -219,10 +229,7 @@ source .dependencies
 
 LINUX_BUILD_WAS_EXECUTED=false
 
-[[ $NO_VERSION != true ]] && step_run "Bumping version" --exit bump_version
-VERSION=$( cat package.json | grep -e "version" | cut -d' ' -f4 | sed -n 's/\"//p' | sed -n 's/\"//p' | sed -n 's/,//p' )
-VERSION_NO_META=$( echo $VERSION | sed 's/+.*//' )
-echo "Version bumped to v${VERSION}."
+step_run "Bumping version" --exit bump_version
 
 [[ $NO_MAKE != true ]]    && step_run "Running make" --exit run_make
 [[ $NO_AGENT != true ]]   && step_run "Starting agent" --exit start_agent
@@ -241,8 +248,8 @@ if [[ $BUILD_DEB == true ]]; then
   (
     set -e
 
-    step_run "Cleaning current aptly repo" azk shell package -c "rm -Rf /azk/aptly/*"
-    [[ ! -z CLEAN_REPO ]] && step_run "Cleaning environment" rm -Rf package/deb package/public
+    [[ ! -z "${CLEAN_REPO}" ]] && step_run "Cleaning current aptly repo" azk shell package -c "rm -Rf /azk/aptly/*"
+    [[ ! -z "${CLEAN_REPO}" ]] && step_run "Cleaning environment" rm -Rf package/deb package/public
 
     step_run "Downloading libnss-resolver" \
     mkdir -p package/deb \
@@ -282,7 +289,7 @@ if [[ $BUILD_RPM == true ]]; then
   (
     set -e
 
-    [[ ! -z CLEAN_REPO ]] && step_run "Cleaning environment" rm -Rf package/rpm package/fedora20
+    [[ ! -z "${CLEAN_REPO}" ]] && step_run "Cleaning environment" rm -Rf package/rpm package/fedora20
 
     step_run "Downloading libnss-resolver" \
     mkdir -p package/rpm \

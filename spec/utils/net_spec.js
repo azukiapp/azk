@@ -109,9 +109,11 @@ describe("Azk utils.net module", function() {
         yield h.expect(connect()).to.eventually.equal(false);
 
         // listening to utils.net.waitService.status
+        var serverRunning = false;
         _subscription = subscribe('utils.net.waitService.status', (event) => {
-          // Connect before 2 attempts
-          if (event.type == "try_connect" && event.attempts == 2) {
+          // Start server after first connection attempt
+          if (event.type == "try_connect" && !serverRunning) {
+            serverRunning = true;
             runServer(port);
           }
         });
