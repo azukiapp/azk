@@ -5,10 +5,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## dev
 
+## v0.14.5 - (2015-08-01)
+* Bug
+  * [Agent] Fixing bug on Docker check that caused high CPU usage;
+
 * Enhancements
-  * [Cli] Start github URLs directly on `azk start` #476;
-  * [Manifest] `wait` accepts a simple number #148;
-  * [Package] `git` is an `azk` installation dependency #476;
+  * [Code] Improving packaging tests;
 
 ## v0.14.4 - (2015-06-26)
 
