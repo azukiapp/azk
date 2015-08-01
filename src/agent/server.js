@@ -1,4 +1,4 @@
-import { config, log, fsAsync } from 'azk';
+import { t, config, log, fsAsync } from 'azk';
 import { publish } from 'azk/utils/postal';
 import { async, promiseResolve } from 'azk/utils/promises';
 import { VM  }   from 'azk/agent/vm';
@@ -126,7 +126,7 @@ var Server = {
 
   _activeDockerMonitor(retry = 3) {
     var docker_host = config("docker:host");
-    log.debug(`[agent] enable docker monitor with ${retry} retry.`);
+    log.debug(t("docker.monitor.start", { docker_host, retry }));
 
     var stop = () => {
       publish("agent.docker.check.status", {
@@ -147,11 +147,11 @@ var Server = {
         .waitService(docker_host, retry, wait_options)
         .then((success) => {
           if (!success) {
-            log.debug(`[agent] _activeDockerMonitor - docker_host is stopped!`);
+            log.debug(t("docker.monitor.failed", docker_host));
             return stop();
           }
 
-          log.debug(`[agent] _activeDockerMonitor - docker_host checked (${docker_host}). Waiting for more ${check_docker_interval / 1000} seconds.`);
+          log.debug(t("docker.monitor.passed", docker_host));
           setTimeout(interval_fn, check_docker_interval);
         })
         .catch(stop);

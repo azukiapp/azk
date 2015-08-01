@@ -353,7 +353,12 @@ module.exports = {
   },
 
   docker: {
-    connect: "Connecting to docker: %s..."
+    connect: "Connecting to Docker: %s...",
+    monitor: {
+      start : "[docker:monitor]".green + " Monitoring Docker host (%(docker_host)s) with %(retry)s retries.",
+      passed: "[docker:monitor]".green + " Docker host (%s) is OK.",
+      failed: "[docker:monitor]".red + " Docker host (%s) has stopped! Stopping agent...",
+    },
   },
 
   proxy: {
