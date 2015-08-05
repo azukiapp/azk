@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 * Bug
   * [VM] Fixing start in Virtual Box 5.0;
+  * [VM] Fixing removal of VM without net interface;
 
 ## v0.14.5 - (2015-08-01)
 
