@@ -13,20 +13,20 @@ Monta a pasta localizada no sistema atual em `LOCAL_PATH`, relativo ao Azkfile.j
 #### persistent
 
 ```js
-'INTERNAL_FOLDER': path('LOCAL_PATH'),
+'INTERNAL_FOLDER': persistent('LOCAL_PATH'),
 ```
 
 Persiste os arquivos dentro do contêiner no caminho `INTERNAL_FOLDER` para uma pasta persistente do `azk` dentro da máquina do usuário. O local dessa pasta varia entre Mac e Linux:
 
 ###### Mac
 
-A pasta encontra-se no disco virtual (`~/.azk/data/vm/azk-agent.vmdk`), no diretório `/azk/persistent_folders`. Esse disco é montada no caminho `/mnt/sda1` da VM.
+A pasta encontra-se no disco virtual (`~/.azk/data/vm/azk-agent.vmdk`), no diretório `/azk/persistent_folders`. Esse disco é montado no caminho `/mnt/sda1` da VM.
 
 ###### Linux
 
 `~/.azk/data/persistent_folders/#{manifest.id}/LOCAL_PATH`.
 
-Note que utilizar o mesmo 'LOCAL_PATH' no mesmo Azkfile.js, mas em contêiners diferentes, significa que eles irão compartilhar dados persistidos.
+Note que utilizar o mesmo 'LOCAL_PATH' no mesmo Azkfile.js, mas em sistemas diferentes, significa que esses sistemas compartilharão os dados persistidos.
 
 #### sync
 
