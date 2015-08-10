@@ -1,4 +1,4 @@
-import { config } from 'azk';
+import { config, log } from 'azk';
 import { Docker, Image, Container } from 'azk/docker/docker';
 
 var url = require('url');
@@ -20,8 +20,10 @@ module.exports = {
           port : opts.port,
         };
       }
+      opts.version = config('docker:api_version');
       this.connect = new Docker(opts);
     }
+    log.debug("[docker] connect:", this.connect);
     return this.connect;
   },
 

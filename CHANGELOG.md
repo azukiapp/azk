@@ -8,6 +8,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 * Bug
   * [VM] Fixing start in Virtual Box 5.0;
 
+* Enhancements
+  * [docker] Adding docker version lock
+
 ## v0.14.5 - (2015-08-01)
 
 * Bug
