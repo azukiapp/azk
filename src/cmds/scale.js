@@ -52,6 +52,12 @@ class Scale extends CliTrackerController {
       this.ui.output("");
       yield lazy.Status.status(this, manifest, status_systems);
 
+      if (command_parse_result) {
+        this.ui.ok('commands.start.get_project.final_started_message', {
+          git_destination_path: command_parse_result.git_destination_path
+        });
+      }
+
       return result;
     })
     .catch(function (err) {

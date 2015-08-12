@@ -345,6 +345,14 @@ module.exports = {
         cloning_to_folder        : "Cloning `%(git_url)s#%(git_branch_tag_commit)s` to `%(git_destination_path)s`...",
         cloning_master_to_folder : "Cloning `%(git_url)s` to `%(git_destination_path)s`...",
         checkout_to_commit       : "Checkout to `%(git_branch_tag_commit)s` in `%(git_destination_path)s`...",
+        final_started_message    : [
+          "",
+          "Your app was cloned and started.",
+          "Now you can go to your folder and run azk commands:",
+          "$ cd '%(git_destination_path)s'",
+          "$ azk status",
+          "",
+        ].join('\n'),
       },
     },
     stop: {
