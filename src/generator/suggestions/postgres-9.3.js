@@ -25,7 +25,7 @@ export class Suggestion extends UIProxy {
       workdir: null,
       mounts  : {
         '/var/lib/postgresql/data' : {type: 'persistent', value: 'postgresql'},
-        '/var/log/postgresql' : {type: 'path', value: '#{app.relative}/log/postgresql'},
+        '/var/log/postgresql' : {type: 'path', value: './log/postgresql'},
       },
       envs: {
         // set instances variables
