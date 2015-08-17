@@ -87,11 +87,11 @@ describe('GetProject:', function() {
 
     it('should get a full git https url with only user/repo', function() {
       var parsed_options = cliRouterCleanParams([
-        'azk start azukiapp/azkdemo'
+        'azk start azu-ki-app/azk-demo'
       ].join(' '));
 
       h.expect(parsed_options).to.have.property('git_url',
-                                                'https://github.com/azukiapp/azkdemo.git');
+                                                'https://github.com/azu-ki-app/azk-demo.git');
 
       h.expect(parsed_options).to.have.property('git_branch_tag_commit',
                                                 'master');

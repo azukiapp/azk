@@ -62,7 +62,8 @@ export class GetProject extends UIProxy {
     }
 
     // prepare URL
-    match = matchFirstRegex(git_repo, /^(\w+?)\/(\w+)$/g);
+    // https://regex101.com/r/zG9mN5/2
+    match = matchFirstRegex(git_repo, /^([\w-]+?)\/([\w-]+)$/g);
     if (match) {
       git_repo = `https://github.com/${match[1]}/${match[2]}.git`;
     }
