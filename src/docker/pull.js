@@ -13,6 +13,7 @@ var msg_regex = {
   get pulling_layers     () { return new lazy.XRegExp('Pulling dependent layers'); },
   get pulling_metadata   () { return new lazy.XRegExp('Pulling metadata'); },
   get pulling_fs_layer   () { return new lazy.XRegExp('Pulling fs layer'); },
+  get pulling_up_to_date () { return new lazy.XRegExp('Image is up to date'); },
   get pulling_image      () { return new lazy.XRegExp(
     'Pulling image \((?<tag>.*)\) from (?<repository>.*), endpoint: (?<endpoint>.*)'
   ); },
