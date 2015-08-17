@@ -225,16 +225,21 @@ var Run = {
       while ( (container = instances.pop()) ) {
         container = lazy.docker.getContainer(container.Id);
 
+        var container_info = yield container.inspect();
+
         // Remove from balancer
         yield Balancer.remove(system, container);
 
-        if (options.kill) {
-          publish("system.run.stop.status", { type: 'kill_service', system: system.name });
-          yield container.kill();
-        } else {
-          publish("system.run.stop.status", { type: 'stop_service', system: system.name });
-          yield container.stop();
+        if (container_info.State.Running) {
+          if (options.kill) {
+            publish("system.run.stop.status", { type: 'kill_service', system: system.name });
+            yield container.kill();
+          } else {
+            publish("system.run.stop.status", { type: 'stop_service', system: system.name });
+            yield container.stop();
+          }
         }
+
         publish("system.run.stop.status", { type: 'stopped', id: container.Id });
         if (options.remove) {
           yield container.remove();
@@ -336,7 +341,8 @@ var Run = {
 
         // Stop and remove container
         if (stop) {
-          return this.stop(system, [container], { kill: true, remove: true }).then(raise);
+          return this.stop(system, [container], { kill: true, remove: true })
+            .then(raise);
         } else {
           raise();
         }
