@@ -27,16 +27,14 @@ describe("Azk docker module, image pull @slow", function() {
           'pulling_layers',
           'pulling_metadata',
           'pulling_fs_layer',
-          'pulling_up_to_date',
           'pulling_image',
           'download',
           'download_complete',
         ];
-        _.each(events, (event) => {
-          if (event.statusParsed) {
-            h.expect(status_list)
-              .to.include(event.statusParsed.type);
-          }
+
+        _.each(status_list, (status) => {
+          h.expect(events)
+          .to.contain.an.item.with.deep.property('statusParsed.type', status);
         });
       })
       .catch(function (err) {
