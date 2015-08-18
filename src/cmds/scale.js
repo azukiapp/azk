@@ -1,6 +1,6 @@
 import { CliTrackerController } from 'azk/cli/cli_tracker_controller';
 import { Helpers } from 'azk/cli/helpers';
-import { _, log, t, lazy_require } from 'azk';
+import { _, log, t, config, lazy_require } from 'azk';
 import { subscribe } from 'azk/utils/postal';
 import { async } from 'azk/utils/promises';
 import { AzkError } from 'azk/utils/errors';
@@ -128,10 +128,11 @@ class Scale extends CliTrackerController {
       }
     });
 
+    var is_remove = !opts['no-remove'] ? config("docker:remove_container") : !opts['no-remove'];
     var options = {
       build_force    : opts.rebuild || false,
       provision_force: (opts.rebuild ? true : opts.reprovision) || false,
-      remove         : !opts['no-remove'],
+      remove         : is_remove,
     };
 
     this.verbose_msg(1, () => {

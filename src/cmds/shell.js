@@ -1,6 +1,6 @@
 import { CliTrackerController } from 'azk/cli/cli_tracker_controller';
 import { Helpers } from 'azk/cli/helpers';
-import { _, lazy_require } from 'azk';
+import { _, config, lazy_require } from 'azk';
 import { defer, asyncUnsubscribe } from 'azk/utils/promises';
 import { subscribe } from 'azk/utils/postal';
 
@@ -72,10 +72,11 @@ class Shell extends CliTrackerController {
       cmd = _.compact(cmd);
 
       // Remove container before run
+      var is_remove = !options['no-remove'] ? config("docker:remove_container") : !options['no-remove'];
       cmd_options = _.merge(cmd_options, {
         build_force    : options.rebuild || false,
         provision_force: (options.rebuild ? true : options.reprovision) || false,
-        remove         : !options['no-remove'],
+        remove         : is_remove,
       });
 
       var result = defer((resolver, reject) => {

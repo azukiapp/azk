@@ -19,6 +19,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Docker] Adding docker version lock;
   * [VM] Fixing removal of VM without net interface;
 
+* Enhancements
+  * [Scale] Adding flag `--no-remove` to start command;
+
 ## v0.14.5 - (2015-08-01)
 
 * Bug

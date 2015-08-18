@@ -53,13 +53,13 @@ describe("Azk utils module", function() {
       it('null from "undefined"', function () {
         var key = 'ENV_TEST';
         process.env[key] = 'undefined';
-        h.expect(utils.envs(key)).to.eql(null);
+        h.expect(utils.envs(key)).to.eql(undefined);
       });
 
       it('null from "false"', function () {
         var key = 'ENV_TEST';
         process.env[key] = 'false';
-        h.expect(utils.envs(key)).to.eql(null);
+        h.expect(utils.envs(key)).to.eql(false);
       });
 
       it('should true', function () {
@@ -81,7 +81,7 @@ describe("Azk utils module", function() {
       it('should false from "false"', function () {
         var key = 'ENV_TEST';
         process.env[key] = 'false';
-        h.expect(utils.envs(key, should)).to.eql(should);
+        h.expect(utils.envs(key, should)).to.eql(false);
       });
 
       it('default from undefined env', function () {

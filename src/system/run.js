@@ -136,7 +136,7 @@ var Run = {
 
         if (!_.isEmpty(port_data)) {
           var timeout = options.wait.timeout || config('docker:run:timeout');
-          yield this._wait_available(system, port_data, container, timeout);
+          yield this._wait_available(system, port_data, container, timeout, options);
         }
       }
 
@@ -251,7 +251,7 @@ var Run = {
   },
 
   // Wait for container/system available
-  _wait_available(system, port_data, container, timeout) {
+  _wait_available(system, port_data, container, timeout, options) {
     return async(this, function* () {
       var host;
       if (config('agent:requires_vm')) {
@@ -299,7 +299,7 @@ var Run = {
             log
           );
         } else {
-          yield this.throwRunError(system, container, null, true);
+          yield this.throwRunError(system, container, null, true, options);
         }
       }
 
@@ -307,7 +307,7 @@ var Run = {
     });
   },
 
-  throwRunError(system, container, data = null, stop = false) {
+  throwRunError(system, container, data = null, stop = false, options = {}) {
     data = data ? promiseResolve(data) : container.inspect();
     return data.then((data) => {
       // Get container log
@@ -336,10 +336,12 @@ var Run = {
           );
         };
 
-        // Stop and remove container
+        // Stop container
         if (stop) {
-          return this.stop(system, [container], { kill: true, remove: true })
-            .then(raise);
+          options = _.defaults(options, {
+            kill: true, remove: config("docker:remove_container")
+          });
+          return this.stop(system, [container], options).then(raise);
         } else {
           raise();
         }
