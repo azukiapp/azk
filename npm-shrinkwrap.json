@@ -7951,8 +7951,8 @@
     },
     "vboxmanage": {
       "version": "0.0.16",
-      "from": "gullitmiranda/node-vboxmanage",
-      "resolved": "git://github.com/gullitmiranda/node-vboxmanage.git#49f6d3b192a36a45e9e3341cdc907d39017eaf44",
+      "from": "azukiapp/node-vboxmanage",
+      "resolved": "git://github.com/azukiapp/node-vboxmanage.git#49f6d3b192a36a45e9e3341cdc907d39017eaf44",
       "dependencies": {
         "stream-buffers": {
           "version": "0.2.5",
