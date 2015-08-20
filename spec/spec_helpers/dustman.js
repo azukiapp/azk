@@ -20,8 +20,14 @@ export function extend(Helpers) {
         publish("spec.dustman.remove_containers.message", t('test.remove_containers', containers.length));
         return thenAll(_.map(containers, (container) => {
           var c = h.docker.getContainer(container.Id);
-          return c.kill().then(() => {
-            return c.remove({ force: true });
+          return c.inspect().then(function(container_info) {
+            if (container_info.State.Running) {
+              return c.kill().then(() => {
+                return c.remove({ force: true });
+              });
+            } else {
+              return c.remove({ force: true });
+            }
           });
         }));
       });
