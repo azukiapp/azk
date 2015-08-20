@@ -146,6 +146,7 @@ export class Docker extends promisifyClass('dockerode') {
   constructor(opts) {
     var info = opts.socketPath || `${opts.host}:${opts.port}`;
     log.info("Connecting to", info);
+    log.debug("[docker] connection options:", opts);
     super(opts);
 
     this.c_regex = RegExp(`\/${Utils.escapeRegExp(config('docker:namespace'))}`);
