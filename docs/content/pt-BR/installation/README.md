@@ -6,9 +6,6 @@ A instalação vai adicionar o comando `azk` ao path do sistema. Isso torna o co
 
 - [Mac OS X](mac_os_x.md)
 - [Linux](linux.md)
-  - [Ubuntu Trusty](linux.html#ubuntu-trusty-1404-lts-64-bit)
-  - [Ubuntu Precise](linux.html#ubuntu-precise-1204-lts-64-bit)
-  - [Fedora](linux.html#fedora-20)
 - [Código fonte](source-code.md)
 - [Atualizando](upgrading.md)
 
