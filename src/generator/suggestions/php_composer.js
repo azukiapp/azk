@@ -27,11 +27,11 @@ export class Suggestion extends DefaultSuggestion {
       },
       mounts  : {
         "/azk/#{app.dir}"                       : {type: 'sync', value: '.'},
-        "/azk/#{app.dir}/vendor"                : {type: 'persistent', value: "#{system.name}/vendor"},
-        "/azk/#{app.dir}/composer.phar"         : {type: 'persistent', value: "#{system.name}/composer.phar"},
-        "/azk/#{app.dir}/composer.lock"         : {type: 'path', value: "#{system.name}/composer.lock"},
-        "/azk/#{app.dir}/.env.php"              : {type: 'path', value: "#{system.name}/.env.php"},
-        "/azk/#{app.dir}/bootstrap/compiled.php": {type: 'path', value: "#{system.name}/bootstrap/compiled.php"},
+        "/azk/#{app.dir}/vendor"                : {type: 'persistent', value: "#{app.relative}/vendor"},
+        "/azk/#{app.dir}/composer.phar"         : {type: 'persistent', value: "#{app.relative}/composer.phar"},
+        "/azk/#{app.dir}/composer.lock"         : {type: 'path', value: "#{app.relative}/composer.lock"},
+        "/azk/#{app.dir}/.env.php"              : {type: 'path', value: "#{app.relative}/.env.php"},
+        "/azk/#{app.dir}/bootstrap/compiled.php": {type: 'path', value: "#{app.relative}/bootstrap/compiled.php"},
       },
       envs: {
         APP_DIR: '/azk/#{app.dir}',

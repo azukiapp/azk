@@ -26,7 +26,7 @@ export class Suggestion extends DefaultSuggestion {
       },
       mounts  : {
         "/azk/#{app.dir}"             : {type: 'sync', value: '.'},
-        "/azk/#{app.dir}/node_modules": {type: 'persistent', value: "#{system.name}/node_modules"},
+        "/azk/#{app.dir}/node_modules": {type: 'persistent', value: "#{app.relative}/node_modules"},
       },
       envs: {
         NODE_ENV: "dev",

@@ -7,8 +7,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 * Bug
   * [Docker] Do not try to stop or kill a not running container;
+  * [VM] Fixing start in Virtual Box 5.0;
+  * [Suggesting] Fixing relative paths;
 
 ## v0.14.5 - (2015-08-01)
+
 * Bug
   * [Agent] Fixing bug on Docker check that caused high CPU usage;
 
