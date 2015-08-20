@@ -5,7 +5,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## dev
 
+* Bug
+  * [Manifest] Fixing wait not support `false` value;
+
 ## v0.14.5 - (2015-08-01)
+
 * Bug
   * [Agent] Fixing bug on Docker check that caused high CPU usage;
 
