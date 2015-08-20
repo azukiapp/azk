@@ -73,6 +73,12 @@ module.exports = {
                   "`v%(new_version)s` version is available.",
                   "Please, access http://azk.io to upgrade\n"].join("\n"),
         mv_resolver: "Upgrading domains error, moving files was not possible",
+        check_docker_version_error: [
+          'Checking Docker version:',
+          'Detected:    %(current_version)s',
+          'Required: >= %(min_version)s',
+          'Please update Docker before continue.'
+        ].join('\n'),
         rsync      : "`rsync` command is required, but it's not installed or it's not in the $PATH. Please install it before continue.",
         check_rsync_version_error: [
           'Checking rsync version:',
