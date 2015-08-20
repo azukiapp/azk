@@ -11,7 +11,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Suggesting] Fixing relative paths;
 
 * Enhancements
-  * [docker] Adding docker version lock
+  * [Docker] Adding docker version lock;
+  * [VM] Fixing removal of VM without net interface;
 
 ## v0.14.5 - (2015-08-01)
 
