@@ -1,5 +1,7 @@
 # Linux
 
+> The easiest way to install azk is following [azk express installation](./README.html#azk-express-installation) section.
+
 !INCLUDE "warning.md"
 
 ## Requirements
@@ -14,9 +16,9 @@
 
 1. Install Docker:
 
-  >Note that in [Docker's installation instructions][docker_ubuntu-trusty-1404-lts-64-bit], the first part is for an Ubuntu maintained package (_docker-io_) and not to the correct version (_lxc-docker_), maintained by Docker.
+  >Note that in [Docker's installation instructions][docker_ubuntu-trusty-1404-lts-64-bit], the first part is for an Ubuntu maintained package (_docker.com_) and not to the correct version (_docker-engine_), maintained by Docker.
 
-  - Install **Docker's latest version** [lxc-docker][docker_ubuntu_14_04_maintained-package-installation] - Docker has a `curl script` for easy installation;
+  - Install **Docker's latest version** [docker-engine][docker_ubuntu_14_04_maintained-package-installation] - Docker has a `curl script` for easy installation;
   - Include your local user in the [docker group][docker_root_access]; Logoff for user group settings to take effect;
   - [Disable the use of dnsmasq][docker_ubuntu_dns];
   - Stop dnsmasq and ensure it won't start at login:
@@ -65,7 +67,7 @@
     ```
 
 2. Add the Azuki keys to your local keychain:
-  
+
   ```bash
   $ sudo apt-key adv --keyserver keys.gnupg.net \
     --recv-keys 022856F6D78159DF43B487D5C82CF0628592D2C9

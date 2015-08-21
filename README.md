@@ -1,4 +1,4 @@
-# azk [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/azukiapp/azk?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Code Climate](https://codeclimate.com/github/azukiapp/azk/badges/gpa.svg)](https://codeclimate.com/github/azukiapp/azk)  
+# azk [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/azukiapp/azk?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Code Climate](https://codeclimate.com/github/azukiapp/azk/badges/gpa.svg)](https://codeclimate.com/github/azukiapp/azk)
 
 ### A development environment orchestration tool
 
@@ -100,7 +100,7 @@ Share the love and star us here in Github!
 Check LEGAL and LICENSE files for more information.
 
 [sos]: http://en.wikipedia.org/wiki/System_of_systems
-[docker]: http://docker.io
+[docker]: http://docker.com
 [azk_images]: http://images.azk.io
 [docker_hub]: https://registry.hub.docker.com/
 [dockerfile]: http://dockerfile.github.io

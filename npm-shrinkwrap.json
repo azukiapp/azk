@@ -1,6 +1,6 @@
 {
   "name": "azk",
-  "version": "0.14.5",
+  "version": "0.14.6",
   "dependencies": {
     "archiver": {
       "version": "0.13.1",
@@ -7951,8 +7951,8 @@
     },
     "vboxmanage": {
       "version": "0.0.16",
-      "from": "git://github.com/nuxlli/node-vboxmanage.git#9244eac7498aab28db5c8e0cce60c914c4b73c4c",
-      "resolved": "git://github.com/nuxlli/node-vboxmanage.git#9244eac7498aab28db5c8e0cce60c914c4b73c4c",
+      "from": "azukiapp/node-vboxmanage",
+      "resolved": "git://github.com/azukiapp/node-vboxmanage.git#49f6d3b192a36a45e9e3341cdc907d39017eaf44",
       "dependencies": {
         "stream-buffers": {
           "version": "0.2.5",

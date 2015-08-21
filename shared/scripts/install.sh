@@ -176,17 +176,13 @@ check_docker_installation() {
   if hash docker 2>/dev/null; then
     step_done
     debug '  Docker is instaled, skipping docker installation.'
-    if [[ $ID == "ubuntu" ]]; then
-      debug '    To update docker, run command bellow:'
-      debug '    $ curl -sSL https://get.docker.com/ubuntu/ | sudo sh'
-    fi
+    debug '    To update docker, run command bellow:'
+    debug '    $ curl -sSL https://get.docker.com/ | sh'
   else
     step_fail
-    add_report 'azk needs docker to be installed.'
-    if [[ $ID == "ubuntu" ]]; then
-      add_report '  to install docker run command bellow:'
-      add_report '  $ curl -sSL https://get.docker.com/ubuntu/ | sudo sh'
-    fi
+    add_report 'azk needs Docker to be installed.'
+    add_report '  to install docker run command bellow:'
+    add_report '  $ curl -sSL https://get.docker.com/ | sh'
     fail
   fi
 }

@@ -1,6 +1,6 @@
 {
   "name": "azk",
-  "version": "0.14.5",
+  "version": "0.14.6",
   "description": "Orchestrate development environments with agility and automation",
   "main": "index.js",
   "scripts": {
@@ -78,7 +78,7 @@
     "ssh2": "0.2.22",
     "syntax-error": "^1.1.0",
     "underscore": "^1.6.0",
-    "vboxmanage": "git+https://github.com/nuxlli/node-vboxmanage",
+    "vboxmanage": "git+https://github.com/azukiapp/node-vboxmanage",
     "which": "^1.0.5",
     "winston": "^0.7.3",
     "ws": "^0.7.1",

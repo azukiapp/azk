@@ -464,8 +464,9 @@ var vm = {
         // Remove networking interface
         if (!isBlank(info.hostonlyadapter1)) {
           var net    = yield hostonly.getByName(info.hostonlyadapter1);
-          var server = yield dhcp.getByNetworkName(net.VBoxNetworkName);
           if (!_.isEmpty(net)) {
+            var server = yield dhcp.getByNetworkName(net.VBoxNetworkName);
+
             if (!_.isEmpty(server)) {
               yield dhcp.remove_hostonly_server(info.hostonlyadapter1);
             }
