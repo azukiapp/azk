@@ -1,6 +1,6 @@
 import { config, utils } from 'azk';
 import { subscribe } from 'azk/utils/postal';
-import { async, defer, delay } from 'azk/utils/promises';
+import { async, defer, delay, promiseResolve } from 'azk/utils/promises';
 import h from 'spec/spec_helper';
 
 var default_img = config('docker:image_default');
@@ -123,7 +123,13 @@ describe("Azk docker module, run method @slow", function() {
       yield h.docker.run(default_img, _cmd, { stdout: mocks.stdout });
       h.expect(outputs.stdout).to.match(/HTTP\/1\.1/);
 
-      return container.kill();
+      var container_info = yield container.inspect();
+      yield container.inspect();
+      if (container_info.State.Running) {
+        return container.kill();
+      } else {
+        return promiseResolve();
+      }
     });
   });
 
@@ -158,7 +164,13 @@ describe("Azk docker module, run method @slow", function() {
       var regex = new RegExp(h.escapeRegExp(`AZK_NAME=${data.Name.slice(1)}`), 'm');
       h.expect(log).to.match(regex);
 
-      return container.kill();
+      var container_info = yield container.inspect();
+      yield container.inspect();
+      if (container_info.State.Running) {
+        return container.kill();
+      } else {
+        return promiseResolve();
+      }
     });
   });
 

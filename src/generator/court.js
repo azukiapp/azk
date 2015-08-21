@@ -292,13 +292,23 @@ export class Court extends UIProxy {
       var evidences_suggestion = folder_evidence_suggestion.suggestions;
 
       var folder_base_regex        = /#\{app\.dir\}/gm;
+      var folder_relative_regex    = /^\.(\/)?$|#\{app\.relative\}/;
       var folder_base_template     = '#{manifest.dir}';
-      var folder_relative_template = '.';
+      var folder_relative_template = ".$1";
 
       if (folderName !== this.__root_folder) {
         folder_base_template     += '/#{system.name}';
         folder_relative_template = './#{system.name}';
       }
+
+      var folderTemplate = (path) => {
+        // var before = _.clone(path);
+        path = path.replace(folder_base_regex, folder_base_template);
+        // var middle = _.clone(path);
+        path = path.replace(folder_relative_regex, folder_relative_template);
+        // console.log(before, '=>', middle, '=>', path);
+        return path;
+      };
 
       var replaceFolderTemplate = (elm) => {
         if (_.isString(elm)) {
@@ -306,13 +316,10 @@ export class Court extends UIProxy {
         } else if (_.isObject(elm)) {
           var new_elm = {};
           _.map(elm, (data, key) => {
-            key   = (!_.isString(key)) ? key :
-              (key   === '.') ? folder_relative_template : key.replace(folder_base_regex, folder_base_template);
-
             var value = (_.isObject(data)) ? data.value : data;
 
-            value = (!_.isString(value)) ? value :
-              (value === '.') ? folder_relative_template : value.replace(folder_base_regex, folder_base_template);
+            key   = (!_.isString(key)) ? key : folderTemplate(key);
+            value = (!_.isString(value)) ? value : folderTemplate(value);
 
             if (_.isObject(data)) {
               data.value = value;

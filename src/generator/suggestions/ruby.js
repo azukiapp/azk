@@ -26,10 +26,10 @@ export class Suggestion extends DefaultSuggestion {
       },
       mounts  : {
         '/azk/#{app.dir}'        : {type: 'sync', value: '.'},
-        '/azk/bundler'           : {type: 'persistent', value: '#{app.dir}/bundler'},
-        '/azk/#{app.dir}/tmp'    : {type: 'persistent', value: '#{app.dir}/tmp'},
-        '/azk/#{app.dir}/log'    : {type: 'path', value: '#{app.dir}/log'},
-        '/azk/#{app.dir}/.bundle': {type: 'path', value: '#{app.dir}/.bundle'},
+        '/azk/bundler'           : {type: 'persistent', value: '#{app.relative}/bundler'},
+        '/azk/#{app.dir}/tmp'    : {type: 'persistent', value: '#{app.relative}/tmp'},
+        '/azk/#{app.dir}/log'    : {type: 'path', value: '#{app.relative}/log'},
+        '/azk/#{app.dir}/.bundle': {type: 'path', value: '#{app.relative}/.bundle'},
       },
       envs: {
         RUBY_ENV         : 'development',

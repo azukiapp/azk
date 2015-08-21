@@ -21,9 +21,9 @@ export class Suggestion extends DefaultSuggestion {
       command: "mix app.start",
       mounts: {
         "/azk/#{app.dir}"       : {type: 'sync', value: '.'},
-        "/azk/#{app.dir}/deps"  : {type: 'persistent', value: "#{system.name}/deps"},
-        "/azk/#{app.dir}/_build": {type: 'persistent', value: "#{system.name}/_build"},
-        "/root/.hex"            : {type: 'persistent', value: "#{system.name}/.hex"},
+        "/azk/#{app.dir}/deps"  : {type: 'persistent', value: "#{app.relative}/deps"},
+        "/azk/#{app.dir}/_build": {type: 'persistent', value: "#{app.relative}/_build"},
+        "/root/.hex"            : {type: 'persistent', value: "#{env.HOME}/.hex"},
       },
       scalable: { default: 1 },
       http: true,

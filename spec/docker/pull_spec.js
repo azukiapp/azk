@@ -22,7 +22,7 @@ describe("Azk docker module, image pull @slow", function() {
       .then(() => {
         _subscription.unsubscribe();
 
-        var status = [
+        var status_list = [
           'pulling_repository',
           'pulling_layers',
           'pulling_metadata',
@@ -31,9 +31,10 @@ describe("Azk docker module, image pull @slow", function() {
           'download',
           'download_complete',
         ];
-        _.each(status, (status) => {
+
+        _.each(status_list, (status) => {
           h.expect(events)
-            .to.contain.an.item.with.deep.property('statusParsed.type', status);
+          .to.contain.an.item.with.deep.property('statusParsed.type', status);
         });
       })
       .catch(function (err) {

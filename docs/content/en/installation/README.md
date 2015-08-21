@@ -6,9 +6,6 @@ The installation process will add the `azk` command to your system path, making 
 
 - [Mac OS X](mac_os_x.md)
 - [Linux](linux.md)
-  - [Ubuntu Trusty](linux.html#ubuntu-trusty-1404-lts-64-bit)
-  - [Ubuntu Precise](linux.html#ubuntu-precise-1204-lts-64-bit)
-  - [Fedora](linux.html#fedora-20)
 - [Source code](source-code.md)
 - [Upgrading](upgrading.md)
 

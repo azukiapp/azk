@@ -71,6 +71,7 @@ var options = mergeConfig({
       socket        : envs('AZK_DOCKER_SOCKER', "/var/run/docker.sock"),
       host          : new Dynamic("docker:host"),
       namespace     : envs('AZK_NAMESPACE'),
+      api_version   : envs('AZK_DOCKER_API_VERSION', 'v1.16'),
       repository    : 'azk',
       default_domain: 'azk',
       build_name    : 'azkbuild',
@@ -158,7 +159,7 @@ var options = mergeConfig({
       namespace   : 'azk.test',
       repository  : 'azk_test',
       build_name  : 'azkbuildtest',
-      image_empty : 'cevich/empty_base_image',
+      image_empty : 'cevich/empty_base_image:latest',
     },
     tracker: {
       disable: true,

@@ -162,15 +162,15 @@ describe('Azk generator db', function() {
           type: 'sync', value: `./${systemName}`, options: {}
         };
         expectedMounts[path.join('/azk', folderSystem, '.bundle')] = {
-          type: 'path', value: `${folderSystem}/.bundle`, options: {}
+          type: 'path', value: `./${systemName}/.bundle`, options: {}
         };
         expectedMounts[path.join('/azk', folderSystem, 'log')] = {
-          type: 'path', value: `${folderSystem}/log`, options: {}
+          type: 'path', value: `./${systemName}/log`, options: {}
         };
         expectedMounts[path.join('/azk', folderSystem, 'tmp')] = {
-          type: 'persistent', value: `${folderSystem}/tmp`, options: {}
+          type: 'persistent', value: `./${systemName}/tmp`, options: {}
         };
-        expectedMounts['/azk/bundler'] = { type: 'persistent', value: `${folderSystem}/bundler`, options: {} };
+        expectedMounts['/azk/bundler'] = { type: 'persistent', value: `./${systemName}/bundler`, options: {} };
 
         h.expect(system).to.have.deep.property('options.mounts').and.to.eql(expectedMounts);
       });
@@ -206,15 +206,15 @@ describe('Azk generator db', function() {
           type: 'sync', value: `./${systemName}`, options: {}
         };
         expectedMounts[path.join('/azk', folderSystem, '.bundle')] = {
-          type: 'path', value: `${folderSystem}/.bundle`, options: {}
+          type: 'path', value: `./${systemName}/.bundle`, options: {}
         };
         expectedMounts[path.join('/azk', folderSystem, 'log')] = {
-          type: 'path', value: `${folderSystem}/log`, options: {}
+          type: 'path', value: `./${systemName}/log`, options: {}
         };
         expectedMounts[path.join('/azk', folderSystem, 'tmp')] = {
-          type: 'persistent', value: `${folderSystem}/tmp`, options: {}
+          type: 'persistent', value: `./${systemName}/tmp`, options: {}
         };
-        expectedMounts['/azk/bundler'] = { type: 'persistent', value: `${folderSystem}/bundler`, options: {} };
+        expectedMounts['/azk/bundler'] = { type: 'persistent', value: `./${systemName}/bundler`, options: {} };
 
         h.expect(system).to.have.deep.property('options.mounts').and.to.eql(expectedMounts);
       });
