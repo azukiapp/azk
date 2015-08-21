@@ -5,6 +5,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## dev
 
+## v0.14.6 - (2015-08-20)
+
 * Bug
   * [Docker] Do not try to stop or kill a not running container;
   * [VM] Fixing start in Virtual Box 5.0;
