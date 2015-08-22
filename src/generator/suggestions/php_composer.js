@@ -18,11 +18,10 @@ export class Suggestion extends DefaultSuggestion {
       image    : { docker: `azukiapp/php-fpm:${version}` },
       provision: [
         'composer install',
-        'npm install',
       ],
       http    : true,
       scalable: { default: 1 },
-      command : "",
+      command : null,
       ports: {
         http: "80/tcp",
       },
