@@ -108,11 +108,18 @@ export class GetProject extends UIProxy {
 
       // if exists, do a git pull inside
       if (dest_exists) {
-        yield this._pullDestination(
-          command_parse_result.git_url,
-          command_parse_result.git_branch_tag_commit,
-          command_parse_result.git_destination_path,
-          command_parse_result.verbose_level);
+        // TODO: show a message
+        this.warning('commands.start.get_project.dest_exists', {
+          git_url              : command_parse_result.git_url,
+          git_branch_tag_commit: command_parse_result.git_branch_tag_commit,
+          git_destination_path : command_parse_result.git_destination_path,
+        });
+
+        // yield this._pullDestination(
+        //   command_parse_result.git_url,
+        //   command_parse_result.git_branch_tag_commit,
+        //   command_parse_result.git_destination_path,
+        //   command_parse_result.verbose_level);
       } else {
         // clone to specific branch
         if (_isBranchOrTag && this.is_new_git) {
