@@ -128,6 +128,7 @@ export class GetProject extends UIProxy {
         //   command_parse_result.git_branch_tag_commit,
         //   command_parse_result.git_destination_path,
         //   command_parse_result.verbose_level);
+
       } else {
         // clone to specific branch
         if (_isBranchOrTag && this.is_new_git) {
@@ -147,8 +148,6 @@ export class GetProject extends UIProxy {
           yield this._checkoutToCommit(command_parse_result);
         }
       }
-
-      return command_parse_result.git_destination_path;
     });
   }
 
