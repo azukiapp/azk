@@ -14,6 +14,8 @@ class Scale extends CliTrackerController {
   index(opts, command_parse_result) {
     return async(this, function* () {
 
+      // if is starting in another destination folder
+      // with azk start GIT_URL change cwd
       if (command_parse_result && command_parse_result.git_destination_path) {
         this.cwd = command_parse_result.git_destination_path;
       }
@@ -46,12 +48,6 @@ class Scale extends CliTrackerController {
 
       this.ui.output("");
       yield lazy.Status.status(this, manifest, status_systems);
-
-      if (command_parse_result) {
-        this.ui.ok('commands.start.get_project.final_started_message', {
-          git_destination_path: command_parse_result.git_destination_path
-        });
-      }
 
       return result;
     })
