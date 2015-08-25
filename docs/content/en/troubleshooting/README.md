@@ -16,6 +16,8 @@
 
 1. [How can I clean all persistent and sync folders from all projects?](README.html#how-can-i-clean-all-persistent-and-sync-folders-from-all-projects)
 
+1. [I'm facing '[sync] fail Error: watch ENOSPC' error when trying to start my system. How to fix it?](README.html#im-facing-sync-fail-error-watch-enospc-error-when-trying-to-start-my-system-how-to-fix-it)
+
 -------------------------
 
 ### I can't access any URL *.azk.dev.io
@@ -325,7 +327,7 @@ Probably you have a system that uses the `sync` mount option in your Azkfile.js.
 echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
 ```
 
-### Arch Linux
+#### Arch Linux
 
 ```
 echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.d/99-sysctl.conf && sudo sysctl --system

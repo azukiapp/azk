@@ -15,6 +15,9 @@
 1. [Como posso limpar os dados persistidos em um projeto específico?](README.html#como-posso-limpar-os-dados-persistidos-de-um-projeto-especfico)
 
 1. [Como posso limpar os dados persistidos de todos os projetos?](README.html#como-posso-limpar-os-dados-persistidos-de-todos-os-projetos)
+
+1. [Estou recebendo o erro '[sync] fail Error: watch ENOSPC' ao tentar iniciar meu sistema. Como corrigir isso?](README.html#estou-recebendo-o-erro-sync-fail-error-watch-enospc-ao-tentar-iniciar-meu-sistema-como-corrigir-isso)
+
 -------------------------
 
 ### Não consigo acessar nenhuma URL *.dev.azk.io
@@ -324,7 +327,7 @@ Provavelmente você tem um sistema que usa a opção de mount `sync` em seu Azkf
 echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
 ```
 
-### Arch Linux
+#### Arch Linux
 
 ```
 echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.d/99-sysctl.conf && sudo sysctl --system
