@@ -310,3 +310,23 @@ Then you can remove **all** persistent and sync folders:
 sudo rm -rf ~/.azk/data/persistent_folders
 sudo rm -rf ~/.azk/data/sync_folders
 ```
+
+----------------------
+
+### I'm facing `[sync] fail Error: watch ENOSPC` error when trying to start my system. How to fix it?
+
+Probably you have a system that uses the `sync` mount option in your Azkfile.js. This issue is related with the OS limitation on how many files an user can watch at the same time. The solution is simply increase this limit.
+
+### Linux
+
+#### Ubuntu or Fedora
+
+```
+echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+```
+
+### Arch Linux
+
+```
+echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.d/99-sysctl.conf && sudo sysctl --system
+```
