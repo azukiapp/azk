@@ -103,7 +103,6 @@ export class Configure extends UIProxy {
         yield this._which('VBoxManage'),
         yield this._checkAndConfigureNetwork(ports),
         yield this._checkAndGenerateSSHKeys(),
-        yield this._checkDockerVersion(),
         yield this._loadDnsServers()
       );
     });
