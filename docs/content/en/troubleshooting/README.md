@@ -101,23 +101,31 @@ $ azk stop <system_name>
 $ azk start -R <system_name>
 ```
 
-#### Check the logs
+#### Check if your start command is correct
 
-Check logs to get more information about errors:
+Check if your system is properly configured. This means the `command` set by the main system in the Azkfile.js should be successfully run.
 
-```sh
-$ azk logs <system_name>
-```
+##### Run the `command` from inside the azk shell
 
-#### Execute `command` in azk shell
-
-Get into azk shell and run the `command: ` instruction from Azkfile.js yourself:
+Get into azk shell and run the `command` instruction from Azkfile.js:
 
 ```sh
 $ azk shell <system_name>
 
 # for example in a Node.js container you can run:
 $ npm start
+```
+
+##### Check if the server is bound to the Network Interface `0.0.0.0`
+
+If the command in the previous step has been successfully run and your system runs a server (i.e. is a web system), ensure it is bound to the correct Network Interface (`0.0.0.0`, not `localhost` nor `127.0.0.1`, commonly set by default). To do this, check the server options and look for `bind` or `host` options, using the value `0.0.0.0`.
+
+#### Check the logs
+
+Check logs to get more information about errors:
+
+```sh
+$ azk logs <system_name>
 ```
 
 #### Azkfile.js: replace `sync` by `path`

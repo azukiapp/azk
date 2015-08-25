@@ -63,7 +63,7 @@ Agradecimentos ao [pow](https://github.com/basecamp/pow/wiki/Troubleshooting#dns
 
 ----------------------------------
 
-### Estou enfrentando erros ao tentar executar o `azk start`.
+### Estou enfrentando erros ao tentar executar o `azk start`
 
 Às vezes pode acontecer de um banco de dados ficar corrompido.
 Às vezes podem ser os arquivos da aplicação.
@@ -104,17 +104,13 @@ $ azk stop <system_name>
 $ azk start -R <system_name>
 ```
 
-#### Verifique os logs
+#### Verifique se seu comando de start está correto
 
-Verifique os logs para maiores informações sobre erros:
+Verifique se seu sistema está devidamente configurado. Isso significa que item `command` definido pelo sistema principal dentro do Azkfile.js deve ser corretamente executado.
 
-```sh
-$ azk logs <system_name>
-```
+##### Execute o `command` direto no shell
 
-#### Execute o `command` direto no shell
-
-Entre no shell do sistema e execute o comando `command: ` do seu Azkfile.js.
+Entre no shell do sistema e execute o comando definido em `command` do seu Azkfile.js.
 
 ```sh
 $ azk shell <system_name>
@@ -123,6 +119,17 @@ $ azk shell <system_name>
 $ npm start
 ```
 
+##### Verifique se seu servidor está associado à interface de rede `0.0.0.0`
+
+Caso o comando executado no passo anterior seja concluído com sucesso e seu sistema envolva um servidor (é um sistema web, por exemplo), tenha certeza de que ele está associado à interface de rede correta (`0.0.0.0`, e não `localhost` ou `127.0.0.1`, que é o padrão de muitos sistemas). Para definir isso, verifique as opções de execução do servidor e busque por `bind` ou `host`, passando o valor `0.0.0.0`.
+
+#### Verifique os logs
+
+Verifique os logs para maiores informações sobre erros:
+
+```sh
+$ azk logs <system_name>
+```
 
 #### Azkfile.js: Troque o `sync` por `path`
 
