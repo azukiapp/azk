@@ -24,6 +24,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 * Enhancements
   * [kernel] Separating development environment to be enabled with a single env
+  * [VM] Changing calculation of VM memory for 1/6 of host
 
 ## v0.14.6 - (2015-08-20)
 

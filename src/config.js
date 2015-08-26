@@ -34,6 +34,11 @@ function set_env(value) {
 }
 set_env(envs('AZK_ENV', envs('NODE_ENV', 'production')));
 
+function vm_memory() {
+  var size = Math.floor(os.totalmem() / 1024 / 1024 / 6);
+  return Math.max(size, 512);
+}
+
 class Dynamic {
   constructor(key) { this.key = key; }
 }
@@ -125,7 +130,7 @@ var options = mergeConfig({
         user          : "docker",
         password      : "live",
         cpus          : envs('AZK_VM_CPUS', os.cpus().length),
-        memory        : envs('AZK_VM_MEMORY', Math.floor(os.totalmem() / 1024 / 1024 / 4)),
+        memory        : envs('AZK_VM_MEMORY', vm_memory()),
         ssh_key       : envs('AZK_AGENT_VM_KEY', path.join(paths.vm, "azkvm_rsa")),
         screen_path   : path.join(paths.vm, "screens"),
         data_disk     : path.join(paths.vm, "azk-agent.vmdk"),
