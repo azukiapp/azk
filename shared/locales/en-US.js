@@ -218,10 +218,14 @@ module.exports = {
     extends_system_invalid     : "The system `%(system_source)s` for extending system `%(system_to_extend)s` cannot be found",
     image_required             : "No image set for the `%(system)s' system",
     invalid_default            : "Unable to set the system `%(system)s` as a default because it was not declared",
+    extra_docker_start_deprecated  : [
+      "The `%(option)s` option used in system `%(system)s` is no longer supported.",
+      "Check http://bit.ly/azkfile_docker_extra for further information",
+    ].join("\n"),
     mount_and_persistent_deprecated: [
       "The `%(option)s` option used in system `%(system)s` is no longer supported.",
       "You must change the %(manifest)s to use `mounts`",
-      "Check http://git.io/29JW0w for further information",
+      "Check http://bit.ly/upgrading-from-azk-051 for further information",
     ].join("\n"),
     not_found          : "No such '%s' in current project",
     provider_invalid   : "The provider was not found: `%(wrongProvider)s`.",

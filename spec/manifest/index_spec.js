@@ -246,6 +246,17 @@ describe("Azk manifest class, main set", function() {
       });
     });
 
+    it("should raise an exception if use docker_extra[start|create]", function() {
+      var data = "";
+      data += 'system("system1", { image: { docker: "foo" }, docker_extra: { start: {}}});';
+
+      return mock_manifest(data)
+      .then(function (func) {
+        var msgs = t("manifest.extra_docker_start_deprecated", {option: "docker_extra.start", system: "system1"});
+        h.expect(func).to.throw(ManifestError).and.match(RegExp(msgs));
+      });
+    });
+
     it("should raise invalid function error", function() {
       return mock_manifest("__not_exist()")
       .then(function (func) {
