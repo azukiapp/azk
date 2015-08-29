@@ -18,8 +18,7 @@ function new_resize(container) {
 
 export function run(docker, Container, image, cmd, opts = { }) {
 
-  var container   = null;
-  var docker_opts = opts.docker || { start: {}, create: {} };
+  var container = null;
 
   opts.stdout = opts.stdout || process.stdout;
   opts.stderr = opts.stderr || opts.stdout;
@@ -34,9 +33,8 @@ export function run(docker, Container, image, cmd, opts = { }) {
   }
 
   // Volumes
-  var volumes = {}, v_binds = [];
+  var v_binds = [];
   _.each(opts.volumes || {}, (target, point) => {
-    volumes[point] = {};
     v_binds.push( `${target}:${point}` );
   });
 
@@ -66,23 +64,27 @@ export function run(docker, Container, image, cmd, opts = { }) {
 
   // Create container options
   var optsc = {
-    Image: image,
-    Cmd: cmd,
+    'Image': image,
+    'Cmd': cmd,
     'AttachStdin': interactive,
     'AttachStdout': opts.stdout ? true : false,
     'AttachStderr': opts.stderr ? true : false,
     'Tty': opts.tty,
     'OpenStdin': interactive,
-    'Volumes': volumes,
     'ExposedPorts': ports,
     'Env': env,
     'WorkingDir': opts.working_dir || "/",
     'name': name,
+    'HostConfig': {
+      'Binds': v_binds,
+      'PortBindings': p_binds,
+      'Dns': nameservers,
+    }
   };
 
   return async(docker, function* () {
     var resize, isRaw, stream;
-    var create_opts = _.merge(optsc, docker_opts.create || {});
+    var create_opts = _.merge(optsc, opts.extra || {});
     log.debug("[docker] creating a container with ", create_opts);
     container = yield this.createContainer(create_opts);
 
@@ -132,11 +134,7 @@ export function run(docker, Container, image, cmd, opts = { }) {
     }
 
     // Start container
-    var start_opts = _.merge({
-      Dns: nameservers,
-      Binds: v_binds,
-      PortBindings: p_binds,
-    }, docker_opts.start || {});
+    var start_opts = {};
 
     log.debug("[docker] attaching a container with ", start_opts);
     yield container.start(start_opts);
