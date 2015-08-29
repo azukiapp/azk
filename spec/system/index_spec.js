@@ -339,7 +339,7 @@ describe("Azk system class, main set", function() {
       it("should extract options from image_data", function() {
         var system  = manifest.system("mount-test");
         var options = system.daemonOptions();
-        h.expect(options).to.have.deep.property("docker.start.Privileged", 'true');
+        h.expect(options).to.have.deep.property("extra.HostConfig.Privileged", 'true');
       });
 
       it("should extract extra docker parameters", function() {

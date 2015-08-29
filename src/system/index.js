@@ -429,7 +429,7 @@ export class System {
       working_dir: options.workdir || this.workdir,
       env: envs,
       dns: dns_servers,
-      docker: options.docker || this.options.docker_extra || null,
+      extra: options.docker || this.options.docker_extra || {},
       annotations: { azk: {
         type : type,
         mid  : this.manifest.namespace,
