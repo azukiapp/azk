@@ -169,7 +169,7 @@ var options = mergeConfig({
   development: {
     logs_level: {
       console: (envs('AZK_DEBUG') ? 'debug' : envs('AZK_OUTPUT_LOG_LEVEL', 'warn')),
-      file: envs('AZK_LOG_LEVEL', 'warn'),
+      file: envs('AZK_LOG_LEVEL', 'debug'),
     },
     // jscs:disable maximumLineLength
     tracker: {
