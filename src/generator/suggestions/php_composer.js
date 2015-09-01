@@ -21,7 +21,6 @@ export class Suggestion extends DefaultSuggestion {
       ],
       http    : true,
       scalable: { default: 1 },
-      command : "npm start",
       ports: {
         http: "80/tcp",
       },

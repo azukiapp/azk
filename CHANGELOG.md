@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 * Bug
   * [Manifest] Fixing wait not support `false` value;
+  * [Suggestions] Fixing `command` of php_composer suggestion
 
 * Enhancements
   * [Suggestions] Upgrading elixir_phoenix suggestion to working with Phoenix v1.0.0
