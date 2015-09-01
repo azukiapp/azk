@@ -35,7 +35,7 @@ export class ContainersObserver extends IPublisher  {
     }
   }
 
-  start() {
+  start(retry = 5, timeout = 3000) {
     if (this.starting || this.stoping) { return promiseResolve(); }
     this.starting = true;
     this.attemps++;
@@ -55,12 +55,12 @@ export class ContainersObserver extends IPublisher  {
           this.attemps  = 0;
           resolve(true);
         })
+        .timeout(timeout, "There was a timeout error connecting to docker to capture container events")
         .catch((err) => {
-          var max = 5;
-          var msg = `[docker] (attemps: ${this.attemps + 1}/${max}) observer containers connect error`;
+          var msg = `[docker] (attemps: ${this.attemps + 1}/${retry}) observer containers connect error`;
           log.info(msg, err.stack ? err.stack : err.toString());
           // reached the limit
-          if (this.attemps > max) { reject(err); }
+          if (this.attemps > retry) { reject(err); }
         });
     });
   }
