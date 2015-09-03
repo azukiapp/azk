@@ -2,7 +2,7 @@
 
 > __Important__: This option is available here for reference only. It shall be avoided no matter what and its support can cease to exist with no previous warning or backward compatibility.
 
-It allows to custom the options sent to [Docker Remote API][docker_remote_api] at the creation time of a container. All options listed [here][docker_remote_api_create] are supported.
+It allows customizing the options sent to [Docker Remote API][docker_remote_api] at the creation time of a container. All options listed [here][docker_remote_api_create] are supported.
 
 You should be warned that some options can conflict with those used by `azk` itself, such as:
 
