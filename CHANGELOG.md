@@ -23,8 +23,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Manifest] `docker_extra.start` and `docker_extra.create` is no longer supported, now you must use the container creation options directly, check in: https://docs.docker.com/reference/api/docker_remote_api_v1.20/#create-a-container;
 
 * Enhancements
-  * [kernel] Separating development environment to be enabled with a single env
-  * [VM] Changing calculation of VM memory for 1/6 of host
+  * [kernel] Separating development environment to be enabled with a single env var
+  * [VM] Changing the default VM memory amount to be 1/6 of the available in the host
 
 ## v0.14.6 - (2015-08-20)
 
