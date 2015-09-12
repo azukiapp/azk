@@ -172,9 +172,8 @@ export class System {
       hostnames = [this.http.hostname];
     }
 
-    hostnames = _.map(hostnames, function(hostname) {
-      return hostname.toLowerCase();
-    });
+    hostnames = _.filter(hostnames, (hostname) => { return ! _.isEmpty(hostname) })
+      .map((hostname) => hostname.toLowerCase());
 
     return hostnames;
   }
