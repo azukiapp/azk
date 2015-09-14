@@ -21,6 +21,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 * Deprecations
   * [Manifest] `docker_extra.start` and `docker_extra.create` is no longer supported, now you must use the container creation options directly, check in: https://docs.docker.com/reference/api/docker_remote_api_v1.20/#create-a-container;
 
+* Enhancements
+  * [Manifest] Adding `env` as a manifest system template;
+
 ## v0.14.6 - (2015-08-20)
 
 * Bug
