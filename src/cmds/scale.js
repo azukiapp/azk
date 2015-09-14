@@ -7,20 +7,17 @@ import { AzkError } from 'azk/utils/errors';
 
 var lazy = lazy_require({
   Manifest: ['azk/manifest'],
-  Status  : 'azk/cmds/status',
-  GetProject: ['azk/manifest/get_project'],
+  Status  : 'azk/cmds/status'
 });
 
 class Scale extends CliTrackerController {
-  index(opts) {
+  index(opts, command_parse_result) {
     return async(this, function* () {
 
-      // GetProject: clone and start a project from a git repo
-      var command_parse_result = lazy.GetProject.parseCommandOptions(opts);
-      if (command_parse_result) {
-        var getter = new lazy.GetProject(this.ui, command_parse_result);
-        this.cwd = yield getter.startProject(command_parse_result);
-        opts.system = null;
+      // if is starting in another destination folder
+      // with azk start GIT_URL change cwd
+      if (command_parse_result && command_parse_result.git_destination_path) {
+        this.cwd = command_parse_result.git_destination_path;
       }
 
       yield Helpers.requireAgent(this.ui);

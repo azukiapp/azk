@@ -1,5 +1,5 @@
-import { path, lazy_require, config, log } from 'azk';
-import { async, promiseReject } from 'azk/utils/promises';
+import { path, lazy_require, config, log, fsAsync } from 'azk';
+import { async, promiseResolve, promiseReject } from 'azk/utils/promises';
 import { UIProxy } from 'azk/cli/ui';
 import { matchFirstRegex, matchAllRegex, fulltrim, groupFromRegex } from 'azk/utils/regex_helper';
 import { spawnAsync } from 'azk/utils/spawn_helper';
@@ -62,7 +62,8 @@ export class GetProject extends UIProxy {
     }
 
     // prepare URL
-    match = matchFirstRegex(git_repo, /^(\w+?)\/(\w+)$/g);
+    // https://regex101.com/r/zG9mN5/2
+    match = matchFirstRegex(git_repo, /^([\w-]+?)\/([\w-]+)$/g);
     if (match) {
       git_repo = `https://github.com/${match[1]}/${match[2]}.git`;
     }
@@ -90,7 +91,6 @@ export class GetProject extends UIProxy {
 
   startProject(command_parse_result) {
     return async(this, function* () {
-
       var force_azk_start_url_endpoint = config('urls:force:endpoints:start');
       this._sendForceAzkStart(command_parse_result, force_azk_start_url_endpoint);
 
@@ -103,26 +103,51 @@ export class GetProject extends UIProxy {
       var branch_tag_name = command_parse_result.git_branch_tag_commit;
       var _isBranchOrTag  = this._isBranchOrTag(remoteInfo, branch_tag_name);
 
-      var cwd_result;
-      if (_isBranchOrTag && this.is_new_git) {
-        // clone to specific branch
-        cwd_result = yield this._cloneToFolder(
-          command_parse_result.git_url,
-          command_parse_result.git_branch_tag_commit,
-          command_parse_result.git_destination_path,
-          command_parse_result.verbose_level);
-      } else {
-        // clone to master
-        cwd_result = yield this._cloneToFolder(
-          command_parse_result.git_url,
-          'master',
-          command_parse_result.git_destination_path,
-          command_parse_result.verbose_level);
-        // checkout to specific commit
-        yield this._checkoutToCommit(command_parse_result);
-      }
+      // check if git_destination_path exists
+      var dest_exists = yield this._checkDestinationFolder(command_parse_result.git_destination_path);
 
-      return cwd_result;
+      // if exists, do a git pull inside
+      if (dest_exists) {
+        if (_isBranchOrTag) {
+          this.warning('commands.start.get_project.dest_exists_branch', {
+            git_url              : command_parse_result.git_url,
+            git_branch_tag_commit: command_parse_result.git_branch_tag_commit,
+            git_destination_path : command_parse_result.git_destination_path,
+          });
+        } else {
+          this.warning('commands.start.get_project.dest_exists_commit', {
+            git_url              : command_parse_result.git_url,
+            git_branch_tag_commit: command_parse_result.git_branch_tag_commit,
+            git_destination_path : command_parse_result.git_destination_path,
+          });
+        }
+
+        // TODO: show menu options
+        // yield this._pullDestination(
+        //   command_parse_result.git_url,
+        //   command_parse_result.git_branch_tag_commit,
+        //   command_parse_result.git_destination_path,
+        //   command_parse_result.verbose_level);
+
+      } else {
+        // clone to specific branch
+        if (_isBranchOrTag && this.is_new_git) {
+          yield this._cloneToFolder(
+            command_parse_result.git_url,
+            command_parse_result.git_branch_tag_commit,
+            command_parse_result.git_destination_path,
+            command_parse_result.verbose_level);
+        } else {
+          // clone to master
+          yield this._cloneToFolder(
+            command_parse_result.git_url,
+            'master',
+            command_parse_result.git_destination_path,
+            command_parse_result.verbose_level);
+          // checkout to specific commit
+          yield this._checkoutToCommit(command_parse_result);
+        }
+      }
     });
   }
 
@@ -148,7 +173,8 @@ export class GetProject extends UIProxy {
     request(options, (error, response, body) => {
       var is_valid = response && (response.statusCode === 200 || response.statusCode === 201);
       if (error || !is_valid) {
-        log.error('[get project] Error on GetProject._sendForceAzkStart()', error, body);
+        log.warn('[get project] Error on GetProject._sendForceAzkStart()');
+        log.debug('[get project]', error, body);
       } else {
         log.info('[start][force]', { response_json: JSON.stringify(body) });
       }
@@ -214,8 +240,9 @@ export class GetProject extends UIProxy {
   _checkGitError(git_repo, git_branch_tag_commit, git_destination_path) {
     return function (err) {
       var original_error = err.message;
-      var stack_trace = err.stack;
+      var stack_trace = err.stack || '';
       var error_type;
+      var throw_error = true;
 
       original_error = fulltrim(original_error);
 
@@ -245,13 +272,21 @@ export class GetProject extends UIProxy {
         error_type = 'git_error';
       }
 
-      return promiseReject(new GitCallError(
-        error_type,
-        git_repo,
-        git_branch_tag_commit,
-        git_destination_path,
-        original_error,
-        stack_trace));
+      var gitCallError = new GitCallError(
+          error_type,
+          git_repo,
+          git_branch_tag_commit,
+          git_destination_path,
+          original_error,
+          stack_trace);
+
+      if (throw_error) {
+        return promiseReject(gitCallError);
+      } else {
+        return promiseResolve(gitCallError);
+      }
+
+
     };
   }
 
@@ -262,6 +297,28 @@ export class GetProject extends UIProxy {
 
     var filtered = git_result_obj_array.filter(_checkBranchOrTag);
     return filtered.length > 0;
+  }
+
+  _checkDestinationFolder(git_destination_path, verbose_level) {
+    this.ok('commands.start.get_project.checking_destination', {
+      git_destination_path,
+    });
+
+    return fsAsync.exists(git_destination_path);
+  }
+
+  _pullDestination(git_url, git_branch_tag_commit, git_destination_path, verbose_level) {
+    this.ok('commands.start.get_project.git_pull', {
+      git_url,
+      git_branch_tag_commit,
+      git_destination_path,
+    });
+
+    return this._gitspawn_PullAsync(git_url,
+                                    git_branch_tag_commit,
+                                    git_destination_path,
+                                    verbose_level)
+      .catch(this._checkGitError(git_url, git_branch_tag_commit, git_destination_path));
   }
 
   _cloneToFolder(git_url, git_branch_tag_commit, git_destination_path, verbose_level) {
@@ -283,9 +340,6 @@ export class GetProject extends UIProxy {
                                      git_branch_tag_commit,
                                      git_destination_path,
                                      verbose_level)
-      .then(() => {
-        return git_destination_path;
-      })
       .catch(this._checkGitError(git_url, git_branch_tag_commit, git_destination_path));
   }
 
@@ -324,6 +378,27 @@ export class GetProject extends UIProxy {
         'ls-remote',
         git_url
       ],
+      verbose_level : verbose_level,
+      uiOk          : this.ok.bind(this),
+      spawn_prefix  : '[git]'
+    });
+  }
+
+  _gitspawn_PullAsync(git_url, git_branch_tag_commit, dest_folder, verbose_level) {
+
+    var git_params = [
+      '--git-dir',
+      path.resolve(dest_folder, '.git'),
+      '--work-tree',
+      path.resolve(dest_folder),
+      'pull',
+      git_url,
+      git_branch_tag_commit
+    ];
+
+    return spawnAsync({
+      executable    : 'git',
+      params_array  : git_params,
       verbose_level : verbose_level,
       uiOk          : this.ok.bind(this),
       spawn_prefix  : '[git]'
