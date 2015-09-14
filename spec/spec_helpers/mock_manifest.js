@@ -165,6 +165,8 @@ export function extend(h) {
             "azk.default_dns: #{azk.default_dns}",
             "azk.balancer_port: #{azk.balancer_port}",
             "azk.balancer_ip: #{azk.balancer_ip}",
+            "env.FOO: #{env.FOO}",
+            "env.BAR: #{env.BAR}",
           ],
         },
         'example-sync': {
