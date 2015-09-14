@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 * Bug
   * [Manifest] Fixing wait not support `false` value;
+  * [Docker] Fixing support to comments and blank lines in `.dockerignore` file during Dockerfile build;
 
 ## v0.14.6 - (2015-08-20)
 
