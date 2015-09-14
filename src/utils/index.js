@@ -37,7 +37,7 @@ var Utils = {
     return lazy;
   },
 
-  envs(key, defaultValue = null) {
+  envs(key, defaultValue) {
     var value = process.env[key];
     switch (value) {
       case 'undefined':
@@ -53,7 +53,11 @@ var Utils = {
         value = true;
         break;
     }
-    return value || (_.isFunction(defaultValue) ? defaultValue() : defaultValue);
+    if (_.isUndefined(value)) {
+      return (_.isFunction(defaultValue) ? defaultValue() : defaultValue);
+    } else {
+      return value;
+    }
   },
 
   mergeConfig(options) {

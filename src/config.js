@@ -68,14 +68,15 @@ var options = mergeConfig({
       file: envs('AZK_LOG_LEVEL', 'warn'),
     },
     docker: {
-      socket        : envs('AZK_DOCKER_SOCKER', "/var/run/docker.sock"),
-      host          : new Dynamic("docker:host"),
-      namespace     : envs('AZK_NAMESPACE'),
-      api_version   : envs('AZK_DOCKER_API_VERSION', 'v1.16'),
-      repository    : 'azk',
-      default_domain: 'azk',
-      build_name    : 'azkbuild',
-      image_default : 'azukiapp/azktcl:0.0.2',
+      socket          : envs('AZK_DOCKER_SOCKER', "/var/run/docker.sock"),
+      host            : new Dynamic("docker:host"),
+      namespace       : envs('AZK_NAMESPACE'),
+      api_version     : envs('AZK_DOCKER_API_VERSION', 'v1.16'),
+      repository      : 'azk',
+      default_domain  : 'azk',
+      build_name      : 'azkbuild',
+      image_default   : 'azukiapp/azktcl:0.0.2',
+      remove_container: envs('AZK_REMOVE_CONTAINER', true),
       run: {
         timeout: 10000
       }
