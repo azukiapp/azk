@@ -18,6 +18,7 @@ systems({
     wait: {"retry": 20, "timeout": 2000},
     mounts: {
       '/azk/#{manifest.dir}': path("."),
+      '/azk/CONTRIBUTING.md': path("../CONTRIBUTING.md"),
       '/azk/node_modules': persistent("node_modules"),
     },
     scalable: {"default": 1},
@@ -26,6 +27,7 @@ systems({
       domains: [ "#{system.name}.#{azk.default_domain}" ]
     },
     ports: {
+      http:       "5000/tcp",
       livereload: "35729:35729/tcp",
     },
   },
