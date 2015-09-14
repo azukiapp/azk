@@ -14,6 +14,10 @@ export class Suggestion extends DefaultSuggestion {
     // Initial Azkfile.js suggestion
     this.suggestion = this.extend({}, this.suggestion, {
       __type: `${name}`,
+      provision: [
+        'composer install',
+        'npm install',
+      ],
     });
   }
 }
