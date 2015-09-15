@@ -17,6 +17,12 @@ var gulp = azk_gulp.gulp;
 var dotenv = require('dotenv');
 dotenv.load({ silent: true });
 
+gulp.on('task_start', function(e) {
+  if (e.task === 'test') {
+    process.env.AZK_ENV = "test";
+  }
+});
+
 var integration_src = [
   'src/**/*.js',
   'spec/**/*.js',

@@ -32,7 +32,7 @@ function set_env(value) {
   process.env.NODE_ENV = process.env.AZK_ENV;
   return value;
 }
-set_env(envs('NODE_ENV', envs('AZK_ENV', 'production')));
+set_env(envs('AZK_ENV', envs('NODE_ENV', 'production')));
 
 function vm_memory() {
   var size = Math.floor(os.totalmem() / 1024 / 1024 / 6);
