@@ -65,9 +65,11 @@ gulp.task('publish', function() {
 
   // create a new publisher
   var publisher = awspublish.create({
-    key: process.env.AWS_ACCESS_KEY_ID,
-    secret: process.env.AWS_SECRET_KEY,
-    bucket: bucket,
+    params: {
+      Bucket: bucket,
+    },
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_KEY,
     region: 'sa-east-1',
   });
 
