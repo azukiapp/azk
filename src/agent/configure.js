@@ -71,6 +71,7 @@ export class Configure extends UIProxy {
         return _.merge(
           { 'agent:dns:port': ports.dns, 'agent:balancer:port': ports.balancer },
           yield this._checkDockerSocket(socket),
+          yield this._checkDockerVersion(),
           yield this._checkAndConfigureNetwork(ports, false),
           yield this._cleanContainers(),
           yield this._checkPorts(ports.dns, dns_key, 'dns', 'AZK_DNS_PORT'),
@@ -157,6 +158,22 @@ export class Configure extends UIProxy {
 
       return {};
     });
+  }
+
+  _checkDockerVersion() {
+    var minDockerVersion = (process.env.DOCKER_MIN_VERSION || '1.8.0');
+    return lazy.docker.version()
+      .then((data) => {
+        var currentDockerVersion = data.Version;
+        var validDockerVersion   = semver.gte(currentDockerVersion, minDockerVersion);
+        if ( !validDockerVersion ) {
+          throw new DependencyError('check_docker_version_error', {
+            current_version: currentDockerVersion,
+            min_version    : minDockerVersion,
+          });
+        }
+        return {};
+      });
   }
 
   _checkRsyncVersion() {

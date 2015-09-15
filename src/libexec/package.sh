@@ -57,7 +57,7 @@ fi
 case $pkg_type in
   rpm)
     fpm_extra_options=" \
-      --depends \"docker-engine\" \
+      --depends \"docker-engine >= ${DOCKER_MIN_VERSION}\" \
       --depends \"libnss-resolver >= ${LIBNSS_RESOLVER_VERSION}\" \
       --depends \"rsync >= ${RSYNC_MIN_VERSION}\" \
       --depends \"git\" \
@@ -67,7 +67,7 @@ case $pkg_type in
     ;;
   deb)
     fpm_extra_options=" \
-      --depends \"docker-engine\" \
+      --depends \"docker-engine (>= ${DOCKER_MIN_VERSION})\" \
       --depends \"libnss-resolver (>= ${LIBNSS_RESOLVER_VERSION})\" \
       --depends \"rsync (>= ${RSYNC_MIN_VERSION})\" \
       --depends \"git\" \
