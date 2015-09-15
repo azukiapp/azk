@@ -208,6 +208,15 @@ export class Manifest {
       msg  = t("manifest.mount_and_persistent_deprecated", opts);
       throw new ManifestError(this.file, msg);
     }
+
+    // Not support docker_extra.start and docker_extra.create
+    var extra = data.docker_extra;
+    if (_.has(extra, "start") || _.has(data, "create")) {
+      var option = _.has(extra, "start") ? "start" : "create";
+      opts = { option: `docker_extra.${option}`, system: name, manifest: this.file };
+      msg  = t("manifest.extra_docker_start_deprecated", opts);
+      throw new ManifestError(this.file, msg);
+    }
   }
 
   system(name, isRequired = false) {

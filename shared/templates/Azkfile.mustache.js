@@ -39,7 +39,7 @@ systems({
     command: {{&json command}},
     {{~/if}}
     {{~#if wait}}
-    wait: {{&json wait}},
+    wait: {{&wait}},
     {{~/if}}
     {{~#if mounts }}
     mounts: {
@@ -70,7 +70,7 @@ systems({
       domains: [ "#{system.name}.#{azk.default_domain}" ]
       {{~else}}
       domains: [
-        {{~#each http}}
+        {{~#each http.domains}}
         {{&json this}},{{/each}}
       ],
       {{~/formatDomains}}
@@ -110,15 +110,9 @@ systems({
     {{~#if docker_extra}}
     docker_extra: {
       // extra docker options
-      {{~#if docker_extra.create }}
-      create: {
-        {{~#each docker_extra.create }}
-        {{&hash_key @key}}: "{{&json this}}",{{/each}}
-      },
-      {{~/if}}
-      {{~#if docker_extra.start }}
-      start: {
-        {{~#each docker_extra.start }}
+      {{~#if docker_extra.HostConfig }}
+      HostConfig: {
+        {{~#each docker_extra.HostConfig }}
         {{&hash_key @key}}: "{{&json this}}",{{/each}}
       },
       {{~/if}}

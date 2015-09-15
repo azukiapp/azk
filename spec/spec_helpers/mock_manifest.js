@@ -148,7 +148,7 @@ export function extend(h) {
             "/azk/not-exists": { type: 'path', value: '../not-exists', required: false },
           },
           docker_extra: {
-            start: { Privileged: true }
+            HostConfig: { Privileged: true }
           }
         },
         'expand-test': {
@@ -165,11 +165,23 @@ export function extend(h) {
             "azk.default_dns: #{azk.default_dns}",
             "azk.balancer_port: #{azk.balancer_port}",
             "azk.balancer_ip: #{azk.balancer_ip}",
+            "env.FOO: #{env.FOO}",
+            "env.BAR: #{env.BAR}",
           ],
         },
         'example-sync': {
           extends: "example",
           mounts: _.cloneDeep(mounts_with_sync),
+        },
+        'example-http-domain': {
+          extends: "example",
+          http: {
+            domains: [
+              "#{process.env.HOST_DOMAIN}",
+              "#{process.env.HOST_IP}",
+              "#{system.name}.#{azk.default_domain}",
+            ]
+          },
         },
       },
       defaultSystem: 'api',

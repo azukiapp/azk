@@ -4,6 +4,7 @@ import { async } from 'azk/utils/promises';
 
 var lazy = lazy_require({
   open: 'open',
+  GetProject: ['azk/manifest/get_project'],
 });
 
 var action_opts = {
@@ -117,6 +118,26 @@ class Start extends Scale {
       yield this.stop(manifest, systems, opts);
       return this.start(manifest, systems, opts);
     });
+  }
+
+  // GetProject: clone and start a project from a git repo
+  getProject(opts) {
+    var command_parse_result = lazy.GetProject.parseCommandOptions(opts);
+    if (command_parse_result) {
+      var getter = new lazy.GetProject(this.ui, command_parse_result);
+      return getter.startProject(command_parse_result)
+      .then(() => {
+        opts.system = null;
+
+        // call scale
+        return this.index(opts, command_parse_result)
+        .then(() => {
+          this.ui.ok('commands.start.get_project.final_started_message', {
+            git_destination_path: command_parse_result.git_destination_path
+          });
+        });
+      })
+    }
   }
 }
 

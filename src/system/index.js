@@ -138,8 +138,27 @@ export class System {
     return this.scalable.default !== 0;
   }
 
+  get wait() {
+    var wait_opts;
+    if (_.isNumber(this.options.wait)) {
+      wait_opts = {
+        // wait in seconds
+        timeout: this.options.wait * 1000
+      };
+      return wait_opts;
+    } else if (this.options.wait) {
+      // will be deprecated: now, timeout is the max timeout to wait
+      wait_opts = {
+        timeout: this.options.wait.retry * this.options.wait.timeout
+      };
+      return wait_opts;
+    } else {
+      return {};
+    }
+  }
+
   get wait_scale() {
-    var wait = this.options.wait;
+    var wait = this.wait;
     return _.isEmpty(wait) && wait !== false ? true : wait;
   }
 
@@ -153,9 +172,8 @@ export class System {
       hostnames = [this.http.hostname];
     }
 
-    hostnames = _.map(hostnames, function(hostname) {
-      return hostname.toLowerCase();
-    });
+    hostnames = _.filter(hostnames, (hostname) => { return ! _.isEmpty(hostname) })
+      .map((hostname) => hostname.toLowerCase());
 
     return hostnames;
   }
@@ -410,7 +428,7 @@ export class System {
       working_dir: options.workdir || this.workdir,
       env: envs,
       dns: dns_servers,
-      docker: options.docker || this.options.docker_extra || null,
+      extra: options.docker || this.options.docker_extra || {},
       annotations: { azk: {
         type : type,
         mid  : this.manifest.namespace,
@@ -490,7 +508,8 @@ export class System {
         default_dns   : net.nameServers(),
         balancer_port : config('agent:balancer:port'),
         balancer_ip   : config('agent:balancer:ip'),
-      }
+      },
+      env: process.env,
     };
 
     var template = this._replace_keep_keys(JSON.stringify(options));

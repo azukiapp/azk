@@ -65,8 +65,15 @@ export function build(docker, options) {
     var exists_ignore = yield fsAsync.exists(ignore);
     if (exists_ignore) {
       var ignore_content = yield fsAsync.readFile(ignore);
-      ignore_content = ignore_content.toString().trim().split('\n');
-      src = src.concat(ignore_content.map((entry) => `!${entry}`));
+      ignore_content = ignore_content.toString()
+        .trim()
+        .split('\n')
+        .map((entry) => {
+          entry = entry.trim();
+          return (_.isEmpty(entry) || entry.startsWith('#')) ? null : `!${entry}`;
+        })
+        .filter((entry) => entry);
+      src = _.uniq(src.concat(ignore_content));
     }
 
     // Add files

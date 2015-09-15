@@ -8,11 +8,14 @@
 
 #### Arguments:
 
+```
   system                    System name where the action will take place.
   instances                 Number of instances.
+```
 
 #### Options:
 
+```
   --no-timestamps           Hides log timestamps.
   --follow, -f              Follows log output.
   --lines=<n>, -n           Outputs the specified number of lines at the end of logs [default: all].
@@ -20,6 +23,7 @@
   --help, -h                Shows help usage.
   --log=<level>, -l         Sets log level (default: error).
   --verbose, -v             Sets the level of detail - multiple supported (-vv == --verbose 2) [default: 0].
+```
 
 #### Example:
 

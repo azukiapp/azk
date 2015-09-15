@@ -48,6 +48,7 @@
      * [command](reference/azkfilejs/command.md)
      * [depends](reference/azkfilejs/depends.md)
      * [dns_servers](reference/azkfilejs/dns_servers.md)
+     * [docker_extra](reference/azkfilejs/docker_extra.md)
      * [envs](reference/azkfilejs/envs.md)
      * [export_envs](reference/azkfilejs/export_envs.md)
      * [extends](reference/azkfilejs/extends.md)

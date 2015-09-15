@@ -8,16 +8,20 @@
 
 #### Arguments:
 
+```
   path                      Path where manifest file can be found.
+```
 
 #### Options:
 
+```
   --filename                Shows the manifest filename.
   --force, -F               Forces rewriting if manifest file already exists.
   --quiet, -q               Never prompt.
   --help, -h                Shows help usage.
   --log=<level>, -l         Sets log level (default: error).
   --verbose, -v             Sets the level of detail - multiple supported (-vv == --verbose 2) [default: 0].
+```
 
 #### Example:
 

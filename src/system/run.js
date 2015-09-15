@@ -135,10 +135,8 @@ var Run = {
           .value();
 
         if (!_.isEmpty(port_data)) {
-          var retry   = options.wait.retry   || config('docker:run:retry');
           var timeout = options.wait.timeout || config('docker:run:timeout');
-
-          yield this._wait_available(system, port_data, container, retry, timeout);
+          yield this._wait_available(system, port_data, container, timeout, options);
         }
       }
 
@@ -253,7 +251,7 @@ var Run = {
   },
 
   // Wait for container/system available
-  _wait_available(system, port_data, container, retry, timeout) {
+  _wait_available(system, port_data, container, timeout, options) {
     return async(this, function* () {
       var host;
       if (config('agent:requires_vm')) {
@@ -279,7 +277,7 @@ var Run = {
       }));
 
       var address = `tcp://${host}:${port_data.port}`;
-      var running = yield net.waitService(address, retry, wait_opts);
+      var running = yield net.waitService(address, wait_opts);
 
       if (!running) {
         var data = yield container.inspect();
@@ -288,7 +286,6 @@ var Run = {
         var log = t('errors.run_timeout_error', {
           system: system.name,
           port: port_data && port_data.port,
-          retry: retry,
           timeout: timeout,
           hostname: system.url.underline,
         });
@@ -302,7 +299,7 @@ var Run = {
             log
           );
         } else {
-          yield this.throwRunError(system, container, null, true);
+          yield this.throwRunError(system, container, null, true, options);
         }
       }
 
@@ -310,7 +307,7 @@ var Run = {
     });
   },
 
-  throwRunError(system, container, data = null, stop = false) {
+  throwRunError(system, container, data = null, stop = false, options = {}) {
     data = data ? promiseResolve(data) : container.inspect();
     return data.then((data) => {
       // Get container log
@@ -339,10 +336,12 @@ var Run = {
           );
         };
 
-        // Stop and remove container
+        // Stop container
         if (stop) {
-          return this.stop(system, [container], { kill: true, remove: true })
-            .then(raise);
+          options = _.defaults(options, {
+            kill: true, remove: config("docker:remove_container")
+          });
+          return this.stop(system, [container], options).then(raise);
         } else {
           raise();
         }
@@ -456,8 +455,8 @@ var Run = {
       var cmd = ["/bin/bash", "-c", script];
       var docker_opts = {
         interactive: false,
-        docker: {
-          start: {
+        extra: {
+          HostConfig: {
             Binds: [
               `${config('paths:sync_folders')}:${mounted_sync_folders}`,
               "/etc/passwd:/etc/passwd"

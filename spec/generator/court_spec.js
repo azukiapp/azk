@@ -87,7 +87,7 @@ describe('Azk generator tool court veredict:', function() {
   });
 
   it('should _replacesEvidences() replaces ruby with rails', function() {
-    court._investigate(rootFullPath).then(function () {
+    return court._investigate(rootFullPath).then(function () {
       court._replacesEvidences();
       var keys = Object.keys(court.__evidences_by_folder);
       h.expect(keys).to.have.length(2);
@@ -99,7 +99,7 @@ describe('Azk generator tool court veredict:', function() {
                fullpath:'/tmp/azk-test-302101g49y9s/api/package.json',
                ruleType:'runtime',
                name:'node',
-               ruleName:'node012',     <----------  [0][0]
+               ruleName:'node-0.12',     <----------  [0][0]
                version:'0.4.1'
             }
          ],
@@ -108,7 +108,7 @@ describe('Azk generator tool court veredict:', function() {
                fullpath:'/tmp/azk-test-302101g49y9s/front/Gemfile',
                ruleType:'database',
                name:'postgres',
-               ruleName:'postgres93'   <----------  [1][0]
+               ruleName:'postgres-9.3'   <----------  [1][0]
             }
             {
                fullpath:'/tmp/azk-test-302101g49y9s/front/Gemfile',
@@ -123,9 +123,9 @@ describe('Azk generator tool court veredict:', function() {
       */
       var filteredEvidences = _.values(court.__evidences_by_folder);
 
-      h.expect(filteredEvidences[0][0]).to.have.property('ruleName', 'node012');
-      h.expect(filteredEvidences[1][0]).to.have.property('ruleName', 'postgres93');
-      h.expect(filteredEvidences[1][1]).to.have.property('ruleName', 'ruby_on_rails');
+      h.expect(filteredEvidences[0][0]).to.have.property('ruleName', 'node-0.12');
+      h.expect(filteredEvidences[1]).to.containSubset([{'ruleName': 'ruby_on_rails'}]);
+      h.expect(filteredEvidences[1]).to.containSubset([{'ruleName': 'postgres-9.3'}]);
     });
   });
 

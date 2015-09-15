@@ -5,6 +5,28 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## dev
 
+## v0.15.0 - (2015-09-15)
+
+* Bug
+  * [Manifest] Fixing wait not support `false` value;
+  * [Suggestions] Fixing `command` of php_composer suggestion;
+  * [Docker] Fixing support to comments and blank lines in `.dockerignore` file during Dockerfile build;
+
+* Enhancements
+  * [Cli] Start github URLs directly on `azk start` #476;
+  * [Package] `git` is an `azk` installation dependency #476;
+  * [Suggestions] Upgrading elixir_phoenix suggestion to work with Phoenix v1.0.0;
+  * [Docker] Checking Docker version (azk supports Docker v1.8+);
+  * [Docker] Upgrading to Docker 1.8.1 and locking to use Docker Remote API 1.20;
+  * [Docker] Refactoring `Docker.run` to use new Docker Remote API;
+  * [kernel] Separating development environment to be enabled with a single env var
+  * [VM] Changing the default VM memory amount to be 1/6 of the available in the host
+  * [Manifest] Adding `env` as a manifest system template;
+  * [Manifest] Improving how azk handles multiple `http.domains` set by env vars;
+
+* Deprecations
+  * [Manifest] `docker_extra.start` and `docker_extra.create` is no longer supported, now you must use the container creation options directly, check in: https://docs.docker.com/reference/api/docker_remote_api_v1.20/#create-a-container;
+
 ## v0.14.6 - (2015-08-20)
 
 * Bug
@@ -15,6 +37,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 * Enhancements
   * [Docker] Adding docker version lock;
   * [VM] Fixing removal of VM without net interface;
+
+* Enhancements
+  * [Scale] Adding flag `--no-remove` to start command;
 
 ## v0.14.5 - (2015-08-01)
 

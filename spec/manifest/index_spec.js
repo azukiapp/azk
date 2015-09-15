@@ -65,12 +65,8 @@ describe("Azk manifest class, main set", function() {
       it("should return all systems", function() {
         var systems = manifest.getSystemsByName();
         h.expect(systems).to.length(_.keys(manifest.systems).length);
-        h.expect(systems).to.has.deep.property("[0]").to.equal(
-          manifest.system("expand-test")
-        );
-        h.expect(systems).to.has.deep.property("[11]").to.equal(
-          manifest.system("example")
-        );
+        h.expect(systems[0]).to.equal(manifest.system("expand-test"));
+        h.expect(systems[systems.length-1]).to.equal(manifest.system("example"));
       });
 
       it("should raise error if get a not set system", function() {
@@ -98,7 +94,8 @@ describe("Azk manifest class, main set", function() {
     describe("with a tree of the requireds systems", function() {
       it("should return a systems in required order", function() {
         var systems = [ "expand-test", "mount-test", "ports-disable", "ports-static", "ports-test",
-                        "test-image-opts", "empty", "db", "api", "example-sync", "example-extends", "example"];
+                        "test-image-opts", "empty", "db", "api", "example-http-domain", "example-sync",
+                        "example-extends", "example"];
 
         h.expect(manifest.systemsInOrder()).to.eql(systems);
       });
@@ -242,6 +239,17 @@ describe("Azk manifest class, main set", function() {
       return mock_manifest(data)
       .then(function (func) {
         var msgs = t("manifest.depends_not_declared", {system: "system1", depend: "system2"});
+        h.expect(func).to.throw(ManifestError).and.match(RegExp(msgs));
+      });
+    });
+
+    it("should raise an exception if use docker_extra[start|create]", function() {
+      var data = "";
+      data += 'system("system1", { image: { docker: "foo" }, docker_extra: { start: {}}});';
+
+      return mock_manifest(data)
+      .then(function (func) {
+        var msgs = t("manifest.extra_docker_start_deprecated", {option: "docker_extra.start", system: "system1"});
         h.expect(func).to.throw(ManifestError).and.match(RegExp(msgs));
       });
     });

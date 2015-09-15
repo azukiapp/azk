@@ -8,10 +8,13 @@
 
 #### Argumentos:
 
+```
   system                    Nome do sistema que receberá a ação.
+```
 
 #### Opções:
 
+```
   --long                    Exibe todas colunas.
   --short                   Oculta a coluna 'Provisioned'.
   --text                    Exibe a saida em modo apenas texto.
@@ -19,6 +22,7 @@
   --help, -h                Mostrar ajuda de uso.
   --log=<level>, -l         Defini o nível de log (padrão: error).
   --verbose, -v             Defini o nível de detalhes da saída - suporta múltiplos (-vv == --verbose 2) [padrão: 0].
+```
 
 #### Exemplos:
 

@@ -1,18 +1,25 @@
 import { CliTrackerController } from 'azk/cli/cli_tracker_controller';
 import { Helpers } from 'azk/cli/helpers';
-import { _, log, t, lazy_require } from 'azk';
+import { _, log, t, config, lazy_require } from 'azk';
 import { subscribe } from 'azk/utils/postal';
 import { async } from 'azk/utils/promises';
 import { AzkError } from 'azk/utils/errors';
 
 var lazy = lazy_require({
   Manifest: ['azk/manifest'],
-  Status  : 'azk/cmds/status',
+  Status  : 'azk/cmds/status'
 });
 
 class Scale extends CliTrackerController {
-  index(opts) {
+  index(opts, command_parse_result) {
     return async(this, function* () {
+
+      // if is starting in another destination folder
+      // with azk start GIT_URL change cwd
+      if (command_parse_result && command_parse_result.git_destination_path) {
+        this.cwd = command_parse_result.git_destination_path;
+      }
+
       yield Helpers.requireAgent(this.ui);
 
       var manifest = new lazy.Manifest(this.cwd, true);
@@ -45,10 +52,10 @@ class Scale extends CliTrackerController {
       return result;
     })
     .catch(function (err) {
-      // Unhandled rejection overtakes synchronous exception through done() #471
-      // https://github.com/petkaantonov/bluebird/issues/471
       if (err instanceof AzkError) {
         this.ui.fail(err.toString());
+      } else {
+        this.ui.fail(err.stack);
       }
     }.bind(this));
   }
@@ -118,10 +125,11 @@ class Scale extends CliTrackerController {
       }
     });
 
+    var is_remove = !opts['no-remove'] ? config("docker:remove_container") : !opts['no-remove'];
     var options = {
       build_force    : opts.rebuild || false,
       provision_force: (opts.rebuild ? true : opts.reprovision) || false,
-      remove         : !opts['no-remove'],
+      remove         : is_remove,
     };
 
     this.verbose_msg(1, () => {
