@@ -7,6 +7,7 @@ As suggested by the `.js` extension the **Azkfile.js** is written in JavaScript,
 - [command](command.md)
 - [depends](depends.md)
 - [dns_servers](dns_servers.md)
+- [docker_extra](docker_extra.md)
 - [envs](envs.md)
 - [export_envs](export_envs.md)
 - [extends](extends.md)
