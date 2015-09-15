@@ -32,7 +32,7 @@ function set_env(value) {
   process.env.NODE_ENV = process.env.AZK_ENV;
   return value;
 }
-set_env(envs('AZK_ENV', envs('NODE_ENV', 'production')));
+set_env(envs('NODE_ENV', envs('AZK_ENV', 'production')));
 
 function vm_memory() {
   var size = Math.floor(os.totalmem() / 1024 / 1024 / 6);
@@ -161,7 +161,7 @@ var options = mergeConfig({
       },
       force: {
         endpoints: {
-          start: 'http://api.dev.azk.io/systems/start'
+          start: 'http://api.azk.io/systems/start'
         }
       }
     },
@@ -187,7 +187,7 @@ var options = mergeConfig({
       },
       force: {
         endpoints: {
-          start: 'http://api.dev.azk.io/systems/start'
+          start: 'http://force-stage.azk.io/systems/start'
         }
       }
     },
