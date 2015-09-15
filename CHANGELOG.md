@@ -13,6 +13,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Docker] Fixing support to comments and blank lines in `.dockerignore` file during Dockerfile build;
 
 * Enhancements
+  * [Cli] Start github URLs directly on `azk start` #476;
+  * [Package] `git` is an `azk` installation dependency #476;
   * [Suggestions] Upgrading elixir_phoenix suggestion to work with Phoenix v1.0.0;
   * [Docker] Checking Docker version (azk supports Docker v1.8+);
   * [Docker] Upgrading to Docker 1.8.1 and locking to use Docker Remote API 1.20;
