@@ -148,7 +148,7 @@ export function extend(h) {
             "/azk/not-exists": { type: 'path', value: '../not-exists', required: false },
           },
           docker_extra: {
-            start: { Privileged: true }
+            HostConfig: { Privileged: true }
           }
         },
         'expand-test': {

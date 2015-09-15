@@ -15,6 +15,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 * Enhancements
   * [Docker] Checking Docker version (azk supports Docker v1.8+);
 
+* Enhancements
+  * [Docker] Upgrading to Docker 1.8.1 and locking to use Docker Remote API 1.20;
+  * [Docker] Refactoring `Docker.run` to use new Docker Remote API;
+
+* Deprecations
+  * [Manifest] `docker_extra.start` and `docker_extra.create` is no longer supported, now you must use the container creation options directly, check in: https://docs.docker.com/reference/api/docker_remote_api_v1.20/#create-a-container;
+
 ## v0.14.6 - (2015-08-20)
 
 * Bug

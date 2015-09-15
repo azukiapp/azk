@@ -54,7 +54,7 @@ var agent_system = function(image, extras) {
       VERSION: "#{azk.version}",
     },
     docker_extra: {
-      start: { Privileged: true },
+      HostConfig: { Privileged: true },
     }
   }, extras);
 }
@@ -77,7 +77,7 @@ var test_package_system = function(image){
       LOG: "file", // Log docker to file
     },
     docker_extra: {
-      start: { Privileged: true },
+      HostConfig: { Privileged: true },
     }
   }
 }

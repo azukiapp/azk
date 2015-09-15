@@ -455,8 +455,8 @@ var Run = {
       var cmd = ["/bin/bash", "-c", script];
       var docker_opts = {
         interactive: false,
-        docker: {
-          start: {
+        extra: {
+          HostConfig: {
             Binds: [
               `${config('paths:sync_folders')}:${mounted_sync_folders}`,
               "/etc/passwd:/etc/passwd"

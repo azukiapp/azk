@@ -5,7 +5,7 @@ systems({
     // Dependent systems
     depends: ["db"],
     // More images:  http://registry.hub.docker.com
-    image: { docker: "dockerfile/nodejs" },
+    image: { docker: "azukiapp/node" },
     // Steps to execute before running instances
     provision: [
       "npm install",
@@ -30,7 +30,7 @@ systems({
   },
 
   db: {
-    image: { docker: "tutum/mysql" },
+    image: { docker: "azukiapp/mysql" },
     mounts: {
       // Activates a persistent data folder in '/data'
       "/data": persistent("data-#{system.name}"),
@@ -50,5 +50,5 @@ systems({
 });
 
 // Sets a default system (to use: start, stop, status, scale)
-setDefault("node-example")
+setDefault("node-example");
 ```
