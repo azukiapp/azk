@@ -7,24 +7,19 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 * Bug
   * [Manifest] Fixing wait not support `false` value;
-  * [Suggestions] Fixing `command` of php_composer suggestion
+  * [Suggestions] Fixing `command` of php_composer suggestion;
+  * [Docker] Fixing support to comments and blank lines in `.dockerignore` file during Dockerfile build;
 
 * Enhancements
-  * [Suggestions] Upgrading elixir_phoenix suggestion to work with Phoenix v1.0.0
-
-* Enhancements
+  * [Suggestions] Upgrading elixir_phoenix suggestion to work with Phoenix v1.0.0;
   * [Docker] Checking Docker version (azk supports Docker v1.8+);
-
-* Enhancements
   * [Docker] Upgrading to Docker 1.8.1 and locking to use Docker Remote API 1.20;
   * [Docker] Refactoring `Docker.run` to use new Docker Remote API;
+  * [kernel] Separating development environment to be enabled with a single env var
+  * [VM] Changing the default VM memory amount to be 1/6 of the available in the host
 
 * Deprecations
   * [Manifest] `docker_extra.start` and `docker_extra.create` is no longer supported, now you must use the container creation options directly, check in: https://docs.docker.com/reference/api/docker_remote_api_v1.20/#create-a-container;
-
-* Enhancements
-  * [kernel] Separating development environment to be enabled with a single env var
-  * [VM] Changing the default VM memory amount to be 1/6 of the available in the host
 
 ## v0.14.6 - (2015-08-20)
 
