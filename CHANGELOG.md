@@ -8,6 +8,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 * Bug
   * [Manifest] Fixing wait not support `false` value;
 
+* Enhancements
+  * [Docker] Checking Docker version (azk supports Docker v1.8+);
+
 ## v0.14.6 - (2015-08-20)
 
 * Bug
