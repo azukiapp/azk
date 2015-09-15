@@ -68,17 +68,27 @@ describe("Azk system class, main set", function() {
 
     describe("in a system with volumes to be mounted", function() {
       it("should expand options with template", function() {
-        var system    = manifest.system('expand-test');
-        var provision = system.options.provision;
-        h.expect(provision).to.include(`system.name: ${system.name}`);
-        h.expect(provision).to.include(`manifest.dir: ${manifest.manifestDirName}`);
-        h.expect(provision).to.include(`manifest.path: ${manifest.manifestPath}`);
-        h.expect(provision).to.include(`manifest.project_name: ${manifest.manifestDirName}`);
-        h.expect(provision).to.include(`azk.version: ${version}`);
-        h.expect(provision).to.include(`azk.default_domain: ${config('agent:balancer:host')}`);
-        h.expect(provision).to.include(`azk.default_dns: ${net.nameServers().toString()}`);
-        h.expect(provision).to.include(`azk.balancer_port: ${config('agent:balancer:port').toString()}`);
-        h.expect(provision).to.include(`azk.balancer_ip: ${config('agent:balancer:ip')}`);
+        process.env.FOO = 'foo';
+        var data = { };
+        return h.mockManifest(data).then((mf) => {
+          var manifest = mf;
+          var system   = manifest.system('expand-test');
+
+          var provision = system.options.provision;
+          h.expect(provision).to.include(`system.name: ${system.name}`);
+          h.expect(provision).to.include(`manifest.dir: ${manifest.manifestDirName}`);
+          h.expect(provision).to.include(`manifest.path: ${manifest.manifestPath}`);
+          h.expect(provision).to.include(`manifest.project_name: ${manifest.manifestDirName}`);
+          h.expect(provision).to.include(`azk.version: ${version}`);
+          h.expect(provision).to.include(`azk.default_domain: ${config('agent:balancer:host')}`);
+          h.expect(provision).to.include(`azk.default_dns: ${net.nameServers().toString()}`);
+          h.expect(provision).to.include(`azk.balancer_port: ${config('agent:balancer:port').toString()}`);
+          h.expect(provision).to.include(`azk.balancer_ip: ${config('agent:balancer:ip')}`);
+          h.expect(provision).to.include(`env.FOO: ${process.env.FOO}`);
+          h.expect(provision).to.include(`env.BAR: `);
+        }).finally(() => {
+          process.env.FOO = undefined;
+        });
       });
 
       it("should return a mounts property", function() {

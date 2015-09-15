@@ -509,7 +509,8 @@ export class System {
         default_dns   : net.nameServers(),
         balancer_port : config('agent:balancer:port'),
         balancer_ip   : config('agent:balancer:ip'),
-      }
+      },
+      env: process.env,
     };
 
     var template = this._replace_keep_keys(JSON.stringify(options));
