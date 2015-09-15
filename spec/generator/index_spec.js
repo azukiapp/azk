@@ -149,10 +149,10 @@ describe('Azk generator tool index:', function() {
 
       it('should generate a multiple hosts', function() {
         var data = _.clone(default_data);
-        data.systems.front.http = [
+        data.systems.front.http = { domains: [
           '#{system.name}.#{azk.default_domain}',
           'custom.#{azk.default_domain}',
-        ];
+        ] };
 
         return generate_manifest(dir, data).then(function(manifest) {
           var system     = manifest.systemDefault;

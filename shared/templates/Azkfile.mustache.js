@@ -70,7 +70,7 @@ systems({
       domains: [ "#{system.name}.#{azk.default_domain}" ]
       {{~else}}
       domains: [
-        {{~#each http}}
+        {{~#each http.domains}}
         {{&json this}},{{/each}}
       ],
       {{~/formatDomains}}

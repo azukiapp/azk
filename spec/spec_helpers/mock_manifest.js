@@ -173,6 +173,16 @@ export function extend(h) {
           extends: "example",
           mounts: _.cloneDeep(mounts_with_sync),
         },
+        'example-http-domain': {
+          extends: "example",
+          http: {
+            domains: [
+              "#{process.env.HOST_DOMAIN}",
+              "#{process.env.HOST_IP}",
+              "#{system.name}.#{azk.default_domain}",
+            ]
+          },
+        },
       },
       defaultSystem: 'api',
       bins: [

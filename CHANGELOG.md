@@ -17,12 +17,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Docker] Refactoring `Docker.run` to use new Docker Remote API;
   * [kernel] Separating development environment to be enabled with a single env var
   * [VM] Changing the default VM memory amount to be 1/6 of the available in the host
+  * [Manifest] Adding `env` as a manifest system template;
+  * [Manifest] Improving how azk handles multiple `http.domains` set by env vars;
 
 * Deprecations
   * [Manifest] `docker_extra.start` and `docker_extra.create` is no longer supported, now you must use the container creation options directly, check in: https://docs.docker.com/reference/api/docker_remote_api_v1.20/#create-a-container;
-
-* Enhancements
-  * [Manifest] Adding `env` as a manifest system template;
 
 ## v0.14.6 - (2015-08-20)
 

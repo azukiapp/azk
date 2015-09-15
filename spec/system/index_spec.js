@@ -163,6 +163,40 @@ describe("Azk system class, main set", function() {
       h.expect(names).to.eql(["db", "api"]);
     });
 
+    describe("with custom http domains", function() {
+      it("should return the correct default domain", function() {
+        var system = manifest.system("example-http-domain");
+        h.expect(system.hostname).to.eql(`${system.name}.${config('agent:balancer:host')}`);
+      });
+
+      it("should return the correct custom ip", function() {
+        var custom_ip = '192.168.0.1';
+        process.env.HOST_IP = custom_ip;
+
+        var data = { };
+        return h.mockManifest(data).then((mf) => {
+          manifest = mf;
+          system   = manifest.system('example-http-domain');
+          h.expect(system.hostname).to.eql(custom_ip);
+        });
+      });
+
+      it("should return the correct custom ip", function() {
+        var custom_ip           = '192.168.0.1';
+        process.env.HOST_IP     = custom_ip;
+        var custom_domain       = 'my.domain.com';
+        process.env.HOST_DOMAIN = custom_domain;
+
+        var data = { };
+        return h.mockManifest(data).then((mf) => {
+          manifest = mf;
+          system   = manifest.system('example-http-domain');
+          h.expect(system.hostname).to.eql(custom_domain);
+        });
+      });
+
+    });
+
     it("should be marked as supporting provisioned", function() {
       h.expect(system).to.have.property("provisioned").and.null;
 
