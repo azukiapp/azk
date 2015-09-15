@@ -19,3 +19,5 @@
 
 [azk_images_postgres]: http://images.azk.io/#/postgres
 [azk_images_redis]: http://images.azk.io/#/redis
+
+[digital_ocean]: http://digitalocean.com/

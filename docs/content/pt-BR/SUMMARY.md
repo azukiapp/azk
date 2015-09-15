@@ -19,6 +19,8 @@
 /*****************************************************/
 * [Azkfile.js](azkfilejs/README.md)
 /*****************************************************/
+* [Botão `Run Project`](run-project-button/README.md)
+/*****************************************************/
 * [Começando uma aplicação do zero](starting-from-scratch/README.md)
    * [Node.js](starting-from-scratch/nodejs.md)*
    * [PHP / Laravel](starting-from-scratch/php-laravel.md)*
