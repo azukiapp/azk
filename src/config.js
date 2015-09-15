@@ -23,6 +23,22 @@ var paths = {
   vm  : path.join(data_path, 'vm'),
 };
 
+function env() {
+  return envs('AZK_ENV', 'production');
+}
+
+function set_env(value) {
+  process.env.AZK_ENV = value;
+  process.env.NODE_ENV = process.env.AZK_ENV;
+  return value;
+}
+set_env(envs('NODE_ENV', envs('AZK_ENV', 'production')));
+
+function vm_memory() {
+  var size = Math.floor(os.totalmem() / 1024 / 1024 / 6);
+  return Math.max(size, 512);
+}
+
 class Dynamic {
   constructor(key) { this.key = key; }
 }
@@ -37,7 +53,7 @@ var options = mergeConfig({
     locale   : 'en-US',
     azk_dir  : azk_dir,
     flags    : {
-      show_deprecate: (envs('AZK_HIDE_DEPRECATE') != 'true'),
+      show_deprecate: envs('AZK_HIDE_DEPRECATE', false),
     },
     paths    : {
       azk_root,
@@ -108,19 +124,19 @@ var options = mergeConfig({
         defaultserver: ['8.8.8.8', '8.8.4.4'],
       },
       vm: {
-        wait_ready : envs('AZK_VM_WAIT_READY', 180000),
-        ip         : new Dynamic("agent:vm:ip"),
-        name       : envs('AZK_AGENT_VM_NAME', "azk-vm-" + namespace),
-        user       : "docker",
-        password   : "live",
-        cpus       : envs('AZK_VM_CPUS', os.cpus().length),
-        memory     : envs('AZK_VM_MEMORY', Math.floor(os.totalmem() / 1024 / 1024 / 4)),
-        ssh_key    : envs('AZK_AGENT_VM_KEY', path.join(paths.vm, "azkvm_rsa")),
-        screen_path: path.join(paths.vm, "screens"),
-        data_disk  : path.join(paths.vm, "azk-agent.vmdk"),
-        boot_disk  : path.join(envs('AZK_LIB_PATH'), "vm", envs('AZK_ISO_VERSION'), "azk.iso"),
-        blank_disk : path.join(envs('AZK_LIB_PATH'), "vm", envs('AZK_ISO_VERSION'), "azk-agent.vmdk.gz"),
-        mount_point: '/media/sf_Root',
+        wait_ready    : envs('AZK_VM_WAIT_READY', 180000),
+        ip            : new Dynamic("agent:vm:ip"),
+        name          : envs('AZK_AGENT_VM_NAME', "azk-vm-" + namespace),
+        user          : "docker",
+        password      : "live",
+        cpus          : envs('AZK_VM_CPUS', os.cpus().length),
+        memory        : envs('AZK_VM_MEMORY', vm_memory()),
+        ssh_key       : envs('AZK_AGENT_VM_KEY', path.join(paths.vm, "azkvm_rsa")),
+        screen_path   : path.join(paths.vm, "screens"),
+        data_disk     : path.join(paths.vm, "azk-agent.vmdk"),
+        boot_disk     : path.join(envs('AZK_LIB_PATH'), "vm", envs('AZK_ISO_VERSION'), "azk.iso"),
+        blank_disk    : path.join(envs('AZK_LIB_PATH'), "vm", envs('AZK_ISO_VERSION'), "azk-agent.vmdk.gz"),
+        mount_point   : '/media/sf_Root',
         authorized_key: '/home/docker/.ssh/authorized_keys',
       },
 
@@ -133,7 +149,6 @@ var options = mergeConfig({
         hotswap_code    : envs('AZK_AGENT_HOTSWAP', false),
       }
     },
-
     urls: {
       github: {
         api:{
@@ -146,7 +161,33 @@ var options = mergeConfig({
       },
       force: {
         endpoints: {
-          start: 'http://force.dev.azk.io/systems/start'
+          start: 'http://api.azk.io/systems/start'
+        }
+      }
+    },
+  },
+  development: {
+    logs_level: {
+      console: (envs('AZK_DEBUG') ? 'debug' : envs('AZK_OUTPUT_LOG_LEVEL', 'warn')),
+      file: envs('AZK_LOG_LEVEL', 'debug'),
+    },
+    // jscs:disable maximumLineLength
+    tracker: {
+      permission_key: 'tracker_permission',
+      disable       : envs('AZK_DISABLE_TRACKER', true),
+      projectId     : envs('AZK_KEEN_PROJECT_ID', '5526968d672e6c5a0d0ebec6'),
+      writeKey      : envs('AZK_KEEN_WRITE_KEY', '5dbce13e376070e36eec0c7dd1e7f42e49f39b4db041f208054617863832309c14a797409e12d976630c3a4b479004f26b362506e82a46dd54df0c977a7378da280c05ae733c97abb445f58abb56ae15f561ac9ad774cea12c3ad8628d896c39f6e702f6b035541fc1a562997cb05768'),
+    },
+    // jscs:enable maximumLineLength
+    urls: {
+      github: {
+        content: {
+          package_json: "https://raw.githubusercontent.com/azukiapp/azk/master/package.json",
+        }
+      },
+      force: {
+        endpoints: {
+          start: 'http://force-stage.azk.io/systems/start'
         }
       }
     },
@@ -183,10 +224,6 @@ var options = mergeConfig({
   },
 });
 
-function env() {
-  return envs('NODE_ENV', 'production');
-}
-
 export function get(key) {
   if (key == "env") {
     return env();
@@ -211,7 +248,7 @@ export function get(key) {
 
 export function set(key, value) {
   if (key == "env") {
-    process.env.NODE_ENV = value;
+    set_env(value);
   } else {
     var keys   = [env(), ...key.split(':')];
     var buffer = {};
