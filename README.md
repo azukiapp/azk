@@ -85,7 +85,7 @@ Check out the [`Run Project` Gallery][run_project_gallery] for examples of up to
 
 ## Deploying
 
-After you locally run a project using [`Run Project` button](#running-locally), deploying it to [DigitalOcean](http://digitalocean.com/) is very simple.
+After you locally run a project using [`Run Project` button](#run-project-button), deploying it to [DigitalOcean](http://digitalocean.com/) is very simple.
 
 First, put your [personal access token](https://cloud.digitalocean.com/settings/applications) into a `.env` file:
 
@@ -100,7 +100,7 @@ Then, just run the following:
 $ azk shell deploy
 ```
 
-Find further instructions on how to deploy to DigitalOcean using `azk` [here](https://github.com/azukiapp/docker-deploy-digitalocean/blob/master/README.md)
+Find further instructions on how to deploy to DigitalOcean using `azk` [here](http://docs.azk.io/en/deploy/README.html).
 
 ### Basic Vocabulary
 
