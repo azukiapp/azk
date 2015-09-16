@@ -2,7 +2,7 @@
 
 When using `azk`, deploying to [DigitalOcean][digital_ocean] is very simple.
 
-First, we'll have to configure the SSH keys on your machine. We'll need them to connect your local machine to your droplet and send your project's files to it. If you don't have SSH keys on your machine yet (or if you aren't sure about it), just follow steps 1 and 2 of this tutotial: https://help.github.com/articles/generating-ssh-keys/
+First, we'll have to configure the SSH keys on your machine. We'll need them to connect your local machine to your droplet and send your project's files to it. If you don't have SSH keys on your machine yet (or if you aren't sure about it), just follow steps 1 and 2 of [this tutorial](https://help.github.com/articles/generating-ssh-keys/).
 
 Then, add the `deploy` system into you `Azkfile.js`:
 
