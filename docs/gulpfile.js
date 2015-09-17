@@ -97,7 +97,7 @@ gulp.task('publish-stage-gz', function() {
         "^(.*)README\.html$": {
           headers: {
             "Content-Type": "text/html",
-            "x-amz-website-redirect-location": "/$1index.html"
+            "x-amz-website-redirect-location": "/$1"
           }
         },
         "^.+$": {
