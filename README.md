@@ -73,12 +73,12 @@ You can find our documentation online at: http://docs.azk.io/
 
 Clicking the `Run Project` button (or "azk button") on a GitHub repo is the best way to quickly and safely run its code on your local machine. 
 
-![Run project](https://s3-sa-east-1.amazonaws.com/assets.azk.io/azk-button.png)
+![Run project](https://s3-sa-east-1.amazonaws.com/assets.azk.io/run-project.png)
 
 To add a `Run Project` button to a repo, you'll just need to add an Azkfile.js to the project and put the following badge in your README.md file (the following example is for a hypothetical repository with the URL `https://github.com/username/repo` and a branch called `azkfile` containing the Azkfile.js):
 
 ```
-[![Run project](https://s3-sa-east-1.amazonaws.com/assets.azk.io/azk-button.png)](http://run-stage.azk.io/start/?repo=username/repo&ref=azkfile)
+[![Run project](https://s3-sa-east-1.amazonaws.com/assets.azk.io/run-project.png)](http://run-stage.azk.io/start/?repo=username/repo&ref=azkfile)
 ```
 
 Check out the [`Run Project` Gallery][run_project_gallery] for examples of up to date forks of popular projects using it.
@@ -139,4 +139,4 @@ Check LEGAL and LICENSE files for more information.
 [dockerfile]: http://dockerfile.github.io
 [docker_registry]: http://registry.hub.docker.com
 [azkfile]: http://docs.azk.io/en/azkfilejs/README.html
-[run_project_gallery]: https://github.com/azk-button/gallery
+[run_project_gallery]: https://github.com/run-project/gallery
