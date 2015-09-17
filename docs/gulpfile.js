@@ -59,21 +59,11 @@ gulp.task('replace-ga-tokens', function() {
     .pipe(gulp.dest('./content/_book'));
 });
 
-gulp.task('rename-readme-to-index', function() {
+gulp.task('copy-readme-to-index', function() {
   return gulp.src(['./content/_book/**/README.html'])
-    .pipe(rename(function(path) {
-      path.basename = 'index';
+    .pipe(rename({
+      basename: 'index'
     }))
-    .pipe(gulp.dest('./content/_book'));
-});
-
-gulp.task('replace-readme-to-index', function() {
-  return gulp.src([
-      './content/_book/**/*.html',
-      './content/_book/**/*.js',
-      './content/_book/**/*.json'
-    ])
-    .pipe(replace(/README\.html/gm, 'index.html'))
     .pipe(gulp.dest('./content/_book'));
 });
 
@@ -127,6 +117,7 @@ gulp.task('deploy-prod', function(callback) {
   configs.deploy.bucket = process.env.AWS_BUCKET_PROD;
 
   runSequence('build-gitbook',
+              'copy-readme-to-index',
               'del-wrong-gitbook-folder',
               'replace-font-path-pt-BR',
               'replace-font-path-en',
@@ -138,6 +129,7 @@ gulp.task('deploy-prod', function(callback) {
 
 gulp.task('deploy-stage', function(callback) {
   runSequence('build-gitbook',
+              'copy-readme-to-index',
               'del-wrong-gitbook-folder',
               'replace-font-path-pt-BR',
               'replace-font-path-en',
@@ -149,6 +141,7 @@ gulp.task('deploy-stage', function(callback) {
 gulp.task('build', function(callback) {
   runSequence(
               'build-gitbook',
+              'copy-readme-to-index',
               'override-landingpage',
               callback);
 });
