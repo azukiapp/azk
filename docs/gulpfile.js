@@ -67,6 +67,16 @@ gulp.task('copy-readme-to-index', function() {
     .pipe(gulp.dest('./content/_book'));
 });
 
+gulp.task('replace-readme-to-index', function() {
+  return gulp.src([
+      './content/_book/**/*.html',
+      './content/_book/**/*.js',
+      './content/_book/**/*.json'
+    ])
+    .pipe(replace(/README\.html/gm, 'index.html'))
+    .pipe(gulp.dest('./content/_book'));
+});
+
 // Deploying zipped files
 gulp.task('publish-stage-gz', function() {
   // create a new publisher
@@ -118,6 +128,7 @@ gulp.task('deploy-prod', function(callback) {
 
   runSequence('build-gitbook',
               'copy-readme-to-index',
+              'replace-readme-to-index',
               'del-wrong-gitbook-folder',
               'replace-font-path-pt-BR',
               'replace-font-path-en',
@@ -130,6 +141,7 @@ gulp.task('deploy-prod', function(callback) {
 gulp.task('deploy-stage', function(callback) {
   runSequence('build-gitbook',
               'copy-readme-to-index',
+              'replace-readme-to-index',
               'del-wrong-gitbook-folder',
               'replace-font-path-pt-BR',
               'replace-font-path-en',
@@ -142,6 +154,7 @@ gulp.task('build', function(callback) {
   runSequence(
               'build-gitbook',
               'copy-readme-to-index',
+              'replace-readme-to-index',
               'override-landingpage',
               callback);
 });
