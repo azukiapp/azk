@@ -112,7 +112,7 @@ gulp.task('publish-stage-gz', function() {
     .pipe(parallelize(publisher.publish()))
 
     // Clean remote files
-    // .pipe(publisher.sync())
+    .pipe(publisher.sync())
 
     // create a cache file to speed up consecutive uploads
     .pipe(publisher.cache())
