@@ -2,7 +2,7 @@
 
 Clicando no botão `Run Project` (ou botão `azk`) em um repositório do GitHub é a melhor forma de rodar seu código em ambiente local, de maneira rápida e segura.
 
-![Run project](https://s3-sa-east-1.amazonaws.com/assets.azk.io/run-project.png)
+![Run project](https://s3-sa-east-1.amazonaws.com/assets.azk.io/run-project-illustrative.png)
 
 Para adicionar um botão `Run Project` a um repositório, você precisa apenas adicionar um Azkfile.js ao projeto e colocar a seguinte imagem em seu arquivo README.md (o exemplo a seguir é para um repositório hipotético de URL `https://github.com/username/repo` e com um branch chamado `azkfile` contendo o aquivo Azkfile.js):
 
