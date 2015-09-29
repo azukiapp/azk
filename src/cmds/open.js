@@ -15,8 +15,11 @@ class Open extends CliTrackerController {
       yield Helpers.requireAgent(this.ui);
       var manifest = new lazy.Manifest(this.cwd, true);
 
-      // Select default system
-      var defaultSystem = manifest.systemDefault;
+      // Select system from options
+      // or fallback to default system
+      var system = (opts.system) ? manifest.getSystemsByName(opts.system)[0]
+                                 : manifest.systemDefault;
+      var system_name = system.name;
 
       // Verify for --open-with flag
       var open_with;
@@ -24,13 +27,13 @@ class Open extends CliTrackerController {
         open_with = opts['open-with'];
       }
 
-      var instances = yield defaultSystem.instances({ type: "daemon" });
+      var instances = yield system.instances({ type: "daemon" });
       if (instances.length > 0) {
-        var hostname = defaultSystem.url;
+        var hostname = system.url;
         lazy.open(hostname, open_with);
         this.ui.ok('commands.open.success', {hostname: hostname});
       } else {
-        var name = defaultSystem.name;
+        var name = system.name;
         this.ui.fail('commands.open.system_not_running', {name: name});
       }
 
