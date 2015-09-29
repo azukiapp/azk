@@ -475,6 +475,11 @@ module.exports = {
 
   tracking: {
     timeout: "Analytics tracker timed out."
+  },
+
+  open: {
+    success: "Opening `%{hostname}` in browser.",
+    system_not_running: "System `%(name)s` is not running to open.",
   }
 };
 // jscs:enable maximumLineLength
