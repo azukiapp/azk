@@ -445,6 +445,10 @@ module.exports = {
       not_running      : "Virtual machine is not running, try `azk vm start`.",
       error            : "vm error: %(error)s.",
       not_required     : "This system does not require a virtual machine, to try to force this behavior set `AZK_USE_VM=true`",
+    },
+    open: {
+      success             : "Opening `%(hostname)s` in browser.",
+      system_not_running  : "System `%(name)s` is not running to open.",
     }
   },
 
@@ -475,11 +479,6 @@ module.exports = {
 
   tracking: {
     timeout: "Analytics tracker timed out."
-  },
-
-  open: {
-    success: "Opening `%{hostname}` in browser.",
-    system_not_running: "System `%(name)s` is not running to open.",
   }
 };
 // jscs:enable maximumLineLength

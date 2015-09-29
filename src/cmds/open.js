@@ -21,30 +21,23 @@ class Open extends CliTrackerController {
       // Verify for --open-with flag
       var open_with;
       if (opts['open-with'] && _.isString(opts['open-with']) ) {
-          open_with = opts['open-with'];
-        }
+        open_with = opts['open-with'];
       }
 
-      // Rescue system instances and test if any is running
       var instances = yield defaultSystem.instances({ type: "daemon" });
       if (instances.length > 0) {
         var hostname = defaultSystem.url;
         lazy.open(hostname, open_with);
-        this.ui.success('commands.open.success', hostname);
+        this.ui.ok('commands.open.success', {hostname: hostname});
       } else {
-        this.ui.fail('commands.open.system_not_running', defaultSystem.name);
+        var name = defaultSystem.name;
+        this.ui.fail('commands.open.system_not_running', {name: name});
       }
 
       return 0;
     });
   }
 
-  _format_command(commands) {
-    commands = _.map(commands, (cmd) => {
-      return (cmd.match(/\s/)) ? `"${cmd.replace(/\"/g, '\\"')}"` : cmd;
-    });
-    return commands.join(" ");
-  }
 }
 
 module.exports = Open;
