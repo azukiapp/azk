@@ -17,11 +17,7 @@ class Open extends CliTrackerController {
       var manifest = new lazy.Manifest(this.cwd, true);
 
       // Select default system
-      var system = manifest.systemDefault;
-
-      // Verify if system is up
-      var instances = yield system.instances({ type: "daemon" });
-      var hostname;
+      var defaultSystem = manifest.systemDefault;
 
       // Verify for --open-with flag
       var open_with;
@@ -30,15 +26,14 @@ class Open extends CliTrackerController {
         }
       }
 
-      // System is up when 'instances' is not empty
+      // Rescue system instances and test if any is running
+      var instances = yield defaultSystem.instances({ type: "daemon" });
       if (instances.length > 0) {
-        hostname = system.url.underline;
-        console.log('System is up:', hostname);
-        // Open nav
-        lazy.open(system.url, open_with);
+        var hostname = defaultSystem.url;
+        lazy.open(hostname, open_with);
+        this.ui.success('commands.open.success', hostname);
       } else {
-        hostname = system.hostname;
-        console.log('System is down:', hostname);
+        this.ui.fail('commands.open.system_not_running', defaultSystem.name);
       }
 
       return 0;
