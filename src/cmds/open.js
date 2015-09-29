@@ -6,7 +6,6 @@ import { async } from 'azk/utils/promises';
 var lazy = lazy_require({
   open: 'open',
   Manifest: ['azk/manifest'],
-  prettyjson: 'prettyjson'
 });
 
 class Open extends CliTrackerController {
