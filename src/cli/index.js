@@ -24,6 +24,7 @@ export function cli(args, cwd, ui = UI) {
       .route('agent', (p, args) => p.agent && /(start|status|stop|configure)/.test(args))
       .route('vm', (p, args) => p.vm && /(ssh|start|status|installed|stop|remove)/.test(args))
       .route('config', (p, args) => p.config && /(track-toggle|track-status)/.test(args))
+      .route('deploy')
       .route('docker')
       .route('doctor')
       .route('info')
