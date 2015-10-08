@@ -26,7 +26,7 @@ Usage:
 Commands:
   agent    Controls azk agent.
   config   Controls azk configuration options.
-  deploy   Run deploy system.
+  deploy   Deploy this project to a remote server.
   docker   Alias for calling docker in azk configuration scope.
   doctor   Shows an analysis of azk's health.
   help     Shows help about a specific command.
