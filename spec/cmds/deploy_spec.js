@@ -133,9 +133,18 @@ h.describeRequireVm('Azk cli, deploy controller', function() {
   describe("with deploy system", function() {
     var run_options = { ui: ui, cwd: h.fixture_path('slim-app'), just_parse: true };
 
-    doc_opts.argv = ['deploy'];
-
     it("should run a `deploy` command", function() {
+      doc_opts.argv = ['deploy'];
+      var options = cli.router.cleanParams(cli.docopt(doc_opts));
+
+      return cli.run(doc_opts, run_options).then((code) => {
+        h.expect(code).to.equal(0);
+        h.expect(options).to.have.property('deploy', true);
+      });
+    });
+
+    it("should run a `deploy fast` command", function() {
+      doc_opts.argv = ['deploy', 'fast'];
       var options = cli.router.cleanParams(cli.docopt(doc_opts));
 
       return cli.run(doc_opts, run_options).then((code) => {
