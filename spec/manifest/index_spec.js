@@ -66,7 +66,7 @@ describe("Azk manifest class, main set", function() {
         var systems = manifest.getSystemsByName();
         h.expect(systems).to.length(_.keys(manifest.systems).length);
         h.expect(systems[0]).to.equal(manifest.system("expand-test"));
-        h.expect(systems[systems.length-1]).to.equal(manifest.system("example"));
+        h.expect(systems[systems.length - 1]).to.equal(manifest.system("example"));
       });
 
       it("should raise error if get a not set system", function() {

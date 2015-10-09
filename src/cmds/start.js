@@ -136,7 +136,7 @@ class Start extends Scale {
             git_destination_path: command_parse_result.git_destination_path
           });
         });
-      })
+      });
     }
   }
 }

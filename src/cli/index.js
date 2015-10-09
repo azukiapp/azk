@@ -33,10 +33,10 @@ export function cli(args, cwd, ui = UI) {
       .route('shell')
       .route('status')
       .route('start', (p) => {
-          var is_start_url_system = /.*[/].*/g.test(p["<system>"]);
-          var has_git_repo_option = p["<git-repo>"] !== null;
-          return is_start_url_system || has_git_repo_option;
-        }, 'start.getProject')
+        var is_start_url_system = /.*[/].*/g.test(p["<system>"]);
+        var has_git_repo_option = p["<git-repo>"] !== null;
+        return is_start_url_system || has_git_repo_option;
+      }, 'start.getProject')
       .route('start')
       .route('restart', (p) => p.restart          , 'start.index')
       .route('stop'   , (p) => p.stop             , 'start.index')
