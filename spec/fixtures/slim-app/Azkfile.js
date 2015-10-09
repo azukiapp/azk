@@ -31,4 +31,7 @@ systems({
       EXAMPLE: "value",
     },
   },
+  deploy: {
+    image: { docker: "azukiapp/alpine" },
+  }
 });

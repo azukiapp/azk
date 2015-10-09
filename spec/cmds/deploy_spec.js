@@ -1,5 +1,6 @@
 import h from 'spec/spec_helper';
 import { Cli } from 'azk/cli';
+import { SystemNotFoundError } from 'azk/utils/errors';
 
 h.describeRequireVm('Azk cli, deploy controller', function() {
   var outputs = [];
@@ -98,6 +99,48 @@ h.describeRequireVm('Azk cli, deploy controller', function() {
         h.expect(options).to.have.property('deploy', true);
         h.expect(options).to.have.property('rollback', true);
         h.expect(options).to.have.property('git-ref', "v2");
+      });
+    });
+  });
+
+  describe("without deploy system", function() {
+    var manifest;
+
+    before(() => {
+      var data = { };
+      return h.mockManifest(data).then((mf) => {
+        manifest = mf;
+      });
+    });
+
+    it("should raise error if no get deploy system", function() {
+      var func = () => manifest.getSystemsByName("deploy");
+      h.expect(func).to.throw(SystemNotFoundError, /deploy/);
+    });
+
+    it("should no deploy system", function() {
+      doc_opts.argv = ['deploy'];
+      var options = cli.router.cleanParams(cli.docopt(doc_opts));
+      var run_options = { ui: ui, cwd: manifest.cwd, just_parse: true };
+
+      return cli.run(doc_opts, run_options).then((code) => {
+        h.expect(code).to.equal(1);
+        h.expect(options).to.have.property('deploy', true);
+      });
+    });
+  });
+
+  describe("with deploy system", function() {
+    var run_options = { ui: ui, cwd: h.fixture_path('slim-app'), just_parse: true };
+
+    doc_opts.argv = ['deploy'];
+
+    it("should run a `deploy` command", function() {
+      var options = cli.router.cleanParams(cli.docopt(doc_opts));
+
+      return cli.run(doc_opts, run_options).then((code) => {
+        h.expect(code).to.equal(0);
+        h.expect(options).to.have.property('deploy', true);
       });
     });
   });
