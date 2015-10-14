@@ -38,7 +38,7 @@ class Open extends CliTrackerController {
           this.ui.fail('commands.open.system_not_running', {name: system_name});
         }
       } else {
-        this.ui.fail('commands.start.option_errors.open.default_system_not_balanceable', {name: system_name});
+        this.ui.fail('commands.open.system_not_balanceable', {name: system_name});
       }
 
       return 0;

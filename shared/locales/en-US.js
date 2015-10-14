@@ -447,9 +447,11 @@ module.exports = {
       not_required     : "This system does not require a virtual machine, to try to force this behavior set `AZK_USE_VM=true`",
     },
     open: {
-      success             : "Opening `%(hostname)s` in browser.",
-      system_not_running  : "System `%(name)s` is not running to open.",
-    }
+      success                       : "Opening " + "%(hostname)s".underline.blue + " in browser.",
+      system_not_running            : "System " + "%(name)s".red + " is not running to open.",
+      system_not_balanceable        : "The system " + "%(name)s".red + " does not have ports http to open.",
+      default_system_not_balanceable: "The default system " + "%(name)s".red + " does not have ports http to open.",
+    },
   },
 
   docker: {

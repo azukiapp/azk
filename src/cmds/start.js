@@ -77,7 +77,7 @@ class Start extends Scale {
         }
         system = system || manifest.systemDefault;
 
-        var tKey   = 'commands.start.option_errors.open';
+        var tKey   = 'commands.open';
         var tOpt   = { name : system.name };
 
         if (_.isString(opts['open-with']) ) {
