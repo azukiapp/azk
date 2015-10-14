@@ -9,6 +9,7 @@ var lazy = lazy_require({
   'printf'   : 'printf',
   'inquirer' : 'inquirer',
   'execShLib': 'exec-sh',
+  'open'     : 'open',
 });
 
 var tables    = {};
@@ -173,6 +174,11 @@ var UI = {
   outputColumns() {
     return this.isInteractive() ? this.stdout().columns : -1;
   },
+
+  open(hostname, open_with) {
+    lazy.open(hostname, open_with);
+  }
+
 };
 
 export { UI };

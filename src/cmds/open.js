@@ -4,7 +4,6 @@ import { _, lazy_require } from 'azk';
 import { async } from 'azk/utils/promises';
 
 var lazy = lazy_require({
-  open: 'open',
   Manifest: ['azk/manifest'],
 });
 
@@ -33,7 +32,7 @@ class Open extends CliTrackerController {
         var instances = yield system.instances({ type: "daemon" });
         if (instances.length > 0) {
           var hostname = system.url;
-          lazy.open(hostname, open_with);
+          this.ui.open(hostname, open_with);
           this.ui.ok('commands.open.success', {hostname: hostname});
         } else {
           this.ui.fail('commands.open.system_not_running', {name: system_name});
