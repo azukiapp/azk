@@ -5,6 +5,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## dev
 
+* Enhancements
+  * [Cli] Send env TERM if is interactive terminal;
+
 ## v0.15.0 - (2015-09-15)
 
 * Bug

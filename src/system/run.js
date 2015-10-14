@@ -71,6 +71,9 @@ var Run = {
       // Envs
       var deps_envs = yield system.checkDependsAndReturnEnvs(options, false);
       options.envs  = _.merge(deps_envs, options.envs || {});
+      if (options.interactive && !options.envs.TERM) {
+        options.envs.TERM = options.shell_term;
+      }
 
       yield this._check_image(system, options);
       var docker_opt = system.shellOptions(options);
