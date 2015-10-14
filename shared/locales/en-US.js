@@ -31,7 +31,7 @@ module.exports = {
     not_been_implemented        : "This feature: `%(feature)s` has not been implemented yet",
     system_not_found            : "System `%(system)s` not found in `%(manifest)s`",
     manifest_required           : "Manifest file (`Azkfile.js`) was not found at `%(cwd)s` (see more at http://docs.azk.io/en/azkfilejs/)",
-    manifest_error              : "Manifest file (`Azkfile.js`) is not valid (see  more at http://docs.azk.io/en/azkfilejs/), error:\n%(err_message)s",
+    manifest_error              : "Manifest file (`Azkfile.js`) is not valid,\nSee more at http://docs.azk.io/en/azkfilejs/\n\nError:\n%(err_message)s",
     system_depend_error         : "System `%(system)s` depends on the system `%(depend)s`",
     system_run_error            : "Run system `%(system)s` return: (%(exitCode)d), for command: %(command)s:\n%(log)s\n\nLook for azk start troubleshooting documentation for more info at: http://bit.ly/azk_start_troubleshooting\n",
     system_not_scalable         : "System `%(system)s` is not scalable only one instance is allowed.",
