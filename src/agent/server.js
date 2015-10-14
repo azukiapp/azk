@@ -38,8 +38,10 @@ var Server = {
       // Load balancer
       yield this.installBalancer();
 
-      // acive docker monitor
-      this._activeDockerMonitor();
+      // active docker monitor
+      if (config('docker:monitor')) {
+        this._activeDockerMonitor();
+      }
 
       log.info_t("commands.agent.started");
       this.starting = false;
