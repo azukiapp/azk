@@ -27,14 +27,19 @@ class Open extends CliTrackerController {
         open_with = opts['open-with'];
       }
 
-      var instances = yield system.instances({ type: "daemon" });
-      if (instances.length > 0) {
-        var hostname = system.url;
-        lazy.open(hostname, open_with);
-        this.ui.ok('commands.open.success', {hostname: hostname});
+      // Verify is system has http ports
+      if (system.balanceable) {
+        // Verify if any instances running
+        var instances = yield system.instances({ type: "daemon" });
+        if (instances.length > 0) {
+          var hostname = system.url;
+          lazy.open(hostname, open_with);
+          this.ui.ok('commands.open.success', {hostname: hostname});
+        } else {
+          this.ui.fail('commands.open.system_not_running', {name: system_name});
+        }
       } else {
-        var name = system.name;
-        this.ui.fail('commands.open.system_not_running', {name: name});
+        this.ui.fail('commands.start.option_errors.open.default_system_not_balanceable', {name: system_name});
       }
 
       return 0;
