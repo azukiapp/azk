@@ -5,6 +5,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## dev
 
+* Enhancements
+  * [VM] Adding configuration key `AZK_DOCKER_MONITOR` to enable or disable docker monitor. By default is `true` for Linux and `false` if is not Linux;
+
 ## v0.15.0 - (2015-09-15)
 
 * Bug

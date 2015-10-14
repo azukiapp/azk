@@ -87,6 +87,7 @@ var options = mergeConfig({
       socket          : envs('AZK_DOCKER_SOCKER', "/var/run/docker.sock"),
       host            : new Dynamic("docker:host"),
       namespace       : envs('AZK_NAMESPACE'),
+      monitor         : envs('AZK_DOCKER_MONITOR', os.platform() === 'linux'),
       api_version     : 'v' + envs('AZK_DOCKER_API_VERSION', '1.20'),
       repository      : 'azk',
       default_domain  : 'azk',
