@@ -62,14 +62,14 @@ rm .awspublish-azk-docs-stage
 
 ## Screenshot terminal configuration
 
-_Font_: Inconsolata  
-_Font-size_: 15pt  
-_Console columns_: 87  
-_Shell_: zsh  
-_Zsh Theme_: edvardm  
-_iTerm Color_: [Dracula Theme](https://github.com/zenorocha/dracula-theme)  
+_Font_: Inconsolata
+_Font-size_: 15pt
+_Console columns_: 87
+_Shell_: zsh
+_Zsh Theme_: edvardm
+_iTerm Color_: [Dracula Theme](https://github.com/zenorocha/dracula-theme)
 
-To change the window title for iTerm, you can do  
+To change the window title for iTerm, you can do
 
 ```sh
 echo -ne "\033];azk agent start --no-daemon\007"
