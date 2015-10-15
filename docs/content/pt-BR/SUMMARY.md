@@ -74,6 +74,7 @@
      * [info](reference/cli/info.md)
      * [init](reference/cli/init.md)
      * [logs](reference/cli/logs.md)
+     * [open](reference/cli/open.md)
      * [restart](reference/cli/restart.md)
      * [scale](reference/cli/scale.md)
      * [shell](reference/cli/shell.md)
