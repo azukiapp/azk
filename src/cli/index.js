@@ -38,8 +38,8 @@ export function cli(args, cwd, ui = UI) {
         return is_start_url_system || has_git_repo_option;
       }, 'start.getProject')
       .route('start')
-      .route('restart', (p) => p.restart          , 'start.index')
-      .route('stop'   , (p) => p.stop             , 'start.index')
+      .route('restart', (p) => p.restart , 'start.index')
+      .route('stop'   , (p) => p.stop    , 'start.index')
       .route('logs')
       .route('help'); // If you do not fall in any other route, the help is called.
 

@@ -24,6 +24,17 @@ h.describeRequireVm('Azk cli, deploy controller', function() {
       });
     });
 
+    it("`deploy clear-cache`", function() {
+      doc_opts.argv = ['deploy', 'clear-cache'];
+      var options = cli.router.cleanParams(cli.docopt(doc_opts));
+
+      return cli.run(doc_opts, run_options).then((code) => {
+        h.expect(code).to.equal(0);
+        h.expect(options).to.have.property('deploy', true);
+        h.expect(options).to.have.property('clear-cache', true);
+      });
+    });
+
     it("`deploy fast`", function() {
       doc_opts.argv = ['deploy', 'fast'];
       var options = cli.router.cleanParams(cli.docopt(doc_opts));
@@ -35,14 +46,14 @@ h.describeRequireVm('Azk cli, deploy controller', function() {
       });
     });
 
-    it("`deploy slow`", function() {
-      doc_opts.argv = ['deploy', 'slow'];
+    it("`deploy full`", function() {
+      doc_opts.argv = ['deploy', 'full'];
       var options = cli.router.cleanParams(cli.docopt(doc_opts));
 
       return cli.run(doc_opts, run_options).then((code) => {
         h.expect(code).to.equal(0);
         h.expect(options).to.have.property('deploy', true);
-        h.expect(options).to.have.property('slow', true);
+        h.expect(options).to.have.property('full', true);
       });
     });
 
@@ -68,6 +79,17 @@ h.describeRequireVm('Azk cli, deploy controller', function() {
       });
     });
 
+    it("`deploy shell`", function() {
+      doc_opts.argv = ['deploy', 'shell'];
+      var options = cli.router.cleanParams(cli.docopt(doc_opts));
+
+      return cli.run(doc_opts, run_options).then((code) => {
+        h.expect(code).to.equal(0);
+        h.expect(options).to.have.property('deploy', true);
+        h.expect(options).to.have.property('shell', true);
+      });
+    });
+
     it("`deploy versions`", function() {
       doc_opts.argv = ['deploy', 'versions'];
       var options = cli.router.cleanParams(cli.docopt(doc_opts));
@@ -90,7 +112,7 @@ h.describeRequireVm('Azk cli, deploy controller', function() {
       });
     });
 
-    it("`deploy rollback <git-ref>`", function() {
+    it("`deploy rollback <ref>`", function() {
       doc_opts.argv = ['deploy', 'rollback', 'v2'];
       var options = cli.router.cleanParams(cli.docopt(doc_opts));
 
@@ -98,8 +120,15 @@ h.describeRequireVm('Azk cli, deploy controller', function() {
         h.expect(code).to.equal(0);
         h.expect(options).to.have.property('deploy', true);
         h.expect(options).to.have.property('rollback', true);
-        h.expect(options).to.have.property('git-ref', "v2");
+        h.expect(options).to.have.property('ref', "v2");
       });
+    });
+
+    it("`invalid` and should error", function() {
+      doc_opts.argv = ['deploy', 'invalid'];
+
+      var func = () => cli.docopt(doc_opts);
+      h.expect(func).to.throw(InvalidCommandError, /deploy invalid/);
     });
   });
 

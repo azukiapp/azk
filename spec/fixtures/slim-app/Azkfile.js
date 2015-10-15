@@ -17,6 +17,13 @@ systems({
     shell: "/bin/bash",
     command: socat('80') + " &0>/dev/null ; " + socat('53') + " &0>/dev/null ; " + socat('53'),
     wait: {"retry": 20, "timeout": 1000},
+    http: {
+      domains: [
+        "#{process.env.HOST_DOMAIN}",
+        "#{process.env.HOST_IP}",
+        "#{system.name}.#{azk.default_domain}",
+      ]
+    },
     provision: [
       "ls -l ./src",
       "./src/bashttpd",
