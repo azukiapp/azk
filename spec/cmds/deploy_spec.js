@@ -1,19 +1,29 @@
 import h from 'spec/spec_helper';
 import { Cli } from 'azk/cli';
-import { SystemNotFoundError } from 'azk/utils/errors';
+import { SystemNotFoundError, InvalidCommandError } from 'azk/utils/errors';
+import Deploy from 'azk/cmds/deploy';
+
+class DeployTest extends Deploy {
+  _run(cmd) {
+    this.ui.output(`${cmd}`);
+    return 0;
+  }
+}
 
 h.describeRequireVm('Azk cli, deploy controller', function() {
   var outputs = [];
   var ui      = h.mockUI(beforeEach, outputs);
 
   var cli_options = {};
-  var cli = new Cli(cli_options)
-    .route('deploy');
-
-  var doc_opts    = { exit: false };
-  var run_options = { ui: ui, cwd: __dirname };
+  var doc_opts = { exit: false };
 
   describe('run command', function () {
+    var run_options = { ui: ui, cwd: h.fixture_path('slim-app'), just_parse: true };
+    var cli = new Cli(cli_options)
+      .route('deploy', null, function(p) {
+        return (new (DeployTest)(this)).index();
+      });
+
     it("`deploy`", function() {
       doc_opts.argv = ['deploy'];
       var options = cli.router.cleanParams(cli.docopt(doc_opts));
@@ -21,6 +31,7 @@ h.describeRequireVm('Azk cli, deploy controller', function() {
       return cli.run(doc_opts, run_options).then((code) => {
         h.expect(code).to.equal(0);
         h.expect(options).to.have.property('deploy', true);
+        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('azk shell deploy')));
       });
     });
 
@@ -32,6 +43,7 @@ h.describeRequireVm('Azk cli, deploy controller', function() {
         h.expect(code).to.equal(0);
         h.expect(options).to.have.property('deploy', true);
         h.expect(options).to.have.property('clear-cache', true);
+        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('azk shell deploy -- clear-cache')));
       });
     });
 
@@ -43,6 +55,7 @@ h.describeRequireVm('Azk cli, deploy controller', function() {
         h.expect(code).to.equal(0);
         h.expect(options).to.have.property('deploy', true);
         h.expect(options).to.have.property('fast', true);
+        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('azk shell deploy -- fast')));
       });
     });
 
@@ -54,6 +67,7 @@ h.describeRequireVm('Azk cli, deploy controller', function() {
         h.expect(code).to.equal(0);
         h.expect(options).to.have.property('deploy', true);
         h.expect(options).to.have.property('full', true);
+        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('azk shell deploy -- full')));
       });
     });
 
@@ -65,6 +79,7 @@ h.describeRequireVm('Azk cli, deploy controller', function() {
         h.expect(code).to.equal(0);
         h.expect(options).to.have.property('deploy', true);
         h.expect(options).to.have.property('restart', true);
+        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('azk shell deploy -- restart')));
       });
     });
 
@@ -76,6 +91,7 @@ h.describeRequireVm('Azk cli, deploy controller', function() {
         h.expect(code).to.equal(0);
         h.expect(options).to.have.property('deploy', true);
         h.expect(options).to.have.property('ssh', true);
+        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('azk shell deploy -- ssh')));
       });
     });
 
@@ -87,6 +103,7 @@ h.describeRequireVm('Azk cli, deploy controller', function() {
         h.expect(code).to.equal(0);
         h.expect(options).to.have.property('deploy', true);
         h.expect(options).to.have.property('shell', true);
+        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('azk shell deploy --tty -- shell')));
       });
     });
 
@@ -98,6 +115,7 @@ h.describeRequireVm('Azk cli, deploy controller', function() {
         h.expect(code).to.equal(0);
         h.expect(options).to.have.property('deploy', true);
         h.expect(options).to.have.property('versions', true);
+        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('azk shell deploy -- versions')));
       });
     });
 
@@ -109,6 +127,7 @@ h.describeRequireVm('Azk cli, deploy controller', function() {
         h.expect(code).to.equal(0);
         h.expect(options).to.have.property('deploy', true);
         h.expect(options).to.have.property('rollback', true);
+        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('azk shell deploy -- rollback')));
       });
     });
 
@@ -121,6 +140,7 @@ h.describeRequireVm('Azk cli, deploy controller', function() {
         h.expect(options).to.have.property('deploy', true);
         h.expect(options).to.have.property('rollback', true);
         h.expect(options).to.have.property('ref', "v2");
+        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('azk shell deploy -- rollback v2')));
       });
     });
 
@@ -134,6 +154,8 @@ h.describeRequireVm('Azk cli, deploy controller', function() {
 
   describe("without deploy system", function() {
     var manifest;
+    var cli = new Cli(cli_options)
+      .route('deploy');
 
     before(() => {
       var data = { };
@@ -154,30 +176,6 @@ h.describeRequireVm('Azk cli, deploy controller', function() {
 
       return cli.run(doc_opts, run_options).then((code) => {
         h.expect(code).to.equal(1);
-        h.expect(options).to.have.property('deploy', true);
-      });
-    });
-  });
-
-  describe("with deploy system", function() {
-    var run_options = { ui: ui, cwd: h.fixture_path('slim-app'), just_parse: true };
-
-    it("should run a `deploy` command", function() {
-      doc_opts.argv = ['deploy'];
-      var options = cli.router.cleanParams(cli.docopt(doc_opts));
-
-      return cli.run(doc_opts, run_options).then((code) => {
-        h.expect(code).to.equal(0);
-        h.expect(options).to.have.property('deploy', true);
-      });
-    });
-
-    it("should run a `deploy fast` command", function() {
-      doc_opts.argv = ['deploy', 'fast'];
-      var options = cli.router.cleanParams(cli.docopt(doc_opts));
-
-      return cli.run(doc_opts, run_options).then((code) => {
-        h.expect(code).to.equal(0);
         h.expect(options).to.have.property('deploy', true);
       });
     });

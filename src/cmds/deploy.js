@@ -14,10 +14,18 @@ class Deploy extends CliTrackerController {
       yield Helpers.requireAgent(this.ui);
 
       var system = this._getDeploySystem(this.cwd);
-      // TODO: append `this.args` and run `system`
-      // console.log('this.args:', this.args);
+      var suffix = this.args.slice(1).join(' ');
+      var cmd = [`azk shell ${system.name}`];
+      if (suffix) {
+        if (suffix == "shell") {
+          cmd.push("--tty")
+        }
+        cmd.push('--');
+        cmd.push(suffix);
+      }
+      cmd = cmd.join(" ");
 
-      return 0;
+      return this._run(cmd);
     })
     .catch((err) => {
       if (err instanceof AzkError) {
@@ -27,6 +35,10 @@ class Deploy extends CliTrackerController {
       }
       return 1;
     });
+  }
+
+  _run(cmd) {
+    return this.ui.execSh(cmd);
   }
 
   _getDeploySystem(cwd) {
