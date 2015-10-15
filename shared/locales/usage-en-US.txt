@@ -44,21 +44,21 @@ Commands:
   vm       Controls the Virtual Machine.
 
 Actions:
-  clear-cache               Clear deploy cached configuration.
+  clear-cache               Clears deployment cached configuration.
   installed                 Checks if the virtual machine is installed.
-  fast                      Deploy without configuring the remote server (default for every run after the first one).
-  full                      Configure the remote server and deploy the app (default for the first run).
+  fast                      Deploys without configuring the remote server (default for every run after the first deployment).
+  full                      Configures the remote server and deploy the app (default for the first deployment).
   remove                    Removes the virtual machine.
-  restart                   Restart systems local or in remote server.
-  rollback                  Revert the app to a specified reference (Default is previous version).
+  restart                   Restarts local systems or the app on the remote server.
+  rollback                  Reverts the app to a specified reference (default is the previous version).
   start                     Starts azk agent or virtual machine.
   stop                      Stops azk agent or virtual machine.
   status                    Shows azk agent or virtual machine status.
-  shell                     Start a shell inside the deploy system.
-  ssh                       Gets access to the machine (vm or remote server) via SSH protocol.
+  shell                     Starts a shell from inside the deploy system container.
+  ssh                       Connects to the VM or remote server (when used with deploy) via SSH protocol.
   track-status              Shows tracking status (on or off).
   track-toggle              Toggles tracking behavior on/off.
-  versions                  List all app versions deployed on the remote server.
+  versions                  Lists all versions of the app deployed on the remote server.
 
 Arguments:
   docker-args               Options and arguments to be passed to Docker.
