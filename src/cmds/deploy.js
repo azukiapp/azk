@@ -17,8 +17,8 @@ class Deploy extends CliTrackerController {
       var suffix = this.args.slice(1).join(' ');
       var cmd = [`azk shell ${system.name}`];
       if (suffix) {
-        if (suffix == "shell") {
-          cmd.push("--tty")
+        if (suffix == "shell" || suffix == "ssh") {
+          cmd.push("--tty");
         }
         cmd.push('--');
         cmd.push(suffix);

@@ -20,7 +20,7 @@ h.describeRequireVm('Azk cli, deploy controller', function() {
   describe('run command', function () {
     var run_options = { ui: ui, cwd: h.fixture_path('slim-app'), just_parse: true };
     var cli = new Cli(cli_options)
-      .route('deploy', null, function(p) {
+      .route('deploy', null, function() {
         return (new (DeployTest)(this)).index();
       });
 
@@ -91,7 +91,7 @@ h.describeRequireVm('Azk cli, deploy controller', function() {
         h.expect(code).to.equal(0);
         h.expect(options).to.have.property('deploy', true);
         h.expect(options).to.have.property('ssh', true);
-        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('azk shell deploy -- ssh')));
+        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('azk shell deploy --tty -- ssh')));
       });
     });
 
