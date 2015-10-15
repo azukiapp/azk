@@ -95,6 +95,20 @@ h.describeRequireVm('Azk cli, deploy controller', function() {
       });
     });
 
+    it("`deploy ssh -- echo data`", function() {
+      doc_opts.argv = ['deploy', 'ssh', '--', 'echo data'];
+      var options = cli.router.cleanParams(cli.docopt(doc_opts));
+
+      return cli.run(doc_opts, run_options).then((code) => {
+        h.expect(code).to.equal(0);
+        h.expect(options).to.have.property('deploy', true);
+        h.expect(options).to.have.property('ssh', true);
+        h.expect(options).to.have.property('__doubledash', true);
+        h.expect(options.args).to.deep.eql(['echo data']);
+        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('azk shell deploy -- ssh echo data')));
+      });
+    });
+
     it("`deploy shell`", function() {
       doc_opts.argv = ['deploy', 'shell'];
       var options = cli.router.cleanParams(cli.docopt(doc_opts));
@@ -104,6 +118,20 @@ h.describeRequireVm('Azk cli, deploy controller', function() {
         h.expect(options).to.have.property('deploy', true);
         h.expect(options).to.have.property('shell', true);
         h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('azk shell deploy --tty -- shell')));
+      });
+    });
+
+    it("`deploy shell -- echo data`", function() {
+      doc_opts.argv = ['deploy', 'shell', '--', 'echo data'];
+      var options = cli.router.cleanParams(cli.docopt(doc_opts));
+
+      return cli.run(doc_opts, run_options).then((code) => {
+        h.expect(code).to.equal(0);
+        h.expect(options).to.have.property('deploy', true);
+        h.expect(options).to.have.property('shell', true);
+        h.expect(options).to.have.property('__doubledash', true);
+        h.expect(options.args).to.deep.eql(['echo data']);
+        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('azk shell deploy -- shell echo data')));
       });
     });
 

@@ -1,5 +1,5 @@
 import { CliTrackerController } from 'azk/cli/cli_tracker_controller.js';
-import { lazy_require } from 'azk';
+import { lazy_require, _ } from 'azk';
 import { async } from 'azk/utils/promises';
 import { AzkError } from 'azk/utils/errors';
 import { Helpers } from 'azk/cli/helpers';
@@ -14,14 +14,18 @@ class Deploy extends CliTrackerController {
       yield Helpers.requireAgent(this.ui);
 
       var system = this._getDeploySystem(this.cwd);
-      var suffix = this.args.slice(1).join(' ');
+      var suffix = this.args.slice(1);
       var cmd = [`azk shell ${system.name}`];
       if (suffix) {
-        if (suffix == "shell" || suffix == "ssh") {
-          cmd.push("--tty");
+        if (_.contains(suffix, "shell") || _.contains(suffix, "ssh")) {
+          if (_.contains(suffix, "--"))
+            suffix = _.filter(suffix, (s) => s != '--')
+          else {
+            cmd.push("--tty");
+          }
         }
         cmd.push('--');
-        cmd.push(suffix);
+        cmd.push(suffix.join(' '));
       }
       cmd = cmd.join(" ");
 
