@@ -3,7 +3,6 @@ import { _, lazy_require } from 'azk';
 import { async } from 'azk/utils/promises';
 
 var lazy = lazy_require({
-  open: 'open',
   GetProject: ['azk/manifest/get_project'],
 });
 
@@ -67,7 +66,8 @@ class Start extends Scale {
       var result = yield this._scale(systems, 'start', opts);
 
       // if flag --open
-      if (opts.open || opts['open-with']) {
+      var open = this.normalized_params.options.open;
+      if (open || opts['open-with']) {
         var open_with;
         var system;
         var system_name = opts.system && opts.system.split(',');
@@ -88,7 +88,7 @@ class Start extends Scale {
           var instances = yield system.instances({ type: "daemon" });
 
           if (instances.length > 0) {
-            lazy.open(system.url, open_with);
+            this.ui.open(system.url, open_with);
           } else {
             this.ui.warning(`${tKey}.system_not_running`, tOpt);
           }
