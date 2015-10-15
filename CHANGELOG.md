@@ -5,6 +5,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## dev
 
+* Enhacements
+  * [Cli] Added the command `azk open [system]` which opens a system URL in browser #528;
+
 ## v0.15.0 - (2015-09-15)
 
 * Bug
