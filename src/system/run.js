@@ -71,14 +71,17 @@ var Run = {
       // Envs
       var deps_envs = yield system.checkDependsAndReturnEnvs(options, false);
       options.envs  = _.merge(deps_envs, options.envs || {});
-      if (options.interactive && !options.envs.TERM) {
-        options.envs.TERM = options.shell_term;
-      }
 
       yield this._check_image(system, options);
       var docker_opt = system.shellOptions(options);
-      var container  = yield lazy.docker.run(system.image.name, command, docker_opt);
-      var data       = yield container.inspect();
+
+      // Force env TERM in interatives shells (like a ssh)
+      if (_.isObject(docker_opt.env) && options.interactive && !docker_opt.env.TERM) {
+        docker_opt.env.TERM = options.shell_term;
+      }
+
+      var container = yield lazy.docker.run(system.image.name, command, docker_opt);
+      var data      = yield container.inspect();
 
       log.debug("[system] container shell ended: %s", container.id);
 
