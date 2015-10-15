@@ -5,6 +5,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## dev
 
+* Enhancements
+  * [Cli] Adding `deploy` command to cli;
+
 ## v0.15.0 - (2015-09-15)
 
 * Bug
