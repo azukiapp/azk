@@ -341,12 +341,6 @@ module.exports = {
       already_started: "System `%(name)s` already started",
       skip           : "Skip starting, system `" + "%(name)s".blue + "` does not scale.",
       fail           : "Due to the above error azk will stop all instances already running.\n",
-      option_errors  : {
-        open: {
-          default_system_not_balanceable: "\nThe default system `%(name)s` does not have ports http to open.",
-          system_not_running: "System `%(name)s` is not running to open.",
-        }
-      },
       get_project: {
         getting_git_version      : "Checking Git version...",
         getting_remote_info      : "Getting remote info from `%(git_url)s`...",
@@ -445,7 +439,13 @@ module.exports = {
       not_running      : "Virtual machine is not running, try `azk vm start`.",
       error            : "vm error: %(error)s.",
       not_required     : "This system does not require a virtual machine, to try to force this behavior set `AZK_USE_VM=true`",
-    }
+    },
+    open: {
+      success                       : "Opening " + "%(hostname)s".underline.blue + " in browser.",
+      system_not_running            : "System " + "%(name)s".red + " is not running to open.",
+      system_not_balanceable        : "The system " + "%(name)s".red + " does not have ports http to open.",
+      default_system_not_balanceable: "The default system " + "%(name)s".red + " does not have ports http to open.",
+    },
   },
 
   docker: {
