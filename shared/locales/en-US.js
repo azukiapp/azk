@@ -341,12 +341,6 @@ module.exports = {
       already_started: "System `%(name)s` already started",
       skip           : "Skip starting, system `" + "%(name)s".blue + "` does not scale.",
       fail           : "Due to the above error azk will stop all instances already running.\n",
-      option_errors  : {
-        open: {
-          default_system_not_balanceable: "\nThe default system `%(name)s` does not have ports http to open.",
-          system_not_running: "System `%(name)s` is not running to open.",
-        }
-      },
       get_project: {
         getting_git_version      : "Checking Git version...",
         getting_remote_info      : "Getting remote info from `%(git_url)s`...",
