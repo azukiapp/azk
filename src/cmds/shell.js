@@ -46,7 +46,7 @@ class Shell extends CliTrackerController {
       var stdin = this.ui.stdin();
       stdin.custom_pipe = () => { };
 
-      var cmd_options  = {
+      var docker_options = {
         interactive: tty,
         pull   : this.ui.stdout(),
         stdout : this.ui.stdout(),
@@ -56,12 +56,12 @@ class Shell extends CliTrackerController {
       };
 
       // Support extra envs, ports and mount volumes
-      cmd_options.envs   = this._parse_option(options.env  , /.+=.+/, '=', 'invalid_env');
-      cmd_options.mounts = this._parse_option(options.mount, /.+:.+:?.*/, ':', 'invalid_mount', 1, (opts) => {
+      docker_options.envs   = this._parse_option(options.env  , /.+=.+/, '=', 'invalid_env');
+      docker_options.mounts = this._parse_option(options.mount, /.+:.+:?.*/, ':', 'invalid_mount', 1, (opts) => {
         return { type: (opts[2] ? opts[1] : 'path'), value: (opts[2] ? opts[2] : opts[0]) };
       });
 
-      var cmd = [];
+      var cmd = [options.shell];
       if (!_.isEmpty(options.command)) {
         cmd.push("-c", options.command);
       } else if (!_.isEmpty(shell_args)) {
@@ -71,11 +71,11 @@ class Shell extends CliTrackerController {
 
       // Remove container before run
       var is_remove = !options['no-remove'] ? config("docker:remove_container") : !options['no-remove'];
-      cmd_options = _.merge(cmd_options, {
+      docker_options = _.merge(docker_options, {
         build_force    : options.rebuild || false,
         provision_force: (options.rebuild ? true : options.reprovision) || false,
         remove         : is_remove,
-        shell          : options.shell,
+        command        : cmd,
       });
 
       var result = defer((resolver, reject) => {
@@ -99,7 +99,7 @@ class Shell extends CliTrackerController {
         });
 
         system
-          .runShell(cmd, cmd_options)
+          .runShell(docker_options)
           .then(function (result) {
             _subscription_run.unsubscribe();
             return result;

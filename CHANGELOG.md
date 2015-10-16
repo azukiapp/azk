@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 * Enhancements
   * [Cli] Adding `deploy` command to cli;
+  * [Kernel] Changing system to get `command` from image, but respect this priority for `azk shell`: shell option (`--shell`) > Azkfile.js > docker image;
 
 ## v0.15.0 - (2015-09-15)
 
@@ -332,7 +333,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Manifest] Adding support `docker_extra`
   * [Manifest] Adding support to 'disable' value in ports.
   * [Kernel] Now `azk` supports Linux \o/
-  * [Kenrel] You can now use the AZK to test and develop the AZK for Linux (see Azkfile.js).
+  * [Kernel] You can now use the AZK to test and develop the AZK for Linux (see Azkfile.js).
   * [Cmds] Now supports the `ssh escape sequence` in `shell` command.
 
 * Deprecations
