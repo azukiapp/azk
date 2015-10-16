@@ -29,9 +29,9 @@ export class Suggestion extends DefaultSuggestion {
       wait: 25,
       envs: {
         // set instances variables
-        MYSQL_USER          : "azk",
-        MYSQL_PASSWORD      : "azk",
-        MYSQL_DATABASE      : "#{manifest.dir}_development",
+        MYSQL_USER    : "azk",
+        MYSQL_PASSWORD: "azk",
+        MYSQL_DATABASE: "#{manifest.dir}_development",
       },
       export_envs_comment: [
         'check this gist to configure your database',
