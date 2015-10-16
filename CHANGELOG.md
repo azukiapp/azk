@@ -7,7 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 * Enhancements
   * [Cli] Adding `deploy` command to cli;
-  * [Kernel] Changing system to get `command` from image, but respect this priority for `azk shell`: shell option (`--shell`) > Azkfile.js > docker image;
+  * [Kernel] Changing system to get `command` from image, but respect this priority for `azk shell`: shell option (`--shell`) > Azkfile.js > docker image #534;
 
 ## v0.15.0 - (2015-09-15)
 
