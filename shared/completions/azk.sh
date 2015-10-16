@@ -107,7 +107,7 @@ _azk_doctor()
     cur="${COMP_WORDS[COMP_CWORD]}"
 
     if [ $COMP_CWORD -ge 2 ]; then
-        COMPREPLY=( $( compgen -W '--logo -q --quiet -v --verbose ' -- $cur) )
+        COMPREPLY=( $( compgen -W '--logo -q --quiet -h --help -l= --log= -v --verbose ' -- $cur) )
     fi
 }
 
@@ -232,7 +232,7 @@ _azk_agent()
     cur="${COMP_WORDS[COMP_CWORD]}"
 
     if [ $COMP_CWORD -eq 2 ]; then
-        COMPREPLY=( $( compgen -W '--no-daemon --child --no-reload-vm -q --quiet -h --help -l= --log= -v --verbose status start stop' -- $cur) )
+        COMPREPLY=( $( compgen -W '--no-daemon --child --no-reload-vm --configure-file= -q --quiet -h --help -l= --log= -v --verbose status start stop' -- $cur) )
     else
         case ${COMP_WORDS[2]} in
             status)
@@ -285,7 +285,7 @@ _azk_start()
     cur="${COMP_WORDS[COMP_CWORD]}"
 
     if [ $COMP_CWORD -ge 2 ]; then
-        COMPREPLY=( $( compgen -fW '-R --reprovision -B --rebuild -o= --open= -q --quiet -h --help -l= --log= -v --verbose ' -- $cur) )
+        COMPREPLY=( $( compgen -fW '-R --reprovision -B --rebuild -r --no-remove -o --open -a= --open-with= -q --quiet -h --help -l= --log= -v --verbose --git-ref= -R --reprovision -B --rebuild -r --no-remove -o --open -a= --open-with= -q --quiet -h --help -l= --log= -v --verbose ' -- $cur) )
     fi
 }
 
@@ -304,8 +304,25 @@ _azk_shell()
     local cur
     cur="${COMP_WORDS[COMP_CWORD]}"
 
-    if [ $COMP_CWORD -ge 2 ]; then
-        COMPREPLY=( $( compgen -fW '-c= --command= -C= --cwd= -i= --image= --shell= -r --no-remove --silent -T --tty -t --no-tty -q --quiet -h --help -l= --log= -m= --mount= -e= --env= -v --verbose ' -- $cur) )
+    if [ $COMP_CWORD -eq 2 ]; then
+        COMPREPLY=( $( compgen -fW '-c= --command= -C= --cwd= -i= --image= --shell= -B --rebuild -r --no-remove --silent -t --tty -T --no-tty -m= --mount= -e= --env= -q --quiet -h --help -l= --log= -v --verbose --' -- $cur) )
+    else
+        case ${COMP_WORDS[2]} in
+            --)
+            _azk_shell_--
+        ;;
+        esac
+
+    fi
+}
+
+_azk_shell_--()
+{
+    local cur
+    cur="${COMP_WORDS[COMP_CWORD]}"
+
+    if [ $COMP_CWORD -ge 3 ]; then
+        COMPREPLY=( $( compgen -W ' ' -- $cur) )
     fi
 }
 
@@ -392,7 +409,7 @@ _azk_restart()
     cur="${COMP_WORDS[COMP_CWORD]}"
 
     if [ $COMP_CWORD -ge 2 ]; then
-        COMPREPLY=( $( compgen -fW '-R --reprovision -B --rebuild -o= --open= -q --quiet -h --help -l= --log= -v --verbose ' -- $cur) )
+        COMPREPLY=( $( compgen -fW '-R --reprovision -B --rebuild -r --no-remove -o --open -a= --open-with= -q --quiet -h --help -l= --log= -v --verbose ' -- $cur) )
     fi
 }
 

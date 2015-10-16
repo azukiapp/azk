@@ -24,35 +24,35 @@ _azk ()
 
     _arguments -C \
         ':command:->command' \
-		'(-h)-h[Show help usage.]' \
-		'(--help)--help[Show help usage.]' \
-		'(--version)--version[Show azk version.]' \
-		'(-h)-h[Show help usage.]' \
-		'(--help)--help[Show help usage.]' \
-		'(-h)-h[Show help usage.]' \
-		'(--help)--help[Show help usage.]' \
+		'(-h)-h[Shows help usage.]' \
+		'(--help)--help[Shows help usage.]' \
+		'(--version)--version[Shows azk version.]' \
+		'(-h)-h[Shows help usage.]' \
+		'(--help)--help[Shows help usage.]' \
+		'(-h)-h[Shows help usage.]' \
+		'(--help)--help[Shows help usage.]' \
         '*::options:->options'
 
     case $state in
         (command)
             local -a subcommands
             subcommands=(
-				'info[Shows systems information for the current `Azkfile.js`]'
-				'status[Shows azk agent status]'
-				'scale[Scales (up or down) an instance of the system(s)]'
-				'logs[Shows logs for the systems]'
-				'doctor[Shows an analysis of `azk`'\''s health]'
-				'stop[Stops azk agent running in the background]'
-				'vm[Controls a virtual machine.]'
-				'agent[Controls azk agent]'
-				'start[Start azk agent]'
-				'init[Initializes a project by adding the file Azkfile.js]'
-				'shell[Initializes a shell with instance context, or runs a specified command]'
-				'version[Shows azk version]'
-				'docker[Alias for calling docker in '\''azk'\'' scope configuration]'
-				'config[Controls azk configuration options]'
-				'restart[Stops all systems and starts them again]'
-				'help[Shows help about a specific command]'
+				'info[Shows systems information for the current Azkfile.js.]'
+				'status[Shows azk agent or virtual machine status.]'
+				'scale[Scales (up or down) one or more systems.]'
+				'logs[Shows logs for the systems.]'
+				'doctor[Shows an analysis of azk'\''s health.]'
+				'stop[Stops azk agent or virtual machine.]'
+				'vm[Controls the Virtual Machine.]'
+				'agent[Controls azk agent.]'
+				'start[Starts azk agent or virtual machine.]'
+				'init[Initializes a project by adding Azkfile.js.]'
+				'shell[Initializes a shell context instance or runs a specified command.]'
+				'version[Shows azk version.]'
+				'docker[Alias for calling docker in azk configuration scope.]'
+				'config[Controls azk configuration options.]'
+				'restart[Stops all systems and starts them back again.]'
+				'help[Shows help about a specific command.]'
             )
             _values 'azk' $subcommands
         ;;
@@ -218,11 +218,15 @@ _azk-doctor ()
 
     _arguments -C \
         ':command:->command' \
-		'(--logo)--logo[Shows the `azk` logo before showing health information \[default: false\].]' \
-		'(-q)-q[Never prompt \[default: false\].]' \
-		'(--quiet)--quiet[Never prompt \[default: false\].]' \
-		'(-v)-v[Sets the level of detail - multiple supported (-vv == --verbose 2) \[default: 0\].]' \
-		'(--verbose)--verbose[Sets the level of detail - multiple supported (-vv == --verbose 2) \[default: 0\].]' \
+		'(--logo)--logo' \
+		'(-q)-q' \
+		'(--quiet)--quiet' \
+		'(-h)-h' \
+		'(--help)--help' \
+		'(-l=-)-l=-' \
+		'(--log=-)--log=-' \
+		'(-v)-v' \
+		'(--verbose)--verbose' \
         
 }
 
@@ -286,6 +290,7 @@ _azk-agent ()
 		'(--no-daemon)--no-daemon' \
 		'(--child)--child' \
 		'(--no-reload-vm)--no-reload-vm' \
+		'(--configure-file=-)--configure-file=-' \
 		'(-q)-q' \
 		'(--quiet)--quiet' \
 		'(-h)-h' \
@@ -366,8 +371,31 @@ _azk-start ()
 		'(--reprovision)--reprovision' \
 		'(-B)-B' \
 		'(--rebuild)--rebuild' \
-		'(-o=-)-o=-' \
-		'(--open=-)--open=-' \
+		'(-r)-r' \
+		'(--no-remove)--no-remove' \
+		'(-o)-o' \
+		'(--open)--open' \
+		'(-a=-)-a=-' \
+		'(--open-with=-)--open-with=-' \
+		'(-q)-q' \
+		'(--quiet)--quiet' \
+		'(-h)-h' \
+		'(--help)--help' \
+		'(-l=-)-l=-' \
+		'(--log=-)--log=-' \
+		'(-v)-v' \
+		'(--verbose)--verbose' \
+		'(--git-ref=-)--git-ref=-' \
+		'(-R)-R' \
+		'(--reprovision)--reprovision' \
+		'(-B)-B' \
+		'(--rebuild)--rebuild' \
+		'(-r)-r' \
+		'(--no-remove)--no-remove' \
+		'(-o)-o' \
+		'(--open)--open' \
+		'(-a=-)-a=-' \
+		'(--open-with=-)--open-with=-' \
 		'(-q)-q' \
 		'(--quiet)--quiet' \
 		'(-h)-h' \
@@ -378,7 +406,7 @@ _azk-start ()
 		'(--verbose)--verbose' \
 
     else
-        myargs=('<system>')
+        myargs=('<system>' '<git-repo>' '<dest-path>')
         _message_next_arg
     fi
 }
@@ -424,28 +452,30 @@ _azk-shell ()
 		'(-i=-)-i=-' \
 		'(--image=-)--image=-' \
 		'(--shell=-)--shell=-' \
+		'(-B)-B' \
+		'(--rebuild)--rebuild' \
 		'(-r)-r' \
 		'(--no-remove)--no-remove' \
 		'(--silent)--silent' \
-		'(-T)-T' \
-		'(--tty)--tty' \
 		'(-t)-t' \
+		'(--tty)--tty' \
+		'(-T)-T' \
 		'(--no-tty)--no-tty' \
+		'(-m=-)-m=-' \
+		'(--mount=-)--mount=-' \
+		'(-e=-)-e=-' \
+		'(--env=-)--env=-' \
 		'(-q)-q' \
 		'(--quiet)--quiet' \
 		'(-h)-h' \
 		'(--help)--help' \
 		'(-l=-)-l=-' \
 		'(--log=-)--log=-' \
-		'(-m=-)-m=-' \
-		'(--mount=-)--mount=-' \
-		'(-e=-)-e=-' \
-		'(--env=-)--env=-' \
 		'(-v)-v' \
 		'(--verbose)--verbose' \
 
     else
-        myargs=('<system>')
+        myargs=('<system>' '<shell-args>')
         _message_next_arg
     fi
 }
@@ -556,8 +586,12 @@ _azk-restart ()
 		'(--reprovision)--reprovision' \
 		'(-B)-B' \
 		'(--rebuild)--rebuild' \
-		'(-o=-)-o=-' \
-		'(--open=-)--open=-' \
+		'(-r)-r' \
+		'(--no-remove)--no-remove' \
+		'(-o)-o' \
+		'(--open)--open' \
+		'(-a=-)-a=-' \
+		'(--open-with=-)--open-with=-' \
 		'(-q)-q' \
 		'(--quiet)--quiet' \
 		'(-h)-h' \
