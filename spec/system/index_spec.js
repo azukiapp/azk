@@ -18,8 +18,6 @@ describe("Azk system class, main set", function() {
   });
 
   it("should merge options with default_options", function() {
-    var regex = RegExp(`echo ".*${name}.*"; exit 1`);
-    h.expect(system).to.have.property("command").and.match(regex);
     h.expect(system).to.have.property("depends").and.eql([]);
     h.expect(system).to.have.property("envs").and.eql({});
     h.expect(system).to.have.property("shell", null);
@@ -164,6 +162,22 @@ describe("Azk system class, main set", function() {
     });
 
     describe("with custom http domains", function() {
+      var envs = { HOST_IP: undefined, HOST_DOMAIN: undefined };
+      before(() => {
+        _.each(envs, (value, key) => {
+          envs[key] = process.env[key];
+        });
+      });
+      afterEach(() => {
+        _.each(envs, (value, key) => {
+          if (value === undefined) {
+            delete process.env[key];
+          } else {
+            process.env[key] = envs[key];
+          }
+        });
+      });
+
       it("should return the correct default domain", function() {
         var system = manifest.system("example-http-domain");
         h.expect(system.hostname).to.eql(`${system.name}.${config('agent:balancer:host')}`);
@@ -392,7 +406,6 @@ describe("Azk system class, main set", function() {
           return image.inspect().then((image_data) => {
             var options = system.daemonOptions({ image_data });
             h.expect(options).to.have.property("working_dir", "/data");
-            h.expect(options).to.have.property("command").and.eql(image_data.Config.Cmd);
             h.expect(options).to.have.deep.property("ports.80/tcp").and.eql([{
               HostIp: config('agent:dns:ip')
             }]);

@@ -177,8 +177,8 @@ export function extend(h) {
           extends: "example",
           http: {
             domains: [
-              "#{process.env.HOST_DOMAIN}",
-              "#{process.env.HOST_IP}",
+              "#{env.HOST_DOMAIN}",
+              "#{env.HOST_IP}",
               "#{system.name}.#{azk.default_domain}",
             ]
           },
