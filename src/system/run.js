@@ -72,8 +72,24 @@ var Run = {
       var deps_envs = yield system.checkDependsAndReturnEnvs(options, false);
       options.envs  = _.merge(deps_envs, options.envs || {});
 
-      yield this._check_image(system, options);
+      var image = yield this._check_image(system, options);
       var docker_opt = system.shellOptions(options);
+
+      if (_.isEmpty(options.shell)) {
+        options.shell = system.shell;
+        // Cmd from image
+        if (_.isEmpty(options.shell) && !_.isEmpty(image.Config.Cmd)) {
+          options.shell = image.Config.Cmd;
+        } else if(_.isEmpty(options.shell)) {
+          options.shell = "/bin/sh"
+        }
+      }
+
+      if (!_.isArray(options.shell)) {
+        options.shell = [options.shell];
+      }
+      command = options.shell.concat(command);
+
       var container  = yield lazy.docker.run(system.image.name, command, docker_opt);
       var data       = yield container.inspect();
 

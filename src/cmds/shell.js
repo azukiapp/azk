@@ -38,11 +38,9 @@ class Shell extends CliTrackerController {
         }
       }
 
-      if (_.isString(options.command)) {
-        options.command = `${options.command};`;
-      }
-      var commands = _.compact([ options.command, ...args['shell-args']]);
-      var tty_default = options.tty || _.isEmpty(commands);
+      // Use or not tty?
+      var shell_args = args['shell-args'];
+      var tty_default = options.tty || _.isEmpty(options.command) || _.isEmpty(shell_args);
       var tty = (options['no-tty']) ? (options.tty || false) : tty_default;
 
       var stdin = this.ui.stdin();
@@ -63,11 +61,11 @@ class Shell extends CliTrackerController {
         return { type: (opts[2] ? opts[1] : 'path'), value: (opts[2] ? opts[2] : opts[0]) };
       });
 
-      // TODO add support to `-- [shell-args]`
-      var cmd = [options.shell || system.shell];
-      if (!_.isEmpty(commands)) {
-        cmd.push("-c");
-        cmd.push(commands.join(' '));
+      var cmd = [];
+      if (!_.isEmpty(options.command)) {
+        cmd.push("-c", options.command);
+      } else if (!_.isEmpty(shell_args)) {
+        cmd = cmd.concat(shell_args);
       }
       cmd = _.compact(cmd);
 
@@ -77,6 +75,7 @@ class Shell extends CliTrackerController {
         build_force    : options.rebuild || false,
         provision_force: (options.rebuild ? true : options.reprovision) || false,
         remove         : is_remove,
+        shell          : options.shell,
       });
 
       var result = defer((resolver, reject) => {

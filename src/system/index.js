@@ -48,7 +48,7 @@ export class System {
 
   get default_options() {
     return {
-      shell    : "/bin/sh",
+      shell    : null,
       depends  : [],
       envs     : {},
       scalable : false,
