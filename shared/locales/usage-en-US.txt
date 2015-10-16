@@ -5,7 +5,8 @@ Usage:
   azk config (track-toggle|track-status) [-qh] [-l <level>] [-v]...
   azk doctor [--logo] [-qh] [-l <level>] [-v]...
   azk deploy (clear-cache|fast|full|restart|versions) [-vh]
-  azk deploy (shell|ssh) [-vh] [-- <args>...]
+  azk deploy shell [--command=<cmd>] [-vh] [-- <args>...]
+  azk deploy ssh [-vh] [-- <args>...]
   azk deploy rollback [<ref>] [-vh]
   azk deploy [-vh]
   azk docker [-qh] [-l <level>] [-v]... [-- <docker-args>...]
