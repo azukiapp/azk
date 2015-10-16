@@ -111,11 +111,14 @@ Informação adicional:
     - `templates/Azkfile.mustache.js`: Template de um Azkfile.js escrito em mustache.
 - `/spec`: Todos os testes do `azk`.
 - `/src`: Código fonte.
+- `/lib`: Código fonte compilado.
+- `.dependencies`: Arquivo onde as versões das dependências são definidas.
 - `.jscsrc`: Configura o padrão de estilo de código.
 - `.jshintrc`: Configura a validação da sintaxe do JavaScript.
 - `Makefile`: Tarefas de empacotamento.
 - `npm-shrinkwrap.json`: "Trava" as versão do `package.json`.
 - `package.json`: Todas as dependências do `azk`.
+- `gulpfile.js`: Tarefas do gulp. Para mais informações execute `azk nvm gulp help`.
 
 
 ### Detalhes de implementação
@@ -143,7 +146,7 @@ Para o desenvolvimento do `azk`, usamos o [gulp] para coordenar as tarefas do di
 - Verificar a qualidade do código com `jshint` e `jscs`;
 - A execução de um comando "watch" para modificação dos arquivos e execução das tarefas acima automaticamente;
 
-Você pode encontrar a lista completa de comandos disponíveis executando: `azk nvm gulp help`, mas a tarefa principal que você deve conhecer e usar durante o desenvolvimento é `azk nvm watch:test:lint`.
+Você pode encontrar a lista completa de comandos disponíveis executando: `azk nvm gulp help`, mas a tarefa principal que você deve conhecer e usar durante o desenvolvimento é `azk nvm gulp watch:test:lint`.
 
 
 ## Pull Requests
@@ -153,7 +156,6 @@ Antes de tudo, instale o azk a partir do código-fonte:
 ```bash
 $ git clone https://github.com/azukiapp/azk.git
 $ cd azk
-$ make clean
 $ make
 ```
 
@@ -217,7 +219,7 @@ $ git clone https://github.com/your_username/azk.git
 $ cd azk
 $ git checkout -b feature/feature_name
 # Faça mudanças nos arquivos
-$ make clean && make
+$ make
 # Execute os testes
 $ azk nvm npm test
 $ git add .
@@ -323,7 +325,7 @@ Antes de abrir um Pull Request, certifique-se de que você:
 - Testou o binário do azk com suas alterações:
 
 ```sh
-$ make clean && make
+$ make
 # Tenha certeza de que o azk sendo executado é o da pasta de desenvolvimento, não do package manager
 $ azk nvm npm test
 ```
