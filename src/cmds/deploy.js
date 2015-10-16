@@ -18,7 +18,7 @@ class Deploy extends CliTrackerController {
       var output  = [];
       var mock_ui = { output: (line) => output.push(line) };
       cli_run(["deploy", "--help"], this.cwd, mock_ui);
-      var args = output.join("").match(/Actions:([^]*)Arguments/)[0]
+      var args = output.join("").match(/Actions:([^]*)Arguments/)[0];
       args = _.map(args.match(/^\s{2}([\w|-]*)/mg), (arg) => arg.trim());
 
       var params   = this.normalized_params;
@@ -44,10 +44,8 @@ class Deploy extends CliTrackerController {
         }
       }
 
-      var cmd = cmd_head.concat(["--", command, ...cmd_tail]);
-      var result;
-      [, result] = cli_run(cmd, this.cwd, this.ui);
-      return result;
+      // Call internaly cli and return result
+      return this.runShell(cmd_head.concat(["--", command, ...cmd_tail]));
     })
     .catch((err) => {
       if (err instanceof AzkError) {
@@ -59,12 +57,13 @@ class Deploy extends CliTrackerController {
     });
   }
 
-  _escape_quotes(cmd) {
-    return cmd.replace(/"/g, `\\"`);
+  runShell(cmd) {
+    var [, result] = cli_run(cmd, this.cwd, this.ui);
+    return result;
   }
 
-  _run(cmd) {
-    return this.ui.execSh(cmd);
+  _escape_quotes(cmd) {
+    return cmd.replace(/"/g, `\\"`);
   }
 
   _getDeploySystem(cwd) {

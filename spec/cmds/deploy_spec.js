@@ -4,8 +4,8 @@ import { SystemNotFoundError, InvalidCommandError } from 'azk/utils/errors';
 import Deploy from 'azk/cmds/deploy';
 
 class DeployTest extends Deploy {
-  _run(cmd) {
-    this.ui.output(`${cmd}`);
+  runShell(cmd) {
+    this.ui.output(cmd.join(" "));
     return 0;
   }
 }
@@ -31,7 +31,7 @@ h.describeRequireVm('Azk cli, deploy controller', function() {
       return cli.run(doc_opts, run_options).then((code) => {
         h.expect(code).to.equal(0);
         h.expect(options).to.have.property('deploy', true);
-        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('azk shell deploy')));
+        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('shell deploy')));
       });
     });
 
@@ -43,7 +43,7 @@ h.describeRequireVm('Azk cli, deploy controller', function() {
         h.expect(code).to.equal(0);
         h.expect(options).to.have.property('deploy', true);
         h.expect(options).to.have.property('clear-cache', true);
-        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('azk shell deploy -- clear-cache')));
+        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('shell deploy -- clear-cache')));
       });
     });
 
@@ -55,7 +55,7 @@ h.describeRequireVm('Azk cli, deploy controller', function() {
         h.expect(code).to.equal(0);
         h.expect(options).to.have.property('deploy', true);
         h.expect(options).to.have.property('fast', true);
-        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('azk shell deploy -- fast')));
+        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('shell deploy -- fast')));
       });
     });
 
@@ -67,7 +67,7 @@ h.describeRequireVm('Azk cli, deploy controller', function() {
         h.expect(code).to.equal(0);
         h.expect(options).to.have.property('deploy', true);
         h.expect(options).to.have.property('full', true);
-        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('azk shell deploy -- full')));
+        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('shell deploy -- full')));
       });
     });
 
@@ -79,7 +79,7 @@ h.describeRequireVm('Azk cli, deploy controller', function() {
         h.expect(code).to.equal(0);
         h.expect(options).to.have.property('deploy', true);
         h.expect(options).to.have.property('restart', true);
-        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('azk shell deploy -- restart')));
+        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('shell deploy -- restart')));
       });
     });
 
@@ -91,7 +91,7 @@ h.describeRequireVm('Azk cli, deploy controller', function() {
         h.expect(code).to.equal(0);
         h.expect(options).to.have.property('deploy', true);
         h.expect(options).to.have.property('ssh', true);
-        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('azk shell deploy --tty -- ssh')));
+        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('shell deploy --tty -- ssh')));
       });
     });
 
@@ -105,7 +105,7 @@ h.describeRequireVm('Azk cli, deploy controller', function() {
         h.expect(options).to.have.property('ssh', true);
         h.expect(options).to.have.property('__doubledash', true);
         h.expect(options.args).to.deep.eql(["-c 'echo data'"]);
-        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp("azk shell deploy -- ssh -c 'echo data'")));
+        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp("shell deploy -- ssh -c 'echo data'")));
       });
     });
 
@@ -117,7 +117,7 @@ h.describeRequireVm('Azk cli, deploy controller', function() {
         h.expect(code).to.equal(0);
         h.expect(options).to.have.property('deploy', true);
         h.expect(options).to.have.property('shell', true);
-        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('azk shell deploy --tty -- shell')));
+        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('shell deploy --tty -- shell')));
       });
     });
 
@@ -131,7 +131,7 @@ h.describeRequireVm('Azk cli, deploy controller', function() {
         h.expect(options).to.have.property('shell', true);
         h.expect(options).to.have.property('__doubledash', true);
         h.expect(options.args).to.deep.eql(['echo data']);
-        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('azk shell deploy -- shell echo data')));
+        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('shell deploy -- shell echo data')));
       });
     });
 
@@ -143,7 +143,7 @@ h.describeRequireVm('Azk cli, deploy controller', function() {
         h.expect(code).to.equal(0);
         h.expect(options).to.have.property('deploy', true);
         h.expect(options).to.have.property('versions', true);
-        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('azk shell deploy -- versions')));
+        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('shell deploy -- versions')));
       });
     });
 
@@ -155,7 +155,7 @@ h.describeRequireVm('Azk cli, deploy controller', function() {
         h.expect(code).to.equal(0);
         h.expect(options).to.have.property('deploy', true);
         h.expect(options).to.have.property('rollback', true);
-        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('azk shell deploy -- rollback')));
+        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('shell deploy -- rollback')));
       });
     });
 
@@ -168,7 +168,7 @@ h.describeRequireVm('Azk cli, deploy controller', function() {
         h.expect(options).to.have.property('deploy', true);
         h.expect(options).to.have.property('rollback', true);
         h.expect(options).to.have.property('ref', "v2");
-        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('azk shell deploy -- rollback v2')));
+        h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('shell deploy -- rollback v2')));
       });
     });
 
