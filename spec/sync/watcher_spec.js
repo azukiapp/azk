@@ -9,6 +9,8 @@ var lazy = lazy_require({
 });
 
 describe("Azk sync, Watcher module", function() {
+  this.timeout(20000);
+
   var watcher;
   var example_fixtures = h.fixture_path('sync/test_1/');
 
