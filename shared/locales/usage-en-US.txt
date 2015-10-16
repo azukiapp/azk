@@ -4,6 +4,11 @@ Usage:
   azk agent (start|status|stop) [--no-daemon --child --no-reload-vm --configure-file=<file>] [-qh] [-l <level>] [-v]...
   azk config (track-toggle|track-status) [-qh] [-l <level>] [-v]...
   azk doctor [--logo] [-qh] [-l <level>] [-v]...
+  azk deploy (clear-cache|fast|full|restart|versions) [-vh]
+  azk deploy shell [--command=<cmd>] [-vh] [-- <args>...]
+  azk deploy ssh [-vh] [-- <args>...]
+  azk deploy rollback [<ref>] [-vh]
+  azk deploy [-vh]
   azk docker [-qh] [-l <level>] [-v]... [-- <docker-args>...]
   azk info [--no-colored] [-qh] [-l <level>] [-v]...
   azk init [<path>] [--filename --force] [-qh] [-l <level>] [-v]...
@@ -24,6 +29,7 @@ Usage:
 Commands:
   agent    Controls azk agent.
   config   Controls azk configuration options.
+  deploy   Deploy this project to a remote server.
   docker   Alias for calling docker in azk configuration scope.
   doctor   Shows an analysis of azk's health.
   help     Shows help about a specific command.
@@ -41,19 +47,27 @@ Commands:
   vm       Controls the Virtual Machine.
 
 Actions:
+  clear-cache               Clears deployment cached configuration.
   installed                 Checks if the virtual machine is installed.
+  fast                      Deploys without configuring the remote server (default for every run after the first deployment).
+  full                      Configures the remote server and deploy the app (default for the first deployment).
   remove                    Removes the virtual machine.
+  restart                   Restarts local systems or the app on the remote server.
+  rollback                  Reverts the app to a specified reference (default is the previous version).
   start                     Starts azk agent or virtual machine.
   stop                      Stops azk agent or virtual machine.
   status                    Shows azk agent or virtual machine status.
-  ssh                       Gets access to the virtual machine via SSH protocol.
+  shell                     Starts a shell from inside the deploy system container.
+  ssh                       Connects to the VM or remote server (when used with deploy) via SSH protocol.
   track-status              Shows tracking status (on or off).
   track-toggle              Toggles tracking behavior on/off.
+  versions                  Lists all versions of the app deployed on the remote server.
 
 Arguments:
   docker-args               Options and arguments to be passed to Docker.
   instances                 Number of instances.
   path                      Path where manifest file can be found.
+  ref                       Version or git reference -- commit, branch etc.
   ssh-args                  Options and arguments to be passed to VM over ssh.
   shell-args                Options and arguments to be passed to the system.
   system                    System name where the action will take place.
@@ -113,3 +127,13 @@ Examples:
   azk start azukiapp/azkdemo --ref master              # branch master
   azk start azukiapp/azkdemo --ref 0.0.1               # tag 0.0.1
   azk start azukiapp/azkdemo --ref 880d01a             # commit 880d01a
+  azk deploy                                           # run `deploy fast`
+  azk deploy shell
+  azk deploy full
+  azk deploy fast
+  azk deploy versions
+  azk deploy rollback                                  # rollback to previous version
+  azk deploy rollback v2                               # rollback to version v2
+  azk deploy rollback feature/add                      # rollback to branch feature/add
+  azk deploy rollback 880d01a                          # rollback to commit 880d01a
+  azk deploy restart

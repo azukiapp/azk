@@ -16,6 +16,7 @@ var Run = {
     return async(this, function* () {
       var steps = system.provision_steps;
 
+      options = _.clone(options);
       options = _.defaults(options, {
         provision_force: false,
         build_force: false,
@@ -31,7 +32,7 @@ var Run = {
       log.debug('provision steps', steps);
 
       // provision command (require /bin/sh)
-      var cmd  = ["/bin/sh", "-c", "( " + steps.join('; ') + " )"];
+      options.command = ["/bin/sh", "-c", "( " + steps.join('; ') + " )"];
 
       // Capture outputs
       var output = "";
@@ -49,16 +50,16 @@ var Run = {
       }
 
       publish("system.run.provision.status", { type: "provision", system: system.name });
-      var exitResult = yield system.runShell(cmd, options);
+      var exitResult = yield system.runShell(options);
       if (exitResult.code !== 0) {
-        throw new RunCommandError(system.name, cmd.join(' '), output);
+        throw new RunCommandError(system.name, options.command.join(' '), output);
       }
       // save the date provisioning
       system.provisioned = new Date();
     });
   },
 
-  runShell(system, command, options = {}) {
+  runShell(system, options = {}) {
     return async(this, function* () {
       options = _.defaults(options, {
         remove: false,
@@ -72,7 +73,7 @@ var Run = {
       var deps_envs = yield system.checkDependsAndReturnEnvs(options, false);
       options.envs  = _.merge(deps_envs, options.envs || {});
 
-      yield this._check_image(system, options);
+      var image = yield this._check_image(system, options);
       var docker_opt = system.shellOptions(options);
 
       // Force env TERM in interatives shells (like a ssh)
@@ -80,6 +81,7 @@ var Run = {
         docker_opt.env.TERM = options.shell_term;
       }
 
+      var command   = this._normalizeCommand(options.command, image, system.shell);
       var container = yield lazy.docker.run(system.image.name, command, docker_opt);
       var data      = yield container.inspect();
 
@@ -123,7 +125,7 @@ var Run = {
       });
 
       var docker_opt = system.daemonOptions(options);
-      var command    = docker_opt.command;
+      var command    = this._normalizeCommand(docker_opt.command, image, system.shell);
       var container  = yield lazy.docker.run(system.image.name, command, docker_opt);
 
       if (options.wait) {
@@ -254,6 +256,24 @@ var Run = {
 
       return true;
     });
+  },
+
+  _normalizeCommand(command, image, system_shell = null) {
+    command = _.clone(command);
+    var shell = command.shift();
+
+    if (_.isEmpty(shell)) {
+      shell = system_shell;
+      // Cmd from image
+      if (_.isEmpty(shell) && !_.isEmpty(image.Config) && !_.isEmpty(image.Config.Cmd)) {
+        shell = image.Config.Cmd;
+      } else if (_.isEmpty(shell)) {
+        shell = "/bin/sh";
+      }
+    }
+
+    shell = _.isArray(shell) ? shell : [shell];
+    return shell.concat(command);
   },
 
   // Wait for container/system available

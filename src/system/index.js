@@ -48,7 +48,7 @@ export class System {
 
   get default_options() {
     return {
-      shell    : "/bin/sh",
+      shell    : null,
       depends  : [],
       envs     : {},
       scalable : false,
@@ -172,7 +172,7 @@ export class System {
       hostnames = [this.http.hostname];
     }
 
-    hostnames = _.filter(hostnames, (hostname) => { return ! _.isEmpty(hostname) })
+    hostnames = _.filter(hostnames, (hostname) => { return !_.isEmpty(hostname); })
       .map((hostname) => hostname.toLowerCase());
 
     return hostnames;

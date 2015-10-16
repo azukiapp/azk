@@ -285,8 +285,6 @@ export class GetProject extends UIProxy {
       } else {
         return promiseResolve(gitCallError);
       }
-
-
     };
   }
 
@@ -299,7 +297,7 @@ export class GetProject extends UIProxy {
     return filtered.length > 0;
   }
 
-  _checkDestinationFolder(git_destination_path, verbose_level) {
+  _checkDestinationFolder(git_destination_path/*, verbose_level*/) {
     this.ok('commands.start.get_project.checking_destination', {
       git_destination_path,
     });

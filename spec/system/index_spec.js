@@ -22,7 +22,7 @@ describe("Azk system class, main set", function() {
     h.expect(system).to.have.property("command").and.match(regex);
     h.expect(system).to.have.property("depends").and.eql([]);
     h.expect(system).to.have.property("envs").and.eql({});
-    h.expect(system).to.have.property("shell", "/bin/sh");
+    h.expect(system).to.have.property("shell", null);
     h.expect(system).to.have.property("workdir", "/");
     h.expect(system).to.have.property("scalable").and.eql({ default: 1, limit: 1 });
     h.expect(system).to.have.property("default_options").to.fail;

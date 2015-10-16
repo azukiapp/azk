@@ -1,4 +1,4 @@
-import { _, config } from 'azk';
+import { config } from 'azk';
 import { subscribe } from 'azk/utils/postal';
 import { Image } from 'azk/docker';
 import h from 'spec/spec_helper';
@@ -21,21 +21,8 @@ describe("Azk docker module, image pull @slow", function() {
     return h.docker.pull(image.repository, image.tag)
       .then(() => {
         _subscription.unsubscribe();
-
-        var status_list = [
-          'pulling_repository',
-          'pulling_layers',
-          'pulling_metadata',
-          'pulling_fs_layer',
-          'pulling_image',
-          'download',
-          'download_complete',
-        ];
-
-        _.each(status_list, (status) => {
-          h.expect(events)
-          .to.contain.an.item.with.deep.property('statusParsed.type', status);
-        });
+        h.expect(events).to.contain.an.item.with.deep.property('statusParsed.type', "pulling_finished");
+        h.expect(events).to.contain.an.item.with.deep.property('end').and.to.ok;
       })
       .catch(function (err) {
         _subscription.unsubscribe();
