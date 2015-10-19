@@ -13,8 +13,8 @@ systems({
   deploy: {
     image: {"docker": "azukiapp/deploy-digitalocean"},
     mounts: {
-      "/azk/deploy/src" :   path("."),
-      "/azk/deploy/.ssh":   path("#{env.HOME}/.ssh"),
+      "/azk/deploy/src" :    path("."),
+      "/azk/deploy/.ssh":    path("#{env.HOME}/.ssh"),
       "/azk/deploy/.config": persistent("deploy-config"),
     },
     scalable: {"default": 0, "limit": 0},
