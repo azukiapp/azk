@@ -186,12 +186,16 @@ package_build: bootstrap $(FILES_TARGETS) copy_transpiled_files ${PATH_NODE_MODU
 shell_completion:
 	@echo "task: install/upgrade docopt-completion"
 	@pip install --upgrade infi.docopt-completion
+	@echo ""
 	@echo "task: generate shell completion to bash"
-	@docopt-completion azk --manual-bash
+	@docopt-completion azk --manual-bash &>/dev/null
 	@mv -f azk.sh ${AZK_ROOT_PATH}/shared/completions
+	@echo "Completion file written to ${AZK_ROOT_PATH}/shared/completions/azk.sh"
+	@echo ""
 	@echo "task: generate shell completion to zsh"
-	@docopt-completion azk --manual-zsh
-	@mv -f _azk ${AZK_ROOT_PATH}/shared/completions/azk.zsh
+	@docopt-completion azk --manual-zsh &>/dev/null
+	@mv -f _azk ${AZK_ROOT_PATH}/shared/completions/
+	@echo "Completion file written to ${AZK_ROOT_PATH}/shared/completions/_azk"
 
 arr=~/.oh-my-zsh/completions ~/.oh-my-zsh /usr/share/zsh/*/functions/Completion /usr/share/zsh/*/functions
 bash_dir=$(wildcard /etc/bash_completion.d)
@@ -200,11 +204,11 @@ zsh_dir=$(word 1, $(wildcard $(arr)))
 install_shell_completion:
 	@if [ ! -z $(bash_dir) ]; then \
 		cp -f ${AZK_ROOT_PATH}/shared/completions/azk.sh $(bash_dir)/; \
-		echo "Shell completion scripts installed in \`$(bash_dir)\`."; \
+		echo "Shell completion scripts installed in \`$(bash_dir)/azk.sh\`"; \
 	fi
 	@if [ ! -z $(zsh_dir) ]; then \
-		cp -f ${AZK_ROOT_PATH}/shared/completions/azk.zsh $(zsh_dir)/_azk; \
-		echo "Shell completion scripts installed in \`$(zsh_dir)\`."; \
+		cp -f ${AZK_ROOT_PATH}/shared/completions/_azk $(zsh_dir)/; \
+		echo "Shell completion scripts installed in \`$(zsh_dir)/_azk\`."; \
 	fi
 
 .PHONY: bootstrap clean package_brew package_mac package_deb package_rpm package_build package_clean copy_transpiled_files fix_permissions creating_symbolic_links dependencies check_version slow_test test shell_completion install_shell_completion
