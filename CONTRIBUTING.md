@@ -84,7 +84,7 @@ Additional info:
 - `/shared`:
     - `Azkfile.js`: `azk` main Azkfile.js. Sets the dns and the balancer.
     - `locales/en-US.js`: All messages and texts displayed by the `azk` cli are here.
-    - `templates/Azkfile.mustache.js`: Template of an Azkfile.js written in mustache.
+    - `templates/Azkfile.mustache.js`: Template of an Azkfile.js written in mustache ([Handlebars-flavored][handlebars]).
 - `/spec`: All `azk` tests.
 - `/src`: Source code.
 - `/lib`: Compiled source code.
@@ -92,9 +92,9 @@ Additional info:
 - `.jscsrc`: Sets the code style pattern.
 - `.jshintrc`: Sets the JavaScript syntax validation.
 - `Makefile`: Tasks for packaging.
-- `npm-shrinkwrap.json`: Locks version of `package.json`.
+- `npm-shrinkwrap.json`: Locked version of `package.json`.
 - `package.json`: All `azk` dependencies.
-- `gulpfile.js`: Gulp tasks. To more info run `azk nvm gulp help`.
+- `gulpfile.js`: Gulp tasks. For more info, run `azk nvm gulp help`.
 
 
 ### Implementation details
@@ -364,3 +364,4 @@ Additional info:
 [node.js]: http://nodejs.org/
 [pull requests]: https://github.com/azukiapp/azk/pulls
 [bluebird-generators]: https://github.com/petkaantonov/bluebird/blob/master/API.md#generators
+[handlebars]: http://handlebarsjs.com/
