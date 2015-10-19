@@ -79,6 +79,13 @@ module.exports = {
           'Required: >= %(min_version)s',
           'Please update Docker before continue.'
         ].join('\n'),
+        check_docker_version_invalid: [
+          'Checking Docker version:',
+          'Detected:    %(current_version)s',
+          'Required: >= %(min_version)s',
+          'The `%(current_version)s` version is not in a http://semver.org format.',
+          'You can force Docker version by setting the env var `AZK_DOCKER_VERSION`',
+        ].join('\n'),
         rsync      : "`rsync` command is required, but it's not installed or it's not in the $PATH. Please install it before continue.",
         check_rsync_version_error: [
           'Checking rsync version:',

@@ -11,6 +11,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Cli] Added the command `azk open [system]` which opens a system URL in browser #528;
   * [Cli] Adding `deploy` command to cli;
   * [Kernel] Changing system to get `command` from image, but respect this priority for `azk shell`: shell option (`--shell`) > Azkfile.js > docker image #534;
+  * [Docker] Improving Docker version verify, making it more resistant;
 
 ## v0.15.0 - (2015-09-15)
 
