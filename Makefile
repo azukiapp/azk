@@ -208,9 +208,9 @@ ${BASH_COMPLETION_FILE} ${ZSH_COMPLETION_FILE}: ${USAGE_FILE_PATH}
 	@mv -f _azk ${COMPLETIONS_PATH}
 	@echo "Completion file written to ${ZSH_COMPLETION_FILE}"
 
-generate_shell_completion: ${BASH_COMPLETION_FILE} ${ZSH_COMPLETION_FILE}
+generate_shell_completion: ${AZK_LIB_PATH}/azk ${BASH_COMPLETION_FILE} ${ZSH_COMPLETION_FILE}
 
-ZSH_COMPLETION_PATHS=/usr/share/zsh/*/site-functions /usr/share/zsh/*/functions/Completion /usr/share/zsh/site-functions /usr/share/zsh/functions/Completion
+ZSH_COMPLETION_PATHS=~/.oh-my-zsh/completions ~/.oh-my-zsh /usr/share/zsh/*/site-functions /usr/share/zsh/*/functions/Completion /usr/share/zsh/site-functions /usr/share/zsh/functions/Completion
 BASH_COMPLETION_PATH=$(wildcard /etc/bash_completion.d)
 ZSH_COMPLETION_PATH=$(word 1, $(wildcard $(ZSH_COMPLETION_PATHS)))
 
@@ -229,7 +229,11 @@ ${BASH_COMPLETION_PATH}/azk.sh: ${BASH_COMPLETION_FILE}
 
 ${ZSH_COMPLETION_PATH}/_azk: ${ZSH_COMPLETION_FILE}
 	@echo "task: $@"
-	@sudo cp -f ${COMPLETIONS_PATH}/_azk $(ZSH_COMPLETION_PATH)/
+	@if [ $(findstring $(wildcard ~/), ${ZSH_COMPLETION_PATH}) ]; then \
+		cp -f ${COMPLETIONS_PATH}/_azk $(ZSH_COMPLETION_PATH)/; \
+	else \
+		sudo cp -f ${COMPLETIONS_PATH}/_azk $(ZSH_COMPLETION_PATH)/; \
+	fi
 	@echo "Shell completion scripts installed in $(ZSH_COMPLETION_PATH)/_azk"
 
 install_shell_completion: ${COMPLETIONS_FILES}
