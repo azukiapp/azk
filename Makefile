@@ -185,7 +185,7 @@ package_build: bootstrap $(FILES_TARGETS) copy_transpiled_files ${PATH_NODE_MODU
 
 shell_completion:
 	@echo "task: install/upgrade docopt-completion"
-	@pip install --upgrade infi.docopt-completion
+	@sudo pip install --upgrade infi.docopt-completion
 	@echo ""
 	@echo "task: generate shell completion to bash"
 	@docopt-completion azk --manual-bash &>/dev/null
@@ -203,7 +203,7 @@ zsh_dir=$(word 1, $(wildcard $(arr)))
 
 install_shell_completion:
 	@if [ ! -z $(bash_dir) ]; then \
-		cp -f ${AZK_ROOT_PATH}/shared/completions/azk.sh $(bash_dir)/; \
+		sudo cp -f ${AZK_ROOT_PATH}/shared/completions/azk.sh $(bash_dir)/; \
 		echo "Shell completion scripts installed in \`$(bash_dir)/azk.sh\`"; \
 	fi
 	@if [ ! -z $(zsh_dir) ]; then \
