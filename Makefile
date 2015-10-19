@@ -183,4 +183,55 @@ ${PATH_MAC_PACKAGE}: ${AZK_PACKAGE_PREFIX}
 
 package_build: bootstrap $(FILES_TARGETS) copy_transpiled_files ${PATH_NODE_MODULES}
 
-.PHONY: bootstrap clean package_brew package_mac package_deb package_rpm package_build package_clean copy_transpiled_files fix_permissions creating_symbolic_links dependencies check_version slow_test test
+AZK_SHARED_PATH=${AZK_ROOT_PATH}/shared
+USAGE_FILE_PATH=${AZK_SHARED_PATH}/locales/usage-en-US.txt
+
+COMPLETIONS_PATH=${AZK_SHARED_PATH}/completions
+BASH_COMPLETION_FILE=${COMPLETIONS_PATH}/azk.sh
+ZSH_COMPLETION_FILE=${COMPLETIONS_PATH}/_azk
+
+DOCOPT_COMPLETION_VERSION=0.2.6
+
+${BASH_COMPLETION_FILE} ${ZSH_COMPLETION_FILE}: ${USAGE_FILE_PATH}
+	@if ! which docopt-completion > /dev/null 2>&1; then \
+		echo "task: install/upgrade docopt-completion"; \
+		sudo pip install infi.docopt-completion==${DOCOPT_COMPLETION_VERSION}; \
+	fi
+
+	@echo "task: generate shell completion to bash"
+	@docopt-completion ${AZK_BIN} --manual-bash &>/dev/null
+	@mv -f azk.sh ${COMPLETIONS_PATH}
+	@echo "Completion file written to ${BASH_COMPLETION_FILE}"
+
+	@echo "task: generate shell completion to zsh"
+	@docopt-completion ${AZK_BIN} --manual-zsh &>/dev/null
+	@mv -f _azk ${COMPLETIONS_PATH}
+	@echo "Completion file written to ${ZSH_COMPLETION_FILE}"
+
+generate_shell_completion: ${BASH_COMPLETION_FILE} ${ZSH_COMPLETION_FILE}
+
+ZSH_COMPLETION_PATHS=/usr/share/zsh/*/site-functions /usr/share/zsh/*/functions/Completion /usr/share/zsh/site-functions /usr/share/zsh/functions/Completion
+BASH_COMPLETION_PATH=$(wildcard /etc/bash_completion.d)
+ZSH_COMPLETION_PATH=$(word 1, $(wildcard $(ZSH_COMPLETION_PATHS)))
+
+COMPLETIONS_FILES=
+ifdef BASH_COMPLETION_PATH
+	COMPLETIONS_FILES+=${BASH_COMPLETION_PATH}/azk.sh
+endif
+ifdef ZSH_COMPLETION_PATH
+	COMPLETIONS_FILES+=${ZSH_COMPLETION_PATH}/_azk
+endif
+
+${BASH_COMPLETION_PATH}/azk.sh: ${BASH_COMPLETION_FILE}
+	@echo "task: $@"
+	@sudo cp -f ${COMPLETIONS_PATH}/azk.sh $(BASH_COMPLETION_PATH)/
+	@echo "Shell completion scripts installed in $(BASH_COMPLETION_PATH)/azk.sh"
+
+${ZSH_COMPLETION_PATH}/_azk: ${ZSH_COMPLETION_FILE}
+	@echo "task: $@"
+	@sudo cp -f ${COMPLETIONS_PATH}/_azk $(ZSH_COMPLETION_PATH)/
+	@echo "Shell completion scripts installed in $(ZSH_COMPLETION_PATH)/_azk"
+
+install_shell_completion: ${COMPLETIONS_FILES}
+
+.PHONY: bootstrap clean package_brew package_mac package_deb package_rpm package_build package_clean copy_transpiled_files fix_permissions creating_symbolic_links dependencies check_version slow_test test generate_shell_completion install_shell_completion
