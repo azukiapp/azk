@@ -20,7 +20,7 @@ module.exports = {
           port : opts.port,
         };
       }
-      opts.version = config('docker:api_version');
+      opts.version = 'v' + config('docker:api_version');
       this.connect = new Docker(opts);
     }
     log.debug("[docker] connect:", this.connect);
