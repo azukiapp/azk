@@ -44,7 +44,7 @@ esac
 
 azk restart package --reprovision
 
-if azk shell pkg-${SO}-test --shell=/bin/bash ${EXTRA_ARGS} -c "${BASE_DIR}/test-container.sh ${DISTRO} ${CODENAME} ${VERSION} ${AZK_NAMESPACE} ${TEST_ARGS}"; then
+if azk shell --shell=/bin/sh pkg-${SO}-test ${EXTRA_ARGS} -c "${BASE_DIR}/test-container.sh ${DISTRO} ${CODENAME} ${VERSION} ${AZK_NAMESPACE} ${TEST_ARGS}"; then
     echo "azk ${VERSION} has been successfully installed."
 else
     echo "Failed to install azk ${VERSION}."
