@@ -20,32 +20,43 @@ NVM_NODE_VERSION := $(shell cat ${AZK_ROOT_PATH}/.nvmrc)
 NODE = ${NVM_DIR}/${NVM_NODE_VERSION}/bin/node
 VM_DISKS_DIR := ${AZK_LIB_PATH}/vm/${AZK_ISO_VERSION}
 
+# Locking npm version
+NPM_VERSIONS_PATH := ${NVM_DIR}/npm_versions
+NPM_VERSION_FILE := ${NPM_VERSIONS_PATH}/${NPM_VERSION}
+
+clean_nvm_versions:
+	@mkdir -p ${NPM_VERSIONS_PATH} && find ${NPM_VERSIONS_PATH} -type f -not -name '${NPM_VERSION}' -delete
+
 SRC_JS = $(shell cd ${AZK_ROOT_PATH} && find ./src -name '*.*' -print 2>/dev/null)
 
 teste_envs:
 	@echo ${LIBNSS_RESOLVER_VERSION}
 	@echo ${AZK_ISO_VERSION}
 
-${AZK_LIB_PATH}/azk: $(SRC_JS) ${AZK_NPM_PATH}/.install
+${AZK_LIB_PATH}/azk: $(SRC_JS) ${NPM_VERSION_FILE} ${AZK_NPM_PATH}/.install
 	@echo "task: $@"
 	@export AZK_LIB_PATH=${AZK_LIB_PATH} && \
 		export AZK_NPM_PATH=${AZK_NPM_PATH} && \
 		${AZK_BIN} nvm gulp babel && touch ${AZK_LIB_PATH}/azk
 
-${AZK_NPM_PATH}/.install: npm-shrinkwrap.json package.json ${NODE}
+${AZK_NPM_PATH}/.install: npm-shrinkwrap.json package.json
 	@echo "task: $@"
 	@mkdir -p ${AZK_NPM_PATH}
 	@export AZK_LIB_PATH=${AZK_LIB_PATH} && \
 		${AZK_BIN} nvm npm install && \
 		touch ${AZK_NPM_PATH}/.install
 
+${NPM_VERSION_FILE}: ${NODE}
+	@echo "task: $@"
+	@${AZK_BIN} nvm npm install npm@${NPM_VERSION} -g && \
+		touch ${NPM_VERSION_FILE}
+
 ${NODE}:
 	@echo "task: $@: ${NVM_NODE_VERSION}"
 	@export NVM_DIR=${NVM_DIR} && \
 		mkdir -p ${NVM_DIR} && \
 		. ${NVM_BIN_PATH} && \
-		nvm install $(NVM_NODE_VERSION) && \
-		${AZK_BIN} nvm npm install npm -g
+		nvm install $(NVM_NODE_VERSION)
 
 clean:
 	@echo "task: $@"
@@ -53,7 +64,7 @@ clean:
 	@rm -Rf ${AZK_NPM_PATH}/..?* ${AZK_NPM_PATH}/.[!.]* ${AZK_NPM_PATH}/*
 	@rm -Rf ${NVM_DIR}/..?* ${NVM_DIR}/.[!.]* ${NVM_DIR}/*
 
-bootstrap: ${AZK_LIB_PATH}/azk dependencies
+bootstrap: clean_nvm_versions ${AZK_LIB_PATH}/azk dependencies
 
 dependencies: ${AZK_LIB_PATH}/bats ${VM_DISKS_DIR}/azk.iso ${VM_DISKS_DIR}/azk-agent.vmdk.gz
 
@@ -89,6 +100,13 @@ PATH_AZK_NVM:=${PATH_AZK_LIB}/nvm
 NODE_PACKAGE = ${PATH_AZK_NVM}/${NVM_NODE_VERSION}/bin/node
 PATH_MAC_PACKAGE:=${AZK_PACKAGE_PATH}/azk_${AZK_VERSION}.tar.gz
 
+# Locking npm version
+PACKAGE_NPM_VERSIONS_PATH := ${PATH_AZK_NVM}/npm_versions
+PACKAGE_NPM_VERSION_FILE := ${PACKAGE_NPM_VERSIONS_PATH}/${NPM_VERSION}
+
+package_clean_nvm_versions:
+	@mkdir -p ${PACKAGE_NPM_VERSIONS_PATH} && find ${PACKAGE_NPM_VERSION_FILE} -type f -not -name '${NPM_VERSION}' -delete
+
 # Build package folders tree
 package_brew: package_build fix_permissions check_version ${PATH_AZK_LIB}/vm/${AZK_ISO_VERSION} ${PATH_MAC_PACKAGE}
 package_mac:
@@ -120,7 +138,7 @@ check_version:
 		exit 1; \
 	fi
 
-${PATH_NODE_MODULES}: ${PATH_USR_LIB_AZK}/npm-shrinkwrap.json ${NODE_PACKAGE}
+${PATH_NODE_MODULES}: ${PACKAGE_NPM_VERSION_FILE} ${PATH_USR_LIB_AZK}/npm-shrinkwrap.json
 	@echo "task: $@"
 	@cd ${PATH_USR_LIB_AZK} && ${AZK_BIN} nvm npm install --production
 
@@ -131,13 +149,17 @@ ${PATH_USR_LIB_AZK}/npm-shrinkwrap.json: ${PATH_USR_LIB_AZK}/package.json
 	@cd ${PATH_USR_LIB_AZK} && ${AZK_BIN} nvm npm shrinkwrap
 	@rm ${PATH_NODE_MODULES}
 
+${PACKAGE_NPM_VERSION_FILE}: ${NODE_PACKAGE}
+	@echo "task: $@"
+	@${AZK_BIN} nvm npm install npm@${NPM_VERSION} -g && \
+		touch ${PACKAGE_NPM_VERSION_FILE}
+
 ${NODE_PACKAGE}:
 	@echo "task: $@"
 	@export NVM_DIR=${PATH_AZK_NVM} && \
 		mkdir -p ${PATH_AZK_NVM} && \
 		. ${NVM_BIN_PATH} && \
-		nvm install $(NVM_NODE_VERSION) && \
-		azk nvm npm install npm -g
+		nvm install $(NVM_NODE_VERSION)
 
 define COPY_FILES
 $(abspath $(2)/$(3)): $(abspath $(1)/$(3))
@@ -181,7 +203,7 @@ ${PATH_AZK_LIB}/vm/${AZK_ISO_VERSION}: ${AZK_LIB_PATH}/vm
 ${PATH_MAC_PACKAGE}: ${AZK_PACKAGE_PREFIX}
 	@cd ${PATH_USR_LIB_AZK}/.. && tar -czf ${PATH_MAC_PACKAGE} ./
 
-package_build: bootstrap $(FILES_TARGETS) copy_transpiled_files ${PATH_NODE_MODULES}
+package_build: bootstrap $(FILES_TARGETS) copy_transpiled_files package_clean_nvm_versions ${PATH_NODE_MODULES}
 
 AZK_SHARED_PATH=${AZK_ROOT_PATH}/shared
 USAGE_FILE_PATH=${AZK_SHARED_PATH}/locales/usage-en-US.txt
