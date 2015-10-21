@@ -48,8 +48,9 @@ ${AZK_NPM_PATH}/.install: npm-shrinkwrap.json package.json
 
 ${NPM_VERSION_FILE}: ${NODE}
 	@echo "task: $@"
-	@${AZK_BIN} nvm npm install npm@${NPM_VERSION} -g && \
-		touch ${NPM_VERSION_FILE}
+	@rm -Rf ${AZK_NPM_PATH}/*
+	@${AZK_BIN} nvm npm install npm@${NPM_VERSION} -g
+	@touch ${NPM_VERSION_FILE}
 
 ${NODE}:
 	@echo "task: $@: ${NVM_NODE_VERSION}"
@@ -151,8 +152,8 @@ ${PATH_USR_LIB_AZK}/npm-shrinkwrap.json: ${PATH_USR_LIB_AZK}/package.json
 
 ${PACKAGE_NPM_VERSION_FILE}: ${NODE_PACKAGE}
 	@echo "task: $@"
-	@${AZK_BIN} nvm npm install npm@${NPM_VERSION} -g && \
-		touch ${PACKAGE_NPM_VERSION_FILE}
+	@${AZK_BIN} nvm npm install npm@${NPM_VERSION} -g
+	@touch ${PACKAGE_NPM_VERSION_FILE}
 
 ${NODE_PACKAGE}:
 	@echo "task: $@"
