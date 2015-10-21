@@ -106,7 +106,7 @@ PACKAGE_NPM_VERSIONS_PATH := ${PATH_AZK_NVM}/npm_versions
 PACKAGE_NPM_VERSION_FILE := ${PACKAGE_NPM_VERSIONS_PATH}/${NPM_VERSION}
 
 package_clean_nvm_versions:
-	@mkdir -p ${PACKAGE_NPM_VERSIONS_PATH} && find ${PACKAGE_NPM_VERSION_FILE} -type f -not -name '${NPM_VERSION}' -delete
+	@mkdir -p ${PACKAGE_NPM_VERSIONS_PATH} && find ${PACKAGE_NPM_VERSION_FILE} -type f -not -name '${NPM_VERSION}' -delete || true
 
 # Build package folders tree
 package_brew: package_build fix_permissions check_version ${PATH_AZK_LIB}/vm/${AZK_ISO_VERSION} ${PATH_MAC_PACKAGE}
