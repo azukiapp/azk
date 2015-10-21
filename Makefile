@@ -24,8 +24,12 @@ VM_DISKS_DIR := ${AZK_LIB_PATH}/vm/${AZK_ISO_VERSION}
 NPM_VERSIONS_PATH := ${NVM_DIR}/npm_versions
 NPM_VERSION_FILE := ${NPM_VERSIONS_PATH}/${NPM_VERSION}
 
+finished:
+	@echo "Finished!"
+
 clean_nvm_versions:
-	@mkdir -p ${NPM_VERSIONS_PATH} && find ${NPM_VERSIONS_PATH} -type f -not -name '${NPM_VERSION}' -delete
+	@echo "Checking npm version..."
+	@mkdir -p ${NPM_VERSIONS_PATH} && find ${NPM_VERSIONS_PATH} -type f -not -name '${NPM_VERSION}' -delete || true
 
 SRC_JS = $(shell cd ${AZK_ROOT_PATH} && find ./src -name '*.*' -print 2>/dev/null)
 
@@ -47,8 +51,9 @@ ${AZK_NPM_PATH}/.install: npm-shrinkwrap.json package.json
 		touch ${AZK_NPM_PATH}/.install
 
 ${NPM_VERSION_FILE}: ${NODE}
-	@echo "task: $@"
+	@echo "task: install npm ${NPM_VERSION}"
 	@rm -Rf ${AZK_NPM_PATH}/*
+	@rm -Rf ${AZK_NPM_PATH}/.install
 	@${AZK_BIN} nvm npm install npm@${NPM_VERSION} -g
 	@touch ${NPM_VERSION_FILE}
 
@@ -65,7 +70,7 @@ clean:
 	@rm -Rf ${AZK_NPM_PATH}/..?* ${AZK_NPM_PATH}/.[!.]* ${AZK_NPM_PATH}/*
 	@rm -Rf ${NVM_DIR}/..?* ${NVM_DIR}/.[!.]* ${NVM_DIR}/*
 
-bootstrap: clean_nvm_versions ${AZK_LIB_PATH}/azk dependencies
+bootstrap: clean_nvm_versions ${AZK_LIB_PATH}/azk dependencies finished
 
 dependencies: ${AZK_LIB_PATH}/bats ${VM_DISKS_DIR}/azk.iso ${VM_DISKS_DIR}/azk-agent.vmdk.gz
 
