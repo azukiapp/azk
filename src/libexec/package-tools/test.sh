@@ -13,7 +13,7 @@ set -e
 
 BASE_DIR=$( echo $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd ) | sed s#$(pwd)/##g )
 
-export VERSION=$( azk version | awk '{ print $2 }' )
+export VERSION=$( bin/azk version | awk '{ print $2 }' )
 export SO=$1
 
 if [[ $# == 2 ]]; then
