@@ -66,7 +66,7 @@ class Shell extends CliTrackerController {
       if (!_.isEmpty(options.command)) {
         cmd.push("-c", options.command);
       } else if (!_.isEmpty(shell_args)) {
-        cmd = [shell_args];
+        cmd = shell_args;
       }
 
       // Remove container before run
