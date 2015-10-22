@@ -131,17 +131,19 @@ bump_version() {
   VERSION="${VERSION_NUMBER}${VERSION_SUFFIX}"
   VERSION_NO_META="${VERSION_NUMBER}${VERSION_SUFFIX_NO_META}"
 
-  files=( package.json npm-shrinkwrap.json )
-  for f in "${files[@]}"; do
-    VERSION_LINE_NUMBER=`cat ${f} | grep -n "version" | head -1 | cut -d ":" -f1`
-    rm -Rf ${f}r # Avoiding conflicts
-    sed -ir "${VERSION_LINE_NUMBER}s/\([[:digit:]]*\.[[:digit:]]*\.[[:digit:]]*\)[^\"]*/\1${VERSION_SUFFIX}/" ${f}
-    rm -Rf ${f}r
-    [[ $NO_VERSION != true ]] && git add ${f}
-  done
-  [[ $NO_VERSION != true ]] && git commit -m "Bumping version to azk v${VERSION_NO_META}"
+  if [[ $NO_VERSION != true ]]; then
+    files=( package.json npm-shrinkwrap.json )
+    for f in "${files[@]}"; do
+      VERSION_LINE_NUMBER=`cat ${f} | grep -n "version" | head -1 | cut -d ":" -f1`
+      rm -Rf ${f}r # Avoiding conflicts
+      sed -ir "${VERSION_LINE_NUMBER}s/\([[:digit:]]*\.[[:digit:]]*\.[[:digit:]]*\)[^\"]*/\1${VERSION_SUFFIX}/" ${f}
+      rm -Rf ${f}r
+      git add ${f}
+    done
+    git commit -m "Bumping version to azk v${VERSION_NO_META}"
 
-  echo "Version bumped to v${VERSION}."
+    echo "Version bumped to v${VERSION}."
+  fi
 }
 
 make_tag() {
