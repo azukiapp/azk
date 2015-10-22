@@ -40,7 +40,7 @@ class Shell extends CliTrackerController {
 
       // Use or not tty?
       var shell_args = args['shell-args'];
-      var tty_default = options.tty || _.isEmpty(options.command) || _.isEmpty(shell_args);
+      var tty_default = options.tty || (_.isEmpty(options.command) && !_.isEmpty(shell_args));
       var tty = (options['no-tty']) ? (options.tty || false) : tty_default;
 
       var stdin = this.ui.stdin();
