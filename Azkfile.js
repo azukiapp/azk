@@ -9,6 +9,7 @@ var config = require('azk').config;
 var mounts = (function() {
   // Default mounts
   var mounts = {
+    "/root/.npm"       : persistent('npm-cache'),
     "/.tmux.conf"      : join(env.HOME, ".tmux.conf"),
     "/azk/demos"       : "../demos",
     "/azk/build"       : persistent('build-#{system.name}'),
