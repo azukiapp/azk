@@ -4,6 +4,7 @@ A linha de comando é a principal forma de utilização do `azk`. É a partir do
 
 - [azk agent](agent.md)
 - [azk config](config.md)
+- [azk deploy](deploy.md)
 - [azk docker](docker.md)
 - [azk doctor](doctor.md)
 - [azk help](help.md)
