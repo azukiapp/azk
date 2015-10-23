@@ -5,6 +5,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## v0.16.0-rc1 - (2015-10-20)
 
+* Bug
+  * [Suggestion] Fixed high CPU usage by sync for the Laravel suggestion.
+
 * Enhancements
   * [VM] Adding configuration key `AZK_DOCKER_MONITOR` to enable or disable docker monitor. By default is `true` for Linux and `false` if is not Linux;
   * [Cli] Send env TERM if is interactive terminal;
