@@ -40,7 +40,7 @@ class Shell extends CliTrackerController {
 
       // Use or not tty?
       var shell_args = args['shell-args'];
-      var tty_default = options.tty || _.isEmpty(options.command) || _.isEmpty(shell_args);
+      var tty_default = options.tty || (_.isEmpty(options.command) && _.isEmpty(shell_args));
       var tty = (options['no-tty']) ? (options.tty || false) : tty_default;
 
       var stdin = this.ui.stdin();
@@ -66,9 +66,8 @@ class Shell extends CliTrackerController {
       if (!_.isEmpty(options.command)) {
         cmd.push("-c", options.command);
       } else if (!_.isEmpty(shell_args)) {
-        cmd = cmd.concat(shell_args);
+        cmd = shell_args;
       }
-      cmd = _.compact(cmd);
 
       // Remove container before run
       var is_remove = !options['no-remove'] ? config("docker:remove_container") : !options['no-remove'];

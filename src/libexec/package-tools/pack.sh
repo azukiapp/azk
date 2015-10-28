@@ -131,17 +131,19 @@ bump_version() {
   VERSION="${VERSION_NUMBER}${VERSION_SUFFIX}"
   VERSION_NO_META="${VERSION_NUMBER}${VERSION_SUFFIX_NO_META}"
 
-  files=( package.json npm-shrinkwrap.json )
-  for f in "${files[@]}"; do
-    VERSION_LINE_NUMBER=`cat ${f} | grep -n "version" | head -1 | cut -d ":" -f1`
-    rm -Rf ${f}r # Avoiding conflicts
-    sed -ir "${VERSION_LINE_NUMBER}s/\([[:digit:]]*\.[[:digit:]]*\.[[:digit:]]*\)[^\"]*/\1${VERSION_SUFFIX}/" ${f}
-    rm -Rf ${f}r
-    [[ $NO_VERSION != true ]] && git add ${f}
-  done
-  [[ $NO_VERSION != true ]] && git commit -m "Bumping version to azk v${VERSION_NO_META}"
+  if [[ $NO_VERSION != true ]]; then
+    files=( package.json npm-shrinkwrap.json )
+    for f in "${files[@]}"; do
+      VERSION_LINE_NUMBER=`cat ${f} | grep -n "version" | head -1 | cut -d ":" -f1`
+      rm -Rf ${f}r # Avoiding conflicts
+      sed -ir "${VERSION_LINE_NUMBER}s/\([[:digit:]]*\.[[:digit:]]*\.[[:digit:]]*\)[^\"]*/\1${VERSION_SUFFIX}/" ${f}
+      rm -Rf ${f}r
+      git add ${f}
+    done
+    git commit -m "Bumping version to azk v${VERSION_NO_META}"
 
-  echo "Version bumped to v${VERSION}."
+    echo "Version bumped to v${VERSION}."
+  fi
 }
 
 make_tag() {
@@ -248,7 +250,7 @@ if [[ $BUILD_DEB == true ]]; then
   (
     set -e
 
-    [[ ! -z "${CLEAN_REPO}" ]] && step_run "Cleaning current aptly repo" azk shell package -c "rm -Rf /azk/aptly/*"
+    [[ ! -z "${CLEAN_REPO}" ]] && step_run "Cleaning current aptly repo" azk shell --shell=/bin/sh package -c "rm -Rf /azk/aptly/*"
     [[ ! -z "${CLEAN_REPO}" ]] && step_run "Cleaning environment" rm -Rf package/deb package/public
 
     step_run "Downloading libnss-resolver" \
@@ -263,12 +265,12 @@ if [[ $BUILD_DEB == true ]]; then
 
     step_run "Creating deb packages" make package_deb ${EXTRA_FLAGS}
 
-    step_run "Generating Ubuntu 12.04 repository" azk shell package -c "src/libexec/package-tools/ubuntu/generate.sh ${LIBNSS_RESOLVER_VERSION} precise ${SECRET_KEY} ${CLEAN_REPO}"
+    step_run "Generating Ubuntu 12.04 repository" azk shell --shell=/bin/sh package -c "src/libexec/package-tools/ubuntu/generate.sh ${LIBNSS_RESOLVER_VERSION} precise ${SECRET_KEY} ${CLEAN_REPO}"
     if [[ $NO_TEST != true ]]; then
       step_run "Testing Ubuntu 12.04 repository" ${AZK_BUILD_TOOLS_PATH}/test.sh ubuntu12 $TEST_ARGS
     fi
 
-    step_run "Generating Ubuntu 14.04 repository" azk shell package -c "src/libexec/package-tools/ubuntu/generate.sh ${LIBNSS_RESOLVER_VERSION} trusty ${SECRET_KEY} ${CLEAN_REPO}"
+    step_run "Generating Ubuntu 14.04 repository" azk shell --shell=/bin/sh package -c "src/libexec/package-tools/ubuntu/generate.sh ${LIBNSS_RESOLVER_VERSION} trusty ${SECRET_KEY} ${CLEAN_REPO}"
     if [[ $NO_TEST != true ]]; then
       step_run "Testing Ubuntu 14.04 repository" ${AZK_BUILD_TOOLS_PATH}/test.sh ubuntu14 $TEST_ARGS
     fi
@@ -301,7 +303,7 @@ if [[ $BUILD_RPM == true ]]; then
     fi
 
     step_run "Creating rpm packages" make package_rpm ${EXTRA_FLAGS}
-    step_run "Generating Fedora 20 repository" azk shell package -c "src/libexec/package-tools/fedora/generate.sh fedora20 ${SECRET_KEY} ${CLEAN_REPO}"
+    step_run "Generating Fedora 20 repository" azk shell --shell=/bin/sh package -c "src/libexec/package-tools/fedora/generate.sh fedora20 ${SECRET_KEY} ${CLEAN_REPO}"
     if [[ $NO_TEST != true ]]; then
       step_skip "Testing Fedora 20 repository" ${AZK_BUILD_TOOLS_PATH}/test.sh fedora20 $TEST_ARGS
     fi

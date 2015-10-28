@@ -40,7 +40,7 @@ usage() {
 azk_shell() {
   system="$1"; shift
   set -x
-  ${AZK_ROOT_PATH}/bin/azk shell $system --shell=/bin/sh -c "$@";
+  ${AZK_ROOT_PATH}/bin/azk shell --shell=/bin/sh $system -c "$@";
   set +x
 }
 
@@ -54,10 +54,20 @@ if [[ $# == 2 ]] && [[ $2 == "--clean" ]]; then
   CLEAN=true
 fi
 
+# Checking if all required env vars are set
+DEPS_VARS=( AZK_DOCKER_MIN_VERSION LIBNSS_RESOLVER_VERSION RSYNC_MIN_VERSION )
+for DEP_VAR in ${DEPS_VARS[@]}; do
+  eval VALUE=\$$DEP_VAR
+  if [ -z $VALUE ]; then
+    echo "Env var ${DEP_VAR} is required but not present"
+    exit 1
+  fi
+done
+
 case $pkg_type in
   rpm)
     fpm_extra_options=" \
-      --depends \"docker-engine >= ${DOCKER_MIN_VERSION}\" \
+      --depends \"docker-engine >= ${AZK_DOCKER_MIN_VERSION}\" \
       --depends \"libnss-resolver >= ${LIBNSS_RESOLVER_VERSION}\" \
       --depends \"rsync >= ${RSYNC_MIN_VERSION}\" \
       --depends \"git\" \
@@ -67,7 +77,7 @@ case $pkg_type in
     ;;
   deb)
     fpm_extra_options=" \
-      --depends \"docker-engine (>= ${DOCKER_MIN_VERSION})\" \
+      --depends \"docker-engine (>= ${AZK_DOCKER_MIN_VERSION})\" \
       --depends \"libnss-resolver (>= ${LIBNSS_RESOLVER_VERSION})\" \
       --depends \"rsync (>= ${RSYNC_MIN_VERSION})\" \
       --depends \"git\" \
