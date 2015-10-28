@@ -1,12 +1,5 @@
 require('colors');
 
-var version = "Shows azk version";
-var verbose = "Sets the level of detail";
-var quiet   = "Never prompt";
-//var systems_options = "Targets systems of action";
-var rebuild     = "Force the rebuild, or pull image and reprovision before starting an instance";
-var reprovision = "Force the provisioning actions before starting an instance";
-
 // jscs:disable maximumLineLength
 module.exports = {
   analytics: {
@@ -37,13 +30,13 @@ module.exports = {
     agent_stop                  :  "azk agent stop error (try `azk agent status`)",
     not_been_implemented        : "This feature: `%(feature)s` has not been implemented yet",
     system_not_found            : "System `%(system)s` not found in `%(manifest)s`",
-    manifest_required           : "Manifest is required, but was not found in `%(cwd)s`",
-    manifest_error              : "Manifest not valid (see http://doc.azk.io), error:\n%(err_message)s",
+    manifest_required           : "Manifest file (`Azkfile.js`) was not found at `%(cwd)s` (see more at http://docs.azk.io/en/azkfilejs/)",
+    manifest_error              : "Manifest file (`Azkfile.js`) is not valid,\nSee more at http://docs.azk.io/en/azkfilejs/\n\nError:\n%(err_message)s",
     system_depend_error         : "System `%(system)s` depends on the system `%(depend)s`",
-    system_run_error            : "Run system `%(system)s` return: (%(exitCode)d), for command: %(command)s:\n%(log)s",
+    system_run_error            : "Run system `%(system)s` return: (%(exitCode)d), for command: %(command)s:\n%(log)s\n\nLook for azk start troubleshooting documentation for more info at: http://bit.ly/azk_start_troubleshooting\n",
     system_not_scalable         : "System `%(system)s` is not scalable only one instance is allowed.",
     image_not_available         : "System `%(system)s` requires image `%(image)s` which is not available",
-    run_command_error           : "Run `%(command)s` in system `%(system)s` error:\n`%(output)s`",
+    run_command_error           : "Run `%(command)s` in system `%(system)s` error:\n`%(output)s`\n\nLook for azk start troubleshooting documentation for more info at: http://bit.ly/azk_start_troubleshooting\n",
     provision_pull_error        : "Error downloading/pulling docker image `%(image)s`, message: %(msg)s.",
     invalid_command_error       : "Invalid command: %(command)s",
     image_not_exist             : "Image from '%(image)s' was not found",
@@ -52,7 +45,7 @@ module.exports = {
     os_not_supported            : "System not supported (see http://azk.io)",
     run_timeout_error: [
       "[timeout] `azk` has timed out on `%(system)s` system.",
-      "[timeout] Failure to reach port `%(port)s` from `%(hostname)s` after %(retry)s attempt[s] of %(timeout)s milliseconds.",
+      "[timeout] Failure to reach port `%(port)s` from `%(hostname)s` after %(timeout)s milliseconds.",
       "[timeout] Make sure the start command binds `port` to the `0.0.0.0` interface, not only to the `localhost` interface.",
       "[timeout] You might want to edit your `Azkfile.js` in order to increase the maximum timeout.",
     ].join("\n"),
@@ -80,6 +73,19 @@ module.exports = {
                   "`v%(new_version)s` version is available.",
                   "Please, access http://azk.io to upgrade\n"].join("\n"),
         mv_resolver: "Upgrading domains error, moving files was not possible",
+        check_docker_version_error: [
+          'Checking Docker version:',
+          'Detected:    %(current_version)s',
+          'Required: >= %(min_version)s',
+          'Please update Docker before continue.'
+        ].join('\n'),
+        check_docker_version_invalid: [
+          'Checking Docker version:',
+          'Detected:    %(current_version)s',
+          'Required: >= %(min_version)s',
+          'The `%(current_version)s` version is not in a http://semver.org format.',
+          'You can force Docker version by setting the env var `AZK_DOCKER_VERSION`',
+        ].join('\n'),
         rsync      : "`rsync` command is required, but it's not installed or it's not in the $PATH. Please install it before continue.",
         check_rsync_version_error: [
           'Checking rsync version:',
@@ -104,8 +110,27 @@ module.exports = {
           "Check if docker service is running.",
           "Also check if you have write permission to socket: '%(socket)s'",
         ].join('\n'),
-      }
-    }
+      },
+    },
+
+    get_project: {
+      cloning_not_a_git_repo : "`%(git_repo)s` is not a git valid repository.",
+      folder_already_exists  : "Folder `%(git_destination_path)s` already exists.",
+      commit_not_exist       : "Branch or Commit `%(git_branch_tag_commit)s` does not exist.",
+      not_resolve_host       : "Invalid git URL: `%(git_repo)s`.",
+      repo_not_found         : "Repository not found `%(git_repo)s`.",
+      cannot_create_folder   : "Cannot create folder `%(git_destination_path)s`",
+      git_error              : [
+        "Uncaught git error",
+        " > git_repo              : %(git_repo)s",
+        " > git_branch_tag_commit : %(git_branch_tag_commit)s",
+        " > git_destination_path  : %(git_destination_path)s",
+        " > original_error        : %(original_error)s",
+        " > stack_trace           : %(stack_trace)s",
+      ].join('\n'),
+      force_response_ok     : "stats response: `%(response_json)s`",
+    },
+
   },
 
   status: {
@@ -122,7 +147,7 @@ module.exports = {
       stopping       : "Agent is being stopped...",
       stopped        : "Agent has been successfully stopped.",
       error          : "Agent starting error: %(data)s.",
-      wait           : "Wait, this process may take several minutes",
+      wait           : "Please wait, this process may take several minutes",
       progress       : "progress...",
     },
 
@@ -206,10 +231,14 @@ module.exports = {
     extends_system_invalid     : "The system `%(system_source)s` for extending system `%(system_to_extend)s` cannot be found",
     image_required             : "No image set for the `%(system)s' system",
     invalid_default            : "Unable to set the system `%(system)s` as a default because it was not declared",
+    extra_docker_start_deprecated  : [
+      "The `%(option)s` option used in system `%(system)s` is no longer supported.",
+      "Check http://bit.ly/azkfile_docker_extra for further information",
+    ].join("\n"),
     mount_and_persistent_deprecated: [
       "The `%(option)s` option used in system `%(system)s` is no longer supported.",
       "You must change the %(manifest)s to use `mounts`",
-      "Check http://git.io/29JW0w for further information",
+      "Check http://bit.ly/upgrading-from-azk-051 for further information",
     ].join("\n"),
     not_found          : "No such '%s' in current project",
     provider_invalid   : "The provider was not found: `%(wrongProvider)s`.",
@@ -218,7 +247,17 @@ module.exports = {
     validate           : {
       deprecated : "The `%(option)s` used in `%(system)s` is deprecated, check the documentation for `%(new_option)s`",
       no_system_set: "No system has been set yet, check the documentation",
-    }
+      invalid_option_value: [
+        "Invalid value for `%(option)s`. Value: `%(value)s`.",
+        "Please, change `%(system_name)s` system to a valid `%(option)s` value.",
+        "Check %(docs_url)s for further information.",
+      ].join("\n"),
+      invalid_option_type: [
+        "Error parsing `%(option)s` value. Invalid type. Value: `%(value)s`.",
+        "Please, change `%(system_name)s` system to a valid `%(option)s` type and value.",
+        "Check %(docs_url)s for further information.",
+      ].join("\n"),
+    },
   },
 
   system: {
@@ -309,12 +348,70 @@ module.exports = {
       already_started: "System `%(name)s` already started",
       skip           : "Skip starting, system `" + "%(name)s".blue + "` does not scale.",
       fail           : "Due to the above error azk will stop all instances already running.\n",
-      option_errors  : {
-        open: {
-          default_system_not_balanceable: "\nThe default system `%(name)s` does not have ports http to open.",
-          system_not_running: "System `%(name)s` is not running to open.",
-        }
-      }
+      get_project: {
+        getting_git_version      : "Checking Git version...",
+        getting_remote_info      : "Getting remote info from `%(git_url)s`...",
+        checking_destination     : "Checking `%(git_destination_path)s` exists...",
+        git_pull                 : "Pulling changes from remote server...",
+        cloning_to_folder        : "Cloning `%(git_url)s#%(git_branch_tag_commit)s` to `%(git_destination_path)s`...",
+        cloning_master_to_folder : "Cloning `%(git_url)s` to `%(git_destination_path)s`...",
+        checkout_to_commit       : "Checkout to `%(git_branch_tag_commit)s` in `%(git_destination_path)s`...",
+        final_started_message: [
+          "",
+          "Your app was cloned and started.",
+          "Now you can go to your folder and run azk commands:",
+          "$ cd '%(git_destination_path)s'",
+          "$ azk status",
+          "",
+        ].join('\n'),
+        dest_exists_branch: [
+          ">   ",
+          ">   Destination folder already exists.",
+          ">   ",
+          ">   1) If you want to start the existing system, run the commands below:",
+          ">        $ cd '%(git_destination_path)s'",
+          ">        $ azk start",
+          ">   ",
+          ">   2) If you want to update the repository to the latest version, do it",
+          ">      with git and then start azk:",
+          ">        $ cd '%(git_destination_path)s'",
+          ">        $ git pull %(git_url)s %(git_branch_tag_commit)s",
+          ">        $ azk start -Rv",
+          ">   ",
+          ">   3) To replace the existing project with the latest one, run the ",
+          ">      following commands (the existing destination folder will be deleted):",
+          ">   ",
+          ">        $ sudo rm -Rf '%(git_destination_path)s'",
+          ">        $ azk start %(git_url)s#%(git_branch_tag_commit)s %(git_destination_path)s",
+          ">   ",
+          ">   If you are getting errors go to troubleshooting: http://docs.azk.io/en/troubleshooting/README.html",
+          ">   ",
+        ].join('\n'),
+        dest_exists_commit: [
+          ">   ",
+          ">   Destination folder already exists.",
+          ">   ",
+          ">   1) If you want to start the existing system, run the commands below:",
+          ">        $ cd '%(git_destination_path)s'",
+          ">        $ azk start",
+          ">   ",
+          ">   2) If you want to update the repository to the latest version, do it",
+          ">      with git and then start azk:",
+          ">        $ cd '%(git_destination_path)s'",
+          ">        $ git pull origin",
+          ">        $ git checkout %(git_branch_tag_commit)s",
+          ">        $ azk start -Rv",
+          ">   ",
+          ">   3) To replace the existing project with the latest one, run the ",
+          ">      following commands (the existing destination folder will be deleted):",
+          ">   ",
+          ">        $ sudo rm -Rf '%(git_destination_path)s'",
+          ">        $ azk start %(git_url)s#%(git_branch_tag_commit)s %(git_destination_path)s",
+          ">   ",
+          ">   If you are getting errors go to troubleshooting: http://docs.azk.io/en/troubleshooting/README.html",
+          ">   ",
+        ].join('\n'),
+      },
     },
     stop: {
       not_running: "System `" + "%(name)s".blue + "` not running",
@@ -349,7 +446,13 @@ module.exports = {
       not_running      : "Virtual machine is not running, try `azk vm start`.",
       error            : "vm error: %(error)s.",
       not_required     : "This system does not require a virtual machine, to try to force this behavior set `AZK_USE_VM=true`",
-    }
+    },
+    open: {
+      success                       : "Opening " + "%(hostname)s".underline.blue + " in browser.",
+      system_not_running            : "System " + "%(name)s".red + " is not running to open.",
+      system_not_balanceable        : "The system " + "%(name)s".red + " does not have ports http to open.",
+      default_system_not_balanceable: "The default system " + "%(name)s".red + " does not have ports http to open.",
+    },
   },
 
   docker: {

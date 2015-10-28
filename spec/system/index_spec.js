@@ -18,11 +18,9 @@ describe("Azk system class, main set", function() {
   });
 
   it("should merge options with default_options", function() {
-    var regex = RegExp(`echo ".*${name}.*"; exit 1`);
-    h.expect(system).to.have.property("command").and.match(regex);
     h.expect(system).to.have.property("depends").and.eql([]);
     h.expect(system).to.have.property("envs").and.eql({});
-    h.expect(system).to.have.property("shell", "/bin/sh");
+    h.expect(system).to.have.property("shell", null);
     h.expect(system).to.have.property("workdir", "/");
     h.expect(system).to.have.property("scalable").and.eql({ default: 1, limit: 1 });
     h.expect(system).to.have.property("default_options").to.fail;
@@ -68,17 +66,27 @@ describe("Azk system class, main set", function() {
 
     describe("in a system with volumes to be mounted", function() {
       it("should expand options with template", function() {
-        var system    = manifest.system('expand-test');
-        var provision = system.options.provision;
-        h.expect(provision).to.include(`system.name: ${system.name}`);
-        h.expect(provision).to.include(`manifest.dir: ${manifest.manifestDirName}`);
-        h.expect(provision).to.include(`manifest.path: ${manifest.manifestPath}`);
-        h.expect(provision).to.include(`manifest.project_name: ${manifest.manifestDirName}`);
-        h.expect(provision).to.include(`azk.version: ${version}`);
-        h.expect(provision).to.include(`azk.default_domain: ${config('agent:balancer:host')}`);
-        h.expect(provision).to.include(`azk.default_dns: ${net.nameServers().toString()}`);
-        h.expect(provision).to.include(`azk.balancer_port: ${config('agent:balancer:port').toString()}`);
-        h.expect(provision).to.include(`azk.balancer_ip: ${config('agent:balancer:ip')}`);
+        process.env.FOO = 'foo';
+        var data = { };
+        return h.mockManifest(data).then((mf) => {
+          var manifest = mf;
+          var system   = manifest.system('expand-test');
+
+          var provision = system.options.provision;
+          h.expect(provision).to.include(`system.name: ${system.name}`);
+          h.expect(provision).to.include(`manifest.dir: ${manifest.manifestDirName}`);
+          h.expect(provision).to.include(`manifest.path: ${manifest.manifestPath}`);
+          h.expect(provision).to.include(`manifest.project_name: ${manifest.manifestDirName}`);
+          h.expect(provision).to.include(`azk.version: ${version}`);
+          h.expect(provision).to.include(`azk.default_domain: ${config('agent:balancer:host')}`);
+          h.expect(provision).to.include(`azk.default_dns: ${net.nameServers().toString()}`);
+          h.expect(provision).to.include(`azk.balancer_port: ${config('agent:balancer:port').toString()}`);
+          h.expect(provision).to.include(`azk.balancer_ip: ${config('agent:balancer:ip')}`);
+          h.expect(provision).to.include(`env.FOO: ${process.env.FOO}`);
+          h.expect(provision).to.include(`env.BAR: `);
+        }).finally(() => {
+          process.env.FOO = undefined;
+        });
       });
 
       it("should return a mounts property", function() {
@@ -151,6 +159,56 @@ describe("Azk system class, main set", function() {
       var depends = system.dependsInstances;
       var names = _.map(depends, (system) => { return system.name; });
       h.expect(names).to.eql(["db", "api"]);
+    });
+
+    describe("with custom http domains", function() {
+      var envs = { HOST_IP: undefined, HOST_DOMAIN: undefined };
+      before(() => {
+        _.each(envs, (value, key) => {
+          envs[key] = process.env[key];
+        });
+      });
+      afterEach(() => {
+        _.each(envs, (value, key) => {
+          if (value === undefined) {
+            delete process.env[key];
+          } else {
+            process.env[key] = envs[key];
+          }
+        });
+      });
+
+      it("should return the correct default domain", function() {
+        var system = manifest.system("example-http-domain");
+        h.expect(system.hostname).to.eql(`${system.name}.${config('agent:balancer:host')}`);
+      });
+
+      it("should return the correct custom ip", function() {
+        var custom_ip = '192.168.0.1';
+        process.env.HOST_IP = custom_ip;
+
+        var data = { };
+        return h.mockManifest(data).then((mf) => {
+          manifest = mf;
+          system   = manifest.system('example-http-domain');
+          h.expect(system.hostname).to.eql(custom_ip);
+        });
+      });
+
+      it("should return the correct custom ip", function() {
+        var custom_ip           = '192.168.0.1';
+        process.env.HOST_IP     = custom_ip;
+        var custom_domain       = 'my.domain.com';
+        process.env.HOST_DOMAIN = custom_domain;
+
+        var data = { };
+        return h.mockManifest(data).then((mf) => {
+          manifest = mf;
+          system   = manifest.system('example-http-domain');
+          h.expect(system.hostname).to.eql(custom_domain);
+        });
+      });
+
     });
 
     it("should be marked as supporting provisioned", function() {
@@ -339,7 +397,7 @@ describe("Azk system class, main set", function() {
       it("should extract options from image_data", function() {
         var system  = manifest.system("mount-test");
         var options = system.daemonOptions();
-        h.expect(options).to.have.deep.property("docker.start.Privileged", 'true');
+        h.expect(options).to.have.deep.property("extra.HostConfig.Privileged", 'true');
       });
 
       it("should extract extra docker parameters", function() {
@@ -348,7 +406,6 @@ describe("Azk system class, main set", function() {
           return image.inspect().then((image_data) => {
             var options = system.daemonOptions({ image_data });
             h.expect(options).to.have.property("working_dir", "/data");
-            h.expect(options).to.have.property("command").and.eql(image_data.Config.Cmd);
             h.expect(options).to.have.deep.property("ports.80/tcp").and.eql([{
               HostIp: config('agent:dns:ip')
             }]);

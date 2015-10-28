@@ -14,6 +14,14 @@ export class Suggestion extends DefaultSuggestion {
     // Initial Azkfile.js suggestion
     this.suggestion = this.extend({}, this.suggestion, {
       __type: `${name}`,
+      provision: [
+        'composer install',
+        'npm install',
+      ],
+      mounts: this.extend(this.suggestion.mounts, {
+        "/azk/#{app.dir}/node_modules": {type: 'persistent', value: "#{app.relative}/node_modules"},
+        "/azk/#{app.dir}/vendor"      : {type: 'persistent', value: "#{app.relative}/vendor"},
+      }),
     });
   }
 }

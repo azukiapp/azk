@@ -4,7 +4,7 @@ Gives the possibility to customize the DNS servers that will be used by the syst
 
 ##### Example:
 
-For the system to use the [openDNS](https://www.opendns.com/home-internet-security/opendns-ip-addresses/) servers:
+For the system to use the [openDNS][openDNS] servers:
 
 ```javascript
 systems({
@@ -14,3 +14,5 @@ systems({
   },
 });
 ```
+
+!INCLUDE "../../../links.md"

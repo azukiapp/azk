@@ -3,7 +3,7 @@ import { _, lazy_require } from 'azk';
 import { async } from 'azk/utils/promises';
 
 var lazy = lazy_require({
-  open: 'open',
+  GetProject: ['azk/manifest/get_project'],
 });
 
 var action_opts = {
@@ -66,7 +66,8 @@ class Start extends Scale {
       var result = yield this._scale(systems, 'start', opts);
 
       // if flag --open
-      if (opts.open || opts['open-with']) {
+      var open = this.normalized_params.options.open;
+      if (open || opts['open-with']) {
         var open_with;
         var system;
         var system_name = opts.system && opts.system.split(',');
@@ -76,7 +77,7 @@ class Start extends Scale {
         }
         system = system || manifest.systemDefault;
 
-        var tKey   = 'commands.start.option_errors.open';
+        var tKey   = 'commands.open';
         var tOpt   = { name : system.name };
 
         if (_.isString(opts['open-with']) ) {
@@ -87,7 +88,7 @@ class Start extends Scale {
           var instances = yield system.instances({ type: "daemon" });
 
           if (instances.length > 0) {
-            lazy.open(system.url, open_with);
+            this.ui.open(system.url, open_with);
           } else {
             this.ui.warning(`${tKey}.system_not_running`, tOpt);
           }
@@ -117,6 +118,26 @@ class Start extends Scale {
       yield this.stop(manifest, systems, opts);
       return this.start(manifest, systems, opts);
     });
+  }
+
+  // GetProject: clone and start a project from a git repo
+  getProject(opts) {
+    var command_parse_result = lazy.GetProject.parseCommandOptions(opts);
+    if (command_parse_result) {
+      var getter = new lazy.GetProject(this.ui, command_parse_result);
+      return getter.startProject(command_parse_result)
+      .then(() => {
+        opts.system = null;
+
+        // call scale
+        return this.index(opts, command_parse_result)
+        .then(() => {
+          this.ui.ok('commands.start.get_project.final_started_message', {
+            git_destination_path: command_parse_result.git_destination_path
+          });
+        });
+      });
+    }
   }
 }
 

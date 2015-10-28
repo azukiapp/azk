@@ -17,26 +17,26 @@ Below you can find a few sections with more detailed information. We also recomm
 
 ## Sections
 
-1. [Questions and support](README.html#questions-and-support)
-1. [Reporting issues](README.html#reporting-issues)
-1. [Tips and guidelines](README.html#tips-and-guidelines)
-    1. [Folders structure](README.html#folders-structure)
-    1. [Implementation details](README.html#implementation-details)
-    1. [Code quality and style](README.html#code-quality-and-style)
-    1. [Task tool - Gulp](README.html#task-tool---gulp)
-1. [Pull Requests](README.html#pull-requests)
-    1. [JavaScript and Node.js](README.html#javascript-and-nodejs)
-    1. [Contributing code](README.html#contributing-code)
-    1. [Branches organization](README.html#branches-organization)
-    1. [Conventions](README.html#conventions)
-        1. [Branches](README.html#branches)
-        1. [Commit message](README.html#commit-message)
-    1. [Testing](README.html#testing)
-        1. [Integration tests](README.html#integration-tests)
-        1. [Filtering tests](README.html#filtering-tests)
-    1. [Adding or updating dependencies](README.html#adding-or-updating-dependencies)
-    1. [Opening a Pull Request](README.html#opening-a-pull-request)
-        1. [Pull Request format](README.html#pull-request-format)
+1. [Questions and support](#questions-and-support)
+1. [Reporting issues](#reporting-issues)
+1. [Tips and guidelines](#tips-and-guidelines)
+    1. [Folders structure](#folders-structure)
+    1. [Implementation details](#implementation-details)
+    1. [Code quality and style](#code-quality-and-style)
+    1. [Task tool - Gulp](#task-tool---gulp)
+1. [Pull Requests](#pull-requests)
+    1. [JavaScript and Node.js](#javascript-and-nodejs)
+    1. [Contributing code](#contributing-code)
+    1. [Branches organization](#branches-organization)
+    1. [Conventions](#conventions)
+        1. [Branches](#branches)
+        1. [Commit message](#commit-message)
+    1. [Testing](#testing)
+        1. [Integration tests](#integration-tests)
+        1. [Filtering tests](#filtering-tests)
+    1. [Adding or updating dependencies](#adding-or-updating-dependencies)
+    1. [Opening a Pull Request](#opening-a-pull-request)
+        1. [Pull Request format](#pull-request-format)
 
 
 ## Questions and support
@@ -79,19 +79,22 @@ Additional info:
 
 ### Folders structure
 
-- `/bin`: azk executables: `adocker` and `azk`
-- `/docs`: `azk` documentation in Gitbook format
+- `/bin`: azk executables: `adocker` and `azk`.
+- `/docs`: `azk` documentation in Gitbook format.
 - `/shared`:
     - `Azkfile.js`: `azk` main Azkfile.js. Sets the dns and the balancer.
     - `locales/en-US.js`: All messages and texts displayed by the `azk` cli are here.
-    - `templates/Azkfile.mustache.js`: Template of an Azkfile.js written in mustache
-- `/spec`: All `azk` tests
-- `/src`: Source code
-- `.jscsrc`: Sets the code style pattern
-- `.jshintrc`: Sets the JavaScript syntax validation
-- `Makefile`: Tasks for packaging
-- `npm-shrinkwrap.json`: Locks version of `package.json`
-- `package.json`: All `azk` dependencies
+    - `templates/Azkfile.mustache.js`: Template of an Azkfile.js written in mustache ([Handlebars-flavored][handlebars]).
+- `/spec`: All `azk` tests.
+- `/src`: Source code.
+- `/lib`: Compiled source code.
+- `.dependencies`: File in which dependencies versions are defined.
+- `.jscsrc`: Sets the code style pattern.
+- `.jshintrc`: Sets the JavaScript syntax validation.
+- `Makefile`: Tasks for packaging.
+- `npm-shrinkwrap.json`: Locked version of `package.json`.
+- `package.json`: All `azk` dependencies.
+- `gulpfile.js`: Gulp tasks. For more info, run `azk nvm gulp help`.
 
 
 ### Implementation details
@@ -119,7 +122,7 @@ For `azk`'s development, we use [gulp] to coordinate the tasks of day-to-day dev
 - Checking code quality with `jshint` and `jscs`;
 - Running a "watch" command for file modification and performing the tasks above automatically;
 
-You can find the full list of tasks available by running: `azk nvm gulp help`, but the main task you should be aware of and using during development is `azk nvm watch:test:lint`.
+You can find the full list of tasks available by running: `azk nvm gulp help`, but the main task you should be aware of and using during development is `azk nvm gulp watch:test:lint`.
 
 
 ## Pull Requests
@@ -129,13 +132,12 @@ First of all, grab `azk` from source and build its binary:
 ```bash
 $ git clone https://github.com/azukiapp/azk.git
 $ cd azk
-$ make clean
 $ make
 ```
 
 Then add the path to your azk binary to your PATH environment variable, or create an alias to it.
 
-There's additional steps that you need to go through if you're installing it on a Mac or a Linux (for example, installing the `libnss-resolver`). Check [this page](../installation/source-code.md) for more detailed instructions.
+There's additional steps that you need to go through if you're installing it on a Mac or a Linux (for example, installing the `libnss-resolver`). Check [this page](http://docs.azk.io/en/installation/source-code.html) for more detailed instructions.
 
 
 ### JavaScript and Node.js
@@ -193,7 +195,7 @@ $ git clone https://github.com/your_username/azk.git
 $ cd azk
 $ git checkout -b feature/feature_name
 # Make changes to files
-$ make clean && make
+$ make
 # Run tests
 $ azk nvm npm test
 $ git add .
@@ -248,6 +250,7 @@ azk: Agent has been successfully started.
 $ azk nvm npm test
 ```
 
+
 #### Integration tests
 
 The `azk` integration tests are written using [bats] and can be found inside the folder "`specs/integration`". Before running the tests you need to install some dependencies:
@@ -294,13 +297,12 @@ You can find more information about the commands [here](https://docs.npmjs.com/c
 
 ### Opening a Pull Request
 
-
 Before opening a pull request, make sure that you:
 
 - Test the azk binary with your changes:
 
 ```sh
-$ make clean && make
+$ make
 # Make sure you're running azk from your development folder, not from a package manager
 $ azk nvm npm test
 ```
@@ -362,3 +364,4 @@ Additional info:
 [node.js]: http://nodejs.org/
 [pull requests]: https://github.com/azukiapp/azk/pulls
 [bluebird-generators]: https://github.com/petkaantonov/bluebird/blob/master/API.md#generators
+[handlebars]: http://handlebarsjs.com/

@@ -14,7 +14,7 @@ Mount the folder located in the current system machine `LOCAL_PATH`, relative to
 #### persistent
 
 ```js
-'INTERNAL_FOLDER': path('LOCAL_PATH'),
+'INTERNAL_FOLDER': persistent('LOCAL_PATH'),
 ```
 
 Persists the files that are inside the container on the path `INTERNAL_FOLDER`, to an `azk` persistent data folder in the user machine. The location the data will be saved will vary between Mac and Linux:
@@ -27,7 +27,7 @@ The folder is stored in a virtual disk (`~/.azk/data/vm/azk-agent.vmdk`) in the 
 
 `~/.azk/data/persistent_folders/#{manifest.id}/LOCAL_PATH`.
 
-Note that using the same 'LOCAL_PATH' in the same Azkfile.js, but in different containers, will mean that they'll share the persisted data.
+Note that using the same 'LOCAL_PATH' in the same Azkfile.js, but in different systems, means that these systems will share the persisted data.
 
 #### sync
 

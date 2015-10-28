@@ -97,8 +97,7 @@ describe('Azk generator db', function() {
         // __options
         h.expect(system).to.have.deep.property('options.depends').and.to.eql([]);
         h.expect(system).to.have.deep.property('options.shell', '/bin/bash');
-        h.expect(system).to.have.deep.property('options.wait.retry', 25);
-        h.expect(system).to.have.deep.property('options.wait.timeout', 1000);
+        h.expect(system).to.have.deep.property('options.wait', 25);
         h.expect(system).to.not.have.deep.property('options.workdir');
         h.expect(system).to.have.deep.property('options.mounts').and.to.eql(
           { '/var/lib/mysql': { type: 'persistent',
@@ -125,8 +124,7 @@ describe('Azk generator db', function() {
         // __options
         h.expect(system).to.have.deep.property('options.depends').and.to.eql([]);
         h.expect(system).to.have.deep.property('options.shell', '/bin/bash');
-        h.expect(system).to.have.deep.property('options.wait.retry', 20);
-        h.expect(system).to.have.deep.property('options.wait.timeout', 1000);
+        h.expect(system).to.have.deep.property('options.wait', 20);
         h.expect(system).to.not.have.deep.property('options.workdir');
         h.expect(system).to.have.deep.property('options.mounts').and.to.eql(
           { '/var/lib/postgresql/data': { type: 'persistent', value: 'postgresql', options: {} },
@@ -152,8 +150,7 @@ describe('Azk generator db', function() {
         // __options
         h.expect(system).to.have.deep.property('options.depends').and.to.eql(['mysql']);
         h.expect(system).to.have.deep.property('options.shell', '/bin/bash');
-        h.expect(system).to.have.deep.property('options.wait.retry', 20);
-        h.expect(system).to.have.deep.property('options.wait.timeout', 1000);
+        h.expect(system).to.have.deep.property('options.wait', 20);
 
         var workdir = path.join('/azk', rootFolderBasename, 'railsMysql');
         h.expect(system).to.have.deep.property('options.workdir', workdir);
@@ -197,8 +194,7 @@ describe('Azk generator db', function() {
         // __options
         h.expect(system).to.have.deep.property('options.depends').and.to.eql(['postgres']);
         h.expect(system).to.have.deep.property('options.shell', '/bin/bash');
-        h.expect(system).to.have.deep.property('options.wait.retry', 20);
-        h.expect(system).to.have.deep.property('options.wait.timeout', 1000);
+        h.expect(system).to.have.deep.property('options.wait', 20);
 
         var workdir = path.join('/azk', rootFolderBasename, 'railsPostgres');
         h.expect(system).to.have.deep.property('options.workdir', workdir);

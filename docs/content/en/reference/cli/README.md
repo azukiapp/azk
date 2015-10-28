@@ -4,6 +4,7 @@ The command line is the main way to use `azk`. It's from the terminal that we ca
 
 - [azk agent](agent.md)
 - [azk config](config.md)
+- [azk deploy](deploy.md)
 - [azk docker](docker.md)
 - [azk doctor](doctor.md)
 - [azk help](help.md)

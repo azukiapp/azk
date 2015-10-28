@@ -26,5 +26,9 @@
   "bugs": {
     "url": "https://github.com/azukiapp/azk-docs/issues"
   },
-  "homepage": "http://docs.azk.io"
+  "homepage": "http://docs.azk.io",
+  "dependencies": {
+    "gulp-awspublish-router": "bvanvugt/gulp-awspublish-router",
+    "gulp-if": "^1.2.5"
+  }
 }

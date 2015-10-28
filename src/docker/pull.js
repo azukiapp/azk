@@ -8,33 +8,43 @@ var lazy = lazy_require({
 });
 
 var msg_regex = {
-  get pulling_another    () { return new lazy.XRegExp('Repository.*another'); },
-  get pulling_repository () { return new lazy.XRegExp('Pulling repository (?<repository>.*)'); },
-  get pulling_layers     () { return new lazy.XRegExp('Pulling dependent layers'); },
-  get pulling_metadata   () { return new lazy.XRegExp('Pulling metadata'); },
-  get pulling_fs_layer   () { return new lazy.XRegExp('Pulling fs layer'); },
-  get pulling_up_to_date () { return new lazy.XRegExp('Image is up to date'); },
-  get pulling_image      () { return new lazy.XRegExp(
-    'Pulling image \((?<tag>.*)\) from (?<repository>.*), endpoint: (?<endpoint>.*)'
-  ); },
-  get download           () { return new lazy.XRegExp('Downloading'); },
-  get download_complete  () { return new lazy.XRegExp('Download complete'); },
+  pulling_another    : ['Layer.*another', 'Repository.*another'],
+  pulling_verify     : 'Verifying Checksum',
+  pulling_extracting : 'Extracting',
+  pulling_complete   : 'Pull complete',
+  pulling_digest     : 'Digest: (?<digest>.*)',
+  pulling_repository : 'Pulling repository (?<repository>.*)',
+  pulling_layers     : 'Pulling dependent layers',
+  pulling_metadata   : 'Pulling metadata',
+  pulling_fs_layer   : 'Pulling fs layer',
+  pulling_up_to_date : 'Image is up to date',
+  pulling_image      : 'Pulling image \((?<tag>.*)\) from (?<repository>.*), endpoint: (?<endpoint>.*)',
+  pulling_finished   : 'Status: Downloaded newer image for (?<repository>.*)',
+  download           : 'Downloading',
+  download_complete  : 'Download complete',
 };
 
 function parse_status(msg) {
-  var result = {};
-  _.find(msg_regex, (regex, type) => {
-    var match  = lazy.XRegExp.exec(msg, regex);
-    if (match) {
-      result.type = type;
-      _.each(regex.xregexp.captureNames, function(key) {
-        if (match[key]) {
-          result[key] = match[key];
-        }
-      });
-      return true;
-    }
+  var result = { type: "unknown", msg };
+
+  _.find(msg_regex, (regexs, type) => {
+    regexs = _.isArray(regexs) ? regexs : [regexs];
+    return _.find(regexs, (regex) => {
+      // Cache regex
+      regex = lazy.XRegExp.cache(regex);
+      var match = lazy.XRegExp.exec(msg, regex);
+      if (match) {
+        result.type = type;
+        _.each(regex.xregexp.captureNames, function(key) {
+          if (match[key]) {
+            result[key] = match[key];
+          }
+        });
+        return true;
+      }
+    });
   });
+
   return result;
 }
 
@@ -66,7 +76,7 @@ export function pull(docker, repository, tag, stdout, registry_result) {
       });
 
       stream.on('end', () => {
-        publish("docker.pull.status", { type: "pull_msg", end: true, image});
+        publish("docker.pull.status", { type: "pull_msg", statusParsed: {}, end: true, image});
         resolve(docker.findImage(image));
       });
     });

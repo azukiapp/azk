@@ -9,10 +9,7 @@ var example_system = {
   shell   : '/bin/bash',
   image   : { docker: '[repository]:[tag]' },
   workdir : '/azk/#{manifest.dir}',
-  wait: {
-    retry: 20,
-    timeout: 1000
-  },
+  wait: 20,
   balancer: true,
   command : '# command to run app',
   mounts  : {

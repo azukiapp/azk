@@ -15,3 +15,22 @@ $ azk shell --image azukiapp/ruby --shell /bin/bash
 $ cd my-app
 $ azk init
 ```
+
+### Azkfile.js example for running tests
+
+!INCLUDE "../../common/azkfilejs/ruby-rails.md"
+
+To start the development environment
+
+```sh
+$ azk start my-app
+```
+
+To start the test environment
+
+```sh
+$ azk start test
+$ azk shell test -- bundle exec rake test
+```
+
+If your test environment requires OS dependencies like Webkit and QT4, you need to change the Docker image.

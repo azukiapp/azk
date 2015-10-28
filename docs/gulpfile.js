@@ -1,11 +1,8 @@
 var gulp = require('gulp');
-var awspublish = require('gulp-awspublish');
-var parallelize = require("concurrent-transform");
 var replace = require('gulp-replace');
 var shell = require('gulp-shell')
 var del = require('del');
 var runSequence = require('run-sequence');
-var rename = require("gulp-rename");
 
 // Load envs from .env files
 var dotenv = require('dotenv');
@@ -59,10 +56,11 @@ gulp.task('replace-ga-tokens', function() {
     .pipe(gulp.dest('./content/_book'));
 });
 
-gulp.task('rename-readme-to-index', function() {
+gulp.task('copy-readme-to-index', function() {
+  var rename = require("gulp-rename");
   return gulp.src(['./content/_book/**/README.html'])
-    .pipe(rename(function(path) {
-      path.basename = 'index';
+    .pipe(rename({
+      basename: 'index'
     }))
     .pipe(gulp.dest('./content/_book'));
 });
@@ -73,12 +71,16 @@ gulp.task('replace-readme-to-index', function() {
       './content/_book/**/*.js',
       './content/_book/**/*.json'
     ])
-    .pipe(replace(/README\.html/gm, 'index.html'))
+    .pipe(replace(/README\.html/gm, ''))
     .pipe(gulp.dest('./content/_book'));
 });
 
 // Deploying zipped files
 gulp.task('publish-stage-gz', function() {
+  var awspublish  = require("gulp-awspublish");
+  var parallelize = require("concurrent-transform");
+  var awspublishRouter = require("gulp-awspublish-router");
+
   // create a new publisher
   var publisher = awspublish.create({
     key: process.env.AWS_ACCESS_KEY_ID,
@@ -87,25 +89,30 @@ gulp.task('publish-stage-gz', function() {
     region: 'sa-east-1',
   });
 
-  // define custom headers
-  var headers = {
-    'Cache-Control': 'max-age=315360000, no-transform, public',
-    'Content-Encoding': 'gzip',
-    // ...
-  };
-
   var src = './content/_book/**/*.*';
 
   return gulp.src(src)
-    // Only newer files
-    // .pipe(newer(src))
-
-     // gzip, Set Content-Encoding headers and add .gz extension
-    .pipe(awspublish.gzip())
+    .pipe(awspublishRouter({
+      routes: {
+        "^(.*)README\.html$": {
+          headers: {
+            "Content-Type": "text/html",
+            "x-amz-website-redirect-location": "/$1"
+          }
+        },
+        "^.+$": {
+          cacheTime: 315360000,
+          gzip: true,
+        }
+      }
+    }))
 
     // publisher will add Content-Length, Content-Type and headers specified above
     // If not specified it will set x-amz-acl to public-read by default
-    .pipe(parallelize(publisher.publish(headers), 10))
+    .pipe(parallelize(publisher.publish()))
+
+    // Clean remote files
+    .pipe(publisher.sync())
 
     // create a cache file to speed up consecutive uploads
     .pipe(publisher.cache())
@@ -127,6 +134,8 @@ gulp.task('deploy-prod', function(callback) {
   configs.deploy.bucket = process.env.AWS_BUCKET_PROD;
 
   runSequence('build-gitbook',
+              'copy-readme-to-index',
+              'replace-readme-to-index',
               'del-wrong-gitbook-folder',
               'replace-font-path-pt-BR',
               'replace-font-path-en',
@@ -138,6 +147,8 @@ gulp.task('deploy-prod', function(callback) {
 
 gulp.task('deploy-stage', function(callback) {
   runSequence('build-gitbook',
+              'copy-readme-to-index',
+              'replace-readme-to-index',
               'del-wrong-gitbook-folder',
               'replace-font-path-pt-BR',
               'replace-font-path-en',
@@ -149,6 +160,8 @@ gulp.task('deploy-stage', function(callback) {
 gulp.task('build', function(callback) {
   runSequence(
               'build-gitbook',
+              'copy-readme-to-index',
+              'replace-readme-to-index',
               'override-landingpage',
               callback);
 });

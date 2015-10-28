@@ -9,6 +9,7 @@ var config = require('azk').config;
 var mounts = (function() {
   // Default mounts
   var mounts = {
+    "/root/.npm"       : persistent('npm-cache'),
     "/.tmux.conf"      : join(env.HOME, ".tmux.conf"),
     "/azk/demos"       : "../demos",
     "/azk/build"       : persistent('build-#{system.name}'),
@@ -54,7 +55,7 @@ var agent_system = function(image, extras) {
       VERSION: "#{azk.version}",
     },
     docker_extra: {
-      start: { Privileged: true },
+      HostConfig: { Privileged: true },
     }
   }, extras);
 }
@@ -77,7 +78,7 @@ var test_package_system = function(image){
       LOG: "file", // Log docker to file
     },
     docker_extra: {
-      start: { Privileged: true },
+      HostConfig: { Privileged: true },
     }
   }
 }

@@ -19,9 +19,12 @@
 /*****************************************************/
 * [Azkfile.js](azkfilejs/README.md)
 /*****************************************************/
+* [`Run Project` button](run-project-button/README.md)
+/*****************************************************/
 * [Starting an application from scratch](starting-from-scratch/README.md)
    * [Node.js](starting-from-scratch/nodejs.md)*
    * [PHP / Laravel](starting-from-scratch/php-laravel.md)*
+   * [PHP / Wordpress / phpMyAdmin](starting-from-scratch/php-wordpress-phpmyadmin.md)*
    * [Python / Django](starting-from-scratch/python-django.md)*
    * [Ruby on Rails](starting-from-scratch/ruby-rails.md)*
 /*****************************************************/
@@ -40,6 +43,8 @@
 /*****************************************************/
 * [Images](images/README.md)
 /*****************************************************/
+* [Deploy](deploy/README.md)
+/*****************************************************/
 * [Contributing](contributing/README.md)
 /*****************************************************/
 * [Reference](reference/README.md)
@@ -48,6 +53,7 @@
      * [command](reference/azkfilejs/command.md)
      * [depends](reference/azkfilejs/depends.md)
      * [dns_servers](reference/azkfilejs/dns_servers.md)
+     * [docker_extra](reference/azkfilejs/docker_extra.md)
      * [envs](reference/azkfilejs/envs.md)
      * [export_envs](reference/azkfilejs/export_envs.md)
      * [extends](reference/azkfilejs/extends.md)
@@ -63,12 +69,14 @@
    * [Command line](reference/cli/README.md)
      * [agent](reference/cli/agent.md)
      * [config](reference/cli/config.md)
+     * [deploy](reference/cli/deploy.md)
      * [docker](reference/cli/docker.md)
      * [doctor](reference/cli/doctor.md)
      * [help](reference/cli/help.md)
      * [info](reference/cli/info.md)
      * [init](reference/cli/init.md)
      * [logs](reference/cli/logs.md)
+     * [open](reference/cli/open.md)
      * [restart](reference/cli/restart.md)
      * [scale](reference/cli/scale.md)
      * [shell](reference/cli/shell.md)

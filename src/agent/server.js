@@ -38,8 +38,10 @@ var Server = {
       // Load balancer
       yield this.installBalancer();
 
-      // acive docker monitor
-      this._activeDockerMonitor();
+      // active docker monitor
+      if (config('docker:monitor')) {
+        this._activeDockerMonitor();
+      }
 
       log.info_t("commands.agent.started");
       this.starting = false;
@@ -137,14 +139,14 @@ var Server = {
     };
 
     var wait_options = {
-      timeout: config('agent:check_interval'),
+      timeout: config('agent:wait_max_timeout'),
       publish_retry: false,
     };
 
     var check_docker_interval = config('agent:check_interval');
     var interval_fn = () => {
       net
-        .waitService(docker_host, retry, wait_options)
+        .waitService(docker_host, wait_options)
         .then((success) => {
           if (!success) {
             log.debug(t("docker.monitor.failed", docker_host));

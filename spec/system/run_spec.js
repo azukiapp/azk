@@ -27,10 +27,10 @@ describe("Azk system class, run set", function() {
 
     it("should run a command in a shell for a system", function() {
       return async(function* () {
-        var exitResult = yield system.runShell(
-          ["/bin/sh", "-c", "ls -ls; exit"],
-          { stdout: mocks.stdout, stderr: mocks.stderr }
-        );
+        var exitResult = yield system.runShell({
+          command: ["/bin/sh", "-c", "ls -ls; exit"],
+          stdout: mocks.stdout, stderr: mocks.stderr
+        });
         h.expect(exitResult).to.have.property("code", 0);
         h.expect(outputs).to.have.property("stdout").match(/.*src/);
       });
@@ -38,10 +38,10 @@ describe("Azk system class, run set", function() {
 
     it("should support remove container after ended run", function() {
       return async(function* () {
-        var exitResult = yield system.runShell(
-          ["/bin/sh", "-c", "exit"],
-          { remove: true, stdout: mocks.stdout, stderr: mocks.stderr }
-        );
+        var exitResult = yield system.runShell({
+          command: ["/bin/sh", "-c", "exit"],
+          remove: true, stdout: mocks.stdout, stderr: mocks.stderr
+        });
 
         h.expect(exitResult).to.have.property("code", 0);
         var container = h.docker.findContainer(exitResult.containerId);
@@ -107,11 +107,15 @@ describe("Azk system class, run set", function() {
         var command = ["/bin/sh", "-c"];
         var options = { stdout: mocks.stdout, stderr: mocks.stderr };
 
-        var exitResult = yield system.runShell([...command].concat("rm provisioned; ls -l"), options);
+        var exitResult = yield system.runShell(
+          _.merge({ command: [...command].concat("rm provisioned; ls -l") }, options)
+        );
         h.expect(exitResult).to.have.property("code", 0);
         yield system.runDaemon();
 
-        yield system.runShell([...command].concat("ls -l"), options);
+        yield system.runShell(
+          _.merge({ command: [...command].concat("ls -l") }, options)
+        );
         h.expect(outputs).to.have.property("stdout").match(/provisioned/);
 
         h.expect(system).to.have.property("provisioned").and.not.null;
@@ -123,8 +127,8 @@ describe("Azk system class, run set", function() {
 
       before(function() {
         return async(this, function* () {
-          var cmd = ["/bin/sh", "-c", "exit"];
           var options = {
+            command: ["/bin/sh", "-c", "exit"],
             envs: { FOO: "BAR" },
             remove: false, stdout: mocks.stdout, stderr: mocks.stderr
           };
@@ -132,7 +136,7 @@ describe("Azk system class, run set", function() {
           var api = manifest.system('api');
 
           yield api.runDaemon();
-          var exitResult = yield system.runShell(cmd, options);
+          var exitResult = yield system.runShell(options);
           var data = yield exitResult.container.inspect();
 
           envs = data.Config.Env;
@@ -233,7 +237,7 @@ describe("Azk system class, run set", function() {
           });
         };
 
-        var result = system.runShell([], { image_pull: false});
+        var result = system.runShell({ command: [], image_pull: false});
         return h.expect(result).to.rejectedWith(ImageNotAvailable);
       });
 

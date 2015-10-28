@@ -12,38 +12,52 @@ export class Cli extends AzkCli {
   }
 }
 
-export function cli(args, cwd, ui = UI) {
-  var result;
-  try {
-    var azk_cli = new Cli();
-    azk_cli
-      // Options
-      .route('help', (p, args) => p.help || p['--help'] || _.isEmpty(args))
-      .route('version', (p) => p.version || p['--version'])
-      // Commands
-      .route('agent', (p, args) => p.agent && /(start|status|stop|configure)/.test(args))
-      .route('vm', (p, args) => p.vm && /(ssh|start|status|installed|stop|remove)/.test(args))
-      .route('config', (p, args) => p.config && /(track-toggle|track-status)/.test(args))
-      .route('docker')
-      .route('doctor')
-      .route('info')
-      .route('init')
-      .route('scale')
-      .route('shell')
-      .route('status')
-      .route('start')
-      .route('restart', (p) => p.restart, 'start.index')
-      .route('stop'   , (p) => p.stop   , 'start.index')
-      .route('logs')
-      .route('help'); // If you do not fall in any other route, the help is called.
+function make_cli() {
+  return new Cli()
+    // Options
+    .route('help', (p, args) => p.help || p['--help'] || _.isEmpty(args))
+    .route('version', (p) => p.version || p['--version'])
+    // Commands
+    .route('agent', (p, args) => p.agent && /(start|status|stop|configure)/.test(args))
+    .route('vm', (p, args) => p.vm && /(ssh|start|status|installed|stop|remove)/.test(args))
+    .route('config', (p, args) => p.config && /(track-toggle|track-status)/.test(args))
+    .route('deploy')
+    .route('docker')
+    .route('doctor')
+    .route('info')
+    .route('init')
+    .route('open')
+    .route('scale')
+    .route('shell')
+    .route('status')
+    .route('start', (p) => {
+      var is_start_url_system = /.*[/].*/g.test(p["<system>"]);
+      var has_git_repo_option = p["<git-repo>"] !== null;
+      return is_start_url_system || has_git_repo_option;
+    }, 'start.getProject')
+    .route('start')
+    .route('restart', (p) => p.restart , 'start.index')
+    .route('stop'   , (p) => p.stop    , 'start.index')
+    .route('logs')
+    .route('help'); // If you do not fall in any other route, the help is called.
+}
 
-    result = azk_cli.run({
-      argv: args.slice(2)
-    }, {
-      args: args.slice(2),
-      ui  : ui,
-      cwd : process.cwd()
-    });
+export function run(args, cwd, ui) {
+  var cli = make_cli();
+  return [cli, cli.run({
+    argv: args
+  }, {
+    args: args,
+    ui  : ui,
+    cwd : process.cwd()
+  })];
+}
+
+export function cli(args, cwd, ui = UI) {
+  var result, azk_cli;
+  try {
+    args = args.slice(2);
+    [azk_cli, result] = run(args, cwd, ui = UI);
   } catch (e) {
     result = (e instanceof InvalidCommandError) ?
       azk_cli.invalidCmd(e) : promiseReject(e);

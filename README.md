@@ -69,6 +69,39 @@ $ azk start
 
 You can find our documentation online at: http://docs.azk.io/
 
+## `Run Project` button
+
+Clicking the `Run Project` button (or "azk button") on a GitHub repo is the best way to quickly and safely run its code on your local machine. 
+
+![Run project](https://s3-sa-east-1.amazonaws.com/assets.azk.io/run-project-illustrative.png)
+
+To add a `Run Project` button to a repo, you'll just need to add an Azkfile.js to the project and put the following badge in your README.md file (the following example is for a hypothetical repository with the URL `https://github.com/username/repo` and a branch called `azkfile` containing the Azkfile.js):
+
+```
+[![Run project](https://s3-sa-east-1.amazonaws.com/assets.azk.io/run-project.png)](http://run.azk.io/start/?repo=username/repo&ref=azkfile)
+```
+
+Check out the [`Run Project` Gallery][run_project_gallery] for examples of up to date forks of popular projects using it.
+
+## Deploying
+
+After you locally run a project using [`Run Project` button](#run-project-button), deploying it to [DigitalOcean](http://digitalocean.com/) is very simple.
+
+First, put your [personal access token](https://cloud.digitalocean.com/settings/applications) into a `.env` file:
+
+```bash
+$ cd path/to/the/project
+$ echo "DEPLOY_API_TOKEN=<YOUR-PERSONAL-ACCESS-TOKEN>" >> .env
+```
+
+Then, just run the following:
+
+```bash
+$ azk shell deploy
+```
+
+Find further instructions on how to deploy to DigitalOcean using `azk` [here](http://docs.azk.io/en/deploy/README.html).
+
 ### Basic Vocabulary
 
 #### System of Systems
@@ -83,7 +116,7 @@ In order to automate the provisioning of development environments, `azk` uses pr
 
 `Azkfile.js` files are the cornerstone of how to use `azk`. These simple manifest files describe the systems that make your system of systems as well as the images used in their execution. They also describe parameters and execution options.
 
-More information [here](http://docs.azk.io/en/azkfilejs/README.html).
+More information [here][azkfile].
 
 ## Contributions
 
@@ -105,3 +138,5 @@ Check LEGAL and LICENSE files for more information.
 [docker_hub]: https://registry.hub.docker.com/
 [dockerfile]: http://dockerfile.github.io
 [docker_registry]: http://registry.hub.docker.com
+[azkfile]: http://docs.azk.io/en/azkfilejs/README.html
+[run_project_gallery]: https://github.com/run-project/gallery

@@ -86,16 +86,20 @@ describe("Azk docker module, run method @slow", function() {
   });
 
   it("should support bind volumes", function() {
-    var cmd = ["/bin/bash", "-c", "ls -l /azk"];
+    var cmd = ["/bin/bash", "-c", "ls -l /azk; cat /etc/passwd /file"];
     var options = {
       stdout: mocks.stdout, rm: true,
       volumes: {
-        "/azk": utils.docker.resolvePath(__dirname),
+        "/azk" : utils.docker.resolvePath(__dirname),
+        "/file": utils.docker.resolvePath(__filename),
+        "/etc/passwd": '/etc/passwd',
       },
     };
 
     return h.docker.run(default_img, cmd, options).then(() => {
       h.expect(outputs.stdout).to.match(/run_spec.js/);
+      h.expect(outputs.stdout).to.match(/this text/);
+      h.expect(outputs.stdout).to.match(/^root.*/m);
     });
   });
 
@@ -178,15 +182,17 @@ describe("Azk docker module, run method @slow", function() {
     return async(function* () {
       var memory = 10 * 1024 * 1024;
       var cmd    = ["/bin/true"];
-      var opts   = { rm: false, stdout: mocks.stdout, docker: {
-        start : { Privileged: true },
-        create: { Memory: memory },
+      var opts   = { rm: false, stdout: mocks.stdout, extra: {
+        HostConfig: {
+          Privileged: true,
+          Memory: memory
+        }
       }};
       var cont = yield h.docker.run(default_img, cmd, opts);
       var data = yield cont.inspect();
 
       h.expect(data).to.have.deep.property('HostConfig.Privileged').and.to.ok;
-      h.expect(data).to.have.deep.property('Config.Memory', memory);
+      h.expect(data).to.have.deep.property('HostConfig.Memory', memory);
     });
   });
 

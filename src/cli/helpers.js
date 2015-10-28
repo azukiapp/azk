@@ -1,6 +1,7 @@
-import { _, log, lazy_require, config } from 'azk';
+import { _, log, lazy_require, config, t } from 'azk';
 import { async } from 'azk/utils/promises';
 import { SmartProgressBar } from 'azk/cli/smart_progress_bar';
+import { ManifestError } from 'azk/utils/errors';
 
 var lazy = lazy_require({
   AgentClient: ['azk/agent/client', 'Client'],
@@ -76,9 +77,28 @@ var Helpers = {
   },
 
   manifestValidate(cmd, manifest) {
+    var validation_errors = manifest.validate();
+    if (validation_errors.length === 0) { return; }
+
+    // has deprecate errors?
     if (config('flags:show_deprecate')) {
-      _.each(manifest.validate(), (error) => {
-        cmd[error.level](`manifest.validate.${error.key}`, error);
+      var deprecate_val_errors = _.filter(validation_errors, function (item) {
+        return item.level === 'deprecate';
+      });
+      _.each(deprecate_val_errors, (deprecate_val_error) => {
+        cmd.deprecate(`manifest.validate.${deprecate_val_error.key}`, deprecate_val_error);
+      });
+    }
+
+    // has fails level errors?
+    var val_errors = _.filter(validation_errors, function (item) {
+      return item.level === 'fail';
+    });
+
+    if (config('flags:show_deprecate')) {
+      _.each(val_errors, (val_error) => {
+        var msg = t(`manifest.validate.${val_error.key}`, val_error);
+        throw new ManifestError(this.file, msg);
       });
     }
   },

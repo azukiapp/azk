@@ -13,7 +13,7 @@ set -e
 
 BASE_DIR=$( echo $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd ) | sed s#$(pwd)/##g )
 
-export VERSION=$( azk version | awk '{ print $2 }' )
+export VERSION=$( bin/azk version | awk '{ print $2 }' )
 export SO=$1
 
 if [[ $# == 2 ]]; then
@@ -44,7 +44,7 @@ esac
 
 azk restart package --reprovision
 
-if azk shell pkg-${SO}-test --shell=/bin/bash ${EXTRA_ARGS} -c "${BASE_DIR}/test-container.sh ${DISTRO} ${CODENAME} ${VERSION} ${AZK_NAMESPACE} ${TEST_ARGS}"; then
+if azk shell --shell=/bin/sh pkg-${SO}-test ${EXTRA_ARGS} -c "${BASE_DIR}/test-container.sh ${DISTRO} ${CODENAME} ${VERSION} ${AZK_NAMESPACE} ${TEST_ARGS}"; then
     echo "azk ${VERSION} has been successfully installed."
 else
     echo "Failed to install azk ${VERSION}."

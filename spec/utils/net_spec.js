@@ -96,12 +96,12 @@ describe("Azk utils.net module", function() {
         });
     };
 
-    it("should wait for server", function() {
+    it("should wait for server running in a host:port", function() {
 
       var _subscription;
 
       var connect = () => {
-        return net_utils.waitService("tcp://localhost:" + port, 2, { timeout: 100 });
+        return net_utils.waitService("tcp://localhost:" + port, { timeout: 1000 });
       };
 
       return async(function* () {
@@ -117,6 +117,7 @@ describe("Azk utils.net module", function() {
             runServer(port);
           }
         });
+
         yield h.expect(connect()).to.eventually.equal(true);
         _subscription.unsubscribe();
       })
@@ -130,7 +131,7 @@ describe("Azk utils.net module", function() {
 
     it("should wait for server runing in a unix socket", function() {
       var connect = () => {
-        return net_utils.waitService("unix://" + unix, 2, { timeout: 100 });
+        return net_utils.waitService("unix://" + unix, { timeout: 500 });
       };
 
       return async(function* () {
@@ -142,13 +143,13 @@ describe("Azk utils.net module", function() {
 
     it("should stop retry", function() {
       var retry   = 0;
-      var options = { timeout: 100, retry_if: () => {
+      var options = { timeout: 1000, retry_if: () => {
         retry++;
         return promiseResolve(false);
       }};
 
       return async(function* () {
-        var result = net_utils.waitService("tcp://localhost:" + port, 2, options);
+        var result = net_utils.waitService("tcp://localhost:" + port, options);
         yield h.expect(result).to.eventually.equal(false);
         h.expect(retry).to.eql(1);
       });

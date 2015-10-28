@@ -17,6 +17,12 @@ var gulp = azk_gulp.gulp;
 var dotenv = require('dotenv');
 dotenv.load({ silent: true });
 
+gulp.on('task_start', function(e) {
+  if (e.task === 'test') {
+    process.env.AZK_ENV = "test";
+  }
+});
+
 var integration_src = [
   'src/**/*.js',
   'spec/**/*.js',
@@ -59,9 +65,11 @@ gulp.task('publish', function() {
 
   // create a new publisher
   var publisher = awspublish.create({
-    key: process.env.AWS_ACCESS_KEY_ID,
-    secret: process.env.AWS_SECRET_KEY,
-    bucket: bucket,
+    params: {
+      Bucket: bucket,
+    },
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_KEY,
     region: 'sa-east-1',
   });
 

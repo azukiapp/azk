@@ -11,6 +11,7 @@ Uma vez que o `azk` tenha sido instalado por pacotes o processo de atualização
 
 ```bash
 $ azk agent stop
+$ brew update
 $ brew upgrade azukiapp/azk/azk
 ```
 

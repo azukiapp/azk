@@ -44,6 +44,14 @@ image_name="azukiapp/azktcl"
   assert_match "^DATA=OLD"
 }
 
+@test "$test_label forwarding TERM to interative shell" {
+  cmd="env"
+  export TERM=xterm-azk
+  run azk shell -t --image "${image_name}:${image_tag}" --shell /bin/bash -c "${cmd}"
+  assert_success
+  assert_match "^TERM=xterm-azk"
+}
+
 @test "$test_label run shell command with --rebuild" {
   cmd="ls -l /; echo 'foo bar'; echo \"David\""
   run azk --log=debug shell --rebuild --image "${image_name}:${image_tag}" --shell /bin/bash -c "${cmd}"

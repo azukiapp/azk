@@ -1,6 +1,6 @@
 # Introduction
 
-![Figure 1-1](./resources/images/logo.png)
+![Figure 1-1](./resources/images/azk-logo-blue.png)
 
 Welcome to the documentation for `azk`! This documentation will help you get started using `azk`, but can also be used as reference material for the options and ways to use` azk`.
 

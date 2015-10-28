@@ -10,6 +10,8 @@ var lazy = lazy_require({
 });
 
 describe("Azk sync, Worker module", function() {
+  this.timeout(20000);
+
   var worker;
   var example_fixtures = h.fixture_path('sync/test_1/');
   var invalid_fixtures = path.join(h.fixture_path('sync/test_1/'), 'invalid');

@@ -96,4 +96,22 @@ describe('Azk cli, help controller', function() {
       h.expect(outputs[0]).to.match(RegExp('Options:'  , 'gi'));
     });
   });
+
+  it("should run `start --help` command to not duplicated itens", function() {
+    doc_opts.argv = ['start', '--help'];
+    return cli.run(doc_opts, run_options).then((code) => {
+      h.expect(code).to.eql(0);
+      var regex_log = RegExp('^  --log=<level>', 'gmi');
+      var match_log = outputs[0].match(regex_log);
+
+      var regex_open = RegExp('^  --open-with=<app>', 'gmi');
+      var match_open = outputs[0].match(regex_open);
+
+      h.expect(match_log).to.have.length(1);
+      h.expect(match_open).to.have.length(1);
+
+      h.expect(match_log).to.eql([ '  --log=<level>' ]);
+      h.expect(match_open).to.eql([ '  --open-with=<app>' ]);
+    });
+  });
 });

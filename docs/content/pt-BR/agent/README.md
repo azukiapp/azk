@@ -12,4 +12,4 @@ Para o correto funcionamento do `azk` dependemos da execução de alguns serviç
 
 Para que você não tenha que gerenciar cada um destes serviços manualmente o `azk` conta com o que chamamos de `azk agent`, um serviço que precisa estar rodando para que você possa utilizar o `azk` em todo seu potencial.
 
-Para gerenciar a execução do _agent_ contamos com o comando `azk agent`, para uma lista completa de opções [acesse](../command-line/agent.md).
+Para gerenciar a execução do _agent_ contamos com o comando `azk agent`, para uma lista completa de opções [acesse](../reference/cli/agent.md).

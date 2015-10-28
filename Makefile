@@ -20,32 +20,49 @@ NVM_NODE_VERSION := $(shell cat ${AZK_ROOT_PATH}/.nvmrc)
 NODE = ${NVM_DIR}/${NVM_NODE_VERSION}/bin/node
 VM_DISKS_DIR := ${AZK_LIB_PATH}/vm/${AZK_ISO_VERSION}
 
+# Locking npm version
+NPM_VERSIONS_PATH := ${NVM_DIR}/npm_versions
+NPM_VERSION_FILE := ${NPM_VERSIONS_PATH}/${NPM_VERSION}
+
+finished:
+	@echo "Finished!"
+
+clean_nvm_versions:
+	@echo "Checking npm version..."
+	@mkdir -p ${NPM_VERSIONS_PATH} && find ${NPM_VERSIONS_PATH} -type f -not -name '${NPM_VERSION}' -delete || true
+
 SRC_JS = $(shell cd ${AZK_ROOT_PATH} && find ./src -name '*.*' -print 2>/dev/null)
 
 teste_envs:
 	@echo ${LIBNSS_RESOLVER_VERSION}
 	@echo ${AZK_ISO_VERSION}
 
-${AZK_LIB_PATH}/azk: $(SRC_JS) ${AZK_NPM_PATH}/.install
+${AZK_LIB_PATH}/azk: $(SRC_JS) ${NPM_VERSION_FILE} ${AZK_NPM_PATH}/.install
 	@echo "task: $@"
 	@export AZK_LIB_PATH=${AZK_LIB_PATH} && \
 		export AZK_NPM_PATH=${AZK_NPM_PATH} && \
 		${AZK_BIN} nvm gulp babel && touch ${AZK_LIB_PATH}/azk
 
-${AZK_NPM_PATH}/.install: npm-shrinkwrap.json package.json ${NODE}
+${AZK_NPM_PATH}/.install: npm-shrinkwrap.json package.json
 	@echo "task: $@"
 	@mkdir -p ${AZK_NPM_PATH}
 	@export AZK_LIB_PATH=${AZK_LIB_PATH} && \
 		${AZK_BIN} nvm npm install && \
 		touch ${AZK_NPM_PATH}/.install
 
+${NPM_VERSION_FILE}: ${NODE}
+	@echo "task: install npm ${NPM_VERSION}"
+	@rm -Rf ${AZK_NPM_PATH}/*
+	@rm -Rf ${AZK_NPM_PATH}/.install
+	@${AZK_BIN} nvm npm install npm@${NPM_VERSION} -g
+	@touch ${NPM_VERSION_FILE}
+
 ${NODE}:
 	@echo "task: $@: ${NVM_NODE_VERSION}"
 	@export NVM_DIR=${NVM_DIR} && \
 		mkdir -p ${NVM_DIR} && \
 		. ${NVM_BIN_PATH} && \
-		nvm install $(NVM_NODE_VERSION) && \
-		${AZK_BIN} nvm npm install npm -g
+		nvm install $(NVM_NODE_VERSION)
 
 clean:
 	@echo "task: $@"
@@ -53,7 +70,7 @@ clean:
 	@rm -Rf ${AZK_NPM_PATH}/..?* ${AZK_NPM_PATH}/.[!.]* ${AZK_NPM_PATH}/*
 	@rm -Rf ${NVM_DIR}/..?* ${NVM_DIR}/.[!.]* ${NVM_DIR}/*
 
-bootstrap: ${AZK_LIB_PATH}/azk dependencies
+bootstrap: clean_nvm_versions ${AZK_LIB_PATH}/azk dependencies finished
 
 dependencies: ${AZK_LIB_PATH}/bats ${VM_DISKS_DIR}/azk.iso ${VM_DISKS_DIR}/azk-agent.vmdk.gz
 
@@ -89,6 +106,13 @@ PATH_AZK_NVM:=${PATH_AZK_LIB}/nvm
 NODE_PACKAGE = ${PATH_AZK_NVM}/${NVM_NODE_VERSION}/bin/node
 PATH_MAC_PACKAGE:=${AZK_PACKAGE_PATH}/azk_${AZK_VERSION}.tar.gz
 
+# Locking npm version
+PACKAGE_NPM_VERSIONS_PATH := ${PATH_AZK_NVM}/npm_versions
+PACKAGE_NPM_VERSION_FILE := ${PACKAGE_NPM_VERSIONS_PATH}/${NPM_VERSION}
+
+package_clean_nvm_versions:
+	@mkdir -p ${PACKAGE_NPM_VERSIONS_PATH} && find ${PACKAGE_NPM_VERSION_FILE} -type f -not -name '${NPM_VERSION}' -delete || true
+
 # Build package folders tree
 package_brew: package_build fix_permissions check_version ${PATH_AZK_LIB}/vm/${AZK_ISO_VERSION} ${PATH_MAC_PACKAGE}
 package_mac:
@@ -120,7 +144,7 @@ check_version:
 		exit 1; \
 	fi
 
-${PATH_NODE_MODULES}: ${PATH_USR_LIB_AZK}/npm-shrinkwrap.json ${NODE_PACKAGE}
+${PATH_NODE_MODULES}: ${PACKAGE_NPM_VERSION_FILE} ${PATH_USR_LIB_AZK}/npm-shrinkwrap.json
 	@echo "task: $@"
 	@cd ${PATH_USR_LIB_AZK} && ${AZK_BIN} nvm npm install --production
 
@@ -131,13 +155,17 @@ ${PATH_USR_LIB_AZK}/npm-shrinkwrap.json: ${PATH_USR_LIB_AZK}/package.json
 	@cd ${PATH_USR_LIB_AZK} && ${AZK_BIN} nvm npm shrinkwrap
 	@rm ${PATH_NODE_MODULES}
 
+${PACKAGE_NPM_VERSION_FILE}: ${NODE_PACKAGE}
+	@echo "task: $@"
+	@${AZK_BIN} nvm npm install npm@${NPM_VERSION} -g
+	@touch ${PACKAGE_NPM_VERSION_FILE}
+
 ${NODE_PACKAGE}:
 	@echo "task: $@"
 	@export NVM_DIR=${PATH_AZK_NVM} && \
 		mkdir -p ${PATH_AZK_NVM} && \
 		. ${NVM_BIN_PATH} && \
-		nvm install $(NVM_NODE_VERSION) && \
-		azk nvm npm install npm -g
+		nvm install $(NVM_NODE_VERSION)
 
 define COPY_FILES
 $(abspath $(2)/$(3)): $(abspath $(1)/$(3))
@@ -155,7 +183,7 @@ endef
 
 # copy regular files
 FILES_FILTER  = package.json bin shared .nvmrc CHANGELOG.md LICENSE README.md .dependencies
-FILES_ALL     = $(shell cd ${AZK_ROOT_PATH} && find $(FILES_FILTER) -print 2>/dev/null)
+FILES_ALL     = $(shell cd ${AZK_ROOT_PATH} && find $(FILES_FILTER) -print 2>/dev/null | grep -v shared/completions)
 FILES_TARGETS = $(foreach file,$(addprefix $(PATH_USR_LIB_AZK)/, $(FILES_ALL)),$(abspath $(file)))
 $(foreach file,$(FILES_ALL),$(eval $(call COPY_FILES,$(AZK_ROOT_PATH),$(PATH_USR_LIB_AZK),$(file))))
 
@@ -181,6 +209,61 @@ ${PATH_AZK_LIB}/vm/${AZK_ISO_VERSION}: ${AZK_LIB_PATH}/vm
 ${PATH_MAC_PACKAGE}: ${AZK_PACKAGE_PREFIX}
 	@cd ${PATH_USR_LIB_AZK}/.. && tar -czf ${PATH_MAC_PACKAGE} ./
 
-package_build: bootstrap $(FILES_TARGETS) copy_transpiled_files ${PATH_NODE_MODULES}
+package_build: bootstrap $(FILES_TARGETS) copy_transpiled_files package_clean_nvm_versions ${PATH_NODE_MODULES}
 
-.PHONY: bootstrap clean package_brew package_mac package_deb package_rpm package_build package_clean copy_transpiled_files fix_permissions creating_symbolic_links dependencies check_version slow_test test
+AZK_SHARED_PATH=${AZK_ROOT_PATH}/shared
+USAGE_FILE_PATH=${AZK_SHARED_PATH}/locales/usage-en-US.txt
+
+COMPLETIONS_PATH=${AZK_SHARED_PATH}/completions
+BASH_COMPLETION_FILE=${COMPLETIONS_PATH}/azk.sh
+ZSH_COMPLETION_FILE=${COMPLETIONS_PATH}/_azk
+
+DOCOPT_COMPLETION_VERSION=0.2.6
+
+${BASH_COMPLETION_FILE} ${ZSH_COMPLETION_FILE}: ${USAGE_FILE_PATH}
+	@if ! which docopt-completion > /dev/null 2>&1; then \
+		echo "task: install/upgrade docopt-completion"; \
+		sudo pip install infi.docopt-completion==${DOCOPT_COMPLETION_VERSION}; \
+	fi
+
+	@echo "task: generate shell completion to bash"
+	@docopt-completion ${AZK_BIN} --manual-bash &>/dev/null
+	@mv -f azk.sh ${COMPLETIONS_PATH}
+	@echo "Completion file written to ${BASH_COMPLETION_FILE}"
+
+	@echo "task: generate shell completion to zsh"
+	@docopt-completion ${AZK_BIN} --manual-zsh &>/dev/null
+	@mv -f _azk ${COMPLETIONS_PATH}
+	@echo "Completion file written to ${ZSH_COMPLETION_FILE}"
+
+generate_shell_completion: ${AZK_LIB_PATH}/azk ${BASH_COMPLETION_FILE} ${ZSH_COMPLETION_FILE}
+
+ZSH_COMPLETION_PATHS=~/.oh-my-zsh/completions ~/.oh-my-zsh /usr/share/zsh/*/site-functions /usr/share/zsh/*/functions/Completion /usr/share/zsh/site-functions /usr/share/zsh/functions/Completion
+BASH_COMPLETION_PATH=$(wildcard /etc/bash_completion.d)
+ZSH_COMPLETION_PATH=$(word 1, $(wildcard $(ZSH_COMPLETION_PATHS)))
+
+COMPLETIONS_FILES=
+ifdef BASH_COMPLETION_PATH
+	COMPLETIONS_FILES+=${BASH_COMPLETION_PATH}/azk.sh
+endif
+ifdef ZSH_COMPLETION_PATH
+	COMPLETIONS_FILES+=${ZSH_COMPLETION_PATH}/_azk
+endif
+
+${BASH_COMPLETION_PATH}/azk.sh: ${BASH_COMPLETION_FILE}
+	@echo "task: $@"
+	@sudo cp -f ${COMPLETIONS_PATH}/azk.sh $(BASH_COMPLETION_PATH)/
+	@echo "Shell completion scripts installed in $(BASH_COMPLETION_PATH)/azk.sh"
+
+${ZSH_COMPLETION_PATH}/_azk: ${ZSH_COMPLETION_FILE}
+	@echo "task: $@"
+	@if [ $(findstring $(wildcard ~/), ${ZSH_COMPLETION_PATH}) ]; then \
+		cp -f ${COMPLETIONS_PATH}/_azk $(ZSH_COMPLETION_PATH)/; \
+	else \
+		sudo cp -f ${COMPLETIONS_PATH}/_azk $(ZSH_COMPLETION_PATH)/; \
+	fi
+	@echo "Shell completion scripts installed in $(ZSH_COMPLETION_PATH)/_azk"
+
+install_shell_completion: ${COMPLETIONS_FILES}
+
+.PHONY: bootstrap clean package_brew package_mac package_deb package_rpm package_build package_clean copy_transpiled_files fix_permissions creating_symbolic_links dependencies check_version slow_test test generate_shell_completion install_shell_completion

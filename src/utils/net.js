@@ -15,6 +15,7 @@ var lazy = lazy_require({
   hostonly       : ['azk/agent/vm'],
   VM             : ['azk/agent/vm'],
   connectivity   : 'connectivity',
+  nodeRetry      : 'retry',
 });
 
 var portrange = config("agent:portrange_start");
@@ -179,12 +180,21 @@ var net = {
     });
   },
 
-  waitService(uri, retry = 15, opts = {}) {
+  waitService(uri, opts = {}) {
     opts = _.defaults(opts, {
-      timeout: 10000,
+      timeout: 10000,      // maximum timeout - this may be override
       retry_if: () => { return promiseResolve(true); },
       publish_retry: true,
+      nodeRetry_opts: {
+        retries: 100,      // maximum tries
+        factor: 1.2,
+        minTimeout: 75,    // min delay
+        maxTimeout: 5000,  // max delay
+        randomize: true,
+      }
     });
+
+    var timeoutsArray = lazy.nodeRetry.timeouts(opts.nodeRetry_opts);
 
     // Parse options to try connect
     var address = url.parse(uri);
@@ -197,12 +207,16 @@ var net = {
       };
     }
 
-    return defer((resolve) => {
-      var client   = null;
-      var attempts = 1, max = retry;
-      var connect  = () => {
-        var t = null;
+    var client = null, t = null;
+    var end = () => {
+      if (client) { client.end(); }
+      if (t) { clearTimeout(t); }
+      client = t = null;
+    };
 
+    return defer((resolve) => {
+      var attempts = 1, max = opts.nodeRetry_opts.retries;
+      var connect  = () => {
         if (opts.publish_retry) {
           publish("utils.net.waitService.status", _.merge({
             uri : uri,
@@ -213,14 +227,12 @@ var net = {
         }
 
         client = nativeNet.connect(address, function() {
-          client.end();
-          clearTimeout(t);
+          end();
           resolve(true);
         });
 
         t = setTimeout(() => {
-          client.end();
-
+          end();
           opts.retry_if().then((result) => {
             if (attempts >= max || !result) {
               return resolve(false);
@@ -228,12 +240,17 @@ var net = {
             attempts += 1;
             connect();
           }, () => resolve(false));
-        }, opts.timeout);
+        }, timeoutsArray[attempts - 1]);
 
         // Ignore connect error
         client.on('error', () => { return false; });
       };
       connect();
+    })
+    .timeout(opts.timeout)
+    .catch(function () {
+      end();
+      return promiseResolve(false);
     });
   },
 

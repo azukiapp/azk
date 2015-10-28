@@ -1,3 +1,6 @@
 Dockerfile
 Dockerfile*
+# .dockerignore should support empty lines...
+
+# ... and comments!
 .dockerignore
