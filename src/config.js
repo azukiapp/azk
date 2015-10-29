@@ -164,7 +164,8 @@ var options = mergeConfig({
       },
       force: {
         endpoints: {
-          start: 'http://api.azk.io/systems/start'
+          start: 'http://api.azk.io/systems/start',
+          notice: 'http://api.azk.io/systems/notice'
         }
       }
     },
@@ -190,7 +191,8 @@ var options = mergeConfig({
       },
       force: {
         endpoints: {
-          start: 'http://force-stage.azk.io/systems/start'
+          start: 'http://force-stage.azk.io/systems/start',
+          notice: 'http://force-stage.azk.io/systems/notice'
         }
       }
     },

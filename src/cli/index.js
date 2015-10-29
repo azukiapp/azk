@@ -1,8 +1,13 @@
-import { _ } from 'azk';
+import { _, lazy_require, config } from 'azk';
 import { promiseResolve, promiseReject, isPromise } from 'azk/utils/promises';
 import { Cli as AzkCli } from 'azk/cli/cli';
 import { UI } from 'azk/cli/ui';
 import { InvalidCommandError } from 'azk/utils/errors';
+
+var lazy = lazy_require({
+  'BugSender': 'bug-report-sender',
+  'request'  : 'request',
+});
 
 export class Cli extends AzkCli {
   invalidCmd(error) {
@@ -53,6 +58,47 @@ export function run(args, cwd, ui) {
   })];
 }
 
+var _sendErrorToBugReport = function(error_to_send, tracker) {
+  // TODO: get infos like tracker
+  var extra_values = {
+    meta: {},
+    server: {},
+  };
+
+  if (tracker && tracker.meta) {
+    if (tracker.meta.device_info) {
+      extra_values.server = tracker.meta.device_info;
+    }
+    if (tracker.meta.agent_session_id) {
+      extra_values.meta.agent_session_id = tracker.meta.agent_session_id;
+    }
+    if (tracker.meta.command_id) {
+      extra_values.meta.command_id = tracker.meta.command_id;
+    }
+    if (tracker.meta.user_id) {
+      extra_values.meta.user_id = tracker.meta.user_id;
+    }
+    if (tracker.meta.azk_version) {
+      extra_values.meta.azk_version = tracker.meta.azk_version;
+    }
+  }
+
+  var endpoint_url = config('urls:force:endpoints:notice');
+
+  var options = {
+    err: error_to_send,
+    extra_values: extra_values,
+    libs: {requestFunction: lazy.request},
+    url: endpoint_url,
+  };
+
+  var bugSender = new lazy.BugSender();
+  return bugSender.send(options)
+  .then(function(result) {
+    // OK
+  });
+};
+
 export function cli(args, cwd, ui = UI) {
   var result, azk_cli;
   try {
@@ -70,7 +116,18 @@ export function cli(args, cwd, ui = UI) {
       })
       .catch((error) => {
         ui.fail(error);
-        ui.exit(error.code ? error.code : 127);
+        ui.info('sending bug report...');
+        return _sendErrorToBugReport(error, ui.tracker).then((result) => {
+          ui.info(`[force] bug report error response: ${result.body}`);
+          ui.exit(error.code ? error.code : 127);
+        })
+        .catch((/*err*/) => {
+          // ui.fail(err.error);
+        });
+
+      })
+      .then((code) => {
+        ui.exit(code ? code : 0);
       });
   } else {
     ui.exit(result);

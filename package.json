@@ -34,6 +34,7 @@
     "archiver": "^0.13.1",
     "babel-runtime": "^5.1.11",
     "bluebird": "^2.9.27",
+    "bug-report-sender": "^0.1.x",
     "chokidar": "^1.0.1",
     "cli-router": "^0.3.7",
     "cli-table": "git+https://github.com/gullitmiranda/cli-table#master",
