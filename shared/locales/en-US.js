@@ -343,7 +343,7 @@ module.exports = {
     start: {
       already_started: "System `%(name)s` already started",
       skip           : "Skip starting, system `" + "%(name)s".blue + "` does not scale.",
-      fail           : "Due to the above error azk will stop all instances already running.\n",
+      fail           : "An error occurred. It will stop all instances already running. See details below.\n",
       get_project: {
         getting_git_version      : "Checking Git version...",
         getting_remote_info      : "Getting remote info from `%(git_url)s`...",

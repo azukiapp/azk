@@ -1,4 +1,4 @@
-import { _, lazy_require, config } from 'azk';
+import { _, lazy_require, config, log } from 'azk';
 import { promiseResolve, promiseReject, isPromise } from 'azk/utils/promises';
 import { Cli as AzkCli } from 'azk/cli/cli';
 import { UI } from 'azk/cli/ui';
@@ -90,13 +90,17 @@ var _sendErrorToBugReport = function(error_to_send, tracker) {
     extra_values: extra_values,
     libs: {requestFunction: lazy.request},
     url: endpoint_url,
+    background_send: true,
   };
 
   var bugSender = new lazy.BugSender();
+
   return bugSender.send(options)
-  .then(function(result) {
-    // OK
+  .catch((err_result) => {
+    log.debug('[bug-report] error sending bug report to Force. See below.');
+    log.debug(err_result);
   });
+
 };
 
 export function cli(args, cwd, ui = UI) {
@@ -112,17 +116,27 @@ export function cli(args, cwd, ui = UI) {
   if (isPromise(result)) {
     result
       .then((code) => {
-        ui.exit(code ? code : 0);
+        if (code !== 0) {
+          log.error('ATTENTION: error were are not thrown');
+          console.trace(`code: ${code}`);
+          return ui.exit(code);
+        }
+        ui.exit(0);
       })
       .catch((error) => {
+
+        var isError = error instanceof Error;
+        if (!isError) {
+          log.error('ATTENTION: expected an error but get this:');
+          console.trace(error);
+          return ui.exit(1);
+        }
+
         ui.fail(error);
-        ui.info('sending bug report...');
+        log.debug(`[bug-report] sending...`);
         return _sendErrorToBugReport(error, ui.tracker).then((result) => {
-          ui.info(`[force] bug report error response: ${result.body}`);
+          log.debug(`[bug-report] Force response ${result && result.body}`);
           ui.exit(error.code ? error.code : 127);
-        })
-        .catch((/*err*/) => {
-          // ui.fail(err.error);
         });
 
       })

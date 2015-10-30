@@ -2,7 +2,7 @@ import { CliTrackerController } from 'azk/cli/cli_tracker_controller';
 import { Helpers } from 'azk/cli/helpers';
 import { _, log, t, config, lazy_require } from 'azk';
 import { subscribe } from 'azk/utils/postal';
-import { async } from 'azk/utils/promises';
+import { async, promiseReject } from 'azk/utils/promises';
 import { AzkError } from 'azk/utils/errors';
 
 var lazy = lazy_require({
@@ -50,14 +50,19 @@ class Scale extends CliTrackerController {
       yield lazy.Status.status(this, manifest, status_systems);
 
       return result;
-    })
-    .catch(function (err) {
-      if (err instanceof AzkError) {
-        this.ui.fail(err.toString());
-      } else {
-        this.ui.fail(err.stack);
-      }
-    }.bind(this));
+    });
+
+    // FIXME: check timeout error
+
+    // .catch(function (err) {
+    //   if (err instanceof AzkError) {
+    //     this.ui.fail(err.toString());
+    //   } else {
+    //     /**/console.log('\n>>---------\n err:\n', err, '\n>>---------\n');/*-debug-*/
+    //     this.ui.fail(err.stack);
+    //   }
+    // }.bind(this))
+    // .then((error) => promiseReject(error));
   }
 
   scale(manifest, systems, opts) {

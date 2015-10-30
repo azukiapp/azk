@@ -3686,8 +3686,8 @@
       "resolved": "https://registry.npmjs.org/bluebird/-/bluebird-2.9.27.tgz"
     },
     "bug-report-sender": {
-      "version": "0.1.8",
-      "from": "bug-report-sender@0.1.8",
+      "version": "0.1.9",
+      "from": "bug-report-sender@0.1.9",
       "dependencies": {
         "async": {
           "version": "1.5.0",

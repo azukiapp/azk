@@ -1,6 +1,6 @@
 import Scale from 'azk/cmds/scale';
 import { _, lazy_require } from 'azk';
-import { async } from 'azk/utils/promises';
+import { async, promiseReject } from 'azk/utils/promises';
 
 var lazy = lazy_require({
   GetProject: ['azk/manifest/get_project'],
@@ -100,11 +100,11 @@ class Start extends Scale {
       return result;
     })
     .catch((error) => {
-      this.ui.fail(error);
       this.ui.fail('commands.start.fail', error);
-      return this
-        .stop(manifest, systems, opts)
-        .then(() => { return error.code ? error.code : 127; });
+      return this.stop(manifest, systems, opts)
+      .then(() => {
+        return promiseReject(error);
+      });
     });
   }
 
