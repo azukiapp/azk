@@ -8,12 +8,12 @@
 'INTERNAL_FOLDER': path('LOCAL_PATH'),
 ```
 
-Monta a pasta localizada no sistema atual em `LOCAL_PATH`, relativo ao Azkfile.js, na pasta `INTERNAL_FOLDER` dentro do container. Caso algum arquivo seja alterado a partir da máquina do usuário ou de dentro do container, a informação também é atualizada do outro lado.
+Monta a pasta localizada no sistema atual em `LOCAL_PATH`, relativo ao Azkfile.js, na pasta `INTERNAL_FOLDER` dentro do container. Caso algum arquivo seja alterado a partir da máquina do usuário ou de dentro do container, o arquivo também é atualizada do outro lado.
 
 Importante notar que o `azk` executa uma especie de "resolução" do caminho passado para o `path` (veja a opção `resolve` a baixo). Isso tem duas implicações:
 
-  * Se o caminho não existir ele não sera montado no container;
-  * O caminho é sempre relativo ao host onde o `azk` esta rodando, ou seja nos casos onde estamos rodando o sistema de containers dentro de uma máquina virtual o caminho da máquina host sera resolvido;
+  * Se o caminho não existir ele não será montado no container;
+  * O caminho é sempre relativo ao host onde o `azk` está rodando, ou seja nos casos onde estamos rodando o sistema de containers dentro de uma máquina virtual o caminho da máquina host será resolvido;
 
 ##### OPTS (opcional)
 
