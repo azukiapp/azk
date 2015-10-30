@@ -171,6 +171,7 @@ export function extend(h) {
             "/azk/#{system.name}": '.',
             "/azk/root": '/',
             "/azk/not-exists": { type: 'path', value: '../not-exists', required: false },
+            "/azk/not-resolve": { type: 'path', value: "/azk/not-resolve", resolve: false },
           },
           docker_extra: {
             HostConfig: { Privileged: true }

@@ -8,7 +8,16 @@
 'INTERNAL_FOLDER': path('LOCAL_PATH'),
 ```
 
-Monta a pasta localizada no sistema atual em `LOCAL_PATH`, relativo ao Azkfile.js, na pasta `INTERNAL_FOLDER` dentro do contêiner. Caso algum arquivo seja alterado a partir da máquina do usuário ou de dentro do contêiner, a informação também é atualizada do outro lado.
+Monta a pasta localizada no sistema atual em `LOCAL_PATH`, relativo ao Azkfile.js, na pasta `INTERNAL_FOLDER` dentro do container. Caso algum arquivo seja alterado a partir da máquina do usuário ou de dentro do container, a informação também é atualizada do outro lado.
+
+Importante notar que o `azk` executa uma especie de "resolução" do caminho passado para o `path` (veja a opção `resolve` a baixo). Isso tem duas implicações:
+
+  * Se o caminho não existir ele não sera montado no container;
+  * O caminho é sempre relativo ao host onde o `azk` esta rodando, ou seja nos casos onde estamos rodando o sistema de containers dentro de uma máquina virtual o caminho da máquina host sera resolvido;
+
+##### OPTS (opcional)
+
+* `resolve`: um valor `boolean` que orienta o `azk` para não "resolver" o endereço da pasta. Seu valor padrão é `true`, se ele for `false` o `azk` não vai verificar se o caminho passado, tornando possível montar caminhos da máquina onde o sistema de containers esta rodando, ignorando se esta localmente ou dentro de uma máquina virtual.
 
 #### persistent
 
@@ -16,7 +25,7 @@ Monta a pasta localizada no sistema atual em `LOCAL_PATH`, relativo ao Azkfile.j
 'INTERNAL_FOLDER': persistent('LOCAL_PATH'),
 ```
 
-Persiste os arquivos dentro do contêiner no caminho `INTERNAL_FOLDER` para uma pasta persistente do `azk` dentro da máquina do usuário. O local dessa pasta varia entre Mac e Linux:
+Persiste os arquivos dentro do container no caminho `INTERNAL_FOLDER` para uma pasta persistente do `azk` dentro da máquina do usuário. O local dessa pasta varia entre Mac e Linux:
 
 ###### Mac
 
@@ -89,17 +98,25 @@ A pasta encontra-se no disco virtual (`~/.azk/data/vm/azk-agent.vmdk`), no diret
 
 `~/.azk/data/sync_folders/#{manifest.id}/LOCAL_PATH`.
 
-Note que utilizar o mesmo 'LOCAL_PATH' no mesmo Azkfile.js, mas em contêiners diferentes, significa que eles irão compartilhar os dados sincronizados.
+Note que utilizar o mesmo 'LOCAL_PATH' no mesmo Azkfile.js, mas em containers diferentes, significa que eles irão compartilhar os dados sincronizados.
 
 > **NOTA IMPORTANTE:** Se você estiver enfrentando problemas de performance ao usar o `azk` com sua aplicação, você deve utilizar a opção de `sync` quando for montar a pasta onde está seu código fonte. Vale lembrar que a sincronização é somente em um sentido, portanto é preciso adicionar o `mounts` as entradas com as pastas que devem utilizar a opção de compartilhamento de arquivos (usando as opções `path` ou `persistent`).
 
 ### Exemplos
 
-* __path__: Monta a pasta atual do projeto (`'.'`) dentro do contêiner na pasta `/azk/azkdemo` (considerando que `azkdemo` é o nome da pasta onde está o `Azkfile.js`).
+* __path__: Monta a pasta atual do projeto (`'.'`) dentro do container na pasta `/azk/azkdemo` (considerando que `azkdemo` é o nome da pasta onde está o `Azkfile.js`).
 
   ```js
   mounts: {
     '/azk/#{manifest.dir}' : path('.'),
+  },
+  ```
+
+* __path (resolve: false)__: Monta o caminho `/var/run/docker.sock` para o mesmo endereço. Neste caso o caminho da máquina onde o sistema de containers esta rodando é usado e nenhum tipo de "resolução" é feita;
+
+  ```js
+  mounts: {
+    '/var/run/docker.sock': path('/var/run/docker.sock',  { resolve: false })
   },
   ```
 
@@ -111,7 +128,7 @@ Note que utilizar o mesmo 'LOCAL_PATH' no mesmo Azkfile.js, mas em contêiners d
   },
   ```
 
-* __sync__: Sincroniza os arquivos do projeto dentro do contêiner na pasta `/azk/azkdemo` (considerando que `azkdemo` é o nome da pasta onde está o `Azkfile.js`), excluindo arquivos CSS e a pasta `config`. Além disso, usa compartilhamento de arquivos para as pastas `tmp` e `log`.
+* __sync__: Sincroniza os arquivos do projeto dentro do container na pasta `/azk/azkdemo` (considerando que `azkdemo` é o nome da pasta onde está o `Azkfile.js`), excluindo arquivos CSS e a pasta `config`. Além disso, usa compartilhamento de arquivos para as pastas `tmp` e `log`.
 
   ```js
   mounts: {
