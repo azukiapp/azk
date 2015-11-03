@@ -95,6 +95,8 @@ var _sendErrorToBugReport = function(error_to_send, tracker) {
 
   var bugSender = new lazy.BugSender();
 
+  // FIXME: remove this on end
+  /**/console.log('\n%% bugSender.send \n');/*-debug-*/
   return bugSender.send(options)
   .catch((err_result) => {
     log.debug('[bug-report] error sending bug report to Force. See below.');
