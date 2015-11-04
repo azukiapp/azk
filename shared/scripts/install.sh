@@ -172,13 +172,9 @@ main(){
       case $OS_VERSION in
         "20"|"21"|"22" )
           install_azk_fedora 20
-          add_user_to_docker_group
-          success
           ;;
         "23" )
           install_azk_fedora 23
-          add_user_to_docker_group
-          success
           ;;
         * )
           add_report "  Unsupported Fedora version."
@@ -186,6 +182,8 @@ main(){
           add_report "    https://github.com/azukiapp/azk/issues"
           fail
       esac
+      add_user_to_docker_group
+      success
     fi
 
     exit 0;
