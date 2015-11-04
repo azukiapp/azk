@@ -141,29 +141,51 @@ main(){
       super echo "sudo enabled" > /dev/null
     fi
 
-    # Ubuntu 14.04
-    if [[ $ID == "ubuntu" && $OS_VERSION == "14.04" ]]; then
-      echo "deb [arch=amd64] http://repo.azukiapp.com trusty main" | super tee /etc/apt/sources.list.d/azuki.list 1>/dev/null 2>&1
-      install_azk_ubuntu
-      add_user_to_docker_group
-      disable_dnsmasq
-      success
+    if [[ $ID == "ubuntu" ]]; then
+      case $OS_VERSION in
+        "12.04" )
+          UBUNTU_CODENAME="precise"
+          ;;
+        "14.04" )
+          UBUNTU_CODENAME="trusty"
+          ;;
+        "15.10" )
+          UBUNTU_CODENAME="wily"
+          ;;
+      esac
+
+      if [[ -z ${UBUNTU_CODENAME} ]]; then
+        add_report "  Unsupported Ubuntu version."
+        add_report "  Feel free to ask support for it by opening an issue at:"
+        add_report "    https://github.com/azukiapp/azk/issues"
+        fail
+      else
+        echo "deb [arch=amd64] http://repo.azukiapp.com ${UBUNTU_CODENAME} main" | super tee /etc/apt/sources.list.d/azuki.list 1>/dev/null 2>&1
+        install_azk_ubuntu
+        add_user_to_docker_group
+        disable_dnsmasq
+        success
+      fi
     fi
 
-    # Ubuntu 12.04
-    if [[ $ID == "ubuntu" && $OS_VERSION == "12.04" ]]; then
-      echo "deb [arch=amd64] http://repo.azukiapp.com precise main" | super tee /etc/apt/sources.list.d/azuki.list 1>/dev/null 2>&1
-      install_azk_ubuntu
-      add_user_to_docker_group
-      disable_dnsmasq
-      success
-    fi
-
-    # Fedora 20
-    if [[ $ID == "fedora" && ( $OS_VERSION == "20" || $OS_VERSION == "21" ) ]]; then
-      install_azk_fedora
-      add_user_to_docker_group
-      success
+    if [[ $ID == "fedora" ]]; then
+      case $OS_VERSION in
+        "20"|"21"|"22" )
+          install_azk_fedora 20
+          add_user_to_docker_group
+          success
+          ;;
+        "23" )
+          install_azk_fedora 23
+          add_user_to_docker_group
+          success
+          ;;
+        * )
+          add_report "  Unsupported Fedora version."
+          add_report "  Feel free to ask support for it by opening an issue at:"
+          add_report "    https://github.com/azukiapp/azk/issues"
+          fail
+      esac
     fi
 
     exit 0;
@@ -203,6 +225,8 @@ install_azk_ubuntu() {
 install_azk_fedora() {
   check_docker_installation
 
+  FEDORA_VERSION=${1:-"20"}
+
   step "Installing azk"
 
   echo "" 1>&2
@@ -210,7 +234,7 @@ install_azk_fedora() {
 
   echo "[azuki]
 name=azk
-baseurl=http://repo.azukiapp.com/fedora20
+baseurl=http://repo.azukiapp.com/fedora${FEDORA_VERSION}
 enabled=1
 gpgcheck=1
 " | super tee /etc/yum.repos.d/azuki.repo 1>/dev/null 2>&1
