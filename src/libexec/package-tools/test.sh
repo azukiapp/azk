@@ -5,6 +5,7 @@ if [[ $# < 1 ]] || [[ $# > 2 ]]; then
     echo "  Supported SOs:"
     echo "    - ubuntu12"
     echo "    - ubuntu14"
+    echo "    - ubuntu15"
     echo "    - fedora20"
     exit 1
 fi
@@ -31,6 +32,10 @@ case "${SO}" in
     ubuntu14 )
         DISTRO='ubuntu'
         CODENAME='trusty'
+        ;;
+    ubuntu15 )
+        DISTRO='ubuntu'
+        CODENAME='wily'
         ;;
     fedora )
         DISTRO='fedora'

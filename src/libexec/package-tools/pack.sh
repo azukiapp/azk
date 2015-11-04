@@ -257,6 +257,7 @@ if [[ $BUILD_DEB == true ]]; then
     mkdir -p package/deb \
     && wget -q "${LIBNSS_RESOLVER_REPO}/ubuntu12-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb" -O "package/deb/precise-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb" \
     && wget -q "${LIBNSS_RESOLVER_REPO}/ubuntu14-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb" -O "package/deb/trusty-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb"
+    && wget -q "${LIBNSS_RESOLVER_REPO}/ubuntu15-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb" -O "package/deb/wily-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb"
 
     EXTRA_FLAGS=""
     if [[ $LINUX_BUILD_WAS_EXECUTED == true || $NO_CLEAN_LINUX == true ]]; then
@@ -265,15 +266,21 @@ if [[ $BUILD_DEB == true ]]; then
 
     step_run "Creating deb packages" make package_deb ${EXTRA_FLAGS}
 
-    step_run "Generating Ubuntu 12.04 repository" azk shell --shell=/bin/sh package -c "src/libexec/package-tools/ubuntu/generate.sh ${LIBNSS_RESOLVER_VERSION} precise ${SECRET_KEY} ${CLEAN_REPO}"
-    if [[ $NO_TEST != true ]]; then
-      step_run "Testing Ubuntu 12.04 repository" ${AZK_BUILD_TOOLS_PATH}/test.sh ubuntu12 $TEST_ARGS
-    fi
+    UBUNTU_VERSIONS=( "ubuntu12:precise" "ubuntu14:trusty" "ubuntu15:wily" )
+    for UBUNTU_VERSION in "${UBUNTU_VERSIONS[@]}"; do
 
-    step_run "Generating Ubuntu 14.04 repository" azk shell --shell=/bin/sh package -c "src/libexec/package-tools/ubuntu/generate.sh ${LIBNSS_RESOLVER_VERSION} trusty ${SECRET_KEY} ${CLEAN_REPO}"
-    if [[ $NO_TEST != true ]]; then
-      step_run "Testing Ubuntu 14.04 repository" ${AZK_BUILD_TOOLS_PATH}/test.sh ubuntu14 $TEST_ARGS
-    fi
+      UBUNTU_VERSION_NUMBER="${UBUNTU_VERSION%%:*}"
+      UBUNTU_VERSION_CODENAME="${UBUNTU_VERSION##*:}"
+
+      step_run "Generating ${UBUNTU_VERSION_NUMBER} repository" \
+        azk shell --shell=/bin/sh package -c "src/libexec/package-tools/ubuntu/generate.sh ${LIBNSS_RESOLVER_VERSION} ${UBUNTU_VERSION_CODENAME} ${SECRET_KEY} ${CLEAN_REPO}"
+
+      if [[ $NO_TEST != true ]]; then
+        step_run "Testing ${UBUNTU_VERSION_NUMBER} repository" \
+          ${AZK_BUILD_TOOLS_PATH}/test.sh ${UBUNTU_VERSION_NUMBER} $TEST_ARGS
+      fi
+
+    done
 
     SUCCESS_STEP=true
   ) && LINUX_BUILD_WAS_EXECUTED=true
