@@ -1,5 +1,5 @@
 import { _, lazy_require, config, log } from 'azk';
-import { promiseResolve, promiseReject, isPromise } from 'azk/utils/promises';
+import { promiseResolve, promiseReject, isPromise, delay } from 'azk/utils/promises';
 import { Cli as AzkCli } from 'azk/cli/cli';
 import { UI } from 'azk/cli/ui';
 import { InvalidCommandError } from 'azk/utils/errors';
@@ -83,14 +83,13 @@ var _sendErrorToBugReport = function(error_to_send, tracker) {
     }
   }
 
-  var endpoint_url = config('urls:force:endpoints:notice');
+  var endpoint_url = config('urls:force:endpoints:report');
 
   var options = {
     err: error_to_send,
     extra_values: extra_values,
-    libs: {requestFunction: lazy.request},
     url: endpoint_url,
-    background_send: true,
+    background_send: true
   };
 
   var bugSender = new lazy.BugSender();
@@ -98,6 +97,9 @@ var _sendErrorToBugReport = function(error_to_send, tracker) {
   // FIXME: remove this on end
   /**/console.log('\n%% bugSender.send \n');/*-debug-*/
   return bugSender.send(options)
+  .then((result) => {
+    log.debug(`[bug-report] bug report send to Force. result: ${result}`);
+  })
   .catch((err_result) => {
     log.debug('[bug-report] error sending bug report to Force. See below.');
     log.debug(err_result);
