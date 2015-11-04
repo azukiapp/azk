@@ -11,9 +11,13 @@ var server  = require('http').Server(app);
 
 // server as static
 var path = require('path');
-app.use("/fedora20", express.static(
-  path.resolve(__dirname, "..", "..", "..", "package", "fedora20")
-));
+
+var fedora_versions = [ "fedora20", "fedora23" ];
+for (var fedora_version of fedora_versions) {
+  app.use(path.join('/', fedora_version), express.static(
+    path.resolve(__dirname, "..", "..", "..", "package", path.join('/', fedora_version))
+  ));
+}
 app.use("/", express.static(path.join(apptly.rootDir, 'public')));
 
 // run

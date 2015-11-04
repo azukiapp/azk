@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## dev
+
+* Enhancements
+  * [Package] Adding support to Ubuntu 15.10 and Fedora 23;
+
 ## v0.16.0 - (2015-10-28)
 
 * Bug
@@ -14,7 +19,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Cli] Added the command `azk open [system]` which opens a system URL in browser #528;
   * [Cli] Adding `deploy` command to cli;
   * [Kernel] Changing system to get `command` from image, but respect this priority for `azk shell`: shell option (`--shell`) > Azkfile.js > docker image #534;
-  * [Docker] Improving Docker version verify, making it more resistant;
+  * [Docker] Improving Docker version verification, making it more robust;
 
 ## v0.15.0 - (2015-09-15)
 
