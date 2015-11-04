@@ -165,7 +165,7 @@ var options = mergeConfig({
       force: {
         endpoints: {
           start: 'http://api.azk.io/systems/start',
-          notice: 'http://api.azk.io/systems/notice'
+          report: 'FIXME'
         }
       }
     },
@@ -192,7 +192,7 @@ var options = mergeConfig({
       force: {
         endpoints: {
           start: 'http://force-stage.azk.io/systems/start',
-          notice: 'http://force-stage.azk.io/systems/notice'
+          report: 'http://force-stage.azk.io/report/PioD05vXa8C6zSPFIUtVAb6sNvGg8Sgcj6cdw/lOjdciMKYv'
         }
       }
     },
