@@ -298,11 +298,12 @@ if [[ $BUILD_RPM == true ]]; then
   (
     set -e
 
-    [[ ! -z "${CLEAN_REPO}" ]] && step_run "Cleaning environment" rm -Rf package/rpm package/fedora20
+    [[ ! -z "${CLEAN_REPO}" ]] && step_run "Cleaning environment" rm -Rf package/rpm package/fedora20 package/fedora23
 
     step_run "Downloading libnss-resolver" \
     mkdir -p package/rpm \
     && wget "${LIBNSS_RESOLVER_REPO}/fedora20-libnss-resolver-${LIBNSS_RESOLVER_VERSION}-1.x86_64.rpm" -O "package/rpm/fedora20-libnss-resolver-${LIBNSS_RESOLVER_VERSION}-1.x86_64.rpm"
+    && wget "${LIBNSS_RESOLVER_REPO}/fedora23-libnss-resolver-${LIBNSS_RESOLVER_VERSION}-1.x86_64.rpm" -O "package/rpm/fedora23-libnss-resolver-${LIBNSS_RESOLVER_VERSION}-1.x86_64.rpm"
 
     EXTRA_FLAGS=""
     if [[ $LINUX_BUILD_WAS_EXECUTED == true || $NO_CLEAN_LINUX == true ]]; then
@@ -310,10 +311,14 @@ if [[ $BUILD_RPM == true ]]; then
     fi
 
     step_run "Creating rpm packages" make package_rpm ${EXTRA_FLAGS}
-    step_run "Generating Fedora 20 repository" azk shell --shell=/bin/sh package -c "src/libexec/package-tools/fedora/generate.sh fedora20 ${SECRET_KEY} ${CLEAN_REPO}"
-    if [[ $NO_TEST != true ]]; then
-      step_skip "Testing Fedora 20 repository" ${AZK_BUILD_TOOLS_PATH}/test.sh fedora20 $TEST_ARGS
-    fi
+
+    FEDORA_VERSIONS=( "fedora20" "fedora23" )
+    for FEDORA_VERSION in "${FEDORA_VERSIONS[@]}"; do
+      step_run "Generating ${FEDORA_VERSION} repository" azk shell --shell=/bin/sh package -c "src/libexec/package-tools/fedora/generate.sh ${FEDORA_VERSION} ${SECRET_KEY} ${CLEAN_REPO}"
+      if [[ $NO_TEST != true ]]; then
+        step_skip "Testing ${FEDORA_VERSION} repository" ${AZK_BUILD_TOOLS_PATH}/test.sh ${FEDORA_VERSION} ${TEST_ARGS}
+      fi
+    done
 
     SUCCESS_STEP=true
   ) && LINUX_BUILD_WAS_EXECUTED=true
