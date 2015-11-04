@@ -32,7 +32,7 @@ finished:
 clean_nvm_versions: ${NODE}
 	@echo "Checking npm version..."
 	@if [ ! "$$(${AZK_BIN} nvm npm --version)" = "${NPM_VERSION}" ] ; then \
-		rm ${NPM_VERSION_FILE}; \
+		rm -f ${NPM_VERSION_FILE}; \
 	fi
 
 SRC_JS = $(shell cd ${AZK_ROOT_PATH} && find ./src -name '*.*' -print 2>/dev/null)
