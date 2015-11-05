@@ -59,6 +59,8 @@ export function run(args, cwd, ui) {
 }
 
 var _sendErrorToBugReport = function(error_to_send, tracker) {
+  if (config('report:disable')) { return; }
+
   // TODO: get infos like tracker
   var extra_values = {
     meta: {},
@@ -83,12 +85,12 @@ var _sendErrorToBugReport = function(error_to_send, tracker) {
     }
   }
 
-  var endpoint_url = config('urls:force:endpoints:report');
+  var endpoint_url = config('report:url');
 
   var options = {
-    err: error_to_send,
-    extra_values: extra_values,
-    url: endpoint_url,
+    err            : error_to_send,
+    extra_values   : extra_values,
+    url            : endpoint_url,
     background_send: true
   };
 
@@ -98,13 +100,12 @@ var _sendErrorToBugReport = function(error_to_send, tracker) {
   /**/console.log('\n%% bugSender.send \n');/*-debug-*/
   return bugSender.send(options)
   .then((result) => {
-    log.debug(`[bug-report] bug report send to Force. result: ${result}`);
+    log.debug(`[bug-report] bug report send to ${endpoint_url}. result: ${result}`);
   })
   .catch((err_result) => {
-    log.debug('[bug-report] error sending bug report to Force. See below.');
+    log.debug(`[bug-report] error sending bug report to ${endpoint_url}. See below.`);
     log.debug(err_result);
   });
-
 };
 
 export function cli(args, cwd, ui = UI) {
