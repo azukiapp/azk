@@ -160,7 +160,6 @@ main(){
         add_report "    https://github.com/azukiapp/azk/issues"
         fail
       else
-        echo "deb [arch=amd64] http://repo.azukiapp.com ${UBUNTU_CODENAME} main" | super tee /etc/apt/sources.list.d/azuki.list 1>/dev/null 2>&1
         install_azk_ubuntu
         add_user_to_docker_group
         disable_dnsmasq
@@ -171,10 +170,10 @@ main(){
     if [[ $ID == "fedora" ]]; then
       case $OS_VERSION in
         "20"|"21"|"22" )
-          install_azk_fedora 20
+          FEDORA_VERSION="20"
           ;;
         "23" )
-          install_azk_fedora 23
+          FEDORA_VERSION="23"
           ;;
         * )
           add_report "  Unsupported Fedora version."
@@ -195,13 +194,13 @@ check_docker_installation() {
 
   if hash docker 2>/dev/null; then
     step_done
-    debug '  Docker is instaled, skipping docker installation.'
-    debug '    To update docker, run command bellow:'
+    debug '  Docker is installed, skipping Docker installation.'
+    debug '    To update Docker, run the command bellow:'
     debug '    $ curl -sSL https://get.docker.com/ | sh'
   else
     step_fail
     add_report 'azk needs Docker to be installed.'
-    add_report '  to install docker run command bellow:'
+    add_report '  to install Docker run command bellow:'
     add_report '  $ curl -sSL https://get.docker.com/ | sh'
     fail
   fi
@@ -214,6 +213,7 @@ install_azk_ubuntu() {
 
   echo "" 1>&2
   super apt-key adv --keyserver keys.gnupg.net --recv-keys 022856F6D78159DF43B487D5C82CF0628592D2C9 1>/dev/null 2>&1
+  echo "deb [arch=amd64] http://repo.azukiapp.com ${UBUNTU_CODENAME} main" | super tee /etc/apt/sources.list.d/azuki.list 1>/dev/null 2>&1
   super apt-get update 1>/dev/null
   super apt-get install azk -y 1>/dev/null
 
@@ -222,8 +222,6 @@ install_azk_ubuntu() {
 
 install_azk_fedora() {
   check_docker_installation
-
-  FEDORA_VERSION=${1:-"20"}
 
   step "Installing azk"
 
@@ -237,7 +235,13 @@ enabled=1
 gpgcheck=1
 " | super tee /etc/yum.repos.d/azuki.repo 1>/dev/null 2>&1
 
-  super yum install azk -y 1>/dev/null
+  if [[ "${FEDORA_VERSION}" == "20" ]]; then
+    FEDORA_PKG_MANAGER="yum"
+  else
+    FEDORA_PKG_MANAGER="dnf"
+  fi
+
+  super ${FEDORA_PKG_MANAGER} install azk -y 1>/dev/null
 
   step_done
 }
@@ -247,7 +251,7 @@ add_user_to_docker_group() {
     return 0;
   fi
 
-  step "Adding current user to docker user group"
+  step "Adding current user to Docker user group"
 
   echo "" 1>&2
   super groupadd docker 1>/dev/null
@@ -257,7 +261,7 @@ add_user_to_docker_group() {
   step_done
 
   add_report "Log out required."
-  add_report "  non-sudo access to docker client has been configured,"
+  add_report "  non-sudo access to Docker client has been configured,"
   add_report "  but you should log out and then log in again for these changes to take effect."
 }
 
