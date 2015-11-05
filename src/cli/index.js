@@ -91,7 +91,7 @@ var _sendErrorToBugReport = function(error_to_send, tracker) {
     err            : error_to_send,
     extra_values   : extra_values,
     url            : endpoint_url,
-    background_send: true
+    background_send: false
   };
 
   var bugSender = new lazy.BugSender();
