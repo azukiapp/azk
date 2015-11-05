@@ -217,7 +217,7 @@ var net = {
     return defer((resolve) => {
       var attempts = 1, max = opts.nodeRetry_opts.retries;
       var connect  = () => {
-        if (opts.publish_retry) {
+        if (opts.publish_retry || attempts == 1) {
           publish("utils.net.waitService.status", _.merge({
             uri : uri,
             type: 'try_connect',
