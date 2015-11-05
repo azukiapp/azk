@@ -7,6 +7,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 * Enhancements
   * [Package] Adding support to Ubuntu 15.10 and Fedora 23;
+  * [Package] Simplify root `Azkfile`, replacing functions for `extends` property;
+  * [Package] Adding a `make` script to force `make -e` in `package` system;
 
 ## v0.16.0 - (2015-10-28)
 
