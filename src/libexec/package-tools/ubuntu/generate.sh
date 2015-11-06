@@ -1,7 +1,7 @@
 #! /bin/bash
 
 if [[ $# < 3 ]] || [[ $# > 4 ]]; then
-  echo "Usage: ${0##*/} {libnss_resolver_version} {distro} {secret_key} [--clean_repo]"
+  echo "Usage: ${0##*/} {secret_key} {libnss_resolver_version} {distro} [--clean_repo]"
   exit 1
 fi
 
@@ -29,9 +29,9 @@ export PATH=`pwd`/bin:$PATH
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 export VERSION=$( azk version | awk '{ print $2 }' )
-export LIBNSS_RESOLVER_VERSION=$1
-export DISTRO=$2 && export REPO=azk-${DISTRO}
-export SECRET_KEY=$3
+export SECRET_KEY=$1
+export LIBNSS_RESOLVER_VERSION=$2
+export DISTRO=$3 && export REPO=azk-${DISTRO}
 
 RELEASE_CHANNEL=$( echo "${VERSION}" | sed s/[^\\-]*// | sed s/^\\-// | sed s/\\..*// )
 if [[ -z "${RELEASE_CHANNEL}" ]]; then

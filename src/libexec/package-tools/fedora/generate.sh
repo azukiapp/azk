@@ -1,7 +1,7 @@
 #! /bin/bash
 
 if [[ $# < 2 ]] || [[ $# > 3 ]]; then
-    echo "Usage: ${0##*/} {distro} {secret_key} [--clean-repo]"
+    echo "Usage: ${0##*/} {secret_key} {distro} [--clean-repo]"
     exit 1
 fi
 
@@ -27,8 +27,8 @@ set -x
 set -e
 
 export PATH=`pwd`/bin:$PATH
-export DISTRO=$1
-export SECRET_KEY=$2
+export SECRET_KEY=$1
+export DISTRO=$2
 
 gpg --import $SECRET_KEY
 
