@@ -84,6 +84,12 @@ err() { log err $@; }
 
 main(){
 
+  if [[ "$1" == "stage" ]]; then
+    AZUKIAPP_REPO_URL="http://repo-stage.azukiapp.com"
+  else
+    AZUKIAPP_REPO_URL="http://repo.azukiapp.com"
+  fi
+
   step "Checking platform"
 
   # Detecting PLATFORM and ARCH
@@ -213,7 +219,7 @@ install_azk_ubuntu() {
 
   echo "" 1>&2
   super apt-key adv --keyserver keys.gnupg.net --recv-keys 022856F6D78159DF43B487D5C82CF0628592D2C9 1>/dev/null 2>&1
-  echo "deb [arch=amd64] http://repo.azukiapp.com ${UBUNTU_CODENAME} main" | super tee /etc/apt/sources.list.d/azuki.list 1>/dev/null 2>&1
+  echo "deb [arch=amd64] ${AZUKIAPP_REPO_URL} ${UBUNTU_CODENAME} main" | super tee /etc/apt/sources.list.d/azuki.list 1>/dev/null 2>&1
   super apt-get update 1>/dev/null
   super apt-get install azk -y 1>/dev/null
 
@@ -226,11 +232,11 @@ install_azk_fedora() {
   step "Installing azk"
 
   echo "" 1>&2
-  super rpm --import 'http://repo.azukiapp.com/keys/azuki.asc' 1>/dev/null
+  super rpm --import "${AZUKIAPP_REPO_URL}/keys/azuki.asc" 1>/dev/null
 
   echo "[azuki]
 name=azk
-baseurl=http://repo.azukiapp.com/fedora${FEDORA_VERSION}
+baseurl=${AZUKIAPP_REPO_URL}/fedora${FEDORA_VERSION}
 enabled=1
 gpgcheck=1
 " | super tee /etc/yum.repos.d/azuki.repo 1>/dev/null 2>&1
@@ -329,4 +335,4 @@ success() {
   exit 0
 }
 
-main
+main "${@}"
