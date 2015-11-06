@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## dev
+## v0.16.1 - (2015-11-06)
 
 * Enhancements
   * [Agent] Avoiding showing messages in a loop during agent start;
@@ -11,6 +11,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Package] Simplify root `Azkfile`, replacing functions for `extends` property;
   * [Package] Adding a `make` script to force `make -e` in `package` system;
   * [Package] Making `git` a suggested dependency;
+
+* Bug
+  * [Package] Fixing npm version check. Even manually installing a different npm version, `make` overrides it and install the correct version;
 
 ## v0.16.0 - (2015-10-28)
 
