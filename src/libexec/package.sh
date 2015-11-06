@@ -67,7 +67,7 @@ done
 case $pkg_type in
   rpm)
     fpm_extra_options=" \
-      --depends \"docker-engine >= ${AZK_DOCKER_MIN_VERSION}, docker >= ${AZK_DOCKER_MIN_VERSION}\" \
+      --depends \"docker-engine >= ${AZK_DOCKER_MIN_VERSION}\" \
       --depends \"libnss-resolver >= ${LIBNSS_RESOLVER_VERSION}\" \
       --depends \"rsync >= ${RSYNC_MIN_VERSION}\" \
       --depends \"git\" \
