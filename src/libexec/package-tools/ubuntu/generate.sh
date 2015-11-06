@@ -9,9 +9,18 @@ if [[ $# == 4 ]] && [[ "$4" == "--clean_repo" ]]; then
   CLEAN_REPO=true
 fi
 
-if [[ ! -e Azkfile.js ]]; then
-  echo "Run this script in the project root"
-  exit 2
+# Get azk root path
+abs_dir() {
+  cd "${1%/*}"; link=`readlink ${1##*/}`;
+  if [ -z "$link" ]; then pwd; else abs_dir $link; fi
+}
+
+export AZK_ROOT_PATH=`cd \`abs_dir ${BASH_SOURCE:-$0}\`/../../../..; pwd`
+cd $AZK_ROOT_PATH
+
+if [[ ! -e ./bin/azk ]]; then
+    echo "$AZK_ROOT_PATH is not azk project root"
+    exit 2
 fi
 
 set -e
