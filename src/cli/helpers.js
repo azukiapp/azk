@@ -136,10 +136,17 @@ var Helpers = {
               }
           }
           break;
-        case "try_connect":
-          var tKey = [...keys].concat("progress");
+        case "wait_port":
+          var tKey = ["status", event.system, "wait"];
           log.info_t(tKey, event);
           cmd.ok(tKey, event);
+          break;
+        case "try_connect":
+          if (context === "balancer") {
+            var tKey = [...keys].concat("progress");
+            log.info_t(tKey, event);
+            cmd.ok(tKey, event);
+          }
           break;
         case "ssh":
           if (context === "stderr") {
