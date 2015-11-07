@@ -5,7 +5,7 @@ Para automatizar a preparação do ambiente de desenvolvimento, o `azk` utiliza 
 
 ### O que são imagens?
 
-As imagens são a base dos sistemas definidos no [Azkfile.js](../azkfilejs/README.md). A propriedade [image](../azkfilejs/image.md) é o ponto de partida para a montagem dos sistemas. As imagens podem ser do tipo [docker](../azkfilejs/image.html#docker) ou [dockerfile](../azkfilejs/image.html#dockerfile). Quando a imagem do sistema estiver configurada como [docker](../azkfilejs/image.html#docker) ela será baixada diretamente do **[Registro do Docker](https://registry.hub.docker.com/)**. Quando configurada como [dockerfile](../azkfilejs/image.html#dockerfile) será buscado um arquivo local.
+As imagens são a base dos sistemas definidos no [Azkfile.js](../azkfilejs/README.md). A propriedade [image](../reference/azkfilejs/image.md) é o ponto de partida para a montagem dos sistemas. As imagens podem ser do tipo [docker](../reference/azkfilejs/image.html#docker) ou [dockerfile](../reference/azkfilejs/image.html#dockerfile). Quando a imagem do sistema estiver configurada como [docker](../reference/azkfilejs/image.html#docker) ela será baixada diretamente do **[Registro do Docker](https://registry.hub.docker.com/)**. Quando configurada como [dockerfile](../reference/azkfilejs/image.html#dockerfile) será buscado um arquivo local.
 
 
 ### Registro do Docker

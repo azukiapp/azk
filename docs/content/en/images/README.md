@@ -5,7 +5,7 @@
 
 ### What are these images?
 
-The images are the basis of the systems described in the [Azkfile.js](../azkfilejs/README.md). The [image](../azkfilejs/image.md) property is the starting point for the systems installation. Images can be of type [docker](../azkfilejs/image.html#docker) or [dockerfile](../azkfilejs/image.html#dockerfile). When the system image is set to [docker](../azkfilejs/image.html#docker) it is downloaded directly from the **[Docker Registry](https://registry.hub.docker.com/)**. When set to [dockerfile](../azkfilejs/image.html#dockerfile), a local file will be fetched.
+The images are the basis of the systems described in the [Azkfile.js](../azkfilejs/README.md). The [image](../reference/azkfilejs/image.md) property is the starting point for the systems installation. Images can be of type [docker](../reference/azkfilejs/image.html#docker) or [dockerfile](../reference/azkfilejs/image.html#dockerfile). When the system image is set to [docker](../reference/azkfilejs/image.html#docker) it is downloaded directly from the **[Docker Registry](https://registry.hub.docker.com/)**. When set to [dockerfile](../reference/azkfilejs/image.html#dockerfile), a local file will be fetched.
 
 
 ### Docker Registry
