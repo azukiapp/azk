@@ -13,6 +13,7 @@
 ```
   system                    Nome do sistema que receberá a ação.
   git-repo                  Github URL para clonar and iniciar
+  dest-path                 Pasta destino que será clonado o repositório do Github
 ```
 
 #### Opções:
@@ -39,18 +40,18 @@ $ azk start azkdemo --open
 
 ##### inicia o azkdemo à partir do Github
 
-Todos os exemplos abaixo fazem a mesma coisa: clonam o `azkdemo` diretamente do Github na branch `final` e já iniciam o sistema.
+Todos os exemplos abaixo fazem a mesma coisa: clonam e iniciam o repositório `azkdemo` diretamente do Github na branch `final` para pasta `/tmp/azkdemoDest`.
 
 ```bash
 # assim
-azk start git@github.com:azukiapp/azkdemo.git --git-ref final
+azk start git@github.com:azukiapp/azkdemo.git /tmp/azkdemoDest --git-ref final
 
 # ou assim
-azk start https://github.com/azukiapp/azkdemo.git --git-ref final
+azk start https://github.com/azukiapp/azkdemo.git /tmp/azkdemoDest --git-ref final
 
 # ou assim
-azk start azukiapp/azkdemo --git-ref final
+azk start azukiapp/azkdemo /tmp/azkdemoDest --git-ref final
 
 # ou assim
-azk start azukiapp/azkdemo#final
+azk start azukiapp/azkdemo#final /tmp/azkdemoDest
 ```
