@@ -33,7 +33,7 @@ That way we can take advantage of the configuration of the base image (shown in 
 
 ### Local Dockerfile
 
-Besides pointing to [images](../azkfilejs/image.html) from the Docker registry, we can still customize our own images using a [local dockerfile](../azkfilejs/image.html#dockerfile). That way we can create completely custom images and test them locally.
+Besides pointing to [images](../reference/azkfilejs/image.html) from the Docker registry, we can still customize our own images using a [local dockerfile](../reference/azkfilejs/image.html#dockerfile). That way we can create completely custom images and test them locally.
 
 We recommend that after the appropriate configuration, to facilitate teamwork, the image is sent to the [Docker Registry](https://registry.hub.docker.com/). That way other developers of your project will have easy access to the same environment as you.
 
