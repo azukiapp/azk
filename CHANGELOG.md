@@ -11,6 +11,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Package] Simplify root `Azkfile`, replacing functions for `extends` property;
   * [Package] Adding a `make` script to force `make -e` in `package` system;
   * [Package] Making `git` a suggested dependency;
+  * [Core] Removing `Azkfile.js` from default exclude list of `sync` mount property;
 
 ## v0.16.0 - (2015-10-28)
 
