@@ -105,6 +105,9 @@ var _sendErrorToBugReport = function(error_to_send, tracker) {
   .catch((err_result) => {
     log.debug(`[bug-report] error sending bug report to ${endpoint_url}. See below.`);
     log.debug(err_result);
+
+    var JSON_SENT = JSON.parse(err_result.requestOptions);
+    /**/console.log('\n>>---------\n err_result.requestOptions.body:\n', JSON.stringify(JSON_SENT, ' ', 2), '\n>>---------\n');/*-debug-*/
   });
 };
 
