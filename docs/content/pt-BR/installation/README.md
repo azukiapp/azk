@@ -18,6 +18,6 @@ A instalação vai adicionar o comando `azk` ao path do sistema. Isso torna o co
 * Uma máquina com arquitetura 64 bits
 * Mac OS X ou Linux (Windows: planned)
 * bash (ferramenta de linha de comando disponível em praticamente todos os sistemas unix)
-* Conexão com a internet (apenas durante o processo de download das [imagens](../imagens/README.md))
+* Conexão com a internet (apenas durante o processo de download das [imagens](../images/README.md))
 
 !INCLUDE "../getting-started/banner.md"

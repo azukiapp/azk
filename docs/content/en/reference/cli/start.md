@@ -14,6 +14,7 @@ $ azk start [<git-repo>] [<dest-path>] [--git-ref=<git-ref>] [--reprovision --re
 ```
   system                    System name where the action will take place.
   git-repo                  Github URL to clone and start
+  dest-path                 Destination path to clone project from Github
 ```
 
 #### Options:
@@ -40,18 +41,18 @@ azk start azkdemo --open
 
 ##### start the azkdemo from Github
 
-All examples bellow will do the same thing: clone and start `azkdemo` directly from Github on branch `final`
+All examples bellow will do the same thing: clone and start `azkdemo` directly from Github on branch `final` to `/tmp/azkdemoDest` folder
 
 ```bash
 # this way
-azk start git@github.com:azukiapp/azkdemo.git --git-ref final
+azk start git@github.com:azukiapp/azkdemo.git /tmp/azkdemoDest --git-ref final
 
 # or this way
-azk start https://github.com/azukiapp/azkdemo.git --git-ref final
+azk start https://github.com/azukiapp/azkdemo.git /tmp/azkdemoDest --git-ref final
 
 # or this way
-azk start azukiapp/azkdemo --git-ref final
+azk start azukiapp/azkdemo /tmp/azkdemoDest --git-ref final
 
 # or this way
-azk start azukiapp/azkdemo#final
+azk start azukiapp/azkdemo#final /tmp/azkdemoDest
 ```

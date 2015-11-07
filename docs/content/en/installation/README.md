@@ -18,6 +18,6 @@ The installation process will add the `azk` command to your system path, making 
 * 64-bit architecture machine
 * Mac OS X or Linux (Windows: planned)
 * bash (command-line tool available on virtually all unix systems)
-* Internet connection (only needed while downloading [images](../imagens/README.md))
+* Internet connection (only needed while downloading [images](../images/README.md))
 
 !INCLUDE "../getting-started/banner.md"

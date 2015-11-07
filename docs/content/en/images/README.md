@@ -5,7 +5,7 @@
 
 ### What are these images?
 
-The images are the basis of the systems described in the [Azkfile.js](../azkfilejs/README.md). The [image](../azkfilejs/image.md) property is the starting point for the systems installation. Images can be of type [docker](../azkfilejs/image.html#docker) or [dockerfile](../azkfilejs/image.html#dockerfile). When the system image is set to [docker](../azkfilejs/image.html#docker) it is downloaded directly from the **[Docker Registry](https://registry.hub.docker.com/)**. When set to [dockerfile](../azkfilejs/image.html#dockerfile), a local file will be fetched.
+The images are the basis of the systems described in the [Azkfile.js](../azkfilejs/README.md). The [image](../reference/azkfilejs/image.md) property is the starting point for the systems installation. Images can be of type [docker](../reference/azkfilejs/image.html#docker) or [dockerfile](../reference/azkfilejs/image.html#dockerfile). When the system image is set to [docker](../reference/azkfilejs/image.html#docker) it is downloaded directly from the **[Docker Registry](https://registry.hub.docker.com/)**. When set to [dockerfile](../reference/azkfilejs/image.html#dockerfile), a local file will be fetched.
 
 
 ### Docker Registry
@@ -33,7 +33,7 @@ That way we can take advantage of the configuration of the base image (shown in 
 
 ### Local Dockerfile
 
-Besides pointing to [images](../azkfilejs/image.html) from the Docker registry, we can still customize our own images using a [local dockerfile](../azkfilejs/image.html#dockerfile). That way we can create completely custom images and test them locally.
+Besides pointing to [images](../reference/azkfilejs/image.html) from the Docker registry, we can still customize our own images using a [local dockerfile](../reference/azkfilejs/image.html#dockerfile). That way we can create completely custom images and test them locally.
 
 We recommend that after the appropriate configuration, to facilitate teamwork, the image is sent to the [Docker Registry](https://registry.hub.docker.com/). That way other developers of your project will have easy access to the same environment as you.
 
