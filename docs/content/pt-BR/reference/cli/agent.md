@@ -1,6 +1,6 @@
 ## azk agent
 
-Controla o serviço `azk agent`. Para mais informações sobre o agent [acesse](../agent/README.md).
+Controla o serviço `azk agent`. Acesse a [documentação do agent](../../agent/README.md) para maiores informações.
 
 #### Uso:
 
