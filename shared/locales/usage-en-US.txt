@@ -124,9 +124,10 @@ Examples:
   azk start https://github.com/azukiapp/azkdemo        # clone and start (https)
   azk start https://github.com/azukiapp/azkdemo#master # clone master
   azk start azukiapp/azkdemo                           # clone and start (short)
-  azk start azukiapp/azkdemo --git-ref master          # branch master
-  azk start azukiapp/azkdemo --git-ref 0.0.1           # tag 0.0.1
-  azk start azukiapp/azkdemo --git-ref 880d01a         # commit 880d01a
+  azk start azukiapp/azkdemo /tmp/azkdemoDest          # clone and start (to /tmp/azkdemoDest folder)
+  azk start azukiapp/azkdemo --git-ref master          # branch master (to ./azkdemo relative folder)
+  azk start azukiapp/azkdemo --git-ref 0.0.1           # tag 0.0.1 (to ./azkdemo relative folder)
+  azk start azukiapp/azkdemo --git-ref 880d01a         # commit 880d01a (to ./azkdemo relative folder)
   azk deploy                                           # run `deploy fast`
   azk deploy shell
   azk deploy full
