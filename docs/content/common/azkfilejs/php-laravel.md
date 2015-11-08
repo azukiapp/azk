@@ -4,8 +4,7 @@ systems({
     depends: [],
     image: {"docker": "azukiapp/php-fpm:5.6"},
     provision: [
-      "composer install",
-      "npm install",
+      "composer install"
     ],
     workdir: "/azk/#{manifest.dir}",
     shell: "/bin/bash",
