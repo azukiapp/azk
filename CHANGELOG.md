@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## v0.16.1 - (2015-11-06)
+## v0.16.1 - (2015-11-08)
 
 * Enhancements
   * [Agent] Avoiding showing messages in a loop during agent start;
