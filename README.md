@@ -71,7 +71,7 @@ You can find our documentation online at: http://docs.azk.io/
 
 ## `Run Project` button
 
-Clicking the `Run Project` button (or "azk button") on a GitHub repo is the best way to quickly and safely run its code on your local machine. 
+Clicking the `Run Project` button (or "azk button") on a GitHub repo is the best way to quickly and safely run its code on your local machine.
 
 ![Run project](https://s3-sa-east-1.amazonaws.com/assets.azk.io/run-project-illustrative.png)
 

@@ -607,7 +607,7 @@ export class System {
         mount.options        = mount.options || {};
         mount.options.except = _.uniq(_.flatten([mount.options.except || []])
           .concat(mounted_subpaths)
-          .concat(['.syncignore', '.gitignore', '.azk/', '.git/', 'Azkfile.js']));
+          .concat(['.syncignore', '.gitignore', '.azk/', '.git/']));
 
         syncs[host_sync_path] = {
           guest_folder: this._sync_path(mount.value),

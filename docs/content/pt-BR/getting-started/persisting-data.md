@@ -1,4 +1,4 @@
-# Persistindo informações
+# Persistindo dados
 
 Se você [configurou um banco de dados](database.md), verá que vários _refresh_, na página [http://azkdemo.dev.azk.io](http://azkdemo.dev.azk.io), fazem com que nosso contador de acessos seja incrementado. Porém se você executar um `azk restart` no sistema, como demonstrado abaixo:
 

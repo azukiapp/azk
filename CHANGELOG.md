@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## v0.16.1 - (2015-11-06)
+
+* Enhancements
+  * [Agent] Avoiding showing messages in a loop during agent start;
+  * [Package] Adding support to Ubuntu 15.10;
+  * [Package] Simplify root `Azkfile`, replacing functions for `extends` property;
+  * [Package] Adding a `make` script to force `make -e` in `package` system;
+  * [Package] Making `git` a suggested dependency;
+  * [Core] Removing `Azkfile.js` from default exclude list of `sync` mount property;
+
+* Bug
+  * [Package] Fixing npm version check. Even manually installing a different npm version, `make` overrides it and install the correct version;
+
 ## v0.16.0 - (2015-10-28)
 
 * Bug
@@ -14,7 +27,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Cli] Added the command `azk open [system]` which opens a system URL in browser #528;
   * [Cli] Adding `deploy` command to cli;
   * [Kernel] Changing system to get `command` from image, but respect this priority for `azk shell`: shell option (`--shell`) > Azkfile.js > docker image #534;
-  * [Docker] Improving Docker version verify, making it more resistant;
+  * [Docker] Improving Docker version verification, making it more robust;
 
 ## v0.15.0 - (2015-09-15)
 

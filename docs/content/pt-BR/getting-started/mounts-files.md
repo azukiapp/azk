@@ -1,4 +1,4 @@
-# Mapeando arquivos
+# Mapeando arquivos e diretórios
 
 Se observarmos o `Azkfile.js` gerado, é possível notar uma entrada no sistema `azkdemo` chamada `mounts`:
 

@@ -1,4 +1,4 @@
-# Mapping files
+# Mapping files and folders
 
 If we look at the generated `Azkfile.js`, you can see an entry in the `azkdemo` system called `mounts`:
 

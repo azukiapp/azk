@@ -11,6 +11,7 @@ The command line is the main way to use `azk`. It's from the terminal that we ca
 - [azk info](info.md)
 - [azk init](init.md)
 - [azk logs](logs.md)
+- [azk open](open.md)
 - [azk restart](restart.md)
 - [azk scale](scale.md)
 - [azk shell](shell.md)

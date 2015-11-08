@@ -44,7 +44,7 @@ systems({
 });
 ```
 
-Obtenha uma chave de acesso (personal access token) da DigitalOcean (via [este link](https://cloud.digitalocean.com/settings/applications)) e coloque-o em um arquivo chamado `.env`:
+Obtenha uma [chave de acesso](https://cloud.digitalocean.com/settings/applications) (personal access token - *precisa estar logado*) da DigitalOcean e coloque-o em um arquivo chamado `.env`:
 
 ```bash
 $ cd path/to/the/project
@@ -90,7 +90,7 @@ $ azk deploy restart
 
 Você pode alterar as configurações do deploy adicionando opções no objeto `env`. As opções disponíveis são:
 
-- **DEPLOY_API_TOKEN**: User's API token in [DigitalOcean](https://cloud.digitalocean.com/settings/applications);
+- **DEPLOY_API_TOKEN**: User's API token in [DigitalOcean](https://cloud.digitalocean.com/settings/applications) *(precisa estar logado)*;
 - **BOX_NAME** (*opcional, padrão: `$AZK_MID || azk-deploy`*): Nome do droplet;
 - **BOX_REGION** (*opcional, padrão: nyc3*): Região onde o droplet será alocado. Veja todas as regiões disponíveis se seus nomes `slug` correspondentes [aqui](https://developers.digitalocean.com/documentation/v2/#list-all-regions);
 - **BOX_IMAGE** (*opcional, padrão: ubuntu-14-04-x64*): Nome da imagem usada no droplet. O padrão é Ubuntu 14.04 x86-64 e **nós recomendamos fortemente que você a use**. Veja todas as imagens disponíveis e seus nomes `slug` correspondentes [aqui](https://developers.digitalocean.com/documentation/v2/#list-all-distribution-images);

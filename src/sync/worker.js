@@ -86,7 +86,7 @@ export class Worker {
       opts.except = _.flatten([opts.except || []]);
 
       var exists, file, file_content = '';
-      var candidates   = opts.except_from ? [opts.except_from] : [];
+      var candidates = opts.except_from ? [opts.except_from] : [];
       candidates = candidates.concat([
         path.join(origin, ".syncignore"),
         path.join(origin, ".gitignore"),

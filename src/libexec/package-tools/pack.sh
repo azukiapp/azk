@@ -225,6 +225,12 @@ setup_test() {
   git clone $TEST_PROJECT $TEST_DIR
 }
 
+linux_generate() {
+  mount=${SECRET_KEY}:/root/key.asc
+  script="src/libexec/package-tools/${1}/generate.sh"; shift
+  azk shell package --mount=${mount} -- ${script} /root/key.asc "${@}"
+}
+
 # Go to azk path
 cd $AZK_ROOT_PATH
 source .dependencies
@@ -256,7 +262,8 @@ if [[ $BUILD_DEB == true ]]; then
     step_run "Downloading libnss-resolver" \
     mkdir -p package/deb \
     && wget -q "${LIBNSS_RESOLVER_REPO}/ubuntu12-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb" -O "package/deb/precise-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb" \
-    && wget -q "${LIBNSS_RESOLVER_REPO}/ubuntu14-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb" -O "package/deb/trusty-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb"
+    && wget -q "${LIBNSS_RESOLVER_REPO}/ubuntu14-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb" -O "package/deb/trusty-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb" \
+    && wget -q "${LIBNSS_RESOLVER_REPO}/ubuntu15-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb" -O "package/deb/wily-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb"
 
     EXTRA_FLAGS=""
     if [[ $LINUX_BUILD_WAS_EXECUTED == true || $NO_CLEAN_LINUX == true ]]; then
@@ -265,15 +272,21 @@ if [[ $BUILD_DEB == true ]]; then
 
     step_run "Creating deb packages" make package_deb ${EXTRA_FLAGS}
 
-    step_run "Generating Ubuntu 12.04 repository" azk shell --shell=/bin/sh package -c "src/libexec/package-tools/ubuntu/generate.sh ${LIBNSS_RESOLVER_VERSION} precise ${SECRET_KEY} ${CLEAN_REPO}"
-    if [[ $NO_TEST != true ]]; then
-      step_run "Testing Ubuntu 12.04 repository" ${AZK_BUILD_TOOLS_PATH}/test.sh ubuntu12 $TEST_ARGS
-    fi
+    UBUNTU_VERSIONS=( "ubuntu12:precise" "ubuntu14:trusty" "ubuntu15:wily" )
+    for UBUNTU_VERSION in "${UBUNTU_VERSIONS[@]}"; do
 
-    step_run "Generating Ubuntu 14.04 repository" azk shell --shell=/bin/sh package -c "src/libexec/package-tools/ubuntu/generate.sh ${LIBNSS_RESOLVER_VERSION} trusty ${SECRET_KEY} ${CLEAN_REPO}"
-    if [[ $NO_TEST != true ]]; then
-      step_run "Testing Ubuntu 14.04 repository" ${AZK_BUILD_TOOLS_PATH}/test.sh ubuntu14 $TEST_ARGS
-    fi
+      UBUNTU_VERSION_NUMBER="${UBUNTU_VERSION%%:*}"
+      UBUNTU_VERSION_CODENAME="${UBUNTU_VERSION##*:}"
+
+      step_run "Generating ${UBUNTU_VERSION_NUMBER} repository" \
+        linux_generate ubuntu ${LIBNSS_RESOLVER_VERSION} ${UBUNTU_VERSION_CODENAME} ${CLEAN_REPO}
+
+      if [[ $NO_TEST != true ]]; then
+        step_run "Testing ${UBUNTU_VERSION_NUMBER} repository" \
+          ${AZK_BUILD_TOOLS_PATH}/test.sh ${UBUNTU_VERSION_NUMBER} $TEST_ARGS
+      fi
+
+    done
 
     SUCCESS_STEP=true
   ) && LINUX_BUILD_WAS_EXECUTED=true
@@ -291,11 +304,12 @@ if [[ $BUILD_RPM == true ]]; then
   (
     set -e
 
-    [[ ! -z "${CLEAN_REPO}" ]] && step_run "Cleaning environment" rm -Rf package/rpm package/fedora20
+    [[ ! -z "${CLEAN_REPO}" ]] && step_run "Cleaning environment" rm -Rf package/rpm package/fedora20 package/fedora23
 
     step_run "Downloading libnss-resolver" \
     mkdir -p package/rpm \
-    && wget "${LIBNSS_RESOLVER_REPO}/fedora20-libnss-resolver-${LIBNSS_RESOLVER_VERSION}-1.x86_64.rpm" -O "package/rpm/fedora20-libnss-resolver-${LIBNSS_RESOLVER_VERSION}-1.x86_64.rpm"
+    && wget "${LIBNSS_RESOLVER_REPO}/fedora20-libnss-resolver-${LIBNSS_RESOLVER_VERSION}-1.x86_64.rpm" -O "package/rpm/fedora20-libnss-resolver-${LIBNSS_RESOLVER_VERSION}-1.x86_64.rpm" \
+    && wget "${LIBNSS_RESOLVER_REPO}/fedora23-libnss-resolver-${LIBNSS_RESOLVER_VERSION}-1.x86_64.rpm" -O "package/rpm/fedora23-libnss-resolver-${LIBNSS_RESOLVER_VERSION}-1.x86_64.rpm"
 
     EXTRA_FLAGS=""
     if [[ $LINUX_BUILD_WAS_EXECUTED == true || $NO_CLEAN_LINUX == true ]]; then
@@ -303,10 +317,15 @@ if [[ $BUILD_RPM == true ]]; then
     fi
 
     step_run "Creating rpm packages" make package_rpm ${EXTRA_FLAGS}
-    step_run "Generating Fedora 20 repository" azk shell --shell=/bin/sh package -c "src/libexec/package-tools/fedora/generate.sh fedora20 ${SECRET_KEY} ${CLEAN_REPO}"
-    if [[ $NO_TEST != true ]]; then
-      step_skip "Testing Fedora 20 repository" ${AZK_BUILD_TOOLS_PATH}/test.sh fedora20 $TEST_ARGS
-    fi
+
+    FEDORA_VERSIONS=( "fedora20" "fedora23" )
+    for FEDORA_VERSION in "${FEDORA_VERSIONS[@]}"; do
+      step_run "Generating ${FEDORA_VERSION} repository" \
+        linux_generate fedora ${FEDORA_VERSION} ${CLEAN_REPO}
+      if [[ $NO_TEST != true ]]; then
+        step_skip "Testing ${FEDORA_VERSION} repository" ${AZK_BUILD_TOOLS_PATH}/test.sh ${FEDORA_VERSION} ${TEST_ARGS}
+      fi
+    done
 
     SUCCESS_STEP=true
   ) && LINUX_BUILD_WAS_EXECUTED=true

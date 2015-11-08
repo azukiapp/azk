@@ -297,12 +297,14 @@ var Run = {
         },
       };
 
+      var address = `tcp://${host}:${port_data.port}`;
       publish("system.run._wait_available.status", _.merge(port_data, {
+        uri :  address,
+        timeout: timeout,
         name: system.portName(port_data.name),
         type: "wait_port", system: system.name
       }));
 
-      var address = `tcp://${host}:${port_data.port}`;
       var running = yield net.waitService(address, wait_opts);
 
       if (!running) {

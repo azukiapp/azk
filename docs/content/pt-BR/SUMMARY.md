@@ -14,8 +14,8 @@
    * [Rodando a aplicação](getting-started/running-application.md)
    * [Bancos de dados](getting-started/database.md)
    * [Logs](getting-started/logs.md)
-   * [Mapeando arquivos](getting-started/mounts-files.md)
-   * [Persistindo informações](getting-started/persisting-data.md)
+   * [Mapeando arquivos e diretórios](getting-started/mounts-files.md)
+   * [Persistindo dados](getting-started/persisting-data.md)
 /*****************************************************/
 * [Azkfile.js](azkfilejs/README.md)
 /*****************************************************/

@@ -171,12 +171,8 @@ module.exports = {
       mounted    : "Shared folder has been successfully mounted.",
     },
 
-    socat: {
-      progress: "Trying to connect to docker (timeout: %(timeout)ds)...",
-    },
-
-    'balancer-redirect_connect': {
-      progress: "Check if balancer redirect service is up (%(uri)s) (timeout: %(timeout)ds)...",
+    'balancer-redirect': {
+      wait: "Check if balancer redirect service is up (%(uri)s) (timeout: %(timeout)ds)...",
     },
 
     balancer: {
