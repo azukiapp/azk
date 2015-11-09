@@ -14,3 +14,17 @@ $ azk shell --image azukiapp/php-fpm --shell /bin/bash
 $ cd my-app
 $ azk init
 ```
+
+### Running application
+
+To start the development environment
+
+```sh
+$ azk start -o && azk logs --follow
+```
+
+### Examples
+
+#### PHP with Laravel
+
+!INCLUDE "../../common/azkfilejs/php-laravel.md"

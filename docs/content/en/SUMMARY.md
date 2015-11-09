@@ -22,11 +22,13 @@
 * [`Run Project` button](run-project-button/README.md)
 /*****************************************************/
 * [Starting an application from scratch](starting-from-scratch/README.md)
-   * [Node.js](starting-from-scratch/nodejs.md)*
-   * [PHP / Laravel](starting-from-scratch/php-laravel.md)*
-   * [PHP / Wordpress / phpMyAdmin](starting-from-scratch/php-wordpress-phpmyadmin.md)*
-   * [Python / Django](starting-from-scratch/python-django.md)*
-   * [Ruby on Rails](starting-from-scratch/ruby-rails.md)*
+  * [Node.js](starting-from-scratch/nodejs.md)*
+  * PHP
+    * [PHP / Laravel](starting-from-scratch/php-laravel.md)*
+    * [PHP / Wordpress / phpMyAdmin](starting-from-scratch/php-wordpress-phpmyadmin.md)*
+  * Python
+    * [Django](starting-from-scratch/python-django.md)*
+  * [Ruby on Rails](starting-from-scratch/ruby-rails.md)*
 /*****************************************************/
 * [Adding services](adding-services/README.md)
    * [Running our application](adding-services/running-our-application.md)*
