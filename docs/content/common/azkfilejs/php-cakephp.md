@@ -1,6 +1,6 @@
 ```js
 systems({
-  'my-laravel-app': {
+  'my-cakephp-app': {
     depends: [],
     image: {"docker": "azukiapp/php-fpm:5.6"},
     provision: [
