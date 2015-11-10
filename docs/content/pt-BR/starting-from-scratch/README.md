@@ -7,6 +7,7 @@ Uma das vantagens do uso do `azk` é que não precisamos do ambiente de desenvol
 - [Node.js](nodejs.md)
 - PHP
   - [Laravel](php-laravel.md)
+  - [CakePHP](php-cakephp.md)
   - [Wordpress + phpMyAdmin + MySQL](php-laravel.md)
 - Python
   - [Django](python-django.md)
