@@ -322,6 +322,19 @@ sudo rm -rf ~/.azk/data/sync_folders
 
 ----------------------
 
+### Como remover o disco da maquina virtual
+
+**CUIDADO:** Com esse procedimento todas as images do docker, containers, `persistent_folders` e `sync_folders` serão perdidas. Isso também significa que todos os dados persistidos (incluindo os banco de dados) de **todos os projetos** serão perdidos para sempre. **Continue com extremo cuidado.**
+
+#### Mac OS X
+
+```sh
+rm -rf ~/.azk/data/vm/azk-agent.vmdk
+rm -rf ~/VirtualBox VMs/azk-vm-dev.azk.io
+```
+
+----------------------
+
 ### Estou recebendo o erro `[sync] fail Error: watch ENOSPC` ao tentar iniciar meu sistema. Como corrigir isso?
 
 Provavelmente você tem um sistema que usa a opção de mount `sync` em seu Azkfile.js. Esse problema é relacionado com a limitação do SO em quantos arquivos um usuário pode monitorar ao mesmo tempo. A solução é simplesmente aumentar esse limite:
