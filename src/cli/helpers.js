@@ -109,6 +109,7 @@ var Helpers = {
         return;
       }
 
+      var tKey    = null;
       var context = event.context || "agent";
       var keys    = ["status", context];
 
@@ -137,13 +138,13 @@ var Helpers = {
           }
           break;
         case "wait_port":
-          var tKey = ["status", event.system, "wait"];
+          tKey = ["status", event.system, "wait"];
           log.info_t(tKey, event);
           cmd.ok(tKey, event);
           break;
         case "try_connect":
           if (context === "balancer") {
-            var tKey = [...keys].concat("progress");
+            tKey = [...keys].concat("progress");
             log.info_t(tKey, event);
             cmd.ok(tKey, event);
           }

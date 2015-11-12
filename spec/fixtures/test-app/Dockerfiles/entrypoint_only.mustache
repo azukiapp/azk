@@ -1,0 +1,4 @@
+FROM {{default_img}}
+
+ADD scripts/entry.sh /entry.sh
+ENTRYPOINT ["/entry.sh"]

@@ -2,6 +2,10 @@ import { path, _, config, fsAsync } from 'azk';
 import { async } from 'azk/utils/promises';
 import { Generator } from 'azk/generator';
 import { Manifest } from  'azk/manifest';
+import { promisify } from 'azk/utils/promises';
+
+var glob = promisify(require('glob'));
+var Handlebars = require('handlebars');
 
 export function extend(h) {
 
@@ -10,7 +14,23 @@ export function extend(h) {
   }
 
   function fixture_path() {
-    return h.copyToTmp(h.fixture_path('test-app'));
+    return async(function* () {
+      var app_path = yield h.copyToTmp(h.fixture_path('test-app'));
+
+      // Expand templates
+      var content, file;
+      var templates = yield glob('**/*.mustache', { cwd: app_path });
+      for (var i = 0; i < templates.length; i++) {
+        file    = path.join(app_path, templates[i]);
+        content = (yield fsAsync.readFile(file)).toString();
+        content = Handlebars.compile(content)({
+          default_img: config("docker:image_default")
+        });
+        yield fsAsync.writeFile(file, content);
+      }
+
+      return app_path;
+    });
   }
 
   h.mockManifestWithContent = function(content) {
