@@ -13,6 +13,17 @@ class Config extends CliTrackerController {
     this.trackStatus(...args);
     return Helpers.askPermissionToTrack(this.ui, true);
   }
+
+  bugReportStatus() {
+    var status = this.ui.tracker.loadTrackerPermission();
+    this.ui.ok('commands.config.tracking-' + status);
+    return promiseResolve(0);
+  }
+
+  bugReportToggle(...args) {
+    this.trackStatus(...args);
+    return Helpers.askPermissionToTrack(this.ui, true);
+  }
 }
 
 module.exports = Config;

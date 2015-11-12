@@ -1,13 +1,9 @@
-import { _, lazy_require, config, log } from 'azk';
-import { promiseResolve, promiseReject, isPromise, delay } from 'azk/utils/promises';
+import { _, log } from 'azk';
+import { promiseResolve, promiseReject, isPromise } from 'azk/utils/promises';
 import { Cli as AzkCli } from 'azk/cli/cli';
 import { UI } from 'azk/cli/ui';
 import { InvalidCommandError } from 'azk/utils/errors';
-
-var lazy = lazy_require({
-  'BugSender': 'bug-report-sender',
-  'request'  : 'request',
-});
+import { BugReportUtil } from 'azk/utils/bug_report';
 
 export class Cli extends AzkCli {
   invalidCmd(error) {
@@ -25,7 +21,7 @@ function make_cli() {
     // Commands
     .route('agent', (p, args) => p.agent && /(start|status|stop|configure)/.test(args))
     .route('vm', (p, args) => p.vm && /(ssh|start|status|installed|stop|remove)/.test(args))
-    .route('config', (p, args) => p.config && /(track-toggle|track-status)/.test(args))
+    .route('config', (p, args) => p.config && /(track-toggle|track-status|bug-report-toggle|bug-report-status)/.test(args))
     .route('deploy')
     .route('docker')
     .route('doctor')
@@ -58,60 +54,6 @@ export function run(args, cwd, ui) {
   })];
 }
 
-var _sendErrorToBugReport = function(error_to_send, tracker) {
-  if (config('report:disable')) { return; }
-
-  // TODO: get infos like tracker
-  var extra_values = {
-    meta: {},
-    server: {},
-  };
-
-  if (tracker && tracker.meta) {
-    if (tracker.meta.device_info) {
-      extra_values.server = tracker.meta.device_info;
-    }
-    if (tracker.meta.agent_session_id) {
-      extra_values.meta.agent_session_id = tracker.meta.agent_session_id;
-    }
-    if (tracker.meta.command_id) {
-      extra_values.meta.command_id = tracker.meta.command_id;
-    }
-    if (tracker.meta.user_id) {
-      extra_values.meta.user_id = tracker.meta.user_id;
-    }
-    if (tracker.meta.azk_version) {
-      extra_values.meta.azk_version = tracker.meta.azk_version;
-    }
-  }
-
-  var endpoint_url = config('report:url');
-
-  var options = {
-    err            : error_to_send,
-    extra_values   : extra_values,
-    url            : endpoint_url,
-    background_send: false,
-    jsonWrapper    : (payload) => { return { report: payload }; },
-  };
-
-  var bugSender = new lazy.BugSender();
-
-  // FIXME: remove this on end
-  /**/console.log('\n%% bugSender.send \n');/*-debug-*/
-  return bugSender.send(options)
-  .then((result) => {
-    log.debug(`[bug-report] bug report send to ${endpoint_url}. result: ${result}`);
-  })
-  .catch((err_result) => {
-    log.debug(`[bug-report] error sending bug report to ${endpoint_url}. See below.`);
-    log.debug(err_result);
-
-    var JSON_SENT = JSON.parse(err_result.requestOptions);
-    /**/console.log('\n>>---------\n err_result.requestOptions.body:\n', JSON.stringify(JSON_SENT, ' ', 2), '\n>>---------\n');/*-debug-*/
-  });
-};
-
 export function cli(args, cwd, ui = UI) {
   var result, azk_cli;
   try {
@@ -143,7 +85,8 @@ export function cli(args, cwd, ui = UI) {
 
         ui.fail(error);
         log.debug(`[bug-report] sending...`);
-        return _sendErrorToBugReport(error, ui.tracker).then((result) => {
+        var bugReportUtil = new BugReportUtil({}, ui.tracker);
+        return bugReportUtil.sendErrorToBugReport(error).then((result) => {
           log.debug(`[bug-report] Force response ${result && result.body}`);
           ui.exit(error.code ? error.code : 127);
         });

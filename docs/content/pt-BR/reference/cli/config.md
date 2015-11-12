@@ -4,13 +4,15 @@ Controla as opções de configuração do azk.
 
 #### Uso:
 
-    $ azk config (track-toggle|track-status) [options]
+    $ azk config (track-toggle|track-status|bug-report-toggle|bug-report-status) [options]
 
 #### Ações:
 
 ```
   track-toggle              Ativa/Desativa o rastreamento.
   track-status              Exibe o status de rastreamento (on or off).
+  bug-report-toggle         Ativa/Desativa o envio de erros
+  bug-report-status         Exibe o status do envio de erros(on or off).
 ```
 
 #### Opções:
@@ -41,3 +43,16 @@ azk: currently azk is tracking, more info: https://github.com/azukiapp/azk and h
 (Y/n) Yes
 azk: cool! Thanks for helping us make azk better :)
 ```
+
+----------
+
+```
+$ azk config bug-report-status
+azk: currently azk is sending bug-report data, more info: https://github.com/azukiapp/azk and http://docs.azk.io/en/terms-of-use
+```
+
+```
+$ azk config bug-report-status
+azk: currently azk is not sending any bug-report
+```
+
