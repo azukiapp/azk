@@ -4,14 +4,14 @@
 
 ```sh
 $ azk shell --image azukiapp/php-fpm --shell /bin/bash
-# composer create-project cakephp/app my-app --prefer-dist
+# composer create-project cakephp/app my-cake-php --prefer-dist
 # exit
 ```
 
 ### Creating the Azkfile.js
 
 ```sh
-$ cd my-app
+$ cd my-cake-php
 $ azk init
 ```
 

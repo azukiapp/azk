@@ -22,12 +22,16 @@ export class Rule extends BaseRule {
       log.error('JSON.parse error', err.stack || err);
     }
     // remove garbage
-    version = parsedJson && parsedJson.require && parsedJson.require['cakephp/app'];
+    version = parsedJson && parsedJson.require && parsedJson.require['cakephp/cakephp'];
     if (version) {
       // strip non valid chars
       version = version.replace(/[^*.\d]/g, "");
       // * -> 0
       version = version.replace(/\*/g, "0");
+      var match = version.match(/\./g);
+       if (match && match.length == 1) {
+          version = `${version}.0`;
+       }
     }
     return version && this.semver.clean(version);
   }

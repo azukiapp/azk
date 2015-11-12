@@ -37,7 +37,7 @@ describe('Azk generators PHP with CakePHP rule', function() {
     h.expect(evidence).to.have.deep.property('ruleType', 'framework');
     h.expect(evidence).to.have.deep.property('name'    , 'php_cakephp');
     h.expect(evidence).to.have.deep.property('ruleName', 'php_cakephp');
-    h.expect(evidence).to.have.deep.property('framework' , '3.1');
+    h.expect(evidence).to.have.deep.property('framework' , '3.0.0');
     h.expect(evidence.replaces).to.include('php');
     h.expect(evidence.replaces).to.include('node');
     h.expect(evidence.replaces).to.include('php_composer');
@@ -64,6 +64,6 @@ describe('Azk generators PHP with CakePHP rule', function() {
 
     var evidence = rule.getEvidence(packageJsonfilePath, packageJsonContent);
     h.expect(evidence).to.have.deep.property('ruleName', 'php_cakephp');
-    h.expect(evidence).to.have.deep.property('framework' , '3.1');
+    h.expect(evidence).to.have.deep.property('framework' , '3.0.0');
   });
 });
