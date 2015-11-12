@@ -86,6 +86,7 @@ export function extend(h) {
         example: {
           depends: ["db", "api"],
           workdir: '/azk/#{manifest.dir}',
+          shell: "/bin/bash",
           image: { docker: default_img },
           mounts: _.cloneDeep(mounts_with_persitent),
           scalable: { default: 3 },
@@ -98,6 +99,10 @@ export function extend(h) {
         "example-extends": {
           extends: "example",
           scalable: { default: 1 },
+        },
+        "example-without-command": {
+          extends: "example",
+          command: '__NULL__',
         },
         api: {
           depends: ["db"],

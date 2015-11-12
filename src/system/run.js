@@ -32,7 +32,8 @@ var Run = {
       log.debug('provision steps', steps);
 
       // provision command (require /bin/sh)
-      options.command = ["/bin/sh", "-c", "( " + steps.join('; ') + " )"];
+      options.shell   = "/bin/sh";
+      options.command = ["( " + steps.join('; ') + " )"];
 
       // Capture outputs
       var output = "";
@@ -74,15 +75,14 @@ var Run = {
       options.envs  = _.merge(deps_envs, options.envs || {});
 
       var image = yield this._check_image(system, options);
-      var docker_opt = system.shellOptions(options);
+      var docker_opt = system.shellOptions(options, image.Config);
 
       // Force env TERM in interatives shells (like a ssh)
       if (_.isObject(docker_opt.env) && options.interactive && !docker_opt.env.TERM) {
         docker_opt.env.TERM = options.shell_term;
       }
 
-      var command   = this._normalizeCommand(options.command, image, system.shell);
-      var container = yield lazy.docker.run(system.image.name, command, docker_opt);
+      var container = yield lazy.docker.run(system.image.name, docker_opt.command, docker_opt);
       var data      = yield container.inspect();
 
       log.debug("[system] container shell ended: %s", container.id);
@@ -124,9 +124,8 @@ var Run = {
         wait: system.wait_scale,
       });
 
-      var docker_opt = system.daemonOptions(options);
-      var command    = this._normalizeCommand(docker_opt.command, image, system.shell);
-      var container  = yield lazy.docker.run(system.image.name, command, docker_opt);
+      var docker_opt = system.daemonOptions(options, image.Config);
+      var container  = yield lazy.docker.run(system.image.name, docker_opt.command, docker_opt);
 
       if (options.wait) {
         var first_tcp = _.find((docker_opt.ports_orderly || []), (data) => {
@@ -256,24 +255,6 @@ var Run = {
 
       return true;
     });
-  },
-
-  _normalizeCommand(command, image, system_shell = null) {
-    command = _.clone(command);
-    var shell = command.shift();
-
-    if (_.isEmpty(shell)) {
-      shell = system_shell;
-      // Cmd from image
-      if (_.isEmpty(shell) && !_.isEmpty(image.Config) && !_.isEmpty(image.Config.Cmd)) {
-        shell = image.Config.Cmd;
-      } else if (_.isEmpty(shell)) {
-        shell = "/bin/sh";
-      }
-    }
-
-    shell = _.isArray(shell) ? shell : [shell];
-    return shell.concat(command);
   },
 
   // Wait for container/system available
