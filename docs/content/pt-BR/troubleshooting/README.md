@@ -322,9 +322,9 @@ sudo rm -rf ~/.azk/data/sync_folders
 
 ----------------------
 
-### Como remover o disco da maquina virtual
+### Como remover o disco da Máquina Virtual (somente para Mac OS X)?
 
-**CUIDADO:** Com esse procedimento todas as images do docker, containers, `persistent_folders` e `sync_folders` serão perdidas. Isso também significa que todos os dados persistidos (incluindo os banco de dados) de **todos os projetos** serão perdidos para sempre. **Continue com extremo cuidado.**
+**CUIDADO:** Com esse procedimento, todas as images do Docker, containers, `persistent_folders` e `sync_folders` serão perdidas. Isso também significa que todos os dados persistidos (incluindo banco de dados) de **todos os projetos** serão perdidos para sempre. **Continue com extremo cuidado.**
 
 #### Mac OS X
 

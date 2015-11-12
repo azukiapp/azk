@@ -251,7 +251,7 @@ This means all persisted data (including databases) for that project will be los
 1) Check the `persistent_folders` and the `sync_folders` of the system:
 
 ```sh
-$ azk info | grep -P "(persistent|sync)_folders" 
+$ azk info | grep -P "(persistent|sync)_folders"
 ```
 
 2) Remove those folders:
@@ -319,6 +319,19 @@ Then you can remove **all** persistent and sync folders:
 ```sh
 sudo rm -rf ~/.azk/data/persistent_folders
 sudo rm -rf ~/.azk/data/sync_folders
+```
+
+----------------------
+
+### How to delete the VM data disk (Mac OS X only)?
+
+**WARNING:** After doing this procedure, ALL Docker images, containers, `persistent_folders` and `sync_folders` will be lost. This also means that ALL persisted data (including databases) from **all projects** will be lost forever. **Proceed with extreme caution**.
+
+#### Mac OS X
+
+```sh
+rm -rf ~/.azk/data/vm/azk-agent.vmdk
+rm -rf ~/VirtualBox VMs/azk-vm-dev.azk.io
 ```
 
 ----------------------
