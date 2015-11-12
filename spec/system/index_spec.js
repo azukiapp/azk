@@ -240,7 +240,7 @@ describe("Azk system class, main set", function() {
       });
 
       it("should prepend shell before command if image doesn't have entrypoint nor cmd", function() {
-        var cmd = ["/bin/sh", "-c", ...system.command];
+        var cmd = ["/bin/sh", "-c", system.command.join(" ")];
         h.expect(options).to.have.property("command").and.eql(cmd);
       });
 
@@ -256,7 +256,7 @@ describe("Azk system class, main set", function() {
         var options = system.daemonOptions({}, {
           Cmd: ["bash"]
         });
-        var cmd = ["/bin/sh", "-c", ...system.command];
+        var cmd = ["/bin/sh", "-c", system.command.join(" ")];
         h.expect(options).to.have.property("command").and.eql(cmd);
       });
 

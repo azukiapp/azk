@@ -154,6 +154,13 @@ var Utils = {
     return (!value || _.isEmpty(value)) ? defaultValue : _.invoke(value.split(','), 'trim');
   },
 
+  // Regex reference: https://regex101.com/r/iW6qX3/11
+  splitCmd(command) {
+    var regex  = /([^\s'"]*"[^\\"\n]*(\\["\\][^\\"\n]*)*")|([^\s"']*'[^\\'\n]*(\\['\\][^\\'\n]*)*')|([^'"\n\s]*)/g;
+    var pieces = command.match(regex);
+    return _.compact(pieces);
+  }
+
 };
 
 module.exports = Utils;

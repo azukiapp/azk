@@ -38,6 +38,25 @@ describe("Azk utils module", function() {
     h.expect(result).to.equal("foo - bar");
   });
 
+  describe("splitCmd having the function call", function() {
+    it("should return a array with text pace", function() {
+      var str = "foo bar";
+      h.expect(utils.splitCmd(str)).to.eql(["foo", "bar"]);
+    });
+
+    it("should preserv single and double quotes", function() {
+      var cmd = [
+        `mongod --rest --text="hello world"`,
+        `--other='hello' "diferente other" -- -c "ls" echo "\\"hello\\""`
+      ].join(" ");
+      var expect_result = [
+        "mongod", "--rest", '--text="hello world"',
+        "--other='hello'", '"diferente other"', '--', '-c', '"ls"', 'echo', `"\\\"hello\\\""`,
+      ];
+      h.expect(utils.splitCmd(cmd)).to.eql(expect_result);
+    });
+  });
+
   describe('envs', function () {
     beforeEach(() => {
       delete process.env.ENV_TEST;

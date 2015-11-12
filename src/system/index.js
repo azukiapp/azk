@@ -94,8 +94,14 @@ export class System {
   // Options with default
   get raw_command() { return this.options.command; }
   get command() {
-    var cmd = _.isEmpty(this.options.command) ? [] : this.options.command;
-    return _.isArray(cmd) ? cmd : [cmd];
+    var cmd = this.options.command;
+
+    // split string
+    if (_.isString(cmd)) {
+      cmd = utils.splitCmd(cmd);
+    }
+
+    return this._require_array(cmd);
   }
 
   get workdir() {
@@ -474,7 +480,7 @@ export class System {
       if (empty_cmd) {
         command = empty_img_cmd ? cmd_not_set : image_conf.Cmd;
       }
-      command = ["/bin/sh", "-c", ...command];
+      command = ["/bin/sh", "-c", command.join(" ")];
     } else if (empty_cmd) {
       command = empty_img_cmd ? [] : image_conf.Cmd;
     }
