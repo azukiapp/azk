@@ -95,7 +95,7 @@ describe("Azk sync, main module", function() {
     });
   });
 
-  describe.skip("with enabled vm", function() {
+  h.describeRequireVm("with enabled vm", function() {
     it("should sync two folders", function() {
       return async(function* () {
         var name = config("agent:vm:name");
