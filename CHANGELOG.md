@@ -11,6 +11,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 * Bug
   * [Core] Fixing a bug that could generate an invalid command when `azk start` runs, making systems fail by not properly overriding the image Docker command by the custom command defined in the `Azkfile`;
+  * [Generators] Fixing replace evidences in `Court`;
 
 ## v0.16.1 - (2015-11-08)
 

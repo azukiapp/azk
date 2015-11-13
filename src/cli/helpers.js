@@ -112,6 +112,7 @@ var Helpers = {
       var tKey    = null;
       var context = event.context || "agent";
       var keys    = ["status", context];
+      var tKey;
 
       switch (event.type) {
         case "status":
