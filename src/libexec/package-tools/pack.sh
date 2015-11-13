@@ -206,8 +206,6 @@ start_agent() {
   azk agent stop
   sleep 3
 
-  sudo /usr/bin/create-resolver-file $AZK_BALANCER_HOST $AZK_BALANCER_IP
-
   ./bin/azk agent start --no-daemon > $AZK_AGENT_LOG_FILE 2>&1 &
   AGENT_PID="$!"
   tail -F $AZK_AGENT_LOG_FILE &
