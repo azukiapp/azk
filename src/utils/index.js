@@ -1,8 +1,8 @@
-var { join, basename, dirname } = require('path');
+var { join } = require('path');
 var crypto = require('crypto');
 var _      = require('lodash');
 var fs     = require('fs');
-var defer = require('azk/utils/promises').defer;
+var defer  = require('azk/utils/promises').defer;
 
 var Utils = {
   __esModule: true,
@@ -80,19 +80,7 @@ var Utils = {
   },
 
   resolve(...path) {
-    path = join(...path);
-
-    // Remove file from path
-    var file = "";
-    var stat = fs.statSync(path);
-    if (stat.isFile()) {
-      file = basename(path);
-      path = dirname(path);
-    }
-
-    return Utils.cd(path, function() {
-      return join(process.cwd(), file);
-    });
+    return fs.realpathSync(join(...path));
   },
 
   unzip(origin, target) {

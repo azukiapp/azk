@@ -12,7 +12,7 @@ describe("Azk utils module", function() {
     });
     h.expect(current).to.not.equal(other);
     h.expect(current).to.equal(process.cwd());
-    h.expect(other).to.equal(__dirname);
+    h.expect(other).to.match(RegExp(h.escapeRegExp(__dirname), "i"));
   });
 
   it("should resolve a directory path", function() {
