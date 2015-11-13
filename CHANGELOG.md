@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 * Enhancements
   * [Core] Upgrading node to v0.10.40
+  * [Suggesting] Changing suggestions to suggest a command based in Array in replace of String
 
 * Bug
   * [Core] Fixing a bug that could generate an invalid command when `azk start` runs, making systems fail by not properly overriding the image Docker command by the custom command defined in the `Azkfile`;

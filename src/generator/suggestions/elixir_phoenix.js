@@ -20,7 +20,7 @@ export class Suggestion extends ElixirSuggestion {
         "mix ecto.create",
         "mix ecto.migrate",
       ],
-      command: "mix phoenix.server --no-deps-check",
+      command: ["mix", "phoenix.server", "--no-deps-check"],
       mounts: this.extend(this.suggestion.mounts, {
         "/azk/#{app.dir}"             : {type: 'sync', value: '.'},
         "/azk/#{app.dir}/node_modules": {type: 'persistent', value: "#{app.relative}/node_modules"},
