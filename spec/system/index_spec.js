@@ -530,32 +530,26 @@ describe("Azk system class, main set", function() {
         });
 
         it("should have `/bin/sh -c` append if the cmd.command is present", function() {
-          var command   = ["ls -l"];
+          var command   = ['ls -l'];
           var final_cmd = [system.shell, "-c", ...command];
           var options   = system.shellOptions({ command });
           h.expect(options).to.have.property("command").and.eql(final_cmd);
         });
 
         it("should have '[cmd.shell] -c` append if the cmd.shell is present", function() {
-          var shell     = "/bin/bash";
-          var command   = ["ls -l"];
-          var final_cmd = [shell, "-c", ...command];
+          var shell     = "/bin/sh";
+          var command   = ["echo", "ls -l"];
+          var final_cmd = [shell, "-c", 'echo \"ls -l\"'];
           var options   = system.shellOptions({ command, shell });
+          h.expect(system).to.have.property("shell").and.not.equal(shell);
           h.expect(options).to.have.property("command").and.eql(final_cmd);
         });
 
-        it("should have `[cmd.shell_args]` only if shell_args is not a empty", function() {
+        it("should convert cmd.shell_args in cmd.command and append `[cmd.shell] -c`", function() {
           var shell_args = ["/bin/df", "-h"];
           var options = system.shellOptions({ shell_args });
-          h.expect(options).to.have.property("command").and.eql(shell_args);
-        });
-
-        it("should have `[cmd.shell, ...cmd.shell_args] if cmd shell and shell_args aren't empty", function() {
-          var shell      = "/bin/bash";
-          var shell_args = ["/bin/df", "-h"];
-          var final_cmd  = [shell, ...shell_args];
-          var options    = system.shellOptions({ shell, shell_args });
-          h.expect(options).to.have.property("command").and.eql(final_cmd);
+          var command = ["/bin/bash", "-c", shell_args.join(" ")];
+          h.expect(options).to.have.property("command").and.eql(command);
         });
       });
     });

@@ -32,8 +32,8 @@ var Run = {
       log.debug('provision steps', steps);
 
       // provision command (require /bin/sh)
-      options.shell   = "/bin/sh";
-      options.command = ["( " + steps.join('; ') + " )"];
+      // options.shell   = "/bin/sh";
+      options.command = "(" + steps.join('; ') + " )";
 
       // Capture outputs
       var output = "";

@@ -440,33 +440,33 @@ export class System {
   }
 
   _shell_command(options) {
-    var command = this._require_array(options.command);
+    // Set a default shell
+    // cmd.shell have preference over system.shell
+    var default_shell = _.isEmpty(this.shell) ? "/bin/sh" : this.shell;
+    if (!_.isEmpty(options.shell)) { default_shell = options.shell; }
 
-    // shell args (aka: --) not append [cmd.shell|system.shell]
+    var command = options.command;
+
+    // shell args (aka: --)
     if (!_.isEmpty(options.shell_args)) {
       command = this._require_array(options.shell_args);
-      if (!_.isEmpty(options.shell)) {
-        command.unshift(options.shell);
+    }
+
+    if (!_.isEmpty(command)) {
+      if (_.isArray(command)) {
+        if (command.length > 1) {
+          command = _.map(command, (arg) => {
+            return (arg.match(/['|"|\s]/)) ? `"${arg.replace(/(")/g, "\\$1")}"` : arg;
+          });
+        }
+        command = command.join(" ");
       }
+      command = [default_shell, "-c", command];
     } else {
-      // Set a default shell
-      var default_shell = _.isEmpty(this.shell) ? "/bin/sh" : this.shell;
-
-      // cmd.shell have preference over system.shell
-      if (!_.isEmpty(options.shell)) { default_shell = options.shell; }
-
-      if (!_.isEmpty(command)) {
-        command = [default_shell, "-c", ...command];
-      } else {
-        command = [default_shell];
-      }
+      command = [default_shell];
     }
 
     return command;
-  }
-
-  _require_array(value) {
-    return _.compact(_.isArray(value) ? value : [value]);
   }
 
   _daemon_command(options, image_conf) {
@@ -486,6 +486,10 @@ export class System {
     }
 
     return command;
+  }
+
+  _require_array(value) {
+    return _.compact(_.isArray(value) ? value : [value]);
   }
 
   _envs_from_file() {
