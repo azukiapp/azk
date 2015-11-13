@@ -187,6 +187,7 @@ main(){
           add_report "    https://github.com/azukiapp/azk/issues"
           fail
       esac
+      install_azk_fedora
       add_user_to_docker_group
       success
     fi

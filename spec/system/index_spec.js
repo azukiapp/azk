@@ -1,5 +1,5 @@
 import h from 'spec/spec_helper';
-import { _, path, utils } from 'azk';
+import { _, t, path, utils } from 'azk';
 import { config, version } from 'azk';
 import { System } from 'azk/system';
 import { net } from 'azk/utils';
@@ -232,6 +232,60 @@ describe("Azk system class, main set", function() {
         });
       });
 
+      it("should set a command error if image.entrypoint, image.cmd and system.command is empty", function() {
+        var system_name = 'example-without-command';
+        var options = manifest.system(system_name).daemonOptions();
+        var cmd = ["/bin/sh", "-c", `echo ${t("system.cmd_not_set", { system: system_name })}; exit 1`];
+        h.expect(options).to.have.property("command").and.eql(cmd);
+      });
+
+      it("should prepend shell before command if image doesn't have entrypoint nor cmd", function() {
+        var cmd = ["/bin/sh", "-c", system.command.join(" ")];
+        h.expect(options).to.have.property("command").and.eql(cmd);
+      });
+
+      it("should not prepend shell before command if image has entrypoint", function() {
+        var options = system.daemonOptions({}, {
+          Entrypoint: ["/entry.sh"]
+        });
+        var cmd = [...system.command];
+        h.expect(options).to.have.property("command").and.eql(cmd);
+      });
+
+      it("should prepend shell before command if image.entrypoint is empty but image.cmd not", function() {
+        var options = system.daemonOptions({}, {
+          Cmd: ["bash"]
+        });
+        var cmd = ["/bin/sh", "-c", system.command.join(" ")];
+        h.expect(options).to.have.property("command").and.eql(cmd);
+      });
+
+      it("should return a empty command if have only image.entrypoint", function() {
+        var system_name = 'example-without-command';
+        var options = manifest.system(system_name).daemonOptions({}, { Entrypoint: ["/entry.sh"]});
+        h.expect(options).to.have.property("command").and.eql([]);
+      });
+
+      it("should return a image.cmd only if image.cmd and entrypoint.cmd not empty but system.command is", function() {
+        var system_name = 'example-without-command';
+        var options = manifest.system(system_name).daemonOptions({}, { Entrypoint: ["/entry.sh"], Cmd: ["ls -l"]});
+        var cmd = ["ls -l"];
+        h.expect(options).to.have.property("command").and.eql(cmd);
+      });
+
+      it("should prepend shell before image.cmd if system.command and image.entrypoint is empty", function() {
+        var system_name = 'example-without-command';
+        var options = manifest.system(system_name).daemonOptions({}, { Cmd: ["ls -l"]});
+        var cmd = ["/bin/sh", "-c", "ls -l"];
+        h.expect(options).to.have.property("command").and.eql(cmd);
+      });
+
+      it("should return only system.command if image entrypoint and cmd and system.command aren't empty", function() {
+        var options = system.daemonOptions({}, { Entrypoint: ["/entry.sh"], Cmd: ["ls -l"]});
+        var cmd = [...system.command];
+        h.expect(options).to.have.property("command").and.eql(cmd);
+      });
+
       it("should return options with annotations", function() {
         h.expect(options).to.have.deep.property("annotations.azk.mid", manifest.namespace);
         h.expect(options).to.have.deep.property("annotations.azk.type", "daemon");
@@ -262,7 +316,7 @@ describe("Azk system class, main set", function() {
         var system  = manifest.system('ports-static');
         return system.image.check().then((image) => {
           return image.inspect().then((image_data) => {
-            var options = system.daemonOptions({ image_data });
+            var options = system.daemonOptions({}, image_data.Config);
 
             h.expect(options).to.deep.have.property("ports.80/tcp").and.eql([{
               HostIp: config('agent:dns:ip')
@@ -284,7 +338,7 @@ describe("Azk system class, main set", function() {
         var system  = manifest.system('ports-static');
         return system.image.check().then((image) => {
           return image.inspect().then((image_data) => {
-            var options = system.daemonOptions({ image_data });
+            var options = system.daemonOptions({}, image_data.Config);
             h.expect(options).to.deep.have.property("ports_orderly.0.name").and.eql('81/tcp');
             h.expect(options).to.deep.have.property("ports_orderly.1.name").and.eql('443/tcp');
             h.expect(options).to.deep.have.property("ports_orderly.2.name").and.eql('53/udp');
@@ -297,7 +351,7 @@ describe("Azk system class, main set", function() {
         var system  = manifest.system('ports-static');
         return system.image.check().then((image) => {
           return image.inspect().then((image_data) => {
-            var options = system.daemonOptions({ image_data });
+            var options = system.daemonOptions({}, image_data.Config);
 
             h.expect(options).to.deep.have.property("ports.80/tcp").and.eql([{
               HostIp: config('agent:dns:ip')
@@ -315,11 +369,12 @@ describe("Azk system class, main set", function() {
         });
       });
 
+      // Quebrado :/
       it("should disable image ports with option `disable`", function() {
         var system = manifest.system('ports-disable');
         return system.image.check().then((image) => {
           return image.inspect().then((image_data) => {
-            var options = system.daemonOptions({ image_data });
+            var options = system.daemonOptions({}, image_data.Config);
 
             h.expect(options).to.deep.have.property("ports.80/tcp").and.eql([{
               HostIp: config('agent:dns:ip')
@@ -404,7 +459,7 @@ describe("Azk system class, main set", function() {
         var system = manifest.system('mount-test');
         return system.image.check().then((image) => {
           return image.inspect().then((image_data) => {
-            var options = system.daemonOptions({ image_data });
+            var options = system.daemonOptions({}, image_data.Config);
             h.expect(options).to.have.property("working_dir", "/data");
             h.expect(options).to.have.deep.property("ports.80/tcp").and.eql([{
               HostIp: config('agent:dns:ip')
@@ -464,6 +519,44 @@ describe("Azk system class, main set", function() {
         };
         var options = system.shellOptions(custom);
         h.expect(options).to.have.deep.property("annotations.azk.shell", "interactive");
+      });
+
+      describe("return a command options", function() {
+        // keys: cmd.shell, cmd.shell_args, cmd.command, azkfile.shell
+        it("should have `/bin/sh` for default", function() {
+          var system  = manifest.system('empty');
+          var options = system.shellOptions({});
+          h.expect(options).to.have.property("command").and.eql(["/bin/sh"]);
+        });
+
+        it("should have `/bin/sh -c` append if the cmd.command is present", function() {
+          var command   = ["ls -l"];
+          var final_cmd = [system.shell, "-c", ...command];
+          var options   = system.shellOptions({ command });
+          h.expect(options).to.have.property("command").and.eql(final_cmd);
+        });
+
+        it("should have '[cmd.shell] -c` append if the cmd.shell is present", function() {
+          var shell     = "/bin/bash";
+          var command   = ["ls -l"];
+          var final_cmd = [shell, "-c", ...command];
+          var options   = system.shellOptions({ command, shell });
+          h.expect(options).to.have.property("command").and.eql(final_cmd);
+        });
+
+        it("should have `[cmd.shell_args]` only if shell_args is not a empty", function() {
+          var shell_args = ["/bin/df", "-h"];
+          var options = system.shellOptions({ shell_args });
+          h.expect(options).to.have.property("command").and.eql(shell_args);
+        });
+
+        it("should have `[cmd.shell, ...cmd.shell_args] if cmd shell and shell_args aren't empty", function() {
+          var shell      = "/bin/bash";
+          var shell_args = ["/bin/df", "-h"];
+          var final_cmd  = [shell, ...shell_args];
+          var options    = system.shellOptions({ shell, shell_args });
+          h.expect(options).to.have.property("command").and.eql(final_cmd);
+        });
       });
     });
   });

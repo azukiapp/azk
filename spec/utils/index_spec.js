@@ -12,7 +12,7 @@ describe("Azk utils module", function() {
     });
     h.expect(current).to.not.equal(other);
     h.expect(current).to.equal(process.cwd());
-    h.expect(other).to.equal(__dirname);
+    h.expect(other).to.match(RegExp(h.escapeRegExp(__dirname), "i"));
   });
 
   it("should resolve a directory path", function() {
@@ -36,6 +36,25 @@ describe("Azk utils module", function() {
     var result, data = { value: "foo", hash: { key: "bar" } };
     result = utils.template("<%= value %> - #{hash.key}", data);
     h.expect(result).to.equal("foo - bar");
+  });
+
+  describe("splitCmd having the function call", function() {
+    it("should return a array with text pace", function() {
+      var str = "foo bar";
+      h.expect(utils.splitCmd(str)).to.eql(["foo", "bar"]);
+    });
+
+    it("should preserv single and double quotes", function() {
+      var cmd = [
+        `mongod --rest --text="hello world"`,
+        `--other='hello' "diferente other" -- -c "ls" echo "\\"hello\\""`
+      ].join(" ");
+      var expect_result = [
+        "mongod", "--rest", '--text="hello world"',
+        "--other='hello'", '"diferente other"', '--', '-c', '"ls"', 'echo', `"\\\"hello\\\""`,
+      ];
+      h.expect(utils.splitCmd(cmd)).to.eql(expect_result);
+    });
   });
 
   describe('envs', function () {

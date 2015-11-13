@@ -94,15 +94,14 @@ export class System {
   // Options with default
   get raw_command() { return this.options.command; }
   get command() {
-    var command = this.options.command;
-    if (_.isEmpty(command)) {
-      var msg = t("system.cmd_not_set", {system: this.name});
-      command = [this.shell, "-c", `echo "${msg}"; exit 1`];
-    } else {
-      command = [this.shell, "-c", command];
+    var cmd = this.options.command;
+
+    // split string
+    if (_.isString(cmd)) {
+      cmd = utils.splitCmd(cmd);
     }
 
-    return command;
+    return this._require_array(cmd);
   }
 
   get workdir() {
@@ -296,25 +295,21 @@ export class System {
   }
 
   // Docker run options generator
-  daemonOptions(options = {}) {
+  daemonOptions(options = {}, image_conf = {}) {
     // Merge ports
     options.ports = _.merge({}, this.ports, options.ports);
     options.ports_order = _.map(options.ports, (port, name) => {
       return !_.isEmpty(port) && name;
     });
 
+    // Make command
+    options.command = this._daemon_command(options, image_conf);
+
     // Load configs from image
-    if (options.image_data) {
-      var config = options.image_data.Config;
-
-      // Cmd
-      if (_.isEmpty(this.options.command) && _.isEmpty(options.command)) {
-        options.command = config.Cmd;
-      }
-
+    if (image_conf) {
       // WorkingDir
       if (_.isEmpty(this.options.workdir) && _.isEmpty(options.workdir)) {
-        options.workdir = config.WorkingDir;
+        options.workdir = image_conf.WorkingDir;
       }
 
       // ExposedPorts
@@ -326,7 +321,7 @@ export class System {
         return ports;
       }, {});
 
-      _.each(config.ExposedPorts, (_config, port) => {
+      _.each(image_conf.ExposedPorts, (_config, port) => {
         var have = _.find(ports, (value) => {
           return value.match(new RegExp(`${parseInt(port)}\/(tcp|udp)$`));
         });
@@ -346,15 +341,15 @@ export class System {
       return ports;
     }, {});
 
-    return this._make_options(true, options);
+    return this._make_options(true, options, image_conf);
   }
 
-  shellOptions(options = {}) {
+  shellOptions(options = {}, image_conf = {}) {
     options = _.defaults(options, {
       interactive: false,
     });
 
-    var opts = this._make_options(false, options);
+    var opts = this._make_options(false, options, image_conf);
 
     // Shell extra options
     opts.annotations.azk.shell = (
@@ -363,10 +358,11 @@ export class System {
     );
 
     _.merge(opts, {
-      tty   : options.interactive ? options.stdout.isTTY : false,
-      stdout: options.stdout,
-      stderr: options.stderr || options.stdout,
-      stdin : options.interactive ? (options.stdin) : null,
+      command: this._shell_command(options),
+      tty    : options.interactive ? options.stdout.isTTY : false,
+      stdout : options.stdout,
+      stderr : options.stderr || options.stdout,
+      stdin  : options.interactive ? (options.stdin) : null,
     });
 
     return opts;
@@ -383,7 +379,7 @@ export class System {
       ports_order: [],
       sequencies: {},
       docker: null,
-      dns_servers: this.options.dns_servers
+      dns_servers: this.options.dns_servers,
     });
 
     // Map ports to docker configs: ports and envs
@@ -405,7 +401,9 @@ export class System {
       ports[data.name] = [data.config];
     });
 
-    var type   = daemon ? "daemon" : "shell";
+    var type = daemon ? "daemon" : "shell";
+
+    // Make mounts options
     var mounts = _.merge(
       {}, this._mounts_to_volumes(this.options.mounts || {}, daemon),
       this._mounts_to_volumes(options.mounts, daemon)
@@ -418,12 +416,13 @@ export class System {
     } else {
       dns_servers = net.nameServers();
     }
+
     var finalOptions = {
       daemon: daemon,
+      command: options.command,
       ports: ports,
       ports_orderly: ports_orderly,
       stdout: options.stdout,
-      command: options.command || this.command,
       volumes: mounts,
       working_dir: options.workdir || this.workdir,
       env: envs,
@@ -438,6 +437,55 @@ export class System {
     };
 
     return finalOptions;
+  }
+
+  _shell_command(options) {
+    var command = this._require_array(options.command);
+
+    // shell args (aka: --) not append [cmd.shell|system.shell]
+    if (!_.isEmpty(options.shell_args)) {
+      command = this._require_array(options.shell_args);
+      if (!_.isEmpty(options.shell)) {
+        command.unshift(options.shell);
+      }
+    } else {
+      // Set a default shell
+      var default_shell = _.isEmpty(this.shell) ? "/bin/sh" : this.shell;
+
+      // cmd.shell have preference over system.shell
+      if (!_.isEmpty(options.shell)) { default_shell = options.shell; }
+
+      if (!_.isEmpty(command)) {
+        command = [default_shell, "-c", ...command];
+      } else {
+        command = [default_shell];
+      }
+    }
+
+    return command;
+  }
+
+  _require_array(value) {
+    return _.compact(_.isArray(value) ? value : [value]);
+  }
+
+  _daemon_command(options, image_conf) {
+    var command         = options.command || this.command;
+    var empty_img_cmd   = _.isEmpty(image_conf.Cmd);
+    var empty_img_entry = _.isEmpty(image_conf.Entrypoint);
+    var empty_cmd       = _.isEmpty(command);
+    var cmd_not_set     = [`echo ${t("system.cmd_not_set", { system: this.name })}; exit 1`];
+
+    if (empty_img_entry) {
+      if (empty_cmd) {
+        command = empty_img_cmd ? cmd_not_set : image_conf.Cmd;
+      }
+      command = ["/bin/sh", "-c", command.join(" ")];
+    } else if (empty_cmd) {
+      command = empty_img_cmd ? [] : image_conf.Cmd;
+    }
+
+    return command;
   }
 
   _envs_from_file() {

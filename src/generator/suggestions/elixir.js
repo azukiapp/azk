@@ -18,7 +18,7 @@ export class Suggestion extends DefaultSuggestion {
       provision: [
         "mix do deps.get, compile",
       ],
-      command: "mix app.start",
+      command: ["mix", "app.start"],
       mounts: {
         "/azk/#{app.dir}"       : {type: 'sync', value: '.'},
         "/azk/#{app.dir}/deps"  : {type: 'persistent', value: "#{app.relative}/deps"},

@@ -7,6 +7,16 @@ $ cd wordpress-folder
 $ azk init
 ```
 
-### Exemplo do Azkfile com PHP-FPM + Mysql + phpMyAdmin
+### Rodando a aplicação
+
+Para iniciar o ambiente de desenvolvimento
+
+```sh
+$ azk start -o && azk logs --follow
+```
+
+### Exemplos
+
+#### PHP-FPM + MySQL + phpMyAdmin
 
 !INCLUDE "../../common/azkfilejs/php_wordpress_mysql.md"

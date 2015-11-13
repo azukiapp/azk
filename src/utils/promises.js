@@ -105,6 +105,10 @@ var PromisesHelper = {
     });
   },
 
+  promisify(method) {
+    return BB.promisify(method);
+  },
+
   nfcall(method, ...args) {
     return BB.promisify(method)(...args);
   },

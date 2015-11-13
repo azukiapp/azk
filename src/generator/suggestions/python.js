@@ -20,7 +20,7 @@ export class Suggestion extends DefaultSuggestion {
       ],
       http    : true,
       scalable: { default: 1 },
-      command : 'python server.py',
+      command : ["python", "server.py"],
       mounts  : {
         "/azk/#{app.dir}"    : {type: 'sync', value: '.'},
         '/azk/pythonuserbase': {type: 'persistent', value: 'pythonuserbase'},
