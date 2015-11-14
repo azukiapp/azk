@@ -17,7 +17,7 @@ export VERSION=$( azk version | awk '{ print $2 }' )
 SHA256=$(shasum -a 256 shasum -a 256 "package/brew/azk_${VERSION}.tar.gz" | awk '{print $1}')
 
 RELEASE_CHANNEL=$( echo "${VERSION}" | sed s/[^\\-]*// | sed s/^\\-// | sed s/\\..*// )
-CLASS_NAME="Azk${RELEASE_CHANNEL^}"
+CLASS_NAME="Azk$(tr '[:lower:]' '[:upper:]' <<< ${RELEASE_CHANNEL:0:1})${RELEASE_CHANNEL:1}"
 if [[ -z "${RELEASE_CHANNEL}" ]]; then
   CHANNEL_SUFFIX=
   CONFLICTS=

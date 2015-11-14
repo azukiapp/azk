@@ -13,7 +13,8 @@ var server  = require('http').Server(app);
 var path = require('path');
 
 var fedora_versions = [ "fedora20", "fedora23" ];
-for (var fedora_version of fedora_versions) {
+for (var i = 0; i < fedora_versions.length; i++) {
+  var fedora_version = fedora_versions[i];
   app.use(path.join('/', fedora_version), express.static(
     path.resolve(__dirname, "..", "..", "..", "package", path.join('/', fedora_version))
   ));
