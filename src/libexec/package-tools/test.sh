@@ -45,6 +45,7 @@ case "${SO}" in
     fedora23 )
         DISTRO='fedora'
         CODENAME='fedora23'
+        exit 0 # Skipping for now
         ;;
     * )
         echo "${SO} is not a supported SO. Check it and try again."

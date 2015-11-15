@@ -16,7 +16,7 @@ var fedora_versions = [ "fedora20", "fedora23" ];
 for (var i = 0; i < fedora_versions.length; i++) {
   var fedora_version = fedora_versions[i];
   app.use(path.join('/', fedora_version), express.static(
-    path.resolve(__dirname, "..", "..", "..", "package", path.join('/', fedora_version))
+    path.resolve(path.join(__dirname, "..", "..", "..", "package", fedora_version))
   ));
 }
 app.use("/", express.static(path.join(apptly.rootDir, 'public')));

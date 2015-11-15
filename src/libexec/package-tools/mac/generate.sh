@@ -28,7 +28,7 @@ else
   "
 fi
 
-MAC_REPO_URL="https://github.com/azukiapp/homebrew-azk"
+MAC_REPO_URL="git@github.com:azukiapp/homebrew-azk.git"
 MAC_FORMULA_DIR="${MAC_REPO_DIR}/Formula"
 MAC_FORMULA_FILE="azk${CHANNEL_SUFFIX}.rb"
 MAC_BUCKET_URL="repo-stage.azukiapp.com"
