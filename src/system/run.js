@@ -1,4 +1,5 @@
-import { _, t, config, lazy_require, log, isBlank, path } from 'azk';
+import { _, t, lazy_require, isBlank } from 'azk';
+import { config, utils, log, path } from 'azk';
 import { subscribe, publish } from 'azk/utils/postal';
 import { defer, async, asyncUnsubscribe, promiseResolve, thenAll } from 'azk/utils/promises';
 import { ImageNotAvailable, SystemRunError, RunCommandError, NotBeenImplementedError } from 'azk/utils/errors';
@@ -143,7 +144,7 @@ var Run = {
 
         if (!_.isEmpty(port_data)) {
           var timeout = options.wait.timeout || config('docker:run:timeout');
-          yield this._wait_available(system, port_data, container, timeout, options);
+          yield this._wait_available(system, port_data, container, timeout, options, image.Config);
         }
       }
 
@@ -258,7 +259,7 @@ var Run = {
   },
 
   // Wait for container/system available
-  _wait_available(system, port_data, container, timeout, options) {
+  _wait_available(system, port_data, container, timeout, options, image_conf) {
     return async(this, function* () {
       var host;
       if (config('agent:requires_vm')) {
@@ -299,16 +300,24 @@ var Run = {
           hostname: system.url.underline,
         });
 
+        // Format command
+        var command = utils.requireArray(data.Config.Cmd);
+        if (!_.isEmpty(image_conf.Entrypoint)) {
+          var entry = utils.requireArray(image_conf.Entrypoint);
+          command = entry.concat(command);
+        }
+        command = JSON.stringify(command);
+
         if (exitCode === 0) {
           throw new SystemRunError(
             system.name,
             container,
-            data.Config.Cmd.join(' '),
+            command,
             exitCode,
             log
           );
         } else {
-          yield this.throwRunError(system, container, null, true, options);
+          yield this.throwRunError(system, container, command, null, true, options);
         }
       }
 
@@ -316,7 +325,7 @@ var Run = {
     });
   },
 
-  throwRunError(system, container, data = null, stop = false, options = {}) {
+  throwRunError(system, container, command, data = null, stop = false, options = {}) {
     data = data ? promiseResolve(data) : container.inspect();
     return data.then((data) => {
       // Get container log
@@ -339,7 +348,7 @@ var Run = {
           throw new SystemRunError(
             system.name,
             container,
-            data.Config.Cmd.join(' '),
+            command,
             data.State.ExitCode,
             log
           );
