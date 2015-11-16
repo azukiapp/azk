@@ -38,7 +38,39 @@ describe("Azk utils module", function() {
     h.expect(result).to.equal("foo - bar");
   });
 
-  describe("splitCmd having the function call", function() {
+  it("should return a array every call requireArray", function() {
+    h.expect(utils.requireArray()).to.eql([]);
+    h.expect(utils.requireArray(null)).to.eql([]);
+    h.expect(utils.requireArray(1)).to.eql([1]);
+    h.expect(utils.requireArray([1, 2])).to.eql([1, 2]);
+  });
+
+  describe("with function joinCmd", function() {
+    it("should return string passed", function() {
+      h.expect(utils.joinCmd("/bin/bash")).to.equal("/bin/bash");
+    });
+
+    it("should return a string that is the pices of the array", function() {
+      var cmd = ["/bin/sh", "-c", "ls"];
+      h.expect(utils.joinCmd(cmd)).to.equal("/bin/sh -c ls");
+    });
+
+    it("should escape args with spaces and quotes", function() {
+      var cmd, cmds = {
+        "/bin/sh -c \"echo 'hello world'\"": ["/bin/sh", "-c", "echo 'hello world'"],
+        "/bin/sh -c \"echo \\\"hello 'world\\\"\"": ["/bin/sh", "-c", "echo \"hello 'world\""],
+      };
+
+      for (var result in cmds) {
+        if (cmds.hasOwnProperty(result)) {
+          cmd = cmds[result];
+          h.expect(utils.joinCmd(cmd)).to.equal(result);
+        }
+      }
+    });
+  });
+
+  describe("with function splitCmd", function() {
     it("should return a array with text pace", function() {
       var str = "foo bar";
       h.expect(utils.splitCmd(str)).to.eql(["foo", "bar"]);

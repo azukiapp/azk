@@ -101,7 +101,7 @@ export class System {
       cmd = utils.splitCmd(cmd);
     }
 
-    return this._require_array(cmd);
+    return utils.requireArray(cmd);
   }
 
   get workdir() {
@@ -449,19 +449,11 @@ export class System {
 
     // shell args (aka: --)
     if (!_.isEmpty(options.shell_args)) {
-      command = this._require_array(options.shell_args);
+      command = utils.requireArray(options.shell_args);
     }
 
     if (!_.isEmpty(command)) {
-      if (_.isArray(command)) {
-        if (command.length > 1) {
-          command = _.map(command, (arg) => {
-            return (arg.match(/['|"|\s]/)) ? `"${arg.replace(/(")/g, "\\$1")}"` : arg;
-          });
-        }
-        command = command.join(" ");
-      }
-      command = [default_shell, "-c", command];
+      command = [default_shell, "-c", utils.joinCmd(command)];
     } else {
       command = [default_shell];
     }
@@ -486,10 +478,6 @@ export class System {
     }
 
     return command;
-  }
-
-  _require_array(value) {
-    return _.compact(_.isArray(value) ? value : [value]);
   }
 
   _envs_from_file() {
