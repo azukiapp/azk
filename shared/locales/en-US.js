@@ -20,6 +20,55 @@ module.exports = {
       'You can always find that command in `azk help`'.grey,
     ].join(''),
   },
+  bugReport: {
+    question_send_idividual_error: [
+      '=========================================================================\n'.grey,
+      '  Error sending\n'.grey,
+      ' =========================================================================\n'.grey,
+      '  Do you want to send this error? \n'.yellow,
+      ' =========================================================================\n'.grey,
+    ].join(''),
+    question_enable_bug_report_send: [
+      '=========================================================================\n'.grey,
+      '  Enable bug report sending\n'.grey,
+      ' =========================================================================\n'.grey,
+      '  Do you want to enable auto sending bug report on errors? \n'.yellow,
+      ' =========================================================================\n'.grey,
+    ].join(''),
+    question_mail: [
+      '=========================================================================\n'.grey,
+      '  User e-mail\n'.grey,
+      ' =========================================================================\n'.grey,
+      '  Could you share your email with us? \n'.yellow,
+      ' =========================================================================\n'.grey,
+    ].join(''),
+    question_mail_can_save: [
+      '=========================================================================\n'.grey,
+      '  User e-mail saving\n'.grey,
+      ' =========================================================================\n'.grey,
+      '  Can we save your email for future bug reports? \n'.yellow,
+      ' =========================================================================\n'.grey,
+    ].join(''),
+    error_sent: [
+      'Your error has been sent to us! Thanks.'.green,
+    ].join(' '),
+    error_not_sent: [
+      'No problem! Remember you can change this behaviour running `azk config bug-report-toggle`.'.grey,
+    ].join(' '),
+    bug_report_autosend_config_yes: [
+      'All errors will be sent automatically to azuki.'.green,
+    ].join(' '),
+    bug_report_autosend_config_no: [
+      'No errors will be sent automatically to azuki.'.green,
+    ].join(' '),
+    email_saved: [
+      'Your e-mail was saved for future bug reports. Thank you for trust us.'.green,
+    ].join(''),
+    email_not_saved: [
+      'Your e-mail was not saved. We you ask you again next time.'.grey,
+      ' Remember you can change this behaviour running `azk config bug-report-toggle`.'.grey,
+    ].join(''),
+  },
   errors: {
     no_vm_started               : "Unable to install and configure virtual machine",
     no_internet_connection      : "\nNo internet connection!",
@@ -433,6 +482,13 @@ module.exports = {
     config: {
       'tracking-false': 'currently azk is not tracking any data',
       'tracking-true' : 'currently azk is tracking data, more info: https://github.com/azukiapp/azk and http://docs.azk.io/en/terms-of-use',
+      'bugReport-false': 'currently azk is not sending any bug report',
+      'bugReport-true' : 'currently azk is sendind bug reports, more info: https://github.com/azukiapp/azk and http://docs.azk.io/en/terms-of-use',
+      'bugReport-undefined' : 'currently azk bug reporting send configuration is not set',
+      'email-current' : 'Email: %(email)s',
+      'email-undefined' : 'There is no email set in azk\'s configuration',
+      'email-not-valid' : 'Email is not valid: %(email)s. Please insert a valid email.',
+      'email-reset-to-null' : 'Email was reset to null',
     },
     vm: {
       already_installed: "Virtual machine already installed.",

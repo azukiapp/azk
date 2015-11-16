@@ -1,7 +1,8 @@
 import { _, log, lazy_require, config, t } from 'azk';
-import { async } from 'azk/utils/promises';
+import { async, promiseResolve } from 'azk/utils/promises';
 import { SmartProgressBar } from 'azk/cli/smart_progress_bar';
 import { ManifestError } from 'azk/utils/errors';
+import BugReportUtil from 'azk/configuration/bug_report';
 
 var lazy = lazy_require({
   AgentClient: ['azk/agent/client', 'Client'],
@@ -63,6 +64,117 @@ var Helpers = {
       }
 
       return trackerPermission;
+    });
+  },
+
+  askToSendError(cli, forceAsk = false) {
+    return async(this, function* () {
+      // check if user already answered
+      var bugReportUtil = new BugReportUtil({});
+      var isBugReportActive = bugReportUtil.loadBugReportUtilPermission(); // Boolean or undefined
+      var isTrackerActive = cli.tracker.loadTrackerPermission(); // Boolean
+      var should_ask_permission = (forceAsk || typeof bugReportPermission === 'undefined');
+
+      if (!cli.isInteractive()) {
+       return isBugReportActive === true;
+      }
+
+      if (isTrackerActive) {
+        if (should_ask_permission) {
+          yield this.askBugReportEnableConfig(cli);
+          isBugReportActive = bugReportUtil.loadBugReportUtilPermission(); // Boolean
+        }
+
+        if (isBugReportActive) {
+          // FIXME: check if user email is saved
+          var user_email = '';
+          if (!user_email || user_email.length === 0) {
+            yield this.askEmail(cli);
+            yield this.askSaveEmail(cli);
+            return true;
+          } else {
+            return true;
+          }
+        } else {
+          // do not ask, do not send
+          return false;
+        }
+      } else {
+        if (isBugReportActive) {
+          return true;
+        } else {
+          // do not ask, do not send
+        }
+        yield this.askBugReportSendIndividualError(cli);
+      }
+    });
+  },
+
+  askBugReportSendIndividualError(cli) {
+    var question = {
+      type    : 'confirm',
+      name    : 'result',
+      message : 'bugReport.question_send_idividual_error',
+      default : 'Y'
+    };
+
+    return cli.prompt(question)
+    .then((response) => {
+      if (response.result) {
+        cli.ok('bugReport.error_sent');
+      } else {
+        cli.ok('bugReport.error_not_sent');
+      }
+      return promiseResolve(0);
+    });
+  },
+
+  askBugReportEnableConfig(cli) {
+    var question = {
+      type    : 'confirm',
+      name    : 'result',
+      message : 'bugReport.question_enable_bug_report_send',
+      default : 'Y'
+    };
+
+    return cli.prompt(question)
+    .then((response) => {
+      if (response.result) {
+        cli.ok('bugReport.bug_report_autosend_config_yes');
+      } else {
+        cli.ok('bugReport.bug_report_autosend_config_no');
+      }
+      return promiseResolve(0);
+    });
+  },
+
+  askEmail(cli) {
+    var question = {
+      type    : 'input',
+      name    : 'result',
+      message : 'bugReport.question_mail',
+      default : ''
+    };
+
+    return cli.prompt(question);
+  },
+
+  askSaveEmail(cli, current_email = '') {
+    var question = {
+      type    : 'input',
+      name    : 'result',
+      message : 'bugReport.question_mail_can_save',
+      default : current_email
+    };
+
+    return cli.prompt(question)
+    .then((response) => {
+      if (response.result) {
+        cli.ok('bugReport.email_saved');
+      } else {
+        cli.ok('bugReport.email_not_saved');
+      }
+      return promiseResolve(0);
     });
   },
 

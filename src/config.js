@@ -109,10 +109,11 @@ var options = mergeConfig({
     },
     // jscs:enable maximumLineLength
     report: {
-      // TODO: Adding support to filters
-      // filters: envs('AZK_REPORT_FITLERS', "*"),
+      permission_key: 'bug_report_permission',
       disable: envs('AZK_REPORT_DISABLE', false),
       url    : envs('AZK_REPORT_URL', "http://api.azk.io/report/A2ObXDzlG6fOJC803qBzDjde2YxygZY4"),
+      // TODO: Adding support to filters
+      // filters: envs('AZK_REPORT_FITLERS', "*"),
     },
     agent: {
       requires_vm     : requires_vm,
@@ -189,6 +190,7 @@ var options = mergeConfig({
       // jscs:enable maximumLineLength
     },
     report: {
+      permission_key: 'bug_report_permission',
       url: envs('AZK_REPORT_URL', "http://force-stage.azk.io/report/A2ObXDzlG6fOJC803qBzDjde2YxygZY4"),
     },
     urls: {

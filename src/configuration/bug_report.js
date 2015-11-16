@@ -34,7 +34,7 @@ module.exports = class BugReportUtil {
     this.opts = opts;
   }
 
-  sendErrorToBugReportUtil(error_to_send) {
+  sendError(error_to_send) {
     if (!this.loadBugReportUtilPermission()) { return promiseResolve(false); }
 
     var endpoint_url = config('report:url');
@@ -64,12 +64,15 @@ module.exports = class BugReportUtil {
     });
   }
 
-  saveBugReportUtilPermission(answer) {
-    return azkMeta.set(this.ids_keys.permission, answer);
+  saveBugReportUtilPermission(string) {
+    return azkMeta.set('report:bug_report_permission', string);
   }
 
   loadBugReportUtilPermission() {
-    var permission = (config('bugReport:disable')) ? false : azkMeta.get(this.ids_keys.permission);
+    if (config('bugReport:disable')) {
+      return false;
+    }
+    var permission = azkMeta.get('report:bug_report_permission');
     log.debug(`[bugReport] permission: ${permission}`);
     return permission;
   }

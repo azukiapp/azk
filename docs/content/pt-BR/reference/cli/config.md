@@ -4,7 +4,7 @@ Controla as opções de configuração do azk.
 
 #### Uso:
 
-    $ azk config (track-toggle|track-status|bug-report-toggle|bug-report-status) [options]
+    $ azk config (track-toggle|track-status|bug-report-toggle|bug-report-status|email-set|email-status) [options]
 
 #### Ações:
 
@@ -13,6 +13,8 @@ Controla as opções de configuração do azk.
   track-status              Exibe o status de rastreamento (on or off).
   bug-report-toggle         Ativa/Desativa o envio de erros
   bug-report-status         Exibe o status do envio de erros(on or off).
+  email-set                 Configura e salva o email do usuário.
+  email-status              Mostra email do usuário.
 ```
 
 #### Opções:
@@ -56,3 +58,12 @@ $ azk config bug-report-status
 azk: currently azk is not sending any bug-report
 ```
 
+----------
+
+```
+$ azk config email-set
+```
+
+```
+$ azk config email-status
+```

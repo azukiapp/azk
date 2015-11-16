@@ -3,7 +3,7 @@ import { promiseResolve, promiseReject, isPromise } from 'azk/utils/promises';
 import { Cli as AzkCli } from 'azk/cli/cli';
 import { UI } from 'azk/cli/ui';
 import { InvalidCommandError } from 'azk/utils/errors';
-import { BugReportUtil } from 'azk/utils/bug_report';
+import BugReportUtil from 'azk/configuration/bug_report';
 
 export class Cli extends AzkCli {
   invalidCmd(error) {
@@ -21,7 +21,7 @@ function make_cli() {
     // Commands
     .route('agent', (p, args) => p.agent && /(start|status|stop|configure)/.test(args))
     .route('vm', (p, args) => p.vm && /(ssh|start|status|installed|stop|remove)/.test(args))
-    .route('config', (p, args) => p.config && /(track-toggle|track-status|bug-report-toggle|bug-report-status)/.test(args))
+    .route('config', (p, args) => p.config && /(track-toggle|track-status|bug-report-toggle|bug-report-status|email-set|email-status)/.test(args))
     .route('deploy')
     .route('docker')
     .route('doctor')
@@ -86,7 +86,7 @@ export function cli(args, cwd, ui = UI) {
         ui.fail(error);
         log.debug(`[bug-report] sending...`);
         var bugReportUtil = new BugReportUtil({}, ui.tracker);
-        return bugReportUtil.sendErrorToBugReport(error).then((result) => {
+        return bugReportUtil.sendError(error).then((result) => {
           log.debug(`[bug-report] Force response ${result && result.body}`);
           ui.exit(error.code ? error.code : 127);
         });

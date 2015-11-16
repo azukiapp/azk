@@ -1,5 +1,5 @@
 import h from 'spec/spec_helper';
-import BugReportUtil from 'azk/utils/bug_report';
+import BugReportUtil from 'azk/configuration/bug_report';
 // import { meta as azkMeta } from 'azk';
 import { default as tracker } from 'azk/utils/tracker';
 
@@ -22,11 +22,11 @@ describe("Azk Bug Report", function() {
     // get info from tracker:
     //
     //   { opts:
-    //    { meta:
+    //     { meta:
     //       { command_id: 'command_id:e7939d3a',
     //         user_id: 'tracker_user_id:48516fd9',
     //         azk_version: '0.16.0' },
-    //      server:
+    //     server:
     //       { os: 'Linux 3.16',
     //         proc_arch: 'x64',
     //         total_memory: 7968,
@@ -34,7 +34,11 @@ describe("Azk Bug Report", function() {
     //         cpu_count: 4 } } }
   });
 
-  it("should loadBugReportPermission", function() {
-    h.expect(bugReportUtil.loadBugReportPermission()).to.equal(false);
+  it("should save and load BugReport Permission", function() {
+    bugReportUtil.saveBugReportUtilPermission(true);
+    h.expect(bugReportUtil.loadBugReportUtilPermission()).to.equal(true);
+
+    bugReportUtil.saveBugReportUtilPermission(false);
+    h.expect(bugReportUtil.loadBugReportUtilPermission()).to.equal(false);
   });
 });

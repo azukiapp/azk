@@ -2,7 +2,7 @@ $ azk [options] [*command]
 
 Usage:
   azk agent (start|status|stop) [--no-daemon --child --no-reload-vm --configure-file=<file>] [-qh] [-l <level>] [-v]...
-  azk config (track-toggle|track-status|bug-report-toggle|bug-report-status) [-qh] [-l <level>] [-v]...
+  azk config (track-toggle|track-status|bug-report-toggle|bug-report-status|email-set|email-status) [-qh] [-l <level>] [-v]...
   azk doctor [--logo] [-qh] [-l <level>] [-v]...
   azk deploy (clear-cache|fast|full|restart|versions) [-vh]
   azk deploy shell [--command=<cmd>] [-vh] [-- <args>...]
@@ -63,6 +63,8 @@ Actions:
   track-toggle              Toggles tracking behavior on/off.
   bug-report-toggle         Toggles bug-report behavior on/off.
   bug-report-status         Shows bug-report status (on or off).
+  email-set                 Set users email and save.
+  email-status              Show users email.
   versions                  Lists all versions of the app deployed on the remote server.
 
 Arguments:
