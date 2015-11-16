@@ -36,6 +36,13 @@ class Config extends CliTrackerController {
     return this.bugReportStatus(...args)
     .then(() => {
       return Helpers.askBugReportEnableConfig(this.ui);
+    })
+    .then((result) => {
+      var bugReportUtil = new BugReportUtil({});
+      return bugReportUtil.saveBugReportUtilPermission(result);
+    })
+    .then(() => {
+      return promiseResolve(0);
     });
   }
 
@@ -48,7 +55,6 @@ class Config extends CliTrackerController {
       return Helpers.askEmail(this.ui);
     })
     .then((prompt_result) => {
-      /**/console.log('\n>>---------\n prompt_result:\n', prompt_result, '\n>>---------\n');/*-debug-*/
       var input_email = prompt_result.result;
       if (input_email.length === 0) {
         configuration.saveEmail(undefined);
@@ -56,13 +62,13 @@ class Config extends CliTrackerController {
         return promiseResolve(0);
       } else {
         var email_is_valid = /[^\\.\\s@][^\\s@]*(?!\\.)@[^\\.\\s@]+(?:\\.[^\\.\\s@]+)*/.test(input_email);
-        if(!email_is_valid) {
+        if(email_is_valid) {
+          configuration.saveEmail(input_email);
+          this.ui.ok('commands.config.email-saved');
+          return promiseResolve(0);
+        } else {
           this.ui.ok('commands.config.email-not-valid', { email: input_email });
           return this.emailSet(input_email);
-        } else {
-          configuration.saveEmail(input_email);
-          this.ui.ok('commands.config.email-reset-to-null');
-          return promiseResolve(0);
         }
       }
     });
@@ -72,7 +78,7 @@ class Config extends CliTrackerController {
     var configuration = new Configuration({});
     var email = configuration.loadEmail();
     if (email) {
-      this.ui.ok('commands.config.email-current', {email: email});
+      this.ui.ok('commands.config.email-current', { email: email });
     } else {
       this.ui.ok('commands.config.email-undefined');
     }

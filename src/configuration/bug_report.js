@@ -64,8 +64,8 @@ module.exports = class BugReportUtil {
     });
   }
 
-  saveBugReportUtilPermission(string) {
-    return azkMeta.set('report:bug_report_permission', string);
+  saveBugReportUtilPermission(response_bool) {
+    return azkMeta.set('report:bug_report_permission', response_bool);
   }
 
   loadBugReportUtilPermission() {

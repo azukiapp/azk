@@ -144,7 +144,7 @@ var Helpers = {
       } else {
         cli.ok('bugReport.bug_report_autosend_config_no');
       }
-      return promiseResolve(0);
+      return promiseResolve(response.result);
     });
   },
 

@@ -9,11 +9,10 @@ module.exports = class Configuration {
   // email
   saveEmail(string) {
     azkMeta.set('config:email', string);
-
   }
 
   loadEmail() {
-    azkMeta.get('config:email');
+    return azkMeta.get('config:email');
   }
 
 };
