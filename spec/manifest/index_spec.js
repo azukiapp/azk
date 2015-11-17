@@ -95,7 +95,7 @@ describe("Azk manifest class, main set", function() {
       it("should return a systems in required order", function() {
         var systems = [ "expand-test", "mount-test", "ports-disable", "ports-static", "ports-test",
                         "test-image-opts", "empty", "db", "api", "example-http-domain", "example-sync",
-                        "example-extends", "example"];
+                        "example-without-command", "example-extends", "example"];
 
         h.expect(manifest.systemsInOrder()).to.eql(systems);
       });

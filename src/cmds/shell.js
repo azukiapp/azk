@@ -46,7 +46,7 @@ class Shell extends CliTrackerController {
       var stdin = this.ui.stdin();
       stdin.custom_pipe = () => { };
 
-      var docker_options = {
+      var run_options = {
         interactive: tty,
         pull   : this.ui.stdout(),
         stdout : this.ui.stdout(),
@@ -56,26 +56,21 @@ class Shell extends CliTrackerController {
       };
 
       // Support extra envs, ports and mount volumes
-      docker_options.envs       = this._parse_option(options.env  , /.+=.+/, '=', 'invalid_env');
-      docker_options.shell_term = process.env.TERM;
-      docker_options.mounts     = this._parse_option(options.mount, /.+:.+:?.*/, ':', 'invalid_mount', 1, (opts) => {
+      run_options.envs       = this._parse_option(options.env  , /.+=.+/, '=', 'invalid_env');
+      run_options.shell_term = process.env.TERM;
+      run_options.mounts     = this._parse_option(options.mount, /.+:.+:?.*/, ':', 'invalid_mount', 1, (opts) => {
         return { type: (opts[2] ? opts[1] : 'path'), value: (opts[2] ? opts[2] : opts[0]) };
       });
 
-      var cmd = [options.shell];
-      if (!_.isEmpty(options.command)) {
-        cmd.push("-c", options.command);
-      } else if (!_.isEmpty(shell_args)) {
-        cmd = shell_args;
-      }
-
       // Remove container before run
       var is_remove = !options['no-remove'] ? config("docker:remove_container") : !options['no-remove'];
-      docker_options = _.merge(docker_options, {
+      run_options = _.merge(run_options, {
+        shell          : options.shell,
+        shell_args     : shell_args,
+        command        : options.command,
         build_force    : options.rebuild || false,
         provision_force: (options.rebuild ? true : options.reprovision) || false,
         remove         : is_remove,
-        command        : cmd,
       });
 
       var result = defer((resolver, reject) => {
@@ -99,7 +94,7 @@ class Shell extends CliTrackerController {
         });
 
         system
-          .runShell(docker_options)
+          .runShell(run_options)
           .then(function (result) {
             _subscription_run.unsubscribe();
             return result;

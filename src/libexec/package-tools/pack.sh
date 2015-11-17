@@ -206,8 +206,6 @@ start_agent() {
   azk agent stop
   sleep 3
 
-  sudo /usr/bin/create-resolver-file $AZK_BALANCER_HOST $AZK_BALANCER_IP
-
   ./bin/azk agent start --no-daemon > $AZK_AGENT_LOG_FILE 2>&1 &
   AGENT_PID="$!"
   tail -F $AZK_AGENT_LOG_FILE &
@@ -323,7 +321,7 @@ if [[ $BUILD_RPM == true ]]; then
       step_run "Generating ${FEDORA_VERSION} repository" \
         linux_generate fedora ${FEDORA_VERSION} ${CLEAN_REPO}
       if [[ $NO_TEST != true ]]; then
-        step_skip "Testing ${FEDORA_VERSION} repository" ${AZK_BUILD_TOOLS_PATH}/test.sh ${FEDORA_VERSION} ${TEST_ARGS}
+        step "Testing ${FEDORA_VERSION} repository" ${AZK_BUILD_TOOLS_PATH}/test.sh ${FEDORA_VERSION} ${TEST_ARGS}
       fi
     done
 

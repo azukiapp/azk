@@ -20,6 +20,7 @@ var mounts = {
 
 var envs = {
   PATH: "/azk/#{manifest.dir}/bin:/usr/local/bundle/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+  AZK_ENV      : "development",
   AZK_DATA_PATH: "/azk/data",
   AZK_LIB_PATH : "/azk/lib",
   AZK_NAMESPACE: "azk.linux",
@@ -48,8 +49,8 @@ systems({
     },
   },
 
-  'dind-ubuntu': {
-    image: { docker: 'azukiapp/dind:ubuntu14' },
+  'dind-ubuntu12': {
+    image: { docker: 'azukiapp/dind:ubuntu12' },
     scalable: false,
     workdir: "/azk/#{manifest.dir}",
     shell: "/usr/local/bin/wrapdocker",
@@ -60,8 +61,18 @@ systems({
     }
   },
 
+  'dind-ubuntu14': {
+    extends: "dind-ubuntu12",
+    image: { docker: 'azukiapp/dind:ubuntu14' },
+  },
+
+  'dind-ubuntu15': {
+    extends: "dind-ubuntu12",
+    image: { docker: 'azukiapp/dind:ubuntu15' },
+  },
+
   'dind-fedora': {
-    extends: "dind-ubuntu",
+    extends: "dind-ubuntu12",
     image: { docker: 'azukiapp/dind:fedora20' },
   },
 
@@ -71,10 +82,10 @@ systems({
     workdir: "/azk/#{manifest.dir}",
     shell: "/usr/local/bin/wrapdocker",
     mounts: {
-      "/azk/demos"          : "../demos",
-      "/azk/#{manifest.dir}": ".",
-      "/azk/data"           : persistent('data-#{system.name}'),
-      "/var/lib/docker"     : persistent('docker_files-#{system.name}'),
+      "/azk/demos"              : path("../demos"),
+      "/azk/#{manifest.dir}/src": sync("./src"),
+      "/azk/data"               : persistent('data-#{system.name}'),
+      "/var/lib/docker"         : persistent('docker_files-#{system.name}'),
     },
     envs: {
       AZK_DATA_PATH: "/azk/data",
@@ -91,7 +102,12 @@ systems({
     image: { docker: 'azukiapp/dind:ubuntu14' },
   },
 
-  'pkg-ubuntu14-test': {
+  'pkg-ubuntu15-test': {
+    extends: "pkg-ubuntu12-test",
+    image: { docker: 'azukiapp/dind:ubuntu15' },
+  },
+
+  'pkg-fedora20-test': {
     extends: "pkg-ubuntu12-test",
     image: { docker: 'azukiapp/dind:fedora20' },
   },

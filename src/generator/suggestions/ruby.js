@@ -20,7 +20,9 @@ export class Suggestion extends DefaultSuggestion {
       ],
       http    : true,
       scalable: { default: 1 },
-      command : 'bundle exec rackup config.ru --pid /tmp/ruby.pid --port $HTTP_PORT --host 0.0.0.0',
+      command : [
+        "bundle", "exec", "rackup", "config.ru", "--pid", "/tmp/ruby.pid", "--port", "$HTTP_PORT", "--host", "0.0.0.0"
+      ],
       ports: {
         http: '3000/tcp'
       },

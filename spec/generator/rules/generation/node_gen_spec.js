@@ -32,12 +32,12 @@ describe('Azk generator generation node rule', function() {
     })
     .then(function (manifest) {
       var system   = manifest.systemDefault;
-      var command  = new RegExp(h.escapeRegExp('npm start'));
+      var command  = ["npm", "start"];
 
       h.expect(system).to.have.deep.property('name', project_folder_name);
       h.expect(system).to.have.deep.property('image.name', 'azukiapp/node:latest');
       h.expect(system).to.have.deep.property('depends').and.to.eql([]);
-      h.expect(system).to.have.deep.property('command').and.to.match(command);
+      h.expect(system).to.have.deep.property('command').and.to.eql(command);
 
       var expectedMounts = {};
       var workdir = '/azk/' + project_folder_name;
