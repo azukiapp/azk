@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## v0.16.2 - (2015-11-13)
+## v0.16.2 - (2015-11-17)
 
 * Enhancements
   * [Core] Upgrading node to v0.10.40
