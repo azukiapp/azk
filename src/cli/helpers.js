@@ -3,6 +3,7 @@ import { async, promiseResolve } from 'azk/utils/promises';
 import { SmartProgressBar } from 'azk/cli/smart_progress_bar';
 import { ManifestError } from 'azk/utils/errors';
 import BugReportUtil from 'azk/configuration/bug_report';
+import Configuration from 'azk/configuration';
 
 var lazy = lazy_require({
   AgentClient: ['azk/agent/client', 'Client'],
@@ -69,44 +70,57 @@ var Helpers = {
 
   askToSendError(cli, forceAsk = false) {
     return async(this, function* () {
-      // check if user already answered
-      var bugReportUtil = new BugReportUtil({});
-      var isBugReportActive = bugReportUtil.loadBugReportUtilPermission(); // Boolean or undefined
-      var isTrackerActive = cli.tracker.loadTrackerPermission(); // Boolean
-      var should_ask_permission = (forceAsk || typeof bugReportPermission === 'undefined');
 
+      // bug report
+      let bugReportUtil = new BugReportUtil({});
+      let isBugReportActive = bugReportUtil.loadBugReportUtilPermission(); // Boolean or undefined
+
+      // exit: if it is not interactive, just respect saved configuration
       if (!cli.isInteractive()) {
-       return isBugReportActive === true;
+        return isBugReportActive === true;
       }
 
-      if (isTrackerActive) {
-        if (should_ask_permission) {
-          yield this.askBugReportEnableConfig(cli);
-          isBugReportActive = bugReportUtil.loadBugReportUtilPermission(); // Boolean
-        }
+      // exit: if user does not want to send bug-reports, skip the rest
+      if (isBugReportActive === false) {
+        return false;
+      }
 
-        if (isBugReportActive) {
-          // FIXME: check if user email is saved
-          var user_email = '';
-          if (!user_email || user_email.length === 0) {
-            yield this.askEmail(cli);
-            yield this.askSaveEmail(cli);
-            return true;
-          } else {
-            return true;
+      // tracker
+      let isTrackerActive = cli.tracker.loadTrackerPermission(); // Boolean
+      let should_ask_permission = (forceAsk || typeof bugReportPermission === 'undefined');
+
+      // exit: send individual error only
+      //       only if user does not want to be tracked
+      if (should_ask_permission && !isTrackerActive) {
+        return yield this.askBugReportSendIndividualError(cli);
+      }
+
+      // email
+      let configuration = new Configuration({});
+      let current_saved_email = configuration.loadEmail();
+      let hasSavedEmail = current_saved_email && current_saved_email.length > 0;
+
+      // ask for bug-report send configuration
+      if (should_ask_permission) {
+        let want_to_save_bug_report = yield this.askBugReportEnableConfig(cli);
+        if (want_to_save_bug_report) {
+          bugReportUtil.saveBugReportUtilPermission(true);
+        }
+      }
+
+      // ask for user email
+      if (should_ask_permission && !hasSavedEmail) {
+        let prompt_result = yield this.askEmail(cli);
+        let inputed_email = prompt_result.result;
+        if (inputed_email && inputed_email.length > 0) {
+          let want_to_save_email = yield this.askSaveEmail(cli);
+          if (want_to_save_email) {
+            configuration.saveEmail(inputed_email);
           }
-        } else {
-          // do not ask, do not send
-          return false;
         }
-      } else {
-        if (isBugReportActive) {
-          return true;
-        } else {
-          // do not ask, do not send
-        }
-        yield this.askBugReportSendIndividualError(cli);
       }
+
+      return true;
     });
   },
 
@@ -125,7 +139,7 @@ var Helpers = {
       } else {
         cli.ok('bugReport.error_not_sent');
       }
-      return promiseResolve(0);
+      return promiseResolve(response.result);
     });
   },
 

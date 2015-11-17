@@ -60,7 +60,8 @@ module.exports = class BugReportUtil {
       log.debug(err_result);
 
       var JSON_SENT = JSON.parse(err_result.requestOptions);
-      /**/console.log('\n>>---------\n err_result.requestOptions.body:\n', JSON.stringify(JSON_SENT, ' ', 2), '\n>>---------\n');/*-debug-*/
+      /**/console.log('\n>>---------\n err_result.requestOptions.body:\n',
+      JSON.stringify(JSON_SENT, ' ', 2), '\n>>---------\n');/*-debug-*/
     });
   }
 

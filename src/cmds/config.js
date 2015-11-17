@@ -13,7 +13,7 @@ class Config extends CliTrackerController {
   }
 
   trackToggle(...args) {
-    return this._trackStatus(...args).then(() => {
+    return this.trackStatus(...args).then(() => {
       return Helpers.askPermissionToTrack(this.ui, true);
     });
   }
@@ -62,7 +62,7 @@ class Config extends CliTrackerController {
         return promiseResolve(0);
       } else {
         var email_is_valid = /[^\\.\\s@][^\\s@]*(?!\\.)@[^\\.\\s@]+(?:\\.[^\\.\\s@]+)*/.test(input_email);
-        if(email_is_valid) {
+        if (email_is_valid) {
           configuration.saveEmail(input_email);
           this.ui.ok('commands.config.email-saved');
           return promiseResolve(0);

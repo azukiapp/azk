@@ -1,6 +1,7 @@
 import { _, log } from 'azk';
 import { promiseResolve, promiseReject, isPromise } from 'azk/utils/promises';
 import { Cli as AzkCli } from 'azk/cli/cli';
+import { Helpers } from 'azk/cli/helpers';
 import { UI } from 'azk/cli/ui';
 import { InvalidCommandError } from 'azk/utils/errors';
 import BugReportUtil from 'azk/configuration/bug_report';
@@ -84,11 +85,17 @@ export function cli(args, cwd, ui = UI) {
         }
 
         ui.fail(error);
-        log.debug(`[bug-report] sending...`);
-        var bugReportUtil = new BugReportUtil({}, ui.tracker);
-        return bugReportUtil.sendError(error).then((result) => {
-          log.debug(`[bug-report] Force response ${result && result.body}`);
-          ui.exit(error.code ? error.code : 127);
+
+        return Helpers.askToSendError(ui)
+        .then((will_send_error) => {
+          if (will_send_error) {
+            log.debug(`[bug-report] sending...`);
+            var bugReportUtil = new BugReportUtil({}, ui.tracker);
+            return bugReportUtil.sendError(error).then((result) => {
+              log.debug(`[bug-report] Force response ${result && result.body}`);
+              ui.exit(error.code ? error.code : 127);
+            });
+          }
         });
 
       })
