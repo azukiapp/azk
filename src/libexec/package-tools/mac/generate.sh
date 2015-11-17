@@ -17,7 +17,7 @@ export VERSION=$( azk version | awk '{ print $2 }' )
 SHA256=$(shasum -a 256 shasum -a 256 "package/brew/azk_${VERSION}.tar.gz" | awk '{print $1}')
 
 RELEASE_CHANNEL=$( echo "${VERSION}" | sed s/[^\\-]*// | sed s/^\\-// | sed s/\\..*// )
-CLASS_NAME="Azk${RELEASE_CHANNEL^}"
+CLASS_NAME="Azk$(tr '[:lower:]' '[:upper:]' <<< ${RELEASE_CHANNEL:0:1})${RELEASE_CHANNEL:1}"
 if [[ -z "${RELEASE_CHANNEL}" ]]; then
   CHANNEL_SUFFIX=
   CONFLICTS=
@@ -28,7 +28,7 @@ else
   "
 fi
 
-MAC_REPO_URL="https://github.com/azukiapp/homebrew-azk"
+MAC_REPO_URL="git@github.com:azukiapp/homebrew-azk.git"
 MAC_FORMULA_DIR="${MAC_REPO_DIR}/Formula"
 MAC_FORMULA_FILE="azk${CHANNEL_SUFFIX}.rb"
 MAC_BUCKET_URL="repo-stage.azukiapp.com"

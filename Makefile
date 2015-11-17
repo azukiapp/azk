@@ -1,3 +1,5 @@
+# Global vars and configs
+
 SO:=$(shell uname -s | awk '{print tolower($$0)}')
 AZK_VERSION:=$(shell cat package.json | grep -e "version" | cut -d' ' -f4 | sed -n 's/\"//p' | sed -n 's/\"//p' | sed -n 's/,//p')
 
@@ -14,22 +16,24 @@ include .dependencies
 # default target
 all: bootstrap
 
-# BOOTSTRAP
+###### Bootstrap session ######
+
 NVM_DIR := ${AZK_LIB_PATH}/nvm
 NVM_NODE_VERSION := $(shell cat ${AZK_ROOT_PATH}/.nvmrc)
 NODE = ${NVM_DIR}/${NVM_NODE_VERSION}/bin/node
 VM_DISKS_DIR := ${AZK_LIB_PATH}/vm/${AZK_ISO_VERSION}
 
 # Locking npm version
-NPM_VERSIONS_PATH := ${NVM_DIR}/npm_versions
-NPM_VERSION_FILE := ${NPM_VERSIONS_PATH}/${NPM_VERSION}
+NPM_VERSION_FILE := ${NVM_DIR}/npm_version
 
 finished:
 	@echo "Finished!"
 
-clean_nvm_versions:
+clean_nvm_versions: ${NODE}
 	@echo "Checking npm version..."
-	@mkdir -p ${NPM_VERSIONS_PATH} && find ${NPM_VERSIONS_PATH} -type f -not -name '${NPM_VERSION}' -delete || true
+	@if [ ! "$$(${AZK_BIN} nvm npm --version)" = "${NPM_VERSION}" ] ; then \
+		rm -f ${NPM_VERSION_FILE}; \
+	fi
 
 SRC_JS = $(shell cd ${AZK_ROOT_PATH} && find ./src -name '*.*' -print 2>/dev/null)
 
@@ -50,12 +54,13 @@ ${AZK_NPM_PATH}/.install: npm-shrinkwrap.json package.json
 		${AZK_BIN} nvm npm install && \
 		touch ${AZK_NPM_PATH}/.install
 
-${NPM_VERSION_FILE}: ${NODE}
+${NPM_VERSION_FILE}:
 	@echo "task: install npm ${NPM_VERSION}"
 	@rm -Rf ${AZK_NPM_PATH}/*
 	@rm -Rf ${AZK_NPM_PATH}/.install
+	@touch package.json
 	@${AZK_BIN} nvm npm install npm@${NPM_VERSION} -g
-	@touch ${NPM_VERSION_FILE}
+	@${AZK_BIN} nvm npm --version > ${NPM_VERSION_FILE}
 
 ${NODE}:
 	@echo "task: $@: ${NVM_NODE_VERSION}"
@@ -95,7 +100,8 @@ test: bootstrap
 	@echo "task: $@"
 	${AZK_BIN} nvm gulp test ${TEST_SLOW} $(if $(filter undefined,$(origin TEST_GREP)),"",--grep "${TEST_GREP}")
 
-# PACKAGE
+###### Package session ######
+
 AZK_PACKAGE_PATH:=${AZK_ROOT_PATH}/package
 AZK_PACKAGE_PREFIX:=${AZK_PACKAGE_PATH}/v${AZK_VERSION}
 PATH_USR_LIB_AZK:=${AZK_PACKAGE_PREFIX}/usr/lib/azk
@@ -107,11 +113,12 @@ NODE_PACKAGE = ${PATH_AZK_NVM}/${NVM_NODE_VERSION}/bin/node
 PATH_MAC_PACKAGE:=${AZK_PACKAGE_PATH}/azk_${AZK_VERSION}.tar.gz
 
 # Locking npm version
-PACKAGE_NPM_VERSIONS_PATH := ${PATH_AZK_NVM}/npm_versions
-PACKAGE_NPM_VERSION_FILE := ${PACKAGE_NPM_VERSIONS_PATH}/${NPM_VERSION}
+PACKAGE_NPM_VERSION_FILE := ${PATH_AZK_NVM}/npm_versions
 
-package_clean_nvm_versions:
-	@mkdir -p ${PACKAGE_NPM_VERSIONS_PATH} && find ${PACKAGE_NPM_VERSION_FILE} -type f -not -name '${NPM_VERSION}' -delete || true
+package_clean_nvm_versions: ${NODE_PACKAGE}
+	@if [ ! "$$(${AZK_BIN} nvm npm --version)" = "${NPM_VERSION}" ] ; then \
+		rm ${PACKAGE_NPM_VERSION_FILE}; \
+	fi
 
 # Build package folders tree
 package_brew: package_build fix_permissions check_version ${PATH_AZK_LIB}/vm/${AZK_ISO_VERSION} ${PATH_MAC_PACKAGE}
@@ -155,10 +162,10 @@ ${PATH_USR_LIB_AZK}/npm-shrinkwrap.json: ${PATH_USR_LIB_AZK}/package.json
 	@cd ${PATH_USR_LIB_AZK} && ${AZK_BIN} nvm npm shrinkwrap
 	@rm ${PATH_NODE_MODULES}
 
-${PACKAGE_NPM_VERSION_FILE}: ${NODE_PACKAGE}
+${PACKAGE_NPM_VERSION_FILE}:
 	@echo "task: $@"
 	@${AZK_BIN} nvm npm install npm@${NPM_VERSION} -g
-	@touch ${PACKAGE_NPM_VERSION_FILE}
+	@${AZK_BIN} nvm npm --version > ${PACKAGE_NPM_VERSION_FILE}
 
 ${NODE_PACKAGE}:
 	@echo "task: $@"
@@ -210,6 +217,8 @@ ${PATH_MAC_PACKAGE}: ${AZK_PACKAGE_PREFIX}
 	@cd ${PATH_USR_LIB_AZK}/.. && tar -czf ${PATH_MAC_PACKAGE} ./
 
 package_build: bootstrap $(FILES_TARGETS) copy_transpiled_files package_clean_nvm_versions ${PATH_NODE_MODULES}
+
+###### Shell completion session ######
 
 AZK_SHARED_PATH=${AZK_ROOT_PATH}/shared
 USAGE_FILE_PATH=${AZK_SHARED_PATH}/locales/usage-en-US.txt
@@ -266,4 +275,8 @@ ${ZSH_COMPLETION_PATH}/_azk: ${ZSH_COMPLETION_FILE}
 
 install_shell_completion: ${COMPLETIONS_FILES}
 
+# Mark not a file tasks
 .PHONY: bootstrap clean package_brew package_mac package_deb package_rpm package_build package_clean copy_transpiled_files fix_permissions creating_symbolic_links dependencies check_version slow_test test generate_shell_completion install_shell_completion
+
+# Just for fast reference, use this for debug a variable
+# $(info $(value VARIABLE_NAME))

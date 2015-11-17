@@ -15,7 +15,7 @@ export class Suggestion extends DefaultSuggestion {
     // Initial Azkfile.js suggestion
     this.suggestion = this.extend(this.suggestion, {
       __type : `${name} ${version}`,
-      command: 'python manage.py runserver 0.0.0.0:$HTTP_PORT',
+      command: ["python", "manage.py", "runserver", "0.0.0.0:$HTTP_PORT"],
     });
   }
 }

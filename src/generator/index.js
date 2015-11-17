@@ -58,9 +58,15 @@ export class Generator extends UIProxy {
 }
 
 function json(data) {
-  return JSON.stringify(data || null, null, ' ')
-    .replace(/\n/g, '')
-    .replace(/^(\{|\[) /, '$1');
+  switch (data) {
+    case '__NULL__':
+    case '__BLANK_ARRAY__':
+      return data === '__NULL__' ? 'null' : '[]';
+    default:
+      return JSON.stringify(data || null, null, ' ')
+                 .replace(/\n/g, '')
+                 .replace(/^(\{|\[) /, '$1');
+  }
 }
 
 function hash_key(data) {

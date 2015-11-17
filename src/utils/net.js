@@ -217,7 +217,7 @@ var net = {
     return defer((resolve) => {
       var attempts = 1, max = opts.nodeRetry_opts.retries;
       var connect  = () => {
-        if (opts.publish_retry) {
+        if (opts.publish_retry || attempts == 1) {
           publish("utils.net.waitService.status", _.merge({
             uri : uri,
             type: 'try_connect',
@@ -260,8 +260,6 @@ var net = {
       var client   = null;
       var attempts = 1, max = retry;
       var connect  = () => {
-        publish("utils.net.waitForwardingService.status", { type: 'try_connect', attempts: attempts, max: max });
-
         var timeout_func = function() {
           attempts += 1;
           connect();
@@ -289,6 +287,7 @@ var net = {
         });
       };
 
+      publish("utils.net.waitForwardingService.status", { type: 'try_connect', attempts: attempts, max: max });
       connect();
     });
   },

@@ -28,7 +28,7 @@ describe("Azk system class, run set", function() {
     it("should run a command in a shell for a system", function() {
       return async(function* () {
         var exitResult = yield system.runShell({
-          command: ["/bin/sh", "-c", "ls -ls; exit"],
+          command: ["ls -ls; exit"],
           stdout: mocks.stdout, stderr: mocks.stderr
         });
         h.expect(exitResult).to.have.property("code", 0);
@@ -39,7 +39,7 @@ describe("Azk system class, run set", function() {
     it("should support remove container after ended run", function() {
       return async(function* () {
         var exitResult = yield system.runShell({
-          command: ["/bin/sh", "-c", "exit"],
+          command: ["exit"],
           remove: true, stdout: mocks.stdout, stderr: mocks.stderr
         });
 
@@ -50,8 +50,8 @@ describe("Azk system class, run set", function() {
     });
 
     it("should raise a error and return log", function() {
-      var command = ["/bin/bash", "-c", "echo 'error_msg' >&2; sleep 1; echo 'output'; exit 2"];
-      var regex   = /.*\(2\).*bash.*(.|[\r\n])*error_msg(.|[\r\n])*output/m;
+      var command = ["echo 'error_msg' >&2; sleep 1; echo 'output'; exit 2"];
+      var regex   = /.*\(2\).*sh.*(.|[\r\n])*error_msg(.|[\r\n])*output/m;
       var result  = system.runDaemon({ retry: 2, timeout: 1000, command: command });
 
       return async(this, function*() {
@@ -76,7 +76,7 @@ describe("Azk system class, run set", function() {
     it("should run and wait for port", function() {
       return async(function* () {
         var options    = {
-          command : ["/bin/bash", "-c", "sleep 2;" + "socat TCP4-LISTEN:$HTTP_PORT,fork EXEC:`pwd`/src/bashttpd"],
+          command : ["sleep 2;" + "socat TCP4-LISTEN:$HTTP_PORT,fork EXEC:`pwd`/src/bashttpd"],
           ports: {
             http: '31275:31275/tcp'
           }
@@ -104,17 +104,16 @@ describe("Azk system class, run set", function() {
       h.expect(system).to.have.property("provisioned").and.null;
 
       return async(function* () {
-        var command = ["/bin/sh", "-c"];
         var options = { stdout: mocks.stdout, stderr: mocks.stderr };
 
         var exitResult = yield system.runShell(
-          _.merge({ command: [...command].concat("rm provisioned; ls -l") }, options)
+          _.merge({ command: "rm provisioned; ls -l" }, options)
         );
         h.expect(exitResult).to.have.property("code", 0);
         yield system.runDaemon();
 
         yield system.runShell(
-          _.merge({ command: [...command].concat("ls -l") }, options)
+          _.merge({ command: "ls -l" }, options)
         );
         h.expect(outputs).to.have.property("stdout").match(/provisioned/);
 
@@ -128,7 +127,7 @@ describe("Azk system class, run set", function() {
       before(function() {
         return async(this, function* () {
           var options = {
-            command: ["/bin/sh", "-c", "exit"],
+            command: ["exit"],
             envs: { FOO: "BAR" },
             remove: false, stdout: mocks.stdout, stderr: mocks.stderr
           };

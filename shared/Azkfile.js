@@ -27,7 +27,7 @@ systems({
   'balancer-redirect': {
     extends: 'azktcl-base',
     command: "env; socat TCP4-LISTEN:$HTTP_PORT,fork TCP:$BALANCER_IP:$BALANCER_PORT",
-    wait: { retry: 3 },
+    wait: 10,
     ports: {
       http: "#{azk.balancer_port}:#{azk.balancer_port}/tcp",
       53: disable,

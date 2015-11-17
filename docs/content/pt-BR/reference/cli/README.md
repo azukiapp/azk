@@ -11,6 +11,7 @@ A linha de comando é a principal forma de utilização do `azk`. É a partir do
 - [azk info](info.md)
 - [azk init](init.md)
 - [azk logs](logs.md)
+- [azk open](open.md)
 - [azk restart](restart.md)
 - [azk scale](scale.md)
 - [azk shell](shell.md)

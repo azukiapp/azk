@@ -7,8 +7,8 @@ Exemplos de criação de uma aplicação Node.js:
 ### Criando o package.json
 
 ```sh
-$ mkdir my-app
-$ cd my-app
+$ mkdir <my-app>
+$ cd <my-app>
 $ azk shell --image azukiapp/node --shell /bin/bash
 # npm init //follow the instructions afterwards
 # exit
@@ -27,13 +27,27 @@ $ azk init
 ```sh
 $ azk shell --image azukiapp/node --shell /bin/bash
 # npm install -g express-generator
-# express my-app
+# express <my-app>
 # exit
 ```
 
 ### Gerando o Azkfile.js
 
 ```sh
-$ cd my-app
+$ cd <my-app>
 $ azk init
 ```
+
+### Rodando a aplicação
+
+Para iniciar o ambiente de desenvolvimento
+
+```sh
+$ azk start -o && azk logs --follow
+```
+
+### Exemplos
+
+#### Node com Mongodb
+
+!INCLUDE "../../common/azkfilejs/node-mongodb.md"

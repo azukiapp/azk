@@ -14,7 +14,7 @@
    * [Running an application](getting-started/running-application.md)
    * [Databases](getting-started/database.md)
    * [Logs](getting-started/logs.md)
-   * [Mounting files](getting-started/mounts-files.md)
+   * [Mapping files and folders](getting-started/mounts-files.md)
    * [Persisting data](getting-started/persisting-data.md)
 /*****************************************************/
 * [Azkfile.js](azkfilejs/README.md)
@@ -22,11 +22,13 @@
 * [`Run Project` button](run-project-button/README.md)
 /*****************************************************/
 * [Starting an application from scratch](starting-from-scratch/README.md)
-   * [Node.js](starting-from-scratch/nodejs.md)*
-   * [PHP / Laravel](starting-from-scratch/php-laravel.md)*
-   * [PHP / Wordpress / phpMyAdmin](starting-from-scratch/php-wordpress-phpmyadmin.md)*
-   * [Python / Django](starting-from-scratch/python-django.md)*
-   * [Ruby on Rails](starting-from-scratch/ruby-rails.md)*
+  * [Node.js](starting-from-scratch/nodejs.md)*
+  * PHP
+    * [PHP / Laravel](starting-from-scratch/php-laravel.md)*
+    * [PHP / Wordpress / phpMyAdmin](starting-from-scratch/php-wordpress-phpmyadmin.md)*
+  * Python
+    * [Django](starting-from-scratch/python-django.md)*
+  * [Ruby on Rails](starting-from-scratch/ruby-rails.md)*
 /*****************************************************/
 * [Adding services](adding-services/README.md)
    * [Running our application](adding-services/running-our-application.md)*

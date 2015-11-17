@@ -192,22 +192,33 @@ export class Court extends UIProxy {
     var groupedByDir = this._getEvidencesByFolder();
 
     _.forEach(groupedByDir, function(evidences) {
+      // var result = [];
+      var filter_by_name = [];
+
       _.forEach(evidences, function(evidence) {
-        // this evidence can replace
-        if (_.has(evidence, 'replaces')) {
-          // try find dependency to remove
-          _.remove(evidences, function(dirItem) {
-            var willRemove = _.contains(evidence.replaces, dirItem.name);
-            if (willRemove) {
-              log.debug('Court._replacesEvidences', {
-                name             : evidence.ruleName,
-                relevantFile     : evidence.fullpath,
-                evidenceReplaces : evidence.replaces,
-                willReplaces     : dirItem.ruleName });
-            }
-            return willRemove;
+        _.forEach(evidences, function(item) {
+          // checks that this evidence should be replaced
+          if (_.has(item, 'replaces') && _.contains(item.replaces, evidence.name)) {
+            filter_by_name.push(evidence.name);
+          }
+        });
+      });
+
+      filter_by_name = _.uniq(filter_by_name);
+
+      // remove evidences to be replaced
+      _.remove(evidences, function(evidence) {
+        var willRemove = _.contains(filter_by_name, evidence.name);
+
+        if (willRemove) {
+          log.debug('Court._replacesEvidences', {
+            name             : evidence.ruleName,
+            relevantFile     : evidence.fullpath,
+            evidenceReplaces : evidence.replaces,
+            willReplaces     : filter_by_name,
           });
         }
+        return willRemove;
       });
     });
 

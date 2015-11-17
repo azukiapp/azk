@@ -82,6 +82,8 @@ gulp.task('publish', function() {
     'package/brew/*.tar.gz',
     'package/public/!(fedora20)/**/*',
     'package/fedora20/**/*',
+    'package/public/!(fedora23)/**/*',
+    'package/fedora23/**/*',
   ];
 
   var add_prefix = function(cond, prefix) {
@@ -93,6 +95,7 @@ gulp.task('publish', function() {
   return gulp.src(src)
     // Set dest path
     .pipe(add_prefix(/package\/fedora20/, 'fedora20'))
+    .pipe(add_prefix(/package\/fedora23/, 'fedora23'))
     .pipe(add_prefix(/package\/brew/, 'mac'))
 
     // publisher will add Content-Length, Content-Type and headers specified above

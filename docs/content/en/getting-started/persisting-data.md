@@ -1,4 +1,4 @@
-# Persisting information
+# Persisting data
 
 If you [set up a database](database.md), you will see that several _refresh_ on page [http://azkdemo.dev.azk.io](http://azkdemo.dev.azk.io) will increment our access counter. But if you run `azk restart`, as shown below:
 

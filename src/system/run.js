@@ -1,4 +1,5 @@
-import { _, t, config, lazy_require, log, isBlank, path } from 'azk';
+import { _, t, lazy_require, isBlank } from 'azk';
+import { config, utils, log, path } from 'azk';
 import { subscribe, publish } from 'azk/utils/postal';
 import { defer, async, asyncUnsubscribe, promiseResolve, thenAll } from 'azk/utils/promises';
 import { ImageNotAvailable, SystemRunError, RunCommandError, NotBeenImplementedError } from 'azk/utils/errors';
@@ -32,7 +33,8 @@ var Run = {
       log.debug('provision steps', steps);
 
       // provision command (require /bin/sh)
-      options.command = ["/bin/sh", "-c", "( " + steps.join('; ') + " )"];
+      // options.shell   = "/bin/sh";
+      options.command = "(" + steps.join('; ') + " )";
 
       // Capture outputs
       var output = "";
@@ -74,15 +76,14 @@ var Run = {
       options.envs  = _.merge(deps_envs, options.envs || {});
 
       var image = yield this._check_image(system, options);
-      var docker_opt = system.shellOptions(options);
+      var docker_opt = system.shellOptions(options, image.Config);
 
       // Force env TERM in interatives shells (like a ssh)
       if (_.isObject(docker_opt.env) && options.interactive && !docker_opt.env.TERM) {
         docker_opt.env.TERM = options.shell_term;
       }
 
-      var command   = this._normalizeCommand(options.command, image, system.shell);
-      var container = yield lazy.docker.run(system.image.name, command, docker_opt);
+      var container = yield lazy.docker.run(system.image.name, docker_opt.command, docker_opt);
       var data      = yield container.inspect();
 
       log.debug("[system] container shell ended: %s", container.id);
@@ -124,9 +125,8 @@ var Run = {
         wait: system.wait_scale,
       });
 
-      var docker_opt = system.daemonOptions(options);
-      var command    = this._normalizeCommand(docker_opt.command, image, system.shell);
-      var container  = yield lazy.docker.run(system.image.name, command, docker_opt);
+      var docker_opt = system.daemonOptions(options, image.Config);
+      var container  = yield lazy.docker.run(system.image.name, docker_opt.command, docker_opt);
 
       if (options.wait) {
         var first_tcp = _.find((docker_opt.ports_orderly || []), (data) => {
@@ -144,7 +144,7 @@ var Run = {
 
         if (!_.isEmpty(port_data)) {
           var timeout = options.wait.timeout || config('docker:run:timeout');
-          yield this._wait_available(system, port_data, container, timeout, options);
+          yield this._wait_available(system, port_data, container, timeout, options, image.Config);
         }
       }
 
@@ -258,26 +258,8 @@ var Run = {
     });
   },
 
-  _normalizeCommand(command, image, system_shell = null) {
-    command = _.clone(command);
-    var shell = command.shift();
-
-    if (_.isEmpty(shell)) {
-      shell = system_shell;
-      // Cmd from image
-      if (_.isEmpty(shell) && !_.isEmpty(image.Config) && !_.isEmpty(image.Config.Cmd)) {
-        shell = image.Config.Cmd;
-      } else if (_.isEmpty(shell)) {
-        shell = "/bin/sh";
-      }
-    }
-
-    shell = _.isArray(shell) ? shell : [shell];
-    return shell.concat(command);
-  },
-
   // Wait for container/system available
-  _wait_available(system, port_data, container, timeout, options) {
+  _wait_available(system, port_data, container, timeout, options, image_conf) {
     return async(this, function* () {
       var host;
       if (config('agent:requires_vm')) {
@@ -297,12 +279,14 @@ var Run = {
         },
       };
 
+      var address = `tcp://${host}:${port_data.port}`;
       publish("system.run._wait_available.status", _.merge(port_data, {
+        uri :  address,
+        timeout: timeout,
         name: system.portName(port_data.name),
         type: "wait_port", system: system.name
       }));
 
-      var address = `tcp://${host}:${port_data.port}`;
       var running = yield net.waitService(address, wait_opts);
 
       if (!running) {
@@ -316,16 +300,24 @@ var Run = {
           hostname: system.url.underline,
         });
 
+        // Format command
+        var command = utils.requireArray(data.Config.Cmd);
+        if (!_.isEmpty(image_conf.Entrypoint)) {
+          var entry = utils.requireArray(image_conf.Entrypoint);
+          command = entry.concat(command);
+        }
+        command = JSON.stringify(command);
+
         if (exitCode === 0) {
           throw new SystemRunError(
             system.name,
             container,
-            data.Config.Cmd.join(' '),
+            command,
             exitCode,
             log
           );
         } else {
-          yield this.throwRunError(system, container, null, true, options);
+          yield this.throwRunError(system, container, command, null, true, options);
         }
       }
 
@@ -333,7 +325,7 @@ var Run = {
     });
   },
 
-  throwRunError(system, container, data = null, stop = false, options = {}) {
+  throwRunError(system, container, command, data = null, stop = false, options = {}) {
     data = data ? promiseResolve(data) : container.inspect();
     return data.then((data) => {
       // Get container log
@@ -356,7 +348,7 @@ var Run = {
           throw new SystemRunError(
             system.name,
             container,
-            data.Config.Cmd.join(' '),
+            command,
             data.State.ExitCode,
             log
           );

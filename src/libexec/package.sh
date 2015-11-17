@@ -70,7 +70,6 @@ case $pkg_type in
       --depends \"docker-engine >= ${AZK_DOCKER_MIN_VERSION}\" \
       --depends \"libnss-resolver >= ${LIBNSS_RESOLVER_VERSION}\" \
       --depends \"rsync >= ${RSYNC_MIN_VERSION}\" \
-      --depends \"git\" \
       --rpm-use-file-permissions \
       --rpm-user root --rpm-group root \
     "
@@ -80,7 +79,7 @@ case $pkg_type in
       --depends \"docker-engine (>= ${AZK_DOCKER_MIN_VERSION})\" \
       --depends \"libnss-resolver (>= ${LIBNSS_RESOLVER_VERSION})\" \
       --depends \"rsync (>= ${RSYNC_MIN_VERSION})\" \
-      --depends \"git\" \
+      --deb-suggests \"git-core\" \
       --deb-user root --deb-group root \
     "
     ;;
