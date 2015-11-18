@@ -50,18 +50,7 @@ class Scale extends CliTrackerController {
 
       return result;
     });
-
     // FIXME: check timeout error
-
-    // .catch(function (err) {
-    //   if (err instanceof AzkError) {
-    //     this.ui.fail(err.toString());
-    //   } else {
-    //     /**/console.log('\n>>---------\n err:\n', err, '\n>>---------\n');/*-debug-*/
-    //     this.ui.fail(err.stack);
-    //   }
-    // }.bind(this))
-    // .then((error) => promiseReject(error));
   }
 
   scale(manifest, systems, opts) {

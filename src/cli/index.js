@@ -76,7 +76,6 @@ export function cli(args, cwd, ui = UI) {
         ui.exit(0);
       })
       .catch((error) => {
-
         var isError = error instanceof Error;
         if (!isError) {
           log.error('ATTENTION: expected an error but get this:');
@@ -85,10 +84,15 @@ export function cli(args, cwd, ui = UI) {
         }
 
         ui.fail(error);
+        ui.warning('bugReport.message_error_occured');
 
         return Helpers.askToSendError(ui)
         .then((will_send_error) => {
           if (will_send_error) {
+
+            //FIXME: remove this
+            /**/console.log('\n%% [bug-report] sending... \n');/*-debug-*/
+
             log.debug(`[bug-report] sending...`);
             var bugReportUtil = new BugReportUtil({}, ui.tracker);
             return bugReportUtil.sendError(error).then((result) => {

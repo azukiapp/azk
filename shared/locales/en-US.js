@@ -14,60 +14,73 @@ module.exports = {
     ].join(''),
     message_optIn: [
       'cool! Thanks for helping us make azk better :)'.green,
-    ].join(' '),
+    ].join(''),
     message_optOut: [
       'No problem! If you change your mind and want to help us improve azk, just run `%(command)s`\n'.grey,
       'You can always find that command in `azk help`'.grey,
     ].join(''),
   },
   bugReport: {
-    question_send_idividual_error: [
-      '=========================================================================\n'.grey,
-      '  Error sending\n'.grey,
-      ' =========================================================================\n'.grey,
-      '  Do you want to send this error? \n'.yellow,
-      ' =========================================================================\n'.grey,
+    message_error_occured: [
+      'An error has occured.\n',
     ].join(''),
-    question_enable_bug_report_send: [
-      '=========================================================================\n'.grey,
-      '  Enable bug report sending\n'.grey,
-      ' =========================================================================\n'.grey,
-      '  Do you want to enable auto sending bug report on errors? \n'.yellow,
-      ' =========================================================================\n'.grey,
+
+    question_send_individual_error: [
+      'Send error report?\n',
     ].join(''),
-    question_mail: [
-      '=========================================================================\n'.grey,
-      '  User e-mail\n'.grey,
-      ' =========================================================================\n'.grey,
-      '  Could you share your email with us? \n'.yellow,
-      ' =========================================================================\n'.grey,
+    error_will_be_sent: [
+      'The error above will be sent to us. Thanks.',
     ].join(''),
-    question_mail_can_save: [
-      '=========================================================================\n'.grey,
-      '  User e-mail saving\n'.grey,
-      ' =========================================================================\n'.grey,
-      '  Can we save your email for future bug reports? \n'.yellow,
-      ' =========================================================================\n'.grey,
+    error_will_not_be_sent: [
+      'No error will be sent.',
+      '\nYou can these configurations running:'.grey,
+      '\n$ azk config bug-report-toggle; azk config email-set',
     ].join(''),
-    error_sent: [
-      'Your error has been sent to us! Thanks.'.green,
-    ].join(' '),
-    error_not_sent: [
-      'No problem! Remember you can change this behaviour running `azk config bug-report-toggle`.'.grey,
-    ].join(' '),
-    bug_report_autosend_config_yes: [
-      'All errors will be sent automatically to azuki.'.green,
-    ].join(' '),
-    bug_report_autosend_config_no: [
-      'No errors will be sent automatically to azuki.'.green,
-    ].join(' '),
-    email_saved: [
-      'Your e-mail was saved for future bug reports. Thank you for trust us.'.green,
-    ].join(''),
-    email_not_saved: [
-      'Your e-mail was not saved. We you ask you again next time.'.grey,
-      ' Remember you can change this behaviour running `azk config bug-report-toggle`.'.grey,
-    ].join(''),
+
+    save_autosend: {
+      question: [
+        'Send automatically bug reports when new errors occurs?',
+      ].join(''),
+
+      // only for `azk config bug-report-toggle`
+      choice_enable: [
+        'Enable: always send error reports'
+      ].join(''),
+      selected_enabled: [
+        'All errors will be sent automatically to Azuki.',
+      ].join(''),
+      choice_disable: [
+        'Disable: never send error reports'
+      ].join(''),
+      selected_disabled: [
+        'No errors will be sent to Azuki.',
+      ].join(''),
+      choice_clear: [
+        'Clear: clean configuration. Will ask user next time an error occurs'
+      ].join(''),
+      selected_clear: [
+        'The "bug report sending configuration" was reset.',
+      ].join(''),
+    },
+
+    email: {
+      question: [
+        'What is your email?',
+      ].join(''),
+      question_to_save: [
+        'Can we save your email for future error reports?',
+      ].join(''),
+      saved: [
+        'Your e-mail was saved for future bug reports.',
+        '\nThank you for giving us the opportunity to serve you.',
+        '\nWe appreciate the confidence you have placed in us.',
+      ].join(''),
+      not_saved: [
+        'Your e-mail was not saved. We you ask you again next time.',
+        'Remember you can change this behaviour running `azk config bug-report-toggle`.',
+      ].join(''),
+    },
+
   },
   errors: {
     no_vm_started               : "Unable to install and configure virtual machine",
@@ -482,14 +495,14 @@ module.exports = {
     config: {
       'tracking-false'      : 'Currently azk is not tracking any data',
       'tracking-true'       : 'Currently azk is tracking data, more info: https://github.com/azukiapp/azk and http://docs.azk.io/en/terms-of-use',
-      'bugReport-false'     : 'Currently azk is not sending any bug report.',
-      'bugReport-true'      : 'Currently azk is configured to send bug-reports. More info: https://github.com/azukiapp/azk and http://docs.azk.io/en/terms-of-use',
-      'bugReport-undefined' : 'Currently `azk\'s bug-report sending configuration` is not set.',
+      'bugReport-false'     : 'Not sending any bug report.',
+      'bugReport-true'      : 'Sending bug-reports.',
+      'bugReport-undefined' : '`azk\'s bug-report sending configuration` is not set.',
       'email-current'       : 'Email: %(email)s',
       'email-saved'         : 'Your email was saved. Thank you.',
       'email-undefined'     : 'Email: no email set yet.',
       'email-not-valid'     : 'The email you entered (%(email)s) is not valid. Please insert a valid email.',
-      'email-reset-to-null' : 'There is not email setup for you, now.',
+      'email-reset-to-null' : 'There is not email setup for you now.',
     },
     vm: {
       already_installed: "Virtual machine already installed.",

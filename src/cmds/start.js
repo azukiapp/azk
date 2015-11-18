@@ -96,7 +96,6 @@ class Start extends Scale {
           this.ui.warning(`${tKey}.default_system_not_balanceable`, tOpt);
         }
       }
-
       return result;
     })
     .catch((error) => {

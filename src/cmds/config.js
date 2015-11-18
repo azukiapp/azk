@@ -35,11 +35,21 @@ class Config extends CliTrackerController {
   bugReportToggle(...args) {
     return this.bugReportStatus(...args)
     .then(() => {
-      return Helpers.askBugReportEnableConfig(this.ui);
+      return Helpers.askBugReportToggle(this.ui);
     })
     .then((result) => {
       var bugReportUtil = new BugReportUtil({});
-      return bugReportUtil.saveBugReportUtilPermission(result);
+
+      if (result === 1) {
+        // ENABLE_CONFIG  = 1
+        return bugReportUtil.saveBugReportUtilPermission(true);
+      } else if (result === 2){
+        // DISABLE_CONFIG = 2
+        return bugReportUtil.saveBugReportUtilPermission(false);
+      } else if (result === 3){
+        // CLEAR_CONFIG   = 3
+        return bugReportUtil.saveBugReportUtilPermission(undefined);
+      }
     })
     .then(() => {
       return promiseResolve(0);
@@ -49,28 +59,13 @@ class Config extends CliTrackerController {
   // Email
   emailSet(...args) {
     var configuration = new Configuration({});
-
     return this.emailStatus(...args)
     .then(() => {
       return Helpers.askEmail(this.ui);
     })
-    .then((prompt_result) => {
-      var input_email = prompt_result.result;
-      if (input_email.length === 0) {
-        configuration.saveEmail(undefined);
-        this.ui.ok('commands.config.email-reset-to-null');
-        return promiseResolve(0);
-      } else {
-        var email_is_valid = /[^\\.\\s@][^\\s@]*(?!\\.)@[^\\.\\s@]+(?:\\.[^\\.\\s@]+)*/.test(input_email);
-        if (email_is_valid) {
-          configuration.saveEmail(input_email);
-          this.ui.ok('commands.config.email-saved');
-          return promiseResolve(0);
-        } else {
-          this.ui.ok('commands.config.email-not-valid', { email: input_email });
-          return this.emailSet(input_email);
-        }
-      }
+    .then((email) => {
+      configuration.saveEmail(email);
+      return promiseResolve(0);
     });
   }
 

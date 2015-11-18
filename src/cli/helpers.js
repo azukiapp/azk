@@ -87,7 +87,8 @@ var Helpers = {
 
       // tracker
       let isTrackerActive = cli.tracker.loadTrackerPermission(); // Boolean
-      let should_ask_permission = (forceAsk || typeof bugReportPermission === 'undefined');
+      isTrackerActive = true; //FIXME: only for test purposes
+      let should_ask_permission = (forceAsk || typeof isBugReportActive === 'undefined');
 
       // exit: send individual error only
       //       only if user does not want to be tracked
@@ -102,16 +103,29 @@ var Helpers = {
 
       // ask for bug-report send configuration
       if (should_ask_permission) {
-        let want_to_save_bug_report = yield this.askBugReportEnableConfig(cli);
+        let will_send_bug_report = yield this.askBugReportSendIndividualError(cli);
+
+        // exit: do not want to send, will not ask to save or email
+        if (!will_send_bug_report) {
+          return false;
+        }
+
+        let want_to_save_bug_report = yield this.askBugReportSave(cli);
         if (want_to_save_bug_report) {
+          // ENABLE_CONFIG  = 1
           bugReportUtil.saveBugReportUtilPermission(true);
+          isBugReportActive = true;
+        } else {
+          // CLEAR_CONFIG   = 3
+          bugReportUtil.saveBugReportUtilPermission(undefined);
+          should_ask_permission = false;
         }
       }
 
-      // ask for user email
-      if (should_ask_permission && !hasSavedEmail) {
-        let prompt_result = yield this.askEmail(cli);
-        let inputed_email = prompt_result.result;
+      // ask for user email if it is not set yet
+      // user have to has the "bug report sending configuration" active or not set
+      if (isBugReportActive && !hasSavedEmail) {
+        let inputed_email = yield this.askEmail(cli);
         if (inputed_email && inputed_email.length > 0) {
           let want_to_save_email = yield this.askSaveEmail(cli);
           if (want_to_save_email) {
@@ -128,67 +142,114 @@ var Helpers = {
     var question = {
       type    : 'confirm',
       name    : 'result',
-      message : 'bugReport.question_send_idividual_error',
+      message : 'bugReport.question_send_individual_error',
       default : 'Y'
     };
 
     return cli.prompt(question)
     .then((response) => {
       if (response.result) {
-        cli.ok('bugReport.error_sent');
+        cli.ok('bugReport.error_will_be_sent');
       } else {
-        cli.ok('bugReport.error_not_sent');
+        cli.ok('bugReport.error_will_not_be_sent');
       }
       return promiseResolve(response.result);
     });
   },
 
-  askBugReportEnableConfig(cli) {
+  askBugReportSave(cli) {
     var question = {
       type    : 'confirm',
       name    : 'result',
-      message : 'bugReport.question_enable_bug_report_send',
+      message : 'bugReport.save_autosend.question',
       default : 'Y'
     };
 
     return cli.prompt(question)
     .then((response) => {
       if (response.result) {
-        cli.ok('bugReport.bug_report_autosend_config_yes');
+        cli.ok('bugReport.save_autosend.choice_enable');
       } else {
-        cli.ok('bugReport.bug_report_autosend_config_no');
+        cli.ok('bugReport.save_autosend.choice_disable');
       }
       return promiseResolve(response.result);
     });
   },
 
-  askEmail(cli) {
+
+  askBugReportToggle(cli) {
+    const ENABLE_CONFIG = t('bugReport.save_autosend.choice_enable');
+    const DISABLE_CONFIG = t('bugReport.save_autosend.choice_disable');
+    const CLEAR_CONFIG = t('bugReport.save_autosend.choice_clear');
+
     var question = {
-      type    : 'input',
+      type    : 'rawlist',
       name    : 'result',
-      message : 'bugReport.question_mail',
-      default : ''
+      message : 'bugReport.save_autosend.question',
+      default : '1',
+      choices : [ENABLE_CONFIG,
+                 DISABLE_CONFIG,
+                 CLEAR_CONFIG]
     };
 
-    return cli.prompt(question);
+    return cli.prompt(question)
+    .then((response) => {
+      if (response.result === ENABLE_CONFIG) {
+        cli.ok('bugReport.save_autosend.selected_enabled');
+        return promiseResolve(1);
+      } else if (response.result === DISABLE_CONFIG){
+        cli.ok('bugReport.save_autosend.selected_disabled');
+        return promiseResolve(2);
+      } else if (response.result === CLEAR_CONFIG){
+        cli.ok('bugReport.save_autosend.selected_clear');
+        return promiseResolve(3);
+      }
+    });
   },
 
-  askSaveEmail(cli, current_email = '') {
+  askEmail(cli, current_email = undefined) {
     var question = {
       type    : 'input',
       name    : 'result',
-      message : 'bugReport.question_mail_can_save',
+      message : 'bugReport.email.question',
       default : current_email
     };
 
     return cli.prompt(question)
+    .then((prompt_result) => {
+      var input_email = prompt_result.result;
+      if (input_email.length === 0) {
+        cli.ok('commands.config.email-reset-to-null');
+        return promiseResolve(undefined);
+      } else {
+        var email_is_valid = /[^\\.\\s@][^\\s@]*(?!\\.)@[^\\.\\s@]+(?:\\.[^\\.\\s@]+)*/.test(input_email);
+        if (email_is_valid) {
+          cli.ok('commands.config.email-saved');
+          return promiseResolve(input_email);
+        } else {
+          cli.ok('commands.config.email-not-valid', { email: input_email });
+          return Helpers.askEmail(cli, input_email);
+        }
+      }
+    });
+  },
+
+  askSaveEmail(cli) {
+    var question = {
+      type    : 'confirm',
+      name    : 'result',
+      message : 'bugReport.email.question_to_save',
+      default : 'Y'
+    };
+
+    return cli.prompt(question)
     .then((response) => {
       if (response.result) {
-        cli.ok('bugReport.email_saved');
+        cli.ok('bugReport.email.saved');
       } else {
-        cli.ok('bugReport.email_not_saved');
+        cli.ok('bugReport.email.not_saved');
       }
-      return promiseResolve(0);
+      return promiseResolve(response.result);
     });
   },
 
