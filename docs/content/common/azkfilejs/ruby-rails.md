@@ -32,26 +32,34 @@ systems({
     },
   },
   mysql: {
-    depends: [],
-    image: {"docker": "azukiapp/mysql:5.6"},
+    // More info about mysql image: http://images.azk.io/#/mysql?from=docs-full_example
+    image: {"docker": "azukiapp/mysql:5.7"},
     shell: "/bin/bash",
     wait: 25,
     mounts: {
-      '/var/lib/mysql': persistent("#{manifest.dir}/mysql"),
+      '/var/lib/mysql': persistent("mysql_data"),
+      // to clean mysql data, run:
+      // $ azk shell mysql -c "rm -rf /var/lib/mysql/*"
     },
     ports: {
+      // exports global variables: "#{net.port.data}"
       data: "3306/tcp",
     },
     envs: {
-      MYSQL_ROOT_PASSWORD: "your-root-password",
-      MYSQL_USER: "root",
-      MYSQL_PASS: "your-password",
-      MYSQL_DATABASE: "#{manifest.dir}_development",
+      // set instances variables
+      MYSQL_USER         : "azk",
+      MYSQL_PASSWORD     : "azk",
+      MYSQL_DATABASE     : "#{manifest.dir}_development",
+      MYSQL_ROOT_PASSWORD: "azk",
     },
     export_envs: {
-      DATABASE_URL: "mysql2://#{envs.MYSQL_USER}:#{envs.MYSQL_PASS}@#{net.host}:#{net.port.data}/${envs.MYSQL_DATABASE}",
+      // check this gist to configure your database
+      // https://gist.github.com/gullitmiranda/62082f2e47c364ef9617
+      DATABASE_URL: "mysql2://#{envs.MYSQL_USER}:#{envs.MYSQL_PASSWORD}@#{net.host}:#{net.port.data}/#{envs.MYSQL_DATABASE}",
     },
   },
+  // run test:
+  // $ azk shell test -c "bundle exec rake test"
   test: {
     extends: "my-app",
     depends: ["mysql-test"],
@@ -74,11 +82,14 @@ systems({
     extends: "mysql",
     scalable: { default: 0, limit: 1 },
     envs: {
-      MYSQL_ROOT_PASSWORD: "your-root-test-password",
-      MYSQL_USER: "root",
-      MYSQL_PASS: "your-test-password",
-      MYSQL_DATABASE: "#{manifest.dir}_test",
+      MYSQL_USER         : "azk",
+      MYSQL_PASSWORD     : "azk",
+      MYSQL_DATABASE     : "#{manifest.dir}_test",
+      MYSQL_ROOT_PASSWORD: "azk",
     },
   },
 });
+
+// Sets a default system (to use: start, stop, status, scale)
+setDefault("my-app");
 ```
