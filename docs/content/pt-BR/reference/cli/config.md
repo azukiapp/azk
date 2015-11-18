@@ -20,7 +20,7 @@ Controla as opções de configuração do azk.
 #### Argumentos:
 
 ```
-  config-value              Valor passado para a configuração
+  config-value              Valor passado para a configuração (on/off/null)
 ```
 
 #### Opções:
@@ -54,22 +54,48 @@ azk: cool! Thanks for helping us make azk better :)
 
 ----------
 
-```
+```sh
 $ azk config bug-report-status
-azk: currently azk is sending bug-report data, more info: https://github.com/azukiapp/azk and http://docs.azk.io/en/terms-of-use
+azk: Currently azk is automatically sending bug-reports.
 ```
 
-```
-$ azk config bug-report-status
-azk: currently azk is not sending any bug-report
+```sh
+$ azk config bug-report-toggle
+azk: Currently azk is automatically sending bug-reports.
+? Send automatically bug reports when new errors occurs?
+  1) Enable: always send error reports
+  2) Disable: never send error reports
+  3) Clear: clean configuration. Will ask user next time an error occurs
+  Answer: 1
+
+azk: Currently azk is automatically sending bug-reports.
+
+# Ou configurar diretamente
+$ azk config bug-report-toggle on
+$ azk config bug-report-toggle off
+$ azk config bug-report-toggle true
+$ azk config bug-report-toggle false
+$ azk config bug-report-toggle null
+$ azk config bug-report-toggle undefined
+
 ```
 
 ----------
 
-```
+```sh
+# configurar com interação do usuário
 $ azk config email-set
+azk: Current email: bar@foo.com
+? What is your email [optional]? foo@bar.com
+azk: Email saved: foo@bar.com
+
+# configurar diretamente
+$ azk config email-set bar@foo.com
+azk: Current email: foo@bar.com
+azk: Email saved: bar@foo.com
 ```
 
-```
+```sh
 $ azk config email-status
+azk: Current email: bar@foo.com
 ```
