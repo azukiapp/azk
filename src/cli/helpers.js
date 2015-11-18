@@ -4,6 +4,7 @@ import { SmartProgressBar } from 'azk/cli/smart_progress_bar';
 import { ManifestError } from 'azk/utils/errors';
 import BugReportUtil from 'azk/configuration/bug_report';
 import Configuration from 'azk/configuration';
+import { InvalidCommandError } from 'azk/utils/errors';
 
 var lazy = lazy_require({
   AgentClient: ['azk/agent/client', 'Client'],
@@ -35,7 +36,38 @@ var Helpers = {
       });
   },
 
-  askPermissionToTrack(ui, force = false) {
+  checkBooleanArgument(str_arg) {
+    if (typeof str_arg === 'undefined' || str_arg === null) {
+      // was not informed
+      return undefined;
+    }
+
+    str_arg = str_arg.toLowerCase(str_arg);
+
+    if (str_arg === 'on' ||
+        str_arg === 'true' ||
+        str_arg === '1') {
+      return true;
+    }
+
+    if (str_arg === 'off' ||
+        str_arg === 'false' ||
+        str_arg === '0') {
+      return false;
+    }
+
+    if (str_arg === 'null' ||
+        str_arg === 'undefined' ||
+        str_arg === 'none' ||
+        str_arg === 'blank' ||
+        str_arg === 'reset') {
+      return null;
+    }
+
+    throw new InvalidCommandError(str_arg);
+  },
+
+  askPermissionToTrack(cli, force = false) {
     return async(this, function* () {
       // check if user already answered
       var trackerPermission = ui.tracker.loadTrackerPermission(); // Boolean
@@ -195,14 +227,14 @@ var Helpers = {
     return cli.prompt(question)
     .then((response) => {
       if (response.result === ENABLE_CONFIG) {
-        cli.ok('bugReport.save_autosend.selected_enabled');
-        return promiseResolve(1);
+        // cli.ok('bugReport.save_autosend.selected_enabled');
+        return promiseResolve(true);
       } else if (response.result === DISABLE_CONFIG){
-        cli.ok('bugReport.save_autosend.selected_disabled');
-        return promiseResolve(2);
+        // cli.ok('bugReport.save_autosend.selected_disabled');
+        return promiseResolve(false);
       } else if (response.result === CLEAR_CONFIG){
-        cli.ok('bugReport.save_autosend.selected_clear');
-        return promiseResolve(3);
+        // cli.ok('bugReport.save_autosend.selected_clear');
+        return promiseResolve(null);
       }
     });
   },
@@ -211,8 +243,7 @@ var Helpers = {
     var question = {
       type    : 'input',
       name    : 'result',
-      message : 'bugReport.email.question',
-      default : current_email
+      message : 'bugReport.email.question'
     };
 
     let validateEmail = (str_email) => {

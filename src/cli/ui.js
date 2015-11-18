@@ -84,8 +84,10 @@ var UI = {
   exit(code = 0) {
     require('azk/utils/postal').unsubscribeAll();
     setTimeout(() => {
+
       // FIXME: remove this on the end
-      /**/console.log('\n>>---------\n exit code:\n', code, '\n>>---------\n');/*-debug-*/
+      console.log('[' + code + ']');
+
       process.emit("azk:command:exit", code);
     }, 500);
   },

@@ -495,9 +495,10 @@ module.exports = {
     config: {
       'tracking-false'      : 'Currently azk is not tracking any data',
       'tracking-true'       : 'Currently azk is tracking data, more info: https://github.com/azukiapp/azk and http://docs.azk.io/en/terms-of-use',
-      'bugReport-false'     : 'Not sending any bug report.',
-      'bugReport-true'      : 'Sending bug-reports.',
-      'bugReport-undefined' : '`azk\'s bug-report sending configuration` is not set.',
+      'tracking-undefined'  : 'Currently azk `tracking configuration` is not set.',
+      'bugReport-false'     : 'Currently azk is not sending any bug report.',
+      'bugReport-true'      : 'Currently azk is automatically sending bug-reports.',
+      'bugReport-undefined' : 'Currently azk `bug-report sending configuration` is not set.',
       'email-current'       : 'Current email: %(email)s',
       'email-saved'         : 'Email saved: %(email)s',
       'email-undefined'     : 'Email: no email set yet.',

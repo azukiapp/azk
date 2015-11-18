@@ -8,13 +8,38 @@ class Config extends CliTrackerController {
   // Tracker
   trackStatus() {
     var status = this.ui.tracker.loadTrackerPermission();
-    this.ui.ok('commands.config.tracking-' + status.toString());
-    return promiseResolve(status);
+
+    if (status === null || typeof status === 'undefined') {
+      this.ui.ok('commands.config.tracking-undefined');
+    } else {
+      this.ui.ok('commands.config.tracking-' + status.toString());
+    }
+
+    return promiseResolve(0);
   }
 
-  trackToggle(...args) {
-    return this.trackStatus(...args).then(() => {
-      return Helpers.askPermissionToTrack(this.ui, true);
+  trackToggle(cmd) {
+    let boolean_argument = cmd['config-value'];
+    let boolean_parsed = Helpers.checkBooleanArgument(boolean_argument);
+    let initial_promise;
+    if (typeof boolean_parsed === 'undefined') {
+      // user does not informed a value
+      initial_promise = this.trackStatus(cmd)
+      .then(() => {
+        return Helpers.askPermissionToTrack(this.ui, true);
+      });
+    } else {
+      // user does informed a value
+      initial_promise = promiseResolve(boolean_parsed);
+    }
+
+    return initial_promise
+    .then((result) => {
+      this.ui.tracker.saveTrackerPermission(result);
+      return this.ui.tracker.sendEvent("tracker", { event_type: "accepted" });
+    })
+    .then(() => {
+      return this.trackStatus(cmd);
     });
   }
 
@@ -23,7 +48,7 @@ class Config extends CliTrackerController {
     var bugReportUtil = new BugReportUtil({});
     var bugReport_status = bugReportUtil.loadBugReportUtilPermission();
 
-    if (typeof bugReport_status === 'undefined') {
+    if (bugReport_status === null || typeof bugReport_status === 'undefined') {
       this.ui.ok('commands.config.bugReport-undefined');
     } else {
       this.ui.ok('commands.config.bugReport-' + bugReport_status.toString());
@@ -32,27 +57,28 @@ class Config extends CliTrackerController {
     return promiseResolve(0);
   }
 
-  bugReportToggle(...args) {
-    return this.bugReportStatus(...args)
-    .then(() => {
-      return Helpers.askBugReportToggle(this.ui);
-    })
+  bugReportToggle(cmd) {
+    let boolean_argument = cmd['config-value'];
+    let boolean_parsed = Helpers.checkBooleanArgument(boolean_argument);
+    let initial_promise;
+    if (typeof boolean_parsed === 'undefined') {
+      // user does not informed a value
+      initial_promise = this.bugReportStatus(cmd)
+      .then(() => {
+        return Helpers.askBugReportToggle(this.ui);
+      });
+    } else {
+      // user does informed a value
+      initial_promise = promiseResolve(boolean_parsed);
+    }
+
+    return initial_promise
     .then((result) => {
       var bugReportUtil = new BugReportUtil({});
-
-      if (result === 1) {
-        // ENABLE_CONFIG  = 1
-        return bugReportUtil.saveBugReportUtilPermission(true);
-      } else if (result === 2){
-        // DISABLE_CONFIG = 2
-        return bugReportUtil.saveBugReportUtilPermission(false);
-      } else if (result === 3){
-        // CLEAR_CONFIG   = 3
-        return bugReportUtil.saveBugReportUtilPermission(undefined);
-      }
+      return bugReportUtil.saveBugReportUtilPermission(result);
     })
     .then(() => {
-      return promiseResolve(0);
+      return this.bugReportStatus(cmd);
     });
   }
 
