@@ -215,6 +215,24 @@ var Helpers = {
       default : current_email
     };
 
+    let validateEmail = (str_email) => {
+      return /[^\\.\\s@][^\\s@]*(?!\\.)@[^\\.\\s@]+(?:\\.[^\\.\\s@]+)*/.test(str_email);
+    };
+
+    if (current_email === 'null') {
+      cli.ok('commands.config.email-reset-to-null');
+      return promiseResolve(undefined);
+    } else if (current_email && current_email.length > 0) {
+      if (validateEmail(current_email)) {
+        cli.ok('commands.config.email-saved', { email: current_email });
+        return promiseResolve(current_email);
+      } else {
+        cli.ok('commands.config.email-not-valid', { email: current_email });
+      }
+    }
+
+
+
     return cli.prompt(question)
     .then((prompt_result) => {
       var input_email = prompt_result.result;
@@ -222,13 +240,12 @@ var Helpers = {
         cli.ok('commands.config.email-reset-to-null');
         return promiseResolve(undefined);
       } else {
-        var email_is_valid = /[^\\.\\s@][^\\s@]*(?!\\.)@[^\\.\\s@]+(?:\\.[^\\.\\s@]+)*/.test(input_email);
-        if (email_is_valid) {
-          cli.ok('commands.config.email-saved');
+        if (validateEmail(input_email)) {
+          cli.ok('commands.config.email-saved', { email: input_email });
           return promiseResolve(input_email);
         } else {
           cli.ok('commands.config.email-not-valid', { email: input_email });
-          return Helpers.askEmail(cli, input_email);
+          return Helpers.askEmail(cli);
         }
       }
     });

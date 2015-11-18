@@ -57,11 +57,12 @@ class Config extends CliTrackerController {
   }
 
   // Email
-  emailSet(...args) {
+  emailSet(cmd) {
+    var email_input = cmd['config-value'];
     var configuration = new Configuration({});
-    return this.emailStatus(...args)
+    return this.emailStatus(cmd)
     .then(() => {
-      return Helpers.askEmail(this.ui);
+      return Helpers.askEmail(this.ui, email_input);
     })
     .then((email) => {
       configuration.saveEmail(email);

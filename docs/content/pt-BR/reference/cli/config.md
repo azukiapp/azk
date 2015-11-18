@@ -17,6 +17,12 @@ Controla as opções de configuração do azk.
   email-status              Mostra email do usuário.
 ```
 
+#### Argumentos:
+
+```
+  config-value              Valor passado para a configuração
+```
+
 #### Opções:
 
 ```

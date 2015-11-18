@@ -65,7 +65,7 @@ module.exports = {
 
     email: {
       question: [
-        'What is your email?',
+        'What is your email'.white + ' [optional]'.grey + '?'.white,
       ].join(''),
       question_to_save: [
         'Can we save your email for future error reports?',
@@ -498,11 +498,11 @@ module.exports = {
       'bugReport-false'     : 'Not sending any bug report.',
       'bugReport-true'      : 'Sending bug-reports.',
       'bugReport-undefined' : '`azk\'s bug-report sending configuration` is not set.',
-      'email-current'       : 'Email: %(email)s',
-      'email-saved'         : 'Your email was saved. Thank you.',
+      'email-current'       : 'Current email: %(email)s',
+      'email-saved'         : 'Email saved: %(email)s',
       'email-undefined'     : 'Email: no email set yet.',
-      'email-not-valid'     : 'The email you entered (%(email)s) is not valid. Please insert a valid email.',
-      'email-reset-to-null' : 'There is not email setup for you now.',
+      'email-not-valid'     : 'Invalid email: (%(email)s). Please insert a valid email.'.red,
+      'email-reset-to-null' : 'Email: there is no email set-up.',
     },
     vm: {
       already_installed: "Virtual machine already installed.",

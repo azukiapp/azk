@@ -2,7 +2,7 @@ $ azk [options] [*command]
 
 Usage:
   azk agent (start|status|stop) [--no-daemon --child --no-reload-vm --configure-file=<file>] [-qh] [-l <level>] [-v]...
-  azk config (track-toggle|track-status|bug-report-toggle|bug-report-status|email-set|email-status) [-qh] [-l <level>] [-v]...
+  azk config (track-toggle|track-status|bug-report-toggle|bug-report-status|email-set|email-status) [<config-value>] [-qh] [-l <level>] [-v]...
   azk doctor [--logo] [-qh] [-l <level>] [-v]...
   azk deploy (clear-cache|fast|full|restart|versions) [-vh]
   azk deploy shell [--command=<cmd>] [-vh] [-- <args>...]
@@ -78,6 +78,7 @@ Arguments:
   git-repo                  Github URL to clone and start
   dest-path                 Override destination path when cloning
   to                        Number of available instances after scaling.
+  config-value              Value to be passed to config command
 
 Options:
   --command=<cmd>, -c       Runs the specified command.

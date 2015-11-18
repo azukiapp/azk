@@ -17,6 +17,12 @@ Controls azk configuration options.
   email-status              Show users email.
 ```
 
+#### Arguments:
+
+```
+  config-value              Value to be passed to config command
+```
+
 #### Options:
 
 ```
