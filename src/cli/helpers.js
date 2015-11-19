@@ -201,7 +201,6 @@ var Helpers = {
     });
   },
 
-
   askBugReportToggle(cli) {
     const ENABLE_CONFIG = t('bugReport.save_autosend.choice_enable');
     const DISABLE_CONFIG = t('bugReport.save_autosend.choice_disable');
@@ -220,13 +219,10 @@ var Helpers = {
     return cli.prompt(question)
     .then((response) => {
       if (response.result === ENABLE_CONFIG) {
-        // cli.ok('bugReport.save_autosend.selected_enabled');
         return promiseResolve(true);
-      } else if (response.result === DISABLE_CONFIG){
-        // cli.ok('bugReport.save_autosend.selected_disabled');
+      } else if (response.result === DISABLE_CONFIG) {
         return promiseResolve(false);
-      } else if (response.result === CLEAR_CONFIG){
-        // cli.ok('bugReport.save_autosend.selected_clear');
+      } else if (response.result === CLEAR_CONFIG) {
         return promiseResolve(null);
       }
     });
@@ -254,8 +250,6 @@ var Helpers = {
         cli.ok('commands.config.email-not-valid', { email: current_email });
       }
     }
-
-
 
     return cli.prompt(question)
     .then((prompt_result) => {
