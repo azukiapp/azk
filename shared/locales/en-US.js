@@ -65,7 +65,10 @@ module.exports = {
 
     email: {
       question: [
-        'What is your email'.white + ' [optional]'.grey + '?'.white,
+        'Type your email to be notified about a bug fix'.white + ' [optional]'.grey + '?'.white,
+      ].join(''),
+      question_remember_email_and_bugReport: [
+        'Do you want to remember these decisions?',
       ].join(''),
       question_to_save: [
         'Can we save your email for future error reports?',
@@ -503,6 +506,7 @@ module.exports = {
       'email-saved'         : 'Email saved: %(email)s',
       'email-undefined'     : 'Email: no email set yet.',
       'email-not-valid'     : 'Invalid email: (%(email)s). Please insert a valid email.'.red,
+      'email-valid'         : 'email: %(email)s'.green,
       'email-reset-to-null' : 'Email: there is no email set-up.',
     },
     vm: {

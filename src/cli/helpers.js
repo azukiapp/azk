@@ -1,4 +1,5 @@
 import { _, log, lazy_require, config, t } from 'azk';
+import { isBlank } from 'azk/utils';
 import { async, promiseResolve } from 'azk/utils/promises';
 import { SmartProgressBar } from 'azk/cli/smart_progress_bar';
 import { ManifestError } from 'azk/utils/errors';
@@ -120,18 +121,13 @@ var Helpers = {
       // tracker
       let isTrackerActive = cli.tracker.loadTrackerPermission(); // Boolean
       isTrackerActive = true; //FIXME: only for test purposes
-      let should_ask_permission = (forceAsk || typeof isBugReportActive === 'undefined');
+      let should_ask_permission = (forceAsk || isBlank(isBugReportActive));
 
       // exit: send individual error only
       //       only if user does not want to be tracked
       if (should_ask_permission && !isTrackerActive) {
         return yield this.askBugReportSendIndividualError(cli);
       }
-
-      // email
-      let configuration = new Configuration({});
-      let current_saved_email = configuration.loadEmail();
-      let hasSavedEmail = current_saved_email && current_saved_email.length > 0;
 
       // ask for bug-report send configuration
       if (should_ask_permission) {
@@ -141,26 +137,23 @@ var Helpers = {
         if (!will_send_bug_report) {
           return false;
         }
-
-        let want_to_save_bug_report = yield this.askBugReportSave(cli);
-        if (want_to_save_bug_report) {
-          // ENABLE_CONFIG  = 1
-          bugReportUtil.saveBugReportUtilPermission(true);
-          isBugReportActive = true;
-        } else {
-          // CLEAR_CONFIG   = 3
-          bugReportUtil.saveBugReportUtilPermission(undefined);
-          should_ask_permission = false;
-        }
       }
+
+      // email
+      let configuration = new Configuration({});
+      let current_saved_email = configuration.loadEmail();
+      let hasSavedEmail = current_saved_email && current_saved_email.length > 0;
 
       // ask for user email if it is not set yet
       // user have to has the "bug report sending configuration" active or not set
-      if (isBugReportActive && !hasSavedEmail) {
+      if (!hasSavedEmail) {
         let inputed_email = yield this.askEmail(cli);
         if (inputed_email && inputed_email.length > 0) {
-          let want_to_save_email = yield this.askSaveEmail(cli);
+          let want_to_save_email = yield this.askRememberEmailAndBugReport(cli);
           if (want_to_save_email) {
+            // always send bug reports
+            bugReportUtil.saveBugReportUtilPermission(true);
+            // save current email
             configuration.saveEmail(inputed_email);
           }
         }
@@ -255,7 +248,7 @@ var Helpers = {
       return promiseResolve(undefined);
     } else if (current_email && current_email.length > 0) {
       if (validateEmail(current_email)) {
-        cli.ok('commands.config.email-saved', { email: current_email });
+        cli.ok('commands.config.email-valid', { email: current_email });
         return promiseResolve(current_email);
       } else {
         cli.ok('commands.config.email-not-valid', { email: current_email });
@@ -283,6 +276,25 @@ var Helpers = {
   },
 
   askSaveEmail(cli) {
+    var question = {
+      type    : 'confirm',
+      name    : 'result',
+      message : 'bugReport.email.question_to_save',
+      default : 'Y'
+    };
+
+    return cli.prompt(question)
+    .then((response) => {
+      if (response.result) {
+        cli.ok('bugReport.email.saved');
+      } else {
+        cli.ok('bugReport.email.not_saved');
+      }
+      return promiseResolve(response.result);
+    });
+  },
+
+  askRememberEmailAndBugReport(cli) {
     var question = {
       type    : 'confirm',
       name    : 'result',
