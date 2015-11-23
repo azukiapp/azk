@@ -4,7 +4,7 @@ systems({
   'node-example': {
     // Dependent systems
     depends: ["mysql"],
-    // More info about mysql image: http://images.azk.io/#/node?from=docs-full_example
+    // More info about node image: http://images.azk.io/#/node?from=docs-full_example
     image: { docker: "azukiapp/node:0.12" },
     // Steps to execute before running instances
     provision: [
