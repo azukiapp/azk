@@ -2,7 +2,7 @@ $ azk [options] [*command]
 
 Usage:
   azk agent (start|status|stop) [--no-daemon --child --no-reload-vm --configure-file=<file>] [-qh] [-l <level>] [-v]...
-  azk config (track-toggle|track-status|bug-report-toggle|bug-report-status|email-set|email-status) [<config-value>] [-qh] [-l <level>] [-v]...
+  azk config (list|track-toggle|bug-report-toggle|email-set|email-never-ask-toggle) [<config-value>] [--no-colored] [-qh] [-l <level>] [-v]...
   azk doctor [--logo] [-qh] [-l <level>] [-v]...
   azk deploy (clear-cache|fast|full|restart|versions) [-vh]
   azk deploy shell [--command=<cmd>] [-vh] [-- <args>...]
@@ -59,12 +59,11 @@ Actions:
   status                    Shows azk agent or virtual machine status.
   shell                     Starts a shell from inside the deploy system container.
   ssh                       Connects to the VM or remote server (when used with deploy) via SSH protocol.
-  track-status              Shows tracking status (on or off).
-  track-toggle              Toggles tracking behavior on/off.
-  bug-report-toggle         Toggles bug-report behavior on/off.
-  bug-report-status         Shows bug-report status (on or off).
+  list                      Shows all configurations and its values
+  track-toggle              Toggles tracking behavior (on/off).
+  bug-report-toggle         Toggles bug-report behavior (on/off).
   email-set                 Set users email and save.
-  email-status              Show users email.
+  email-never-ask-toggle    Toggles asking email behavior (on/off).
   versions                  Lists all versions of the app deployed on the remote server.
 
 Arguments:

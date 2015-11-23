@@ -66,14 +66,14 @@ module.exports = class BugReportUtil {
   }
 
   saveBugReportUtilPermission(response_bool) {
-    return azkMeta.set('report:bug_report_permission', response_bool);
+    return azkMeta.set('bugReports.always_send', response_bool);
   }
 
   loadBugReportUtilPermission() {
     if (config('bugReport:disable')) {
       return false;
     }
-    var permission = azkMeta.get('report:bug_report_permission');
+    var permission = azkMeta.get('bugReports.always_send');
     log.debug(`[bugReport] permission: ${permission}`);
     return permission;
   }

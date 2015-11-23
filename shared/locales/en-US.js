@@ -82,6 +82,13 @@ module.exports = {
         'Your e-mail was not saved. We you ask you again next time.',
         'Remember you can change this behaviour running `azk config bug-report-toggle`.',
       ].join(''),
+
+      question_never_ask_email: [
+        'Never ask user email on errors?',
+      ].join(''),
+      never_ask_status: [
+        'Never ask email status: %(value)s',
+      ].join(''),
     },
 
   },
@@ -503,7 +510,7 @@ module.exports = {
       'bugReport-true'      : 'Currently azk is automatically sending bug-reports.',
       'bugReport-undefined' : 'Currently azk `bug-report sending configuration` is not set.',
       'email-current'       : 'Current email: %(email)s',
-      'email-saved'         : 'Email saved: %(email)s',
+      'email-saved'         : 'Email: %(email)s',
       'email-undefined'     : 'Email: no email set yet.',
       'email-not-valid'     : 'Invalid email: (%(email)s). Please insert a valid email.'.red,
       'email-valid'         : 'email: %(email)s'.green,

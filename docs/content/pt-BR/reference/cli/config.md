@@ -4,17 +4,16 @@ Controla as opções de configuração do azk.
 
 #### Uso:
 
-    $ azk config (track-toggle|track-status|bug-report-toggle|bug-report-status|email-set|email-status) [options]
+    $ azk config (list|track-toggle|bug-report-toggle|email-set|email-never-ask-toggle) [options]
 
 #### Ações:
 
 ```
+  list                      Exibe todas configurações
   track-toggle              Ativa/Desativa o rastreamento.
-  track-status              Exibe o status de rastreamento (on or off).
   bug-report-toggle         Ativa/Desativa o envio de erros
-  bug-report-status         Exibe o status do envio de erros(on or off).
   email-set                 Configura e salva o email do usuário.
-  email-status              Mostra email do usuário.
+  email-never-ask-toggle    Ativa/Desativa a pergunta por email
 ```
 
 #### Argumentos:
@@ -35,12 +34,6 @@ Controla as opções de configuração do azk.
 #### Exemplos:
 
 ```
-$ azk config track-status
-azk: currently azk is tracking data, more info: https://github.com/azukiapp/azk and http://docs.azk.io/en/terms-of-use
-
-$ azk config track-status
-azk: currently azk is not tracking any data
-
 $ azk config track-toggle
 azk: currently azk is tracking, more info: https://github.com/azukiapp/azk and http://docs.azk.io/en/terms-of-use
 ? =========================================================================
@@ -53,11 +46,6 @@ azk: cool! Thanks for helping us make azk better :)
 ```
 
 ----------
-
-```sh
-$ azk config bug-report-status
-azk: Currently azk is automatically sending bug-reports.
-```
 
 ```sh
 $ azk config bug-report-toggle
@@ -93,9 +81,9 @@ azk: Email saved: foo@bar.com
 $ azk config email-set bar@foo.com
 azk: Current email: foo@bar.com
 azk: Email saved: bar@foo.com
-```
 
-```sh
-$ azk config email-status
-azk: Current email: bar@foo.com
+# evita que o email seja perguntado
+$ azk config email-never-ask-toggle false
+azk: Will ask for user email: not set
+azk: Will ask for user email: false
 ```

@@ -22,7 +22,7 @@ function make_cli() {
     // Commands
     .route('agent', (p, args) => p.agent && /(start|status|stop|configure)/.test(args))
     .route('vm', (p, args) => p.vm && /(ssh|start|status|installed|stop|remove)/.test(args))
-    .route('config', (p, args) => p.config && /(track-toggle|track-status|bug-report-toggle|bug-report-status|email-set|email-status)/.test(args))
+    .route('config', (p, args) => p.config && /(list|track-toggle|bug-report-toggle|email-set|email-never-ask-toggle)/.test(args))
     .route('deploy')
     .route('docker')
     .route('doctor')

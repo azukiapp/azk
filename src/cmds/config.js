@@ -5,6 +5,24 @@ import BugReportUtil from 'azk/configuration/bug_report';
 import Configuration from 'azk/configuration';
 
 class Config extends CliTrackerController {
+
+  list(cmd) {
+    let value_param = cmd['config-value'];
+    let configuration = new Configuration({});
+    let configList = configuration.listAll();
+    let result = configList;
+
+    if (value_param) {
+      result = configuration.show(configList, value_param);
+    }
+
+    // Show result
+    var inspect_result = require('util').inspect(result, { showHidden: false, depth: null, colors: cmd['no-colored'] === false });
+    this.ui.output(inspect_result);
+
+    return promiseResolve(0);
+  }
+
   // Tracker
   trackStatus() {
     var status = this.ui.tracker.loadTrackerPermission();
@@ -107,6 +125,42 @@ class Config extends CliTrackerController {
     return promiseResolve(0);
   }
 
+  emailNeverAskStatus() {
+    var configuration = new Configuration({});
+    var value = configuration.loadEmailNeverAsk();
+
+    if (typeof value === 'undefined') {
+      value = 'undefined';
+    }
+    this.ui.ok('bugReport.email.never_ask_status', { value: value });
+
+    return promiseResolve(0);
+  }
+
+  emailNeverAskToggle(cmd) {
+    let boolean_argument = cmd['config-value'];
+    let boolean_parsed = Helpers.checkBooleanArgument(boolean_argument);
+    let initial_promise;
+    if (typeof boolean_parsed === 'undefined') {
+      // user does not informed a value
+      initial_promise = this.emailNeverAskStatus()
+      .then(() => {
+        return Helpers.askEmailNeverAsk(this.ui);
+      });
+    } else {
+      // user does informed a value
+      initial_promise = promiseResolve(boolean_parsed);
+    }
+
+    return initial_promise
+    .then((result) => {
+      var configuration = new Configuration({});
+      return configuration.saveEmailNeverAsk(result);
+    })
+    .then(() => {
+      return this.emailNeverAskStatus(cmd);
+    });
+  }
 }
 
 module.exports = Config;

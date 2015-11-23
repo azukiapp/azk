@@ -143,10 +143,11 @@ var Helpers = {
       let configuration = new Configuration({});
       let current_saved_email = configuration.loadEmail();
       let hasSavedEmail = current_saved_email && current_saved_email.length > 0;
+      let neverAskEmail = configuration.loadEmailNeverAsk();
 
       // ask for user email if it is not set yet
       // user have to has the "bug report sending configuration" active or not set
-      if (!hasSavedEmail) {
+      if (!hasSavedEmail && neverAskEmail !== true) {
         let inputed_email = yield this.askEmail(cli);
         if (inputed_email && inputed_email.length > 0) {
           let want_to_save_email = yield this.askRememberEmailAndBugReport(cli);
@@ -259,7 +260,7 @@ var Helpers = {
         return promiseResolve(undefined);
       } else {
         if (validateEmail(input_email)) {
-          cli.ok('commands.config.email-saved', { email: input_email });
+          cli.ok('commands.config.email-current', { email: input_email });
           return promiseResolve(input_email);
         } else {
           cli.ok('commands.config.email-not-valid', { email: input_email });
@@ -303,6 +304,20 @@ var Helpers = {
       } else {
         cli.ok('bugReport.email.not_saved');
       }
+      return promiseResolve(response.result);
+    });
+  },
+
+  askEmailNeverAsk(cli) {
+    var question = {
+      type    : 'confirm',
+      name    : 'result',
+      message : 'bugReport.email.question_never_ask_email',
+      default : 'N'
+    };
+
+    return cli.prompt(question)
+    .then((response) => {
       return promiseResolve(response.result);
     });
   },
