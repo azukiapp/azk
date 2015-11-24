@@ -87,7 +87,10 @@ log() {
   fi
 }
 
-step() { log info -n $@ | sed -e :a -e 's/^.\{1,72\}$/&./;ta'; }
+step() {
+  local title=$( log info -n $@ | sed -e :a -e 's/^.\{1,72\}$/&./;ta' )
+  echo -n $title
+}
 
 step_wait() {
   if [[ ! -z ${@} ]]; then
@@ -365,17 +368,24 @@ install_azk_mac_osx() {
     fail
   fi
 
+
+  step "Checking for Homebrew installation"
   if command_exists brew; then
     step_done
-    step "Installing azk"
-    brew install azukiapp/azk/azk
-    step_done
+    debug "Homebrew detected"
   else
     step_fail
     add_report "Homebrew not found"
     add_report "  In order to install azk you must have Homebrew on Mac OS X systems."
     add_report "  Refer to: http://docs.azk.io/en/installation/mac_os_x.html"
     fail
+  fi
+
+  step_wait "Installing azk"
+  if brew install azukiapp/azk/azk; then
+    step_done
+  else
+    step_fail
   fi
 }
 
