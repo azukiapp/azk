@@ -1,6 +1,5 @@
 import { _ } from 'azk';
 import { meta as azkMeta } from 'azk';
-import { isBlank } from 'azk/utils';
 
 module.exports = class Configuration {
   constructor(opts) {
@@ -9,28 +8,17 @@ module.exports = class Configuration {
       'user.email',
       'user.email.never_ask',
       'bugReports.always_send',
+      'tracker_user_id',    // TODO: migrate to 'user.unique_id',
       'tracker_permission', // TODO: migrate to 'tracker.always_send',
     ];
   }
 
-  // email
-  // TODO: create a get/set custom way to save strings: `azk config set user.email 'foo@bar.com'`
-  saveEmail(string) {
-    azkMeta.set('user.email', string);
+  save(key, value) {
+    azkMeta.set(key, value);
   }
 
-  loadEmail() {
-    return azkMeta.get('user.email');
-  }
-
-  // email ask
-  // TODO: create a get/set custom way to save booleans: `azk config set bugReports.always_send On`
-  saveEmailNeverAsk(boolean_value) {
-    azkMeta.set('user.email.never_ask', boolean_value);
-  }
-
-  loadEmailNeverAsk() {
-    return azkMeta.get('user.email.never_ask');
+  load(key) {
+    return azkMeta.get(key);
   }
 
   listAll() {
@@ -38,11 +26,16 @@ module.exports = class Configuration {
     this.opts._configListNames.forEach((item) => {
       result_obj[item] = azkMeta.get(item);
     });
+    this.opts._cached_list_all = result_obj;
     return result_obj;
   }
 
-  show(configList, item_name) {
-    return { [item_name]: configList[item_name] };
+  show(item_name) {
+    if (!this.opts._cached_list_all) {
+      this.listAll();
+    }
+    let list_all = this.opts._cached_list_all;
+    return { [item_name]: list_all[item_name] };
   }
 
 };

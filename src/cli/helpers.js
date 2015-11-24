@@ -106,25 +106,27 @@ var Helpers = {
 
       // bug report
       let bugReportUtil = new BugReportUtil({});
-      let isBugReportActive = bugReportUtil.loadBugReportUtilPermission(); // Boolean or undefined
+      let always_send_bug_reports = bugReportUtil.loadBugReportAlwaysSend(); // Boolean or undefined
 
-      // exit: if it is not interactive, just respect saved configuration
+      // exit 1: if it is not interactive
       if (!cli.isInteractive()) {
-        return isBugReportActive === true;
+        // respect saved configuration
+        return always_send_bug_reports === true;
       }
 
-      // exit: if user does not want to send bug-reports, skip the rest
-      if (isBugReportActive === false) {
+      // exit 2: if user does not want to send bug-reports, skip the rest
+      if (always_send_bug_reports === false) {
+        // do not send
         return false;
       }
 
+      let should_ask_permission = (forceAsk || isBlank(always_send_bug_reports));
+
       // tracker
       let isTrackerActive = cli.tracker.loadTrackerPermission(); // Boolean
-      isTrackerActive = true; //FIXME: only for test purposes
-      let should_ask_permission = (forceAsk || isBlank(isBugReportActive));
 
-      // exit: send individual error only
-      //       only if user does not want to be tracked
+      // exit 3: - send individual error only
+      //         - only if user does not want to be tracked
       if (should_ask_permission && !isTrackerActive) {
         return yield this.askBugReportSendIndividualError(cli);
       }
@@ -133,36 +135,54 @@ var Helpers = {
       if (should_ask_permission) {
         let will_send_bug_report = yield this.askBugReportSendIndividualError(cli);
 
-        // exit: do not want to send, will not ask to save or email
+        // exit 4: do not want to send, will not ask to save or email
         if (!will_send_bug_report) {
+          // do not send
           return false;
         }
       }
 
-      // email
-      let configuration = new Configuration({});
-      let current_saved_email = configuration.loadEmail();
-      let hasSavedEmail = current_saved_email && current_saved_email.length > 0;
-      let neverAskEmail = configuration.loadEmailNeverAsk();
+      // remember
+      if (!always_send_bug_reports) {
+        yield this._askEmailIfNeeded(cli);
 
-      // ask for user email if it is not set yet
-      // user have to has the "bug report sending configuration" active or not set
-      if (!hasSavedEmail && neverAskEmail !== true) {
-        let inputed_email = yield this.askEmail(cli);
-        if (inputed_email && inputed_email.length > 0) {
-          let want_to_save_email = yield this.askRememberEmailAndBugReport(cli);
-          if (want_to_save_email) {
-            // always send bug reports
-            bugReportUtil.saveBugReportUtilPermission(true);
-            // save current email
-            configuration.saveEmail(inputed_email);
-          }
+        // remember?
+        let always_send_bug_reports = yield this.askAlwaysSendBugReport(cli);
+        if (always_send_bug_reports) {
+          // always send bug reports
+          bugReportUtil.saveBugReportAlwaysSend(true);
         }
+      } else {
+        yield this._askEmailIfNeeded(cli);
       }
 
       return true;
     });
   },
+
+  // email
+  _askEmailIfNeeded(cli) {
+    return async(this, function* () {
+      let configuration = new Configuration({});
+      let current_saved_email = configuration.load('user.email');
+      let neverAskEmail = configuration.load('user.email.never_ask');
+      if (neverAskEmail === true) {
+        // do not ask email and send
+        return false;
+      } else {
+        // ask for user email if it is not set yet
+        // user have to has the "bug report sending configuration" active or not set
+        let inputed_email = yield this.askEmail(cli, current_saved_email);
+        if (inputed_email && inputed_email.length > 0) {
+          // save current settings
+          configuration.save('user.email', inputed_email);
+          current_saved_email = inputed_email;
+        }
+        return true;
+      }
+    });
+  },
+
 
   askBugReportSendIndividualError(cli) {
     var question = {
@@ -233,7 +253,8 @@ var Helpers = {
     var question = {
       type    : 'input',
       name    : 'result',
-      message : 'bugReport.email.question'
+      message : 'bugReport.email.question',
+      default : current_email
     };
 
     let validateEmail = (str_email) => {
@@ -245,7 +266,7 @@ var Helpers = {
       return promiseResolve(undefined);
     } else if (current_email && current_email.length > 0) {
       if (validateEmail(current_email)) {
-        cli.ok('commands.config.email-valid', { email: current_email });
+        // cli.ok('commands.config.email-valid', { email: current_email });
         return promiseResolve(current_email);
       } else {
         cli.ok('commands.config.email-not-valid', { email: current_email });
@@ -289,20 +310,20 @@ var Helpers = {
     });
   },
 
-  askRememberEmailAndBugReport(cli) {
+  askAlwaysSendBugReport(cli) {
     var question = {
       type    : 'confirm',
       name    : 'result',
-      message : 'bugReport.email.question_to_save',
+      message : 'bugReport.question_remember_email_and_bugReport',
       default : 'Y'
     };
 
     return cli.prompt(question)
     .then((response) => {
       if (response.result) {
-        cli.ok('bugReport.email.saved');
+        cli.ok('bugReport.remember_choice_yes');
       } else {
-        cli.ok('bugReport.email.not_saved');
+        cli.ok('bugReport.remember_choice_no');
       }
       return promiseResolve(response.result);
     });

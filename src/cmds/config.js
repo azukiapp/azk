@@ -13,11 +13,16 @@ class Config extends CliTrackerController {
     let result = configList;
 
     if (value_param) {
-      result = configuration.show(configList, value_param);
+      result = configuration.show(value_param);
     }
 
     // Show result
-    var inspect_result = require('util').inspect(result, { showHidden: false, depth: null, colors: cmd['no-colored'] === false });
+    let inspect = require('util').inspect;
+    var inspect_result = inspect(result, {
+      showHidden: false,
+      depth: null,
+      colors: cmd['no-colored'] === false
+    });
     this.ui.output(inspect_result);
 
     return promiseResolve(0);
@@ -64,7 +69,7 @@ class Config extends CliTrackerController {
   // Bug Report
   bugReportStatus() {
     var bugReportUtil = new BugReportUtil({});
-    var bugReport_status = bugReportUtil.loadBugReportUtilPermission();
+    var bugReport_status = bugReportUtil.loadBugReportAlwaysSend();
 
     if (bugReport_status === null || typeof bugReport_status === 'undefined') {
       this.ui.ok('commands.config.bugReport-undefined');
@@ -93,7 +98,7 @@ class Config extends CliTrackerController {
     return initial_promise
     .then((result) => {
       var bugReportUtil = new BugReportUtil({});
-      return bugReportUtil.saveBugReportUtilPermission(result);
+      return bugReportUtil.saveBugReportAlwaysSend(result);
     })
     .then(() => {
       return this.bugReportStatus(cmd);
@@ -109,14 +114,14 @@ class Config extends CliTrackerController {
       return Helpers.askEmail(this.ui, email_input);
     })
     .then((email) => {
-      configuration.saveEmail(email);
+      configuration.save('user.email', email);
       return promiseResolve(0);
     });
   }
 
   emailStatus() {
     var configuration = new Configuration({});
-    var email = configuration.loadEmail();
+    var email = configuration.load('user.email');
     if (email) {
       this.ui.ok('commands.config.email-current', { email: email });
     } else {
@@ -127,7 +132,7 @@ class Config extends CliTrackerController {
 
   emailNeverAskStatus() {
     var configuration = new Configuration({});
-    var value = configuration.loadEmailNeverAsk();
+    var value = configuration.load('user.email.never_ask');
 
     if (typeof value === 'undefined') {
       value = 'undefined';
@@ -139,6 +144,7 @@ class Config extends CliTrackerController {
 
   emailNeverAskToggle(cmd) {
     let boolean_argument = cmd['config-value'];
+    /**/console.log('\n>>---------\n boolean_argument:\n', boolean_argument, '\n>>---------\n');/*-debug-*/
     let boolean_parsed = Helpers.checkBooleanArgument(boolean_argument);
     let initial_promise;
     if (typeof boolean_parsed === 'undefined') {
@@ -155,7 +161,7 @@ class Config extends CliTrackerController {
     return initial_promise
     .then((result) => {
       var configuration = new Configuration({});
-      return configuration.saveEmailNeverAsk(result);
+      return configuration.save('user.email.never_ask', result);
     })
     .then(() => {
       return this.emailNeverAskStatus(cmd);

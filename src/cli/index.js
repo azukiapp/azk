@@ -89,13 +89,11 @@ export function cli(args, cwd, ui = UI) {
         return Helpers.askToSendError(ui)
         .then((will_send_error) => {
           if (will_send_error) {
-
-            //FIXME: remove this
-            /**/console.log('\n%% [bug-report] sending... \n');/*-debug-*/
-
+            ui.ok('bugReport.sending');
             log.debug(`[bug-report] sending...`);
             var bugReportUtil = new BugReportUtil({}, ui.tracker);
             return bugReportUtil.sendError(error).then((result) => {
+              ui.ok('bugReport.was_sent');
               log.debug(`[bug-report] Force response ${result && result.body}`);
               ui.exit(error.code ? error.code : 127);
             });

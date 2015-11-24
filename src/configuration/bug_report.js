@@ -1,6 +1,6 @@
 import { _, config, log, lazy_require } from 'azk';
 import { meta as azkMeta } from 'azk';
-import { promiseResolve } from 'azk/utils/promises';
+import Configuration from 'azk/configuration';
 
 var lazy = lazy_require({
   'BugSender': 'bug-report-sender',
@@ -35,20 +35,21 @@ module.exports = class BugReportUtil {
   }
 
   sendError(error_to_send) {
-    if (!this.loadBugReportUtilPermission()) { return promiseResolve(false); }
+    // get user email
+    let configuration = new Configuration({});
+    this.opts.email = configuration.load('user.email');
 
     var endpoint_url = config('report:url');
     var options = {
       err            : error_to_send,
       extra_values   : this.opts,
       url            : endpoint_url,
-      background_send: false,
+      background_send: false, //FIXME: change to background_send = true
       jsonWrapper    : (payload) => { return { report: payload }; },
     };
 
     var bugSender = new lazy.BugSender();
 
-    // FIXME: remove this on end
     return bugSender.send(options)
     .timeout(10000)
     .then((result) => {
@@ -58,18 +59,17 @@ module.exports = class BugReportUtil {
     .catch((err_result) => {
       log.debug(`[bug-report] error sending bug report to ${endpoint_url}. error below:`);
       log.debug(err_result);
-
       var JSON_SENT = JSON.parse(err_result.requestOptions);
       /**/console.log('\n>>---------\n err_result.requestOptions.body:\n',
-      JSON.stringify(JSON_SENT, ' ', 2), '\n>>---------\n');/*-debug-*/
+      JSON.stringify(JSON_SENT, ' ', 2), '\n>>---------\n');
     });
   }
 
-  saveBugReportUtilPermission(response_bool) {
+  saveBugReportAlwaysSend(response_bool) {
     return azkMeta.set('bugReports.always_send', response_bool);
   }
 
-  loadBugReportUtilPermission() {
+  loadBugReportAlwaysSend() {
     if (config('bugReport:disable')) {
       return false;
     }

@@ -50,7 +50,6 @@ class Scale extends CliTrackerController {
 
       return result;
     });
-    // FIXME: check timeout error
   }
 
   scale(manifest, systems, opts) {

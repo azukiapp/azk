@@ -22,19 +22,38 @@ module.exports = {
   },
   bugReport: {
     message_error_occured: [
-      'An error has occured.\n',
+      'Sorry, an error has occured.',
+    ].join(''),
+    sending: [
+      'Sending bug report to Azuki...',
+    ].join(''),
+    was_sent: [
+      'Bug report was set. Thanks.',
     ].join(''),
 
     question_send_individual_error: [
-      'Send error report?\n',
+      'Send this bug report?\n',
     ].join(''),
     error_will_be_sent: [
-      'The error above will be sent to us. Thanks.',
+      'The error above will be sent.',
     ].join(''),
     error_will_not_be_sent: [
       'No error will be sent.',
       '\nYou can these configurations running:'.grey,
       '\n$ azk config bug-report-toggle; azk config email-set',
+    ].join(''),
+    question_remember_email_and_bugReport: [
+      'Do you want to remember these decisions?',
+      '\nYou always can change this behaviour running `azk config`.'.grey,
+    ].join(''),
+    remember_choice_yes: [
+      'Your decisions were saved for future bug reports.',
+      '\nThank you for giving us the opportunity to serve you.',
+      '\nWe appreciate the confidence you have placed in us.',
+    ].join(''),
+    remember_choice_no: [
+      'No problem.',
+      '\nYou always can change this behaviour running `azk config`.'.grey,
     ].join(''),
 
     save_autosend: {
@@ -67,9 +86,6 @@ module.exports = {
       question: [
         'Type your email to be notified about a bug fix'.white + ' [optional]'.grey + '?'.white,
       ].join(''),
-      question_remember_email_and_bugReport: [
-        'Do you want to remember these decisions?',
-      ].join(''),
       question_to_save: [
         'Can we save your email for future error reports?',
       ].join(''),
@@ -79,8 +95,9 @@ module.exports = {
         '\nWe appreciate the confidence you have placed in us.',
       ].join(''),
       not_saved: [
-        'Your e-mail was not saved. We you ask you again next time.',
-        'Remember you can change this behaviour running `azk config bug-report-toggle`.',
+        'Your e-mail will not be sent.',
+        '\nWe will you ask you again next time.',
+        '\nYou can change this behaviour running `azk config`.',
       ].join(''),
 
       question_never_ask_email: [

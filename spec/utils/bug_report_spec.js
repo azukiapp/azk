@@ -35,10 +35,10 @@ describe("Azk Bug Report", function() {
   });
 
   it("should save and load BugReport Permission", function() {
-    bugReportUtil.saveBugReportUtilPermission(true);
-    h.expect(bugReportUtil.loadBugReportUtilPermission()).to.equal(true);
+    bugReportUtil.saveBugReportAlwaysSend(true);
+    h.expect(bugReportUtil.loadBugReportAlwaysSend()).to.equal(true);
 
-    bugReportUtil.saveBugReportUtilPermission(false);
-    h.expect(bugReportUtil.loadBugReportUtilPermission()).to.equal(false);
+    bugReportUtil.saveBugReportAlwaysSend(false);
+    h.expect(bugReportUtil.loadBugReportAlwaysSend()).to.equal(false);
   });
 });
