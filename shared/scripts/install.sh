@@ -238,20 +238,51 @@ main(){
   fi
 }
 
-check_docker_installation() {
-  step "Checking Docker installation"
+curl_or_wget() {
+  CURL_BIN="curl"; WGET_BIN="wget"
+  if command_exists ${CURL_BIN}; then
+    echo "${CURL_BIN} -sL"
+  elif command_exists ${WGET_BIN}; then
+    echo "${WGET_BIN} -qO-"
+  fi
+}
 
-  if command_exists docker; then
+abort_docker_installation() {
+  add_report "azk needs Docker to be installed."
+  add_report "  to install Docker run command bellow:"
+  add_report "  $ ${fetch_cmd} https://get.docker.com/ | sh"
+  fail
+}
+
+install_docker() {
+  trap abort_docker_installation SIGINT
+
+  debug "Docker will be installed within 10 seconds."
+  debug "To prevent its installation, just press CTRL+C now."
+  sleep 10
+
+  step_wait "Installing Docker"
+  if super bash -c "${fetch_cmd} 'https://get.docker.com/' | sh"; then
     step_done
-    debug "Docker is installed, skipping Docker installation."
-    debug "  To update Docker, run the command bellow:"
-    debug "  $ curl -sSL https://get.docker.com/ | sh"
   else
     step_fail
-    add_report 'azk needs Docker to be installed.'
-    add_report '  to install Docker run command bellow:'
-    add_report '  $ curl -sSL https://get.docker.com/ | sh'
-    fail
+    abort_docker_installation
+  fi
+
+  trap - SIGINT
+}
+
+check_docker_installation() {
+  step "Checking Docker installation"
+  step_done
+
+  local fetch_cmd=$(curl_or_wget)
+  if command_exists docker; then
+    debug "Docker is installed, skipping Docker installation."
+    debug "  To update Docker, run the command bellow:"
+    debug "  $ ${fetch_cmd} https://get.docker.com/ | sh"
+  else
+    install_docker
   fi
 }
 
