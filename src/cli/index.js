@@ -72,7 +72,7 @@ export function cli(args, cwd, ui = UI) {
 
           // FIXME: remove this?!
           log.error('ATTENTION: error were are not thrown');
-          console.trace(`code: ${code}`);
+          ui.error(`code: ${code}`);
 
           return ui.exit(code);
         }
@@ -83,7 +83,7 @@ export function cli(args, cwd, ui = UI) {
         if (!isError) {
 
           // FIXME: remove this?!
-          log.error('ATTENTION: expected an error but get this:');
+          ui.error('ATTENTION: expected an error but get this:');
           console.trace(error);
 
           return ui.exit(1);

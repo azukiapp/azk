@@ -37,7 +37,15 @@ module.exports = class CrashReportUtil {
   sendError(error_to_send) {
     // get user email
     let configuration = new Configuration({});
-    this.opts.email = configuration.load('user.email');
+
+    this.opts.person = {
+      // Required: id
+      // A string up to 40 characters identifying this user in your system.
+      "id": configuration.load('tracker_user_id'),
+      // Optional: email
+      // A string up to 255 characters
+      "email": configuration.load('user.email')
+    };
 
     var endpoint_url = config('report:url');
     var options = {
