@@ -21,7 +21,7 @@ describe('Azk cli, config controller', function() {
       h.expect(code).to.equal(0);
       h.expect(options).to.have.property('config', true);
       h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('user.email')));
-      h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('bugReports.always_send')));
+      h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('crashReports.always_send')));
     });
   });
 
@@ -48,23 +48,23 @@ describe('Azk cli, config controller', function() {
     });
   };
 
-  it("should azk config bug-report-toggle change status", function() {
-    return changeConfigTo('bug-report-toggle', 'on')
+  it("should azk config crash-report-toggle change status", function() {
+    return changeConfigTo('crash-report-toggle', 'on')
     .then((result) => {
       h.expect(result.code).to.equal(0);
       h.expect(result.options).to.have.property('config', true);
-      h.expect(result.options).to.have.property('bug-report-toggle', true);
+      h.expect(result.options).to.have.property('crash-report-toggle', true);
       let lastMessage = outputs[outputs.length - 1];
-      h.expect(lastMessage).to.match(RegExp(h.escapeRegExp('azk is automatically sending bug-reports')));
+      h.expect(lastMessage).to.match(RegExp(h.escapeRegExp('azk is automatically sending crash-reports')));
 
-      return changeConfigTo('bug-report-toggle', 'off');
+      return changeConfigTo('crash-report-toggle', 'off');
     })
     .then((result) => {
       h.expect(result.code).to.equal(0);
       let lastMessage = outputs[outputs.length - 1];
       h.expect(lastMessage).to.match(RegExp(h.escapeRegExp('azk is not sending')));
 
-      return changeConfigTo('bug-report-toggle', 'null');
+      return changeConfigTo('crash-report-toggle', 'null');
     })
     .then((result) => {
       h.expect(result.code).to.equal(0);

@@ -3685,9 +3685,9 @@
       "from": "https://registry.npmjs.org/bluebird/-/bluebird-2.9.27.tgz",
       "resolved": "https://registry.npmjs.org/bluebird/-/bluebird-2.9.27.tgz"
     },
-    "bug-report-sender": {
+    "crash-report-sender": {
       "version": "0.2.2",
-      "from": "bug-report-sender@0.2.2",
+      "from": "crash-report-sender@0.2.2",
       "dependencies": {
         "async": {
           "version": "1.5.0",

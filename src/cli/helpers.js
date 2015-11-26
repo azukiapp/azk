@@ -3,7 +3,7 @@ import { isBlank } from 'azk/utils';
 import { async, promiseResolve } from 'azk/utils/promises';
 import { SmartProgressBar } from 'azk/cli/smart_progress_bar';
 import { ManifestError } from 'azk/utils/errors';
-import BugReportUtil from 'azk/configuration/bug_report';
+import CrashReportUtil from 'azk/configuration/crash_report';
 import Configuration from 'azk/configuration';
 import { InvalidCommandError } from 'azk/utils/errors';
 
@@ -101,56 +101,40 @@ var Helpers = {
     });
   },
 
-  askToSendError(cli, forceAsk = false) {
+  askToSendError(cli) {
     return async(this, function* () {
 
-      // bug report
-      let bugReportUtil = new BugReportUtil({});
-      let always_send_bug_reports = bugReportUtil.loadBugReportAlwaysSend(); // Boolean or undefined
+      let crashReportUtil = new CrashReportUtil({});
+
+      let is_interactive = cli.isInteractive();
+      let always_send_crash_reports = crashReportUtil.loadCrashReportAlwaysSend(); // Boolean or undefined
 
       // exit 1: if it is not interactive
-      if (!cli.isInteractive()) {
+      if (!is_interactive) {
         // respect saved configuration
-        return always_send_bug_reports === true;
+        return always_send_crash_reports === true;
       }
 
-      // exit 2: if user does not want to send bug-reports, skip the rest
-      if (always_send_bug_reports === false) {
+      // exit 2: if user does not want to send crash-reports, skip the rest
+      if (always_send_crash_reports === false) {
         // do not send
         return false;
       }
 
-      let should_ask_permission = (forceAsk || isBlank(always_send_bug_reports));
-
-      // tracker
-      let isTrackerActive = cli.tracker.loadTrackerPermission(); // Boolean
-
-      // exit 3: - send individual error only
-      //         - only if user does not want to be tracked
-      if (should_ask_permission && !isTrackerActive) {
-        return yield this.askBugReportSendIndividualError(cli);
+      // opt-out: if always_send_crash_reports is not set is true
+      if (isBlank(always_send_crash_reports)) {
+        always_send_crash_reports = true;
       }
 
-      // ask for bug-report send configuration
-      if (should_ask_permission) {
-        let will_send_bug_report = yield this.askBugReportSendIndividualError(cli);
-
-        // exit 4: do not want to send, will not ask to save or email
-        if (!will_send_bug_report) {
-          // do not send
-          return false;
-        }
-      }
-
-      // remember
-      if (!always_send_bug_reports) {
+      // question 1: ask email
+      if (!always_send_crash_reports) {
         yield this._askEmailIfNeeded(cli);
 
         // remember?
-        let always_send_bug_reports = yield this.askAlwaysSendBugReport(cli);
-        if (always_send_bug_reports) {
+        let always_send_crash_reports = yield this.askAlwaysSendCrashReport(cli);
+        if (always_send_crash_reports) {
           // always send bug reports
-          bugReportUtil.saveBugReportAlwaysSend(true);
+          crashReportUtil.saveCrashReportAlwaysSend(true);
         }
       } else {
         yield this._askEmailIfNeeded(cli);
@@ -158,25 +142,46 @@ var Helpers = {
 
       return true;
     });
+
   },
 
   // email
   _askEmailIfNeeded(cli) {
     return async(this, function* () {
+
       let configuration = new Configuration({});
       let current_saved_email = configuration.load('user.email');
-      let neverAskEmail = configuration.load('user.email.never_ask');
-      if (neverAskEmail === true) {
+      let never_ask_email = configuration.load('user.email.never_ask');
+      let email_ask_count = configuration.load('user.email.ask.count');
+
+      if (never_ask_email === true) {
         // do not ask email and send
         return false;
       } else {
+
+
         // ask for user email if it is not set yet
         // user have to has the "bug report sending configuration" active or not set
         let inputed_email = yield this.askEmail(cli, current_saved_email);
+
         if (inputed_email && inputed_email.length > 0) {
           // save current settings
           configuration.save('user.email', inputed_email);
           current_saved_email = inputed_email;
+        } else {
+          // check how many time user has been asked about email
+          if (isBlank(email_ask_count)) {
+            email_ask_count = 0;
+          }
+          email_ask_count = email_ask_count + 1;
+          configuration.save('user.email.ask.count', email_ask_count);
+
+          // if user did not answer email two times
+          // lets suggest to not ask again
+          if (email_ask_count > 1) {
+            let will_never_ask = yield this.askEmailNeverAsk(cli);
+            configuration.save('user.email.never_ask', will_never_ask);
+          }
         }
         return true;
       }
@@ -184,53 +189,53 @@ var Helpers = {
   },
 
 
-  askBugReportSendIndividualError(cli) {
+  askCrashReportSendIndividualError(cli) {
     var question = {
       type    : 'confirm',
       name    : 'result',
-      message : 'bugReport.question_send_individual_error',
+      message : 'crashReport.question_send_individual_error',
       default : 'Y'
     };
 
     return cli.prompt(question)
     .then((response) => {
       if (response.result) {
-        cli.ok('bugReport.error_will_be_sent');
+        cli.ok('crashReport.error_will_be_sent');
       } else {
-        cli.ok('bugReport.error_will_not_be_sent');
+        cli.ok('crashReport.error_will_not_be_sent');
       }
       return promiseResolve(response.result);
     });
   },
 
-  askBugReportSave(cli) {
+  askCrashReportSave(cli) {
     var question = {
       type    : 'confirm',
       name    : 'result',
-      message : 'bugReport.save_autosend.question',
+      message : 'crashReport.save_autosend.question',
       default : 'Y'
     };
 
     return cli.prompt(question)
     .then((response) => {
       if (response.result) {
-        cli.ok('bugReport.save_autosend.choice_enable');
+        cli.ok('crashReport.save_autosend.choice_enable');
       } else {
-        cli.ok('bugReport.save_autosend.choice_disable');
+        cli.ok('crashReport.save_autosend.choice_disable');
       }
       return promiseResolve(response.result);
     });
   },
 
-  askBugReportToggle(cli) {
-    const ENABLE_CONFIG = t('bugReport.save_autosend.choice_enable');
-    const DISABLE_CONFIG = t('bugReport.save_autosend.choice_disable');
-    const CLEAR_CONFIG = t('bugReport.save_autosend.choice_clear');
+  askCrashReportToggle(cli) {
+    const ENABLE_CONFIG = t('crashReport.save_autosend.choice_enable');
+    const DISABLE_CONFIG = t('crashReport.save_autosend.choice_disable');
+    const CLEAR_CONFIG = t('crashReport.save_autosend.choice_clear');
 
     var question = {
       type    : 'rawlist',
       name    : 'result',
-      message : 'bugReport.save_autosend.question',
+      message : 'crashReport.save_autosend.question',
       default : '1',
       choices : [ENABLE_CONFIG,
                  DISABLE_CONFIG,
@@ -253,7 +258,7 @@ var Helpers = {
     var question = {
       type    : 'input',
       name    : 'result',
-      message : 'bugReport.email.question',
+      message : 'crashReport.email.question',
       default : current_email
     };
 
@@ -295,35 +300,35 @@ var Helpers = {
     var question = {
       type    : 'confirm',
       name    : 'result',
-      message : 'bugReport.email.question_to_save',
+      message : 'crashReport.email.question_to_save',
       default : 'Y'
     };
 
     return cli.prompt(question)
     .then((response) => {
       if (response.result) {
-        cli.ok('bugReport.email.saved');
+        cli.ok('crashReport.email.saved');
       } else {
-        cli.ok('bugReport.email.not_saved');
+        cli.ok('crashReport.email.not_saved');
       }
       return promiseResolve(response.result);
     });
   },
 
-  askAlwaysSendBugReport(cli) {
+  askAlwaysSendCrashReport(cli) {
     var question = {
       type    : 'confirm',
       name    : 'result',
-      message : 'bugReport.question_remember_email_and_bugReport',
+      message : 'crashReport.question_remember_email_and_crashReport',
       default : 'Y'
     };
 
     return cli.prompt(question)
     .then((response) => {
       if (response.result) {
-        cli.ok('bugReport.remember_choice_yes');
+        cli.ok('crashReport.remember_choice_yes');
       } else {
-        cli.ok('bugReport.remember_choice_no');
+        cli.ok('crashReport.remember_choice_no');
       }
       return promiseResolve(response.result);
     });
@@ -333,8 +338,8 @@ var Helpers = {
     var question = {
       type    : 'confirm',
       name    : 'result',
-      message : 'bugReport.email.question_never_ask_email',
-      default : 'N'
+      message : 'crashReport.email.question_never_ask_email',
+      default : false
     };
 
     return cli.prompt(question)

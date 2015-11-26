@@ -1,7 +1,7 @@
 import { CliTrackerController } from 'azk/cli/cli_tracker_controller.js';
 import { promiseResolve } from 'azk/utils/promises';
 import { Helpers } from 'azk/cli/helpers';
-import BugReportUtil from 'azk/configuration/bug_report';
+import CrashReportUtil from 'azk/configuration/crash_report';
 import Configuration from 'azk/configuration';
 
 class Config extends CliTrackerController {
@@ -67,28 +67,28 @@ class Config extends CliTrackerController {
   }
 
   // Bug Report
-  bugReportStatus() {
-    var bugReportUtil = new BugReportUtil({});
-    var bugReport_status = bugReportUtil.loadBugReportAlwaysSend();
+  crashReportStatus() {
+    var crashReportUtil = new CrashReportUtil({});
+    var crashReport_status = crashReportUtil.loadCrashReportAlwaysSend();
 
-    if (bugReport_status === null || typeof bugReport_status === 'undefined') {
-      this.ui.ok('commands.config.bugReport-undefined');
+    if (crashReport_status === null || typeof crashReport_status === 'undefined') {
+      this.ui.ok('commands.config.crashReport-undefined');
     } else {
-      this.ui.ok('commands.config.bugReport-' + bugReport_status.toString());
+      this.ui.ok('commands.config.crashReport-' + crashReport_status.toString());
     }
 
     return promiseResolve(0);
   }
 
-  bugReportToggle(cmd) {
+  crashReportToggle(cmd) {
     let boolean_argument = cmd['config-value'];
     let boolean_parsed = Helpers.checkBooleanArgument(boolean_argument);
     let initial_promise;
     if (typeof boolean_parsed === 'undefined') {
       // user does not informed a value
-      initial_promise = this.bugReportStatus(cmd)
+      initial_promise = this.crashReportStatus(cmd)
       .then(() => {
-        return Helpers.askBugReportToggle(this.ui);
+        return Helpers.askCrashReportToggle(this.ui);
       });
     } else {
       // user does informed a value
@@ -97,11 +97,11 @@ class Config extends CliTrackerController {
 
     return initial_promise
     .then((result) => {
-      var bugReportUtil = new BugReportUtil({});
-      return bugReportUtil.saveBugReportAlwaysSend(result);
+      var crashReportUtil = new CrashReportUtil({});
+      return crashReportUtil.saveCrashReportAlwaysSend(result);
     })
     .then(() => {
-      return this.bugReportStatus(cmd);
+      return this.crashReportStatus(cmd);
     });
   }
 
@@ -114,6 +114,7 @@ class Config extends CliTrackerController {
       return Helpers.askEmail(this.ui, email_input);
     })
     .then((email) => {
+      configuration.save('user.email.ask.count', 0);
       configuration.save('user.email', email);
       return promiseResolve(0);
     });
@@ -137,14 +138,13 @@ class Config extends CliTrackerController {
     if (typeof value === 'undefined') {
       value = 'undefined';
     }
-    this.ui.ok('bugReport.email.never_ask_status', { value: value });
+    this.ui.ok('crashReport.email.never_ask_status', { value: value });
 
     return promiseResolve(0);
   }
 
   emailNeverAskToggle(cmd) {
     let boolean_argument = cmd['config-value'];
-    /**/console.log('\n>>---------\n boolean_argument:\n', boolean_argument, '\n>>---------\n');/*-debug-*/
     let boolean_parsed = Helpers.checkBooleanArgument(boolean_argument);
     let initial_promise;
     if (typeof boolean_parsed === 'undefined') {
@@ -161,7 +161,8 @@ class Config extends CliTrackerController {
     return initial_promise
     .then((result) => {
       var configuration = new Configuration({});
-      return configuration.save('user.email.never_ask', result);
+      configuration.save('user.email.ask.count', 0);
+      configuration.save('user.email.never_ask', result);
     })
     .then(() => {
       return this.emailNeverAskStatus(cmd);

@@ -4,7 +4,7 @@ import { Cli as AzkCli } from 'azk/cli/cli';
 import { Helpers } from 'azk/cli/helpers';
 import { UI } from 'azk/cli/ui';
 import { InvalidCommandError } from 'azk/utils/errors';
-import BugReportUtil from 'azk/configuration/bug_report';
+import CrashReportUtil from 'azk/configuration/crash_report';
 
 export class Cli extends AzkCli {
   invalidCmd(error) {
@@ -22,7 +22,7 @@ function make_cli() {
     // Commands
     .route('agent', (p, args) => p.agent && /(start|status|stop|configure)/.test(args))
     .route('vm', (p, args) => p.vm && /(ssh|start|status|installed|stop|remove)/.test(args))
-    .route('config', (p, args) => p.config && /(list|track-toggle|bug-report-toggle|email-set|email-never-ask-toggle)/.test(args))
+    .route('config', (p, args) => p.config && /(list|track-toggle|crash-report-toggle|email-set|email-never-ask-toggle)/.test(args))
     .route('deploy')
     .route('docker')
     .route('doctor')
@@ -69,8 +69,11 @@ export function cli(args, cwd, ui = UI) {
     result
       .then((code) => {
         if (code !== 0) {
+
+          // FIXME: remove this?!
           log.error('ATTENTION: error were are not thrown');
           console.trace(`code: ${code}`);
+
           return ui.exit(code);
         }
         ui.exit(0);
@@ -78,23 +81,26 @@ export function cli(args, cwd, ui = UI) {
       .catch((error) => {
         var isError = error instanceof Error;
         if (!isError) {
+
+          // FIXME: remove this?!
           log.error('ATTENTION: expected an error but get this:');
           console.trace(error);
+
           return ui.exit(1);
         }
 
         ui.fail(error);
-        ui.warning('bugReport.message_error_occured');
+        ui.warning('crashReport.message_error_occured');
 
         return Helpers.askToSendError(ui)
         .then((will_send_error) => {
           if (will_send_error) {
-            ui.ok('bugReport.sending');
-            log.debug(`[bug-report] sending...`);
-            var bugReportUtil = new BugReportUtil({}, ui.tracker);
-            return bugReportUtil.sendError(error).then((result) => {
-              ui.ok('bugReport.was_sent');
-              log.debug(`[bug-report] Force response ${result && result.body}`);
+            ui.ok('crashReport.sending');
+            log.debug(`[crash-report] sending...`);
+            var crashReportUtil = new CrashReportUtil({}, ui.tracker);
+            return crashReportUtil.sendError(error).then((result) => {
+              ui.ok('crashReport.was_sent');
+              log.debug(`[crash-report] Force response ${result && result.body}`);
               ui.exit(error.code ? error.code : 127);
             });
           }

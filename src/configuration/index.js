@@ -7,7 +7,8 @@ module.exports = class Configuration {
     this.opts._configListNames = [
       'user.email',
       'user.email.never_ask',
-      'bugReports.always_send',
+      'user.email.ask.count',
+      'crashReports.always_send',
       'tracker_user_id',    // TODO: migrate to 'user.unique_id',
       'tracker_permission', // TODO: migrate to 'tracker.always_send',
     ];

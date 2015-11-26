@@ -537,7 +537,7 @@ _azk_config()
     cur="${COMP_WORDS[COMP_CWORD]}"
 
     if [ $COMP_CWORD -eq 2 ]; then
-        COMPREPLY=( $( compgen -fW '--no-colored -q --quiet -h --help -l= --log= -v --verbose email-never-ask-toggle list email-set track-toggle bug-report-toggle' -- $cur) )
+        COMPREPLY=( $( compgen -fW '--no-colored -q --quiet -h --help -l= --log= -v --verbose email-never-ask-toggle list email-set track-toggle crash-report-toggle' -- $cur) )
     else
         case ${COMP_WORDS[2]} in
             email-never-ask-toggle)
@@ -552,8 +552,8 @@ _azk_config()
             track-toggle)
             _azk_config_track-toggle
         ;;
-            bug-report-toggle)
-            _azk_config_bug-report-toggle
+            crash-report-toggle)
+            _azk_config_crash-report-toggle
         ;;
         esac
 
@@ -600,7 +600,7 @@ _azk_config_track-toggle()
     fi
 }
 
-_azk_config_bug-report-toggle()
+_azk_config_crash-report-toggle()
 {
     local cur
     cur="${COMP_WORDS[COMP_CWORD]}"

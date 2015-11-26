@@ -4,14 +4,14 @@ Controla as opções de configuração do azk.
 
 #### Uso:
 
-    $ azk config (list|track-toggle|bug-report-toggle|email-set|email-never-ask-toggle) [options]
+    $ azk config (list|track-toggle|crash-report-toggle|email-set|email-never-ask-toggle) [options]
 
 #### Ações:
 
 ```
   list                      Exibe todas configurações
   track-toggle              Ativa/Desativa o rastreamento.
-  bug-report-toggle         Ativa/Desativa o envio de erros
+  crash-report-toggle         Ativa/Desativa o envio de erros
   email-set                 Configura e salva o email do usuário.
   email-never-ask-toggle    Ativa/Desativa a pergunta por email
 ```
@@ -48,23 +48,23 @@ azk: cool! Thanks for helping us make azk better :)
 ----------
 
 ```sh
-$ azk config bug-report-toggle
-azk: Currently azk is automatically sending bug-reports.
+$ azk config crash-report-toggle
+azk: Currently azk is automatically sending crash-reports.
 ? Send automatically bug reports when new errors occurs?
   1) Enable: always send error reports
   2) Disable: never send error reports
   3) Clear: clean configuration. Will ask user next time an error occurs
   Answer: 1
 
-azk: Currently azk is automatically sending bug-reports.
+azk: Currently azk is automatically sending crash-reports.
 
 # Ou configurar diretamente
-$ azk config bug-report-toggle on
-$ azk config bug-report-toggle off
-$ azk config bug-report-toggle true
-$ azk config bug-report-toggle false
-$ azk config bug-report-toggle null
-$ azk config bug-report-toggle undefined
+$ azk config crash-report-toggle on
+$ azk config crash-report-toggle off
+$ azk config crash-report-toggle true
+$ azk config crash-report-toggle false
+$ azk config crash-report-toggle null
+$ azk config crash-report-toggle undefined
 
 ```
 

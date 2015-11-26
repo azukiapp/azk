@@ -20,7 +20,7 @@ module.exports = {
       'You can always find that command in `azk help`'.grey,
     ].join(''),
   },
-  bugReport: {
+  crashReport: {
     message_error_occured: [
       'Sorry, an error has occured.',
     ].join(''),
@@ -28,21 +28,18 @@ module.exports = {
       'Sending bug report to Azuki...',
     ].join(''),
     was_sent: [
-      'Bug report was set. Thanks.',
+      'Bug report was sent. Thanks.',
     ].join(''),
 
-    question_send_individual_error: [
-      'Send this bug report?\n',
-    ].join(''),
     error_will_be_sent: [
       'The error above will be sent.',
     ].join(''),
     error_will_not_be_sent: [
       'No error will be sent.',
       '\nYou can these configurations running:'.grey,
-      '\n$ azk config bug-report-toggle; azk config email-set',
+      '\n$ azk config crash-report-toggle; azk config email-set',
     ].join(''),
-    question_remember_email_and_bugReport: [
+    question_remember_email_and_crashReport: [
       'Do you want to remember these decisions?',
       '\nYou always can change this behaviour running `azk config`.'.grey,
     ].join(''),
@@ -61,7 +58,7 @@ module.exports = {
         'Send automatically bug reports when new errors occurs?',
       ].join(''),
 
-      // only for `azk config bug-report-toggle`
+      // only for `azk config crash-report-toggle`
       choice_enable: [
         'Enable: always send error reports'
       ].join(''),
@@ -523,9 +520,9 @@ module.exports = {
       'tracking-false'      : 'Currently azk is not tracking any data',
       'tracking-true'       : 'Currently azk is tracking data, more info: https://github.com/azukiapp/azk and http://docs.azk.io/en/terms-of-use',
       'tracking-undefined'  : 'Currently azk `tracking configuration` is not set.',
-      'bugReport-false'     : 'Currently azk is not sending any bug report.',
-      'bugReport-true'      : 'Currently azk is automatically sending bug-reports.',
-      'bugReport-undefined' : 'Currently azk `bug-report sending configuration` is not set.',
+      'crashReport-false'     : 'Currently azk is not sending any bug report.',
+      'crashReport-true'      : 'Currently azk is automatically sending crash-reports.',
+      'crashReport-undefined' : 'Currently azk `crash-report sending configuration` is not set.',
       'email-current'       : 'Current email: %(email)s',
       'email-saved'         : 'Email: %(email)s',
       'email-undefined'     : 'Email: no email set yet.',

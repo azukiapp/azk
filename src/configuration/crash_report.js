@@ -3,10 +3,10 @@ import { meta as azkMeta } from 'azk';
 import Configuration from 'azk/configuration';
 
 var lazy = lazy_require({
-  'BugSender': 'bug-report-sender',
+  'CrashReportSender': 'crash-report-sender',
 });
 
-module.exports = class BugReportUtil {
+module.exports = class CrashReportUtil {
   constructor(opts, tracker) {
     opts = _.merge({}, {
       meta: {},
@@ -48,16 +48,16 @@ module.exports = class BugReportUtil {
       jsonWrapper    : (payload) => { return { report: payload }; },
     };
 
-    var bugSender = new lazy.BugSender();
+    var bugSender = new lazy.CrashReportSender();
 
     return bugSender.send(options)
     .timeout(10000)
     .then((result) => {
-      log.debug(`[bug-report] bug report send to ${endpoint_url}. result bellow:`);
+      log.debug(`[crash-report] bug report send to ${endpoint_url}. result bellow:`);
       log.debug(result);
     })
     .catch((err_result) => {
-      log.debug(`[bug-report] error sending bug report to ${endpoint_url}. error below:`);
+      log.debug(`[crash-report] error sending bug report to ${endpoint_url}. error below:`);
       log.debug(err_result);
       var JSON_SENT = JSON.parse(err_result.requestOptions);
       /**/console.log('\n>>---------\n err_result.requestOptions.body:\n',
@@ -65,16 +65,16 @@ module.exports = class BugReportUtil {
     });
   }
 
-  saveBugReportAlwaysSend(response_bool) {
-    return azkMeta.set('bugReports.always_send', response_bool);
+  saveCrashReportAlwaysSend(response_bool) {
+    return azkMeta.set('crashReports.always_send', response_bool);
   }
 
-  loadBugReportAlwaysSend() {
-    if (config('bugReport:disable')) {
+  loadCrashReportAlwaysSend() {
+    if (config('crashReport:disable')) {
       return false;
     }
-    var permission = azkMeta.get('bugReports.always_send');
-    log.debug(`[bugReport] permission: ${permission}`);
+    var permission = azkMeta.get('crashReports.always_send');
+    log.debug(`[crashReport] permission: ${permission}`);
     return permission;
   }
 
