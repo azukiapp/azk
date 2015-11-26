@@ -42,29 +42,4 @@ describe('Azk Bug Report', function() {
     h.expect(crashReportUtil.loadCrashReportAlwaysSend()).to.equal(false);
   });
 
-  describe('ask questions', function() {
-    it('ask on errors', function() {
-      let state = {
-        is_interactive: false,
-        always_send_crash_reports: undefined,
-        current_saved_email: undefined,
-        never_ask_email: undefined,
-        email_ask_count: undefined,
-      };
-      // isTrackerActive: undefined,
-
-      let result_flux = crashReportUtil.askQuestionsFlux(state);
-      h.expect(result_flux).to.deep.equal([
-        { question: 'askEmail' },
-        { question: 'askAlwaysSendCrashReport' },
-        { final_result: true },
-      ]);
-      // { question: 'ask_to_send_crash_report' },
-      // { question: 'askCrashReportSendIndividualError' },
-
-      crashReportUtil.saveCrashReportAlwaysSend(false);
-      h.expect(crashReportUtil.loadCrashReportAlwaysSend()).to.equal(false);
-    });
-  });
-
 });
