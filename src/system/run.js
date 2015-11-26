@@ -34,7 +34,7 @@ var Run = {
 
       // provision command (require /bin/sh)
       // options.shell   = "/bin/sh";
-      options.command = "(" + steps.join('; ') + " )";
+      options.command = "(" + steps.join('; ') + ")";
 
       // Capture outputs
       var output = "";
@@ -54,7 +54,8 @@ var Run = {
       publish("system.run.provision.status", { type: "provision", system: system.name });
       var exitResult = yield system.runShell(options);
       if (exitResult.code !== 0) {
-        throw new RunCommandError(system.name, options.command.join(' '), output);
+        var command = this._printableCommand(exitResult.containerData, exitResult.imageConf);
+        throw new RunCommandError(system.name, command, output);
       }
       // save the date provisioning
       system.provisioned = new Date();
@@ -100,7 +101,9 @@ var Run = {
       return {
         code: data.State.ExitCode,
         container: container,
+        containerData: data,
         containerId: container.Id,
+        imageConf: image.Config,
         removed: options.remove,
       };
     });
@@ -301,12 +304,7 @@ var Run = {
         });
 
         // Format command
-        var command = utils.requireArray(data.Config.Cmd);
-        if (!_.isEmpty(image_conf.Entrypoint)) {
-          var entry = utils.requireArray(image_conf.Entrypoint);
-          command = entry.concat(command);
-        }
-        command = JSON.stringify(command);
+        var command = this._printableCommand(data, image_conf);
 
         if (exitCode === 0) {
           throw new SystemRunError(
@@ -323,6 +321,15 @@ var Run = {
 
       return true;
     });
+  },
+
+  _printableCommand(data, image_conf) {
+    var command = utils.requireArray(data.Config.Cmd);
+    if (!_.isEmpty(image_conf.Entrypoint)) {
+      var entry = utils.requireArray(image_conf.Entrypoint);
+      command = entry.concat(command);
+    }
+    return JSON.stringify(command);
   },
 
   throwRunError(system, container, command, data = null, stop = false, options = {}) {

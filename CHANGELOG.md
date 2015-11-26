@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## dev
+
+* Bug
+  * [Core] Fixing a bug that shows a different error message as expected when the provision of a system ends with different results 0;
+
+
 ## v0.16.2 - (2015-11-17)
 
 * Enhancements
