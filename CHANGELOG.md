@@ -5,9 +5,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## dev
 
+* Enhancements
+  * [Core] The `provision` property now is run as a single command, using `&&` as separator in the commands concatenation instead of `;` previously used.
+
 * Bug
   * [Core] Fixing a bug that shows a different error message as expected when the provision of a system ends with different results 0;
-
 
 ## v0.16.2 - (2015-11-17)
 
