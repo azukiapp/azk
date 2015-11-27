@@ -2,7 +2,7 @@
 
 Especifica uma lista de comandos para serem executados antes que o sistema esteja pronto para executar o `command`.
 
-Esta propriedade existe para dar a oportunidade de se executar comandos que dependam dos arquivos do projeto e, desta forma, não poderiam ser executados no momento da criação da imagem. Tarefas como instalação de dependências ou execução de __migrations__ são bons candidatos para essa propriedade.
+Esta propriedade existe para dar a oportunidade de se executar comandos que dependam dos arquivos do projeto e, desta forma, não poderiam ser executados no momento da criação da imagem. Tarefas como instalação de dependências ou execução de *migrations* são bons candidatos para essa propriedade.
 
 ### Observações
 
