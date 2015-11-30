@@ -6,6 +6,7 @@ import Configuration from 'azk/configuration';
 
 class Config extends CliTrackerController {
 
+  // list all configuration
   list(cmd) {
     let value_param = cmd['config-value'];
     let configuration = new Configuration({});
@@ -26,6 +27,19 @@ class Config extends CliTrackerController {
     this.ui.output(inspect_result);
 
     return promiseResolve(0);
+  }
+
+  // resets all configuration
+  reset() {
+    let configuration = new Configuration({});
+    return Helpers.askConfirmation(this.ui, 'commands.config.reset.ask_confirmation', false)
+    .then((result) => {
+      if (result) {
+        configuration.resetAll();
+        this.ui.ok('commands.config.reset.confirmed');
+      }
+      return promiseResolve(0);
+    });
   }
 
   // Tracker
@@ -49,7 +63,7 @@ class Config extends CliTrackerController {
       // user does not informed a value
       initial_promise = this.trackStatus(cmd)
       .then(() => {
-        return Helpers.askPermissionToTrack(this.ui, true);
+        return Helpers.askTermsOfUse(this.ui, true);
       });
     } else {
       // user does informed a value
@@ -114,7 +128,7 @@ class Config extends CliTrackerController {
       return Helpers.askEmail(this.ui, email_input);
     })
     .then((email) => {
-      configuration.save('user.email.ask.count', 0);
+      configuration.save('user.email.ask_count', 0);
       configuration.save('user.email', email);
       return promiseResolve(0);
     });
@@ -161,7 +175,7 @@ class Config extends CliTrackerController {
     return initial_promise
     .then((result) => {
       var configuration = new Configuration({});
-      configuration.save('user.email.ask.count', 0);
+      configuration.save('user.email.ask_count', 0);
       configuration.save('user.email.never_ask', result);
     })
     .then(() => {

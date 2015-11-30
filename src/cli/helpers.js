@@ -22,7 +22,7 @@ var Helpers = {
             type    : 'confirm',
             name    : 'start',
             message : 'commands.agent.start_before',
-            default : 'Y'
+            default : true
           };
 
           return cli.prompt(question)
@@ -68,36 +68,49 @@ var Helpers = {
     throw new InvalidCommandError(str_arg);
   },
 
-  askPermissionToTrack(cli, force = false) {
+  askTermsOfUse(cli, force = false) {
     return async(this, function* () {
-      // check if user already answered
-      var trackerPermission = ui.tracker.loadTrackerPermission(); // Boolean
+      let configuration = new Configuration({});
+      let email_ask_count = configuration.load('terms_of_use.ask_count');
+      let terms_accepted = configuration.load('terms_of_use.accepted');
 
-      var should_ask_permission = (force || typeof trackerPermission === 'undefined');
-      if (should_ask_permission) {
-        if (!ui.isInteractive()) { return false; }
-
-        var question = {
-          type    : 'confirm',
-          name    : 'track_ask',
-          message : 'analytics.question',
-          default : 'Y'
-        };
-
-        var answers = yield ui.prompt(question);
-        ui.tracker.saveTrackerPermission(answers.track_ask);
-
-        if (answers.track_ask) {
-          ui.ok('analytics.message_optIn');
-          yield ui.tracker.sendEvent("tracker", { event_type: "accepted" });
-        } else {
-          ui.ok('analytics.message_optOut', {command: 'azk config track-toggle'});
-        }
-
-        return answers.track_ask;
+      // exit: no need to ask, terms already accepted
+      if (terms_accepted && !force) {
+        return true;
       }
 
-      return trackerPermission;
+      if (isBlank(email_ask_count)) {
+        email_ask_count = 0;
+      }
+
+      if (email_ask_count === 0) {
+        // only first time
+        terms_accepted = yield this.askConfirmation(cli, 'terms_of_use.first_question');
+      } else if (email_ask_count > 0){
+        terms_accepted = yield this.askConfirmation(cli, 'terms_of_use.you_need_question');
+      }
+      // save accepted
+      configuration.save('terms_of_use.accepted', terms_accepted);
+
+      // save ask_count
+      email_ask_count = email_ask_count + 1;
+      configuration.save('terms_of_use.ask_count', email_ask_count);
+
+      return terms_accepted;
+    });
+  },
+
+  askConfirmation(cli, translation_path, default_bool = true) {
+    var question = {
+      type    : 'confirm',
+      name    : 'boolean_result',
+      message : translation_path,
+      default : default_bool
+    };
+
+    return cli.prompt(question)
+    .then((response) => {
+      return promiseResolve(response.boolean_result);
     });
   },
 
@@ -152,7 +165,7 @@ var Helpers = {
       let configuration = new Configuration({});
       let current_saved_email = configuration.load('user.email');
       let never_ask_email = configuration.load('user.email.never_ask');
-      let email_ask_count = configuration.load('user.email.ask.count');
+      let email_ask_count = configuration.load('user.email.ask_count');
 
       if (never_ask_email === true) {
         // do not ask email and send
@@ -174,56 +187,17 @@ var Helpers = {
             email_ask_count = 0;
           }
           email_ask_count = email_ask_count + 1;
-          configuration.save('user.email.ask.count', email_ask_count);
+          configuration.save('user.email.ask_count', email_ask_count);
 
           // if user did not answer email two times
           // lets suggest to not ask again
           if (email_ask_count > 1) {
-            let will_never_ask = yield this.askEmailNeverAsk(cli);
-            configuration.save('user.email.never_ask', will_never_ask);
+            let will_ask_again = yield this.askEmailNeverAsk(cli);
+            configuration.save('user.email.never_ask', !will_ask_again);
           }
         }
         return true;
       }
-    });
-  },
-
-
-  askCrashReportSendIndividualError(cli) {
-    var question = {
-      type    : 'confirm',
-      name    : 'result',
-      message : 'crashReport.question_send_individual_error',
-      default : 'Y'
-    };
-
-    return cli.prompt(question)
-    .then((response) => {
-      if (response.result) {
-        cli.ok('crashReport.error_will_be_sent');
-      } else {
-        cli.ok('crashReport.error_will_not_be_sent');
-      }
-      return promiseResolve(response.result);
-    });
-  },
-
-  askCrashReportSave(cli) {
-    var question = {
-      type    : 'confirm',
-      name    : 'result',
-      message : 'crashReport.save_autosend.question',
-      default : 'Y'
-    };
-
-    return cli.prompt(question)
-    .then((response) => {
-      if (response.result) {
-        cli.ok('crashReport.save_autosend.choice_enable');
-      } else {
-        cli.ok('crashReport.save_autosend.choice_disable');
-      }
-      return promiseResolve(response.result);
     });
   },
 
@@ -296,31 +270,12 @@ var Helpers = {
     });
   },
 
-  askSaveEmail(cli) {
-    var question = {
-      type    : 'confirm',
-      name    : 'result',
-      message : 'crashReport.email.question_to_save',
-      default : 'Y'
-    };
-
-    return cli.prompt(question)
-    .then((response) => {
-      if (response.result) {
-        cli.ok('crashReport.email.saved');
-      } else {
-        cli.ok('crashReport.email.not_saved');
-      }
-      return promiseResolve(response.result);
-    });
-  },
-
   askAlwaysSendCrashReport(cli) {
     var question = {
       type    : 'confirm',
       name    : 'result',
       message : 'crashReport.question_remember_email_and_crashReport',
-      default : 'Y'
+      default : true
     };
 
     return cli.prompt(question)
@@ -339,7 +294,7 @@ var Helpers = {
       type    : 'confirm',
       name    : 'result',
       message : 'crashReport.email.question_never_ask_email',
-      default : false
+      default : true
     };
 
     return cli.prompt(question)

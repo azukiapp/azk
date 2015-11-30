@@ -54,6 +54,12 @@ export class LostInternetConnection extends AzkError {
   }
 }
 
+export class MustAcceptTermsOfUse extends AzkError {
+  constructor() {
+    super('must_accept_terms_of_use');
+  }
+}
+
 export class ImageDoesNotExistError extends AzkError {
   constructor(image) {
     super('image_does_not_exist');

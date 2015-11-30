@@ -1,8 +1,9 @@
 import { _ } from 'azk';
 import { CliController } from 'azk/cli/cli_controller';
 import { Helpers } from 'azk/cli/helpers';
-import { promiseResolve } from 'azk/utils/promises';
+import { promiseResolve, promiseReject } from 'azk/utils/promises';
 import { default as tracker } from 'azk/utils/tracker';
+import { MustAcceptTermsOfUse } from 'azk/utils/errors';
 
 export class CliTrackerController extends CliController {
   constructor(...args) {
@@ -26,10 +27,10 @@ export class CliTrackerController extends CliController {
 
   _action_tracker(action_name, params) {
     return Helpers
-      .askPermissionToTrack(this.ui)
-      .then((shouldTrack) => {
-        if (!shouldTrack) {
-          return false;
+      .askTermsOfUse(this.ui)
+      .then((accepted) => {
+        if (!accepted) {
+          return promiseReject(new MustAcceptTermsOfUse());
         }
 
         var command_opts = _.pick(params, [

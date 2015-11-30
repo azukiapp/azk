@@ -2,7 +2,7 @@ $ azk [options] [*command]
 
 Usage:
   azk agent (start|status|stop) [--no-daemon --child --no-reload-vm --configure-file=<file>] [-qh] [-l <level>] [-v]...
-  azk config (list|track-toggle|crash-report-toggle|email-set|email-never-ask-toggle) [<config-value>] [--no-colored] [-qh] [-l <level>] [-v]...
+  azk config (list|reset|track-toggle|crash-report-toggle|email-set|email-never-ask-toggle) [<config-value>] [--no-colored] [-qh] [-l <level>] [-v]...
   azk doctor [--logo] [-qh] [-l <level>] [-v]...
   azk deploy (clear-cache|fast|full|restart|versions) [-vh]
   azk deploy shell [--command=<cmd>] [-vh] [-- <args>...]
@@ -60,6 +60,7 @@ Actions:
   shell                     Starts a shell from inside the deploy system container.
   ssh                       Connects to the VM or remote server (when used with deploy) via SSH protocol.
   list                      Shows all configurations and its values
+  reset                     Resets all azk configuration
   track-toggle              Toggles tracking behavior (on/off).
   crash-report-toggle         Toggles crash-report behavior (on/off).
   email-set                 Set users email and save.

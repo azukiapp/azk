@@ -2,14 +2,23 @@ require('colors');
 
 // jscs:disable maximumLineLength
 module.exports = {
-  analytics: {
-    question: [
+  terms_of_use: {
+    first_question: [
       '=========================================================================\n'.grey,
-      '  We\'re constantly looking for ways to make'.yellow,
-      ' azk '.red,
-      'better!\n'.yellow,
-      '  May we anonymously report usage statistics to improve the tool over time? \n'.yellow,
-      '  More info: https://github.com/azukiapp/azk and http://docs.azk.io/en/terms-of-use\n'.yellow,
+      '  Thank you for using'.yellow,
+      ' azk'.red,
+      '! Welcome!\n'.yellow,
+      '  Before we start, we need to ask: do you accept our Terms of Use?\n'.yellow,
+      '  http://docs.azk.io/en/terms-of-use\n'.yellow,
+      ' =========================================================================\n'.grey,
+    ].join(''),
+    you_need_question: [
+      '=========================================================================\n'.grey,
+      '  So… you can\'t start to use '.yellow,
+      'azk'.red,
+      ' before accepting the Terms of Use. Sorry.\n'.yellow,
+      '  Do you accept our Terms of Use?'.yellow,
+      '  http://docs.azk.io/en/terms-of-use\n'.yellow,
       ' =========================================================================\n'.grey,
     ].join(''),
     message_optIn: [
@@ -22,7 +31,8 @@ module.exports = {
   },
   crashReport: {
     message_error_occured: [
-      'Sorry, an error has occured.',
+      'Sorry, an error has occurred.\n',
+      'A crash report about this error will be sent to azk team in order to make azk better.',
     ].join(''),
     sending: [
       'Sending bug report to Azuki...',
@@ -81,15 +91,17 @@ module.exports = {
 
     email: {
       question: [
-        'Type your email to be notified about a bug fix'.white + ' [optional]'.grey + '?'.white,
+        'Bonus: if you\'re ok with telling us your email address,'.yellow,
+        ' we\'ll be able to reply you with a solution for this issue.\n'.yellow,
+        'Important: Your email will be saved for future crash reports (we\'ll never share your email).\n'.yellow,
+        'You can always delete/update your email at any time. Check the documentation to see how.\n'.yellow,
+        'Enter your email'.white + ' [optional]'.grey + ':'.white,
       ].join(''),
       question_to_save: [
         'Can we save your email for future error reports?',
       ].join(''),
       saved: [
-        'Your e-mail was saved for future bug reports.',
-        '\nThank you for giving us the opportunity to serve you.',
-        '\nWe appreciate the confidence you have placed in us.',
+        'Cool! We\'ll soon get back to you with a solution.',
       ].join(''),
       not_saved: [
         'Your e-mail will not be sent.',
@@ -98,7 +110,7 @@ module.exports = {
       ].join(''),
 
       question_never_ask_email: [
-        'Never ask user email on errors?',
+        'Ask email again for future crash report solutions?',
       ].join(''),
       never_ask_status: [
         'Never ask email status: %(value)s',
@@ -110,6 +122,7 @@ module.exports = {
     no_vm_started               : "Unable to install and configure virtual machine",
     no_internet_connection      : "\nNo internet connection!",
     lost_internet_connection    : "\nLost internet connection:\n%(output)s",
+    must_accept_terms_of_use    : "Sorry, must accept terms of use before use azk.".red,
     connect_docker_unavailable  : "Could not initialize balancer because docker was not available",
     agent_not_running           : "azk agent is required but is not running (try `azk agent status`)",
     agent_start                 : "azk agent start error: %(err_message)s",
@@ -517,18 +530,22 @@ module.exports = {
       status_with_dead: "%(system)s: %(instances)d up and %(down)d down - %(hosts)s",
     },
     config: {
-      'tracking-false'      : 'Currently azk is not tracking any data',
-      'tracking-true'       : 'Currently azk is tracking data, more info: https://github.com/azukiapp/azk and http://docs.azk.io/en/terms-of-use',
-      'tracking-undefined'  : 'Currently azk `tracking configuration` is not set.',
+      reset: {
+        ask_confirmation      : 'Are you sure to reset all configuration?',
+        confirmed             : 'All configuration has been reset.',
+      },
+      'tracking-false'        : 'Currently azk is not tracking any data',
+      'tracking-true'         : 'Currently azk is tracking data, more info: https://github.com/azukiapp/azk and http://docs.azk.io/en/terms-of-use',
+      'tracking-undefined'    : 'Currently azk `tracking configuration` is not set.',
       'crashReport-false'     : 'Currently azk is not sending any bug report.',
       'crashReport-true'      : 'Currently azk is automatically sending crash-reports.',
       'crashReport-undefined' : 'Currently azk `crash-report sending configuration` is not set.',
-      'email-current'       : 'Current email: %(email)s',
-      'email-saved'         : 'Email: %(email)s',
-      'email-undefined'     : 'Email: no email set yet.',
-      'email-not-valid'     : 'Invalid email: (%(email)s). Please insert a valid email.'.red,
-      'email-valid'         : 'email: %(email)s'.green,
-      'email-reset-to-null' : 'Email: there is no email set-up.',
+      'email-current'         : 'Current email: %(email)s',
+      'email-saved'           : 'Email: %(email)s',
+      'email-undefined'       : 'Email: no email set yet.',
+      'email-not-valid'       : 'Invalid email: (%(email)s). Please insert a valid email.'.red,
+      'email-valid'           : 'email: %(email)s'.green,
+      'email-reset-to-null'   : 'Email: there is no email set-up.',
     },
     vm: {
       already_installed: "Virtual machine already installed.",

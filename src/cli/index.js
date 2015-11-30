@@ -3,7 +3,7 @@ import { promiseResolve, promiseReject, isPromise } from 'azk/utils/promises';
 import { Cli as AzkCli } from 'azk/cli/cli';
 import { Helpers } from 'azk/cli/helpers';
 import { UI } from 'azk/cli/ui';
-import { InvalidCommandError } from 'azk/utils/errors';
+import { InvalidCommandError, MustAcceptTermsOfUse, ManifestRequiredError } from 'azk/utils/errors';
 import CrashReportUtil from 'azk/configuration/crash_report';
 
 export class Cli extends AzkCli {
@@ -22,7 +22,7 @@ function make_cli() {
     // Commands
     .route('agent', (p, args) => p.agent && /(start|status|stop|configure)/.test(args))
     .route('vm', (p, args) => p.vm && /(ssh|start|status|installed|stop|remove)/.test(args))
-    .route('config', (p, args) => p.config && /(list|track-toggle|crash-report-toggle|email-set|email-never-ask-toggle)/.test(args))
+    .route('config', (p, args) => p.config && /(list|reset|track-toggle|crash-report-toggle|email-set|email-never-ask-toggle)/.test(args))
     .route('deploy')
     .route('docker')
     .route('doctor')
@@ -72,7 +72,7 @@ export function cli(args, cwd, ui = UI) {
 
           // FIXME: remove this?!
           log.error('ATTENTION: error were are not thrown');
-          ui.error(`code: ${code}`);
+          ui.fail(`code: ${code}`);
 
           return ui.exit(code);
         }
@@ -83,13 +83,25 @@ export function cli(args, cwd, ui = UI) {
         if (!isError) {
 
           // FIXME: remove this?!
-          ui.error('ATTENTION: expected an error but get this:');
+          ui.fail('ATTENTION: expected an error but get this:');
           console.trace(error);
 
           return ui.exit(1);
         }
 
+        // fully ignored errors
+        if (error instanceof MustAcceptTermsOfUse) {
+          return ui.exit(0);
+        }
+
         ui.fail(error);
+
+        // partial ignored errors - only show
+        if (error instanceof InvalidCommandError ||
+            error instanceof ManifestRequiredError) {
+          return ui.exit(error.code || 1);
+        }
+
         ui.warning('crashReport.message_error_occured');
 
         return Helpers.askToSendError(ui)
@@ -98,11 +110,14 @@ export function cli(args, cwd, ui = UI) {
             ui.ok('crashReport.sending');
             log.debug(`[crash-report] sending...`);
             var crashReportUtil = new CrashReportUtil({}, ui.tracker);
-            return crashReportUtil.sendError(error).then((result) => {
+
+            return crashReportUtil.sendError(error)
+            .then((result) => {
               ui.ok('crashReport.was_sent');
               log.debug(`[crash-report] Force response ${result && result.body}`);
               ui.exit(error.code ? error.code : 127);
             });
+
           }
         });
 

@@ -180,7 +180,16 @@ export class Tracker {
   }
 
   loadTrackerPermission() {
-    var permission = (config('tracker:disable')) ? false : azkMeta.get(this.ids_keys.permission);
+    let permission = true; // opt-out
+    let saved_permission = azkMeta.get(this.ids_keys.permission);
+    if (config('tracker:disable')) {
+      permission = false;
+    }
+
+    if (typeof saved_permission === 'boolean'){
+      permission = saved_permission;
+    }
+
     log.debug(`[tracker] permission: ${permission}`);
     return permission;
   }

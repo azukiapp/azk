@@ -7,9 +7,10 @@ module.exports = class Configuration {
     this.opts._configListNames = [
       'user.email',
       'user.email.never_ask',
-      'user.email.ask.count',
+      'user.email.ask_count',
+      'terms_of_use.accepted',
+      'terms_of_use.ask_count',
       'crashReports.always_send',
-      'tracker_user_id',    // TODO: migrate to 'user.unique_id',
       'tracker_permission', // TODO: migrate to 'tracker.always_send',
     ];
   }
@@ -29,6 +30,13 @@ module.exports = class Configuration {
     });
     this.opts._cached_list_all = result_obj;
     return result_obj;
+  }
+
+  resetAll() {
+    this.opts._configListNames.forEach((item) => {
+      azkMeta.set(item, undefined);
+    });
+    return true;
   }
 
   show(item_name) {
