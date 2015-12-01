@@ -180,7 +180,7 @@ export class Image {
 
     if (this.system.hasOwnProperty('manifest') && this.system.manifest.cwd) {
       var dockerfile_cwd = path.resolve(this.system.manifest.cwd, dockerfile_path);
-      // to change this `Sync` codes we have to change system and image contructors
+      // FIXME: to change this `Sync` codes we have to change system and image contructors
       // there is no way to call promises on contructors
       // new system -> new image -> set path -> _findDockerfile -> sync calls
       var exists = fs.existsSync(dockerfile_cwd);

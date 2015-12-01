@@ -59,7 +59,7 @@ module.exports = class CrashReportUtil {
     var bugSender = new lazy.CrashReportSender();
 
     return bugSender.send(options)
-    .timeout(10000)
+    .timeout(4000)
     .then((result) => {
       log.debug(`[crash-report] bug report send to ${endpoint_url}. result bellow:`);
       log.debug(result);

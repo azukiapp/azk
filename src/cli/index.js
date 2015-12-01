@@ -1,11 +1,9 @@
 import { _, log } from 'azk';
 import { promiseResolve, promiseReject, isPromise } from 'azk/utils/promises';
 import { Cli as AzkCli } from 'azk/cli/cli';
-import { Helpers } from 'azk/cli/helpers';
 import { UI } from 'azk/cli/ui';
-import { InvalidCommandError, MustAcceptTermsOfUse, ManifestRequiredError } from 'azk/utils/errors';
-import CrashReportUtil from 'azk/configuration/crash_report';
-
+import { InvalidCommandError } from 'azk/utils/errors';
+import ErrorHandler from 'azk/cli/error_handler';
 export class Cli extends AzkCli {
   invalidCmd(error) {
     this.fail("commands.not_found", error.command);
@@ -79,48 +77,7 @@ export function cli(args, cwd, ui = UI) {
         ui.exit(0);
       })
       .catch((error) => {
-        var isError = error instanceof Error;
-        if (!isError) {
-
-          // FIXME: remove this?!
-          ui.fail('ATTENTION: expected an error but get this:');
-          console.trace(error);
-
-          return ui.exit(1);
-        }
-
-        // fully ignored errors
-        if (error instanceof MustAcceptTermsOfUse) {
-          return ui.exit(0);
-        }
-
-        ui.fail(error);
-
-        // partial ignored errors - only show
-        if (error instanceof InvalidCommandError ||
-            error instanceof ManifestRequiredError) {
-          return ui.exit(error.code || 1);
-        }
-
-        ui.warning('crashReport.message_error_occured');
-
-        return Helpers.askToSendError(ui)
-        .then((will_send_error) => {
-          if (will_send_error) {
-            ui.ok('crashReport.sending');
-            log.debug(`[crash-report] sending...`);
-            var crashReportUtil = new CrashReportUtil({}, ui.tracker);
-
-            return crashReportUtil.sendError(error)
-            .then((result) => {
-              ui.ok('crashReport.was_sent');
-              log.debug(`[crash-report] Force response ${result && result.body}`);
-              ui.exit(error.code ? error.code : 127);
-            });
-
-          }
-        });
-
+        return ErrorHandler.handle(ui, error);
       })
       .then((code) => {
         ui.exit(code ? code : 0);

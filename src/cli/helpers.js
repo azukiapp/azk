@@ -117,42 +117,31 @@ var Helpers = {
 
   askToSendError(cli) {
     return async(this, function* () {
-
       let crashReportUtil = new CrashReportUtil({});
-
       let is_interactive = cli.isInteractive();
       let always_send_crash_reports = crashReportUtil.loadCrashReportAlwaysSend(); // Boolean or undefined
 
-      // exit 1: if it is not interactive
       if (!is_interactive) {
+        // exit 1: if it is not interactive
         // respect saved configuration
+        log.debug(`[crash-report] exit: is_interactive: ${is_interactive}`);
         return always_send_crash_reports === true;
       }
 
-      // exit 2: if user does not want to send crash-reports, skip the rest
       if (always_send_crash_reports === false) {
+        // exit 2: if user does not want to send crash-reports, skip the rest
         // do not send
+        log.debug(`[crash-report] exit: always_send_crash_reports: ${always_send_crash_reports}`);
         return false;
       }
 
-      // opt-out: if always_send_crash_reports is not set is true
       if (isBlank(always_send_crash_reports)) {
+        // opt-out: if always_send_crash_reports is not set is true
         always_send_crash_reports = true;
       }
 
       // question 1: ask email
-      if (!always_send_crash_reports) {
-        yield this._askEmailIfNeeded(cli);
-
-        // remember?
-        let always_send_crash_reports = yield this.askAlwaysSendCrashReport(cli);
-        if (always_send_crash_reports) {
-          // always send bug reports
-          crashReportUtil.saveCrashReportAlwaysSend(true);
-        }
-      } else {
-        yield this._askEmailIfNeeded(cli);
-      }
+      yield this._askEmailIfNeeded(cli);
 
       return true;
     });
@@ -168,12 +157,14 @@ var Helpers = {
       let never_ask_email = configuration.load('user.email.never_ask');
       let email_ask_count = configuration.load('user.email.ask_count');
 
+      log.debug(`[crash-report] _askEmailIfNeeded - never_ask_email: ${never_ask_email}`);
+      log.debug(`[crash-report] _askEmailIfNeeded - current_saved_email: ${current_saved_email}`);
+      log.debug(`[crash-report] _askEmailIfNeeded - email_ask_count: ${email_ask_count}`);
+
       if (never_ask_email === true) {
         // do not ask email and send
         return false;
       } else {
-
-
         // ask for user email if it is not set yet
         // user have to has the "bug report sending configuration" active or not set
         let inputed_email = yield this.askEmail(cli, current_saved_email);

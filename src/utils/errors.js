@@ -28,6 +28,9 @@ function AzkError(translation_key) {
   copyOwnFrom(this, superInstance);
   this.translation_key = translation_key;
 
+  // if true will report errors to crash report
+  this.report = false;
+
   this.__defineGetter__('message', function() {
     return this.toString();
   });
@@ -85,6 +88,7 @@ export class InvalidCommandError extends AzkError {
   constructor(command, key = 'invalid_command_error') {
     super(key);
     this.command = command;
+    this.report = true;
   }
 }
 
@@ -92,6 +96,7 @@ export class DockerBuildError extends AzkError {
   constructor(type, options = {}) {
     super(`docker_build_error.${type}`);
     _.merge(this, options);
+    this.report = true;
   }
 }
 
@@ -100,6 +105,7 @@ export class ProvisionPullError extends AzkError {
     super('provision_pull_error');
     this.image = image;
     this.msg   = msg;
+    this.report = true;
   }
 }
 
@@ -108,6 +114,7 @@ export class SystemError extends AzkError {
     super(key);
     this.system = system;
     this.code = SYSTEMS_CODE_ERROR;
+    this.report = true;
   }
 }
 
@@ -115,6 +122,7 @@ export class SystemDependError extends SystemError {
   constructor(system, depend) {
     super('system_depend_error', system);
     this.depend = depend;
+    this.report = true;
   }
 }
 
@@ -125,12 +133,14 @@ export class SystemRunError extends SystemError {
     this.command = command;
     this.exitCode = exitCode;
     this.log = log;
+    this.report = true;
   }
 }
 
 export class SystemNotScalable extends SystemError {
   constructor(system) {
     super('system_not_scalable', system);
+    this.report = true;
   }
 }
 
@@ -140,6 +150,7 @@ export class RunCommandError extends SystemError {
 
     this.command = command;
     this.output  = output;
+    this.report = true;
   }
 }
 
@@ -168,6 +179,7 @@ export class ManifestError extends AzkError {
     this.file = file;
     this.err_message = err_message;
     this.code = MANIFEST_CODE_ERROR;
+    this.report = true;
   }
 }
 
@@ -219,12 +231,14 @@ export class AgentStartError extends AzkError {
 
     this.err_message = error.stack || error.toString();
     this.code        = AGENT_CODE_ERROR;
+    this.report      = true;
   }
 }
 
 export class AgentStopError extends AzkError {
   constructor() {
     super('agent_stop');
+    this.report = true;
   }
 }
 
@@ -234,6 +248,7 @@ export class VmStartError extends AzkError {
     this.timeout = timeout;
     this.screen  = screen;
     this.code = AGENT_CODE_ERROR;
+    this.report = true;
   }
 }
 
