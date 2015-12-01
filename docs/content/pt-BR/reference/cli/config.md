@@ -4,19 +4,26 @@ Controla as opções de configuração do azk.
 
 #### Uso:
 
-    $ azk config (list|track-toggle|crash-report-toggle|email-set|email-never-ask-toggle) [options]
+    $ azk config (list|reset|track-toggle|crash-report-toggle|email-set|email-never-ask-toggle) [options]
 
 #### Ações:
 
 ```
   list                      Exibe todas configurações
+  reset                     Limpa todas configurações de usuário
   track-toggle              Ativa/Desativa o rastreamento.
-  crash-report-toggle         Ativa/Desativa o envio de erros
+  crash-report-toggle       Ativa/Desativa o envio de erros
   email-set                 Configura e salva o email do usuário.
   email-never-ask-toggle    Ativa/Desativa a pergunta por email
 ```
 
 #### Argumentos:
+
+Para valores booleanos passados no argumento `config-value` várias opções podem ser utilizadas:
+
+- *true*: on, true, 1
+- *false*: off, false, 0
+- *no set*: undefined, null
 
 ```
   config-value              Valor passado para a configuração (on/off/null)

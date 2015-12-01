@@ -74,6 +74,7 @@ var Helpers = {
       let email_ask_count = configuration.load('terms_of_use.ask_count');
       let terms_accepted = configuration.load('terms_of_use.accepted');
 
+
       // exit: no need to ask, terms already accepted
       if (terms_accepted && !force) {
         return true;
@@ -192,7 +193,7 @@ var Helpers = {
           // if user did not answer email two times
           // lets suggest to not ask again
           if (email_ask_count > 1) {
-            let will_ask_again = yield this.askEmailNeverAsk(cli);
+            let will_ask_again = yield this.askEmailEverytime(cli);
             configuration.save('user.email.never_ask', !will_ask_again);
           }
         }
@@ -289,7 +290,7 @@ var Helpers = {
     });
   },
 
-  askEmailNeverAsk(cli) {
+  askEmailEverytime(cli) {
     var question = {
       type    : 'confirm',
       name    : 'result',

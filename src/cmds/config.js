@@ -63,7 +63,7 @@ class Config extends CliTrackerController {
       // user does not informed a value
       initial_promise = this.trackStatus(cmd)
       .then(() => {
-        return Helpers.askTermsOfUse(this.ui, true);
+        return Helpers.askConfirmation(this.ui, 'tracker.question');
       });
     } else {
       // user does informed a value
@@ -165,7 +165,7 @@ class Config extends CliTrackerController {
       // user does not informed a value
       initial_promise = this.emailNeverAskStatus()
       .then(() => {
-        return Helpers.askEmailNeverAsk(this.ui);
+        return Helpers.askEmailEverytime(this.ui);
       });
     } else {
       // user does informed a value
@@ -173,10 +173,10 @@ class Config extends CliTrackerController {
     }
 
     return initial_promise
-    .then((result) => {
+    .then((always_ask_email) => {
       var configuration = new Configuration({});
       configuration.save('user.email.ask_count', 0);
-      configuration.save('user.email.never_ask', result);
+      configuration.save('user.email.never_ask', !always_ask_email); // because ask to always send
     })
     .then(() => {
       return this.emailNeverAskStatus(cmd);

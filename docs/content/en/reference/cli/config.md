@@ -4,19 +4,27 @@ Controls azk configuration options.
 
 #### Usage:
 
-    $ azk config (list|track-toggle|crash-report-toggle|email-set|email-never-ask-toggle) [options]
+    $ azk config (list|reset|track-toggle|crash-report-toggle|email-set|email-never-ask-toggle) [options]
 
 #### Actions:
 
 ```
   list                      Shows all configurations and its values
+  reset                     Resets all user configuration
   track-toggle              Toggles tracking behavior on/off.
-  crash-report-toggle         Toggles crash-report behavior on/off.
+  crash-report-toggle       Toggles crash-report behavior on/off.
   email-set                 Set users email and save.
   email-never-ask-toggle    Toggles asking email behavior on/off.
 ```
 
 #### Arguments:
+
+For boolean config values several values are acceptable on `config-value` argument:
+
+- *true*: on, true, 1
+- *false*: off, false, 0
+- *no set*: undefined, null
+
 
 ```
   config-value              Value to be passed to config command (on/off/null)
@@ -58,7 +66,7 @@ azk: Currently azk is automatically sending crash-reports.
 
 azk: Currently azk is automatically sending crash-reports.
 
-# Or setting directly
+# Or setting directly on command-line
 $ azk config crash-report-toggle on
 $ azk config crash-report-toggle off
 $ azk config crash-report-toggle true

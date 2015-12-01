@@ -21,6 +21,17 @@ module.exports = {
       '  http://docs.azk.io/en/terms-of-use\n'.yellow,
       ' =========================================================================\n'.grey,
     ].join(''),
+  },
+  tracker: {
+    question: [
+      '=========================================================================\n'.grey,
+      '  We\'re constantly looking for ways to make'.yellow,
+      ' azk '.red,
+      'better!\n'.yellow,
+      '  May we anonymously report usage statistics to improve the tool over time? \n'.yellow,
+      '  More info: https://github.com/azukiapp/azk and http://docs.azk.io/en/terms-of-use\n'.yellow,
+      ' =========================================================================\n'.grey,
+    ].join(''),
     message_optIn: [
       'cool! Thanks for helping us make azk better :)'.green,
     ].join(''),
