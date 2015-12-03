@@ -271,6 +271,7 @@ export class Image {
   // Tracker
   //
   _track(event_type_name) {
+    /**/console.log('\n%% '+ __filename +' \n');/*-debug-*/
     return tracker.sendEvent("image", (trackerEvent) => {
       // get event_type
       trackerEvent.addData({

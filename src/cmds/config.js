@@ -73,6 +73,7 @@ class Config extends CliTrackerController {
     return initial_promise
     .then((result) => {
       this.ui.tracker.saveTrackerPermission(result);
+    /**/console.log('\n%% '+ __filename +' \n');/*-debug-*/
       return this.ui.tracker.sendEvent("tracker", { event_type: "accepted" });
     })
     .then(() => {

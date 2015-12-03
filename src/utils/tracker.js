@@ -70,6 +70,7 @@ export class TrackerEvent {
     }
 
     var final_data = this.final_data();
+
     this.tracker.logAnalyticsData({
       eventCollection: this.collection,
       data: final_data
@@ -79,18 +80,18 @@ export class TrackerEvent {
     return this.tracker.insight.track(this.collection, final_data)
       .timeout(10000)
       .then((tracking_result) => {
-        /**/console.log('\n>>---------\n tracking_result:\n', tracking_result, '\n>>---------\n');/*-debug-*/
-        if (tracking_result !== 0) {
+        if (tracking_result !== 0 && config('tracker:send_in_background')) {
           this.tracker.logAnalyticsError({stack:'[Tracker => Keen.io - failed:] ' + tracking_result.toString()});
           this.tracker.logAnalyticsData({
             eventCollection: this.collection,
             data: final_data
           });
         }
-        return tracking_result;
-      }, () => {
+        return promiseResolve(true);
+      })
+      .catch(() => {
         log.warn('[tracker] > timeout:', t("tracking.timeout"));
-        return false;
+        return promiseResolve(false);
       });
   }
 }
@@ -101,8 +102,7 @@ export class Tracker {
     opts = _.merge({}, {
       projectId          : config('tracker:projectId'),
       writeKey           : config('tracker:writeKey'),
-      send_in_background : config('tracker:send_in_background'),
-      opt_out_key        : ids_keys.permission,
+      send_in_background : config('tracker:send_in_background')
     }, opts);
 
     this.ids_keys      = ids_keys;
@@ -207,7 +207,7 @@ export class Tracker {
 
 // Default tracker
 var default_tracker = new Tracker({}, {
-  permission: config('tracker:permission_key'),
+  permission: 'tracker_permission',
   user_id   : 'tracker_user_id',
   agent_id  : 'agent_session_id',
 });

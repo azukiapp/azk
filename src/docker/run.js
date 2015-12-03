@@ -142,6 +142,7 @@ export function run(docker, Container, image, cmd, opts = { }) {
     //track
     try {
       var imageObj = (image.indexOf('azkbuild') === -1) ? {type: 'docker', name: image} : {type: 'dockerfile'};
+    /**/console.log('\n%% '+ __filename +' \n');/*-debug-*/
       yield tracker.sendEvent("container", {
         event_type: 'run',
         container_type: annotations.azk.type,
