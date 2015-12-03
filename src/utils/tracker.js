@@ -14,18 +14,8 @@ var lazy = lazy_require({
     class InsightKeenIoWithMeta extends lazy.InsightKeenIo {
       constructor(opts) {
         super(opts);
-        this._opt_out_key = opts.opt_out_key;
-      }
-
-      get optOut() {
-        return !azkMeta.get(this._opt_out_key);
-      }
-
-      set optOut(val) {
-        azkMeta.set(this._opt_out_key, !val);
       }
     }
-
     return InsightKeenIoWithMeta;
   }
 });
@@ -89,6 +79,7 @@ export class TrackerEvent {
     return this.tracker.insight.track(this.collection, final_data)
       .timeout(10000)
       .then((tracking_result) => {
+        /**/console.log('\n>>---------\n tracking_result:\n', tracking_result, '\n>>---------\n');/*-debug-*/
         if (tracking_result !== 0) {
           this.tracker.logAnalyticsError({stack:'[Tracker => Keen.io - failed:] ' + tracking_result.toString()});
           this.tracker.logAnalyticsData({
@@ -108,10 +99,10 @@ export class Tracker {
 
   constructor(opts, ids_keys) {
     opts = _.merge({}, {
-      projectId  : config('tracker:projectId'),
-      writeKey   : config('tracker:writeKey'),
-      use_fork   : true,
-      opt_out_key: ids_keys.permission,
+      projectId          : config('tracker:projectId'),
+      writeKey           : config('tracker:writeKey'),
+      send_in_background : config('tracker:send_in_background'),
+      opt_out_key        : ids_keys.permission,
     }, opts);
 
     this.ids_keys      = ids_keys;
@@ -180,13 +171,16 @@ export class Tracker {
   }
 
   loadTrackerPermission() {
-    let permission = true; // opt-out
-    let saved_permission = azkMeta.get(this.ids_keys.permission);
+    // opt-out: by default can track when terms of use are accepted
+    let permission = true;
+
+    let saved_permission = azkMeta.get('tracker_permission');
     if (config('tracker:disable')) {
-      permission = false;
+      return false;
     }
 
-    if (typeof saved_permission === 'boolean'){
+    // ignore if undefined/null
+    if (typeof saved_permission === 'boolean') {
       permission = saved_permission;
     }
 

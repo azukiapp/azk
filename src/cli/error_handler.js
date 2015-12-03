@@ -20,39 +20,42 @@ module.exports = class ErrorHandler {
 
     ui.fail(error);
 
-
-    // TODO: send small error to tracker
-
-
-    // exit 2: ignored AzkError
-    if (error instanceof AzkError && error.report === false) {
-      log.debug(`[crash-report] exit 2: "${error.translation_key}"`);
-      return ui.exit(error.code || 1);
-    }
-
-    ui.warning('crashReport.message_error_occured');
-    log.debug(`[crash-report] error: "${error.translation_key}"`);
-
-    return Helpers.askToSendError(ui)
-    .then((will_send_error) => {
-      if (will_send_error) {
-        ui.ok('crashReport.sending');
-        log.debug(`[crash-report] sending...`);
-        var crashReportUtil = new CrashReportUtil({}, ui.tracker);
-
-        return crashReportUtil.sendError(error)
-        .then((result) => {
-          ui.ok('crashReport.was_sent');
-          log.debug(`[crash-report] Force response OK: ${result && result.body}`);
-          ui.exit(error.code ? error.code : 127);
-        })
-        .catch((err)=> {
-          log.debug(`[crash-report] Force response error: ${err}`);
-          ui.fail(err);
-          return ui.exit(err.code || 1);
-        });
-
+    // tracker: send error name to tracker
+    return ui.tracker.sendEvent("error", {
+      translation_key: error.translation_key
+    })
+    .then(() => {
+      // exit 2: ignored AzkError
+      if (error instanceof AzkError && error.report === false) {
+        log.debug(`[crash-report] exit 2: "${error.translation_key}"`);
+        return ui.exit(error.code || 1);
       }
+
+      ui.warning('crashReport.message_error_occured');
+      log.debug(`[crash-report] error: "${error.translation_key}"`);
+
+      return Helpers.askToSendError(ui)
+      .then((will_send_error) => {
+        if (will_send_error) {
+          ui.ok('crashReport.sending');
+          log.debug(`[crash-report] sending...`);
+          var crashReportUtil = new CrashReportUtil({}, ui.tracker);
+
+          return crashReportUtil.sendError(error)
+          .then((result) => {
+            ui.ok('crashReport.was_sent');
+            log.debug(`[crash-report] Force response OK: ${result && result.body}`);
+            ui.exit(error.code ? error.code : 127);
+          })
+          .catch((err)=> {
+            log.debug(`[crash-report] Force response error: ${err}`);
+            ui.fail(err);
+            return ui.exit(err.code || 1);
+          });
+
+        }
+      });
     });
+
   }
 };
