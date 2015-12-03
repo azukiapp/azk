@@ -53,7 +53,6 @@ export class Container extends promisifyClass('dockerode/lib/container') {
 
   _track(data, action) {
     var event_data = { event_type: action, id: this.Id };
-    /**/console.log('\n%% '+ __filename +' \n');/*-debug-*/
     return tracker.sendEvent("container", event_data).then(() => data, (err) => {
       log.warn(err);
       return data;

@@ -139,20 +139,6 @@ export function run(docker, Container, image, cmd, opts = { }) {
     log.debug("[docker] attaching a container with ", start_opts);
     yield container.start(start_opts);
 
-    //track
-    try {
-      var imageObj = (image.indexOf('azkbuild') === -1) ? {type: 'docker', name: image} : {type: 'dockerfile'};
-    /**/console.log('\n%% '+ __filename +' \n');/*-debug-*/
-      yield tracker.sendEvent("container", {
-        event_type: 'run',
-        container_type: annotations.azk.type,
-        manifest_id: annotations.azk.mid,
-        image: imageObj
-      });
-    } catch (err) {
-      tracker.logAnalyticsError(err);
-    }
-
     c_publish("started");
 
     if (!daemon) {
@@ -177,6 +163,17 @@ export function run(docker, Container, image, cmd, opts = { }) {
       }
     }
 
+    var imageObj = (image.indexOf('azkbuild') === -1) ? {type: 'docker', name: image} : {type: 'dockerfile'};
+    tracker.sendEvent("container", {
+      event_type: 'run',
+      container_type: annotations.azk.type,
+      manifest_id: annotations.azk.mid,
+      image: imageObj
+    }).then(() => {
+      // yield was not working
+    });
+
     return container;
+
   });
 }

@@ -67,11 +67,8 @@ export function cli(args, cwd, ui = UI) {
     result
       .then((code) => {
         if (code !== 0) {
-
-          // FIXME: remove this?!
-          log.error('ATTENTION: error were are not thrown');
+          ui.fail('ATTENTION: error were are not thrown');
           ui.fail(`code: ${code}`);
-
           return ui.exit(code);
         }
         ui.exit(0);

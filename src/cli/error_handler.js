@@ -21,7 +21,6 @@ module.exports = class ErrorHandler {
     ui.fail(error);
 
     // tracker: send error name to tracker
-    /**/console.log('\n%% '+ __filename +' \n');/*-debug-*/
     return ui.tracker.sendEvent("error", {
       translation_key: error.translation_key
     })

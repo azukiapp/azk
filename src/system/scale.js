@@ -79,7 +79,6 @@ var Scale = {
   _track(event_type_name, system, from, to) {
     var manifest_id = system.manifest.namespace;
 
-    /**/console.log('\n%% '+ __filename +' \n');/*-debug-*/
     return tracker.sendEvent("image", (trackerEvent) => {
       trackerEvent.addData({
         event_type: event_type_name,
