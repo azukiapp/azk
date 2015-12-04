@@ -22,7 +22,9 @@ module.exports = class ErrorHandler {
 
     // tracker: send error name to tracker
     return ui.tracker.sendEvent("error", {
-      translation_key: error.translation_key
+      code: error.code,
+      message: error.message,
+      translation_key: error.translation_key,
     })
     .then(() => {
       // exit 2: ignored AzkError
