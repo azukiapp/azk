@@ -9,6 +9,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Core] The `provision` property now is run as a single command, using `&&` as separator in the commands concatenation instead of `;` previously used.
 
 * Bug
+  * [Core] Changing the way the system command is interpreted to avoid compatibility problems with older `Azkfile` that use String for the command property vs new way using Array;
   * [Core] Fixing a bug that was showing an unexpected error message when the provision step of a system resulted in a non-zero code;
 
 ## v0.16.2 - (2015-11-17)

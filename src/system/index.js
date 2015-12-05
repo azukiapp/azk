@@ -94,14 +94,7 @@ export class System {
   // Options with default
   get raw_command() { return this.options.command; }
   get command() {
-    var cmd = this.options.command;
-
-    // split string
-    if (_.isString(cmd)) {
-      cmd = utils.splitCmd(cmd);
-    }
-
-    return utils.requireArray(cmd);
+    return this.options.command;
   }
 
   get workdir() {
@@ -294,6 +287,15 @@ export class System {
     });
   }
 
+  printableCommand(data, image_conf = {}) {
+    var command = utils.requireArray(data.Config.Cmd);
+    if (!_.isEmpty(image_conf.Entrypoint)) {
+      var entry = utils.requireArray(image_conf.Entrypoint);
+      command = entry.concat(command);
+    }
+    return JSON.stringify(command);
+  }
+
   // Docker run options generator
   daemonOptions(options = {}, image_conf = {}) {
     // Merge ports
@@ -466,13 +468,12 @@ export class System {
     var empty_img_cmd   = _.isEmpty(image_conf.Cmd);
     var empty_img_entry = _.isEmpty(image_conf.Entrypoint);
     var empty_cmd       = _.isEmpty(command);
-    var cmd_not_set     = [`echo ${t("system.cmd_not_set", { system: this.name })}; exit 1`];
+    var cmd_not_set     = `echo ${t("system.cmd_not_set", { system: this.name })}; exit 1`;
 
-    if (empty_img_entry) {
-      if (empty_cmd) {
-        command = empty_img_cmd ? cmd_not_set : image_conf.Cmd;
-      }
-      command = ["/bin/sh", "-c", command.join(" ")];
+    if (empty_img_entry && _.isString(command)) {
+      command = ["/bin/sh", "-c", command];
+    } else if (empty_img_entry && empty_cmd && empty_img_cmd) {
+      command = ["/bin/sh", "-c", cmd_not_set];
     } else if (empty_cmd) {
       command = empty_img_cmd ? [] : image_conf.Cmd;
     }
