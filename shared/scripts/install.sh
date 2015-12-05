@@ -11,7 +11,7 @@ run_super() {
   if [[ $UID != $ROOT_UID ]]; then
     sudo "${@}"
   else
-    $@
+    "${@}"
   fi
 }
 
@@ -265,7 +265,7 @@ install_docker() {
   sleep 10
 
   step_wait "Installing Docker"
-  if super bash -c "${fetch_cmd} 'https://get.docker.com/' | sh"; then
+  if super bash -c "${fetch_cmd} https://get.docker.com/ | sh"; then
     step_done
   else
     step_fail
