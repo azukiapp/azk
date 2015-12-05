@@ -3,9 +3,9 @@
 systems({
   'node-example': {
     // Dependent systems
-    depends: ["db"],
-    // More images:  http://registry.hub.docker.com
-    image: { docker: "azukiapp/node" },
+    depends: ["mysql"],
+    // More info about node image: http://images.azk.io/#/node?from=docs-full_example
+    image: { docker: "azukiapp/node:0.12" },
     // Steps to execute before running instances
     provision: [
       "npm install",
@@ -29,22 +29,37 @@ systems({
     },
   },
 
-  db: {
-    image: { docker: "azukiapp/mysql" },
+  mysql: {
+    // More info about mysql image: http://images.azk.io/#/mysql?from=docs-full_example
+    image: {"docker": "azukiapp/mysql:5.7"},
+    shell: "/bin/bash",
+    wait: 25,
     mounts: {
-      // Activates a persistent data folder in '/data'
-      "/data": persistent("data-#{system.name}"),
+      '/var/lib/mysql': persistent("mysql_data"),
+      // to clean mysql data, run:
+      // $ azk shell mysql -c "rm -rf /var/lib/mysql/*"
     },
     ports: {
+      // exports global variables: "#{net.port.data}"
       data: "3306/tcp",
     },
     envs: {
-      MYSQL_PASS: "password",
-      MYSQL_USER: "admin",
+      // set instances variables
+      MYSQL_USER         : "azk",
+      MYSQL_PASSWORD     : "azk",
+      MYSQL_DATABASE     : "#{manifest.dir}_development",
+      MYSQL_ROOT_PASSWORD: "azk",
     },
     export_envs: {
-      DATABASE_URL:
-        "mysql://#{envs.MYSQL_USER}:#{envs.MYSQL_PASS}@#{net.host}:#{net.port.data}/",
+      // check this gist to configure your database
+      // https://gist.github.com/gullitmiranda/62082f2e47c364ef9617
+      DATABASE_URL: "mysql2://#{envs.MYSQL_USER}:#{envs.MYSQL_PASSWORD}@#{net.host}:#{net.port.data}/#{envs.MYSQL_DATABASE}",
+      // or use splited envs:
+      // MYSQL_USER    : "#{envs.MYSQL_USER}",
+      // MYSQL_PASSWORD: "#{envs.MYSQL_PASSWORD}",
+      // MYSQL_HOST    : "#{net.host}",
+      // MYSQL_PORT    : "#{net.port.data}",
+      // MYSQL_DATABASE: "#{envs.MYSQL_DATABASE}"
     },
   },
 });
