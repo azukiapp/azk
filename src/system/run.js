@@ -1,5 +1,5 @@
 import { _, t, lazy_require, isBlank } from 'azk';
-import { config, utils, log, path } from 'azk';
+import { config, log, path } from 'azk';
 import { subscribe, publish } from 'azk/utils/postal';
 import { defer, async, asyncUnsubscribe, promiseResolve, thenAll } from 'azk/utils/promises';
 import { ImageNotAvailable, SystemRunError, RunCommandError, NotBeenImplementedError } from 'azk/utils/errors';

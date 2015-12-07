@@ -1,4 +1,3 @@
-import { utils } from 'azk';
 import { CliTrackerController } from 'azk/cli/cli_tracker_controller.js';
 import { Helpers } from 'azk/cli/helpers';
 import { _, lazy_require } from 'azk';
@@ -63,7 +62,7 @@ class Info extends CliTrackerController {
 
   _format_command(commands) {
     if (!_.isString(commands)) {
-      commands = JSON.stringify(commands)
+      commands = JSON.stringify(commands);
     }
     return commands;
   }
