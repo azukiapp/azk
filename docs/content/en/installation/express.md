@@ -7,5 +7,5 @@ $ curl -sSL http://azk.io/install.sh | bash
 # or
 
 # recommended for Linux users
-$ wget -nv -O- -t 2 -T 10 http://azk.io/install.sh | bash
+$ wget -nv http://azk.io/install.sh -O- -t 2 -T 10 | bash
 ```
