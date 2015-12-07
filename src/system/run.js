@@ -1,5 +1,5 @@
 import { _, t, lazy_require, isBlank } from 'azk';
-import { config, utils, log, path } from 'azk';
+import { config, log, path } from 'azk';
 import { subscribe, publish } from 'azk/utils/postal';
 import { defer, async, asyncUnsubscribe, promiseResolve, thenAll } from 'azk/utils/promises';
 import { ImageNotAvailable, SystemRunError, RunCommandError, NotBeenImplementedError } from 'azk/utils/errors';
@@ -33,8 +33,7 @@ var Run = {
       log.debug('provision steps', steps);
 
       // provision command (require /bin/sh)
-      // options.shell   = "/bin/sh";
-      options.command = "(" + steps.join('; ') + " )";
+      options.command = "(" + steps.join(' && ') + ")";
 
       // Capture outputs
       var output = "";
@@ -54,7 +53,8 @@ var Run = {
       publish("system.run.provision.status", { type: "provision", system: system.name });
       var exitResult = yield system.runShell(options);
       if (exitResult.code !== 0) {
-        throw new RunCommandError(system.name, options.command.join(' '), output);
+        var command = system.printableCommand(exitResult.containerData, exitResult.imageConf);
+        throw new RunCommandError(system.name, command, output);
       }
       // save the date provisioning
       system.provisioned = new Date();
@@ -100,7 +100,9 @@ var Run = {
       return {
         code: data.State.ExitCode,
         container: container,
+        containerData: data,
         containerId: container.Id,
+        imageConf: image.Config,
         removed: options.remove,
       };
     });
@@ -301,12 +303,7 @@ var Run = {
         });
 
         // Format command
-        var command = utils.requireArray(data.Config.Cmd);
-        if (!_.isEmpty(image_conf.Entrypoint)) {
-          var entry = utils.requireArray(image_conf.Entrypoint);
-          command = entry.concat(command);
-        }
-        command = JSON.stringify(command);
+        var command = system.printableCommand(data, image_conf);
 
         if (exitCode === 0) {
           throw new SystemRunError(

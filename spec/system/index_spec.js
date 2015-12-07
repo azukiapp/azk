@@ -240,7 +240,7 @@ describe("Azk system class, main set", function() {
       });
 
       it("should prepend shell before command if image doesn't have entrypoint nor cmd", function() {
-        var cmd = ["/bin/sh", "-c", system.command.join(" ")];
+        var cmd = ["/bin/sh", "-c", system.command];
         h.expect(options).to.have.property("command").and.eql(cmd);
       });
 
@@ -248,15 +248,14 @@ describe("Azk system class, main set", function() {
         var options = system.daemonOptions({}, {
           Entrypoint: ["/entry.sh"]
         });
-        var cmd = [...system.command];
-        h.expect(options).to.have.property("command").and.eql(cmd);
+        h.expect(options).to.have.property("command").and.eql(system.command);
       });
 
       it("should prepend shell before command if image.entrypoint is empty but image.cmd not", function() {
         var options = system.daemonOptions({}, {
           Cmd: ["bash"]
         });
-        var cmd = ["/bin/sh", "-c", system.command.join(" ")];
+        var cmd = ["/bin/sh", "-c", system.command];
         h.expect(options).to.have.property("command").and.eql(cmd);
       });
 
@@ -275,15 +274,14 @@ describe("Azk system class, main set", function() {
 
       it("should prepend shell before image.cmd if system.command and image.entrypoint is empty", function() {
         var system_name = 'example-without-command';
-        var options = manifest.system(system_name).daemonOptions({}, { Cmd: ["ls -l"]});
-        var cmd = ["/bin/sh", "-c", "ls -l"];
+        var cmd = ["ls", "-l"];
+        var options = manifest.system(system_name).daemonOptions({}, { Cmd: cmd});
         h.expect(options).to.have.property("command").and.eql(cmd);
       });
 
       it("should return only system.command if image entrypoint and cmd and system.command aren't empty", function() {
         var options = system.daemonOptions({}, { Entrypoint: ["/entry.sh"], Cmd: ["ls -l"]});
-        var cmd = [...system.command];
-        h.expect(options).to.have.property("command").and.eql(cmd);
+        h.expect(options).to.have.property("command").and.eql(system.command);
       });
 
       it("should return options with annotations", function() {

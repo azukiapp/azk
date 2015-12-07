@@ -61,10 +61,10 @@ class Info extends CliTrackerController {
   }
 
   _format_command(commands) {
-    commands = _.map(commands, (cmd) => {
-      return _.isString(cmd) && (cmd.match(/\s/)) ? `"${cmd.replace(/\"/g, '\\"')}"` : cmd;
-    });
-    return commands.join(" ");
+    if (!_.isString(commands)) {
+      commands = JSON.stringify(commands);
+    }
+    return commands;
   }
 }
 

@@ -63,7 +63,7 @@ export function extend(h) {
   h.mockManifest = function(data) {
     var default_img = config('docker:image_default');
     var command   = `${socat('80')} &0>/dev/null ; ${socat('53')} &0>/dev/null ; ${socat('$HTTP_PORT')}`;
-    var provision = ["ls -l ./src", "./src/bashttpd", "touch provisioned", "exit 0"];
+    var provision = ["ls -l ./src", "(./src/bashttpd || true)", "touch provisioned", "exit 0"];
     var mounts    = {
       '/azk/#{manifest.dir}': '.'
     };
