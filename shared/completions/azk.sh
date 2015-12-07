@@ -537,30 +537,34 @@ _azk_config()
     cur="${COMP_WORDS[COMP_CWORD]}"
 
     if [ $COMP_CWORD -eq 2 ]; then
-        COMPREPLY=( $( compgen -fW '--no-colored -q --quiet -h --help -l= --log= -v --verbose email-never-ask-toggle list email-set track-toggle crash-report-toggle' -- $cur) )
+        COMPREPLY=( $( compgen -fW '--no-colored -q --quiet -h --help -l= --log= -v --verbose reset set list' -- $cur) )
     else
         case ${COMP_WORDS[2]} in
-            email-never-ask-toggle)
-            _azk_config_email-never-ask-toggle
+            reset)
+            _azk_config_reset
+        ;;
+            set)
+            _azk_config_set
         ;;
             list)
             _azk_config_list
-        ;;
-            email-set)
-            _azk_config_email-set
-        ;;
-            track-toggle)
-            _azk_config_track-toggle
-        ;;
-            crash-report-toggle)
-            _azk_config_crash-report-toggle
         ;;
         esac
 
     fi
 }
 
-_azk_config_email-never-ask-toggle()
+_azk_config_reset()
+{
+    local cur
+    cur="${COMP_WORDS[COMP_CWORD]}"
+
+    if [ $COMP_CWORD -ge 3 ]; then
+        COMPREPLY=( $( compgen -W ' ' -- $cur) )
+    fi
+}
+
+_azk_config_set()
 {
     local cur
     cur="${COMP_WORDS[COMP_CWORD]}"
@@ -571,36 +575,6 @@ _azk_config_email-never-ask-toggle()
 }
 
 _azk_config_list()
-{
-    local cur
-    cur="${COMP_WORDS[COMP_CWORD]}"
-
-    if [ $COMP_CWORD -ge 3 ]; then
-        COMPREPLY=( $( compgen -W ' ' -- $cur) )
-    fi
-}
-
-_azk_config_email-set()
-{
-    local cur
-    cur="${COMP_WORDS[COMP_CWORD]}"
-
-    if [ $COMP_CWORD -ge 3 ]; then
-        COMPREPLY=( $( compgen -W ' ' -- $cur) )
-    fi
-}
-
-_azk_config_track-toggle()
-{
-    local cur
-    cur="${COMP_WORDS[COMP_CWORD]}"
-
-    if [ $COMP_CWORD -ge 3 ]; then
-        COMPREPLY=( $( compgen -W ' ' -- $cur) )
-    fi
-}
-
-_azk_config_crash-report-toggle()
 {
     local cur
     cur="${COMP_WORDS[COMP_CWORD]}"
