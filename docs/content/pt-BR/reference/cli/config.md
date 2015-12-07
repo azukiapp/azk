@@ -4,12 +4,13 @@ Controla as opções de configuração do azk.
 
 #### Uso:
 
-    $ azk config (list|reset|track-toggle|crash-report-toggle|email-set|email-never-ask-toggle) [options]
+    $ azk config (list|set|reset|track-toggle|crash-report-toggle|email-set|email-never-ask-toggle) [options]
 
 #### Ações:
 
 ```
   list                      Exibe todas configurações
+  set                       Define chave/valor
   reset                     Limpa todas configurações de usuário
   track-toggle              Ativa/Desativa o rastreamento.
   crash-report-toggle       Ativa/Desativa o envio de erros
@@ -23,7 +24,7 @@ Para valores booleanos passados no argumento `config-value` várias opções pod
 
 - *true*: on, true, 1
 - *false*: off, false, 0
-- *no set*: undefined, null
+- *no set*: undefined, null, none, blank, reset
 
 ```
   config-value              Valor passado para a configuração (on/off/null)
@@ -40,57 +41,22 @@ Para valores booleanos passados no argumento `config-value` várias opções pod
 
 #### Exemplos:
 
-```
-$ azk config track-toggle
-azk: currently azk is tracking, more info: https://github.com/azukiapp/azk and http://docs.azk.io/en/terms-of-use
-? =========================================================================
-  We're constantly looking for ways to make azk better!
-  May we anonymously report usage statistics to improve the tool over time?
-  More info: https://github.com/azukiapp/azk & http://docs.azk.io/en/terms-of-use
- =========================================================================
-(Y/n) Yes
-azk: cool! Thanks for helping us make azk better :)
-```
-
-----------
-
 ```sh
-$ azk config crash-report-toggle
-azk: Currently azk is automatically sending crash-reports.
-? Send automatically bug reports when new errors occurs?
-  1) Enable: always send error reports
-  2) Disable: never send error reports
-  3) Clear: clean configuration. Will ask user next time an error occurs
-  Answer: 1
+# veja todas configurações
+$ azk config list
+{ 'user.email': undefined,
+  'user.email.never_ask': undefined,
+  'user.email.ask_count': undefined,
+  'terms_of_use.accepted': true,
+  'terms_of_use.ask_count': 1,
+  'crashReports.always_send': undefined,
+  tracker_permission: undefined }
 
-azk: Currently azk is automatically sending crash-reports.
+# defina seu email
+$ azk config set user.email foo@bar.com
+azk: `user.email` was set to `foo@bar.com`
 
-# Ou configurar diretamente
-$ azk config crash-report-toggle on
-$ azk config crash-report-toggle off
-$ azk config crash-report-toggle true
-$ azk config crash-report-toggle false
-$ azk config crash-report-toggle null
-$ azk config crash-report-toggle undefined
-
-```
-
-----------
-
-```sh
-# configurar com interação do usuário
-$ azk config email-set
-azk: Current email: bar@foo.com
-? What is your email [optional]? foo@bar.com
-azk: Email saved: foo@bar.com
-
-# configurar diretamente
-$ azk config email-set bar@foo.com
-azk: Current email: foo@bar.com
-azk: Email saved: bar@foo.com
-
-# evita que o email seja perguntado
-$ azk config email-never-ask-toggle false
-azk: Will ask for user email: not set
-azk: Will ask for user email: false
+# verifique seu email
+$ azk config list user.email
+{ 'user.email': 'foo@bar.com' }
 ```

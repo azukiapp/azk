@@ -264,3 +264,26 @@ export class GitCallError extends AzkError {
     this.code                  = SPAWN_CODE_ERROR;
   }
 }
+
+export class ConfigurationInvalidKeyError extends AzkError {
+  constructor(key, value) {
+    super('configuration.invalid_key_error');
+    this.key   = key;
+    this.value = value;
+  }
+}
+export class ConfigurationInvalidValueRegexError extends AzkError {
+  constructor(key, value) {
+    super('configuration.invalid_value_regex_error');
+    this.key   = key;
+    this.value = value;
+  }
+}
+
+export class ConfigurationInvalidValueBooleanError extends AzkError {
+  constructor(key, value) {
+    super('configuration.invalid_value_boolean_error');
+    this.key   = key;
+    this.value = value;
+  }
+}

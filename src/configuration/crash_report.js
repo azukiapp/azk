@@ -36,7 +36,7 @@ module.exports = class CrashReportUtil {
 
   sendError(error_to_send) {
     // get user email
-    let configuration = new Configuration({});
+    let configuration = new Configuration();
 
     this.opts.person = {
       // Required: id

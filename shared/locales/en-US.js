@@ -137,7 +137,7 @@ module.exports = {
     connect_docker_unavailable  : "Could not initialize balancer because docker was not available",
     agent_not_running           : "azk agent is required but is not running (try `azk agent status`)",
     agent_start                 : "azk agent start error: %(err_message)s",
-    agent_stop                  :  "azk agent stop error (try `azk agent status`)",
+    agent_stop                  : "azk agent stop error (try `azk agent status`)",
     not_been_implemented        : "This feature: `%(feature)s` has not been implemented yet",
     system_not_found            : "System `%(system)s` not found in `%(manifest)s`",
     manifest_required           : "Manifest file (`Azkfile.js`) was not found at `%(cwd)s` (see more at http://docs.azk.io/en/azkfilejs/)",
@@ -159,6 +159,27 @@ module.exports = {
       "[timeout] Make sure the start command binds `port` to the `0.0.0.0` interface, not only to the `localhost` interface.",
       "[timeout] You might want to edit your `Azkfile.js` in order to increase the maximum timeout.",
     ].join("\n"),
+    configuration: {
+      invalid_key_error : [
+        "%(key)s".red,
+        " it is not a valid configuration key.\n".yellow,
+        "Please, run command bellow to check all existent configurations keys:\n".yellow,
+        " $ ".grey,
+        "azk config list".white,
+      ].join(""),
+      invalid_value_regex_error : [
+        "%(value)s".red,
+        " it is not valid value for ".yellow,
+        "%(key)s".white,
+        ".".yellow,
+      ].join(""),
+      invalid_value_boolean_error : [
+        "%(value)s".red,
+        " it is not valid value for ".yellow,
+        "%(key)s".white,
+        ".".yellow,
+      ].join(""),
+    },
 
     vm_start: [
       "Error starting virtual machine.",
@@ -557,6 +578,7 @@ module.exports = {
       'email-not-valid'       : 'Invalid email: (%(email)s). Please insert a valid email.'.red,
       'email-valid'           : 'email: %(email)s'.green,
       'email-reset-to-null'   : 'Email: there is no email set-up.',
+      'set-ok'                : '`%(key)s` was set to `%(value)s`',
     },
     vm: {
       already_installed: "Virtual machine already installed.",

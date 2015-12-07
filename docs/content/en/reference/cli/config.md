@@ -4,12 +4,13 @@ Controls azk configuration options.
 
 #### Usage:
 
-    $ azk config (list|reset|track-toggle|crash-report-toggle|email-set|email-never-ask-toggle) [options]
+    $ azk config (list|set|reset|track-toggle|crash-report-toggle|email-set|email-never-ask-toggle) [options]
 
 #### Actions:
 
 ```
   list                      Shows all configurations and its values
+  set                       Set a configuration value
   reset                     Resets all user configuration
   track-toggle              Toggles tracking behavior on/off.
   crash-report-toggle       Toggles crash-report behavior on/off.
@@ -23,8 +24,7 @@ For boolean config values several values are acceptable on `config-value` argume
 
 - *true*: on, true, 1
 - *false*: off, false, 0
-- *no set*: undefined, null
-
+- *no set*: undefined, null, none, blank, reset
 
 ```
   config-value              Value to be passed to config command (on/off/null)
@@ -41,57 +41,22 @@ For boolean config values several values are acceptable on `config-value` argume
 
 #### Examples:
 
-```
-$ azk config track-toggle
-azk: currently azk is tracking, more info: https://github.com/azukiapp/azk and http://docs.azk.io/en/terms-of-use
-? =========================================================================
-  We're constantly looking for ways to make azk better!
-  May we anonymously report usage statistics to improve the tool over time?
-  More info: https://github.com/azukiapp/azk & http://docs.azk.io/en/terms-of-use
- =========================================================================
-(Y/n) Yes
-azk: cool! Thanks for helping us make azk better :)
-```
-
-----------
-
 ```sh
-$ azk config crash-report-toggle
-azk: Currently azk is automatically sending crash-reports.
-? Send automatically bug reports when new errors occurs?
-  1) Enable: always send error reports
-  2) Disable: never send error reports
-  3) Clear: clean configuration. Will ask user next time an error occurs
-  Answer: 1
+# list all configurations
+$ azk config list
+{ 'user.email': undefined,
+  'user.email.never_ask': undefined,
+  'user.email.ask_count': undefined,
+  'terms_of_use.accepted': true,
+  'terms_of_use.ask_count': 1,
+  'crashReports.always_send': undefined,
+  tracker_permission: undefined }
 
-azk: Currently azk is automatically sending crash-reports.
+# set your email
+$ azk config set user.email foo@bar.com
+azk: `user.email` was set to `foo@bar.com`
 
-# Or setting directly on command-line
-$ azk config crash-report-toggle on
-$ azk config crash-report-toggle off
-$ azk config crash-report-toggle true
-$ azk config crash-report-toggle false
-$ azk config crash-report-toggle null
-$ azk config crash-report-toggle undefined
-
-```
-
-----------
-
-```sh
-# interactively set
-$ azk config email-set
-azk: Current email: bar@foo.com
-? What is your email [optional]? foo@bar.com
-azk: Email saved: foo@bar.com
-
-# setting directly
-$ azk config email-set bar@foo.com
-azk: Current email: foo@bar.com
-azk: Email saved: bar@foo.com
-
-# avoid question about email on errors
-$ azk config email-never-ask-toggle false
-azk: Will ask for user email: not set
-azk: Will ask for user email: false
+# check your email
+$ azk config list user.email
+{ 'user.email': 'foo@bar.com' }
 ```

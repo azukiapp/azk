@@ -2,7 +2,7 @@ $ azk [options] [*command]
 
 Usage:
   azk agent (start|status|stop) [--no-daemon --child --no-reload-vm --configure-file=<file>] [-qh] [-l <level>] [-v]...
-  azk config (list|reset|track-toggle|crash-report-toggle|email-set|email-never-ask-toggle) [<config-value>] [--no-colored] [-qh] [-l <level>] [-v]...
+  azk config (list|set|reset|track-toggle|crash-report-toggle|email-set|email-never-ask-toggle) [<config-key>] [<config-value>] [--no-colored] [-qh] [-l <level>] [-v]...
   azk doctor [--logo] [-qh] [-l <level>] [-v]...
   azk deploy (clear-cache|fast|full|restart|versions) [-vh]
   azk deploy shell [--command=<cmd>] [-vh] [-- <args>...]
@@ -60,9 +60,10 @@ Actions:
   shell                     Starts a shell from inside the deploy system container.
   ssh                       Connects to the VM or remote server (when used with deploy) via SSH protocol.
   list                      Shows all configurations and its values
+  set                       Set a configuration value
   reset                     Resets all azk configuration
   track-toggle              Toggles tracking behavior (on/off).
-  crash-report-toggle         Toggles crash-report behavior (on/off).
+  crash-report-toggle       Toggles crash-report behavior (on/off).
   email-set                 Set users email and save.
   email-never-ask-toggle    Toggles asking email behavior (on/off).
   versions                  Lists all versions of the app deployed on the remote server.
@@ -78,7 +79,8 @@ Arguments:
   git-repo                  Github URL to clone and start
   dest-path                 Override destination path when cloning
   to                        Number of available instances after scaling.
-  config-value              Value to be passed to config command
+  config-key                Key name to be configured
+  config-value              Value to be configured
 
 Options:
   --command=<cmd>, -c       Runs the specified command.

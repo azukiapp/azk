@@ -8,13 +8,13 @@ class Config extends CliTrackerController {
 
   // list all configuration
   list(cmd) {
-    let value_param = cmd['config-value'];
-    let configuration = new Configuration({});
+    let key_param = cmd['config-key'];
+    let configuration = new Configuration();
     let configList = configuration.listAll();
     let result = configList;
 
-    if (value_param) {
-      result = configuration.show(value_param);
+    if (key_param) {
+      result = configuration.show(key_param);
     }
 
     // Show result
@@ -31,7 +31,7 @@ class Config extends CliTrackerController {
 
   // resets all configuration
   reset() {
-    let configuration = new Configuration({});
+    let configuration = new Configuration();
     return Helpers.askConfirmation(this.ui, 'commands.config.reset.ask_confirmation', false)
     .then((result) => {
       if (result) {
@@ -40,6 +40,31 @@ class Config extends CliTrackerController {
       }
       return promiseResolve(0);
     });
+  }
+
+  // set a configuration
+  set(cmd) {
+    let key_param = cmd['config-key'];
+    let value_param = cmd['config-value'];
+    let configuration = new Configuration();
+
+    if (value_param) {
+      // value exist
+      let is_valid = configuration.validate(key_param, value_param);
+      if(is_valid){
+        let converted_value = configuration.convertInputValue(key_param, value_param);
+        configuration.save(key_param, converted_value);
+        this.ui.ok('commands.config.set-ok', {
+          key: key_param,
+          value: converted_value,
+        });
+      }
+      return promiseResolve(0);
+    } else {
+      // ask for user input
+      this.ui.ok('commands.config.will_ask');
+      return promiseResolve(0);
+    }
   }
 
   // Tracker
@@ -122,7 +147,7 @@ class Config extends CliTrackerController {
   // Email
   emailSet(cmd) {
     var email_input = cmd['config-value'];
-    var configuration = new Configuration({});
+    var configuration = new Configuration();
     return this.emailStatus(cmd)
     .then(() => {
       return Helpers.askEmail(this.ui, email_input);
@@ -135,7 +160,7 @@ class Config extends CliTrackerController {
   }
 
   emailStatus() {
-    var configuration = new Configuration({});
+    var configuration = new Configuration();
     var email = configuration.load('user.email');
     if (email) {
       this.ui.ok('commands.config.email-current', { email: email });
@@ -146,7 +171,7 @@ class Config extends CliTrackerController {
   }
 
   emailNeverAskStatus() {
-    var configuration = new Configuration({});
+    var configuration = new Configuration();
     var value = configuration.load('user.email.never_ask');
 
     if (typeof value === 'undefined') {
@@ -174,7 +199,7 @@ class Config extends CliTrackerController {
 
     return initial_promise
     .then((always_ask_email) => {
-      var configuration = new Configuration({});
+      var configuration = new Configuration();
       configuration.save('user.email.ask_count', 0);
       configuration.save('user.email.never_ask', !always_ask_email); // because ask to always send
     })

@@ -152,7 +152,7 @@ var Helpers = {
   _askEmailIfNeeded(cli) {
     return async(this, function* () {
 
-      let configuration = new Configuration({});
+      let configuration = new Configuration();
       let current_saved_email = configuration.load('user.email');
       let never_ask_email = configuration.load('user.email.never_ask');
       let email_ask_count = configuration.load('user.email.ask_count');
