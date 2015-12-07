@@ -244,9 +244,9 @@ main(){
 curl_or_wget() {
   CURL_BIN="curl"; WGET_BIN="wget"
   if command_exists ${CURL_BIN}; then
-    echo "${CURL_BIN} -sL"
+    echo "${CURL_BIN} -sSL"
   elif command_exists ${WGET_BIN}; then
-    echo "${WGET_BIN} -qO-"
+    echo "${WGET_BIN} -nv -O- -t 2 -T 10"
   fi
 }
 
