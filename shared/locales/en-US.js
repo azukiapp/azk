@@ -58,7 +58,7 @@ module.exports = {
     error_will_not_be_sent: [
       'No error will be sent.',
       '\nYou can these configurations running:'.grey,
-      '\n$ azk config crash-report-toggle; azk config email-set',
+      '\n$ azk config',
     ].join(''),
     question_remember_email_and_crashReport: [
       'Do you want to remember these decisions?',
@@ -78,8 +78,6 @@ module.exports = {
       question: [
         'Send automatically bug reports when new errors occurs?',
       ].join(''),
-
-      // only for `azk config crash-report-toggle`
       choice_enable: [
         'Enable: always send error reports'
       ].join(''),

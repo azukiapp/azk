@@ -55,32 +55,4 @@ describe('Azk cli, config controller', function() {
       };
     });
   };
-
-  it.only("should azk config crash-report-toggle change status", function() {
-    // FIXME: get initial status
-    return changeConfigTo('crashReports.always_send', 'on')
-    .then((result) => {
-      h.expect(result.code).to.equal(0);
-      h.expect(result.options).to.have.property('config', true);
-      h.expect(result.options).to.have.property('config-key', 'crashReports.always_send');
-      h.expect(result.options).to.have.property('config-value', 'on');
-      let lastMessage = outputs[outputs.length - 1];
-      h.expect(lastMessage).to.match(RegExp(h.escapeRegExp('azk is automatically sending crash-reports')));
-      return changeConfigTo('crashReports.always_send', 'off');
-    })
-    .then((result) => {
-      h.expect(result.code).to.equal(0);
-      let lastMessage = outputs[outputs.length - 1];
-      h.expect(lastMessage).to.match(RegExp(h.escapeRegExp('azk is not sending')));
-
-      return changeConfigTo('crashReports.always_send', 'null');
-    })
-    .then((result) => {
-      h.expect(result.code).to.equal(0);
-      let lastMessage = outputs[outputs.length - 1];
-      h.expect(lastMessage).to.match(RegExp(h.escapeRegExp('is not set')));
-    });
-
-  });
-
 });

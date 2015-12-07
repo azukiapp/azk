@@ -4,7 +4,7 @@ Controls azk configuration options.
 
 #### Usage:
 
-    $ azk config (list|set|reset|track-toggle|crash-report-toggle|email-set|email-never-ask-toggle) [options]
+    $ azk config (list|set|reset) [options]
 
 #### Actions:
 
@@ -12,10 +12,6 @@ Controls azk configuration options.
   list                      Shows all configurations and its values
   set                       Set a configuration value
   reset                     Resets all user configuration
-  track-toggle              Toggles tracking behavior on/off.
-  crash-report-toggle       Toggles crash-report behavior on/off.
-  email-set                 Set users email and save.
-  email-never-ask-toggle    Toggles asking email behavior on/off.
 ```
 
 #### Arguments:

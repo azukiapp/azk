@@ -135,7 +135,7 @@ describe('Configuration manager:', function() {
 
     // set value
     h.expect(() => configuration.validate(KEY, VALUE))
-      .to.throw(ConfigurationInvalidValueBooleanError);
+      .to.throw().and.match(/it is not valid value/i);
   });
 
   it("convert  boolean : convert value", function() {

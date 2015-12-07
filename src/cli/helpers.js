@@ -37,37 +37,6 @@ var Helpers = {
       });
   },
 
-  checkBooleanArgument(str_arg) {
-    if (typeof str_arg === 'undefined' || str_arg === null) {
-      // was not informed
-      return undefined;
-    }
-
-    str_arg = str_arg.toLowerCase(str_arg);
-
-    if (str_arg === 'on' ||
-        str_arg === 'true' ||
-        str_arg === '1') {
-      return true;
-    }
-
-    if (str_arg === 'off' ||
-        str_arg === 'false' ||
-        str_arg === '0') {
-      return false;
-    }
-
-    if (str_arg === 'null' ||
-        str_arg === 'undefined' ||
-        str_arg === 'none' ||
-        str_arg === 'blank' ||
-        str_arg === 'reset') {
-      return null;
-    }
-
-    throw new InvalidCommandError(str_arg);
-  },
-
   askTermsOfUse(cli, force = false) {
     return async(this, function* () {
       let configuration = new Configuration({});
@@ -193,33 +162,6 @@ var Helpers = {
     });
   },
 
-  askCrashReportToggle(cli) {
-    const ENABLE_CONFIG = t('crashReport.save_autosend.choice_enable');
-    const DISABLE_CONFIG = t('crashReport.save_autosend.choice_disable');
-    const CLEAR_CONFIG = t('crashReport.save_autosend.choice_clear');
-
-    var question = {
-      type    : 'rawlist',
-      name    : 'result',
-      message : 'crashReport.save_autosend.question',
-      default : '1',
-      choices : [ENABLE_CONFIG,
-                 DISABLE_CONFIG,
-                 CLEAR_CONFIG]
-    };
-
-    return cli.prompt(question)
-    .then((response) => {
-      if (response.result === ENABLE_CONFIG) {
-        return promiseResolve(true);
-      } else if (response.result === DISABLE_CONFIG) {
-        return promiseResolve(false);
-      } else if (response.result === CLEAR_CONFIG) {
-        return promiseResolve(null);
-      }
-    });
-  },
-
   askEmail(cli, current_email = undefined) {
     var question = {
       type    : 'input',
@@ -259,25 +201,6 @@ var Helpers = {
           return Helpers.askEmail(cli);
         }
       }
-    });
-  },
-
-  askAlwaysSendCrashReport(cli) {
-    var question = {
-      type    : 'confirm',
-      name    : 'result',
-      message : 'crashReport.question_remember_email_and_crashReport',
-      default : true
-    };
-
-    return cli.prompt(question)
-    .then((response) => {
-      if (response.result) {
-        cli.ok('crashReport.remember_choice_yes');
-      } else {
-        cli.ok('crashReport.remember_choice_no');
-      }
-      return promiseResolve(response.result);
     });
   },
 
