@@ -2,10 +2,10 @@ The easiest way to install `azk` is to use the script below. It will identify yo
 ​
 ```bash
 # recommended for Mac users
-$ curl -Ls http://azk.io/install.sh | bash
+$ curl -sSL http://azk.io/install.sh | bash
 
 # or
 
 # recommended for Linux users
-$ wget -qO- http://azk.io/install.sh | bash
+$ wget -nv -O- -t 2 -T 10 http://azk.io/install.sh | bash
 ```

@@ -20,7 +20,7 @@ Existem duas formas de instalação do Docker:
   ```bash
   $ curl -sSL https://get.docker.com/ | sh
   # ou
-  $ wget -qO- https://get.docker.com/ | sh
+  $ wget -nv -O- -t 2 -T 10 https://get.docker.com/ | sh
   ```
 
 2. Instalação manual:
