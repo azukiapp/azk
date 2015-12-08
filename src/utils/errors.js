@@ -60,6 +60,7 @@ export class LostInternetConnection extends AzkError {
 export class MustAcceptTermsOfUse extends AzkError {
   constructor() {
     super('must_accept_terms_of_use');
+    this.code = BASE_CODE_ERROR;
   }
 }
 

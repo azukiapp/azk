@@ -15,7 +15,7 @@ module.exports = class ErrorHandler {
     // exit 1: fully ignored errors
     if (error instanceof MustAcceptTermsOfUse) {
       log.debug(`[crash-report] exit 1: "${error.translation_key}"`);
-      return ui.exit(0);
+      return ui.exit(error.code);
     }
 
     ui.fail(error);
