@@ -12,11 +12,11 @@
 
 1. [How can I clean Docker data?](README.html#how-can-i-clean-docker-data)
 
-1. [How can I clean the persistent and sync folders from a specific project?](README.html#how-can-i-clean-the-persistent-and-sync-folders-from-a-specific-project)
+1. [How can I clean the `persistent` and `sync` folders from a specific project?](README.html#how-can-i-clean-the-persistent-and-sync-folders-from-a-specific-project)
 
-1. [How can I clean all persistent and sync folders from all projects?](README.html#how-can-i-clean-all-persistent-and-sync-folders-from-all-projects)
+1. [How can I clean all `persistent` and `sync` folders from all projects?](README.html#how-can-i-clean-all-persistent-and-sync-folders-from-all-projects)
 
-1. [I'm facing '[sync] fail Error: watch ENOSPC' error when trying to start my system. How to fix it?](README.html#im-facing-sync-fail-error-watch-enospc-error-when-trying-to-start-my-system-how-to-fix-it)
+1. [I'm facing `[sync] fail Error: watch ENOSPC` error when trying to start my system. How to fix it?](README.html#im-facing-sync-fail-error-watch-enospc-error-when-trying-to-start-my-system-how-to-fix-it)
 
 -------------------------
 
@@ -145,7 +145,7 @@ mounts: {
 ```
 
 
-#### Azkfile.js: clean persistent and sync folders
+#### Azkfile.js: clean `persistent` and `sync` folders
 
 You can check [this section](http://docs-azk.dev.azk.io/en/troubleshooting/README.html#how-can-i-clean-the-persistent-and-sync-folders-of-a-specific-project) on how to wipe off persisted data and get your system back to its initial state.
 
@@ -243,15 +243,15 @@ especially if you are using a Virtual Machine.
 
 ----------------------
 
-### How can I clean the persistent and sync folders from a specific project?
+### How can I clean the `persistent` and `sync` folders from a specific project?
 
-**WARNING:** This will clean the `persistent_folders` and `sync_folders` of a project.
+**WARNING:** This will clean the `persistent` and `sync` folders of a project.
 This means all persisted data (including databases) for that project will be lost forever. **Proceed with extreme caution**.
 
-1) Check the `persistent_folders` and the `sync_folders` of the system:
+1) Check the `persistent` and `sync` folders of the system:
 
 ```sh
-$ azk info | grep -P "(persistent|sync)_folders" 
+$ azk info | grep -P "(persistent|sync)_folders"
 ```
 
 2) Remove those folders:
@@ -281,9 +281,9 @@ $ azk start -R
 
 ----------------------
 
-### How can I clean **all** persistent and sync folders from all projects?
+### How can I clean **all** `persistent` and `sync` folders from all projects?
 
-**WARNING:** This will clean all `persistent_folders` and `sync_folders`. This means all persisted data (including databases) from all projects will be lost forever. **Proceed with extreme caution**.
+**WARNING:** This will clean all `persistent` and `sync` folders. This means all persisted data (including databases) from all projects will be lost forever. **Proceed with extreme caution**.
 
 After doing this you'll need to run `azk start -R` to reprovision each system.
 
@@ -314,11 +314,24 @@ sudo du -hs ~/.azk/data/persistent_folders
 sudo du -hs ~/.azk/data/sync_folders
 ```
 
-Then you can remove **all** persistent and sync folders:
+Then you can remove **all** `persistent` and `sync` folders:
 
 ```sh
 sudo rm -rf ~/.azk/data/persistent_folders
 sudo rm -rf ~/.azk/data/sync_folders
+```
+
+----------------------
+
+### How to delete the VM data disk (Mac OS X only)?
+
+**WARNING:** After doing this procedure, **all** Docker images, containers, `persistent` and `sync` folders will be lost. This also means that **all** persisted data (including databases) from **all projects** will be lost forever. **Proceed with extreme caution**.
+
+#### Mac OS X
+
+```sh
+rm -rf ~/.azk/data/vm/azk-agent.vmdk
+rm -rf ~/VirtualBox VMs/azk-vm-dev.azk.io
 ```
 
 ----------------------

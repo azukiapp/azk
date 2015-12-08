@@ -246,15 +246,15 @@ O link a seguir possui várias dicas para o dia a dia com Docker. Só não se es
 
 ### Como posso limpar os dados persistidos de um projeto específico?
 
-**CUIDADO:** Isso irá limpar as `persistent_folders` e as `sync_folders` do projeto. Isso significa que todos os dados persistidos desse projeto (incluindo os banco de dados) serão perdidos para sempre. **Continue com extremo cuidado.**
+**CUIDADO:** Isto limpará as `persistent` e `sync` folders do projeto. Isso significa que todos os dados persistidos desse projeto (incluindo os banco de dados) serão perdidos para sempre. **Continue com extremo cuidado.**
 
-1) Verifique as `persistent_folders` e as `sync_folders` do sistema:
+1) Verifique as `persistent` e `sync` folders do sistema:
 
 ```sh
 $ azk info | grep -P "(persistent|sync)_folders"
 ```
 
-2) Remova as `persistent_folders` e as `sync_folders` do sistema:
+2) Remova as `persistent` e `sync` folders do sistema:
 
 #### Mac OS X
 
@@ -283,12 +283,12 @@ $ azk start -R
 
 ### Como posso limpar os dados persistidos de todos os projetos?
 
-**CUIDADO:** Isso irá limpar todas as `persistent_folders` e `sync_folders`. Isso significa que todos os dados persistidos (incluindo os banco de dados) de **todos os projetos** serão perdidos para sempre. **Continue com extremo cuidado.**
+**CUIDADO:** Isto limpará todas as `persistent` e `sync` folders. Isso significa que todos os dados persistidos (incluindo os banco de dados) de **todos os projetos** serão perdidos para sempre. **Continue com extremo cuidado.**
 
 
 #### Mac OS X
 
-Você pode apagar todas as `persistent_folders` e `sync_folders` de dentro da Máquina Virtual.
+Você pode apagar todas as `persistent` e `sync` folders de dentro da Máquina Virtual.
 Verifique o tamanho ocupado em disco, dentro da VM:
 
 ```sh
@@ -296,7 +296,7 @@ azk vm ssh -- du -sh /mnt/sda1/azk/sync_folders
 azk vm ssh -- du -sh /mnt/sda1/azk/persistent_folders
 ```
 
-Para remover **todas** as `persistent_folders` e `sync_folders`:
+Para remover **todas** as `persistent` e `sync` folders:
 
 ```sh
 azk vm ssh -- sudo rm -rf /mnt/sda1/azk/persistent_folders
@@ -305,7 +305,7 @@ azk vm ssh -- sudo rm -rf /mnt/sda1/azk/sync_folders
 
 #### Linux
 
-Você pode apagar as `persistent_folders` e `sync_folders`.
+Você pode apagar as `persistent` e `sync` folders.
 Verifique o tamanho ocupado em disco:
 
 ```sh
@@ -313,11 +313,24 @@ sudo du -hs ~/.azk/data/persistent_folders
 sudo du -hs ~/.azk/data/sync_folders
 ```
 
-Para remover **todas** as `persistent_folders` e `sync_folders:
+Para remover **todas** as `persistent` e `sync` folders:
 
 ```sh
 sudo rm -rf ~/.azk/data/persistent_folders
 sudo rm -rf ~/.azk/data/sync_folders
+```
+
+----------------------
+
+### Como remover o disco da Máquina Virtual (somente para Mac OS X)?
+
+**CUIDADO:** Com esse procedimento, **todas** as images do Docker, containers, `persistent` e `sync` folders serão perdidas. Isso também significa que **todos** os dados persistidos (incluindo banco de dados) de **todos os projetos** serão perdidos para sempre. **Continue com extremo cuidado.**
+
+#### Mac OS X
+
+```sh
+rm -rf ~/.azk/data/vm/azk-agent.vmdk
+rm -rf ~/VirtualBox VMs/azk-vm-dev.azk.io
 ```
 
 ----------------------

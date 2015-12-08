@@ -50,7 +50,7 @@ describe("Azk system class, run set", function() {
     });
 
     it("should raise a error and return log", function() {
-      var command = ["echo 'error_msg' >&2; sleep 1; echo 'output'; exit 2"];
+      var command = "echo 'error_msg' >&2; sleep 1; echo 'output'; exit 2";
       var regex   = /.*\(2\).*sh.*(.|[\r\n])*error_msg(.|[\r\n])*output/m;
       var result  = system.runDaemon({ retry: 2, timeout: 1000, command: command });
 
@@ -76,7 +76,7 @@ describe("Azk system class, run set", function() {
     it("should run and wait for port", function() {
       return async(function* () {
         var options    = {
-          command : ["sleep 2;" + "socat TCP4-LISTEN:$HTTP_PORT,fork EXEC:`pwd`/src/bashttpd"],
+          command : "sleep 2;" + "socat TCP4-LISTEN:$HTTP_PORT,fork EXEC:`pwd`/src/bashttpd",
           ports: {
             http: '31275:31275/tcp'
           }
