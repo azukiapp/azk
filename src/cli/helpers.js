@@ -37,12 +37,21 @@ var Helpers = {
       });
   },
 
-  askTermsOfUse(cli, force = false) {
+  askTermsOfUse(cli, cli_params, force = false) {
     return async(this, function* () {
       let configuration = new Configuration({});
       let email_ask_count = configuration.load('terms_of_use.ask_count');
       let terms_accepted = configuration.load('terms_of_use.accepted');
 
+      // exit: can run azk config without asking
+      if (cli_params.config === true) {
+        return true;
+      }
+
+      // exit: not interactive code will not ask, but respect terms_accepted
+      if (!cli.isInteractive()) {
+        return terms_accepted;
+      }
 
       // exit: no need to ask, terms already accepted
       if (terms_accepted && !force) {

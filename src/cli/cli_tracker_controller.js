@@ -27,7 +27,7 @@ export class CliTrackerController extends CliController {
 
   _action_tracker(action_name, params) {
     return Helpers
-      .askTermsOfUse(this.ui)
+      .askTermsOfUse(this.ui, params)
       .then((accepted) => {
         if (!accepted) {
           return promiseReject(new MustAcceptTermsOfUse());
