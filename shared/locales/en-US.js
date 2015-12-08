@@ -22,24 +22,6 @@ module.exports = {
       ' =========================================================================\n'.grey,
     ].join(''),
   },
-  tracker: {
-    question: [
-      '=========================================================================\n'.grey,
-      '  We\'re constantly looking for ways to make'.yellow,
-      ' azk '.red,
-      'better!\n'.yellow,
-      '  May we anonymously report usage statistics to improve the tool over time? \n'.yellow,
-      '  More info: https://github.com/azukiapp/azk and http://docs.azk.io/en/terms-of-use\n'.yellow,
-      ' =========================================================================\n'.grey,
-    ].join(''),
-    message_optIn: [
-      'cool! Thanks for helping us make azk better :)'.green,
-    ].join(''),
-    message_optOut: [
-      'No problem! If you change your mind and want to help us improve azk, just run `%(command)s`\n'.grey,
-      'You can always find that command in `azk help`'.grey,
-    ].join(''),
-  },
   crashReport: {
     message_error_occured: [
       'Sorry, an error has occurred.\n',
@@ -52,52 +34,6 @@ module.exports = {
       'Bug report was sent. Thanks.',
     ].join(''),
 
-    error_will_be_sent: [
-      'The error above will be sent.',
-    ].join(''),
-    error_will_not_be_sent: [
-      'No error will be sent.',
-      '\nYou can these configurations running:'.grey,
-      '\n$ azk config',
-    ].join(''),
-    question_remember_email_and_crashReport: [
-      'Do you want to remember these decisions?',
-      '\nYou always can change this behaviour running `azk config`.'.grey,
-    ].join(''),
-    remember_choice_yes: [
-      'Your decisions were saved for future bug reports.',
-      '\nThank you for giving us the opportunity to serve you.',
-      '\nWe appreciate the confidence you have placed in us.',
-    ].join(''),
-    remember_choice_no: [
-      'No problem.',
-      '\nYou always can change this behaviour running `azk config`.'.grey,
-    ].join(''),
-
-    save_autosend: {
-      question: [
-        'Send automatically bug reports when new errors occurs?',
-      ].join(''),
-      choice_enable: [
-        'Enable: always send error reports'
-      ].join(''),
-      selected_enabled: [
-        'All errors will be sent automatically to Azuki.',
-      ].join(''),
-      choice_disable: [
-        'Disable: never send error reports'
-      ].join(''),
-      selected_disabled: [
-        'No errors will be sent to Azuki.',
-      ].join(''),
-      choice_clear: [
-        'Clear: clean configuration. Will ask user next time an error occurs'
-      ].join(''),
-      selected_clear: [
-        'The "bug report sending configuration" was reset.',
-      ].join(''),
-    },
-
     email: {
       question: [
         'Bonus: if you\'re ok with telling us your email address,'.yellow,
@@ -106,23 +42,8 @@ module.exports = {
         'You can always delete/update your email at any time. Check the documentation to see how.\n'.yellow,
         'Enter your email'.white + ' [optional]'.grey + ':'.white,
       ].join(''),
-      question_to_save: [
-        'Can we save your email for future error reports?',
-      ].join(''),
-      saved: [
-        'Cool! We\'ll soon get back to you with a solution.',
-      ].join(''),
-      not_saved: [
-        'Your e-mail will not be sent.',
-        '\nWe will you ask you again next time.',
-        '\nYou can change this behaviour running `azk config`.',
-      ].join(''),
-
       question_never_ask_email: [
         'Ask email again for future crash report solutions?',
-      ].join(''),
-      never_ask_status: [
-        'Never ask email status: %(value)s',
       ].join(''),
     },
 
