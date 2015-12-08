@@ -4,7 +4,6 @@ import Azk from 'azk';
 import { _, config, log, t, lazy_require } from 'azk';
 import { meta as azkMeta } from 'azk';
 import { promiseResolve } from 'azk/utils/promises';
-import Configuration from 'azk/configuration';
 
 var lazy = lazy_require({
   os           : 'os',

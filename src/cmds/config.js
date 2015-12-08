@@ -1,7 +1,6 @@
 import { CliTrackerController } from 'azk/cli/cli_tracker_controller.js';
 import { promiseResolve } from 'azk/utils/promises';
 import { Helpers } from 'azk/cli/helpers';
-import CrashReportUtil from 'azk/configuration/crash_report';
 import Configuration from 'azk/configuration';
 
 class Config extends CliTrackerController {
@@ -51,7 +50,7 @@ class Config extends CliTrackerController {
     if (value_param) {
       // value exist
       let is_valid = configuration.validate(key_param, value_param);
-      if(is_valid){
+      if (is_valid) {
         let converted_value = configuration.convertInputValue(key_param, value_param);
         configuration.save(key_param, converted_value);
         this.ui.ok('commands.config.set-ok', {

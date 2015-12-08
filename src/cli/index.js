@@ -1,4 +1,4 @@
-import { _, log } from 'azk';
+import { _ } from 'azk';
 import { promiseResolve, promiseReject, isPromise } from 'azk/utils/promises';
 import { Cli as AzkCli } from 'azk/cli/cli';
 import { UI } from 'azk/cli/ui';

@@ -74,14 +74,14 @@ module.exports = class CrashReportUtil {
   }
 
   saveCrashReportAlwaysSend(response_bool) {
-    return azkMeta.set('crashReports.always_send', response_bool);
+    return azkMeta.set('crash_reports.always_send', response_bool);
   }
 
   loadCrashReportAlwaysSend() {
     if (config('crashReport:disable')) {
       return false;
     }
-    var permission = azkMeta.get('crashReports.always_send');
+    var permission = azkMeta.get('crash_reports.always_send');
     log.debug(`[crashReport] permission: ${permission}`);
     return permission;
   }

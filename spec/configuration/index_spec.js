@@ -1,7 +1,6 @@
 import h from 'spec/spec_helper';
 import Configuration from 'azk/configuration';
 import { ConfigurationInvalidKeyError,
-         ConfigurationInvalidValueBooleanError,
          ConfigurationInvalidValueRegexError } from 'azk/utils/errors';
 
 describe('Configuration manager:', function() {

@@ -45,7 +45,7 @@ $ azk config list
   'user.email.ask_count': undefined,
   'terms_of_use.accepted': true,
   'terms_of_use.ask_count': 1,
-  'crashReports.always_send': undefined,
+  'crash_reports.always_send': undefined,
   tracker_permission: undefined }
 
 # set your email

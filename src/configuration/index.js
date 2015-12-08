@@ -89,7 +89,7 @@ module.exports = class Configuration {
         type: 'number',
       },
       {
-        key: 'crashReports.always_send',
+        key: 'crash_reports.always_send',
         type: 'boolean',
         validation_regex: BOOLEAN_REGEX,
         convertValidValueFunction: BOOLEAN_CONVERSION_FUNC,

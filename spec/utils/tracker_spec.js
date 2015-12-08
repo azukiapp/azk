@@ -1,6 +1,5 @@
 import h from 'spec/spec_helper';
 import { default as tracker } from 'azk/utils/tracker';
-import { meta as azkMeta } from 'azk';
 
 describe("Azk Tracker", function() {
   this.timeout(2000);

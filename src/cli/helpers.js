@@ -5,7 +5,6 @@ import { SmartProgressBar } from 'azk/cli/smart_progress_bar';
 import { ManifestError } from 'azk/utils/errors';
 import CrashReportUtil from 'azk/configuration/crash_report';
 import Configuration from 'azk/configuration';
-import { InvalidCommandError } from 'azk/utils/errors';
 
 var lazy = lazy_require({
   AgentClient: ['azk/agent/client', 'Client'],
@@ -65,7 +64,7 @@ var Helpers = {
       if (email_ask_count === 0) {
         // only first time
         terms_accepted = yield this.askConfirmation(cli, 'terms_of_use.first_question');
-      } else if (email_ask_count > 0){
+      } else if (email_ask_count > 0) {
         terms_accepted = yield this.askConfirmation(cli, 'terms_of_use.you_need_question');
       }
       // save accepted

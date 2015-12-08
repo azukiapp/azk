@@ -25,7 +25,7 @@ describe('Azk cli, config controller', function() {
       h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('user.email')));
 
       // match
-      h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('crashReports.always_send')));
+      h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('crash_reports.always_send')));
     });
   });
 
@@ -40,19 +40,7 @@ describe('Azk cli, config controller', function() {
       h.expect(outputs[0]).to.match(RegExp(h.escapeRegExp('user.email')));
 
       // not match
-      h.expect(outputs[0]).to.not.match(RegExp(h.escapeRegExp('crashReports.always_send')));
+      h.expect(outputs[0]).to.not.match(RegExp(h.escapeRegExp('crash_reports.always_send')));
     });
   });
-
-  let changeConfigTo = (configKey, newStatus) => {
-    doc_opts.argv = ['config', 'set', configKey, newStatus];
-    var options = cli.router.cleanParams(cli.docopt(doc_opts));
-    return cli.run(doc_opts, run_options)
-    .then((code) => {
-      return {
-        code: code,
-        options: options,
-      };
-    });
-  };
 });
