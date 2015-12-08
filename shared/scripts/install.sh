@@ -258,7 +258,7 @@ abort_docker_installation() {
 }
 
 install_docker() {
-  trap abort_docker_installation SIGINT
+  trap abort_docker_installation INT
 
   debug "Docker will be installed within 10 seconds."
   debug "To prevent its installation, just press CTRL+C now."
@@ -272,7 +272,7 @@ install_docker() {
     abort_docker_installation
   fi
 
-  trap - SIGINT
+  trap - INT
 }
 
 check_docker_installation() {
