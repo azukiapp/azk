@@ -117,9 +117,6 @@ module.exports = class Configuration {
 
   validate(key, value) {
     // key exists?
-    if (!this.opts._cached_list_all) {
-      this.listAll();
-    }
     let current_config = this.opts._configListNames.filter((item) => {
       return item.key === key;
     });
@@ -149,9 +146,6 @@ module.exports = class Configuration {
 
   convertInputValue(key, value) {
     // get key
-    if (!this.opts._cached_list_all) {
-      this.listAll();
-    }
     let current_config = this.opts._configListNames.filter((item) => {
       return item.key === key;
     });
@@ -166,12 +160,15 @@ module.exports = class Configuration {
   }
 
   listAll() {
-    var result_obj = {};
-    this.opts._configListNames.forEach((item) => {
-      result_obj[item.key] = azkMeta.get(item.key);
+    let listWithValues = _.map(this.opts._configListNames, (item) => {
+      item.value = azkMeta.get(item.key);
+      return item;
     });
-    this.opts._cached_list_all = result_obj;
-    return result_obj;
+    return listWithValues;
+  }
+
+  getAll() {
+    return this.opts._configListNames;
   }
 
   resetAll() {
@@ -182,11 +179,7 @@ module.exports = class Configuration {
   }
 
   show(item_name) {
-    if (!this.opts._cached_list_all) {
-      this.listAll();
-    }
-    let list_all = this.opts._cached_list_all;
-    return { [item_name]: list_all[item_name] };
+    return { [item_name]: this.listAll()[item_name] };
   }
 
 };

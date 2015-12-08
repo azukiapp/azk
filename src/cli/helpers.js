@@ -183,14 +183,14 @@ var Helpers = {
     };
 
     if (current_email === 'null') {
-      cli.ok('commands.config.email-reset-to-null');
+      cli.ok('commands.config.email_reset-to-null');
       return promiseResolve(undefined);
     } else if (current_email && current_email.length > 0) {
       if (validateEmail(current_email)) {
-        // cli.ok('commands.config.email-valid', { email: current_email });
+        // cli.ok('commands.config.email_valid', { email: current_email });
         return promiseResolve(current_email);
       } else {
-        cli.ok('commands.config.email-not-valid', { email: current_email });
+        cli.ok('commands.config.email_not-valid', { email: current_email });
       }
     }
 
@@ -198,14 +198,14 @@ var Helpers = {
     .then((prompt_result) => {
       var input_email = prompt_result.result;
       if (input_email.length === 0) {
-        cli.ok('commands.config.email-reset-to-null');
+        cli.ok('commands.config.email_reset-to-null');
         return promiseResolve(undefined);
       } else {
         if (validateEmail(input_email)) {
-          cli.ok('commands.config.email-current', { email: input_email });
+          cli.ok('commands.config.email_current', { email: input_email });
           return promiseResolve(input_email);
         } else {
-          cli.ok('commands.config.email-not-valid', { email: input_email });
+          cli.ok('commands.config.email_not-valid', { email: input_email });
           return Helpers.askEmail(cli);
         }
       }
