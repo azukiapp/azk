@@ -24,7 +24,7 @@ var azk_deprecate = 'azk'.cyan;
 var UI = {
   isUI: true,
   t: t,
-  non_interactive: false,
+  _interactive: true,
 
   dir(...args) {
     console.dir(...args);
@@ -169,11 +169,11 @@ var UI = {
   },
 
   setInteractive(value) {
-    this.non_interactive = value;
+    this._interactive = value;
   },
 
   isInteractive() {
-    return this.non_interactive === false && this.stdout().isTTY === true;
+    return this._interactive === true && this.stdout().isTTY === true;
   },
 
   outputColumns() {
