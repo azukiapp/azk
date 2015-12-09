@@ -54,6 +54,7 @@ var options = mergeConfig({
     azk_dir  : azk_dir,
     flags    : {
       show_deprecate: envs('AZK_HIDE_DEPRECATE', false),
+      require_accept_use_terms: envs('AZK_REQUIRE_TERMS', true),
     },
     paths    : {
       azk_root,
@@ -204,6 +205,9 @@ var options = mergeConfig({
     },
   },
   test: {
+    flags: {
+      require_accept_use_terms: false,
+    },
     paths: {
       log     : path.join(paths.logs, 'azk_test.log'),
       azk_meta: path.join(data_path, azk_dir, "shared", "test-Azkfile.js"),

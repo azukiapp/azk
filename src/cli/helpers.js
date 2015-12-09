@@ -38,6 +38,9 @@ var Helpers = {
 
   askTermsOfUse(cli, cli_params, force = false) {
     return async(this, function* () {
+      // Accept terms is required?
+      if (!config("flags.require_accept_use_terms")) { return true; }
+
       let configuration = new Configuration({});
       let email_ask_count = configuration.load('terms_of_use.ask_count');
       let terms_accepted = configuration.load('terms_of_use.accepted');
