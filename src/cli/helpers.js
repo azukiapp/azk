@@ -13,7 +13,7 @@ var Helpers = {
     return lazy.AgentClient
       .status()
       .then((status) => {
-        if (!status.agent && !cli.non_interactive) {
+        if (!status.agent && !cli.isInteractive()) {
           var question = {
             type    : 'confirm',
             name    : 'start',
@@ -33,14 +33,14 @@ var Helpers = {
       });
   },
 
-  askPermissionToTrack(cli, force = false) {
+  askPermissionToTrack(ui, force = false) {
     return async(this, function* () {
       // check if user already answered
-      var trackerPermission = cli.tracker.loadTrackerPermission(); // Boolean
+      var trackerPermission = ui.tracker.loadTrackerPermission(); // Boolean
 
       var should_ask_permission = (force || typeof trackerPermission === 'undefined');
       if (should_ask_permission) {
-        if (!cli.isInteractive()) { return false; }
+        if (!ui.isInteractive()) { return false; }
 
         var question = {
           type    : 'confirm',
@@ -49,14 +49,14 @@ var Helpers = {
           default : 'Y'
         };
 
-        var answers = yield cli.prompt(question);
-        cli.tracker.saveTrackerPermission(answers.track_ask);
+        var answers = yield ui.prompt(question);
+        ui.tracker.saveTrackerPermission(answers.track_ask);
 
         if (answers.track_ask) {
-          cli.ok('analytics.message_optIn');
-          yield cli.tracker.sendEvent("tracker", { event_type: "accepted" });
+          ui.ok('analytics.message_optIn');
+          yield ui.tracker.sendEvent("tracker", { event_type: "accepted" });
         } else {
-          cli.ok('analytics.message_optOut', {command: 'azk config track-toggle'});
+          ui.ok('analytics.message_optOut', {command: 'azk config track-toggle'});
         }
 
         return answers.track_ask;
