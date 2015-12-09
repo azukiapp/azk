@@ -1,6 +1,8 @@
 import { _, isBlank } from 'azk';
 import { meta as azkMeta } from 'azk';
 import { ConfigurationInvalidValueRegexError, ConfigurationInvalidKeyError } from 'azk/utils/errors';
+import { Helpers } from 'azk/cli/helpers';
+import { promiseResolve } from 'azk/utils/promises';
 
 const NULL_REGEX = /^(null|undefined|none|blank|reset)$/i;
 
@@ -68,6 +70,7 @@ module.exports = class Configuration {
         validation_regex: /^[-a-z0-9~!$%^&*_=+}{\'?]+(\.[-a-z0-9~!$%^&*_=+}{\'?]+)*@([a-z0-9_][-a-z0-9_]*(\.[-a-z0-9_]+)*\.(aero|arpa|biz|com|coop|edu|gov|info|int|mil|museum|name|net|org|pro|travel|mobi|[a-z][a-z])|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:[0-9]{1,5})?$/i,
         convertValidValueFunction: STRING_CONVERSION_FUNC,
         verbose_level: 0,
+        ask_promise: Helpers._askEmailIfNeeded.bind(Helpers),
       },
       {
         key: 'user.email.always_ask',
@@ -75,6 +78,7 @@ module.exports = class Configuration {
         validation_regex: BOOLEAN_REGEX,
         convertValidValueFunction: BOOLEAN_CONVERSION_FUNC,
         verbose_level: 0,
+        ask_promise: Helpers.askEmailEverytime.bind(Helpers),
       },
       {
         key: 'user.email.ask_count',
@@ -87,6 +91,7 @@ module.exports = class Configuration {
         validation_regex: BOOLEAN_REGEX,
         convertValidValueFunction: BOOLEAN_CONVERSION_FUNC,
         verbose_level: 0,
+        ask_promise: Helpers.askTermsOfUse.bind(Helpers),
       },
       {
         key: 'terms_of_use.ask_count',
@@ -163,6 +168,21 @@ module.exports = class Configuration {
       return convertValidValueFunction(value);
     } else {
       return value;
+    }
+  }
+
+  ask(ui, cmd, key) {
+    // get key
+    let current_config = this.opts._azk_config_list.filter((item) => {
+      return item.key === key;
+    });
+
+    // convert
+    let ask_promise = current_config.length > 0 && current_config[0].ask_promise;
+    if (ask_promise) {
+      return ask_promise(ui, cmd, true).then(() => promiseResolve(0));
+    } else {
+      return promiseResolve(0);
     }
   }
 

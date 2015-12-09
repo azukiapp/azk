@@ -41,6 +41,7 @@ var Helpers = {
 
       // exit: accepting terms is required?
       if (config("flags.require_accept_use_terms") === false) {
+        log.debug('[askTermsOfUse] exit: flags.require_accept_use_terms');
         return true;
       }
 
@@ -50,16 +51,20 @@ var Helpers = {
 
       // exit: can run azk config without asking
       if (cli_params.config === true) {
+        log.debug('[askTermsOfUse] exit: cli_params.config === true');
         return true;
       }
 
       // exit: not interactive code will not ask, but respect terms_accepted
       if (!cli.isInteractive()) {
+        log.debug('[askTermsOfUse] exit: !cli.isInteractive()');
         return terms_accepted;
       }
 
       // exit: no need to ask, terms already accepted
       if (terms_accepted && !force) {
+        log.debug('[askTermsOfUse] exit: terms_accepted: ' + terms_accepted);
+        log.debug('[askTermsOfUse] exit: force: ' + force);
         return true;
       }
 
@@ -132,7 +137,7 @@ var Helpers = {
   },
 
   // email
-  _askEmailIfNeeded(cli) {
+  _askEmailIfNeeded(cli, params, force_ask = false) {
     return async(this, function* () {
 
       let configuration = new Configuration();
@@ -144,7 +149,7 @@ var Helpers = {
       log.debug(`[crash-report] _askEmailIfNeeded - current_saved_email: ${current_saved_email}`);
       log.debug(`[crash-report] _askEmailIfNeeded - email_ask_count: ${email_ask_count}`);
 
-      if (always_ask_email === false) {
+      if (always_ask_email === false && !force_ask) {
         // do not ask email and send
         return false;
       } else {

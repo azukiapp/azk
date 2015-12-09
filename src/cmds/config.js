@@ -95,9 +95,7 @@ class Config extends CliTrackerController {
       }
       return promiseResolve(0);
     } else {
-      // ask for user input
-      this.ui.ok('commands.config.will_ask');
-      return promiseResolve(0);
+      return configuration.ask(this.ui, cmd, key_param);
     }
   }
 }
