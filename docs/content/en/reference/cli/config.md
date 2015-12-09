@@ -41,7 +41,7 @@ For boolean config values several values are acceptable on `config-value` argume
 # list all configurations
 $ azk config list
 { 'user.email': undefined,
-  'user.email.never_ask': undefined,
+  'user.email.always_ask': undefined,
   'user.email.ask_count': undefined,
   'terms_of_use.accepted': true,
   'terms_of_use.ask_count': 1,

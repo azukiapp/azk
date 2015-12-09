@@ -38,8 +38,11 @@ var Helpers = {
 
   askTermsOfUse(cli, cli_params, force = false) {
     return async(this, function* () {
-      // Accept terms is required?
-      if (!config("flags.require_accept_use_terms")) { return true; }
+
+      // exit: accepting terms is required?
+      if (config("flags.require_accept_use_terms") === false) {
+        return true;
+      }
 
       let configuration = new Configuration({});
       let email_ask_count = configuration.load('terms_of_use.ask_count');
@@ -134,14 +137,14 @@ var Helpers = {
 
       let configuration = new Configuration();
       let current_saved_email = configuration.load('user.email');
-      let never_ask_email = configuration.load('user.email.never_ask');
+      let always_ask_email = configuration.load('user.email.always_ask');
       let email_ask_count = configuration.load('user.email.ask_count');
 
-      log.debug(`[crash-report] _askEmailIfNeeded - never_ask_email: ${never_ask_email}`);
+      log.debug(`[crash-report] _askEmailIfNeeded - always_ask_email: ${always_ask_email}`);
       log.debug(`[crash-report] _askEmailIfNeeded - current_saved_email: ${current_saved_email}`);
       log.debug(`[crash-report] _askEmailIfNeeded - email_ask_count: ${email_ask_count}`);
 
-      if (never_ask_email === true) {
+      if (always_ask_email === false) {
         // do not ask email and send
         return false;
       } else {
@@ -165,7 +168,7 @@ var Helpers = {
           // lets suggest to not ask again
           if (email_ask_count > 1) {
             let will_ask_again = yield this.askEmailEverytime(cli);
-            configuration.save('user.email.never_ask', !will_ask_again);
+            configuration.save('user.email.always_ask', will_ask_again);
           }
         }
         return true;
@@ -219,7 +222,7 @@ var Helpers = {
     var question = {
       type    : 'confirm',
       name    : 'result',
-      message : 'crashReport.email.question_never_ask_email',
+      message : 'crashReport.email.question_always_ask_email',
       default : true
     };
 

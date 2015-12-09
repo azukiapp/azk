@@ -42,7 +42,7 @@ module.exports = {
         'You can always delete/update your email at any time. Check the documentation to see how.\n'.yellow,
         'Enter your email'.white + ' [optional]'.grey + ':'.white,
       ].join(''),
-      question_never_ask_email: [
+      question_always_ask_email: [
         'Ask email again for future crash report solutions?',
       ].join(''),
     },

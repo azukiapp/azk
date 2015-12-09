@@ -70,7 +70,7 @@ module.exports = class Configuration {
         verbose_level: 0,
       },
       {
-        key: 'user.email.never_ask',
+        key: 'user.email.always_ask',
         type: 'boolean',
         validation_regex: BOOLEAN_REGEX,
         convertValidValueFunction: BOOLEAN_CONVERSION_FUNC,
