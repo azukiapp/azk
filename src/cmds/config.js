@@ -70,7 +70,7 @@ class Config extends CliTrackerController {
   // resets all configuration
   reset() {
     let configuration = new Configuration();
-    return Helpers.askConfirmation(this.ui, 'commands.config.reset.ask_confirmation', false)
+    return this.askConfirmation('commands.config.reset.ask_confirmation', false)
     .then((result) => {
       if (result) {
         configuration.resetAll();
