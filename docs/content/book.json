@@ -6,11 +6,9 @@
   "releaseNotes": "http://......",
   "plugins": [
       "scrollablecode",
-      "jsbin",
-      "anchors",
+      "anchors@0.4.0",
       "include",
-      "-mathjax",
-      "ga"
+      "ga@0.2.1"
   ],
   "pluginsConfig": {
     "ga": {

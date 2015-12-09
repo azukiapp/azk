@@ -153,6 +153,7 @@ gulp.task('deploy-stage', function(callback) {
               'replace-font-path-pt-BR',
               'replace-font-path-en',
               'override-landingpage',
+              'replace-ga-tokens',
               'publish-stage-gz',
               callback);
 });
