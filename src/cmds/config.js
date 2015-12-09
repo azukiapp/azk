@@ -1,4 +1,4 @@
-import { _ } from 'azk';
+import { _, t } from 'azk';
 import { CliTrackerController } from 'azk/cli/cli_tracker_controller.js';
 import { promiseResolve } from 'azk/utils/promises';
 import { ConfigurationVoidValueError } from 'azk/utils/errors';
@@ -11,8 +11,8 @@ class Config extends CliTrackerController {
   }
 
   // list all configuration
-  list(cmd) {
-    let key_param = cmd['config-key'];
+  list(cli) {
+    let key_param = cli['config-key'];
     let configuration = new Configuration();
     let configList = configuration.listAll();
 
@@ -26,24 +26,20 @@ class Config extends CliTrackerController {
       this.ui.info('commands.config.key_not_found', {key: key_param});
     }
 
-    let getLabel = (item) => {
-      let getSufix = (type) => {
-        if (type === 'boolean') {
-          return ' [Y/N]'.grey;
-        }
-        if (type === 'string') {
-          return ' [text]'.grey;
-        }
-        if (type === 'number') {
-          return ' [number]'.grey;
-        }
-        return '';
-      };
-      return item.key.italic + getSufix(item.type) + ': ';
+    let getType = (type) => {
+      if (type === 'boolean') {
+        return '[Y/N]'.grey;
+      }
+      if (type === 'string') {
+        return '[text]'.grey;
+      }
+      if (type === 'number') {
+        return '[number]'.grey;
+      }
+      return '';
     };
 
-    let getValue = (item) => {
-      let value = item.value;
+    let getValue = (value) => {
       if (typeof value === 'undefined' || value === null) {
         return 'null'.grey.bold;
       }
@@ -53,16 +49,36 @@ class Config extends CliTrackerController {
       if (value === false) {
         return 'N'.green.bold;
       }
-      return value.bold;
+      return value.toString().bold;
     };
 
+    let getDescription = (key) => {
+      return t('commands.config.descriptions.' + key);
+    };
+
+    let table = this.ui.table_add('status', {
+      head: [
+        "key".green,
+        "type".blue,
+        'value'.yellow,
+        'description'.magenta,
+      ],
+      text: true
+    });
+
     _.each(configList, (configItem) => {
-      let label = getLabel(configItem);
-      let value = getValue(configItem);
-      if (cmd.verbose >= configItem.verbose_level) {
-        this.ui.output(`${label}${value}`);
+      if (cli.verbose >= configItem.verbose_level) {
+        let line = [
+          configItem.key,
+          getType(configItem.type),
+          getValue(configItem.value),
+          getDescription(configItem.key)
+        ];
+        this.ui.table_push(table, line);
       }
     });
+
+    this.ui.table_show(table);
 
     return promiseResolve(0);
   }

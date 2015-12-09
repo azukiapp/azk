@@ -498,6 +498,21 @@ module.exports = {
       'email_reset-to-null'   : 'Email: there is no email set-up.',
       'set_ok'                : '`%(key)s` was set to `%(value)s`',
       'key_not_found'         : '`%(key)s` does not exist.',
+      descriptions: {
+        user: {
+          email: 'User\'s email.',
+          email_always_ask: 'Always ask email when new error occurs.',
+          email_ask_count: 'How many times azk ask about user email.',
+        },
+        terms_of_use: {
+          accepted: 'Indicates that user has accepted terms of use.',
+          ask_count: 'How many times azk ask about terms of use.',
+        },
+        crash_reports: {
+          always_send: 'Always send crash reports when new error occurs (opt-out).',
+        },
+        tracker_permission: 'Always send tracking information (opt-out).',
+      }
     },
     vm: {
       already_installed: "Virtual machine already installed.",

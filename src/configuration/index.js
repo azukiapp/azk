@@ -70,14 +70,14 @@ module.exports = class Configuration {
         verbose_level: 0,
       },
       {
-        key: 'user.email.always_ask',
+        key: 'user.email_always_ask',
         type: 'boolean',
         validation_regex: BOOLEAN_REGEX,
         convertValidValueFunction: BOOLEAN_CONVERSION_FUNC,
         verbose_level: 0,
       },
       {
-        key: 'user.email.ask_count',
+        key: 'user.email_ask_count',
         type: 'number',
         verbose_level: 1,
       },

@@ -54,7 +54,7 @@ export class TermsController extends CliController {
 
       // save response and increment ask count
       configuration.save(`${namespace}.accepted`, response);
-      configuration.save(`${namespace}.ask_count`, terms_ask_count++);
+      configuration.save(`${namespace}.ask_count`, ++terms_ask_count);
 
       return response;
     });
