@@ -67,38 +67,45 @@ module.exports = class Configuration {
         type: 'string',
         validation_regex: /^[-a-z0-9~!$%^&*_=+}{\'?]+(\.[-a-z0-9~!$%^&*_=+}{\'?]+)*@([a-z0-9_][-a-z0-9_]*(\.[-a-z0-9_]+)*\.(aero|arpa|biz|com|coop|edu|gov|info|int|mil|museum|name|net|org|pro|travel|mobi|[a-z][a-z])|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:[0-9]{1,5})?$/i,
         convertValidValueFunction: STRING_CONVERSION_FUNC,
+        verbose_level: 0,
       },
       {
         key: 'user.email.never_ask',
         type: 'boolean',
         validation_regex: BOOLEAN_REGEX,
         convertValidValueFunction: BOOLEAN_CONVERSION_FUNC,
+        verbose_level: 0,
       },
       {
         key: 'user.email.ask_count',
         type: 'number',
+        verbose_level: 1,
       },
       {
         key: 'terms_of_use.accepted',
         type: 'boolean',
         validation_regex: BOOLEAN_REGEX,
         convertValidValueFunction: BOOLEAN_CONVERSION_FUNC,
+        verbose_level: 0,
       },
       {
         key: 'terms_of_use.ask_count',
         type: 'number',
+        verbose_level: 1,
       },
       {
         key: 'crash_reports.always_send',
         type: 'boolean',
         validation_regex: BOOLEAN_REGEX,
         convertValidValueFunction: BOOLEAN_CONVERSION_FUNC,
+        verbose_level: 0,
       },
       {
         key: 'tracker_permission',
         type: 'boolean',
         validation_regex: BOOLEAN_REGEX,
         convertValidValueFunction: BOOLEAN_CONVERSION_FUNC,
+        verbose_level: 0,
       },
     ];
   }

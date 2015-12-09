@@ -55,7 +55,9 @@ class Config extends CliTrackerController {
     _.each(configList, (configItem) => {
       let label = getLabel(configItem);
       let value = getValue(configItem);
-      this.ui.output(`${label}${value}`);
+      if (cmd.verbose >= configItem.verbose_level) {
+        this.ui.output(`${label}${value}`);
+      }
     });
 
     return promiseResolve(0);
