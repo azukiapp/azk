@@ -5,6 +5,10 @@ import { Helpers } from 'azk/cli/helpers';
 import Configuration from 'azk/configuration';
 
 class Config extends CliTrackerController {
+  constructor(...args) {
+    super(...args);
+    this.require_terms = false;
+  }
 
   // list all configuration
   list(cmd) {

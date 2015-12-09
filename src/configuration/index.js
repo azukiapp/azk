@@ -91,7 +91,7 @@ module.exports = class Configuration {
         validation_regex: BOOLEAN_REGEX,
         convertValidValueFunction: BOOLEAN_CONVERSION_FUNC,
         verbose_level: 0,
-        ask_promise: Helpers.askTermsOfUse.bind(Helpers),
+        // ask_promise: Helpers.askTermsOfUse.bind(Helpers),
       },
       {
         key: 'terms_of_use.ask_count',
