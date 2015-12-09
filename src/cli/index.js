@@ -4,6 +4,7 @@ import { Cli as AzkCli } from 'azk/cli/cli';
 import { UI } from 'azk/cli/ui';
 import { InvalidCommandError } from 'azk/utils/errors';
 import ErrorHandler from 'azk/cli/error_handler';
+
 export class Cli extends AzkCli {
   invalidCmd(error) {
     this.fail("commands.not_found", error.command);

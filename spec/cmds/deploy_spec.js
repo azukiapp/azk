@@ -199,7 +199,6 @@ h.describeRequireVm('Azk cli, deploy controller', function() {
 
     it("should no deploy system", function() {
       doc_opts.argv = ['deploy'];
-      var options = cli.router.cleanParams(cli.docopt(doc_opts));
       var run_options = { ui: ui, cwd: manifest.cwd, just_parse: true };
 
       var result = cli.run(doc_opts, run_options);
