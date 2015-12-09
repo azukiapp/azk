@@ -61,7 +61,7 @@ module.exports = class Configuration {
     };
 
     // initial configuration
-    this.opts._configListNames = [
+    this.opts._azk_config_list = [
       {
         key: 'user.email',
         type: 'string',
@@ -124,7 +124,7 @@ module.exports = class Configuration {
 
   validate(key, value) {
     // key exists?
-    let current_config = this.opts._configListNames.filter((item) => {
+    let current_config = this.opts._azk_config_list.filter((item) => {
       return item.key === key;
     });
     if (current_config.length === 0) {
@@ -153,7 +153,7 @@ module.exports = class Configuration {
 
   convertInputValue(key, value) {
     // get key
-    let current_config = this.opts._configListNames.filter((item) => {
+    let current_config = this.opts._azk_config_list.filter((item) => {
       return item.key === key;
     });
 
@@ -167,7 +167,7 @@ module.exports = class Configuration {
   }
 
   listAll() {
-    let listWithValues = _.map(this.opts._configListNames, (item) => {
+    let listWithValues = _.map(this.opts._azk_config_list, (item) => {
       item.value = azkMeta.get(item.key);
       return item;
     });
@@ -175,11 +175,11 @@ module.exports = class Configuration {
   }
 
   getAll() {
-    return this.opts._configListNames;
+    return this.opts._azk_config_list;
   }
 
   resetAll() {
-    this.opts._configListNames.forEach((item) => {
+    this.opts._azk_config_list.forEach((item) => {
       azkMeta.set(item.key, undefined);
     });
     return true;

@@ -17,7 +17,7 @@ describe('Configuration manager:', function() {
     const VALUE = 'SOME_TEXT';
 
     // create new test configuration
-    configuration.opts._configListNames.push({
+    configuration.opts._azk_config_list.push({
       key: KEY,
       type: 'string'
     });
@@ -34,7 +34,7 @@ describe('Configuration manager:', function() {
     const VALUE = true;
 
     // create new test configuration
-    configuration.opts._configListNames.push({
+    configuration.opts._azk_config_list.push({
       key: KEY,
       type: 'boolean'
     });
@@ -51,7 +51,7 @@ describe('Configuration manager:', function() {
     const VALUE = 'aaa';
 
     // create new test configuration
-    configuration.opts._configListNames.push({
+    configuration.opts._azk_config_list.push({
       key: KEY,
       type: 'string',
       validation_regex: /aaa/,
@@ -66,7 +66,7 @@ describe('Configuration manager:', function() {
     const VALUE = 'aaa';
 
     // create new test configuration
-    configuration.opts._configListNames.push({
+    configuration.opts._azk_config_list.push({
       key: KEY,
       type: 'string',
       validation_regex: /bbb/,
@@ -81,7 +81,7 @@ describe('Configuration manager:', function() {
     const VALUE = 'aaa';
 
     // create new test configuration
-    configuration.opts._configListNames.push({
+    configuration.opts._azk_config_list.push({
       key: KEY,
       type: 'string',
       validation_regex: /aaa/,
@@ -96,7 +96,7 @@ describe('Configuration manager:', function() {
     const VALUE = 'aaa';
 
     // create new test configuration
-    configuration.opts._configListNames.push({
+    configuration.opts._azk_config_list.push({
       key: KEY,
       type: 'string',
       validation_regex: /bbb/,
@@ -111,7 +111,7 @@ describe('Configuration manager:', function() {
     const VALUE = 'on';
 
     // create new test configuration
-    configuration.opts._configListNames.push({
+    configuration.opts._azk_config_list.push({
       key: KEY,
       type: 'boolean',
       validation_regex: /^(on|true|1|off|false|0)$/i,
@@ -126,7 +126,7 @@ describe('Configuration manager:', function() {
     const VALUE = 'onn';
 
     // create new test configuration
-    configuration.opts._configListNames.push({
+    configuration.opts._azk_config_list.push({
       key: KEY,
       type: 'boolean',
       validation_regex: /^(on|true|1|off|false|0)$/i,
@@ -141,7 +141,7 @@ describe('Configuration manager:', function() {
     const VALUE = 'on';
 
     // create new test configuration
-    configuration.opts._configListNames.push({
+    configuration.opts._azk_config_list.push({
       key: KEY,
       type: 'boolean',
       validation_regex: /^(on|true|1|off|false|0)$/i,
