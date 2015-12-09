@@ -13,7 +13,7 @@ var Helpers = {
     return lazy.AgentClient
       .status()
       .then((status) => {
-        if (!status.agent && !cli.isInteractive()) {
+        if (!status.agent && cli.isInteractive()) {
           var question = {
             type    : 'confirm',
             name    : 'start',
