@@ -1,8 +1,6 @@
 import { _, isBlank } from 'azk';
 import { meta as azkMeta } from 'azk';
 import { ConfigurationInvalidValueRegexError, ConfigurationInvalidKeyError } from 'azk/utils/errors';
-import { Helpers } from 'azk/cli/helpers';
-import { promiseResolve } from 'azk/utils/promises';
 
 const NULL_REGEX = /^(null|undefined|none|blank|reset)$/i;
 
@@ -70,7 +68,6 @@ module.exports = class Configuration {
         validation_regex: /^[-a-z0-9~!$%^&*_=+}{\'?]+(\.[-a-z0-9~!$%^&*_=+}{\'?]+)*@([a-z0-9_][-a-z0-9_]*(\.[-a-z0-9_]+)*\.(aero|arpa|biz|com|coop|edu|gov|info|int|mil|museum|name|net|org|pro|travel|mobi|[a-z][a-z])|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:[0-9]{1,5})?$/i,
         convertValidValueFunction: STRING_CONVERSION_FUNC,
         verbose_level: 0,
-        ask_promise: Helpers._askEmailIfNeeded.bind(Helpers),
       },
       {
         key: 'user.email.always_ask',
@@ -78,7 +75,6 @@ module.exports = class Configuration {
         validation_regex: BOOLEAN_REGEX,
         convertValidValueFunction: BOOLEAN_CONVERSION_FUNC,
         verbose_level: 0,
-        ask_promise: Helpers.askEmailEverytime.bind(Helpers),
       },
       {
         key: 'user.email.ask_count',
@@ -91,7 +87,6 @@ module.exports = class Configuration {
         validation_regex: BOOLEAN_REGEX,
         convertValidValueFunction: BOOLEAN_CONVERSION_FUNC,
         verbose_level: 0,
-        // ask_promise: Helpers.askTermsOfUse.bind(Helpers),
       },
       {
         key: 'terms_of_use.ask_count',
@@ -129,12 +124,7 @@ module.exports = class Configuration {
 
   validate(key, value) {
     // key exists?
-    let current_config = this.opts._azk_config_list.filter((item) => {
-      return item.key === key;
-    });
-    if (current_config.length === 0) {
-      throw new ConfigurationInvalidKeyError(key, value);
-    }
+    let current_config = this.getKey(key);
 
     // inserting null/undefined/... value is valid
     let is_valid_null = NULL_REGEX.test(value);
@@ -143,11 +133,11 @@ module.exports = class Configuration {
     }
 
     // valid regex value?
-    let validation_regex = current_config.length > 0 && current_config[0].validation_regex;
+    let validation_regex = current_config.validation_regex;
     let value_exist = !isBlank(value);
 
     if (validation_regex && value_exist && !is_valid_null) {
-      let is_value_valid = current_config[0].validation_regex.test(value);
+      let is_value_valid = current_config.validation_regex.test(value);
       if (!is_value_valid) {
         throw new ConfigurationInvalidValueRegexError(key, value);
       }
@@ -156,33 +146,27 @@ module.exports = class Configuration {
     return true;
   }
 
-  convertInputValue(key, value) {
-    // get key
+  getKey(key) {
+    // key exists?
     let current_config = this.opts._azk_config_list.filter((item) => {
       return item.key === key;
     });
+    if (current_config.length === 0) {
+      throw new ConfigurationInvalidKeyError(key);
+    }
+    return current_config[0];
+  }
+
+  convertInputValue(key, value) {
+    // get key
+    let current_config = this.getKey(key);
 
     // convert
-    let convertValidValueFunction = current_config.length > 0 && current_config[0].convertValidValueFunction;
+    let convertValidValueFunction = current_config.convertValidValueFunction;
     if (convertValidValueFunction) {
       return convertValidValueFunction(value);
     } else {
       return value;
-    }
-  }
-
-  ask(ui, cmd, key) {
-    // get key
-    let current_config = this.opts._azk_config_list.filter((item) => {
-      return item.key === key;
-    });
-
-    // convert
-    let ask_promise = current_config.length > 0 && current_config[0].ask_promise;
-    if (ask_promise) {
-      return ask_promise(ui, cmd, true).then(() => promiseResolve(0));
-    } else {
-      return promiseResolve(0);
     }
   }
 
@@ -203,10 +187,6 @@ module.exports = class Configuration {
       azkMeta.set(item.key, undefined);
     });
     return true;
-  }
-
-  show(item_name) {
-    return { [item_name]: this.listAll()[item_name] };
   }
 
 };

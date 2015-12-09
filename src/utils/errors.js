@@ -267,10 +267,9 @@ export class GitCallError extends AzkError {
 }
 
 export class ConfigurationInvalidKeyError extends AzkError {
-  constructor(key, value) {
+  constructor(key) {
     super('configuration.invalid_key_error');
     this.key   = key;
-    this.value = value;
   }
 }
 export class ConfigurationInvalidValueRegexError extends AzkError {
@@ -278,6 +277,12 @@ export class ConfigurationInvalidValueRegexError extends AzkError {
     super('configuration.invalid_value_regex_error');
     this.key   = key;
     this.value = value;
+  }
+}
+export class ConfigurationVoidValueError extends AzkError {
+  constructor(key) {
+    super('configuration.void_value_error');
+    this.key   = key;
   }
 }
 

@@ -92,6 +92,11 @@ module.exports = {
         "%(key)s".white,
         ".".yellow,
       ].join(""),
+      void_value_error : [
+        "Please, provide a value for ".yellow,
+        "%(key)s".white,
+        ".".yellow,
+      ].join(""),
       invalid_value_boolean_error : [
         "%(value)s".red,
         " it is not valid value for ".yellow,

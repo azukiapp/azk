@@ -1,7 +1,7 @@
 import { _ } from 'azk';
 import { CliTrackerController } from 'azk/cli/cli_tracker_controller.js';
 import { promiseResolve } from 'azk/utils/promises';
-import { Helpers } from 'azk/cli/helpers';
+import { ConfigurationVoidValueError } from 'azk/utils/errors';
 import Configuration from 'azk/configuration';
 
 class Config extends CliTrackerController {
@@ -86,7 +86,7 @@ class Config extends CliTrackerController {
     let value_param = cmd['config-value'];
     let configuration = new Configuration();
 
-    if (value_param) {
+    if (key_param && value_param) {
       // value exist
       let is_valid = configuration.validate(key_param, value_param);
       if (is_valid) {
@@ -99,7 +99,15 @@ class Config extends CliTrackerController {
       }
       return promiseResolve(0);
     } else {
-      return configuration.ask(this.ui, cmd, key_param);
+      let config_item;
+      // get and validate key
+      if (key_param) {
+        config_item = configuration.getKey(key_param);
+      }
+      // no value, throw error
+      if (!value_param) {
+        throw new ConfigurationVoidValueError(key_param);
+      }
     }
   }
 }
