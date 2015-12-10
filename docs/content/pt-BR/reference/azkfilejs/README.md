@@ -20,3 +20,4 @@ Como sugere a extensão `.js` o **Azkfile.js** é escrito em JavaScript, mas nen
 - [shell](shell.md)
 - [wait](wait.md)
 - [workdir](workdir.md)
+- [expand_template](expand_template.md)

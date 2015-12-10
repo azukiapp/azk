@@ -20,3 +20,4 @@ As suggested by the `.js` extension the **Azkfile.js** is written in JavaScript,
 - [shell](shell.md)
 - [wait](wait.md)
 - [workdir](workdir.md)
+- [expand_template](expand_template.md)
