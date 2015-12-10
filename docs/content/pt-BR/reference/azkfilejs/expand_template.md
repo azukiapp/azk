@@ -1,29 +1,30 @@
-## Propriedade expansíveis de template
+## Propriedade expansíveis
 
-Podemos utilizar algumas propriedades dentro de _strings_ no `Azkfile.js`. Essas propriedades especiais são expandidas para seu respectivos valores em tempo de execução.
+Podemos utilizar algumas propriedades dentro de _strings_ no `Azkfile.js`. Essas propriedades especiais são substituídas para seu respectivos valores em tempo de execução.
 
 #### Properties:
 
-- *system.name*
-  - current system name
-- *manifest.dir*
-  - current path were Azkfile is
-- *manifest.path*
-  - xxxxxxxxxx
-- *manifest.project_name*
-  - xxxxxxxxxx
-- *azk.version*
-  - xxxxxxxxxx
-- *azk.default_domain*
-  - xxxxxxxxxx
-- *azk.default_dns*
-  - xxxxxxxxxx
+- __system.name__
+  - nome de sistema
+- __manifest.dir__
+  - nome do diretório no qual o `Azkfile.js` está
+- __manifest.path__
+  - caminho completo do diretório no qual o `Azkfile.js` está
+- __azk.version__
+  - versão atual do azk
+- __azk.default_domain__
+  - parte da URL do domínio do azk (geralmente "dev.azk.io")
+- __azk.default_dns__
+  - DNS do host utilizado
+- __env__
+  - expõe um objeto com variáveis de ambientes. Use com notação de ponto: (ex: `env.PWD`)
+
+##### sessão diferente
+
 - *azk.balancer_port*
-  - xxxxxxxxxx
+  - porta do balancedor de carga (_não existem garantias de suporte no futuro_)
 - *azk.balancer_ip*
-  - xxxxxxxxxx
-- *env*
-  - xxxxxxxxxx
+  - IP do balancedor de carga (_não existem garantias de suporte no futuro_)
 
 #### Uso:
 
