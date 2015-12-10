@@ -501,15 +501,15 @@ module.exports = {
       descriptions: {
         user: {
           email: 'User\'s email.',
-          email_always_ask: 'Always ask email when new error occurs.',
-          email_ask_count: 'How many times azk ask about user email.',
+          email_always_ask: 'Always ask for user’s email when an error occurs.',
+          email_ask_count: 'How many times azk asked for user’s email.',
         },
         terms_of_use: {
-          accepted: 'Indicates that user has accepted terms of use.',
-          ask_count: 'How many times azk ask about terms of use.',
+          accepted: 'Indicates whether user has accepted terms of use or not.',
+          ask_count: 'How many times azk asked about terms of use acceptance.',
         },
         crash_reports: {
-          always_send: 'Always send crash reports when new error occurs (opt-out).',
+          always_send: 'Always send crash reports when an error occurs (opt-out).',
         },
         tracker_permission: 'Always send tracking information (opt-out).',
       }

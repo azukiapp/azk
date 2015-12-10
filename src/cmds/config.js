@@ -41,7 +41,7 @@ class Config extends CliTrackerController {
 
     let getValue = (value) => {
       if (typeof value === 'undefined' || value === null) {
-        return 'null'.grey.bold;
+        return '(not set)'.grey.bold;
       }
       if (value === true) {
         return 'Y'.green.bold;
@@ -59,9 +59,9 @@ class Config extends CliTrackerController {
     let table = this.ui.table_add('status', {
       head: [
         "key".green,
-        "type".blue,
-        'value'.yellow,
-        'description'.magenta,
+        "type".green,
+        'value'.green,
+        'description'.green,
       ],
       text: true
     });
