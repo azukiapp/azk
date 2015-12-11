@@ -4,7 +4,7 @@ Podemos utilizar algumas propriedades dentro de _strings_ no `Azkfile.js`. Essas
 
 #### propriedades expansíveis comuns:
 
-###### `${system.name}`
+##### `${system.name}`
 Nome do sistema atual.
 
 _Exemplo_:
@@ -24,8 +24,9 @@ $ azk shell -c 'env'
 SYSTEM_NAME=sys1
 ```
 
+--------------------
 
-###### `${manifest.dir}`
+##### `${manifest.dir}`
 Nome do diretório no qual o `Azkfile.js` está.
 
 _Exemplo_:
@@ -47,6 +48,9 @@ $ pwd
 $ azk shell -c 'env'
 DIR_NAME=test
 ```
+
+--------------------
+
 
 - __manifest.path__
   - caminho completo do diretório no qual o `Azkfile.js` está
