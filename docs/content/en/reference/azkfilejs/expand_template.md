@@ -1,4 +1,4 @@
-## Expandable template properties
+## Expandable properties
 
 We can use some properties inside Azkfile that is expanded to runtime values.
 

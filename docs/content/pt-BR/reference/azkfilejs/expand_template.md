@@ -4,11 +4,49 @@ Podemos utilizar algumas propriedades dentro de _strings_ no `Azkfile.js`. Essas
 
 #### propriedades expansíveis comuns:
 
-- __system.name__
-  - nome de sistema
+###### `${system.name}`
+Nome do sistema atual.
 
-- __manifest.dir__
-  - nome do diretório no qual o `Azkfile.js` está
+_Exemplo_:
+
+```js
+systems: {
+  sys1: {
+    envs: {
+      SYSTEM_NAME: '#{system.name}',
+    }
+  }
+}
+```
+
+```sh
+$ azk shell -c 'env'
+SYSTEM_NAME=sys1
+```
+
+
+###### `${manifest.dir}`
+Nome do diretório no qual o `Azkfile.js` está.
+
+_Exemplo_:
+
+```js
+systems: {
+  sys1: {
+    envs: {
+      DIR_NAME: '#{manifest.dir}',
+    }
+  }
+}
+```
+
+```sh
+$ pwd
+/home/projects/test
+
+$ azk shell -c 'env'
+DIR_NAME=test
+```
 
 - __manifest.path__
   - caminho completo do diretório no qual o `Azkfile.js` está
