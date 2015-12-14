@@ -174,10 +174,10 @@ ALL_DNS=172.17.0.1,8.8.8.8,8.8.4.4
 
 ##### `#{env}`
 
-Expõe um objeto com variáveis de ambientes. Use com notação de ponto:
+Expõe um objeto com variáveis de ambientes. Use com notação de ponto.
 
 
-Ex: `env.PWD`
+__Alerta de Segurança:__ Observe que, como o `Azkfile.js` é parte do código, dados confidenciais, como senha e tokens privados, não devem ser colocados aqui. Use um arquivo `.env` e coloque este arquivo no `.gitignore`.
 
 
 _Exemplo_:

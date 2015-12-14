@@ -176,6 +176,10 @@ ALL_DNS=172.17.0.1,8.8.8.8,8.8.4.4
 
 Exposes an object with environment variables. Use with dot notation:
 
+
+__Security Alert:__ Note that `Azkfile.js` is part of the code. Sensitive data such as passwords and private tokens should not be placed on `Azkfile.js`. Use a `.env` file ignored by `git` with `.gitignore`.
+
+
 _Example_:
 
 ```js
