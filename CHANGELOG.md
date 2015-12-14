@@ -13,6 +13,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Docs] Adding instructions about "Expandable Properties";
   * [Package] Installation script (`install.sh`) now supports other shells besides `bash` #583;
 
+* Bug
+  * [Pull] When pulling in verbose mode do not print several `undefined` anymore. Instead print Docker downloading bar provided by Docker API;
+
 ## v0.16.3 - (2015-12-08)
 
 * Enhancements
