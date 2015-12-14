@@ -219,7 +219,7 @@ Porta nomeada exportada para o sistema dependente. Observe que sempre devemos ch
 
 Variáveis de ambiente para serem exportadas a partir de outras variáveis de ambiente 'calculadas' em tempo execução.
 
->Não confundir com `#{envs}`.
+>Não confundir com `#{env}`.
 
 --------------------
 
