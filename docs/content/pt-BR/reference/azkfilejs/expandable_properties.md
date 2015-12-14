@@ -15,6 +15,7 @@ Podemos utilizar algumas propriedades dentro de _strings_ no `Azkfile.js`. Essas
 1. [Propriedades Expansíveis Exportáveis](#propriedades-expansíveis-exportáveis)
   1. [#{net.host}](#nethost)
   1. [#{net.port}](#netport)
+  1. [#{envs}](#envs)
 1. [Propriedades Expansíveis do Load Balancer](#propriedades-expansíveis-do-load-balancer)
   1. [#{azk.balancer_ip}](#azkbalancer_ip)
   1. [#{azk.balancer_port}](#azkbalancer_port)
