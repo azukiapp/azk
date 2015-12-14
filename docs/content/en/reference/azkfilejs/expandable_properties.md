@@ -2,9 +2,9 @@
 
 We can use some properties inside _strings_ in `Azkfile.js`. These special properties are replaced with runtime values.
 
-## Summary:
+## Table of contents:
 
-1. [General Expandable Properties](#generalexpandableproperties)
+1. [General Expandable Properties](#general-expandable-properties)
   1. [#{system.name}](#systemname)
   1. [#{manifest.dir}](#manifestdir)
   1. [#{manifest.path}](#manifestpath)
@@ -12,11 +12,11 @@ We can use some properties inside _strings_ in `Azkfile.js`. These special prope
   1. [#{azk.default_domain}](#azkdefault_domain)
   1. [#{azk.default_dns}](#azkdefault_dns)
   1. [#{env}](#env)
-1. [Exportable Expandable Properties](#exportableexpandableproperties)
+1. [Exportable Expandable Properties](#exportable-expandable-properties)
   1. [#{net.host}](#nethost)
   1. [#{net.port}](#netport)
   1. [#{envs}](#envs)
-1. [Load Balancer Expandable Properties](#loadbalancerexpandableproperties)
+1. [Load Balancer Expandable Properties](#load-balancer-expandable-properties)
   1. [#{azk.balancer_ip}](#azkbalancer_ip)
   1. [#{azk.balancer_port}](#azkbalancer_port)
 
