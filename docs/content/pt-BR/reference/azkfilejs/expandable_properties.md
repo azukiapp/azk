@@ -2,7 +2,7 @@
 
 Podemos utilizar algumas propriedades dentro de _strings_ no `Azkfile.js`. Essas propriedades especiais são substituídas para seu respectivos valores em tempo de execução.
 
-## índice:
+## Índice:
 
 1. [Propriedades Expansíveis Gerais](#propriedades-expansíveis-gerais)
   1. [#{system.name}](#systemname)
@@ -51,7 +51,7 @@ Nome do diretório no qual o `Azkfile.js` está.
 
 _Exemplo_:
 
-Neste exemplo definimos o `workdir` como sendo `/azk/test`, visto que o diretório onte está o manifesto (`Azkfile.js`) se chama `test`.
+Neste exemplo definimos o `workdir` como sendo `/azk/test`, visto que o diretório onte está o arquivo manifesto (`Azkfile.js`) se chama `test`.
 
 ```js
 systems({
@@ -100,7 +100,7 @@ HOST_MANIFEST_FULL_PATH=/home/projects/test
 
 ##### `#{azk.version}`
 
-Versão atual do azk
+Versão atual do `azk`
 
 _Exemplo_:
 
@@ -123,7 +123,7 @@ AZK_VERSION=0.16.3
 
 ##### `#{azk.default_domain}`
 
-Parte da URL do domínio do azk (geralmente "dev.azk.io")
+Nome do domínio utilizado pelo `azk` (`dev.azk.io`, por padrão).
 
 _Exemplo_:
 
@@ -149,9 +149,10 @@ $ azk status --text
 
 ##### `#{azk.default_dns}`
 
-Compilado das DNSs, seguindo a ordem:
-- DNS do azk
-- DNS do `/etc/resolv.conf
+Lista de endereços dos serviços de DNS disponíveis, separados por vírgula, na seguinte ordem:
+
+- DNS do `azk`;
+- DNS do `/etc/resolv.conf`;
 
 _Exemplo_:
 
@@ -174,10 +175,9 @@ ALL_DNS=172.17.0.1,8.8.8.8,8.8.4.4
 
 ##### `#{env}`
 
-Expõe um objeto com variáveis de ambientes. Use com notação de ponto.
+Objeto com as variáveis de ambiente disponíveis na máquina local. Use com notação de ponto (`env.VAR`).
 
-
-__Alerta de Segurança:__ Observe que, como o `Azkfile.js` é parte do código, dados confidenciais, como senha e tokens privados, não devem ser colocados aqui. Use um arquivo `.env` e coloque este arquivo no `.gitignore`.
+__Alerta de Segurança:__ Observe que, como o `Azkfile.js` é parte do código, dados confidenciais (como senhas e tokens privados) não devem ser colocados aqui. Ao invés disso, use um arquivo `.env` e não adicione-o ao seu sistema de controle de versão.
 
 
 _Exemplo_:
@@ -217,7 +217,7 @@ Porta nomeada exportada para o sistema dependente. Observe que sempre devemos ch
 
 ##### `#{envs}`
 
-Variáveis de ambiente para serem exportadas a partir de outras variáveis de ambiente 'calculadas' em tempo execução.
+Variáveis de ambiente para serem exportadas para os sistemas dependentes a partir das variáveis de ambiente declaradas na propriedade `envs`.
 
 >Não confundir com `#{env}`.
 

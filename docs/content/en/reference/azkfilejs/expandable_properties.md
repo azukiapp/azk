@@ -47,7 +47,7 @@ SYSTEM_NAME=sys1
 
 ##### `#{manifest.dir}`
 
-Current folder name where `Azkfile.js` is.
+Current folder name where `Azkfile.js` is located.
 
 _Example_:
 
@@ -74,7 +74,7 @@ $ azk shell -c 'pwd'
 
 ##### `#{manifest.path}`
 
-Current fullpath where `Azkfile.js` is.
+Current fullpath where `Azkfile.js` is located.
 
 _Example_:
 
@@ -123,7 +123,7 @@ AZK_VERSION=0.16.3
 
 ##### `#{azk.default_domain}`
 
-Part of `azk's` URI
+Domain name used by `azk` (`dev.azk.io` by default).
 
 _Example_:
 
@@ -149,9 +149,9 @@ $ azk status --text
 
 ##### `#{azk.default_dns}`
 
-List of DNS on following the order:
-- `azk` DNS
-- `/etc/resolv.conf` DNS
+List of available DNS services, separated by commas, in the following order:
+- `azk` DNS;
+- `/etc/resolv.conf` DNSes;
 
 _Example_:
 
@@ -174,10 +174,10 @@ ALL_DNS=172.17.0.1,8.8.8.8,8.8.4.4
 
 ##### `#{env}`
 
-Exposes an object with environment variables. Use with dot notation:
+Object with all the available environment variables in the local machine. Use with dot notation (`env.VAR`).
 
 
-__Security Alert:__ Note that `Azkfile.js` is part of the code. Sensitive data such as passwords and private tokens should not be placed on `Azkfile.js`. Use a `.env` file ignored by `git` with `.gitignore`.
+__Security Alert:__ Note that `Azkfile.js` is part of the code. Sensitive data such as passwords and private tokens should not be placed on `Azkfile.js`. Instead, use a `.env` file ignored by your version control system.
 
 
 _Example_:
@@ -211,13 +211,13 @@ Current system host name. Usually is `azk.dev.io` while `http.domain` is unset.
 
 ##### `#{net.port}`
 
-Named port exported to dependent system. We have to tell port name. See the property `#{net.port.data}` bellow.
+Named port exported to dependent system. We have to tell the port name (such as `#{net.port.name}`). See the property `#{net.port.data}` bellow.
 
 --------------------
 
 ##### `#{envs}`
 
-Environment variables to be exported. Can use calculated runtime values.
+Environment variables to be exported to dependent systems from environment variables declared in `envs` properties.
 
 > Do not confuse with `#{env}`.
 
@@ -267,7 +267,7 @@ DATABASE_URL=mysql2://azk:azk@dev.azk.io:32772/project_development
 
 ## Load Balancer Expandable Properties
 
-> For expandable properties below there are no guarantees. Use with caution.
+> For expandable properties below, there is no guarantee of support in the future. Use them with caution.
 
 ##### `#{azk.balancer_ip}`
 
