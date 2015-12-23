@@ -5,3 +5,5 @@ node_modules
 .azk
 .env
 .awspublish-azk-docs-stage
+.awspublish-docs.azk.io
+.awspublish-docs-stage.azk.io
