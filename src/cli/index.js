@@ -1,9 +1,9 @@
-import { _ } from 'azk';
+import { _, log } from 'azk';
 import { promiseResolve, promiseReject, isPromise } from 'azk/utils/promises';
 import { Cli as AzkCli } from 'azk/cli/cli';
 import { UI } from 'azk/cli/ui';
-import { InvalidCommandError } from 'azk/utils/errors';
-import ErrorHandler from 'azk/cli/error_handler';
+import { InvalidCommandError, UnknownError } from 'azk/utils/errors';
+import { handler as error_handler } from 'azk/cli/error_handler';
 
 export class Cli extends AzkCli {
   invalidCmd(error) {
@@ -67,18 +67,18 @@ export function cli(args, cwd, ui = UI) {
   if (isPromise(result)) {
     result
       .then((code) => {
-        if (code !== 0) {
-          ui.fail('ATTENTION: error were are not thrown');
-          ui.fail(`code: ${code}`);
-          return ui.exit(code);
+        // Convert a not number in a UnknownError
+        if (!_.isNumber(code)) {
+          log.warn('[cli] command not return error or code, return: %j', code);
+          throw new UnknownError(code);
         }
-        ui.exit(0);
+        return code;
       })
       .catch((error) => {
-        return ErrorHandler.handle(ui, error);
+        return error_handler(error, { ui });
       })
       .then((code) => {
-        ui.exit(code ? code : 0);
+        ui.exit(_.isNumber(code) ? code : 1);
       });
   } else {
     ui.exit(result);

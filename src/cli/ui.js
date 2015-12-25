@@ -1,4 +1,4 @@
-import { _, t, lazy_require } from 'azk';
+import { _, t, lazy_require, isBlank } from 'azk';
 import { defer, nfcall } from 'azk/utils/promises';
 import { AzkError } from 'azk/utils/errors';
 
@@ -190,6 +190,7 @@ export { UI };
 
 export class UIProxy {
   constructor(ui) {
+    ui = isBlank(ui) ? UI : ui;
     if (ui.isUI) {
       this.__user_interface = ui;
     } else {

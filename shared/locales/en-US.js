@@ -27,12 +27,9 @@ module.exports = {
       'Sorry, an error has occurred.\n',
       'A crash report about this error will be sent to azk team in order to make azk better.',
     ].join(''),
-    sending: [
-      'Sending bug report to Azuki...',
-    ].join(''),
-    was_sent: [
-      'Bug report was sent. Thanks.',
-    ].join(''),
+    sending: 'Sending bug report to Azuki...',
+    was_sent: 'Bug report was sent. Thanks.',
+    was_not_sent: 'Bug report can not be shipped. Sorry.',
 
     email: {
       question: [
@@ -46,9 +43,9 @@ module.exports = {
         'Ask email again for future crash report solutions?',
       ].join(''),
     },
-
   },
   errors: {
+    unknown_error               : "Unknown error: %(error)O",
     no_vm_started               : "Unable to install and configure virtual machine",
     no_internet_connection      : "\nNo internet connection!",
     lost_internet_connection    : "\nLost internet connection:\n%(output)s",
