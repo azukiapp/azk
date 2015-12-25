@@ -2,7 +2,6 @@ import { _, t } from 'azk';
 import { CliTrackerController } from 'azk/cli/cli_tracker_controller.js';
 import { promiseResolve } from 'azk/utils/promises';
 import { ConfigurationVoidValueError } from 'azk/utils/errors';
-import Configuration from 'azk/configuration';
 
 class Config extends CliTrackerController {
   constructor(...args) {
@@ -12,9 +11,8 @@ class Config extends CliTrackerController {
 
   // list all configuration
   list(cli) {
-    let key_param = cli['config-key'];
-    let configuration = new Configuration();
-    let configList = configuration.listAll();
+    let key_param  = cli['config-key'];
+    let configList = this.configuration.listAll();
 
     if (key_param) {
       configList = _.filter(configList, (item) => {
@@ -85,29 +83,28 @@ class Config extends CliTrackerController {
 
   // resets all configuration
   reset() {
-    let configuration = new Configuration();
-    return this.askConfirmation('commands.config.reset.ask_confirmation', false)
-    .then((result) => {
-      if (result) {
-        configuration.resetAll();
-        this.ui.ok('commands.config.reset.confirmed');
-      }
-      return promiseResolve(0);
-    });
+    return this
+      .askConfirmation('commands.config.reset.ask_confirmation', true)
+      .then((result) => {
+        if (result) {
+          this.configuration.resetAll();
+          this.ui.ok('commands.config.reset.confirmed');
+        }
+        return promiseResolve(0);
+      });
   }
 
   // set a configuration
   set(cmd) {
     let key_param = cmd['config-key'];
     let value_param = cmd['config-value'];
-    let configuration = new Configuration();
 
     if (key_param && value_param) {
       // value exist
-      let is_valid = configuration.validate(key_param, value_param);
+      let is_valid = this.configuration.validate(key_param, value_param);
       if (is_valid) {
-        let converted_value = configuration.convertInputValue(key_param, value_param);
-        configuration.save(key_param, converted_value);
+        let converted_value = this.configuration.convertInputValue(key_param, value_param);
+        this.configuration.save(key_param, converted_value);
         this.ui.ok('commands.config.set_ok', {
           key: key_param,
           value: converted_value,
@@ -118,7 +115,7 @@ class Config extends CliTrackerController {
       let config_item;
       // get and validate key
       if (key_param) {
-        config_item = configuration.getKey(key_param);
+        config_item = this.configuration.getKey(key_param);
       }
       // no value, throw error
       if (!value_param) {

@@ -1,9 +1,12 @@
 import { CliController } from 'azk/cli/cli_controller';
-import { isBlank } from 'azk/utils';
+import { isBlank, lazy_require } from 'azk/utils';
 import { log, config } from 'azk';
 import { async, promiseResolve, promiseReject } from 'azk/utils/promises';
 import { MustAcceptTermsOfUse } from 'azk/utils/errors';
-import Configuration from 'azk/configuration';
+
+var lazy = lazy_require({
+  Configuration: ['azk/configuration'],
+});
 
 export class TermsController extends CliController {
   constructor(...args) {
@@ -11,9 +14,16 @@ export class TermsController extends CliController {
     this.require_terms = (config('flags:require_accept_use_terms') === true);
   }
 
+  get configuration() {
+    if (isBlank(this._configuration)) {
+      this._configuration = new lazy.Configuration();
+    }
+    return this._configuration;
+  }
+
   before_action_tracker(action_name, params) {
     return this.askTermsOfUse(params).then((accepted) => {
-      if (!accepted) {
+      if (accepted !== true) {
         return promiseReject(new MustAcceptTermsOfUse());
       }
     });
@@ -27,12 +37,11 @@ export class TermsController extends CliController {
         return true;
       }
 
-      let configuration   = new Configuration();
-      let terms_accepted  = configuration.load(`${namespace}.accepted`);
+      let terms_accepted = this.configuration.load(`${namespace}.accepted`, false);
 
       // exit: not interactive code will not ask, but respect terms_accepted
       if (!this.ui.isInteractive()) {
-        log.debug('[askTermsOfUse] exit: !this.ui.isInteractive()');
+        log.debug('[askTermsOfUse] not ask because !this.ui.isInteractive()');
         return terms_accepted;
       }
 
@@ -43,7 +52,7 @@ export class TermsController extends CliController {
       }
 
       // load ask_count
-      let terms_ask_count = configuration.load(`${namespace}.ask_count`);
+      let terms_ask_count = this.configuration.load(`${namespace}.ask_count`);
       if (isBlank(terms_ask_count)) {
         terms_ask_count = 0;
       }
@@ -53,24 +62,27 @@ export class TermsController extends CliController {
       var response = yield this.askConfirmation(`${namespace}.${question}`);
 
       // save response and increment ask count
-      configuration.save(`${namespace}.accepted`, response);
-      configuration.save(`${namespace}.ask_count`, ++terms_ask_count);
+      this.configuration.save(`${namespace}.accepted`, response);
+      this.configuration.save(`${namespace}.ask_count`, ++terms_ask_count);
 
       return response;
     });
   }
 
   askConfirmation(translation_path, default_bool = true) {
-    var question = {
-      type    : 'confirm',
-      name    : 'boolean_result',
-      message : translation_path,
-      default : default_bool
-    };
+    if (this.ui.isInteractive()) {
+      var question = {
+        type    : 'confirm',
+        name    : 'boolean_result',
+        message : translation_path,
+        default : default_bool
+      };
 
-    return this.ui.prompt(question)
-    .then((response) => {
-      return promiseResolve(response.boolean_result);
-    });
+      return this.ui.prompt(question).then((response) => {
+        return response.boolean_result;
+      });
+    }
+
+    return promiseResolve(default_bool);
   }
 }
