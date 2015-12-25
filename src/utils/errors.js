@@ -30,6 +30,7 @@ function AzkError(translation_key) {
 
   // if true will report errors to crash report
   this.report = false;
+  this.code   = BASE_CODE_ERROR;
 
   this.__defineGetter__('message', function() {
     return this.toString();
@@ -43,6 +44,14 @@ AzkError.prototype.toString = function() {
 };
 
 export { AzkError };
+
+export class UnknownError extends AzkError {
+  constructor(error) {
+    super('unknown_error');
+    this.error  = typeof(error) == 'undefined' ? 'undefined' : error;
+    this.report = true;
+  }
+}
 
 export class NoInternetConnection extends AzkError {
   constructor() {
