@@ -16,7 +16,14 @@ class Agent extends CliTrackerController {
   }
 
   index(opts) {
-    return this.callAgent(opts);
+    return this
+      .callAgent(opts)
+      .then((result) => {
+        if (!_.isNumber(result)) {
+          result = result.agent ? 0 : 1;
+        }
+        return result;
+      });
   }
 
   callAgent(opts) {
