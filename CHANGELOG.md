@@ -16,6 +16,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 * Bug
   * [Pull] When pulling in verbose mode do not print several `undefined` anymore. Instead print Docker downloading bar provided by Docker API;
+  * [Cli] Fixing return code in `azk start [url]`;
 
 ## v0.16.3 - (2015-12-08)
 

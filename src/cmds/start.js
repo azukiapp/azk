@@ -129,14 +129,17 @@ class Start extends Scale {
         opts.system = null;
 
         // call scale
-        return this.index(opts, command_parse_result)
-        .then(() => {
-          this.ui.ok('commands.start.get_project.final_started_message', {
-            git_destination_path: command_parse_result.git_destination_path
+        return this
+          .index(opts, command_parse_result)
+          .then((result) => {
+            this.ui.ok('commands.start.get_project.final_started_message', {
+              git_destination_path: command_parse_result.git_destination_path
+            });
+            return result
           });
-        });
       });
     }
+    return 1;
   }
 }
 
