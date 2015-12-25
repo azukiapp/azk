@@ -135,7 +135,7 @@ class Start extends Scale {
             this.ui.ok('commands.start.get_project.final_started_message', {
               git_destination_path: command_parse_result.git_destination_path
             });
-            return result
+            return result;
           });
       });
     }

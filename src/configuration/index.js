@@ -1,12 +1,14 @@
-import { _, isBlank } from 'azk';
+import { _, config, isBlank } from 'azk';
 import { meta as azkMeta } from 'azk';
 import { ConfigurationInvalidValueRegexError, ConfigurationInvalidKeyError } from 'azk/utils/errors';
 
 const NULL_REGEX = /^(null|undefined|none|blank|reset)$/i;
 
-module.exports = class Configuration {
+export class Configuration {
   constructor(opts) {
-    this.opts = _.merge({}, {}, opts);
+    this.opts = _.merge({
+      namespace: config('configuration:namespace'),
+    }, opts);
 
     const BOOLEAN_REGEX = /^(on|true|1|off|false|0|null|undefined|none|blank|reset)$/i;
 
@@ -110,16 +112,21 @@ module.exports = class Configuration {
     ];
   }
 
-  save(key, value) {
-    azkMeta.set(key, value);
+  _formatKey(key) {
+    let ns = this.opts.namespace;
+    return isBlank(ns) ? key : `${ns}.${key}`;
   }
 
-  load(key) {
-    return azkMeta.get(key);
+  save(key, value) {
+    azkMeta.set(this._formatKey(key), value);
+  }
+
+  load(key, default_value) {
+    return azkMeta.get(this._formatKey(key), default_value);
   }
 
   remove(key) {
-    return azkMeta.del(key);
+    return azkMeta.del(this._formatKey(key));
   }
 
   validate(key, value) {
@@ -172,7 +179,7 @@ module.exports = class Configuration {
 
   listAll() {
     let listWithValues = _.map(this.opts._azk_config_list, (item) => {
-      item.value = azkMeta.get(item.key);
+      item.value = this.load(item.key);
       return item;
     });
     return listWithValues;
@@ -184,9 +191,8 @@ module.exports = class Configuration {
 
   resetAll() {
     this.opts._azk_config_list.forEach((item) => {
-      azkMeta.set(item.key, undefined);
+      this.remove(item.key);
     });
     return true;
   }
-
-};
+}

@@ -84,6 +84,9 @@ var options = mergeConfig({
       console: (envs('AZK_DEBUG') ? 'debug' : envs('AZK_OUTPUT_LOG_LEVEL', 'error')),
       file: envs('AZK_LOG_LEVEL', 'warn'),
     },
+    configuration: {
+      namespace: null,
+    },
     docker: {
       socket          : envs('AZK_DOCKER_SOCKER', "/var/run/docker.sock"),
       host            : new Dynamic("docker:host"),
@@ -211,6 +214,9 @@ var options = mergeConfig({
     paths: {
       log     : path.join(paths.logs, 'azk_test.log'),
       azk_meta: path.join(data_path, azk_dir, "shared", "test-Azkfile.js"),
+    },
+    configuration: {
+      namespace: 'test',
     },
     docker: {
       namespace   : 'azk.test',

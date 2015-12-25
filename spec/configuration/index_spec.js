@@ -1,16 +1,33 @@
 import h from 'spec/spec_helper';
-import Configuration from 'azk/configuration';
+import { config, meta as azkMeta } from 'azk';
+import { Configuration } from 'azk/configuration';
 import { ConfigurationInvalidKeyError,
          ConfigurationInvalidValueRegexError } from 'azk/utils/errors';
 
 describe('Configuration manager:', function() {
 
   const KEY = 'test.key';
-  let configuration = new Configuration();
+  let configuration = null;
 
   beforeEach(() => {
-    configuration = new Configuration();
-    configuration.remove(KEY);
+    configuration = new Configuration({ namespace: 'test_ns'});
+    configuration.resetAll();
+  });
+
+  it("should append namespace in keys if is set", function() {
+    configuration.save(KEY, 'foo');
+    let final_key = `test_ns.${KEY}`;
+    let value = azkMeta.get(final_key);
+    h.expect(value).to.equal('foo');
+  });
+
+  it("should append default namespace", function() {
+    let configuration = new Configuration();
+    let final_key = `${config('configuration:namespace')}.${KEY}`;
+    azkMeta.del(final_key);
+    configuration.save(KEY, 'bar');
+    let value = azkMeta.get(final_key);
+    h.expect(value).to.equal('bar');
   });
 
   it("string item", function() {
