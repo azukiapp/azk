@@ -25,6 +25,7 @@
   * [Node.js](starting-from-scratch/nodejs.md)*
   * PHP
     * [PHP / Laravel](starting-from-scratch/php-laravel.md)*
+    * [PHP / CakePHP](starting-from-scratch/php-cakephp.md)*
     * [PHP / Wordpress / phpMyAdmin](starting-from-scratch/php-wordpress-phpmyadmin.md)*
   * Python
     * [Django](starting-from-scratch/python-django.md)*

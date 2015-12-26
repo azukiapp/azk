@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 * Enhancements
   * [Cli] Improving `ui.isInteractive()`, now not only the existence of a `tty` is checked but also the parameter `--quiet`;
+  * [Generators] Adding suggestion to cake-php framework;
 
 ## v0.16.3 - (2015-12-08)
 
