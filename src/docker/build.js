@@ -97,14 +97,31 @@ export function build(docker, options) {
     // Parse json stream
     var from = null;
     var output = '';
+    let downloading_status_counter = 0;
     stream.pipe(new lazy.JStream()).on('data', (msg) => {
       if (!msg.error) {
         msg.type = 'build_msg';
         msg.statusParsed = parse_stream(msg.stream);
-        if (opts.verbose && opts.stdout) {
+        let has_status = typeof msg.statusParsed.type !== 'undefined';
+
+        // verbose: standard output
+        if (opts.verbose && opts.stdout && has_status) {
           opts.stdout.write('  ' + msg.stream);
         }
-        if (msg.statusParsed) {
+
+        // verbose: simple downloading bar from docker API
+        if (opts.verbose && opts.stdout && msg.status === 'Downloading') {
+          if (downloading_status_counter > 0) {
+            opts.stdout.clearLine();
+            opts.stdout.moveCursor(0, -1);
+          }
+          downloading_status_counter++;
+          opts.stdout.clearLine();
+          opts.stdout.cursorTo(0);
+          opts.stdout.write(`- [${msg.id}] ${msg.progress}\n`);
+        }
+
+        if (has_status) {
           publish("docker.build.status", msg);
           if (msg.statusParsed.type == "building_from") {
             from = msg.statusParsed.FROM;
