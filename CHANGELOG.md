@@ -5,8 +5,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## dev
 
-* Bug
-  * [Cli] Fixing `ui.isInteractive()` not using option `--quiet`;
+* Enhancements
+  * [Cli] Improving `ui.isInteractive()`, now not only the existence of a `tty` is checked but also the parameter `--quiet`;
 
 ## v0.16.3 - (2015-12-08)
 
