@@ -10,6 +10,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Generators] Adding suggestion to cake-php framework;
   * [Suggestions] Adding `php artisan migrate` to php_laravel;
   * [Suggestions] Changing postgres version to 9.4 and env prefix to `POSTGRES`;
+  * [Docs] Adding instructions about "Expandable Properties";
 
 ## v0.16.3 - (2015-12-08)
 
