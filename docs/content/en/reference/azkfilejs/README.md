@@ -4,6 +4,7 @@ The **Azkfile.js** is the backbone of the functioning of `azk`. Its main functio
 
 As suggested by the `.js` extension the **Azkfile.js** is written in JavaScript, but no advanced knowledge of JavaScript is needed to edit it. Listed below are all supported parameters:
 
+- [Expandable properties](expandable_properties.md)
 - [command](command.md)
 - [depends](depends.md)
 - [dns_servers](dns_servers.md)
