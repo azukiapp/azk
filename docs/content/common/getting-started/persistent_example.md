@@ -6,7 +6,7 @@ systems({
   redis: {
     image: "redis",
     // <-- add command and mounts
-    command: "redis-server --appendonly yes",
+    command: ["redis-server", "--appendonly", "yes"],
     mounts: {
       "/data": persistent("data"),
     },
