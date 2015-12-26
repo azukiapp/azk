@@ -1,6 +1,6 @@
+import { _ } from 'azk';
 import { CliController } from 'azk/cli/cli_controller';
 import { Helpers } from 'azk/cli/helpers';
-import { _ } from 'azk';
 import { promiseResolve } from 'azk/utils/promises';
 import { default as tracker } from 'azk/utils/tracker';
 
@@ -11,8 +11,9 @@ export class CliTrackerController extends CliController {
     this.ui.tracker = tracker;
   }
 
+  // callbacks
   before_action(...args) {
-    return this.before_action_tracker(...args).then(() => {
+    return this._action_tracker(...args).then(() => {
       return super.before_action(...args);
     });
   }
@@ -23,7 +24,7 @@ export class CliTrackerController extends CliController {
     });
   }
 
-  before_action_tracker(action_name, params) {
+  _action_tracker(action_name, params) {
     return Helpers
       .askPermissionToTrack(this.ui)
       .then((shouldTrack) => {

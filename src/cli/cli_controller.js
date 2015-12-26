@@ -4,18 +4,30 @@ import { _, log } from 'azk';
 export class CliController extends RouterController {
   constructor(...args) {
     super(...args);
-    this._verbose_nivel = 0;
-    this.non_interactive = false;
+    this._verbose_level = 0;
   }
 
-  before_action(action_name, opts, ...args) {
-    this._verbose_nivel = opts.verbose;
+  _configure(opts) {
+    opts = _.merge({}, opts, (this.normalized_params && this.normalized_params.options));
 
-    if (opts.quiet) {
-      this.non_interactive = true;
+    // Set verbose level
+    if (opts.verbose) {
+      this._verbose_level = opts.verbose;
     }
 
-    return super.before_action(action_name, opts, ...args);
+    // Set console log level
+    if (opts.log) {
+      log.setConsoleLevel(opts.log);
+    }
+
+    // Save quiet mode in ui
+    if (opts.quiet && this.ui) {
+      this.ui.setInteractive(false);
+    }
+  }
+
+  isInteractive() {
+    return this.ui && this.ui.isInteractive();
   }
 
   verbose() {
@@ -23,7 +35,7 @@ export class CliController extends RouterController {
   }
 
   verbose_msg(nivel, func, ...args) {
-    if (nivel <= this._verbose_nivel) {
+    if (nivel <= this._verbose_level) {
       if (typeof(func) == "function") {
         return func(...args);
       } else {
@@ -32,13 +44,10 @@ export class CliController extends RouterController {
     }
   }
 
+  // Callbacks
   run_action(action_name, opts, ...args) {
-    var options = _.isObject(action_name) ? action_name : opts;
-    // Set log level
-    if (options.log) {
-      log.setConsoleLevel(options.log);
-    }
-
+    let options = _.isObject(action_name) ? action_name : opts;
+    this._configure(options);
     return super.run_action(action_name, opts, ...args);
   }
 }

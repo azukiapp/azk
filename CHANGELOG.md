@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## dev
+
+* Bug
+  * [Cli] Fixing `ui.isInteractive()` not using option `--quiet`;
+
 ## v0.16.3 - (2015-12-08)
 
 * Enhancements
