@@ -10,12 +10,12 @@ export class Suggestion extends UIProxy {
     this.name = 'postgres';
 
     // Which rules they suggestion is valid
-    this.ruleNamesList = ['postgres-9.3'];
+    this.ruleNamesList = ['postgres-9.4'];
 
     // Initial Azkfile.js suggestion
     this.suggestion = _.extend({}, example_system, {
       __type  : 'postgres',
-      image   : { docker: 'azukiapp/postgres:9.3' },
+      image   : { docker: 'azukiapp/postgres:9.4' },
       ports:{
         data: "5432/tcp",
       },
@@ -30,17 +30,17 @@ export class Suggestion extends UIProxy {
       envs: {
         // set instances variables
         // Move this to .env file
-        POSTGRESQL_USER: "azk",
-        POSTGRESQL_PASS: "azk",
-        POSTGRESQL_DB  : "postgres_development",
+        POSTGRES_USER: "azk",
+        POSTGRES_PASS: "azk",
+        POSTGRES_DB  : "postgres_development",
       },
       export_envs_comment: [
         'check this gist to configure your database',
         'https://gist.github.com/gullitmiranda/62082f2e47c364ef9617'
       ],
       export_envs: {
-        DATABASE_URL: "postgres://#{envs.POSTGRESQL_USER}:#{envs.POSTGRESQL_PASS}" +
-          "@#{net.host}:#{net.port.data}/${envs.POSTGRESQL_DB}",
+        DATABASE_URL: "postgres://#{envs.POSTGRES_USER}:#{envs.POSTGRES_PASS}" +
+          "@#{net.host}:#{net.port.data}/${envs.POSTGRES_DB}",
       },
     });
   }

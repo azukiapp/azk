@@ -8,6 +8,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 * Enhancements
   * [Cli] Improving `ui.isInteractive()`, now not only the existence of a `tty` is checked but also the parameter `--quiet`;
   * [Generators] Adding suggestion to cake-php framework;
+  * [Suggestions] Adding `php artisan migrate` to php_laravel;
+  * [Suggestions] Changing postgres version to 9.4 and env prefix to `POSTGRES`;
 
 ## v0.16.3 - (2015-12-08)
 
@@ -22,8 +24,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## v0.16.2 - (2015-11-17)
 
 * Enhancements
-  * [Core] Upgrading node to v0.10.40
-  * [Suggesting] Changing suggestions to suggest a command based in Array in replace of String
+  * [Core] Upgrading node to v0.10.40;
+  * [Suggesting] Changing suggestions to suggest a command based in Array in replace of String;
 
 * Bug
   * [Core] Fixing a bug that could generate an invalid command when `azk start` runs, making systems fail by not properly overriding the image Docker command by the custom command defined in the `Azkfile`;
