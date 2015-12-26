@@ -111,7 +111,6 @@ var Run = {
   runDaemon(system, options = {}) {
     return async(this, function* () {
       // TODO: add instances and dependencies options
-
       // Prepare options
       var image = yield this._check_image(system, options);
       options.image_data = image;

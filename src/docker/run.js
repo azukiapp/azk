@@ -17,11 +17,11 @@ function new_resize(container) {
 }
 
 export function run(docker, Container, image, cmd, opts = { }) {
-
   var container = null;
 
-  opts.stdout = opts.stdout || process.stdout;
-  opts.stderr = opts.stderr || opts.stdout;
+  opts.stdout = opts.stdout  || process.stdout;
+  opts.stderr = opts.stderr  || opts.stdout;
+  var verbose = opts.verbose || false;
   var daemon  = opts.daemon || false;
   var interactive = opts.stdin ? true : false;
   var nameservers = opts.dns || null;
@@ -101,7 +101,7 @@ export function run(docker, Container, image, cmd, opts = { }) {
     }
 
     // Attach container
-    if (!daemon) {
+    if ((!daemon) || verbose) {
       stream = yield container.attach({
         log: true, stream: true,
         stdin: interactive, stdout: true, stderr: true
