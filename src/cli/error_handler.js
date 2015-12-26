@@ -3,7 +3,7 @@ import { AzkError, MustAcceptTermsOfUse } from 'azk/utils/errors';
 import { async } from 'azk/utils/promises';
 
 var lazy = lazy_require({
-  CrashReport: 'azk/utils/crash_report',
+  CrashReport: ['azk/utils/crash_report'],
   tracker: ['azk/utils/tracker', 'default'],
   AskSendErrorView: ['azk/cli/views/ask_send_error_view'],
 });
@@ -18,7 +18,7 @@ function init_options(options) {
 
 function crash_report(options, tracker, view) {
   if (isBlank(options.crashReport)) {
-    options.crashReport = new lazy.CrashReportUtil({}, tracker, view.configuration);
+    options.crashReport = new lazy.CrashReport({}, tracker, view.configuration);
   }
   return options.crashReport;
 }
@@ -66,6 +66,7 @@ export function handler(error, options = {}) {
             yield crash_report(options, tracker, view).sendError(error);
             view.ok('crashReport.was_sent');
           } catch (err) {
+            log.debug('[error-handler] error to send crashReport: %s', err.toString());
             view.fail('crashReport.was_not_sent');
           }
         }
