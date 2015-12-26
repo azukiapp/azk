@@ -1,14 +1,14 @@
-#!/bin/bash
+#!/bin/sh
 
 ROOT_UID=0
-NEWLINE=$'\n'
+ARRAY_SEPARATOR="#"
 
 command_exists() {
-  command -v "${@}" > /dev/null 2>&1
+  which "${@}" > /dev/null 2>&1
 }
 
 run_super() {
-  if [[ $UID != $ROOT_UID ]]; then
+  if [ $(id -ru) != $ROOT_UID ]; then
     sudo "${@}"
   else
     "${@}"
@@ -16,7 +16,7 @@ run_super() {
 }
 
 super() {
-  if [[ "$1" == "-v" ]]; then
+  if [ "$1" = "-v" ]; then
     shift
     debug "${@}"
     run_super "${@}" > /dev/null
@@ -50,50 +50,51 @@ escape() {
 }
 
 log() {
-  local level="$1"; shift
+  level="$1"; shift
+  color=; stderr=; indentation=; tag=; opts=
+
   case "${level}" in
   debug)
-    local color="%{blue}"
-    local stderr=true
-    local identation="  "
+    color="%{blue}"
+    stderr=true
+    indentation="  "
     ;;
   info)
-    local color="%{green}"
+    color="%{green}"
     ;;
   warn)
-    local color="%{yellow}"
-    local tag=" [WARN] "
+    color="%{yellow}"
+    tag=" [WARN] "
     stderr=true
     ;;
   err)
-    local color="%{red}"
-    local tag=" [ERROR]"
+    color="%{red}"
+    tag=" [ERROR]"
   esac
 
-  if [[ $1 == "-n" ]]; then
-    local opts="-n"
+  if [ "$1" = "-n" ]; then
+    opts="-n"
     shift
   fi
 
-  if [[ $1 == "-e" ]]; then
-    local opts="$opts -e"
+  if [ "$1" = "-e" ]; then
+    opts="$opts -e"
     shift
   fi
 
-  if [[ -z ${stderr} ]]; then
-    echo $opts "$(escape "${color}[azk]${tag}%{reset} ${identation}$@")"
+  if [ -z ${stderr} ]; then
+    echo $opts "$(escape "${color}[azk]${tag}%{reset} ${indentation}$@")"
   else
-    echo $opts "$(escape "${color}[azk]${tag}%{reset} ${identation}$@")" 1>&2
+    echo $opts "$(escape "${color}[azk]${tag}%{reset} ${indentation}$@")" 1>&2
   fi
 }
 
 step() {
-  local title=$( log info -n $@ | sed -e :a -e 's/^.\{1,72\}$/&./;ta' )
-  echo -n $title
+  printf "$( log info -n $@ | sed -e :a -e 's/^.\{1,72\}$/&./;ta' )"
 }
 
 step_wait() {
-  if [[ ! -z ${@} ]]; then
+  if [ ! -z "$@" ]; then
     STEP_WAIT="${@}"
     step "${STEP_WAIT}"
   fi
@@ -101,7 +102,7 @@ step_wait() {
 }
 
 check_wait() {
-  if [[ ! -z ${STEP_WAIT} ]]; then
+  if [ ! -z "${STEP_WAIT}" ]; then
     step "${STEP_WAIT}"
     STEP_WAIT=
   fi
@@ -121,7 +122,7 @@ err() { log err $@; }
 
 main(){
 
-  if [[ "$1" == "stage" ]]; then
+  if [ "$1" = "stage" ]; then
     AZUKIAPP_REPO_URL="http://repo-stage.azukiapp.com"
   else
     AZUKIAPP_REPO_URL="http://repo.azukiapp.com"
@@ -143,7 +144,7 @@ main(){
     *armv6l*) ARCH=arm-pi ;;
   esac
 
-  if [[ -z $PLATFORM ]] || [[ -z $PLATFORM ]]; then
+  if [ -z $PLATFORM ] || [ -z $PLATFORM ]; then
     step_fail
     add_report "Cannot detect the current platform."
     fail
@@ -152,41 +153,41 @@ main(){
   step_done
   debug "Detected platform: $PLATFORM, $ARCH"
 
-  if [[ $PLATFORM == "darwin" ]]; then
+  if [ "$PLATFORM" = "darwin" ]; then
     OS="mac"
     OS_VERSION="osx"
     install_azk_mac_osx
     success
   fi
 
-  if [[ $PLATFORM == "linux" ]]; then
+  if [ "$PLATFORM" = "linux" ]; then
 
-    if [[ $ARCH != "x64" ]]; then
+    if [ "$ARCH" != "x64" ]; then
       add_report "Unsupported architecture. Linux must be x64."
       fail
     fi
 
     # Detecting OS and OS_VERSION
-    source /etc/os-release
+    . /etc/os-release
     OS=$ID
     OS_VERSION=$VERSION_ID
 
     debug "Detected distribution: $OS, $OS_VERSION"
 
     # Check if linux distribution is compatible?
-    if [[ $ID != "ubuntu" && $ID != "fedora" ]]; then
+    if [ "$ID" != "ubuntu" ] && [ "$ID" != "fedora" ]; then
       add_report "  Unsupported Linux distribution."
       fail
     fi
 
     # Check if is SUDO
-    if [[ $UID != $ROOT_UID ]]; then
+    if [ "$(id -ru)" != "$ROOT_UID" ]; then
       step_wait "Enabling sudo"
       super echo "sudo enabled"
       step_done
     fi
 
-    if [[ $ID == "ubuntu" ]]; then
+    if [ "$ID" = "ubuntu" ]; then
       case $OS_VERSION in
         "12.04" )
           UBUNTU_CODENAME="precise"
@@ -199,7 +200,7 @@ main(){
           ;;
       esac
 
-      if [[ -z ${UBUNTU_CODENAME} ]]; then
+      if [ -z "${UBUNTU_CODENAME}" ]; then
         add_report "  Unsupported Ubuntu version."
         add_report "  Feel free to ask support for it by opening an issue at:"
         add_report "    https://github.com/azukiapp/azk/issues"
@@ -212,7 +213,7 @@ main(){
       fi
     fi
 
-    if [[ $ID == "fedora" ]]; then
+    if [ "$ID" = "fedora" ]; then
       case $OS_VERSION in
         "20"|"21" )
           FEDORA_PKG_VERSION="20"
@@ -279,7 +280,7 @@ check_docker_installation() {
   step "Checking Docker installation"
   step_done
 
-  local fetch_cmd=$(curl_or_wget)
+  fetch_cmd=$(curl_or_wget)
   if command_exists docker; then
     debug "Docker is installed, skipping Docker installation."
     debug "  To update Docker, run the command bellow:"
@@ -390,17 +391,18 @@ install_azk_mac_osx() {
 }
 
 add_report() {
-  if [[ -z $report ]]; then
-    report=()
+  if [ -z "$report" ]; then
+    report="${@}"
+  else
+    report="${report}${ARRAY_SEPARATOR}${@}"
   fi
-  report+=("${@}")
 }
 
 fail() {
   echo ""
-  IFS=$NEWLINE
+  IFS="${ARRAY_SEPARATOR}"
   add_report "Failed to install azk."
-  for report_message in ${report[@]}; do
+  for report_message in $report; do
     err "$report_message"
   done
   exit 1
@@ -408,9 +410,9 @@ fail() {
 
 success() {
   echo ""
-  IFS=$NEWLINE
+  IFS="${ARRAY_SEPARATOR}"
   add_report "azk has been successfully installed."
-  for report_message in ${report[@]}; do
+  for report_message in $report; do
     info "$report_message"
   done
   exit 0

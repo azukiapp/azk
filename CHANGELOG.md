@@ -11,6 +11,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Suggestions] Adding `php artisan migrate` to php_laravel;
   * [Suggestions] Changing postgres version to 9.4 and env prefix to `POSTGRES`;
   * [Docs] Adding instructions about "Expandable Properties";
+  * [Package] Installation script (`install.sh`) now supports other shells besides `bash` #583;
 
 ## v0.16.3 - (2015-12-08)
 
