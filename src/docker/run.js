@@ -16,11 +16,12 @@ function new_resize(container) {
   };
 }
 
-export function run(docker, Container, image, cmd, opts = { }, verbose_command) {
+export function run(docker, Container, image, cmd, opts = { }) {
   var container = null;
 
-  opts.stdout = opts.stdout || process.stdout;
-  opts.stderr = opts.stderr || opts.stdout;
+  opts.stdout = opts.stdout  || process.stdout;
+  opts.stderr = opts.stderr  || opts.stdout;
+  var verbose = opts.verbose || false;
   var daemon  = opts.daemon || false;
   var interactive = opts.stdin ? true : false;
   var nameservers = opts.dns || null;
@@ -100,7 +101,7 @@ export function run(docker, Container, image, cmd, opts = { }, verbose_command) 
     }
 
     // Attach container
-    if (!daemon) {
+    if ((!daemon) || verbose) {
       stream = yield container.attach({
         log: true, stream: true,
         stdin: interactive, stdout: true, stderr: true
@@ -130,16 +131,6 @@ export function run(docker, Container, image, cmd, opts = { }, verbose_command) 
 
         c_publish("stdin_pipe", { stdin: opts.stdin, stream });
       }
-    }
-
-    // when verbose
-    if (daemon && verbose_command) {
-      stream = yield container.attach({
-        log: true, stream: true,
-        stdin: interactive, stdout: true, stderr: true
-      });
-      c_publish("attached");
-      container.modem.demuxStream(stream, opts.stdout, opts.stderr);
     }
 
     // Start container

@@ -12,6 +12,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Suggestions] Changing postgres version to 9.4 and env prefix to `POSTGRES`;
   * [Docs] Adding instructions about "Expandable Properties";
   * [Package] Installation script (`install.sh`) now supports other shells besides `bash` #583;
+  * [Cli] Adding support to more verbose mode in `azk start`;
 
 * Bug
   * [Pull] When pulling in verbose mode do not print several `undefined` anymore. Instead print Docker downloading bar provided by Docker API;

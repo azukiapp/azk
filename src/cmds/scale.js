@@ -142,7 +142,7 @@ class Scale extends CliTrackerController {
 
     this.verbose_msg(2, () => {
       options = _.merge(options, {
-        command_verbose: true
+        verbose: true
       });
     });
 

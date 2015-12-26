@@ -381,6 +381,7 @@ export class System {
       ports_order: [],
       sequencies: {},
       docker: null,
+      verbose: false,
       dns_servers: this.options.dns_servers,
     });
 
@@ -422,6 +423,7 @@ export class System {
     var finalOptions = {
       daemon: daemon,
       command: options.command,
+      verbose: options.verbose,
       ports: ports,
       ports_orderly: ports_orderly,
       stdout: options.stdout,
