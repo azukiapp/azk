@@ -54,7 +54,7 @@ export class CrashReport {
     }
 
     if (isBlank(bug_sender)) {
-      bug_sender = new lazy.CrashReportSender();
+      bug_sender = new lazy.CrashReportSender({}, { logger: log, error_level: 'info' });
     }
 
     // make sender options
@@ -92,7 +92,7 @@ export class CrashReport {
       err            : error,
       extra_values   : extra_values,
       url            : config('report:url'),
-      background_send: false, //FIXME: change to background_send = true
+      background_send: true,
       jsonWrapper    : (payload) => { return { report: payload }; },
     };
   }

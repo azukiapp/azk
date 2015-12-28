@@ -36,7 +36,7 @@ describe('Azk cli, error handler', function() {
     let tracker = {
       sendEvent(type, data) {
         sended = { type, data };
-        return promiseReject();
+        return promiseReject(new Error('sender is mocked'));
       }
     };
 
@@ -134,13 +134,13 @@ describe('Azk cli, error handler', function() {
           }
         };
 
-        let result = handler(error, { tracker, view, crashReport }).then((code) => {
+        let result = handler(error, { throw_error: true, tracker, view, crashReport }).then((code) => {
           h.expect(outputs[0]).to.match(new RegExp(h.escapeRegExp(error.toString())));
           h.expect(outputs[2]).to.match(h.regexFromT('crashReport.sending'));
           h.expect(outputs[3]).to.match(h.regexFromT('crashReport.was_not_sent'));
           return { code };
         });
-        return h.expect(result).to.eventually.containSubset({code: 1});
+        return h.expect(result).to.eventually.deep.containSubset({code: 1});
       });
     });
   });

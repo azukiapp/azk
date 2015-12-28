@@ -1,4 +1,4 @@
-import { log, lazy_require, isBlank } from 'azk';
+import { _, log, lazy_require, isBlank } from 'azk';
 import { AzkError, MustAcceptTermsOfUse } from 'azk/utils/errors';
 import { async } from 'azk/utils/promises';
 
@@ -34,6 +34,9 @@ export function handler(error, options = {}) {
 
     // get view and tracker from options
     let [view, tracker] = init_options(options);
+    options = _.defaults(options, {
+      throw_error: false,
+    });
 
     // exit 1: fully ignored errors
     if (error instanceof MustAcceptTermsOfUse) {
@@ -66,12 +69,15 @@ export function handler(error, options = {}) {
             yield crash_report(options, tracker, view).sendError(error);
             view.ok('crashReport.was_sent');
           } catch (err) {
-            log.debug('[error-handler] error to send crashReport: %s', err.toString());
+            log.debug('[error-handler] error to send crashReport: %j', err, {});
             view.fail('crashReport.was_not_sent');
           }
         }
       }
-    } catch (err) {}
+    } catch (err) {
+      log.info('[error-handler] sendEvent or sendError fail with %s', err.stack, {});
+      if (options.throw_error) { throw err };
+    }
 
     return error.code || 1;
   });
