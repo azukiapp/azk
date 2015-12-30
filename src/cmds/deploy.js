@@ -1,6 +1,6 @@
 import { CliTrackerController } from 'azk/cli/cli_tracker_controller.js';
 import { lazy_require, _ } from 'azk';
-import { async } from 'azk/utils/promises';
+import { async, promiseReject } from 'azk/utils/promises';
 import { AzkError } from 'azk/utils/errors';
 import { Helpers } from 'azk/cli/helpers';
 import { run as cli_run } from 'azk/cli';
@@ -50,10 +50,8 @@ class Deploy extends CliTrackerController {
     .catch((err) => {
       if (err instanceof AzkError) {
         this.ui.fail(err.toString());
-      } else {
-        this.ui.fail(err.stack);
       }
-      return 1;
+      return promiseReject(err);
     });
   }
 

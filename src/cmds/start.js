@@ -1,6 +1,6 @@
 import Scale from 'azk/cmds/scale';
 import { _, lazy_require } from 'azk';
-import { async } from 'azk/utils/promises';
+import { async, promiseReject } from 'azk/utils/promises';
 
 var lazy = lazy_require({
   GetProject: ['azk/manifest/get_project'],
@@ -96,15 +96,14 @@ class Start extends Scale {
           this.ui.warning(`${tKey}.default_system_not_balanceable`, tOpt);
         }
       }
-
       return result;
     })
     .catch((error) => {
-      this.ui.fail(error);
       this.ui.fail('commands.start.fail', error);
-      return this
-        .stop(manifest, systems, opts)
-        .then(() => { return error.code ? error.code : 127; });
+      return this.stop(manifest, systems, opts)
+      .then(() => {
+        return promiseReject(error);
+      });
     });
   }
 
@@ -130,14 +129,17 @@ class Start extends Scale {
         opts.system = null;
 
         // call scale
-        return this.index(opts, command_parse_result)
-        .then(() => {
-          this.ui.ok('commands.start.get_project.final_started_message', {
-            git_destination_path: command_parse_result.git_destination_path
+        return this
+          .index(opts, command_parse_result)
+          .then((result) => {
+            this.ui.ok('commands.start.get_project.final_started_message', {
+              git_destination_path: command_parse_result.git_destination_path
+            });
+            return result;
           });
-        });
       });
     }
+    return 1;
   }
 }
 

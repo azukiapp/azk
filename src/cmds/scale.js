@@ -3,7 +3,6 @@ import { Helpers } from 'azk/cli/helpers';
 import { _, log, t, config, lazy_require } from 'azk';
 import { subscribe } from 'azk/utils/postal';
 import { async } from 'azk/utils/promises';
-import { AzkError } from 'azk/utils/errors';
 
 var lazy = lazy_require({
   Manifest: ['azk/manifest'],
@@ -50,14 +49,7 @@ class Scale extends CliTrackerController {
       yield lazy.Status.status(this, manifest, status_systems);
 
       return result;
-    })
-    .catch(function (err) {
-      if (err instanceof AzkError) {
-        this.ui.fail(err.toString());
-      } else {
-        this.ui.fail(err.stack);
-      }
-    }.bind(this));
+    });
   }
 
   scale(manifest, systems, opts) {

@@ -4,13 +4,26 @@ Controls azk configuration options.
 
 #### Usage:
 
-    $ azk config (track-toggle|track-status) [options]
+    $ azk config (list|set|reset) [options]
 
 #### Actions:
 
 ```
-  track-toggle              Toggles tracking behavior on/off.
-  track-status              Shows tracking status (on or off).
+  list                      Shows all configurations and its values
+  set                       Set a configuration value
+  reset                     Resets all user configuration
+```
+
+#### Arguments:
+
+For boolean config values several values are acceptable on `config-value` argument:
+
+- *true*: on, true, 1
+- *false*: off, false, 0
+- *no set*: undefined, null, none, blank, reset
+
+```
+  config-value              Value to be passed to config command (on/off/null)
 ```
 
 #### Options:
@@ -24,24 +37,22 @@ Controls azk configuration options.
 
 #### Examples:
 
-```
-$ azk config track-status
-azk: currently azk is tracking data, more info: https://github.com/azukiapp/azk and http://docs.azk.io/en/terms-of-use
-```
+```sh
+# list all configurations
+$ azk config list
+{ 'user.email': undefined,
+  'user.email.always_ask': undefined,
+  'user.email.ask_count': undefined,
+  'terms_of_use.accepted': true,
+  'terms_of_use.ask_count': 1,
+  'crash_reports.always_send': undefined,
+  tracker_permission: undefined }
 
-```
-$ azk config track-status
-azk: currently azk is not tracking any data
-```
+# set your email
+$ azk config set user.email foo@bar.com
+azk: `user.email` was set to `foo@bar.com`
 
-```
-$ azk config track-toggle
-azk: currently azk is tracking, more info: https://github.com/azukiapp/azk and http://docs.azk.io/en/terms-of-use
-? =========================================================================
-  We're constantly looking for ways to make azk better!
-  May we anonymously report usage statistics to improve the tool over time?
-  More info: https://github.com/azukiapp/azk & http://docs.azk.io/en/terms-of-use
- =========================================================================
-(Y/n) Yes
-azk: cool! Thanks for helping us make azk better :)
+# check your email
+$ azk config list user.email
+{ 'user.email': 'foo@bar.com' }
 ```

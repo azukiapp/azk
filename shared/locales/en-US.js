@@ -2,32 +2,58 @@ require('colors');
 
 // jscs:disable maximumLineLength
 module.exports = {
-  analytics: {
-    question: [
+  terms_of_use: {
+    first_question: [
       '=========================================================================\n'.grey,
-      '  We\'re constantly looking for ways to make'.yellow,
-      ' azk '.red,
-      'better!\n'.yellow,
-      '  May we anonymously report usage statistics to improve the tool over time? \n'.yellow,
-      '  More info: https://github.com/azukiapp/azk and http://docs.azk.io/en/terms-of-use\n'.yellow,
+      '  Thank you for using'.yellow,
+      ' azk'.red,
+      '! Welcome!\n'.yellow,
+      '  Before we start, we need to ask: do you accept our Terms of Use?\n'.yellow,
+      '  http://docs.azk.io/en/terms-of-use\n'.yellow,
       ' =========================================================================\n'.grey,
     ].join(''),
-    message_optIn: [
-      'cool! Thanks for helping us make azk better :)'.green,
-    ].join(' '),
-    message_optOut: [
-      'No problem! If you change your mind and want to help us improve azk, just run `%(command)s`\n'.grey,
-      'You can always find that command in `azk help`'.grey,
+    you_need_question: [
+      '=========================================================================\n'.grey,
+      '  So… you can\'t start to use '.yellow,
+      'azk'.red,
+      ' before accepting the Terms of Use. Sorry.\n'.yellow,
+      '  Do you accept our Terms of Use?'.yellow,
+      '  http://docs.azk.io/en/terms-of-use\n'.yellow,
+      ' =========================================================================\n'.grey,
     ].join(''),
   },
+  crashReport: {
+    message_error_occured: [
+      'Sorry, an error has occurred.\n',
+      'A crash report about this error will be sent to azk team in order to make azk better.',
+    ].join(''),
+    sending: 'Sending bug report to Azuki...',
+    was_sent: 'Bug report was sent. Thanks.',
+    was_not_sent: 'Bug report can not be shipped. Sorry.',
+
+    email: {
+      question: [
+        'Bonus: if you\'re ok with telling us your email address,'.yellow,
+        ' we\'ll be able to reply you with a solution for this issue.\n'.yellow,
+        'Important: Your email will be saved for future crash reports (we\'ll never share your email).\n'.yellow,
+        'You can always delete/update your email at any time. Check the documentation to see how.\n'.yellow,
+        'Enter your email'.white + ' [optional]'.grey + ':'.white,
+      ].join(''),
+      question_always_ask_email: [
+        'Ask email again for future crash report solutions?',
+      ].join(''),
+    },
+  },
   errors: {
+    unknown_error               : "Unknown error: %(error)O",
     no_vm_started               : "Unable to install and configure virtual machine",
     no_internet_connection      : "\nNo internet connection!",
     lost_internet_connection    : "\nLost internet connection:\n%(output)s",
+    must_accept_terms_of_use    : "Sorry, must accept terms of use before use azk.".red,
     connect_docker_unavailable  : "Could not initialize balancer because docker was not available",
     agent_not_running           : "azk agent is required but is not running (try `azk agent status`)",
     agent_start                 : "azk agent start error: %(err_message)s",
-    agent_stop                  :  "azk agent stop error (try `azk agent status`)",
+    agent_stop                  : "azk agent stop error (try `azk agent status`)",
     not_been_implemented        : "This feature: `%(feature)s` has not been implemented yet",
     system_not_found            : "System `%(system)s` not found in `%(manifest)s`",
     manifest_required           : "Manifest file (`Azkfile.js`) was not found at `%(cwd)s` (see more at http://docs.azk.io/en/azkfilejs/)",
@@ -49,6 +75,32 @@ module.exports = {
       "[timeout] Make sure the start command binds `port` to the `0.0.0.0` interface, not only to the `localhost` interface.",
       "[timeout] You might want to edit your `Azkfile.js` in order to increase the maximum timeout.",
     ].join("\n"),
+    configuration: {
+      invalid_key_error : [
+        "%(key)s".red,
+        " it is not a valid configuration key.\n".yellow,
+        "Please, run command bellow to check all existent configurations keys:\n".yellow,
+        " $ ".grey,
+        "azk config list".white,
+      ].join(""),
+      invalid_value_regex_error : [
+        "%(value)s".red,
+        " it is not valid value for ".yellow,
+        "%(key)s".white,
+        ".".yellow,
+      ].join(""),
+      void_value_error : [
+        "Please, provide a value for ".yellow,
+        "%(key)s".white,
+        ".".yellow,
+      ].join(""),
+      invalid_value_boolean_error : [
+        "%(value)s".red,
+        " it is not valid value for ".yellow,
+        "%(key)s".white,
+        ".".yellow,
+      ].join(""),
+    },
 
     vm_start: [
       "Error starting virtual machine.",
@@ -343,7 +395,7 @@ module.exports = {
     start: {
       already_started: "System `%(name)s` already started",
       skip           : "Skip starting, system `" + "%(name)s".blue + "` does not scale.",
-      fail           : "Due to the above error azk will stop all instances already running.\n",
+      fail           : "An error occurred. It will stop all instances already running. See details below.\n",
       get_project: {
         getting_git_version      : "Checking Git version...",
         getting_remote_info      : "Getting remote info from `%(git_url)s`...",
@@ -431,8 +483,33 @@ module.exports = {
       status_with_dead: "%(system)s: %(instances)d up and %(down)d down - %(hosts)s",
     },
     config: {
-      'tracking-false': 'currently azk is not tracking any data',
-      'tracking-true' : 'currently azk is tracking data, more info: https://github.com/azukiapp/azk and http://docs.azk.io/en/terms-of-use',
+      reset: {
+        ask_confirmation      : 'Are you sure to reset all configuration?',
+        confirmed             : 'All configuration has been reset.',
+      },
+      'email_current'         : 'Current email: %(email)s',
+      'email_saved'           : 'Email: %(email)s',
+      'email_undefined'       : 'Email: no email set yet.',
+      'email_not-valid'       : 'Invalid email: (%(email)s). Please insert a valid email.'.red,
+      'email_valid'           : 'email: %(email)s'.green,
+      'email_reset-to-null'   : 'Email: there is no email set-up.',
+      'set_ok'                : '`%(key)s` was set to `%(value)s`',
+      'key_not_found'         : '`%(key)s` does not exist.',
+      descriptions: {
+        user: {
+          email: 'User\'s email.',
+          email_always_ask: 'Always ask for user’s email when an error occurs.',
+          email_ask_count: 'How many times azk asked for user’s email.',
+        },
+        terms_of_use: {
+          accepted: 'Indicates whether user has accepted terms of use or not.',
+          ask_count: 'How many times azk asked about terms of use acceptance.',
+        },
+        crash_reports: {
+          always_send: 'Always send crash reports when an error occurs (opt-out).',
+        },
+        tracker_permission: 'Always send tracking information (opt-out).',
+      }
     },
     vm: {
       already_installed: "Virtual machine already installed.",

@@ -2,7 +2,7 @@ import h from 'spec/spec_helper';
 import { CliController } from 'azk/cli/cli_controller';
 import { promiseResolve } from 'azk/utils/promises';
 
-describe('Azk cli controller', function() {
+describe('Azk cli, main controller', function() {
   var outputs = [];
   var ui      = h.mockUI(beforeEach, outputs);
 

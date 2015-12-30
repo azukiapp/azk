@@ -28,6 +28,10 @@ function AzkError(translation_key) {
   copyOwnFrom(this, superInstance);
   this.translation_key = translation_key;
 
+  // if true will report errors to crash report
+  this.report = false;
+  this.code   = BASE_CODE_ERROR;
+
   this.__defineGetter__('message', function() {
     return this.toString();
   });
@@ -41,6 +45,14 @@ AzkError.prototype.toString = function() {
 
 export { AzkError };
 
+export class UnknownError extends AzkError {
+  constructor(error) {
+    super('unknown_error');
+    this.error  = typeof(error) == 'undefined' ? 'undefined' : error;
+    this.report = true;
+  }
+}
+
 export class NoInternetConnection extends AzkError {
   constructor() {
     super('no_internet_connection');
@@ -51,6 +63,13 @@ export class LostInternetConnection extends AzkError {
   constructor(output) {
     super('lost_internet_connection');
     this.output  = output;
+  }
+}
+
+export class MustAcceptTermsOfUse extends AzkError {
+  constructor() {
+    super('must_accept_terms_of_use');
+    this.code = BASE_CODE_ERROR;
   }
 }
 
@@ -79,6 +98,7 @@ export class InvalidCommandError extends AzkError {
   constructor(command, key = 'invalid_command_error') {
     super(key);
     this.command = command;
+    this.report = true;
   }
 }
 
@@ -86,6 +106,7 @@ export class DockerBuildError extends AzkError {
   constructor(type, options = {}) {
     super(`docker_build_error.${type}`);
     _.merge(this, options);
+    this.report = true;
   }
 }
 
@@ -94,6 +115,7 @@ export class ProvisionPullError extends AzkError {
     super('provision_pull_error');
     this.image = image;
     this.msg   = msg;
+    this.report = true;
   }
 }
 
@@ -102,6 +124,7 @@ export class SystemError extends AzkError {
     super(key);
     this.system = system;
     this.code = SYSTEMS_CODE_ERROR;
+    this.report = true;
   }
 }
 
@@ -109,6 +132,7 @@ export class SystemDependError extends SystemError {
   constructor(system, depend) {
     super('system_depend_error', system);
     this.depend = depend;
+    this.report = true;
   }
 }
 
@@ -119,12 +143,14 @@ export class SystemRunError extends SystemError {
     this.command = command;
     this.exitCode = exitCode;
     this.log = log;
+    this.report = true;
   }
 }
 
 export class SystemNotScalable extends SystemError {
   constructor(system) {
     super('system_not_scalable', system);
+    this.report = true;
   }
 }
 
@@ -134,6 +160,7 @@ export class RunCommandError extends SystemError {
 
     this.command = command;
     this.output  = output;
+    this.report = true;
   }
 }
 
@@ -162,6 +189,7 @@ export class ManifestError extends AzkError {
     this.file = file;
     this.err_message = err_message;
     this.code = MANIFEST_CODE_ERROR;
+    this.report = true;
   }
 }
 
@@ -213,12 +241,14 @@ export class AgentStartError extends AzkError {
 
     this.err_message = error.stack || error.toString();
     this.code        = AGENT_CODE_ERROR;
+    this.report      = true;
   }
 }
 
 export class AgentStopError extends AzkError {
   constructor() {
     super('agent_stop');
+    this.report = true;
   }
 }
 
@@ -228,6 +258,7 @@ export class VmStartError extends AzkError {
     this.timeout = timeout;
     this.screen  = screen;
     this.code = AGENT_CODE_ERROR;
+    this.report = true;
   }
 }
 
@@ -241,5 +272,33 @@ export class GitCallError extends AzkError {
     this.original_error        = original_error;
     this.stack_trace           = stack_trace;
     this.code                  = SPAWN_CODE_ERROR;
+  }
+}
+
+export class ConfigurationInvalidKeyError extends AzkError {
+  constructor(key) {
+    super('configuration.invalid_key_error');
+    this.key   = key;
+  }
+}
+export class ConfigurationInvalidValueRegexError extends AzkError {
+  constructor(key, value) {
+    super('configuration.invalid_value_regex_error');
+    this.key   = key;
+    this.value = value;
+  }
+}
+export class ConfigurationVoidValueError extends AzkError {
+  constructor(key) {
+    super('configuration.void_value_error');
+    this.key   = key;
+  }
+}
+
+export class ConfigurationInvalidValueBooleanError extends AzkError {
+  constructor(key, value) {
+    super('configuration.invalid_value_boolean_error');
+    this.key   = key;
+    this.value = value;
   }
 }

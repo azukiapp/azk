@@ -1,5 +1,4 @@
 import { _, log, lazy_require, config, t } from 'azk';
-import { async } from 'azk/utils/promises';
 import { SmartProgressBar } from 'azk/cli/smart_progress_bar';
 import { ManifestError } from 'azk/utils/errors';
 
@@ -18,7 +17,7 @@ var Helpers = {
             type    : 'confirm',
             name    : 'start',
             message : 'commands.agent.start_before',
-            default : 'Y'
+            default : true
           };
 
           return cli.prompt(question)
@@ -31,39 +30,6 @@ var Helpers = {
       .then(() => {
         return lazy.AgentClient.require();
       });
-  },
-
-  askPermissionToTrack(ui, force = false) {
-    return async(this, function* () {
-      // check if user already answered
-      var trackerPermission = ui.tracker.loadTrackerPermission(); // Boolean
-
-      var should_ask_permission = (force || typeof trackerPermission === 'undefined');
-      if (should_ask_permission) {
-        if (!ui.isInteractive()) { return false; }
-
-        var question = {
-          type    : 'confirm',
-          name    : 'track_ask',
-          message : 'analytics.question',
-          default : 'Y'
-        };
-
-        var answers = yield ui.prompt(question);
-        ui.tracker.saveTrackerPermission(answers.track_ask);
-
-        if (answers.track_ask) {
-          ui.ok('analytics.message_optIn');
-          yield ui.tracker.sendEvent("tracker", { event_type: "accepted" });
-        } else {
-          ui.ok('analytics.message_optOut', {command: 'azk config track-toggle'});
-        }
-
-        return answers.track_ask;
-      }
-
-      return trackerPermission;
-    });
   },
 
   configure(cli) {

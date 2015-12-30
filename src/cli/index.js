@@ -1,8 +1,9 @@
-import { _ } from 'azk';
+import { _, log } from 'azk';
 import { promiseResolve, promiseReject, isPromise } from 'azk/utils/promises';
 import { Cli as AzkCli } from 'azk/cli/cli';
 import { UI } from 'azk/cli/ui';
-import { InvalidCommandError } from 'azk/utils/errors';
+import { InvalidCommandError, UnknownError } from 'azk/utils/errors';
+import { handler as error_handler } from 'azk/cli/error_handler';
 
 export class Cli extends AzkCli {
   invalidCmd(error) {
@@ -20,7 +21,7 @@ function make_cli() {
     // Commands
     .route('agent', (p, args) => p.agent && /(start|status|stop|configure)/.test(args))
     .route('vm', (p, args) => p.vm && /(ssh|start|status|installed|stop|remove)/.test(args))
-    .route('config', (p, args) => p.config && /(track-toggle|track-status)/.test(args))
+    .route('config', (p, args) => p.config && /(list|reset|set)/.test(args))
     .route('deploy')
     .route('docker')
     .route('doctor')
@@ -66,11 +67,18 @@ export function cli(args, cwd, ui = UI) {
   if (isPromise(result)) {
     result
       .then((code) => {
-        ui.exit(code ? code : 0);
+        // Convert a not number in a UnknownError
+        if (!_.isNumber(code)) {
+          log.warn('[cli] command not return error or code, return: %j', code);
+          throw new UnknownError(code);
+        }
+        return code;
       })
       .catch((error) => {
-        ui.fail(error);
-        ui.exit(error.code ? error.code : 127);
+        return error_handler(error, { ui });
+      })
+      .then((code) => {
+        ui.exit(_.isNumber(code) ? code : 1);
       });
   } else {
     ui.exit(result);

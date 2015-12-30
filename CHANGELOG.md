@@ -7,15 +7,21 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 * Enhancements
   * [Cli] Improving `ui.isInteractive()`, now not only the existence of a `tty` is checked but also the parameter `--quiet`;
+  * [Cli] Adding support to more verbose mode in `azk start`;
+  * [Cli] More options added to the `azk config` command. Now it uses a `key-value` system. The `azk config list` subcommand shows a list of the options users can choose from;
   * [Generators] Adding suggestion to cake-php framework;
   * [Suggestions] Adding `php artisan migrate` to php_laravel;
   * [Suggestions] Changing postgres version to 9.4 and env prefix to `POSTGRES`;
   * [Docs] Adding instructions about "Expandable Properties";
   * [Package] Installation script (`install.sh`) now supports other shells besides `bash` #583;
-  * [Cli] Adding support to more verbose mode in `azk start`;
+  * [Crash-report] A `crash-report` system added. It reports `azk` internal errors that may arise during its use to the Azuki team. It first informs the user before sending the report (not sending is `opt-out`). It also  gives the option to inform an e-mail address for notifications about solutions;
+  * [Tracking] The anonymous user activity tracking system is now `opt-out`. Users must accept the terms of use before starting to use `azk`.
 
 * Bug
   * [Pull] When pulling in verbose mode do not print several `undefined` anymore. Instead print Docker downloading bar provided by Docker API;
+  * [Cli] Fixing return code in `azk start [url]`;
+  * [Cli] Fixing return code in `azk agent stop`;
+  * [Tracking] Fix a bug that could send duplicate data (stopping sending others) to the tracker system;
 
 ## v0.16.3 - (2015-12-08)
 
