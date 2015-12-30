@@ -3,12 +3,12 @@
 import Azk from 'azk';
 import { _, config, log, t, lazy_require } from 'azk';
 import { meta as azkMeta } from 'azk';
-import { promiseResolve } from 'azk/utils/promises';
+import { defer, TimeoutError, promiseResolve } from 'azk/utils/promises';
 
 var lazy = lazy_require({
   os           : 'os',
   osName       : 'os-name',
-  calculateHash: ['azk/utils'],
+  uuid         : 'node-uuid',
   InsightKeenIo: 'insight-keen-io',
   InsightKeenIoWithMeta: () => {
     class InsightKeenIoWithMeta extends lazy.InsightKeenIo {
@@ -54,7 +54,7 @@ export class TrackerEvent {
 
   final_data() {
     return _.merge({}, this._data, {
-      "meta": this.tracker.meta
+      "meta": _.clone(this.tracker.meta)
     });
   }
 
@@ -69,30 +69,38 @@ export class TrackerEvent {
       extra_func(this);
     }
 
+    let event_id   = this.tracker.generateRandomId('event_id');
     var final_data = this.final_data();
-
-    this.tracker.logAnalyticsData({
-      eventCollection: this.collection,
-      data: final_data
-    });
+    this.tracker.logAnalyticsData(event_id, this.collection, final_data);
 
     // track data with insight
-    return this.tracker.insight.track(this.collection, final_data)
+    return this._track(this.collection, final_data)
       .timeout(10000)
       .then((tracking_result) => {
-        if (tracking_result !== 0 && config('tracker:send_in_background')) {
-          this.tracker.logAnalyticsError({stack:'[Tracker => Keen.io - failed:] ' + tracking_result.toString()});
-          this.tracker.logAnalyticsData({
-            eventCollection: this.collection,
-            data: final_data
-          });
+        if (tracking_result !== 0) {
+          throw new Error(tracking_result.toString());
         }
-        return promiseResolve(true);
+        var background = this.tracker.insight.send_in_background;
+        log.info('[tracker] event sendend (%s) (send_in_background: %s)', event_id, background);
+        return tracking_result;
       })
-      .catch(() => {
-        log.warn('[tracker] > timeout:', t("tracking.timeout"));
-        return promiseResolve(false);
+      .catch(TimeoutError, () => {
+        log.warn('[tracker] timeout (%s): %s', event_id, t("tracking.timeout"));
+        return false;
+      })
+      .catch((err) => {
+        log.warn('[tracker] error (%s) %s', event_id, err.stack, {});
+        return false;
       });
+  }
+
+  // Best practice: not connect external promise in your promise system
+  _track(collection, final_data) {
+    return defer((resolve, reject) => {
+      this.tracker.insight
+        .track(collection, final_data)
+        .then(resolve, reject);
+    });
   }
 }
 
@@ -123,6 +131,8 @@ export class Tracker {
         "cpu_count"   : lazy.os.cpus().length
       }
     };
+
+    log.debug(`[tracker] permission to tracker: ${this.loadTrackerPermission()}`);
   }
 
   get insight() {
@@ -148,7 +158,7 @@ export class Tracker {
   }
 
   generateRandomId(label) {
-    return label + ':' + lazy.calculateHash(String(Math.floor(Date.now() * Math.random()))).slice(0, 8);
+    return label + ':' + lazy.uuid.v1().replace(/-/g, "").slice(0, 15);
   }
 
   generateNewAgentSessionId() {
@@ -172,41 +182,30 @@ export class Tracker {
 
   loadTrackerPermission() {
     // opt-out: by default can track when terms of use are accepted
-    let permission = true;
-
-    let saved_permission = azkMeta.get('tracker_permission');
-    if (config('tracker:disable')) {
-      return false;
-    }
-
-    // ignore if undefined/null
-    if (typeof saved_permission === 'boolean') {
-      permission = saved_permission;
-    }
-
-    log.debug(`[tracker] permission: ${permission}`);
-    return permission;
-  }
-
-  checkTrackingPermission() {
-    return this.loadTrackerPermission();
+    return (config('tracker:disable')) ? false : azkMeta.get(this.ids_keys.permission, true);
   }
 
   logAnalyticsError(err) {
-    log.warn('[tracker] >', err.stack || err.toString());
+    log.warn('[tracker] ', err.stack || err.toString());
   }
 
-  logAnalyticsData(analytics_data) {
-    log.info (`[tracker] ${analytics_data.eventCollection}:${analytics_data.data.event_type}`);
-    log.info (`[tracker]`, analytics_data.data.meta.agent_session_id);
-    log.info (`[tracker]`, analytics_data.data.meta.command_id);
-    log.info (`[tracker]`, analytics_data.data.meta.user_id);
-    log.debug(`[tracker] data:`, analytics_data);
+  logAnalyticsData(event_id, collection, data) {
+    log.info('[tracker] sending (%s): %j', event_id, {
+      collection: collection,
+      event_type: data.event_type,
+      meta: {
+        agent_session_id: data.meta.agent_session_id,
+        command_id: data.meta.command_id,
+        user_id: data.meta.user_id,
+      }
+    }, {});
   }
 }
 
 // Default tracker
-var default_tracker = new Tracker({}, {
+var default_tracker = new Tracker({
+  send_in_background: true,
+}, {
   permission: 'tracker_permission',
   user_id   : 'tracker_user_id',
   agent_id  : 'agent_session_id',

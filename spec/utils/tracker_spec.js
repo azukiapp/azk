@@ -11,7 +11,7 @@ describe("Azk Tracker", function() {
   it("should generateRandomId", function() {
     var label = 'agent_session_id';
     var new_hash = tracker.generateRandomId(label);
-    var expected = label + ':' + '12345678';
+    var expected = label + ':' + '123456789012345';
     h.expect(new_hash.length).to.equal(expected.length);
   });
 

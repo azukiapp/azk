@@ -21,6 +21,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Pull] When pulling in verbose mode do not print several `undefined` anymore. Instead print Docker downloading bar provided by Docker API;
   * [Cli] Fixing return code in `azk start [url]`;
   * [Cli] Fixing return code in `azk agent stop`;
+  * [Tracking] Fix a bug that could send duplicate data (stopping sending others) to the tracker system;
 
 ## v0.16.3 - (2015-12-08)
 

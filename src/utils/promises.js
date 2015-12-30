@@ -160,6 +160,8 @@ var PromisesHelper = {
     return BB.map(...args);
   },
 
+  TimeoutError: BB.TimeoutError,
+
 };
 
 module.exports = PromisesHelper;
