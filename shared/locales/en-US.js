@@ -36,7 +36,7 @@ module.exports = {
         'Bonus: if you\'re ok with telling us your email address,'.yellow,
         ' we\'ll be able to reply you with a solution for this issue.\n'.yellow,
         'Important: Your email will be saved for future crash reports (we\'ll never share your email).\n'.yellow,
-        'You can always delete/update your email at any time. Check the documentation to see how.\n'.yellow,
+        'You can always delete/update your email at any time. See http://docs.azk.io/en/reference/cli/config.html#azk-config\n'.yellow,
         'Enter your email'.white + ' [optional]'.grey + ':'.white,
       ].join(''),
       question_always_ask_email: [

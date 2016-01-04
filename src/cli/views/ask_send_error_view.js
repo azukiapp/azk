@@ -72,8 +72,8 @@ export class AskSendErrorView extends View {
   }
 
   _validateEmail(str_email) {
-    let email_rgex = /[^\\.\\s@][^\\s@]*(?!\\.)@[^\\.\\s@]+(?:\\.[^\\.\\s@]+)*/;
-    return email_rgex.test(str_email);
+    let email_regex = /[^@]+@[^@]+\.[^@]+/;
+    return email_regex.test(str_email);
   }
 
   _checkEmail() {
