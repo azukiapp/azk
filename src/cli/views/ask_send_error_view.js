@@ -90,7 +90,7 @@ export class AskSendErrorView extends View {
         if (!isBlank(email)) {
           // save e-mail
           this.configuration.save('user.email', email);
-          this.configuration.save('user.email_always_ask', 0);
+          this.configuration.save('user.email_always_ask', false);
         } else {
           // check how many time user has been asked about email
           let email_ask_count = this.configuration.load('user.email_ask_count', 0);
