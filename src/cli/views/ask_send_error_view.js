@@ -4,6 +4,7 @@ import { async, promiseResolve } from 'azk/utils/promises';
 
 var lazy = lazy_require({
   Configuration: ['azk/configuration'],
+  validator    : 'validator',
 });
 
 export class AskSendErrorView extends View {
@@ -72,8 +73,7 @@ export class AskSendErrorView extends View {
   }
 
   _validateEmail(str_email) {
-    let email_regex = /[^@]+@[^@]+\.[^@]+/;
-    return email_regex.test(str_email);
+    return lazy.validator.isEmail(str_email);
   }
 
   _checkEmail() {
