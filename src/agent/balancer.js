@@ -7,9 +7,9 @@ import { Tools } from 'azk/agent/tools';
 import { AgentStartError } from 'azk/utils/errors';
 
 var lazy = lazy_require({
-  forever : 'forever-monitor',
-  Manifest: ['azk/manifest'],
-  Client  : ['azk/agent/client'],
+  forever        : 'forever-monitor',
+  Manifest       : ['azk/manifest'],
+  Client         : ['azk/agent/client'],
   MemoryStream   : 'memorystream',
   MemcachedDriver: 'memcached',
 });

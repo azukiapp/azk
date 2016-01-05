@@ -5,7 +5,7 @@ import { async } from 'azk/utils/promises';
 
 var lazy = lazy_require({
   Manifest: ['azk/manifest'],
-  moment: 'moment',
+  moment  : 'moment',
 });
 
 class Status extends CliTrackerController {

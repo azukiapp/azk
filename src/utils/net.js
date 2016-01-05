@@ -11,11 +11,11 @@ var os          = require('os');
 var { isIPv4 }  = require('net');
 
 var lazy = lazy_require({
-  Netmask        : ['netmask'],
-  hostonly       : ['azk/agent/vm'],
-  VM             : ['azk/agent/vm'],
-  connectivity   : 'connectivity',
-  nodeRetry      : 'retry',
+  Netmask      : ['netmask'],
+  hostonly     : ['azk/agent/vm'],
+  VM           : ['azk/agent/vm'],
+  connectivity : 'connectivity',
+  nodeRetry    : 'retry',
 });
 
 var portrange = config("agent:portrange_start");

@@ -3,7 +3,7 @@ import { isBlank } from 'azk/utils';
 import { promiseResolve } from 'azk/utils/promises';
 
 var lazy = lazy_require({
-  Configuration: ['azk/configuration'],
+  Configuration    : ['azk/configuration'],
   CrashReportSender: 'crash-report-sender',
 });
 

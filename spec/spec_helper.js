@@ -7,8 +7,8 @@ import Utils from 'azk/utils';
 
 var lazy = lazy_require({
   MemoryStream: 'memorystream',
-  dirdiff : 'dirdiff',
-  tmp     : 'tmp'
+  dirdiff     : 'dirdiff',
+  tmp         : 'tmp'
 });
 
 var chai = require('chai');

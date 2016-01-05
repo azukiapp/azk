@@ -10,8 +10,8 @@ var AVAILABLE_PROVIDERS = ["docker", "dockerfile"];
 var default_tag      = "latest";
 
 var lazy = lazy_require({
-  DImage: ['azk/docker', 'Image'],
-  docker: ['azk/docker', 'default'],
+  DImage     : ['azk/docker', 'Image'],
+  docker     : ['azk/docker', 'default'],
   Syncronizer: ['docker-registry-downloader'],
 });
 

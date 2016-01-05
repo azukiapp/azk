@@ -5,7 +5,7 @@ import { async, promiseResolve, promiseReject } from 'azk/utils/promises';
 import { subscribe } from 'azk/utils/postal';
 
 var lazy = lazy_require({
-  VM: ['azk/agent/vm'],
+  VM    : ['azk/agent/vm'],
   Server: ['azk/agent/server'],
   Client: ['azk/agent/client'],
 });

@@ -3,10 +3,10 @@ import { config, path, lazy_require } from 'azk';
 import { async, all } from 'azk/utils/promises';
 
 var lazy = lazy_require({
-  Sync    : ['azk/sync'],
-  VM      : ['azk/agent/vm'],
-  Client  : ['azk/agent/client'],
-  uuid    : 'node-uuid'
+  Sync  : ['azk/sync'],
+  VM    : ['azk/agent/vm'],
+  Client: ['azk/agent/client'],
+  uuid  : 'node-uuid'
 });
 
 describe("Azk sync, main module", function() {

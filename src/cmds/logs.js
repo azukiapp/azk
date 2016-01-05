@@ -5,7 +5,7 @@ import { defer, thenAll } from 'azk/utils/promises';
 
 var lazy = lazy_require({
   Manifest: ['azk/manifest'],
-  docker: ['azk/docker', 'default'],
+  docker  : ['azk/docker', 'default'],
 });
 
 class Logs extends CliTrackerController {
