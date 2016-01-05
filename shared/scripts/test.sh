@@ -15,10 +15,11 @@ export PATH=$AZK_ROOT_PATH/bin:$PATH
 export AZK_USE_VM="true"
 
 # Set VM default values
-export AZK_NAMESPACE="build.dev.azk.io"
-export AZK_BALANCER_HOST="$AZK_NAMESPACE"
-export AZK_BALANCER_IP="192.168.52.4"
-export AZK_VM_MEMORY="768"
+export AZK_NAMESPACE=${AZK_NAMESPACE:-build.dev.azk.io}
+export AZK_BALANCER_HOST=${AZK_BALANCER_HOST:-$AZK_NAMESPACE}
+export AZK_BALANCER_IP=${AZK_BALANCER_IP:-192.168.52.4}
+export AZK_DNS_PORT=${AZK_DNS_PORT:-53}
+export AZK_VM_MEMORY=${AZK_VM_MEMORY:-768}
 
 # Temporary file to redirect azk agent output
 export AZK_AGENT_OUTPUT="/tmp/azk-agent-start.log"
@@ -29,20 +30,33 @@ accept_tos() {
 }
 
 stop_agent() {
-  azk agent stop || true
+  (
+    azk agent status > /dev/null 2>&1 && \
+    azk agent stop
+  ) || true
 }
 
 start_agent() {
   azk agent start
 }
 
-setup() {
-  echo "nameserver ${AZK_BALANCER_IP}.53" \
+setup_resolver() {
+  case "$(uname -a)" in
+    Linux\ *)   NS_SEPARATOR=':' ;;
+    Darwin\ *)  NS_SEPARATOR='.' ;;
+    *)          echo "Sorry, this OS is not supported yet. Try running using Linux or Mac OS X." && exit 1;;
+  esac
+
+  echo "nameserver ${AZK_BALANCER_IP}${NS_SEPARATOR}${AZK_DNS_PORT}" \
     | sudo tee /etc/resolver/${AZK_NAMESPACE} \
     > /dev/null 2>&1
+}
+
+setup() {
+  stop_agent
+  setup_resolver
   make
   accept_tos
-  stop_agent
   start_agent
 }
 
