@@ -76,7 +76,7 @@ export function handler(error, options = {}) {
       }
     } catch (err) {
       log.info('[error-handler] sendEvent or sendError fail with %s', err.stack, {});
-      if (options.throw_error) { throw err };
+      if (options.throw_error) { throw err; }
     }
 
     return error.code || 1;

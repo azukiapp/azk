@@ -4,6 +4,7 @@ import { async, promiseResolve } from 'azk/utils/promises';
 
 var lazy = lazy_require({
   Configuration: ['azk/configuration'],
+  validator    : 'validator',
 });
 
 export class AskSendErrorView extends View {
@@ -72,8 +73,7 @@ export class AskSendErrorView extends View {
   }
 
   _validateEmail(str_email) {
-    let email_rgex = /[^\\.\\s@][^\\s@]*(?!\\.)@[^\\.\\s@]+(?:\\.[^\\.\\s@]+)*/;
-    return email_rgex.test(str_email);
+    return lazy.validator.isEmail(str_email);
   }
 
   _checkEmail() {
@@ -90,7 +90,7 @@ export class AskSendErrorView extends View {
         if (!isBlank(email)) {
           // save e-mail
           this.configuration.save('user.email', email);
-          this.configuration.save('user.email_always_ask', 0);
+          this.configuration.save('user.email_always_ask', false);
         } else {
           // check how many time user has been asked about email
           let email_ask_count = this.configuration.load('user.email_ask_count', 0);

@@ -8635,6 +8635,9 @@
       "version": "2.0.0",
       "from": "https://registry.npmjs.org/xregexp/-/xregexp-2.0.0.tgz",
       "resolved": "https://registry.npmjs.org/xregexp/-/xregexp-2.0.0.tgz"
+    },
+    "validator": {
+      "version": "4.4.0"
     }
   }
 }
