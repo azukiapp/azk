@@ -3,7 +3,7 @@
 import Azk from 'azk';
 import { _, config, log, t, lazy_require } from 'azk';
 import { meta as azkMeta } from 'azk';
-import { defer, TimeoutError, promiseResolve } from 'azk/utils/promises';
+import { promisify, TimeoutError, promiseResolve } from 'azk/utils/promises';
 
 var lazy = lazy_require({
   os           : 'os',
@@ -96,11 +96,9 @@ export class TrackerEvent {
 
   // Best practice: not connect external promise in your promise system
   _track(collection, final_data) {
-    return defer((resolve, reject) => {
-      this.tracker.insight
-        .track(collection, final_data)
-        .then(resolve, reject);
-    });
+    let context = this.tracker.insight;
+    let track   = promisify(context.track, { context });
+    return track(collection, final_data);
   }
 }
 
