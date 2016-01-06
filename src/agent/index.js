@@ -2,7 +2,7 @@ import { _, config, log, lazy_require, set_config, fsAsync } from 'azk';
 import { defer, async, promiseResolve } from 'azk/utils/promises';
 import { publish } from 'azk/utils/postal';
 import { Pid } from 'azk/utils/pid';
-import { AgentStopError } from 'azk/utils/errors';
+import { AzkError, AgentStopError } from 'azk/utils/errors';
 
 var lazy = lazy_require({
   Server : ['azk/agent/server'],
@@ -36,6 +36,9 @@ var Agent = {
         this
           .processWrapper(options.configs || {} )
           .catch((err) => {
+            if (!(err instanceof AzkError)) {
+              err = err.stack ? err.stack : err.toString();
+            }
             this.change_status("error", err);
             if (!this.stopping) {
               this.stopping = true;
