@@ -20,6 +20,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Dependency] Updating `archiver`, `crash-report-sender`, `docker-registry-downloader`, `file-async` and `inquirer`;
   * [Dependency] Updating `insight-keen-io` and fixing tracker connect with it;
   * [Dependency] Updating `lodash` and fixing use of `template` in `src/utils/index`;
+  * [Manifest] Adding type to `ManifestError`, possible values: `syntax`, `logic` and `validate`;
 
 * Bug
   * [Pull] When pulling in verbose mode do not print several `undefined` anymore. Instead print Docker downloading bar provided by Docker API;
