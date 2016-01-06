@@ -4,7 +4,7 @@ import { ManifestError } from 'azk/utils/errors';
 
 var lazy = lazy_require({
   AgentClient: ['azk/agent/client', 'Client'],
-  Configure: ['azk/agent/configure', 'Configure'],
+  Configure  : ['azk/agent/configure', 'Configure'],
 });
 
 var Helpers = {

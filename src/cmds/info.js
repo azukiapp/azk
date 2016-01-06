@@ -4,7 +4,7 @@ import { _, lazy_require } from 'azk';
 import { async } from 'azk/utils/promises';
 
 var lazy = lazy_require({
-  Manifest: ['azk/manifest'],
+  Manifest  : ['azk/manifest'],
   prettyjson: 'prettyjson'
 });
 

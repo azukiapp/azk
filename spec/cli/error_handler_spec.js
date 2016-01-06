@@ -5,7 +5,7 @@ import { MustAcceptTermsOfUse, AzkError } from 'azk/utils/errors';
 import { promiseReject, promiseResolve } from 'azk/utils/promises';
 
 var lazy = lazy_require({
-  Configuration: ['azk/configuration'],
+  Configuration   : ['azk/configuration'],
   AskSendErrorView: ['azk/cli/views/ask_send_error_view'],
 });
 

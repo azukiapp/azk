@@ -7,10 +7,10 @@ var lazy = lazy_require({
 });
 
 var action_opts = {
-  start: { instances: {}, key: "already_started" },
-  stop:  { instances: 0 , key: "not_running" },
+  start     : { instances: {}, key: "already_started" },
+  stop      : { instances: 0 , key: "not_running" },
   skip_start: { key: "skip" },
-  skip_stop: { key: "skip" },
+  skip_stop : { key: "skip" },
 };
 
 class Start extends Scale {

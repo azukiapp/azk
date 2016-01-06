@@ -5,11 +5,11 @@ import { AzkError } from 'azk/utils/errors';
 require('colors');
 
 var lazy = lazy_require({
-  'Table'    : 'cli-table',
-  'printf'   : 'printf',
-  'inquirer' : 'inquirer',
-  'execShLib': 'exec-sh',
-  'open'     : 'open',
+  Table    : 'cli-table',
+  printf   : 'printf',
+  inquirer : 'inquirer',
+  execShLib: 'exec-sh',
+  open     : 'open',
 });
 
 var tables    = {};

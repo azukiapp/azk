@@ -3,7 +3,7 @@ import { _, config, fsAsync, path, lazy_require, log } from 'azk';
 import { async, promiseResolve } from 'azk/utils/promises';
 
 var lazy = lazy_require({
-  Generator: ['azk/generator'],
+  Generator     : ['azk/generator'],
   example_system: ['azk/generator'],
 });
 

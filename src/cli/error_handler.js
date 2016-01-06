@@ -3,8 +3,8 @@ import { AzkError, MustAcceptTermsOfUse } from 'azk/utils/errors';
 import { async } from 'azk/utils/promises';
 
 var lazy = lazy_require({
-  CrashReport: ['azk/utils/crash_report'],
-  tracker: ['azk/utils/tracker', 'default'],
+  CrashReport     : ['azk/utils/crash_report'],
+  tracker         : ['azk/utils/tracker', 'default'],
   AskSendErrorView: ['azk/cli/views/ask_send_error_view'],
 });
 
