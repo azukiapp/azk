@@ -32,8 +32,8 @@
   },
   "dependencies": {
     "babel-runtime": "^5.1.11",
-    "bluebird": "^2.9.27",
     "archiver": "^0.21.0",
+    "bluebird": "^3.1.1",
     "chokidar": "^1.0.1",
     "cli-router": "^0.3.7",
     "cli-table": "git+https://github.com/gullitmiranda/cli-table#master",
