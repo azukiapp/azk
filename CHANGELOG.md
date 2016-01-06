@@ -19,6 +19,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Tracking] The anonymous user activity tracking system is now `opt-out`. Users must accept the terms of use before starting to use `azk`.
   * [Dependency] Updating `archiver`, `crash-report-sender`, `docker-registry-downloader`, `file-async` and `inquirer`;
   * [Dependency] Updating `insight-keen-io` and fixing tracker connect with it;
+  * [Dependency] Updating `lodash` and fixing use of `template` in `src/utils/index`;
 
 * Bug
   * [Pull] When pulling in verbose mode do not print several `undefined` anymore. Instead print Docker downloading bar provided by Docker API;

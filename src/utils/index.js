@@ -175,7 +175,7 @@ var Utils = {
 
   template(template_string, data) {
     var options = { interpolate: /(?:(?:[#|$]{|<%)[=|-]?)([\s\S]+?)(?:}|%>)/g };
-    return _.template(template_string, data, options);
+    return _.template(template_string, options)(data);
   },
 
   isBlank(obj) {

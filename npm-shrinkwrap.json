@@ -7482,9 +7482,7 @@
       }
     },
     "lodash": {
-      "version": "2.4.1",
-      "from": "https://registry.npmjs.org/lodash/-/lodash-2.4.1.tgz",
-      "resolved": "https://registry.npmjs.org/lodash/-/lodash-2.4.1.tgz"
+      "version": "3.10.1"
     },
     "memcached": {
       "version": "0.2.8",
