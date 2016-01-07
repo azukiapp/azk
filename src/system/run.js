@@ -33,7 +33,7 @@ var Run = {
       log.debug('provision steps', steps);
 
       // provision command (require /bin/sh)
-      options.command = "(" + steps.join(' && ') + ")";
+      options.command = [ "(" + steps.join(' && ') + ")" ];
 
       // Capture outputs
       var output = "";
