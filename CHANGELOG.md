@@ -25,6 +25,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Agent] Expanding error mensage in agent starting process;
   * [Dependency] Updating the `azk-dev` and exchanging `babel-runtime` with `babel-poliffy`.
   * [Code] Refactoring many parts of the code to suit best the modules of the system `babel> 6`;
+  * [Code] Removing `chai` and replacing by `azk-dev/lib/chai`;
 
 * Bug
   * [Pull] When pulling in verbose mode do not print several `undefined` anymore. Instead print Docker downloading bar provided by Docker API;

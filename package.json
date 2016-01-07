@@ -89,7 +89,6 @@
   },
   "devDependencies": {
     "archy": "^1.0.0",
-    "chai-subset": "^1.0.0",
     "azk-dev": "^0.2.1",
     "babel": "^6.3.26",
     "concurrent-transform": "^1.0.0",
