@@ -2,10 +2,11 @@ import { _, config, log, lazy_require, set_config, fsAsync } from 'azk';
 import { defer, async, promiseResolve } from 'azk/utils/promises';
 import { publish } from 'azk/utils/postal';
 import { Pid } from 'azk/utils/pid';
-import { AzkError, AgentStopError } from 'azk/utils/errors';
+import { AgentStopError } from 'azk/utils/errors';
 
 var lazy = lazy_require({
   Server : ['azk/agent/server'],
+  error_handler: ['azk/cli/error_handler', 'handler'],
 });
 
 var blank_observer = {
@@ -35,15 +36,15 @@ var Agent = {
         this.change_status('starting');
         this
           .processWrapper(options.configs || {} )
-          .catch((err) => {
-            if (!(err instanceof AzkError)) {
-              err = err.stack ? err.stack : err.toString();
-            }
-            this.change_status("error", err);
-            if (!this.stopping) {
+          .catch((error) => {
+            return lazy.error_handler(error).then(() => false);
+          })
+          .then((result) => {
+            if (!result && !this.stopping) {
               this.stopping = true;
-              this.gracefullyStop();
+              return this.gracefullyStop();
             }
+            return 0;
           });
       }
     });
@@ -76,9 +77,7 @@ var Agent = {
       })
       .catch((error) => {
         try { pid.unlink(); } catch (e) {}
-        error = error.stack || error;
-        log.error('[agent] agent stop error: ' + error);
-        return 1;
+        return lazy.error_handler(error).then(() => 1);
       })
       .then(this.observer.resolve);
   },
@@ -139,6 +138,7 @@ var Agent = {
         publish("agent.agent.started.event", {});
         log.info("[azk] agent start with pid: " + process.pid);
       }
+      return true;
     });
   },
 };
