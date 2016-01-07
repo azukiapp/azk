@@ -1,5 +1,7 @@
 import { _, isBlank } from 'azk/utils';
 
+import "babel-polyfill";
+
 class Azk {
   static get version() {
     return require('package.json').version;
@@ -10,17 +12,15 @@ class Azk {
 var _t   = null;
 var _log = null;
 
-module.exports = {
-  __esModule: true,
-
+var GeralLib = {
   get default() { return Azk; },
   get _() {  return _; },
   get t() {
     if (!_t) {
       var I18n = require('i18n-cli');
       _t = new I18n({
-        path: this.path.join(this.config('paths:azk_root'), 'shared', 'locales'),
-        locale: this.config('locale'),
+        path: GeralLib.path.join(GeralLib.config('paths:azk_root'), 'shared', 'locales'),
+        locale: GeralLib.config('locale'),
       }).t;
     }
     return _t;
@@ -32,7 +32,7 @@ module.exports = {
 
   // Global azk meta data
   get meta() {
-    var cache_dir = this.config('paths:azk_meta');
+    var cache_dir = GeralLib.config('paths:azk_meta');
     return new (require('azk/manifest/meta').Meta)({ cache_dir });
   },
 
@@ -56,3 +56,5 @@ module.exports = {
     return _log;
   },
 };
+
+export default GeralLib;

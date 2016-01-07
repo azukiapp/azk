@@ -8,7 +8,7 @@ var lazy = lazy_require({
   prettyjson: 'prettyjson'
 });
 
-class Info extends CliTrackerController {
+export default class Info extends CliTrackerController {
   index(opts) {
     return async(this, function* () {
       // Requirements
@@ -67,5 +67,3 @@ class Info extends CliTrackerController {
     return commands;
   }
 }
-
-module.exports = Info;

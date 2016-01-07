@@ -9,7 +9,7 @@ var lazy = lazy_require({
   Status  : 'azk/cmds/status'
 });
 
-class Scale extends CliTrackerController {
+export default class Scale extends CliTrackerController {
   index(opts, command_parse_result) {
     return async(this, function* () {
 
@@ -139,5 +139,3 @@ class Scale extends CliTrackerController {
       });
   }
 }
-
-module.exports = Scale;

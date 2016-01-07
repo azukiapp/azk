@@ -9,7 +9,7 @@ var lazy = lazy_require({
   Manifest: ['azk/manifest']
 });
 
-class Deploy extends CliTrackerController {
+export default class Deploy extends CliTrackerController {
   index() {
     return async(this, function* () {
       yield Helpers.requireAgent(this.ui);
@@ -69,5 +69,3 @@ class Deploy extends CliTrackerController {
     return manifest.system("deploy", true);
   }
 }
-
-module.exports = Deploy;

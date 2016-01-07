@@ -2,7 +2,7 @@
 var path = require('path');
 var lib  = process.env.AZK_LIB_PATH || 'lib';
 
-var azk_gulp = require('azk-dev/gulp')({
+var azk_gulp = require('azk-dev/lib/gulp')({
   cwd  : __dirname,
   src  : { src: "./src" , dest: path.join(lib, "/azk") },
   spec : { src: "./spec", dest: path.join(lib, "/spec") },

@@ -8,7 +8,7 @@ var lazy = lazy_require({
   moment  : 'moment',
 });
 
-class Status extends CliTrackerController {
+export default class Status extends CliTrackerController {
   index(opts) {
     return Helpers.requireAgent(this.ui)
       .then(() => {
@@ -134,5 +134,3 @@ class Status extends CliTrackerController {
     return columns;
   }
 }
-
-module.exports = Status;

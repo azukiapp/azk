@@ -7,7 +7,7 @@ var lazy = lazy_require({
   example_system: ['azk/generator'],
 });
 
-class Init extends CliController {
+export default class Init extends CliController {
   index(params) {
     return async(this, function* () {
       if (params.filename) {
@@ -50,5 +50,3 @@ class Init extends CliController {
     this.ui.output(config('manifest'));
   }
 }
-
-module.exports = Init;

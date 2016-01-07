@@ -7,7 +7,7 @@ var lazy = lazy_require({
   Manifest: ['azk/manifest'],
 });
 
-class Open extends CliTrackerController {
+export default class Open extends CliTrackerController {
   index(opts) {
     return async(this, function* () {
       // Requirements
@@ -44,7 +44,4 @@ class Open extends CliTrackerController {
       return 0;
     });
   }
-
 }
-
-module.exports = Open;

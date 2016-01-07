@@ -13,13 +13,14 @@ var action_opts = {
   skip_stop : { key: "skip" },
 };
 
-class Start extends Scale {
+export default class Start extends Scale {
   _scale(systems, action, opts) {
     var args = this.normalized_params.arguments;
     var args_systems = (args.system || '').split(',');
     args_systems = _.map(args_systems, (s) => (s || '').trim());
 
     opts.instances = opts.instances || {};
+    let _super_scale = super._scale.bind(this);
 
     return async(this, function* () {
       var system, result = 0;
@@ -50,7 +51,7 @@ class Start extends Scale {
         }
 
         this.verbose([...ns].concat("verbose"), system);
-        var icc = yield super._scale(system, instances, opts);
+        var icc = yield _super_scale(system, instances, opts);
 
         if (icc === 0) {
           this.ui[ui_status]([...ns].concat(scale_options.key), system);
@@ -142,5 +143,3 @@ class Start extends Scale {
     return 1;
   }
 }
-
-module.exports = Start;
