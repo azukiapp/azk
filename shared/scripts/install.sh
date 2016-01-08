@@ -357,9 +357,13 @@ install_yaourt() {
   sleep 10
 
   step_wait "Installing yaourt"
-  echo "[archlinuxfr]
+
+  if ! grep -q '[archlinuxfr]' /etc/pacman.conf; then
+    echo "[archlinuxfr]
 SigLevel = Never
-Server = http://repo.archlinux.fr/\$arch" | super tee -a /etc/pacman.conf
+Server = http://repo.archlinux.fr/\$arch" | \
+    super tee -a /etc/pacman.conf
+  fi
 
   if super pacman -Sy yaourt --noconfirm; then
     step_done
