@@ -359,7 +359,7 @@ export class System {
         (options.interactive ? 'interactive' : 'script')
     );
 
-    _.merge(opts, {
+    _.assign(opts, {
       command: this._shell_command(options),
       tty    : options.interactive ? options.stdout.isTTY : false,
       stdout : options.stdout,

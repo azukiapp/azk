@@ -33,7 +33,7 @@ var Run = {
       log.debug('provision steps', steps);
 
       // provision command (require /bin/sh)
-      options.command = [ "(" + steps.join(' && ') + ")" ];
+      options.command = "(" + steps.join(' && ') + ")";
 
       // Capture outputs
       var output = "";
@@ -190,12 +190,12 @@ var Run = {
           options     : sync_data.options
         };
 
-        publish(topic, _.merge({ type : "sync_start" }, pub_data));
+        publish(topic, _.assign({ type : "sync_start" }, pub_data));
 
         return lazy.Client
           .watch(host_folder, sync_data.guest_folder, sync_data.options)
           .then(() => {
-            publish(topic, _.merge({ type : "sync_done" }, pub_data));
+            publish(topic, _.assign({ type : "sync_done" }, pub_data));
           });
       });
     }));

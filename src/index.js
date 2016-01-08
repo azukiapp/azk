@@ -1,6 +1,8 @@
 import { _, isBlank } from 'azk/utils';
 
-import "babel-polyfill";
+try {
+  require("babel-polyfill");
+} catch (e) {}
 
 class Azk {
   static get version() {

@@ -528,8 +528,8 @@ describe("Azk system class, main set", function() {
         });
 
         it("should have `/bin/sh -c` append if the cmd.command is present", function() {
-          var command   = ['ls -l'];
-          var final_cmd = [system.shell, "-c", ...command];
+          var command   = 'ls -l';
+          var final_cmd = [system.shell, "-c", command];
           var options   = system.shellOptions({ command });
           h.expect(options).to.have.property("command").and.eql(final_cmd);
         });
