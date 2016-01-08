@@ -8,7 +8,7 @@ var lazy = lazy_require({
   docker  : ['azk/docker', 'default'],
 });
 
-class Logs extends CliTrackerController {
+export default class Logs extends CliTrackerController {
   index(opts) {
     return Helpers.requireAgent(this.ui)
       .then(() => {
@@ -80,5 +80,3 @@ class Logs extends CliTrackerController {
     }));
   }
 }
-
-module.exports = Logs;

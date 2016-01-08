@@ -3,7 +3,7 @@ import { Helpers } from 'azk/cli/helpers';
 import { _, log, config, utils } from 'azk';
 import { async } from 'azk/utils/promises';
 
-class Docker extends CliTrackerController {
+export default class Docker extends CliTrackerController {
   index(opts) {
     return async(this, function* () {
       var cmd, _path;
@@ -32,5 +32,3 @@ class Docker extends CliTrackerController {
     });
   }
 }
-
-module.exports = Docker;

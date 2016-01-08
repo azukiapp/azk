@@ -3,9 +3,7 @@ import { Docker, Image, Container } from 'azk/docker/docker';
 
 var url = require('url');
 
-module.exports = {
-  __esModule: true,
-
+export default {
   get default() {
     if (!this.connect) {
       var opts = url.parse(config('docker:host'));

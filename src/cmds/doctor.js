@@ -8,7 +8,7 @@ var lazy = lazy_require({
   Client: ['azk/agent/client'],
 });
 
-class Doctor extends CliTrackerController {
+export default class Doctor extends CliTrackerController {
   get docker() {
     return require('azk/docker').default;
   }
@@ -78,5 +78,3 @@ class Doctor extends CliTrackerController {
     return result;
   }
 }
-
-module.exports = Doctor;

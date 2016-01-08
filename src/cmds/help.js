@@ -2,7 +2,7 @@ import { CliControllers } from 'cli-router';
 import { _, t } from 'azk';
 import { promiseResolve } from 'azk/utils/promises';
 
-class Help extends CliControllers.Help {
+export default class Help extends CliControllers.Help {
   index(params, cli) {
     var usage = super.index(params, cli);
     usage = this.colorizeSections(params, usage);
@@ -18,5 +18,3 @@ class Help extends CliControllers.Help {
     return usage;
   }
 }
-
-module.exports = Help;

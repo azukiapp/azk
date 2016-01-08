@@ -1,6 +1,5 @@
-var RegexHelper = {
-  __esModule: true,
 
+var RegexHelper = {
   removeLine(text, from, to) {
     var first_part = text.substring(0, from);
     if (to !== text.length) {
@@ -93,4 +92,4 @@ var RegexHelper = {
 
 };
 
-module.exports = RegexHelper;
+export default RegexHelper;

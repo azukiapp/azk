@@ -1,5 +1,5 @@
 import { _, t, path, fsAsync, config, log } from 'azk';
-import { async, defer, ninvoke, thenAll, promiseResolve } from 'azk/utils/promises';
+import { async, defer, promisifyAll, thenAll, promiseResolve } from 'azk/utils/promises';
 
 import { lazy_require } from 'azk';
 import { net } from 'azk/utils';
@@ -30,18 +30,19 @@ var Balancer = {
     if (!this.mem_client) {
       var socket = config('paths:memcached_socket');
       this.mem_client = new lazy.MemcachedDriver(socket);
+      this.mem_client = promisifyAll(this.mem_client);
     }
     return this.mem_client;
   },
 
   removeAll(host) {
     var key = 'frontend:' + host;
-    return ninvoke(this.memCached, 'delete', key);
+    return this.memCached.deleteAsync(key);
   },
 
   getBackends(host) {
     var key = 'frontend:' + host;
-    return ninvoke(this.memCached, 'get', key).then((entries) => {
+    return this.memCached.getAsync(key).then((entries) => {
       return entries ? entries : [host];
     });
   },
@@ -53,7 +54,7 @@ var Balancer = {
         var entries = yield this.getBackends(host);
         entries = this._removeEntry(entries, backend);
         entries.push(backend);
-        yield ninvoke(this.memCached, 'set', key, entries, 0);
+        yield this.memCached.setAsync(key, entries, 0);
       }
     });
   },
@@ -64,7 +65,7 @@ var Balancer = {
         var key = 'frontend:' + host;
         var entries = yield this.getBackends(host);
         entries = this._removeEntry(entries, backend);
-        yield ninvoke(this.memCached, 'set', key, entries, 0);
+        yield this.memCached.setAsync(key, entries, 0);
       }
     });
   },

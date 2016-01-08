@@ -11,14 +11,6 @@ var lazy = lazy_require({
   tmp         : 'tmp'
 });
 
-var chai = require('chai');
-
-// Chai extensions
-chai.use(require('chai-subset'));
-chai.use(require('chai-as-promised'));
-chai.use(require('chai-things'));
-chai.config.includeStack = true;
-
 if (process.env.AZK_SUBSCRIBE_POSTAL) {
   var SubscriptionLogger = require("azk/utils/postal").SubscriptionLogger;
   var subscriptionLogger = new SubscriptionLogger();
@@ -27,7 +19,7 @@ if (process.env.AZK_SUBSCRIBE_POSTAL) {
 
 var Helpers = {
   pp: pp,
-  expect: chai.expect,
+  expect: require('azk-dev/lib/chai').expect,
 
   get no_required_agent() {
     return (_.contains(process.argv, '--no-required-agent') || process.env.AZK_NO_REQUIRED_AGENT);

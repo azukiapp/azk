@@ -10,7 +10,7 @@ var lazy = lazy_require({
   VMController: 'azk/cmds/vm',
 });
 
-class Agent extends CliTrackerController {
+export default class Agent extends CliTrackerController {
   get docker() {
     return require('azk/docker').default;
   }
@@ -174,5 +174,3 @@ class Agent extends CliTrackerController {
     });
   }
 }
-
-module.exports = Agent;

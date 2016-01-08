@@ -1,4 +1,4 @@
-import { path, fs, config, _, t, lazy_require, isBlank } from 'azk';
+import { path, fs, config, _, t, log, lazy_require, isBlank } from 'azk';
 import { System } from 'azk/system';
 import { Validate } from 'azk/manifest/validate';
 import { ManifestError, ManifestRequiredError, SystemNotFoundError } from 'azk/utils/errors';
@@ -73,11 +73,12 @@ export class Manifest {
       throw new Error(t("manifest.required_path"));
     }
 
-    this.images   = {};
-    this.systems  = {};
-    this.bins     = {};
-    this._default = null;
-    this.file     = file || Manifest.find_manifest(cwd);
+    this.cwd_search = cwd;
+    this.images     = {};
+    this.systems    = {};
+    this.bins       = {};
+    this._default   = null;
+    this.file       = file || Manifest.find_manifest(cwd);
 
     if (required && !this._exist()) {
       throw new ManifestRequiredError(cwd);
@@ -100,10 +101,11 @@ export class Manifest {
   }
 
   parse() {
-    var content = fs.readFileSync(this.file);
-    var err = check(content.toString(), this.file);
+    var content  = fs.readFileSync(this.file);
+    let err_file = path.relative(this.cwd_search, this.file);
+    var err  = check(content.toString(), this.file);
     if (err) {
-      throw new ManifestError(this.file, err);
+      throw new ManifestError(err_file, err, 'syntax');
     } else {
       try {
         lazy.runInNewContext(content, Manifest.createDslContext(this), this.file);
@@ -111,7 +113,8 @@ export class Manifest {
         if (!(e instanceof ManifestError)) {
           var stack = e.stack.split('\n');
           var msg   = stack[0] + "\n" + stack[1];
-          throw new ManifestError(this.file, msg);
+          log.info('Manifest parse error %s', e.stack);
+          throw new ManifestError(err_file, msg, 'logic');
         }
         throw e;
       }
@@ -232,7 +235,7 @@ export class Manifest {
   getSystemsByName(names) {
     var systems_name = this.systemsInOrder();
 
-    if (_.isString(names) && !_.isEmpty(names)) {
+    if (!_.isEmpty(names)) {
       names = _.isArray(names) ? names : names.split(',');
       _.each(names, (name) => this.system(name, true));
       systems_name = _.intersection(systems_name, names);

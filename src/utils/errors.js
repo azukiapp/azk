@@ -183,9 +183,10 @@ export class ManifestRequiredError extends AzkError {
 }
 
 export class ManifestError extends AzkError {
-  constructor(file, err_message) {
+  constructor(file, err_message, type = 'validate') {
     super('manifest_error');
 
+    this.type = type;
     this.file = file;
     this.err_message = err_message;
     this.code = MANIFEST_CODE_ERROR;

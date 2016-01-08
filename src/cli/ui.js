@@ -1,5 +1,5 @@
 import { _, t, lazy_require, isBlank } from 'azk';
-import { defer, nfcall } from 'azk/utils/promises';
+import { defer, promisify } from 'azk/utils/promises';
 import { AzkError } from 'azk/utils/errors';
 
 require('colors');
@@ -146,7 +146,8 @@ var UI = {
       return lazy.execShLib(command, options, callback);
     } else {
       var result = (err) => { return (err) ? err.code : 0; };
-      return nfcall(lazy.execShLib, command, options).spread(result, result);
+      var execShLib = promisify(lazy.execShLib, { multiArgs: true });
+      return execShLib(command, options).spread(result, result);
     }
   },
 

@@ -9,7 +9,7 @@ var lazy = lazy_require({
   docker  : ['azk/docker', 'default'],
 });
 
-class Shell extends CliTrackerController {
+export default class Shell extends CliTrackerController {
   index() {
     var { options } = this.normalized_params;
     var args = this.normalized_params.arguments;
@@ -173,5 +173,3 @@ class Shell extends CliTrackerController {
     return result;
   }
 }
-
-module.exports = Shell;

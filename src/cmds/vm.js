@@ -17,7 +17,7 @@ class RequiredError extends Error {
   }
 }
 
-class VM extends CliTrackerController {
+export default class VM extends CliTrackerController {
   require_installed(vm_info) {
     if (!vm_info.installed) {
       throw new RequiredError("commands.vm.not_installed");
@@ -133,5 +133,3 @@ class VM extends CliTrackerController {
     });
   }
 }
-
-module.exports = VM;

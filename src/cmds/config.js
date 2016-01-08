@@ -3,7 +3,7 @@ import { CliTrackerController } from 'azk/cli/cli_tracker_controller.js';
 import { promiseResolve } from 'azk/utils/promises';
 import { ConfigurationVoidValueError } from 'azk/utils/errors';
 
-class Config extends CliTrackerController {
+export default class Config extends CliTrackerController {
   constructor(...args) {
     super(...args);
     this.require_terms = false;
@@ -124,5 +124,3 @@ class Config extends CliTrackerController {
     }
   }
 }
-
-module.exports = Config;

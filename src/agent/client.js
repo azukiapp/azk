@@ -1,16 +1,15 @@
 import { _, lazy_require, log } from 'azk';
 import { publish } from 'azk/utils/postal';
-import { defer, promiseResolve, ninvoke } from 'azk/utils/promises';
+import { defer, promiseResolve, promisify } from 'azk/utils/promises';
 import { config, set_config } from 'azk';
 import { Agent } from 'azk/agent';
 import { AgentNotRunning } from 'azk/utils/errors';
 
-var req = require('request');
-
 var lazy = lazy_require({
   uuid      : 'node-uuid',
   url       : 'url',
-  WebSocket : 'ws'
+  WebSocket : 'ws',
+  request   : 'request',
 });
 
 var HttpClient = {
@@ -19,7 +18,8 @@ var HttpClient = {
   },
 
   request(method, path, opts = {}) {
-    return ninvoke(req, method, _.defaults(opts, {
+    method = promisify(lazy.request[method], { multiArgs: true, context: lazy.request });
+    return method(_.defaults(opts, {
       url : this.url(path),
       json: true,
     }));
@@ -165,7 +165,7 @@ var Client = {
 
   configs() {
     return HttpClient
-      .request('get', '/configs')
+      .get('/configs')
       .spread((response, body) => { return body; });
   },
 

@@ -5,8 +5,6 @@ var fs     = require('fs');
 var defer  = require('azk/utils/promises').defer;
 
 var Utils = {
-  __esModule: true,
-
   get default() { return Utils; },
   get _      () { return _; },
   get net    () { return require('azk/utils/net'); },
@@ -175,7 +173,7 @@ var Utils = {
 
   template(template_string, data) {
     var options = { interpolate: /(?:(?:[#|$]{|<%)[=|-]?)([\s\S]+?)(?:}|%>)/g };
-    return _.template(template_string, data, options);
+    return _.template(template_string, options)(data);
   },
 
   isBlank(obj) {
@@ -214,4 +212,4 @@ var Utils = {
 
 };
 
-module.exports = Utils;
+export default Utils;

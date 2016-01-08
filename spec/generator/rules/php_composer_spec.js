@@ -59,7 +59,7 @@ describe('Azk generators PHP with composer rule', function() {
 
     var evidence = rule.getEvidence(packageJsonfilePath, packageJsonContent);
     h.expect(evidence).to.have.deep.property('ruleName', 'php_composer');
-    h.expect(evidence).to.not.have.deep.property('version');
+    h.expect(evidence).to.have.deep.property('version').and.to.undefined;
   });
 
   it('should get latest php with composer version when version is too low', () => {

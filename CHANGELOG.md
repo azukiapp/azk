@@ -17,6 +17,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Package] Moving CI test scripts into azk's source code;
   * [Crash-report] A `crash-report` system added. It reports `azk` internal errors that may arise during its use to the Azuki team. It first informs the user before sending the report (not sending is `opt-out`). It also  gives the option to inform an e-mail address for notifications about solutions;
   * [Tracking] The anonymous user activity tracking system is now `opt-out`. Users must accept the terms of use before starting to use `azk`.
+  * [Dependency] Updating `archiver`, `crash-report-sender`, `docker-registry-downloader`, `file-async` and `inquirer`;
+  * [Dependency] Updating `insight-keen-io` and fixing tracker connect with it;
+  * [Dependency] Updating `lodash` and fixing use of `template` in `src/utils/index`;
+  * [Manifest] Adding type to `ManifestError`, possible values: `syntax`, `logic` and `validate`;
+  * [Dependency] Updating the `bluebird` and fixing the use of `promisify` (now by default does not support more mutiplos returns) made through `nbind`, `ninvoke` and `nfcall`;
+  * [Agent] Expanding error mensage in agent starting process;
+  * [Dependency] Updating the `azk-dev` and exchanging `babel-runtime` with `babel-poliffy`.
+  * [Code] Refactoring many parts of the code to suit best the modules of the system `babel> 6`;
+  * [Code] Removing `chai` and replacing by `azk-dev/lib/chai`;
 
 * Bug
   * [Pull] When pulling in verbose mode do not print several `undefined` anymore. Instead print Docker downloading bar provided by Docker API;

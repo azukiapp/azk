@@ -100,25 +100,20 @@ describe("Azk system class, run set", function() {
       });
     });
 
-    it("run provision before run daemon", function() {
+    it("run provision before run daemon", function* () {
+      var options = { stdout: mocks.stdout, stderr: mocks.stderr };
+
+      // Not provisioned yet
       h.expect(system).to.have.property("provisioned").and.null;
 
-      return async(function* () {
-        var options = { stdout: mocks.stdout, stderr: mocks.stderr };
+      yield system.runDaemon();
+      yield system.runShell(
+        _.assign({}, options, { command: "ls -l" })
+      );
 
-        var exitResult = yield system.runShell(
-          _.merge({ command: "rm provisioned; ls -l" }, options)
-        );
-        h.expect(exitResult).to.have.property("code", 0);
-        yield system.runDaemon();
-
-        yield system.runShell(
-          _.merge({ command: "ls -l" }, options)
-        );
-        h.expect(outputs).to.have.property("stdout").match(/provisioned/);
-
-        h.expect(system).to.have.property("provisioned").and.not.null;
-      });
+      // Provisioned
+      h.expect(outputs).to.have.property("stdout").match(/bashttpd.conf/);
+      h.expect(system).to.have.property("provisioned").and.not.null;
     });
 
     describe("with env variables", function() {
