@@ -268,7 +268,7 @@ abort_docker_installation() {
 install_docker_distro() {
   case "$ID" in
     ubuntu|fedora ) super bash -c "${fetch_cmd} https://get.docker.com/ | sh" ;;
-    arch )          super pacman -S docker ;;
+    arch )          super bash -c "pacman -S docker" ;;
   esac
 }
 
