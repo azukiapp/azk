@@ -175,7 +175,8 @@ main(){
     debug "Detected distribution: $OS, $OS_VERSION"
 
     # Check if linux distribution is compatible?
-    if [ "$ID" != "ubuntu" ] && [ "$ID" != "fedora" ]; then
+    SUPPORTED_DISTROS=("ubuntu" "fedora" "arch")
+    if ! echo ${SUPPORTED_DISTROS[@]} | grep -qw "$ID"; then
       add_report "  Unsupported Linux distribution."
       fail
     fi
@@ -238,6 +239,12 @@ main(){
       success
     fi
 
+    if [ "$ID" = "arch" ]; then
+      install_azk_arch
+      add_user_to_docker_group
+      success
+    fi
+
     exit 0;
   fi
 }
@@ -253,7 +260,7 @@ curl_or_wget() {
 
 abort_docker_installation() {
   add_report "azk needs Docker to be installed."
-  add_report "  to install Docker run command bellow:"
+  add_report "  to install Docker run the command bellow:"
   add_report "  $ ${fetch_cmd} https://get.docker.com/ | sh"
   fail
 }
@@ -328,6 +335,56 @@ gpgcheck=1
   fi
 }
 
+abort_yaourt_installation() {
+  add_report "azk needs yaourt to be installed."
+  add_report "  to install yaourt run the command bellow:"
+  add_report "  $ pacman -S yaourt"
+  fail
+}
+
+install_yaourt() {
+  trap abort_yaourt_installation INT
+
+  debug "yaourt will be installed within 10 seconds."
+  debug "To prevent its installation, just press CTRL+C now."
+  sleep 10
+
+  step_wait "Installing yaourt"
+  if pacman -S yaourt; then
+    step_done
+  else
+    step_fail
+    abort_yaourt_installation
+  fi
+
+  trap - INT
+}
+
+install_azk_arch() {
+  check_docker_installation
+
+  step_wait "Installing azk"
+
+  if ! command_exists yaourt; then
+    install_yaourt
+  fi
+
+  if yaourt -S azk; then
+    step_done
+  else
+    step_fail
+    add_report 'Failed to install azk. Try again later.'
+    fail
+  fi
+}
+
+restart_docker_service() {
+  case "$ID" in
+    ubuntu|fedora ) super service docker restart ;;
+    arch )   super systemctl restart docker.service ;;
+  esac
+}
+
 add_user_to_docker_group() {
   if groups `whoami` | grep -q '\docker\b'; then
     return 0;
@@ -337,7 +394,7 @@ add_user_to_docker_group() {
 
   super groupadd docker
   super gpasswd -a `whoami` docker
-  super service docker restart
+  restart_docker_service
 
   step_done
 
