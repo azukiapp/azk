@@ -384,7 +384,7 @@ install_azk_arch() {
     install_yaourt
   fi
 
-  if yaourt -S azk; then
+  if yaourt -S azk --noconfirm; then
     step_done
   else
     step_fail
