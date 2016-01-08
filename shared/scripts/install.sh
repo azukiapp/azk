@@ -357,6 +357,9 @@ install_yaourt() {
   sleep 10
 
   step_wait "Installing yaourt"
+  echo "[archlinuxfr]
+Server = http://repo.archlinux.fr/$arch" | super tee -a /etc/pacman.conf
+
   if pacman -S yaourt --noconfirm; then
     step_done
   else
