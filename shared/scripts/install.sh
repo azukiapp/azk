@@ -268,7 +268,7 @@ abort_docker_installation() {
 install_docker_distro() {
   case "$ID" in
     ubuntu|fedora ) super bash -c "${fetch_cmd} https://get.docker.com/ | sh" ;;
-    arch )          super bash -c "pacman -S docker" ;;
+    arch )          super pacman -S docker --noconfirm ;;
   esac
 }
 
@@ -357,7 +357,7 @@ install_yaourt() {
   sleep 10
 
   step_wait "Installing yaourt"
-  if pacman -S yaourt; then
+  if pacman -S yaourt --noconfirm; then
     step_done
   else
     step_fail
