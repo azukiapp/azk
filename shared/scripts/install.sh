@@ -345,7 +345,7 @@ gpgcheck=1
 abort_yaourt_installation() {
   add_report "azk needs yaourt to be installed."
   add_report "  to install yaourt run the command bellow:"
-  add_report "  $ pacman -Sy yaourt"
+  add_report "  $ sudo pacman -Sy yaourt"
   fail
 }
 
@@ -361,7 +361,7 @@ install_yaourt() {
 SigLevel = Never
 Server = http://repo.archlinux.fr/\$arch" | super tee -a /etc/pacman.conf
 
-  if pacman -Sy yaourt --noconfirm; then
+  if super pacman -Sy yaourt --noconfirm; then
     step_done
   else
     step_fail
