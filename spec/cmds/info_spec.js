@@ -2,11 +2,6 @@ import h from 'spec/spec_helper';
 import { Cli } from 'azk/cli';
 import { config } from 'azk';
 import { ManifestRequiredError } from 'azk/utils/errors';
-import { lazy_require } from 'azk';
-
-var lazy = lazy_require({
-  colors: ['azk/utils/colors'],
-});
 
 describe('Azk cli, info controller, run in an', function() {
   var outputs = [];

@@ -79,7 +79,7 @@ module.exports = {
         "${red}%(key)s${red.close}",
         "${yellow} it is not a valid configuration key.\n${yellow.close}",
         "${yellow}Please, run command bellow to check all existent configurations keys:\n${yellow.close}",
-        " $ ".gray,
+        "${gray} $ ${gray.close}",
         "${white}azk config list${white.close}",
       ].join(""),
       invalid_value_regex_error : [
@@ -520,7 +520,7 @@ module.exports = {
       not_required     : "This system does not require a virtual machine, to try to force this behavior set `AZK_USE_VM=true`",
     },
     open: {
-      success                       : "Opening ${blue}${underline}%(hostname)s${blue.close}${underline.close} in browser.",
+      success                       : "Opening ${blue}${underline}%(hostname)s${underline.close}${blue.close} in browser.",
       system_not_running            : "System " + "${red}%(name)s${red.close}" + " is not running to open.",
       system_not_balanceable        : "The system " + "${red}%(name)s${red.close}" + " does not have ports http to open.",
       default_system_not_balanceable: "The default system " + "${red}%(name)s${red.close}" + " does not have ports http to open.",

@@ -38,7 +38,6 @@
     "chokidar": "^1.0.1",
     "cli-router": "^0.3.7",
     "cli-table": "git+https://github.com/gullitmiranda/cli-table#master",
-    "colors": "^0.6.2",
     "connectivity": "^0.1.1",
     "crash-report-sender": "^0.5.0",
     "docker-registry-downloader": "^0.3.1",
