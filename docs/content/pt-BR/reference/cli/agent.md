@@ -19,6 +19,7 @@ Controla o serviço `azk agent`. Acesse a [documentação do agent](../../agent/
 ```
   --no-daemon               Executa o agent em primeiro plano (foreground).
   --no-reload-vm            Não recarregar as configurações da maquina virtual.
+  --no-color                Remove cores na saída padrão
   --quiet, -q               Nunca perguntar.
   --help, -h                Mostrar ajuda de uso.
   --log=<level>, -l         Defini o nível de log (padrão: error).

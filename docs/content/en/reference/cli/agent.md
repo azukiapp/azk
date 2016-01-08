@@ -19,6 +19,7 @@ Controls the `azk agent` service. Check out [agent documentation](../../agent/RE
 ```
   --no-daemon               Runs `azk agent` in foreground.
   --no-reload-vm            Do not reload Virtual Machine settings.
+  --no-color                Remove colors from output
   --quiet, -q               Never prompt.
   --help, -h                Shows help usage.
   --log=<level>, -l         Sets log level (default: error).

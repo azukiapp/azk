@@ -73,7 +73,7 @@ _azk_info()
     cur="${COMP_WORDS[COMP_CWORD]}"
 
     if [ $COMP_CWORD -ge 2 ]; then
-        COMPREPLY=( $( compgen -W '--no-colored -q --quiet -h --help -l= --log= -v --verbose ' -- $cur) )
+        COMPREPLY=( $( compgen -W '--no-color -q --quiet -h --help -l= --log= -v --verbose ' -- $cur) )
     fi
 }
 
@@ -537,7 +537,7 @@ _azk_config()
     cur="${COMP_WORDS[COMP_CWORD]}"
 
     if [ $COMP_CWORD -eq 2 ]; then
-        COMPREPLY=( $( compgen -fW '--no-colored -q --quiet -h --help -l= --log= -v --verbose reset set list' -- $cur) )
+        COMPREPLY=( $( compgen -fW '--no-color -q --quiet -h --help -l= --log= -v --verbose reset set list' -- $cur) )
     else
         case ${COMP_WORDS[2]} in
             reset)

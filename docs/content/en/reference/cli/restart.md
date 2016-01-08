@@ -19,6 +19,7 @@
   --rebuild, -B             Forces rebuilding or pull image and reprovision system before starting an instance.
   --open, -o                Opens system URL in default browser application.
   --open-with=<app>, -a     Opens system URL in specified browser application.
+  --no-color                Remove colors from output
   --quiet, -q               Never prompt.
   --help, -h                Shows help usage.
   --log=<level>, -l         Sets log level (default: error).

@@ -128,7 +128,7 @@ _azk-info ()
 
     _arguments -C \
         ':command:->command' \
-		'(--no-colored)--no-colored' \
+		'(--no-color)--no-color' \
 		'(-q)-q' \
 		'(--quiet)--quiet' \
 		'(-h)-h' \
@@ -137,7 +137,7 @@ _azk-info ()
 		'(--log=-)--log=-' \
 		'(-v)-v' \
 		'(--verbose)--verbose' \
-        
+
 }
 
 _azk-status ()
@@ -331,7 +331,7 @@ _azk-deploy-clear-cache ()
 
     _arguments -C \
         ':command:->command' \
-        
+
 }
 
 _azk-deploy-versions ()
@@ -341,7 +341,7 @@ _azk-deploy-versions ()
 
     _arguments -C \
         ':command:->command' \
-        
+
 }
 
 _azk-deploy-fast ()
@@ -351,7 +351,7 @@ _azk-deploy-fast ()
 
     _arguments -C \
         ':command:->command' \
-        
+
 }
 
 _azk-deploy-full ()
@@ -361,7 +361,7 @@ _azk-deploy-full ()
 
     _arguments -C \
         ':command:->command' \
-        
+
 }
 
 _azk-deploy-ssh ()
@@ -390,7 +390,7 @@ _azk-deploy-restart ()
 
     _arguments -C \
         ':command:->command' \
-        
+
 }
 
 _azk-open ()
@@ -434,7 +434,7 @@ _azk-doctor ()
 		'(--log=-)--log=-' \
 		'(-v)-v' \
 		'(--verbose)--verbose' \
-        
+
 }
 
 _azk-stop ()
@@ -543,7 +543,7 @@ _azk-agent-status ()
 
     _arguments -C \
         ':command:->command' \
-        
+
 }
 
 _azk-agent-start ()
@@ -553,7 +553,7 @@ _azk-agent-start ()
 
     _arguments -C \
         ':command:->command' \
-        
+
 }
 
 _azk-agent-stop ()
@@ -563,7 +563,7 @@ _azk-agent-stop ()
 
     _arguments -C \
         ':command:->command' \
-        
+
 }
 
 _azk-start ()
@@ -694,7 +694,7 @@ _azk-version ()
 
     _arguments -C \
         ':command:->command' \
-        
+
 }
 
 _azk-docker ()
@@ -728,7 +728,7 @@ _azk-config ()
     if [[ $words[$CURRENT] == -* ]] ; then
         _arguments -C \
         ':command:->command' \
-		'(--no-colored)--no-colored' \
+		'(--no-color)--no-color' \
 		'(-q)-q' \
 		'(--quiet)--quiet' \
 		'(-h)-h' \
