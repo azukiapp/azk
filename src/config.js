@@ -55,6 +55,7 @@ var options = mergeConfig({
     flags    : {
       show_deprecate: envs('AZK_HIDE_DEPRECATE', false),
       require_accept_use_terms: envs('AZK_REQUIRE_TERMS', true),
+      use_colored_output: envs('AZK_USE_COLORED_OUTPUT', true),
     },
     paths    : {
       azk_root,
@@ -210,6 +211,7 @@ var options = mergeConfig({
   test: {
     flags: {
       require_accept_use_terms: false,
+      use_colored_output: envs('AZK_USE_COLORED_OUTPUT', false),
     },
     paths: {
       log     : path.join(paths.logs, 'azk_test.log'),

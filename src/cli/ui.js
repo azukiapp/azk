@@ -25,6 +25,7 @@ var UI = {
   t: t,
   _interactive: true,
   c: lazy.chalk,
+  no_color: false,
 
   dir(...args) {
     console.dir(...args);
@@ -175,6 +176,12 @@ var UI = {
 
   isInteractive() {
     return this._interactive === true && this.stdout().isTTY === true;
+  },
+
+  setColors(output_colors = true) {
+    var chalk = lazy.chalk;
+    chalk.enabled = output_colors;
+    this.c = chalk;
   },
 
   outputColumns() {

@@ -1,5 +1,5 @@
 import { CliController as RouterController } from 'cli-router';
-import { _, log } from 'azk';
+import { _, log, config } from 'azk';
 
 export class CliController extends RouterController {
   constructor(...args) {
@@ -24,6 +24,12 @@ export class CliController extends RouterController {
     if (opts.quiet && this.ui) {
       this.ui.setInteractive(false);
     }
+
+    // Set colors on output (default true)
+    let output_colors_by_param = opts['no-color'] !== 1;
+    let config_output_color = (config('flags:use_colored_output') === true);
+    let use_colors = output_colors_by_param && config_output_color;
+    this.ui.setColors(use_colors);
   }
 
   isInteractive() {
