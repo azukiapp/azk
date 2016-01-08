@@ -1,6 +1,11 @@
 import { defer } from 'azk/utils/promises';
 import { spawn } from 'child_process';
 import { removeAllLinesByRegex } from 'azk/utils/regex_helper';
+import { lazy_require } from 'azk';
+
+var lazy = lazy_require({
+  chalk    : 'chalk',
+});
 
 export function printOutput(uiOk, verbose_level, prefix, data) {
   // exit if verbose is zero
@@ -9,9 +14,9 @@ export function printOutput(uiOk, verbose_level, prefix, data) {
   }
 
   // print 'prefix' before command
-  var ui_prefix = prefix ? prefix.grey : '';
+  var ui_prefix = prefix ? lazy.chalk.gray(prefix) : '';
   var original_output = removeAllLinesByRegex(data.toString(), /^$/gm);
-  var prefixed_output = original_output.replace(/^(.*)/gm, ui_prefix + ' $1'.grey);
+  var prefixed_output = original_output.replace(/^(.*)/gm, ui_prefix + lazy.chalk.gray(' $1'));
 
   uiOk(prefixed_output);
 }
@@ -22,7 +27,7 @@ export function spawnAsync(opts) {
     var outputs = [];
 
     // print command
-    var full_command = ('$> ' + opts.executable + ' ' + opts.params_array.join(' ')).bold;
+    var full_command = ('$> ' + opts.executable + ' ' + lazy.chalk.bold(opts.params_array.join(' ')));
     printOutput(
       opts.uiOk,
       opts.verbose_level,
