@@ -265,6 +265,13 @@ abort_docker_installation() {
   fail
 }
 
+install_docker_distro() {
+  case "$ID" in
+    ubuntu|fedora ) super bash -c "${fetch_cmd} https://get.docker.com/ | sh" ;;
+    arch )          super pacman -S docker ;;
+  esac
+}
+
 install_docker() {
   trap abort_docker_installation INT
 
@@ -273,7 +280,7 @@ install_docker() {
   sleep 10
 
   step_wait "Installing Docker"
-  if super bash -c "${fetch_cmd} https://get.docker.com/ | sh"; then
+  if install_docker_distro; then
     step_done
   else
     step_fail
@@ -381,7 +388,7 @@ install_azk_arch() {
 restart_docker_service() {
   case "$ID" in
     ubuntu|fedora ) super service docker restart ;;
-    arch )   super systemctl restart docker.service ;;
+    arch )          super systemctl restart docker.service ;;
   esac
 }
 
