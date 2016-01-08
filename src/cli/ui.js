@@ -8,24 +8,26 @@ var lazy = lazy_require({
   inquirer : 'inquirer',
   execShLib: 'exec-sh',
   open     : 'open',
-  chalk    : 'chalk',
+  colors   : ['azk/utils/colors'],
 });
 
 var tables    = {};
 
 // Status labels
-var azk_ok        = lazy.chalk.green('azk');
-var azk_fail      = lazy.chalk.red('azk');
-var azk_warning   = lazy.chalk.yellow('azk');
-var azk_info      = lazy.chalk.blue('azk');
-var azk_deprecate = lazy.chalk.cyan('azk');
+var azk_ok        = lazy.colors.green('azk');
+var azk_fail      = lazy.colors.red('azk');
+var azk_warning   = lazy.colors.yellow('azk');
+var azk_info      = lazy.colors.blue('azk');
+var azk_deprecate = lazy.colors.cyan('azk');
 
 var UI = {
   isUI: true,
   t: t,
   _interactive: true,
-  c: lazy.chalk,
-  no_color: false,
+
+  get c() {
+    return lazy.colors;
+  },
 
   dir(...args) {
     console.dir(...args);
@@ -178,10 +180,11 @@ var UI = {
     return this._interactive === true && this.stdout().isTTY === true;
   },
 
-  setColors(output_colors = true) {
-    var chalk = lazy.chalk;
-    chalk.enabled = output_colors;
-    this.c = chalk;
+  useColours(output_colors = null) {
+    if (_.isBoolean(output_colors)) {
+      this.c.enabled = output_colors;
+    }
+    return this.c.enabled;
   },
 
   outputColumns() {

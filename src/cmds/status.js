@@ -31,7 +31,7 @@ export default class Status extends CliTrackerController {
       }
 
       var table = cli.ui.table_add('status', {
-        head: Status._head(opts, cli.ui.outputColumns(), cli.ui.c),
+        head: Status._head(opts, cli.ui.c, cli.ui.outputColumns()),
         text: opts.text
       });
 
@@ -97,7 +97,7 @@ export default class Status extends CliTrackerController {
     });
   }
 
-  static _ports_map(system, instances, color) {
+  static _ports_map(system, instances, colors) {
     var instance, ports = [];
 
     instances = _.clone(instances);
@@ -105,7 +105,7 @@ export default class Status extends CliTrackerController {
       _.each(instance.NetworkSettings.Access, (port) => {
         var name = system.portName(port.name);
         ports.push(
-          `${instance.Annotations.azk.seq}-${name}:${port.port || color.red("n/m")}`
+          `${instance.Annotations.azk.seq}-${name}:${port.port || colors.red("n/m")}`
         );
       });
     }
@@ -113,19 +113,19 @@ export default class Status extends CliTrackerController {
     return _.isEmpty(ports) ? ["-"] : ports;
   }
 
-  static _head(opts, columns_size = -1, color) {
+  static _head(opts, colors, columns_size = -1) {
     var columns = [
-      color.green("System"),
-      color.blue(columns_size > 80 ? 'Instances' : 'Inst.'),
-      color.yellow('Hostname/url'),
-      color.magenta('Instances-Ports'),
+      colors.green("System"),
+      colors.blue(columns_size > 80 ? 'Instances' : 'Inst.'),
+      colors.yellow('Hostname/url'),
+      colors.magenta('Instances-Ports'),
     ];
 
     if (!opts.short) {
-      columns.push(color.cyan('Provisioned'));
+      columns.push(colors.cyan('Provisioned'));
     }
     if (opts.long) {
-      columns.push(color.white('Image'));
+      columns.push(colors.white('Image'));
     }
     if (!opts.text && !opts.short) {
       columns.unshift('');

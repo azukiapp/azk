@@ -1,5 +1,9 @@
-var postal = require('postal');
-var chalk = require('chalk');
+import { lazy_require } from 'azk';
+import postal from 'postal';
+
+let lazy = lazy_require({
+  colors: ['azk/utils/colors']
+});
 
 export class ChannelPub {
   constructor(channel_name = "azk") {
@@ -89,29 +93,32 @@ export class SubscriptionLogger {
           for (var i = 0; i < spaces_to_add; i++) {
             spaces_to_add_string = spaces_to_add_string + ' ';
           }
-          final_string += chalk.gray('[postal]') + spaces_to_add_string + timespan_string.gray + chalk.gray('.ms');
+          final_string += lazy.colors.gray('[postal]') +
+            spaces_to_add_string +
+            timespan_string.gray +
+            lazy.colors.gray('.ms');
 
           // # topic
-          final_string += chalk.gray(' # ');
-          final_string += chalk.white.italic(envelope.topic);
+          final_string += lazy.colors.gray(' # ');
+          final_string += lazy.colors.white.italic(envelope.topic);
 
           // context
           if (data.context) {
-            final_string += chalk.blue(' :') + chalk.blue(data.context);
+            final_string += lazy.colors.blue(' :') + lazy.colors.blue(data.context);
           }
 
           // type
           if (data.type) {
-            final_string += chalk.magenta(' :') + chalk.magenta(data.type);
+            final_string += lazy.colors.magenta(' :') + lazy.colors.magenta(data.type);
           }
 
           // statusParsed or status
           if (typeof data.statusParsed === 'string') {
-            final_string += chalk.green(' :') + chalk.green(data.statusParsed);
+            final_string += lazy.colors.green(' :') + lazy.colors.green(data.statusParsed);
           } else if (data.statusParsed && data.statusParsed.type) {
-            final_string += chalk.green(' :') + chalk.green(data.statusParsed.type.toString());
+            final_string += lazy.colors.green(' :') + lazy.colors.green(data.statusParsed.type.toString());
           } else if (data.status) {
-            final_string += chalk.green(' :') + chalk.green(data.status);
+            final_string += lazy.colors.green(' :') + lazy.colors.green(data.status);
           }
 
           // id
@@ -120,18 +127,18 @@ export class SubscriptionLogger {
             if (id.length > 8) {
               id = id.substring(0, 8);
             }
-            final_string += chalk.cyan(' #') + chalk.cyan(id);
+            final_string += lazy.colors.cyan(' #') + lazy.colors.cyan(id);
           }
 
           // data content substring
           var length = 10;
-          var mydata_prefix = chalk.gray(' data: ');
+          var mydata_prefix = lazy.colors.gray(' data: ');
           var mydata = null;
           if (data.stream) {
-            mydata_prefix = chalk.gray(' stream: ');
+            mydata_prefix = lazy.colors.gray(' stream: ');
             mydata = data.stream.toString();
           } else if (data.progressDetail) {
-            mydata_prefix = chalk.gray(' progressDetail: ');
+            mydata_prefix = lazy.colors.gray(' progressDetail: ');
             mydata = JSON.stringify(data.progressDetail);
           } else if (typeof data === 'string') {
             mydata = data;

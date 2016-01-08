@@ -5,7 +5,7 @@ import { ManifestRequiredError } from 'azk/utils/errors';
 import { lazy_require } from 'azk';
 
 var lazy = lazy_require({
-  chalk    : 'chalk',
+  colors: ['azk/utils/colors'],
 });
 
 describe('Azk cli, info controller, run in an', function() {
@@ -61,7 +61,7 @@ describe('Azk cli, info controller, run in an', function() {
       return cli.run(doc_opts, run_options).then((code) => {
         h.expect(code).to.equal(0);
 
-        var rx_color = /^\u001b\[32mmanifest/;
+        var rx_color = /^manifest/;
         h.expect(outputs[0]).to.match(rx_color);
 
         var rx_manifest = RegExp("manifest:.*" + h.escapeRegExp(manifest.file));
@@ -76,7 +76,7 @@ describe('Azk cli, info controller, run in an', function() {
         var rx_default = RegExp("default_system:.*" + h.escapeRegExp(manifest.default_system));
         h.expect(outputs[0]).to.match(rx_default);
 
-        var rx_name = RegExp(`${h.escapeRegExp(lazy.chalk.yellow("example"))}:`);
+        var rx_name = /example/;
         h.expect(outputs[0]).to.match(rx_name);
 
         h.expect(outputs[0]).to.match(RegExp(config('docker:image_default')));
