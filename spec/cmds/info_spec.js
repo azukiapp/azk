@@ -2,6 +2,11 @@ import h from 'spec/spec_helper';
 import { Cli } from 'azk/cli';
 import { config } from 'azk';
 import { ManifestRequiredError } from 'azk/utils/errors';
+import { lazy_require } from 'azk';
+
+var lazy = lazy_require({
+  chalk    : 'chalk',
+});
 
 describe('Azk cli, info controller, run in an', function() {
   var outputs = [];
@@ -71,7 +76,7 @@ describe('Azk cli, info controller, run in an', function() {
         var rx_default = RegExp("default_system:.*" + h.escapeRegExp(manifest.default_system));
         h.expect(outputs[0]).to.match(rx_default);
 
-        var rx_name = RegExp(`${h.escapeRegExp("example".yellow)}:`);
+        var rx_name = RegExp(`${h.escapeRegExp(lazy.chalk.yellow("example"))}:`);
         h.expect(outputs[0]).to.match(rx_name);
 
         h.expect(outputs[0]).to.match(RegExp(config('docker:image_default')));

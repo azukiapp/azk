@@ -26,28 +26,28 @@ export default class Config extends CliTrackerController {
 
     let getType = (type) => {
       if (type === 'boolean') {
-        return '[Y/N]'.grey;
+        return this.ui.c.gray('[Y/N]');
       }
       if (type === 'string') {
-        return '[text]'.grey;
+        return this.ui.c.gray('[text]');
       }
       if (type === 'number') {
-        return '[number]'.grey;
+        return this.ui.c.gray('[number]');
       }
       return '';
     };
 
     let getValue = (value) => {
       if (typeof value === 'undefined' || value === null) {
-        return '(not set)'.grey.bold;
+        return this.ui.c.gray.bold('(not set)');
       }
       if (value === true) {
-        return 'Y'.green.bold;
+        return this.ui.c.green.bold('Y');
       }
       if (value === false) {
-        return 'N'.green.bold;
+        return this.ui.c.green.bold('N');
       }
-      return value.toString().bold;
+      return this.ui.c.bold(value.toString());
     };
 
     let getDescription = (key) => {
@@ -56,10 +56,10 @@ export default class Config extends CliTrackerController {
 
     let table = this.ui.table_add('status', {
       head: [
-        "key".green,
-        "type".green,
-        'value'.green,
-        'description'.green,
+        this.ui.c.green("key"),
+        this.ui.c.green("type"),
+        this.ui.c.green('value'),
+        this.ui.c.green('description'),
       ],
       text: true
     });

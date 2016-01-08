@@ -10,6 +10,7 @@ var lazy = lazy_require({
   MemoryStream: 'memorystream',
   docker      : ['azk/docker', 'default'],
   Client      : ['azk/agent/client'],
+  chalk       : 'chalk',
 });
 
 var Run = {
@@ -298,7 +299,7 @@ var Run = {
           system: system.name,
           port: port_data && port_data.port,
           timeout: timeout,
-          hostname: system.url.underline,
+          hostname: lazy.chalk.underline(system.url),
         });
 
         // Format command

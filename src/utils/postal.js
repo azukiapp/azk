@@ -1,4 +1,5 @@
 var postal = require('postal');
+var chalk = require('chalk');
 
 export class ChannelPub {
   constructor(channel_name = "azk") {
@@ -88,29 +89,29 @@ export class SubscriptionLogger {
           for (var i = 0; i < spaces_to_add; i++) {
             spaces_to_add_string = spaces_to_add_string + ' ';
           }
-          final_string += '[postal]'.grey + spaces_to_add_string + timespan_string.grey + '.ms'.grey;
+          final_string += chalk.gray('[postal]') + spaces_to_add_string + timespan_string.gray + chalk.gray('.ms');
 
           // # topic
-          final_string += ' # '.grey;
-          final_string += envelope.topic.white.italic;
+          final_string += chalk.gray(' # ');
+          final_string += chalk.white.italic(envelope.topic);
 
           // context
           if (data.context) {
-            final_string += ' :'.blue + data.context.blue;
+            final_string += chalk.blue(' :') + chalk.blue(data.context);
           }
 
           // type
           if (data.type) {
-            final_string += ' :'.magenta + data.type.magenta;
+            final_string += chalk.magenta(' :') + chalk.magenta(data.type);
           }
 
           // statusParsed or status
           if (typeof data.statusParsed === 'string') {
-            final_string += ' :'.green + data.statusParsed.green;
+            final_string += chalk.green(' :') + chalk.green(data.statusParsed);
           } else if (data.statusParsed && data.statusParsed.type) {
-            final_string += ' :'.green + data.statusParsed.type.toString().green;
+            final_string += chalk.green(' :') + chalk.green(data.statusParsed.type.toString());
           } else if (data.status) {
-            final_string += ' :'.green + data.status.green;
+            final_string += chalk.green(' :') + chalk.green(data.status);
           }
 
           // id
@@ -119,18 +120,18 @@ export class SubscriptionLogger {
             if (id.length > 8) {
               id = id.substring(0, 8);
             }
-            final_string += ' #'.cyan + id.cyan;
+            final_string += chalk.cyan(' #') + chalk.cyan(id);
           }
 
           // data content substring
           var length = 10;
-          var mydata_prefix = ' data: '.grey;
+          var mydata_prefix = chalk.gray(' data: ');
           var mydata = null;
           if (data.stream) {
-            mydata_prefix = ' stream: '.grey;
+            mydata_prefix = chalk.gray(' stream: ');
             mydata = data.stream.toString();
           } else if (data.progressDetail) {
-            mydata_prefix = ' progressDetail: '.grey;
+            mydata_prefix = chalk.gray(' progressDetail: ');
             mydata = JSON.stringify(data.progressDetail);
           } else if (typeof data === 'string') {
             mydata = data;
@@ -141,7 +142,7 @@ export class SubscriptionLogger {
             if (mydata.length >= length) {
               length = mydata.length;
             }
-            final_string += mydata_prefix + mydata.substring(0, length).grey;
+            final_string += mydata_prefix + mydata.substring(0, length).gray;
           }
 
           log.debug(final_string);

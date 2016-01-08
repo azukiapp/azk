@@ -2,29 +2,29 @@ import { _, t, lazy_require, isBlank } from 'azk';
 import { defer, promisify } from 'azk/utils/promises';
 import { AzkError } from 'azk/utils/errors';
 
-require('colors');
-
 var lazy = lazy_require({
   Table    : 'cli-table',
   printf   : 'printf',
   inquirer : 'inquirer',
   execShLib: 'exec-sh',
   open     : 'open',
+  chalk    : 'chalk',
 });
 
 var tables    = {};
 
 // Status labels
-var azk_ok        = 'azk'.green;
-var azk_fail      = 'azk'.red;
-var azk_warning   = 'azk'.yellow;
-var azk_info      = 'azk'.blue;
-var azk_deprecate = 'azk'.cyan;
+var azk_ok        = lazy.chalk.green('azk');
+var azk_fail      = lazy.chalk.red('azk');
+var azk_warning   = lazy.chalk.yellow('azk');
+var azk_info      = lazy.chalk.blue('azk');
+var azk_deprecate = lazy.chalk.cyan('azk');
 
 var UI = {
   isUI: true,
   t: t,
   _interactive: true,
+  c: lazy.chalk,
 
   dir(...args) {
     console.dir(...args);
@@ -183,7 +183,7 @@ var UI = {
 
   open(hostname, open_with) {
     lazy.open(hostname, open_with);
-  }
+  },
 
 };
 
