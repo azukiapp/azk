@@ -39,6 +39,7 @@
     "cli-router": "^0.3.7",
     "cli-table": "git+https://github.com/gullitmiranda/cli-table#master",
     "connectivity": "^0.1.1",
+    "colors": "^0.6.2",
     "crash-report-sender": "^0.5.0",
     "docker-registry-downloader": "^0.3.1",
     "dockerode": "^2.2.2",

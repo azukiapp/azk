@@ -4806,6 +4806,11 @@
         }
       }
     },
+    "colors": {
+      "version": "0.6.2",
+      "from": "https://registry.npmjs.org/colors/-/colors-0.6.2.tgz",
+      "resolved": "https://registry.npmjs.org/colors/-/colors-0.6.2.tgz"
+    },
     "concurrent-transform": {
       "version": "1.0.0",
       "from": "https://registry.npmjs.org/concurrent-transform/-/concurrent-transform-1.0.0.tgz",
