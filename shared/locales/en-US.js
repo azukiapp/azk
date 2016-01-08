@@ -1,37 +1,24 @@
-var chalk = require('chalk');
-
-var green = chalk.green;
-var blue = chalk.blue;
-var red = chalk.red;
-var gray = chalk.gray;
-var bold = chalk.bold;
-var underline = chalk.underline;
-var yellow = chalk.yellow;
-var white = chalk.white;
-var cyan = chalk.cyan;
-var magenta = chalk.magenta;
-var italic = chalk.italic;
 
 // jscs:disable maximumLineLength
 module.exports = {
   terms_of_use: {
     first_question: [
-      gray('=========================================================================\n'),
-      yellow('  Thank you for using'),
-      red(' azk'),
-      yellow('! Welcome!\n'),
-      yellow('  Before we start, we need to ask: do you accept our Terms of Use?\n'),
-      yellow('  http://docs.azk.io/en/terms-of-use\n'),
-      gray(' =========================================================================\n'),
+      '${gray}=========================================================================\n${gray.close}',
+      '${yellow}  Thank you for using${yellow.close}',
+      '${red} azk${red.close}',
+      '${yellow}! Welcome!\n${yellow.close}',
+      '${yellow}  Before we start, we need to ask: do you accept our Terms of Use?\n${yellow.close}',
+      '${yellow}  http://docs.azk.io/en/terms-of-use\n${yellow.close}',
+      '${gray} =========================================================================\n${gray.close}',
     ].join(''),
     you_need_question: [
-      gray('=========================================================================\n'),
-      yellow('  So… you can\'t start to use '),
-      red('azk'),
-      yellow(' before accepting the Terms of Use. Sorry.\n'),
-      yellow('  Do you accept our Terms of Use?'),
-      yellow('  http://docs.azk.io/en/terms-of-use\n'),
-      gray(' =========================================================================\n'),
+      '${gray}=========================================================================\n${gray.close}',
+      '${yellow}  So… you can\'t start to use ${yellow.close}',
+      '${red}azk${red.close}',
+      '${yellow} before accepting the Terms of Use. Sorry.\n${yellow.close}',
+      '${yellow}  Do you accept our Terms of Use?${yellow.close}',
+      '${yellow}  http://docs.azk.io/en/terms-of-use\n${yellow.close}',
+      '${gray} =========================================================================\n${gray.close}',
     ].join(''),
   },
   crashReport: {
@@ -45,11 +32,11 @@ module.exports = {
 
     email: {
       question: [
-        yellow('Bonus: if you\'re ok with telling us your email address,'),
-        yellow(' we\'ll be able to reply you with a solution for this issue.\n'),
-        yellow('Important: Your email will be saved for future crash reports (we\'ll never share your email).\n'),
-        yellow('You can always delete/update your email at any time. See http://docs.azk.io/en/reference/cli/config.html#azk-config\n'),
-          white('Enter your email') + gray(' [optional]') + white(':'),
+        '${yellow}Bonus: if you\'re ok with telling us your email address,${yellow.close}',
+        '${yellow} we\'ll be able to reply you with a solution for this issue.\n${yellow.close}',
+        '${yellow}Important: Your email will be saved for future crash reports (we\'ll never share your email).\n${yellow.close}',
+        '${yellow}You can always delete/update your email at any time. See http://docs.azk.io/en/reference/cli/config.html#azk-config\n${yellow.close}',
+          '${white}Enter your email${white.close}' + '${gray} [optional]${gray.close}' + '${white}:${white.close}',
       ].join(''),
       question_always_ask_email: [
         'Ask email again for future crash report solutions?',
@@ -61,7 +48,7 @@ module.exports = {
     no_vm_started               : "Unable to install and configure virtual machine",
     no_internet_connection      : "\nNo internet connection!",
     lost_internet_connection    : "\nLost internet connection:\n%(output)s",
-    must_accept_terms_of_use    : red("Sorry, must accept terms of use before use azk."),
+    must_accept_terms_of_use    : "${red}Sorry, must accept terms of use before use azk.${red.close}",
     connect_docker_unavailable  : "Could not initialize balancer because docker was not available",
     agent_not_running           : "azk agent is required but is not running (try `azk agent status`)",
     agent_start                 : "azk agent start error: %(err_message)s",
@@ -89,28 +76,28 @@ module.exports = {
     ].join("\n"),
     configuration: {
       invalid_key_error : [
-        red("%(key)s"),
-        yellow(" it is not a valid configuration key.\n"),
-        yellow("Please, run command bellow to check all existent configurations keys:\n"),
+        "${red}%(key)s${red.close}",
+        "${yellow} it is not a valid configuration key.\n${yellow.close}",
+        "${yellow}Please, run command bellow to check all existent configurations keys:\n${yellow.close}",
         " $ ".gray,
-        white("azk config list"),
+        "${white}azk config list${white.close}",
       ].join(""),
       invalid_value_regex_error : [
-        red("%(value)s"),
-        yellow(" it is not valid value for "),
-        white("%(key)s"),
-        yellow("."),
+        "${red}%(value)s${red.close}",
+        "${yellow} it is not valid value for ${yellow.close}",
+        "${white}%(key)s${white.close}",
+        "${yellow}.${yellow.close}",
       ].join(""),
       void_value_error : [
-        yellow("Please, provide a value for "),
-        white("%(key)s"),
-        yellow("."),
+        "${yellow}Please, provide a value for ${yellow.close}",
+        "${white}%(key)s${white.close}",
+        "${yellow}.${yellow.close}",
       ].join(""),
       invalid_value_boolean_error : [
-        red("%(value)s"),
-        yellow(" it is not valid value for "),
-        white("%(key)s"),
-        yellow("."),
+        "${red}%(value)s${red.close}",
+        "${yellow} it is not valid value for ${yellow.close}",
+        "${white}%(key)s${white.close}",
+        "${yellow}.${yellow.close}",
       ].join(""),
     },
 
@@ -357,9 +344,9 @@ module.exports = {
     errors: {
       unmatched_dns_port: 'The current dns port `%(old)s` set in `%(file)s` differs from env var `AZK_DNS_PORT=%(new)s`',
       invalid_current_ip: 'Current ip `%(ip)s` conflicts with network interface `%(inter_name)s inet %(inter_ip)s`',
-      ip_invalid        : yellow("`%(ip)s`") + " is an invalid v4 ip, try again.",
-      ip_loopback       : yellow("`%(ip)s`") + " conflict with loopback network",
-      ip_conflict       : yellow("`%(ip)s`") + " conflict with network interface `%(inter_name)s inet %(inter_ip)s`",
+      ip_invalid        : "${yellow}`%(ip)s`${yellow.close}" + " is an invalid v4 ip, try again.",
+      ip_loopback       : "${yellow}`%(ip)s`${yellow.close}" + " conflict with loopback network",
+      ip_conflict       : "${yellow}`%(ip)s`${yellow.close}" + " conflict with network interface `%(inter_name)s inet %(inter_ip)s`",
     },
   },
 
@@ -379,23 +366,23 @@ module.exports = {
       },
     },
     help: {
-      actions  : red("Actions:"),
-      arguments: cyan("Arguments:"),
-      commands : yellow("Commands:"),
-      examples : magenta("Examples:"),
-      options  : green("Options:"),
-      usage    : blue('Usage:'),
+      actions  : "${red}Actions:${red.close}",
+      arguments: "${cyan}Arguments:${cyan.close}",
+      commands : "${yellow}Commands:${yellow.close}",
+      examples : "${magenta}Examples:${magenta.close}",
+      options  : "${green}Options:${green.close}",
+      usage    : '${blue}Usage:${blue.close}',
     },
     helpers: {
       pull: {
         pulling           : 'Pulling repository %s...',
         bar_progress      : '  :title [:bar] :percent :progress',
         bar_status        : '  :title :msg',
-        pull_getLayersDiff: blue("⇲")    + " comparing registry layers and local layers...",
-        pull_layers_left  : blue("⇲")    + " %(non_existent_locally_ids_count)s layers left to download.",
-        pull_start        : blue("⇲")    + " pulling %(left_to_download_count)s/%(total_registry_layers)s layers.",
-        pull_ended        : "\n" + blue("✓")    + " completed download of `" + yellow("%(image)s") + "`\n",
-        already_being     : yellow("⇲")  + " image already being pulled. Please wait...",
+        pull_getLayersDiff: "${blue}⇲${blue.close}"    + " comparing registry layers and local layers...",
+        pull_layers_left  : "${blue}⇲${blue.close}"    + " %(non_existent_locally_ids_count)s layers left to download.",
+        pull_start        : "${blue}⇲${blue.close}"    + " pulling %(left_to_download_count)s/%(total_registry_layers)s layers.",
+        pull_ended        : "\n" + "${blue}✓${blue.close}"    + " completed download of `" + "${yellow}%(image)s${yellow.close}" + "`\n",
+        already_being     : "${yellow}⇲${yellow.close}"  + " image already being pulled. Please wait...",
       }
     },
     init: {
@@ -406,7 +393,7 @@ module.exports = {
     },
     start: {
       already_started: "System `%(name)s` already started",
-      skip           : "Skip starting, system `" + blue("%(name)s") + "` does not scale.",
+      skip           : "Skip starting, system `" + "${blue}%(name)s${blue.close}" + "` does not scale.",
       fail           : "An error occurred. It will stop all instances already running. See details below.\n",
       get_project: {
         getting_git_version      : "Checking Git version...",
@@ -474,21 +461,21 @@ module.exports = {
       },
     },
     stop: {
-      not_running: "System `" + blue("%(name)s") + "` not running",
-      skip: "Skip stoping, system `" + blue("%(name)s") + "` does not scale.",
+      not_running: "System `" + "${blue}%(name)s${blue.close}" + "` not running",
+      skip: "Skip stoping, system `" + "${blue}%(name)s${blue.close}" + "` does not scale.",
     },
     scale: {
-      instances   : "from " + red("%(from)d")             + " to " + green("%(to)d") + " instances",
-      sync        : yellow("⎘")  + " syncing files for `" + blue("%(system)s")     + "` system...",
-      wait_port   : magenta("◴") + " waiting for `"       + blue("%(system)s")     + "` system to start, trying connection to port %(name)s/%(protocol)s...",
-      check_image : cyan("✓")    + " checking `"          + yellow("%(image)s")    + "` image...",
-      pull_image  : blue("⇲")    + " downloading `"       + yellow("%(image)s")    + "` image...",
-      build_image : blue("⇲")    + " building `"          + yellow("%(image)s")    + "` image...",
-      provision   : yellow("↻")  + " provisioning `"      + blue("%(system)s")     + "` system...",
-      starting    : green("↑")   + " starting `"          + blue("%(system)s")     + "` system, " + green("%(to)d") + " new instances...",
-      stopping    : red("↓")     + " stopping `"          + blue("%(system)s")     + "` system, " + red("%(from)d") + " instances...",
-      scaling_up  : green("↑")   + " scaling `"           + blue("%(system)s")     + "` system %(instances)s...",
-      scaling_down: red("↓")     + " scaling `"           + blue("%(system)s")     + "` system %(instances)s...",
+      instances   : "from " + "${red}%(from)d${red.close}"             + " to " + "${green}%(to)d${green.close}" + " instances",
+      sync        : "${yellow}⎘${yellow.close}"  + " syncing files for `" + "${blue}%(system)s${blue.close}"     + "` system...",
+      wait_port   : "${magenta}◴${magenta.close}" + " waiting for `"       + "${blue}%(system)s${blue.close}"     + "` system to start, trying connection to port %(name)s/%(protocol)s...",
+      check_image : "${cyan}✓${cyan.close}"    + " checking `"          + "${yellow}%(image)s${yellow.close}"    + "` image...",
+      pull_image  : "${blue}⇲${blue.close}"    + " downloading `"       + "${yellow}%(image)s${yellow.close}"    + "` image...",
+      build_image : "${blue}⇲${blue.close}"    + " building `"          + "${yellow}%(image)s${yellow.close}"    + "` image...",
+      provision   : "${yellow}↻${yellow.close}"  + " provisioning `"      + "${blue}%(system)s${blue.close}"     + "` system...",
+      starting    : "${green}↑${green.close}"   + " starting `"          + "${blue}%(system)s${blue.close}"     + "` system, " + "${green}%(to)d${green.close}" + " new instances...",
+      stopping    : "${red}↓${red.close}"     + " stopping `"          + "${blue}%(system)s${blue.close}"     + "` system, " + "${red}%(from)d${red.close}" + " instances...",
+      scaling_up  : "${green}↑${green.close}"   + " scaling `"           + "${blue}%(system)s${blue.close}"     + "` system %(instances)s...",
+      scaling_down: "${red}↓${red.close}"     + " scaling `"           + "${blue}%(system)s${blue.close}"     + "` system %(instances)s...",
     },
     status: {
       status          : "%(system)s: %(instances)d instances - %(hosts)s",
@@ -502,8 +489,8 @@ module.exports = {
       'email_current'         : 'Current email: %(email)s',
       'email_saved'           : 'Email: %(email)s',
       'email_undefined'       : 'Email: no email set yet.',
-      'email_not-valid'       : red('Invalid email: (%(email)s). Please insert a valid email.'),
-      'email_valid'           : green('email: %(email)s'),
+      'email_not-valid'       : '${red}Invalid email: (%(email)s). Please insert a valid email.${red.close}',
+      'email_valid'           : '${green}email: %(email)s${green.close}',
       'email_reset-to-null'   : 'Email: there is no email set-up.',
       'set_ok'                : '`%(key)s` was set to `%(value)s`',
       'key_not_found'         : '`%(key)s` does not exist.',
@@ -533,19 +520,19 @@ module.exports = {
       not_required     : "This system does not require a virtual machine, to try to force this behavior set `AZK_USE_VM=true`",
     },
     open: {
-      success                       : "Opening " + blue.underline("%(hostname)s") + " in browser.",
-      system_not_running            : "System " + red("%(name)s") + " is not running to open.",
-      system_not_balanceable        : "The system " + red("%(name)s") + " does not have ports http to open.",
-      default_system_not_balanceable: "The default system " + red("%(name)s") + " does not have ports http to open.",
+      success                       : "Opening ${blue}${underline}%(hostname)s${blue.close}${underline.close} in browser.",
+      system_not_running            : "System " + "${red}%(name)s${red.close}" + " is not running to open.",
+      system_not_balanceable        : "The system " + "${red}%(name)s${red.close}" + " does not have ports http to open.",
+      default_system_not_balanceable: "The default system " + "${red}%(name)s${red.close}" + " does not have ports http to open.",
     },
   },
 
   docker: {
     connect: "Connecting to Docker: %s...",
     monitor: {
-      start : green("[docker:monitor]") + " Monitoring Docker host (%(docker_host)s) with %(retry)s retries.",
-      passed: green("[docker:monitor]") + " Docker host (%s) is OK.",
-      failed: red("[docker:monitor]") + " Docker host (%s) has stopped! Stopping agent...",
+      start : "${green}[docker:monitor]${green.close}" + " Monitoring Docker host (%(docker_host)s) with %(retry)s retries.",
+      passed: "${green}[docker:monitor]${green.close}" + " Docker host (%s) is OK.",
+      failed: "${red}[docker:monitor]${red.close}" + " Docker host (%s) has stopped! Stopping agent...",
     },
   },
 

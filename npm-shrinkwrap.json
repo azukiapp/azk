@@ -7961,65 +7961,121 @@
       }
     },
     "i18n-cli": {
-      "version": "0.0.3",
-      "from": "https://registry.npmjs.org/i18n-cli/-/i18n-cli-0.0.3.tgz",
-      "resolved": "https://registry.npmjs.org/i18n-cli/-/i18n-cli-0.0.3.tgz",
+      "version": "0.1.0",
       "dependencies": {
-        "chalk": {
-          "version": "1.0.0",
-          "from": "https://registry.npmjs.org/chalk/-/chalk-1.0.0.tgz",
-          "resolved": "https://registry.npmjs.org/chalk/-/chalk-1.0.0.tgz",
+        "lodash.clone": {
+          "version": "3.0.3",
           "dependencies": {
-            "ansi-styles": {
-              "version": "2.0.1",
-              "from": "https://registry.npmjs.org/ansi-styles/-/ansi-styles-2.0.1.tgz",
-              "resolved": "https://registry.npmjs.org/ansi-styles/-/ansi-styles-2.0.1.tgz"
-            },
-            "escape-string-regexp": {
-              "version": "1.0.3",
-              "from": "https://registry.npmjs.org/escape-string-regexp/-/escape-string-regexp-1.0.3.tgz",
-              "resolved": "https://registry.npmjs.org/escape-string-regexp/-/escape-string-regexp-1.0.3.tgz"
-            },
-            "has-ansi": {
-              "version": "1.0.3",
-              "from": "https://registry.npmjs.org/has-ansi/-/has-ansi-1.0.3.tgz",
-              "resolved": "https://registry.npmjs.org/has-ansi/-/has-ansi-1.0.3.tgz",
+            "lodash._baseclone": {
+              "version": "3.3.0",
               "dependencies": {
-                "ansi-regex": {
-                  "version": "1.1.1",
-                  "from": "https://registry.npmjs.org/ansi-regex/-/ansi-regex-1.1.1.tgz",
-                  "resolved": "https://registry.npmjs.org/ansi-regex/-/ansi-regex-1.1.1.tgz"
+                "lodash._arraycopy": {
+                  "version": "3.0.0"
                 },
-                "get-stdin": {
-                  "version": "4.0.1",
-                  "from": "https://registry.npmjs.org/get-stdin/-/get-stdin-4.0.1.tgz",
-                  "resolved": "https://registry.npmjs.org/get-stdin/-/get-stdin-4.0.1.tgz"
+                "lodash._arrayeach": {
+                  "version": "3.0.0"
+                },
+                "lodash._baseassign": {
+                  "version": "3.2.0",
+                  "dependencies": {
+                    "lodash._basecopy": {
+                      "version": "3.0.1"
+                    }
+                  }
+                },
+                "lodash._basefor": {
+                  "version": "3.0.2"
+                },
+                "lodash.isarray": {
+                  "version": "3.0.4"
+                },
+                "lodash.keys": {
+                  "version": "3.1.2",
+                  "dependencies": {
+                    "lodash._getnative": {
+                      "version": "3.9.1"
+                    },
+                    "lodash.isarguments": {
+                      "version": "3.0.4"
+                    }
+                  }
                 }
               }
             },
-            "strip-ansi": {
-              "version": "2.0.1",
-              "from": "https://registry.npmjs.org/strip-ansi/-/strip-ansi-2.0.1.tgz",
-              "resolved": "https://registry.npmjs.org/strip-ansi/-/strip-ansi-2.0.1.tgz",
-              "dependencies": {
-                "ansi-regex": {
-                  "version": "1.1.1",
-                  "from": "https://registry.npmjs.org/ansi-regex/-/ansi-regex-1.1.1.tgz",
-                  "resolved": "https://registry.npmjs.org/ansi-regex/-/ansi-regex-1.1.1.tgz"
-                }
-              }
+            "lodash._bindcallback": {
+              "version": "3.0.1"
             },
-            "supports-color": {
-              "version": "1.3.1",
-              "from": "https://registry.npmjs.org/supports-color/-/supports-color-1.3.1.tgz",
-              "resolved": "https://registry.npmjs.org/supports-color/-/supports-color-1.3.1.tgz"
+            "lodash._isiterateecall": {
+              "version": "3.0.9"
             }
           }
         },
-        "printf": {
-          "version": "0.2.1",
-          "from": "https://registry.npmjs.org/printf/-/printf-0.2.1.tgz",
-          "resolved": "https://registry.npmjs.org/printf/-/printf-0.2.1.tgz"
+        "lodash.template": {
+          "version": "3.6.2",
+          "dependencies": {
+            "lodash._basecopy": {
+              "version": "3.0.1"
+            },
+            "lodash._basetostring": {
+              "version": "3.0.1"
+            },
+            "lodash._basevalues": {
+              "version": "3.0.0"
+            },
+            "lodash._isiterateecall": {
+              "version": "3.0.9"
+            },
+            "lodash._reinterpolate": {
+              "version": "3.0.0"
+            },
+            "lodash.escape": {
+              "version": "3.0.0"
+            },
+            "lodash.keys": {
+              "version": "3.1.2",
+              "dependencies": {
+                "lodash._getnative": {
+                  "version": "3.9.1"
+                },
+                "lodash.isarguments": {
+                  "version": "3.0.4"
+                },
+                "lodash.isarray": {
+                  "version": "3.0.4"
+                }
+              }
+            },
+            "lodash.restparam": {
+              "version": "3.6.1"
+            },
+            "lodash.templatesettings": {
+              "version": "3.1.0"
+            }
+          }
+        },
+        "ansi-styles": {
+          "version": "2.1.0"
+        },
+        "source-map-support": {
+          "version": "0.4.0",
+          "dependencies": {
+            "source-map": {
+              "version": "0.1.32",
+              "dependencies": {
+                "amdefine": {
+                  "version": "1.0.0"
+                }
+              }
+            }
+          }
+        },
+        "supports-color": {
+          "version": "3.1.2",
+          "dependencies": {
+            "has-flag": {
+              "version": "1.0.0"
+            }
+          }
         }
       }
     },

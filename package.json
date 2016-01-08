@@ -53,7 +53,7 @@
     "glob": "^3.2.9",
     "handlebars": "2.0.0-alpha.4",
     "hipache": "git+https://github.com/hipache/hipache#c32e3d2138590cbdb70a67e696c5f8252f7143dc",
-    "i18n-cli": "0.0.3",
+    "i18n-cli": "^0.1.0",
     "inquirer": "^0.11.1",
     "insight-keen-io": "^0.9.0",
     "jstream": "^0.2.7",
