@@ -13,12 +13,18 @@ var lazy = lazy_require({
 
 var tables    = {};
 
+let colors_labels = {
+  ok  : 'green',
+  fail: 'red',
+  info: 'blue',
+  warning  : 'yellow',
+  deprecate: 'cyan',
+}
+
 // Status labels
-var azk_ok        = lazy.colors.green('azk');
-var azk_fail      = lazy.colors.red('azk');
-var azk_warning   = lazy.colors.yellow('azk');
-var azk_info      = lazy.colors.blue('azk');
-var azk_deprecate = lazy.colors.cyan('azk');
+function label_color(label) {
+  return lazy.colors[colors_labels[label]]('azk');
+}
 
 var UI = {
   isUI: true,
@@ -60,13 +66,13 @@ var UI = {
   },
 
   // Helpers to print status
-  ok(...args) {        this._status(azk_ok, ...args);      },
-  info(...args) {      this._status(azk_info, ...args);    },
-  fail(...args) {      this._status(azk_fail, ...args);    },
-  warning(...args) {   this._status(azk_warning, ...args); },
-  deprecate(...args) { this._status(azk_deprecate, ...args); },
+  ok(...args) {        this._status('ok'  , ...args); },
+  info(...args) {      this._status('info', ...args); },
+  fail(...args) {      this._status('fail', ...args); },
+  warning(...args) {   this._status('warning'  , ...args); },
+  deprecate(...args) { this._status('deprecate', ...args); },
 
-  _status(tag, second, ...args) {
+  _status(label, second, ...args) {
     var message;
 
     if (second instanceof Error) {
@@ -79,7 +85,7 @@ var UI = {
       message = t(second, ...args);
     }
 
-    message = message.replace(/^(.+)/gm, `${tag}: $1`);
+    message = message.replace(/^(.+)/gm, `${label_color(label)}: $1`);
     this.stderr().write(message + "\n");
   },
 
