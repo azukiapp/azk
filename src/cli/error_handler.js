@@ -3,6 +3,7 @@ import { AzkError, MustAcceptTermsOfUse } from 'azk/utils/errors';
 import { async } from 'azk/utils/promises';
 
 var lazy = lazy_require({
+  UI              : ['azk/cli/ui'],
   CrashReport     : ['azk/utils/crash_report'],
   tracker         : ['azk/utils/tracker', 'default'],
   AskSendErrorView: ['azk/cli/views/ask_send_error_view'],
@@ -10,7 +11,7 @@ var lazy = lazy_require({
 
 function init_options(options) {
   if (isBlank(options.view)) {
-    options.view = new lazy.AskSendErrorView(options.ui);
+    options.view = new lazy.AskSendErrorView(options.ui || lazy.UI);
   }
 
   return [options.view, options.tracker || lazy.tracker];
