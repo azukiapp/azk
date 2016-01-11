@@ -14,7 +14,10 @@ import { isIPv4 } from 'net';
 var lazy = lazy_require({
   docker     : ['azk/docker', 'default'],
   Migrations : ['azk/agent/migrations'],
-  exec       : ['child_process'],
+  exec       : function() {
+    var context = require('child_process');
+    return promisify(context.exec, { multiArgs: true, context });
+  },
   Netmask    : ['netmask'],
   Sync       : ['azk/sync'],
   request_get: function() {
@@ -459,7 +462,7 @@ export class Configure extends UIProxy {
     var regex = /docker0.*inet\s(.*?)\//;
     var cmd   = "/sbin/ip -o addr show";
 
-    return nfcall(lazy.exec, cmd)
+    return lazy.exec(cmd)
       .spread((stdout) => {
         var match = stdout.match(regex);
         if (match) { return match[1]; }
