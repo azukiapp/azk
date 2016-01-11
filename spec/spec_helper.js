@@ -1,7 +1,7 @@
 require('source-map-support').install();
 
 import { pp, config, t, _, fsAsync, lazy_require } from 'azk';
-import { nfcall } from 'azk/utils/promises';
+import { nfcall, promisify } from 'azk/utils/promises';
 import { Client as AgentClient } from 'azk/agent/client';
 import Utils from 'azk/utils';
 
@@ -31,15 +31,15 @@ var Helpers = {
   },
 
   tmp_dir(opts = { prefix: "azk-test-"}) {
-    return nfcall(lazy.tmp.dir, opts).then((dir) => {
-      return Utils.resolve(dir);
-    });
+    var context = lazy.tmp;
+    var mk_dir  = promisify(context.dir, { multiArgs: true, context });
+    return mk_dir(opts).spread((dir) => Utils.resolve(dir));
   },
 
   tmpFile(opts = { prefix: "azk-test-"}) {
-    return nfcall(lazy.tmp.file, opts).spread((file) => {
-      return Utils.resolve(file);
-    });
+    var context = lazy.tmp;
+    var mk_file = promisify(context.file, { multiArgs: true, context });
+    return mk_file(opts).spread((file) => Utils.resolve(file));
   },
 
   copyToTmp(origin) {
