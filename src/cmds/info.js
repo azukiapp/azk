@@ -9,7 +9,7 @@ var lazy = lazy_require({
 });
 
 export default class Info extends CliTrackerController {
-  index(opts) {
+  index() {
     return async(this, function* () {
       // Requirements
       yield Helpers.requireAgent(this.ui);
@@ -23,7 +23,7 @@ export default class Info extends CliTrackerController {
           depends : system.options.depends,
           image   : obj,
           command : this._format_command(system.command),
-          hostname: system.url.underline,
+          hostname: this.ui.c.underline(system.url),
           ports   : system.ports,
           scalable: system.scalable,
           mounts  : system.mounts,
@@ -32,14 +32,14 @@ export default class Info extends CliTrackerController {
 
         // Adjust
         if (_.isEmpty(system_data.depends)) {
-          system_data.depends = 'no dependencies'.cyan;
+          system_data.depends = this.ui.c.cyan('no dependencies');
         }
 
         if (_.isEmpty(system_data.ports)) {
           delete system_data.ports;
         }
 
-        data.systems[system.name.yellow] = system_data;
+        data.systems[this.ui.c.yellow(system.name)] = system_data;
         return data;
       }, {
         manifest_id   : manifest.namespace,
@@ -51,7 +51,7 @@ export default class Info extends CliTrackerController {
 
       // Show result
       this.ui.output(lazy.prettyjson.render(data, {
-        noColor: opts['no-colored'],
+        noColor: !this.ui.useColours(),
         dashColor: "magenta",
         stringColor: "blue",
       }));

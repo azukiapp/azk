@@ -10,6 +10,7 @@
 
 ```
   --logo                    Mostra a logo do azk junto com as informações.
+  --no-color                Remove cores na saída padrão
   --quiet, -q               Nunca perguntar.
   --help, -h                Mostrar ajuda de uso.
   --log=<level>, -l         Defini o nível de log (padrão: error).

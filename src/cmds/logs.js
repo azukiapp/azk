@@ -24,7 +24,7 @@ export default class Logs extends CliTrackerController {
       write(buffer) {
         var data = buffer.toString().match(/^\[(.*?)\](.*\n)$/m);
         if (data) {
-          output.write(`${data[1].magenta} ${name}:${data[2]}`);
+          output.write(`${this.ui.c.magenta(data[1])} ${name}:${data[2]}`);
         } else {
           output.write(`${name} `);
           output.write(buffer);
@@ -35,7 +35,7 @@ export default class Logs extends CliTrackerController {
 
   connect(system, color, instances, options) {
     return _.map(instances, (instance) => {
-      var name = `${system.name}${instance.Annotations.azk.seq}`[color];
+      var name = this.ui.c[color](`${system.name}${instance.Annotations.azk.seq}`);
       var container = lazy.docker.getContainer(instance.Id);
       var stdout = this.make_out(process.stdout, name);
       var stderr = this.make_out(process.stderr, name);

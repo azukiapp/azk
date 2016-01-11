@@ -1,14 +1,13 @@
 // Original require save
-var Module = require('module');
-var pretty = require('pretty-hrtime');
-var archy  = require('archy');
+var Module   = require('module');
+var pretty   = require('pretty-hrtime');
+var archy    = require('archy');
+var chalk    = require('chalk');
 var original = Module.prototype.require;
-require('colors');
-
-var nivel  = parseInt(process.env.AZK_PROFILE_REQUIRES) || 20;
-var tree   = { label: `requires (nivel: ${nivel}) :`.blue, nodes: []};
-var actual = tree;
-var cache  = {};
+var nivel    = parseInt(process.env.AZK_PROFILE_REQUIRES) || 20;
+var tree     = { label: chalk.blue(`requires (nivel: ${nivel}) :`), nodes: []};
+var actual   = tree;
+var cache    = {};
 
 Module.prototype.require = function(file, ...args) {
   var result, require = () => {
@@ -31,11 +30,11 @@ Module.prototype.require = function(file, ...args) {
     if (azk || hrend[0] >= 1 || ms > nivel) {
       var time = pretty(hrend, { precise: true });
       if (ms > (nivel * 1.5)) {
-        time = time.red;
+        time = chalk.red(time);
       } else if (ms > nivel) {
-        time = time.yellow;
+        time = chalk.yellow(time);
       } else {
-        time = time.green;
+        time = chalk.green(time);
       }
       actual.label = `${file} - (${time})`;
       root.nodes.push(actual);

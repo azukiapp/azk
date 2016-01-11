@@ -23,6 +23,9 @@ var GeralLib = {
       _t = new I18n({
         path: GeralLib.path.join(GeralLib.config('paths:azk_root'), 'shared', 'locales'),
         locale: GeralLib.config('locale'),
+        supportsColor: () => {
+          return require('./cli/ui').UI.useColours();
+        },
       }).t;
     }
     return _t;

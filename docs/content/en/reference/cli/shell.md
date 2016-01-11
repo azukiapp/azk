@@ -25,6 +25,7 @@
   --silent                  Prevents any log message about command execution. It's useful when using the `-c` option and the output is used as input to another command using the pipe `|` operator.
   --tty, -t                 Forces pseudo-tty allocation.
   --no-tty, -T              Disables pseudo-tty allocation.
+  --no-color                Remove colors from output
   --quiet, -q               Never prompt.
   --help, -h                Shows help usage.
   --log=<level>, -l         Sets log level (default: error).

@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## dev
 
 * Enhancements
+  * [Cli] all cli commands hava a `--no-color` option that print every output in only one color
   * [Cli] Improving `ui.isInteractive()`, now not only the existence of a `tty` is checked but also the parameter `--quiet`;
   * [Cli] Adding support to more verbose mode in `azk start`;
   * [Cli] More options added to the `azk config` command. Now it uses a `key-value` system. The `azk config list` subcommand shows a list of the options users can choose from;
@@ -26,6 +27,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Dependency] Updating the `azk-dev` and exchanging `babel-runtime` with `babel-poliffy`.
   * [Code] Refactoring many parts of the code to suit best the modules of the system `babel> 6`;
   * [Code] Removing `chai` and replacing by `azk-dev/lib/chai`;
+  * [Cli] Updating `i18n-cli`, now support syntax with colors;
+  * [Cli] Replacing `colors` for `chalk` and adding support global `--no-color` argument;
 
 * Bug
   * [Pull] When pulling in verbose mode do not print several `undefined` anymore. Instead print Docker downloading bar provided by Docker API;

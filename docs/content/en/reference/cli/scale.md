@@ -17,6 +17,7 @@
 
 ```
   --no-remove, -r           Do not remove container instances after stopping them.
+  --no-color                Remove colors from output
   --quiet, -q               Never prompt.
   --help, -h                Shows help usage.
   --log=<level>, -l         Sets log level (default: error).

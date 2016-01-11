@@ -55,6 +55,7 @@ var options = mergeConfig({
     flags    : {
       show_deprecate: envs('AZK_HIDE_DEPRECATE', false),
       require_accept_use_terms: envs('AZK_REQUIRE_TERMS', true),
+      force_color: envs('AZK_FORCE_COLOR', envs('FORCE_COLOR', null)),
     },
     paths    : {
       azk_root,

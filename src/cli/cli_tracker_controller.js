@@ -27,7 +27,7 @@ export class CliTrackerController extends TermsController {
     return super.before_action_tracker(action_name, params).then(() => {
       var command_opts = _.pick(params, [
         '__doubledash', 'no-daemon', 'reload-vm', 'reprovision', 'rebuild',
-        'quiet', 'open', 'verbose', 'to', 'force', 'log', 'colored', 'child',
+        'quiet', 'open', 'verbose', 'to', 'force', 'log', 'color', 'child',
       ]);
 
       if (this.route.actions && this.route.actions.length > 0) {

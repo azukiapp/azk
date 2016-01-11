@@ -29,6 +29,7 @@ Para valores booleanos passados no argumento `config-value` várias opções pod
 #### Opções:
 
 ```
+  --no-color                Remove cores na saída padrão
   --quiet, -q               Nunca perguntar.
   --help, -h                Mostrar ajuda de uso.
   --log=<level>, -l         Defini o nível de log (padrão: error).

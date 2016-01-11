@@ -8,7 +8,8 @@ import Utils from 'azk/utils';
 var lazy = lazy_require({
   MemoryStream: 'memorystream',
   dirdiff     : 'dirdiff',
-  tmp         : 'tmp'
+  tmp         : 'tmp',
+  UI          : ['azk/cli/ui'],
 });
 
 if (process.env.AZK_SUBSCRIBE_POSTAL) {
@@ -88,12 +89,14 @@ var Helpers = {
 };
 
 // In specs the virtual machine is required
-if (!Helpers.no_required_agent) {
-  before(() => {
-    console.log(t('test.before'));
+before(() => {
+  console.log(t('test.before'));
+  // Disable colors by default
+  lazy.UI.useColours(false);
+  if (!Helpers.no_required_agent) {
     return AgentClient.require();
-  });
-}
+  }
+});
 
 after(() => {
   if (process.env.AZK_ENABLE_NJS_TRACE_PROFILER) {

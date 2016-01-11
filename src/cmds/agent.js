@@ -110,21 +110,30 @@ export default class Agent extends CliTrackerController {
 
   _runDaemon(args, configs) {
     return async(this, function* () {
+
+      // Configure file
       var file = config("paths:agent_config");
       log.debug("[agent] save config file", file);
       yield fsAsync.writeFile(file, JSON.stringify(configs));
-
       args = args.concat(["--configure", file]);
+
+      // Color options
+      var envs = _.clone(process.env);
+      if (this.ui.useColours()) {
+        envs.AZK_FORCE_COLOR = true;
+      }
+
       var cmd  = `azk agent-daemon --no-daemon "${args.join('" "')}"`;
-      return this._runDaemonCommand(cmd);
+      return this._runDaemonCommand(cmd, envs);
     });
   }
 
-  _runDaemonCommand(cmd) {
+  _runDaemonCommand(cmd, env) {
     return defer((resolve) => {
       var opts  = {
         detached: false,
-        stdio: [ 'ignore', process.stdout, process.stderr ]
+        stdio: [ 'ignore', process.stdout, process.stderr ],
+        env: env,
       };
 
       var child = this.ui.execSh(cmd, opts, (err) => {
