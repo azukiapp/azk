@@ -68,7 +68,7 @@ Arguments:
   docker-args               Options and arguments to be passed to Docker.
   instances                 Number of instances.
   path                      Path where manifest file can be found.
-  ** ref                       Version or git reference -- commit, branch etc.
+  ref                       Version or git reference -- commit, branch etc.
   ssh-args                  Options and arguments to be passed to VM over ssh.
   shell-args                Options and arguments to be passed to the system.
   system                    System name where the action will take place.
