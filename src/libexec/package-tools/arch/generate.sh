@@ -2,7 +2,7 @@
 
 set -x
 
-trap exit handle_exit
+trap handle_exit EXIT
 
 handle_exit() {
   if [ -e $SUCCESS ]; then
