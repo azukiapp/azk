@@ -26,7 +26,7 @@ export class CliController extends RouterController {
     }
 
     // Force no colors in output
-    if (opts['no-color'] === 1) {
+    if (opts['no-color']) {
       this.ui.useColours(false);
     }
 

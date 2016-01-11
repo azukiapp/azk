@@ -43,7 +43,7 @@ describe('Azk cli, info controller, run in an', function() {
       return cli.run(doc_opts, run_options).then((code) => {
         h.expect(code).to.equal(0);
         h.expect(options).to.have.property('info', true);
-        h.expect(options).to.have.property('no-color', 1);
+        h.expect(options).to.have.property('no-color', true);
         h.expect(outputs[0]).to.match(/^manifest/);
       });
     });
