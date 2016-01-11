@@ -24,13 +24,27 @@ _azk ()
 
     _arguments -C \
         ':command:->command' \
-		'(-h)-h[Shows help usage.]' \
-		'(--help)--help[Shows help usage.]' \
-		'(--version)--version[Shows azk version.]' \
-		'(-h)-h[Shows help usage.]' \
-		'(--help)--help[Shows help usage.]' \
-		'(-h)-h[Shows help usage.]' \
-		'(--help)--help[Shows help usage.]' \
+		'(-h)-h' \
+		'(--help)--help' \
+		'(-q)-q' \
+		'(--quiet)--quiet' \
+		'(-h)-h' \
+		'(--help)--help' \
+		'(--no-color)--no-color' \
+		'(-l=-)-l=-' \
+		'(--log=-)--log=-' \
+		'(-v)-v' \
+		'(--verbose)--verbose' \
+		'(--version)--version' \
+		'(-q)-q' \
+		'(--quiet)--quiet' \
+		'(-h)-h' \
+		'(--help)--help' \
+		'(--no-color)--no-color' \
+		'(-l=-)-l=-' \
+		'(--log=-)--log=-' \
+		'(-v)-v' \
+		'(--verbose)--verbose' \
         '*::options:->options'
 
     case $state in
@@ -133,11 +147,12 @@ _azk-info ()
 		'(--quiet)--quiet' \
 		'(-h)-h' \
 		'(--help)--help' \
+		'(--no-color)--no-color' \
 		'(-l=-)-l=-' \
 		'(--log=-)--log=-' \
 		'(-v)-v' \
 		'(--verbose)--verbose' \
-
+        
 }
 
 _azk-status ()
@@ -155,6 +170,7 @@ _azk-status ()
 		'(--quiet)--quiet' \
 		'(-h)-h' \
 		'(--help)--help' \
+		'(--no-color)--no-color' \
 		'(-l=-)-l=-' \
 		'(--log=-)--log=-' \
 		'(-v)-v' \
@@ -180,6 +196,7 @@ _azk-scale ()
 		'(--quiet)--quiet' \
 		'(-h)-h' \
 		'(--help)--help' \
+		'(--no-color)--no-color' \
 		'(-l=-)-l=-' \
 		'(--log=-)--log=-' \
 		'(-v)-v' \
@@ -208,6 +225,7 @@ _azk-logs ()
 		'(--quiet)--quiet' \
 		'(-h)-h' \
 		'(--help)--help' \
+		'(--no-color)--no-color' \
 		'(-l=-)-l=-' \
 		'(--log=-)--log=-' \
 		'(-v)-v' \
@@ -226,14 +244,24 @@ _azk-deploy ()
 
     _arguments -C \
         ':command:->command' \
-		'(-v)-v[Sets the level of detail - multiple supported (-vv == --verbose 2) \[default: 0\].]' \
-		'(--verbose)--verbose[Sets the level of detail - multiple supported (-vv == --verbose 2) \[default: 0\].]' \
-		'(-h)-h[Shows help usage.]' \
-		'(--help)--help[Shows help usage.]' \
-		'(-v)-v[Sets the level of detail - multiple supported (-vv == --verbose 2) \[default: 0\].]' \
-		'(--verbose)--verbose[Sets the level of detail - multiple supported (-vv == --verbose 2) \[default: 0\].]' \
-		'(-h)-h[Shows help usage.]' \
-		'(--help)--help[Shows help usage.]' \
+		'(-q)-q' \
+		'(--quiet)--quiet' \
+		'(-h)-h' \
+		'(--help)--help' \
+		'(--no-color)--no-color' \
+		'(-l=-)-l=-' \
+		'(--log=-)--log=-' \
+		'(-v)-v' \
+		'(--verbose)--verbose' \
+		'(-q)-q' \
+		'(--quiet)--quiet' \
+		'(-h)-h' \
+		'(--help)--help' \
+		'(--no-color)--no-color' \
+		'(-l=-)-l=-' \
+		'(--log=-)--log=-' \
+		'(-v)-v' \
+		'(--verbose)--verbose' \
         '*::options:->options'
 
     case $state in
@@ -294,10 +322,15 @@ _azk-deploy-shell ()
         ':command:->command' \
 		'(-c=-)-c=-' \
 		'(--command=-)--command=-' \
-		'(-v)-v' \
-		'(--verbose)--verbose' \
+		'(-q)-q' \
+		'(--quiet)--quiet' \
 		'(-h)-h' \
 		'(--help)--help' \
+		'(--no-color)--no-color' \
+		'(-l=-)-l=-' \
+		'(--log=-)--log=-' \
+		'(-v)-v' \
+		'(--verbose)--verbose' \
 
     else
         myargs=('<args>')
@@ -313,10 +346,15 @@ _azk-deploy-rollback ()
     if [[ $words[$CURRENT] == -* ]] ; then
         _arguments -C \
         ':command:->command' \
-		'(-v)-v[Sets the level of detail - multiple supported (-vv == --verbose 2) \[default: 0\].]' \
-		'(--verbose)--verbose[Sets the level of detail - multiple supported (-vv == --verbose 2) \[default: 0\].]' \
-		'(-h)-h[Shows help usage.]' \
-		'(--help)--help[Shows help usage.]' \
+		'(-q)-q' \
+		'(--quiet)--quiet' \
+		'(-h)-h' \
+		'(--help)--help' \
+		'(--no-color)--no-color' \
+		'(-l=-)-l=-' \
+		'(--log=-)--log=-' \
+		'(-v)-v' \
+		'(--verbose)--verbose' \
 
     else
         myargs=('<ref>')
@@ -331,7 +369,7 @@ _azk-deploy-clear-cache ()
 
     _arguments -C \
         ':command:->command' \
-
+        
 }
 
 _azk-deploy-versions ()
@@ -341,7 +379,7 @@ _azk-deploy-versions ()
 
     _arguments -C \
         ':command:->command' \
-
+        
 }
 
 _azk-deploy-fast ()
@@ -351,7 +389,7 @@ _azk-deploy-fast ()
 
     _arguments -C \
         ':command:->command' \
-
+        
 }
 
 _azk-deploy-full ()
@@ -361,7 +399,7 @@ _azk-deploy-full ()
 
     _arguments -C \
         ':command:->command' \
-
+        
 }
 
 _azk-deploy-ssh ()
@@ -372,10 +410,15 @@ _azk-deploy-ssh ()
     if [[ $words[$CURRENT] == -* ]] ; then
         _arguments -C \
         ':command:->command' \
-		'(-v)-v[Sets the level of detail - multiple supported (-vv == --verbose 2) \[default: 0\].]' \
-		'(--verbose)--verbose[Sets the level of detail - multiple supported (-vv == --verbose 2) \[default: 0\].]' \
-		'(-h)-h[Shows help usage.]' \
-		'(--help)--help[Shows help usage.]' \
+		'(-q)-q' \
+		'(--quiet)--quiet' \
+		'(-h)-h' \
+		'(--help)--help' \
+		'(--no-color)--no-color' \
+		'(-l=-)-l=-' \
+		'(--log=-)--log=-' \
+		'(-v)-v' \
+		'(--verbose)--verbose' \
 
     else
         myargs=('<args>')
@@ -390,7 +433,7 @@ _azk-deploy-restart ()
 
     _arguments -C \
         ':command:->command' \
-
+        
 }
 
 _azk-open ()
@@ -407,6 +450,7 @@ _azk-open ()
 		'(--quiet)--quiet' \
 		'(-h)-h' \
 		'(--help)--help' \
+		'(--no-color)--no-color' \
 		'(-l=-)-l=-' \
 		'(--log=-)--log=-' \
 		'(-v)-v' \
@@ -430,11 +474,12 @@ _azk-doctor ()
 		'(--quiet)--quiet' \
 		'(-h)-h' \
 		'(--help)--help' \
+		'(--no-color)--no-color' \
 		'(-l=-)-l=-' \
 		'(--log=-)--log=-' \
 		'(-v)-v' \
 		'(--verbose)--verbose' \
-
+        
 }
 
 _azk-stop ()
@@ -451,6 +496,7 @@ _azk-stop ()
 		'(--quiet)--quiet' \
 		'(-h)-h' \
 		'(--help)--help' \
+		'(--no-color)--no-color' \
 		'(-l=-)-l=-' \
 		'(--log=-)--log=-' \
 		'(-v)-v' \
@@ -476,6 +522,7 @@ _azk-vm ()
 		'(--quiet)--quiet' \
 		'(-h)-h' \
 		'(--help)--help' \
+		'(--no-color)--no-color' \
 		'(-l=-)-l=-' \
 		'(--log=-)--log=-' \
 		'(-v)-v' \
@@ -502,6 +549,7 @@ _azk-agent ()
 		'(--quiet)--quiet' \
 		'(-h)-h' \
 		'(--help)--help' \
+		'(--no-color)--no-color' \
 		'(-l=-)-l=-' \
 		'(--log=-)--log=-' \
 		'(-v)-v' \
@@ -543,7 +591,7 @@ _azk-agent-status ()
 
     _arguments -C \
         ':command:->command' \
-
+        
 }
 
 _azk-agent-start ()
@@ -553,7 +601,7 @@ _azk-agent-start ()
 
     _arguments -C \
         ':command:->command' \
-
+        
 }
 
 _azk-agent-stop ()
@@ -563,7 +611,7 @@ _azk-agent-stop ()
 
     _arguments -C \
         ':command:->command' \
-
+        
 }
 
 _azk-start ()
@@ -588,6 +636,7 @@ _azk-start ()
 		'(--quiet)--quiet' \
 		'(-h)-h' \
 		'(--help)--help' \
+		'(--no-color)--no-color' \
 		'(-l=-)-l=-' \
 		'(--log=-)--log=-' \
 		'(-v)-v' \
@@ -607,6 +656,7 @@ _azk-start ()
 		'(--quiet)--quiet' \
 		'(-h)-h' \
 		'(--help)--help' \
+		'(--no-color)--no-color' \
 		'(-l=-)-l=-' \
 		'(--log=-)--log=-' \
 		'(-v)-v' \
@@ -633,6 +683,7 @@ _azk-init ()
 		'(--quiet)--quiet' \
 		'(-h)-h' \
 		'(--help)--help' \
+		'(--no-color)--no-color' \
 		'(-l=-)-l=-' \
 		'(--log=-)--log=-' \
 		'(-v)-v' \
@@ -676,6 +727,7 @@ _azk-shell ()
 		'(--quiet)--quiet' \
 		'(-h)-h' \
 		'(--help)--help' \
+		'(--no-color)--no-color' \
 		'(-l=-)-l=-' \
 		'(--log=-)--log=-' \
 		'(-v)-v' \
@@ -694,7 +746,7 @@ _azk-version ()
 
     _arguments -C \
         ':command:->command' \
-
+        
 }
 
 _azk-docker ()
@@ -709,6 +761,7 @@ _azk-docker ()
 		'(--quiet)--quiet' \
 		'(-h)-h' \
 		'(--help)--help' \
+		'(--no-color)--no-color' \
 		'(-l=-)-l=-' \
 		'(--log=-)--log=-' \
 		'(-v)-v' \
@@ -728,18 +781,18 @@ _azk-config ()
     if [[ $words[$CURRENT] == -* ]] ; then
         _arguments -C \
         ':command:->command' \
-		'(--no-color)--no-color' \
 		'(-q)-q' \
 		'(--quiet)--quiet' \
 		'(-h)-h' \
 		'(--help)--help' \
+		'(--no-color)--no-color' \
 		'(-l=-)-l=-' \
 		'(--log=-)--log=-' \
 		'(-v)-v' \
 		'(--verbose)--verbose' \
 
     else
-        myargs=('<config-value>')
+        myargs=('<config-key>' '<config-value>')
         _message_next_arg
     fi
 }
@@ -766,6 +819,7 @@ _azk-restart ()
 		'(--quiet)--quiet' \
 		'(-h)-h' \
 		'(--help)--help' \
+		'(--no-color)--no-color' \
 		'(-l=-)-l=-' \
 		'(--log=-)--log=-' \
 		'(-v)-v' \
@@ -785,6 +839,13 @@ _azk-help ()
     if [[ $words[$CURRENT] == -* ]] ; then
         _arguments -C \
         ':command:->command' \
+		'(-q)-q' \
+		'(--quiet)--quiet' \
+		'(--no-color)--no-color' \
+		'(-l=-)-l=-' \
+		'(--log=-)--log=-' \
+		'(-v)-v' \
+		'(--verbose)--verbose' \
 
     else
         myargs=('<command>')
