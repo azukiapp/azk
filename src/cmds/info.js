@@ -9,7 +9,7 @@ var lazy = lazy_require({
 });
 
 export default class Info extends CliTrackerController {
-  index(opts) {
+  index() {
     return async(this, function* () {
       // Requirements
       yield Helpers.requireAgent(this.ui);

@@ -19,7 +19,7 @@ let colors_labels = {
   info: 'blue',
   warning  : 'yellow',
   deprecate: 'cyan',
-}
+};
 
 // Status labels
 function label_color(label) {
