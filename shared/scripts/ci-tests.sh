@@ -47,9 +47,14 @@ setup_resolver() {
     *)          echo "Sorry, this OS is not supported yet. Try running using Linux or Mac OS X." && exit 1;;
   esac
 
-  echo "nameserver ${AZK_BALANCER_IP}${NS_SEPARATOR}${AZK_DNS_PORT}" \
-    | sudo tee /etc/resolver/${AZK_NAMESPACE} \
-    > /dev/null 2>&1
+  RESOLVER_FILE_NAME="/etc/resolver/${AZK_NAMESPACE}"
+  RESOLVER_FILE_CONTENT="nameserver ${AZK_BALANCER_IP}${NS_SEPARATOR}${AZK_DNS_PORT}"
+
+  if [ "$(cat ${RESOLVER_FILE_NAME})" != "${RESOLVER_FILE_CONTENT}" ]; then
+    echo "nameserver ${AZK_BALANCER_IP}${NS_SEPARATOR}${AZK_DNS_PORT}" \
+      | sudo tee ${RESOLVER_FILE_NAME} \
+      > /dev/null 2>&1
+  fi
 }
 
 setup() {
@@ -61,7 +66,7 @@ setup() {
 }
 
 run_tests() {
-  azk nvm npm run test:slow
+  azk nvm gulp test --slow
 }
 
 teardown() {
