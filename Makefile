@@ -76,11 +76,8 @@ clean:
 	@rm -Rf ${NVM_DIR}/..?* ${NVM_DIR}/.[!.]* ${NVM_DIR}/*
 
 bootstrap: clean_nvm_versions ${AZK_LIB_PATH}/azk dependencies finished
-bootstrap_package_mac: clean_nvm_versions ${AZK_LIB_PATH}/azk dependencies_mac finished
-bootstrap_package_linux: clean_nvm_versions ${AZK_LIB_PATH}/azk finished
 
 dependencies: ${AZK_LIB_PATH}/bats ${VM_DISKS_DIR}/azk.iso ${VM_DISKS_DIR}/azk-agent.vmdk.gz
-dependencies_mac: ${VM_DISKS_DIR}/azk.iso ${VM_DISKS_DIR}/azk-agent.vmdk.gz
 
 S3_URL=https://s3-sa-east-1.amazonaws.com/repo.azukiapp.com/vm_disks/${AZK_ISO_VERSION}
 ${VM_DISKS_DIR}/azk.iso:
@@ -124,7 +121,7 @@ package_clean_nvm_versions: ${NODE_PACKAGE}
 	fi
 
 # Build package folders tree
-package_brew: package_build_mac fix_permissions check_version ${PATH_AZK_LIB}/vm/${AZK_ISO_VERSION} ${PATH_MAC_PACKAGE}
+package_brew: package_build fix_permissions check_version ${PATH_AZK_LIB}/vm/${AZK_ISO_VERSION} ${PATH_MAC_PACKAGE}
 package_mac:
 	@export AZK_PACKAGE_PATH=${AZK_PACKAGE_PATH}/brew && \
 		mkdir -p $$AZK_PACKAGE_PATH && \
@@ -132,7 +129,7 @@ package_mac:
 
 # Alias to create a distro package
 LINUX_CLEAN:="--clean"
-package_linux: package_build_linux creating_symbolic_links fix_permissions check_version
+package_linux: package_build creating_symbolic_links fix_permissions check_version
 package_deb:
 	@mkdir -p package
 	@./src/libexec/package.sh deb ${LINUX_CLEAN}
@@ -219,8 +216,7 @@ ${PATH_AZK_LIB}/vm/${AZK_ISO_VERSION}: ${AZK_LIB_PATH}/vm
 ${PATH_MAC_PACKAGE}: ${AZK_PACKAGE_PREFIX}
 	@cd ${PATH_USR_LIB_AZK}/.. && tar -czf ${PATH_MAC_PACKAGE} ./
 
-package_build_mac: bootstrap_package_mac $(FILES_TARGETS) copy_transpiled_files package_clean_nvm_versions ${PATH_NODE_MODULES}
-package_build_linux: bootstrap_package_linux $(FILES_TARGETS) copy_transpiled_files package_clean_nvm_versions ${PATH_NODE_MODULES}
+package_build: bootstrap $(FILES_TARGETS) copy_transpiled_files package_clean_nvm_versions ${PATH_NODE_MODULES}
 
 ###### Shell completion session ######
 
@@ -280,7 +276,7 @@ ${ZSH_COMPLETION_PATH}/_azk: ${ZSH_COMPLETION_FILE}
 install_shell_completion: ${COMPLETIONS_FILES}
 
 # Mark not a file tasks
-.PHONY: bootstrap bootstrap_package_mac bootstrap_package_linux clean package_brew package_mac package_deb package_rpm package_build_mac package_build_linux package_clean copy_transpiled_files fix_permissions creating_symbolic_links dependencies check_version slow_test test generate_shell_completion install_shell_completion
+.PHONY: bootstrap clean package_brew package_mac package_deb package_rpm package_build package_clean copy_transpiled_files fix_permissions creating_symbolic_links dependencies check_version slow_test test generate_shell_completion install_shell_completion
 
 # Just for fast reference, use this for debug a variable
 # $(info $(value VARIABLE_NAME))
