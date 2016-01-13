@@ -4,18 +4,24 @@ echo ""
 echo "AZK BENCHMARK - COMMANDS TIME PROFILER"
 echo ""
 
-# get azk root path
-PROFILING_DIR=$(dirname $0)
-cd $PROFILING_DIR/../../..
-AZK_ROOT=$(pwd)
+# get all paths
+abs_dir() {
+  cd "${1%/*}"; link=`readlink ${1##*/}`;
+  if [ -z "$link" ]; then pwd; else abs_dir $link; fi
+}
 
-PROFILING_DIR=$AZK_ROOT/src/libexec/profiling
+AZK_ROOT_PATH=`cd \`abs_dir ${BASH_SOURCE:-$0}\`/../../..; pwd`
+PROFILING_DIR="$AZK_ROOT_PATH/src/libexec/profiling"
 BENCHMARKS_RESULTS_PATH="$PROFILING_DIR/BENCHMARKS_RESULTS"
+AZK_BIN="$AZK_ROOT_PATH/bin/azk"
+ADOCKER_BIN="$AZK_ROOT_PATH/bin/adocker"
 
-echo " vars:"
-echo "  \$AZK_ROOT=$AZK_ROOT"
+echo " PATHS:"
+echo "  \$AZK_ROOT_PATH=$AZK_ROOT_PATH"
 echo "  \$PROFILING_DIR=$PROFILING_DIR"
 echo "  \$BENCHMARKS_RESULTS_PATH=$BENCHMARKS_RESULTS_PATH"
+echo "  \$AZK_BIN=$AZK_BIN"
+echo "  \$ADOCKER_BIN=$ADOCKER_BIN"
 echo ""
 
 echo ""
@@ -26,12 +32,11 @@ rm -rf $PROFILING_DIR/azkdemo
 echo ""
 echo "# Creating $BENCHMARKS_RESULTS_PATH"
 mkdir -p $BENCHMARKS_RESULTS_PATH
-echo ""
 
 echo ""
 echo "# Pulling Docker images..."
-adocker pull azukiapp/node:4.2.1
-adocker pull redis:3.0.6
+$ADOCKER_BIN pull azukiapp/node:4.2.1
+$ADOCKER_BIN pull redis:3.0.6
 
 echo ""
 echo "# Cloning azkdemo..."
@@ -42,31 +47,34 @@ echo ""
 run_azk_command() {
 
   COMMAND=$@
+  COMMAND_BIN=$(basename $1)
+  SECOND_TO_LAST=$2
+  FULL_COMMAND="$COMMAND_BIN $SECOND_TO_LAST"
 
   # profile a command
   echo ""
-  echo "# $ \`$COMMAND\`"
-  (cd $PROFILING_DIR/azkdemo && time ${COMMAND}) &> "$BENCHMARKS_RESULTS_PATH/$COMMAND.time"
-  cat "$BENCHMARKS_RESULTS_PATH/$COMMAND.time" | grep -e "^real"
+  echo "# $ \`$FULL_COMMAND\`"
+  (cd $PROFILING_DIR/azkdemo && time ${COMMAND}) &> "$BENCHMARKS_RESULTS_PATH/$FULL_COMMAND.time"
+  cat "$BENCHMARKS_RESULTS_PATH/$FULL_COMMAND.time" | grep -e "^real"
 }
 
 echo ""
 echo "# Running azk with 'time'..."
 
 ### cleanup
-azk agent stop
+$AZK_BIN agent stop
 
 ### RUN all commands
-run_azk_command 'azk version'
-run_azk_command 'azk agent start'
-run_azk_command 'adocker version'
-run_azk_command 'adocker info'
-run_azk_command 'azk info'
-run_azk_command 'azk init'
-run_azk_command 'azk start'
-run_azk_command 'azk stop'
-run_azk_command 'azk status'
-run_azk_command 'azk agent stop'
+run_azk_command $AZK_BIN version
+run_azk_command $AZK_BIN agent start
+run_azk_command $ADOCKER_BIN version
+run_azk_command $ADOCKER_BIN info
+run_azk_command $AZK_BIN info
+run_azk_command $AZK_BIN init
+run_azk_command $AZK_BIN start
+run_azk_command $AZK_BIN stop
+run_azk_command $AZK_BIN status
+run_azk_command $AZK_BIN agent stop
 
 echo ""
 echo "# all profiles generated:"
@@ -74,5 +82,5 @@ find $BENCHMARKS_RESULTS_PATH
 
 echo ""
 echo "# send all infos to keen-io:"
-(cd $PROFILING_DIR && azk nvm npm i)
-(cd $PROFILING_DIR && azk nvm node send_benchmark_data_to_keen_io.js)
+(cd $PROFILING_DIR && $AZK_BIN nvm npm i)
+(cd $PROFILING_DIR && $AZK_BIN nvm node send_benchmark_data_to_keen_io.js)
