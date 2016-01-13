@@ -30,6 +30,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Code] Refactoring many parts of the code to suit best the modules of the system `babel> 6`;
   * [Code] Removing `chai` and replacing by `azk-dev/lib/chai`;
   * [Code] Adding `azk [node|npm|gulp|clingwrap|ncu]` commands in development mode (AZK_ENV=development);
+  * [Code] Adding global dependencies: `npm-check-updates` and `clingwrap`, for manage npm packages;
 
 * Bug
   * [Pull] When pulling in verbose mode do not print several `undefined` anymore. Instead print Docker downloading bar provided by Docker API;
