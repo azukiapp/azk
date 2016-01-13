@@ -66,7 +66,8 @@ setup() {
 }
 
 run_tests() {
-  make slow_test
+  unset TEST_GREP
+  make test
 }
 
 teardown() {

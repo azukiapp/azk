@@ -92,13 +92,13 @@ ${VM_DISKS_DIR}/azk-agent.vmdk.gz:
 ${AZK_LIB_PATH}/bats:
 	@git clone -b ${BATS_VERSION} https://github.com/sstephenson/bats ${AZK_LIB_PATH}/bats
 
-slow_test: TEST_SLOW=:slow
-slow_test: test
+fast_test: TEST_FAST=:fast
+fast_test: test
 	@echo "task: $@"
 
 test: bootstrap
 	@echo "task: $@"
-	${AZK_BIN} nvm npm run test${TEST_SLOW} $(if $(filter undefined,$(origin TEST_GREP)),,-- --grep "${TEST_GREP}")
+	${AZK_BIN} nvm npm run test${TEST_FAST} $(if $(filter undefined,$(origin TEST_GREP)),,-- --grep "${TEST_GREP}")
 
 ###### Package session ######
 
