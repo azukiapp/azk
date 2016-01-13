@@ -158,7 +158,7 @@
       "resolved": "https://registry.npmjs.org/archy/-/archy-1.0.0.tgz"
     },
     "azk-dev": {
-      "version": "0.2.1",
+      "version": "0.3.0",
       "dependencies": {
         "babel-core": {
           "version": "6.4.0",
@@ -3194,7 +3194,7 @@
                       }
                     },
                     "inherit": {
-                      "version": "2.2.2"
+                      "version": "2.2.3"
                     }
                   }
                 },
@@ -3360,9 +3360,6 @@
                       "dependencies": {
                         "async": {
                           "version": "0.2.10"
-                        },
-                        "colors": {
-                          "version": "0.6.2"
                         },
                         "cycle": {
                           "version": "1.0.3"
@@ -3864,7 +3861,7 @@
                               "version": "1.0.2",
                               "dependencies": {
                                 "spdx-license-ids": {
-                                  "version": "1.1.0"
+                                  "version": "1.2.0"
                                 }
                               }
                             },
@@ -3875,7 +3872,7 @@
                                   "version": "1.0.4"
                                 },
                                 "spdx-license-ids": {
-                                  "version": "1.1.0"
+                                  "version": "1.2.0"
                                 }
                               }
                             }

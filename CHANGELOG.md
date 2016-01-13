@@ -6,7 +6,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## dev
 
 * Enhancements
-  * [Cli] all cli commands hava a `--no-color` option that print every output in only one color
+  * [Cli] Updating `i18n-cli`, now support syntax with colors;
+  * [Cli] Replacing `colors` for `chalk` and adding `--no-color` option that print every output in only one color;
   * [Cli] Improving `ui.isInteractive()`, now not only the existence of a `tty` is checked but also the parameter `--quiet`;
   * [Cli] Adding support to more verbose mode in `azk start`;
   * [Cli] More options added to the `azk config` command. Now it uses a `key-value` system. The `azk config list` subcommand shows a list of the options users can choose from;
@@ -24,11 +25,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Manifest] Adding type to `ManifestError`, possible values: `syntax`, `logic` and `validate`;
   * [Dependency] Updating the `bluebird` and fixing the use of `promisify` (now by default does not support more mutiplos returns) made through `nbind`, `ninvoke` and `nfcall`;
   * [Agent] Expanding error mensage in agent starting process;
-  * [Dependency] Updating the `azk-dev` and exchanging `babel-runtime` with `babel-poliffy`.
+  * [Dependency] Updating the `azk-dev` and exchanging `babel-runtime` with `babel-poliffy`;
+  * [Spec] With the update azk-dev the `--slow` is no longer supported and has been replaced by the reverse option `--skip-slow`;
   * [Code] Refactoring many parts of the code to suit best the modules of the system `babel> 6`;
   * [Code] Removing `chai` and replacing by `azk-dev/lib/chai`;
-  * [Cli] Updating `i18n-cli`, now support syntax with colors;
-  * [Cli] Replacing `colors` for `chalk` and adding support global `--no-color` argument;
 
 * Bug
   * [Pull] When pulling in verbose mode do not print several `undefined` anymore. Instead print Docker downloading bar provided by Docker API;
