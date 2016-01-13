@@ -20,9 +20,6 @@ var client = new Keen({
              "0597504feb4bef06f71350f4859df5eb271a1d845f7cf" +
              "f5c9dfddf2f03de1e39760c6e51a06fb9e347c2e1fb98" +
              "d3c6d370e6916e5db8810ddd9c0d5d83540386ccfe2e",
-  // test
-  // projectId: "5526968d672e6c5a0d0ebec6",
-  // writeKey: "5dbce13e376070e36eec0c7dd1e7f42e49f39b4db041f208054617863832309c14a797409e12d976630c3a4b479004f26b362506e82a46dd54df0c977a7378da280c05ae733c97abb445f58abb56ae15f561ac9ad774cea12c3ad8628d896c39f6e702f6b035541fc1a562997cb05768",
 });
 
 function sendToKeen(event_name, data) {
@@ -60,12 +57,36 @@ var device_info = {
 };
 
 //
+// Check for errors
+//
+function checkErrors() {
+  return globAsync('BENCHMARKS_RESULTS/*.time')
+  .then(function (files) {
+    return BB.map(files, function (file) {
+      return fs.readFileAsync(file)
+        .then(function (content) {
+          var error_found = typeof getFirstGroupRegex(content.toString(), /(error)/) !== 'undefined';
+          if (error_found) {
+            return 'Error string found on: ' +
+              file                           +
+              '\n----------->>\n'            +
+              content.toString()             +
+              '\n<<-----------\n';
+          }
+          return null;
+        });
+    });
+  })
+}
+
+//
 // RUN
 //
 BB.props({
+  errors_list: checkErrors(),
   macId: getMacAsync(),
-  allResults: globAsync('SIMPLE/*.time').then(function (files) {
-
+  allResults: globAsync('BENCHMARKS_RESULTS/*.time')
+  .then(function (files) {
     // map each file
     return BB.map(files, function (file) {
       // get content
@@ -73,7 +94,7 @@ BB.props({
       .then(function (content) {
 
         // get command from filename
-        var command = file.replace(/SIMPLE\//gm, '').replace(/\.time/gm, '');
+        var command = file.replace(/BENCHMARKS_RESULTS\//gm, '').replace(/\.time/gm, '');
 
         // get time from content
         content = content.toString();
@@ -91,9 +112,22 @@ BB.props({
       });
     });
   }),
-}).then(function(twoResults) {
+}).then(function(propsResults) {
 
-  return BB.map(twoResults.allResults, function (resultItem) {
+  // if have erros, do not sent any data
+  var has_errors = false;
+  propsResults.errors_list.forEach(function(item) {
+    if (item !== null) {
+      console.error(item);
+      has_errors = true;
+    }
+  })
+  if (has_errors) {
+    process.exit(1);
+  }
+
+  // send each result to keen.io
+  return BB.map(propsResults.allResults, function (resultItem) {
 
     var profile_event = {
       command: resultItem.command,
@@ -101,7 +135,7 @@ BB.props({
       user: resultItem.user,
       sys: resultItem.sys,
       git: require('git-repo-info')(),
-      macId: twoResults.macId,
+      macId: propsResults.macId,
       device_info: device_info,
       keen: {
         timestamp: now

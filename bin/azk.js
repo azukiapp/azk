@@ -1,26 +1,5 @@
 #!/usr/bin/env node
 
-// usefull to profile requires
-if (process.env.AZK_ENABLE_CHROME_CPU_PROFILER) {
-  var profiler = require('chrome-cpu-profiler');
-  profiler.startDate = new Date();
-  profiler.startProfiling('cpu-azk-profile');
-}
-
-// usefull to see execution timeline
-if (process.env.AZK_ENABLE_NJS_TRACE_PROFILER) {
-  var path = require('path');
-  var source_files = path.join(process.env.AZK_LIB_PATH, '**', '*.js');
-  // var no_node_modules = '!' + path.join(process.env.AZK_NPM_PATH, '**');
-
-  global.njstrace = null;
-  delete global.njstrace;
-
-  global.njstrace = require('njstrace').inject({
-    files: [source_files/*, no_node_modules*/]
-  });
-}
-
 var require_tree = null;
 if (process.env.AZK_PROFILE_REQUIRES) {
   require_tree = require('azk/utils/require_debug');
