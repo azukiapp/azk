@@ -66,7 +66,8 @@ setup() {
 }
 
 run_tests() {
-  azk nvm gulp test --slow
+  unset TEST_GREP
+  make test
 }
 
 teardown() {
