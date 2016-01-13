@@ -35,6 +35,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Cli] Fixing return code in `azk start [url]`;
   * [Cli] Fixing return code in `azk agent stop`;
   * [Tracking] Fix a bug that could send duplicate data (stopping sending others) to the tracker system;
+  * [Specs] Fix a bug in `after` hooks, this bug has caused the end of the test process returns to `0` even when the failed tests;
 
 ## v0.16.3 - (2015-12-08)
 

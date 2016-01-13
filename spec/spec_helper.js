@@ -98,11 +98,11 @@ before(() => {
   }
 });
 
-after(() => {
-  if (process.env.AZK_ENABLE_NJS_TRACE_PROFILER) {
-    global.njstrace.save('/home/julio/_git/njstrace/examples/02-es5/execute/TRACE_RESULT.json');
-  }
-  require('azk/utils/postal').unsubscribeAll();
+after((done) => {
+  process.nextTick(() => {
+    require('azk/utils/postal').unsubscribeAll();
+    done();
+  });
 });
 
 // Helpers

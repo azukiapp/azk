@@ -10,9 +10,8 @@ if (process.env.AZK_ENABLE_CHROME_CPU_PROFILER) {
 // usefull to see execution timeline
 if (process.env.AZK_ENABLE_NJS_TRACE_PROFILER) {
   var path = require('path');
-  var rel = path.relative(process.cwd(), __dirname);
-  var source_files = path.join(rel, '..', 'lib', '**', '*.js');
-  // var no_node_modules = '!' + path.join(rel, '..', '**', 'node_modules', '**');
+  var source_files = path.join(process.env.AZK_LIB_PATH, '**', '*.js');
+  // var no_node_modules = '!' + path.join(process.env.AZK_NPM_PATH, '**');
 
   global.njstrace = null;
   delete global.njstrace;

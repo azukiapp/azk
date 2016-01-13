@@ -56,7 +56,6 @@ run() {
   mv trace_result.json "$BASEDIR/NJS_TRACER_RESULTS/$COMMAND"
 }
 
-
 makeSymbolicLink
 clone
 
