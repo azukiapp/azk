@@ -8,6 +8,7 @@ AZK_LIB_PATH:=${AZK_ROOT_PATH}/lib
 AZK_NPM_PATH:=${AZK_ROOT_PATH}/node_modules
 NVM_BIN_PATH:=${AZK_ROOT_PATH}/src/libexec/nvm.sh
 
+export AZK_ENV:=development
 AZK_BIN:=${AZK_ROOT_PATH}/bin/azk
 
 # Load dependencies versions

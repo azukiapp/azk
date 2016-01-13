@@ -29,6 +29,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Spec] With the update azk-dev the `--slow` is no longer supported and has been replaced by the reverse option `--skip-slow`;
   * [Code] Refactoring many parts of the code to suit best the modules of the system `babel> 6`;
   * [Code] Removing `chai` and replacing by `azk-dev/lib/chai`;
+  * [Code] Adding `azk [node|npm|gulp|clingwrap|ncu]` commands in development mode (AZK_ENV=development);
 
 * Bug
   * [Pull] When pulling in verbose mode do not print several `undefined` anymore. Instead print Docker downloading bar provided by Docker API;
