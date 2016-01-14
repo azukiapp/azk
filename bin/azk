@@ -12,6 +12,9 @@ abs_dir() {
 export AZK_ROOT_PATH=`cd \`abs_dir ${BASH_SOURCE:-$0}\`/..; pwd`
 export PATH=$AZK_ROOT_PATH/bin:$PATH
 
+# Default environment
+export AZK_ENV=${AZK_ENV:-production}
+
 # Namespace and domain
 default_namespace="dev.azk.io"
 export AZK_NAMESPACE=${AZK_NAMESPACE:-$default_namespace}
@@ -140,21 +143,26 @@ azk_agent_daemon() {
 
 azk_main() {
   make_data_folders
-  case "$1" in
-    nvm)
-      extra_path=`pwd`/node_modules/.bin
-      [ -d "$extra_path" ] && { export PATH=$extra_path:$PATH; }
-      shift; exec "${@}"
-      ;;
-    agent-daemon)
-      # Removing agent-daemon
-      shift;
-      azk_agent_daemon "${@}"
-      ;;
-    *)
-      azk_load_nvm
-      azk_node_run "${@}"
-  esac
+
+  # `azk nvm npm` or `azk npm`, but only in development mode
+  not_azk="^(node|npm|gulp|clingwrap|ncu)$"
+  if [[ $AZK_ENV == "development" && $1 =~ $not_azk || $1 == "nvm" ]]; then
+    extra_path=`pwd`/node_modules/.bin
+    [ -d "$extra_path" ] && { export PATH=$extra_path:$PATH; }
+    [ "$1" == 'nvm' ] && { shift; }
+    exec "${@}"
+  else
+    case "$1" in
+      agent-daemon )
+        # Removing agent-daemon
+        shift;
+        azk_agent_daemon "${@}"
+        ;;
+      * )
+        azk_load_nvm
+        azk_node_run "${@}"
+    esac
+  fi
 }
 
 # run main function
