@@ -31,10 +31,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Code] Removing `chai` and replacing by `azk-dev/lib/chai`;
   * [Code] Adding `azk [node|npm|gulp|clingwrap|ncu]` commands in development mode (AZK_ENV=development);
   * [Code] Adding global dependencies: `npm-check-updates` and `clingwrap`, for manage npm packages;
+  * [Docs] All examples of the property `command` were updated as `array` instead of `string`;
 
 * Bug
   * [Pull] When pulling in verbose mode do not print several `undefined` anymore. Instead print Docker downloading bar provided by Docker API;
-  * [Core] Converting string commands to array when a Docker image has a defined `ENTRYPOINT`
+  * [Core] Converting string commands to array when a Docker image has a defined `ENTRYPOINT`;
   * [Cli] Fixing return code in `azk start [url]`;
   * [Cli] Fixing return code in `azk agent stop`;
   * [Tracking] Fix a bug that could send duplicate data (stopping sending others) to the tracker system;

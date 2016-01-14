@@ -2,7 +2,7 @@
 systems({
   azkdemo: {
     // ...
-    command: "npm start",
+    command: ["npm", "start"],
     mounts: {
       '/azk/#{manifest.dir}': path("."),
     },

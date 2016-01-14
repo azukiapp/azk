@@ -5,6 +5,8 @@ Comando que será executado sempre o que o sistema for levantado. Se não for in
 #### Uso:
 
 ```js
+command: ['COMMAND_GOES_HERE', "arg1", "arg2", ...],
+// Forma antiga (ainda suportada mas não recomendada)
 command: 'COMMAND_GOES_HERE',
 ```
 
@@ -13,12 +15,12 @@ command: 'COMMAND_GOES_HERE',
 Numa aplicação em __node.js__ seria interessante rodar o `npm start` para iniciar o servidor web.
 
 ```js
-command: 'npm start',
+command: ['npm', 'start'],
 ```
 
 Por sua vez, em __rails__, iniciamos com o `rackup config.ru`.
 
 ```js
-command: 'bundle exec rackup config.ru --port $HTTP_PORT',
+command: ['bundle', 'exec', 'rackup', 'config.ru', '--port', '$HTTP_PORT'],
 ```
 
