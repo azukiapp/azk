@@ -75,7 +75,7 @@
     "rsync": "^0.4.0",
     "scp2": "^0.1.4",
     "semver": "^4.1.0",
-    "source-map-support": "^0.2.10",
+    "source-map-support": "^0.4.0",
     "ssh2": "0.2.22",
     "syntax-error": "^1.1.0",
     "underscore": "^1.6.0",
