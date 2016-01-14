@@ -47,7 +47,7 @@ module.exports = {
     unknown_error               : "Unknown error: %(error)j",
     no_vm_started               : "Unable to install and configure virtual machine",
     no_internet_connection      : "\nNo internet connection!",
-    lost_internet_connection    : "\nLost internet connection or error in connect to docker registry:\n%(output)s",
+    lost_internet_connection    : "\nLost internet connection or error while connecting to docker registry:\n%(output)s",
     must_accept_terms_of_use    : "${red}Sorry, must accept terms of use before use azk.${red.close}",
     connect_docker_unavailable  : "Could not initialize balancer because docker was not available",
     agent_not_running           : "azk agent is required but is not running (try `azk agent status`)",

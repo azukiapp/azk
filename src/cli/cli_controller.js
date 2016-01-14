@@ -59,7 +59,7 @@ export class CliController extends RouterController {
     return super.run_action(action_name, opts, ...args);
   }
 
-  runInternalyShell(cmd) {
+  runShellInternally(cmd) {
     var [, result] = cli_run(cmd, this.cwd, this.ui);
     return result;
   }

@@ -39,7 +39,7 @@ export default class Docker extends CliTrackerController {
         cmd = ["vm", "ssh", "--", ...ssh_args];
         log.debug("docker vm options: %j", cmd);
 
-        return this.runInternalyShell(cmd);
+        return this.runShellInternally(cmd);
       }
     });
   }

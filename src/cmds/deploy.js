@@ -45,7 +45,7 @@ export default class Deploy extends CliTrackerController {
       }
 
       // Call internaly cli and return result
-      return this.runInternalyShell(cmd_head.concat(["--", command, ...cmd_tail]));
+      return this.runShellInternally(cmd_head.concat(["--", command, ...cmd_tail]));
     })
     .catch((err) => {
       if (err instanceof AzkError) {
