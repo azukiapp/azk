@@ -1,5 +1,6 @@
 import { CliController as RouterController } from 'cli-router';
 import { _, log, config } from 'azk';
+import { run as cli_run } from 'azk/cli';
 
 export class CliController extends RouterController {
   constructor(...args) {
@@ -56,5 +57,10 @@ export class CliController extends RouterController {
     let options = _.isObject(action_name) ? action_name : opts;
     this._configure(options);
     return super.run_action(action_name, opts, ...args);
+  }
+
+  runShellInternally(cmd) {
+    var [, result] = cli_run(cmd, this.cwd, this.ui);
+    return result;
   }
 }

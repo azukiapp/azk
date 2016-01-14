@@ -48,8 +48,9 @@ export { AzkError };
 export class UnknownError extends AzkError {
   constructor(error) {
     super('unknown_error');
-    this.error  = typeof(error) == 'undefined' ? 'undefined' : error;
+    this.error  = typeof(error) === 'undefined' ? 'undefined' : error;
     this.report = true;
+    this.code   = 1;
   }
 }
 

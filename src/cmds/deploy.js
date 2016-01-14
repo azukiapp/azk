@@ -45,7 +45,7 @@ export default class Deploy extends CliTrackerController {
       }
 
       // Call internaly cli and return result
-      return this.runShell(cmd_head.concat(["--", command, ...cmd_tail]));
+      return this.runShellInternally(cmd_head.concat(["--", command, ...cmd_tail]));
     })
     .catch((err) => {
       if (err instanceof AzkError) {
@@ -53,11 +53,6 @@ export default class Deploy extends CliTrackerController {
       }
       return promiseReject(err);
     });
-  }
-
-  runShell(cmd) {
-    var [, result] = cli_run(cmd, this.cwd, this.ui);
-    return result;
   }
 
   _escape_quotes(cmd) {

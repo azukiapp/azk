@@ -66,23 +66,20 @@ export default class VM extends CliTrackerController {
   }
 
   action_ssh(vm_info, params) {
-    var result;
-    try {
+    return async(this, function* () {
       this.require_running(vm_info);
-      result = Helpers.requireAgent(this.ui)
-        .then(() => {
-          var ssh_url  = `${config('agent:vm:user')}@${config('agent:vm:ip')}`;
-          var ssh_opts = "StrictHostKeyChecking=no -o LogLevel=quiet -o UserKnownHostsFile=/dev/null";
-          var args     = (params['ssh-args'] || []).join(`" "`);
-          var script   = `ssh -i ${config('agent:vm:ssh_key')} -o ${ssh_opts} ${ssh_url} "${args}"`;
+      yield Helpers.requireAgent(this.ui);
 
-          log.debug(script);
-          return this.ui.execSh(script);
-        });
-    } catch (e) {
-      result = promiseReject(e);
-    }
-    return result;
+      var ssh_url  = `${config('agent:vm:user')}@${config('agent:vm:ip')}`;
+      var ssh_opts = "StrictHostKeyChecking=no -o LogLevel=quiet -o UserKnownHostsFile=/dev/null";
+      var args     = (params['ssh-args'] || []).join(`" "`);
+      var script   = `ssh -i ${config('agent:vm:ssh_key')} -o ${ssh_opts} ${ssh_url} "${args}"`;
+
+      log.debug(script);
+      return this.ui.execSh(script)
+      .then(() => 0)
+      .catch((err) => err.code || 1);
+    });
   }
 
   action_start(vm_info/*, _opts*/) {

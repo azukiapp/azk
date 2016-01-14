@@ -5165,7 +5165,7 @@
       }
     },
     "docker-registry-downloader": {
-      "version": "0.3.1",
+      "version": "0.3.2",
       "dependencies": {
         "babel-regenerator-runtime": {
           "version": "6.3.13"
@@ -5230,7 +5230,7 @@
                           "version": "1.0.2",
                           "dependencies": {
                             "spdx-license-ids": {
-                              "version": "1.1.0"
+                              "version": "1.2.0"
                             }
                           }
                         },
@@ -5241,7 +5241,7 @@
                               "version": "1.0.4"
                             },
                             "spdx-license-ids": {
-                              "version": "1.1.0"
+                              "version": "1.2.0"
                             }
                           }
                         }
@@ -5431,7 +5431,7 @@
                   "version": "1.0.0-rc3",
                   "dependencies": {
                     "async": {
-                      "version": "1.5.1"
+                      "version": "1.5.2"
                     }
                   }
                 },
@@ -5479,7 +5479,7 @@
                       }
                     },
                     "sshpk": {
-                      "version": "1.7.2",
+                      "version": "1.7.3",
                       "dependencies": {
                         "asn1": {
                           "version": "0.2.3"
@@ -5488,7 +5488,7 @@
                           "version": "0.2.0"
                         },
                         "dashdash": {
-                          "version": "1.11.0",
+                          "version": "1.12.1",
                           "dependencies": {
                             "assert-plus": {
                               "version": "0.1.5"
@@ -5554,36 +5554,6 @@
                 "har-validator": {
                   "version": "2.0.3",
                   "dependencies": {
-                    "chalk": {
-                      "version": "1.1.1",
-                      "dependencies": {
-                        "ansi-styles": {
-                          "version": "2.1.0"
-                        },
-                        "escape-string-regexp": {
-                          "version": "1.0.4"
-                        },
-                        "has-ansi": {
-                          "version": "2.0.0",
-                          "dependencies": {
-                            "ansi-regex": {
-                              "version": "2.0.0"
-                            }
-                          }
-                        },
-                        "strip-ansi": {
-                          "version": "3.0.0",
-                          "dependencies": {
-                            "ansi-regex": {
-                              "version": "2.0.0"
-                            }
-                          }
-                        },
-                        "supports-color": {
-                          "version": "2.0.0"
-                        }
-                      }
-                    },
                     "commander": {
                       "version": "2.9.0",
                       "dependencies": {
