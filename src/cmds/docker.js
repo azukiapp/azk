@@ -6,7 +6,7 @@ import { async } from 'azk/utils/promises';
 export default class Docker extends CliTrackerController {
   index(opts) {
     return async(this, function* () {
-      var cmd, _path;
+      var cmd;
       var args = _.map(opts['docker-args'], (arg) => {
         return arg.replace(/'/g, "'\"'\"'");
       });
@@ -14,21 +14,33 @@ export default class Docker extends CliTrackerController {
       if (!config('agent:requires_vm')) {
         args = _.map(args, (arg) => arg.match(/^.* .*$/) ? `"${arg}"` : arg);
         cmd  = `/bin/sh -c 'docker ${args.join(" ")}'`;
+        log.debug("docker direct options: %s", cmd);
+        return this.ui.execSh(cmd)
+          .then(() => 0)
+          .catch((err) => err.code || 1);
       } else {
         // Require agent is started
         yield Helpers.requireAgent(this.ui);
-        var point = config('agent:vm:mount_point');
-        var extra_args = [];
-        _path = utils.docker.resolvePath(this.cwd || '', point);
-        args  = _.map(args, (arg) => arg.match(/^.* .*$/) ? `\\"${arg}\\"` : arg);
-        if (this.ui.isInteractive()) {
-          extra_args.push("-t");
-        }
-        cmd = `azk vm ssh -- ${extra_args.join(" ")} 'cd ${_path}; docker ${args.join(" ")}'`;
-      }
 
-      log.debug("docker options: %s", cmd);
-      return this.ui.execSh(cmd);
+        // If is interactive mode force ssh tty
+        var ssh_args = [];
+        if (this.ui.isInteractive()) {
+          ssh_args.push("-t");
+        }
+
+        // Move to current folder
+        var point = config('agent:vm:mount_point');
+        ssh_args.push(`cd ${utils.docker.resolvePath(this.cwd || '', point)};`);
+
+        // Adding escape arguments and mount docker command
+        args  = _.map(args, (arg) => arg.match(/^.* .*$/) ? `\\"${arg}\\"` : arg);
+        ssh_args.push(`docker ${args.join(" ")}`);
+
+        cmd = ["vm", "ssh", "--", ...ssh_args];
+        log.debug("docker vm options: %j", cmd);
+
+        return this.runInternalyShell(cmd);
+      }
     });
   }
 }

@@ -44,7 +44,7 @@ module.exports = {
     },
   },
   errors: {
-    unknown_error               : "Unknown error: %(error)O",
+    unknown_error               : "Unknown error: %(error)j",
     no_vm_started               : "Unable to install and configure virtual machine",
     no_internet_connection      : "\nNo internet connection!",
     lost_internet_connection    : "\nLost internet connection or error in connect to docker registry:\n%(output)s",

@@ -4,7 +4,7 @@ import { SystemNotFoundError, InvalidCommandError } from 'azk/utils/errors';
 import Deploy from 'azk/cmds/deploy';
 
 class DeployTest extends Deploy {
-  runShell(cmd) {
+  runInternalyShell(cmd) {
     this.ui.output(cmd.join(" "));
     return 0;
   }
