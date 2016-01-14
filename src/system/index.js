@@ -474,6 +474,8 @@ export class System {
 
     if (empty_img_entry && _.isString(command)) {
       command = ["/bin/sh", "-c", command];
+    } else if (!empty_img_entry && _.isString(command)) {
+      command = utils.splitCmd(command);
     } else if (empty_img_entry && empty_cmd && empty_img_cmd) {
       command = ["/bin/sh", "-c", cmd_not_set];
     } else if (empty_cmd) {

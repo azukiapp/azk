@@ -16,6 +16,6 @@ To add persistence to the database we need to edit the `Azkfile.js` file, adding
 
 With this change, we are instructing `azk` to mount the `/data` folder and point to the same folder within the `azk` structure. Refresh the page a couple times, restart `redis` and you will see that the count now persists between each restart.
 
-> **Note 1:** The other included configuration, the `command: "redis-server --appendonly yes"`, tells `azk` how the redis system starts. The command `--appendonly yes`, as described [here](http://redis.io/topics/persistence), sets redis to persist your data even if it is restarted.
+> **Note 1:** The other included configuration, the `command: ["redis-server", "--appendonly", "yes"]`, tells `azk` how the redis system starts. The command `--appendonly yes`, as described [here](http://redis.io/topics/persistence), sets redis to persist your data even if it is restarted.
 
 > **Note 2:** Not all of the databases use the same folder `/data` to persist data, it must be configured as needed for each database.

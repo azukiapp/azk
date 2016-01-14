@@ -5,6 +5,8 @@ Command that will always run when the system starts. If not set, the default com
 #### Usage:
 
 ```js
+command: ['COMMAND_GOES_HERE', "arg1", "arg2", ...],
+// Old style (still supported but not recommended)
 command: 'COMMAND_GOES_HERE',
 ```
 
@@ -13,12 +15,12 @@ command: 'COMMAND_GOES_HERE',
 In a __node.js__ application it would be interesting to run `npm start` to start the web server.
 
 ```js
-command: 'npm start',
+command: ['npm', 'start'],
 ```
 
 In turn, in __rails__, we would start with `rackup config.ru`.
 
 ```js
-command: 'bundle exec rackup config.ru --port $HTTP_PORT',
+command: ['bundle', 'exec', 'rackup', 'config.ru', '--port', '$HTTP_PORT'],
 ```
 

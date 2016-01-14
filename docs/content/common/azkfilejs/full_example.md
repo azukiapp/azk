@@ -11,7 +11,7 @@ systems({
       "npm install",
     ],
     workdir: "/azk/#{manifest.dir}",
-    command: "node index.js",
+    command: ["node", "index.js"],
     mounts: {
       // Mounts folders to assigned paths
       "/azk/#{manifest.dir}": path("."),
