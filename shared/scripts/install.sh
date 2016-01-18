@@ -1,5 +1,7 @@
 #!/bin/sh
 
+{ # This ensures the entire script is downloaded
+
 ROOT_UID=0
 ARRAY_SEPARATOR="#"
 
@@ -175,8 +177,8 @@ main(){
     debug "Detected distribution: $OS, $OS_VERSION"
 
     # Check if linux distribution is compatible?
-    SUPPORTED_DISTROS=("ubuntu" "fedora" "arch")
-    if ! echo ${SUPPORTED_DISTROS[@]} | grep -qw "$ID"; then
+    SUPPORTED_DISTROS="ubuntu fedora arch"
+    if ! echo ${SUPPORTED_DISTROS} | grep -qw "$ID"; then
       add_report "  Unsupported Linux distribution."
       fail
     fi
@@ -491,3 +493,5 @@ success() {
 }
 
 main "${@}"
+
+} # This ensures the entire script is downloaded
