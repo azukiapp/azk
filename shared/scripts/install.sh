@@ -6,7 +6,7 @@ ROOT_UID=0
 ARRAY_SEPARATOR="#"
 
 command_exists() {
-  which "${@}" > /dev/null 2>&1
+  command -v "${@}" > /dev/null 2>&1
 }
 
 run_super() {
@@ -260,6 +260,65 @@ curl_or_wget() {
   fi
 }
 
+abort_agent_stop() {
+  add_report "azk needs agent to be stopped."
+  add_report "  to stop it run the command bellow:"
+  add_report "  $ azk agent stop"
+  fail
+}
+
+stop_agent() {
+  if ! azk agent status > /dev/null 2>&1; then
+    return 0
+  fi
+
+  trap abort_agent_stop INT
+
+  debug "azk agent will be stopped within 10 seconds."
+  debug "To prevent it, just press CTRL+C now."
+  sleep 10
+
+  step_wait "Stopping azk agent"
+  if azk agent stop; then
+    step_done
+  else
+    step_fail
+    abort_agent_stop
+  fi
+
+  trap - INT
+}
+
+check_azk_installation() {
+  if command_exists azk; then
+    if azk_is_up_to_date; then
+      echo
+      info "  azk is already in the latest version (v${AZK_CURRENT_VERSION})."
+      exit 0
+    else
+      stop_agent
+      UPDATE_AZK="true"
+      INSTALL_STEP_LABEL="Updating azk"
+      FAIL_TO_INSTALL_MSG="Failed to update azk. Try again later."
+    fi
+  else
+    INSTALL_STEP_LABEL="Installing azk"
+    FAIL_TO_INSTALL_MSG="Failed to install azk. Try again later."
+  fi
+}
+
+azk_is_up_to_date() {
+  AZK_TAGS_URL="https://api.github.com/repos/azukiapp/azk/tags"
+  AZK_VERSIONS=$(curl -sSL ${AZK_TAGS_URL} | grep name)
+  AZK_CURRENT_VERSION=$(azk version | cut -d ' ' -f2)
+  AZK_LATEST_VERSION=$( curl -sSL ${AZK_TAGS_URL} | \
+                        grep name | \
+                        head -1 | \
+                        sed 's/[^0-9.]*"v\([0-9.]*\).*",/\1/' )
+  [ "${AZK_CURRENT_VERSION}" = "${AZK_LATEST_VERSION}" ]
+}
+
+
 abort_docker_installation() {
   add_report "azk needs Docker to be installed."
   add_report "  to install Docker run the command bellow:"
@@ -307,9 +366,10 @@ check_docker_installation() {
 }
 
 install_azk_ubuntu() {
+  check_azk_installation
   check_docker_installation
 
-  step_wait "Installing azk"
+  step_wait "${INSTALL_STEP_LABEL}"
 
   if super apt-key adv --keyserver keys.gnupg.net --recv-keys 022856F6D78159DF43B487D5C82CF0628592D2C9 && \
      echo "deb [arch=amd64] ${AZUKIAPP_REPO_URL} ${UBUNTU_CODENAME} main" | super tee /etc/apt/sources.list.d/azuki.list && \
@@ -318,15 +378,22 @@ install_azk_ubuntu() {
     step_done
   else
     step_fail
-    add_report 'Failed to install azk. Try again later.'
+    add_report "${FAIL_TO_INSTALL_MSG}"
     fail
   fi
 }
 
 install_azk_fedora() {
+  check_azk_installation
   check_docker_installation
 
-  step_wait "Installing azk"
+  step_wait "${INSTALL_STEP_LABEL}"
+
+  if [ "${UPDATE_AZK}" = "true" ]; then
+    FEDORA_PKG_MANAGER_ACTION="upgrade"
+  else
+    FEDORA_PKG_MANAGER_ACTION="install"
+  fi
 
   if super -v rpm --import "${AZUKIAPP_REPO_URL}/keys/azuki.asc" && \
      echo "[azuki]
@@ -335,11 +402,11 @@ baseurl=${AZUKIAPP_REPO_URL}/fedora${FEDORA_PKG_VERSION}
 enabled=1
 gpgcheck=1
 " | super tee /etc/yum.repos.d/azuki.repo && \
-     super -v ${FEDORA_PKG_MANAGER} install -y azk; then
+    super -v ${FEDORA_PKG_MANAGER} ${FEDORA_PKG_MANAGER_ACTION} -y azk; then
     step_done
   else
     step_fail
-    add_report 'Failed to install azk. Try again later.'
+    add_report "${FAIL_TO_INSTALL_MSG}"
     fail
   fi
 }
@@ -378,9 +445,10 @@ Server = http://repo.archlinux.fr/\$arch" | \
 }
 
 install_azk_arch() {
+  check_azk_installation
   check_docker_installation
 
-  step_wait "Installing azk"
+  step_wait "${INSTALL_STEP_LABEL}"
 
   if ! command_exists yaourt; then
     install_yaourt
@@ -390,7 +458,7 @@ install_azk_arch() {
     step_done
   else
     step_fail
-    add_report 'Failed to install azk. Try again later.'
+    add_report "${FAIL_TO_INSTALL_MSG}"
     fail
   fi
 }
@@ -430,7 +498,7 @@ disable_dnsmasq() {
   step_done
 }
 
-install_azk_mac_osx() {
+check_vbox_installation() {
   step "Checking for VirtualBox installation"
   if command_exists VBoxManage; then
     step_done
@@ -442,8 +510,9 @@ install_azk_mac_osx() {
     add_report "  Refer to: http://docs.azk.io/en/installation/mac_os_x.html"
     fail
   fi
+}
 
-
+check_homebrew_installation() {
   step "Checking for Homebrew installation"
   if command_exists brew; then
     step_done
@@ -455,12 +524,21 @@ install_azk_mac_osx() {
     add_report "  Refer to: http://docs.azk.io/en/installation/mac_os_x.html"
     fail
   fi
+}
 
-  step_wait "Installing azk"
-  if brew install azukiapp/azk/azk; then
+install_azk_mac_osx() {
+  check_azk_installation
+  check_vbox_installation
+  check_homebrew_installation
+
+  step_wait "${INSTALL_STEP_LABEL}"
+  if [ "${UPDATE_AZK}" = "true" ]  && brew update && brew upgrade azukiapp/azk/azk || \
+     [ "${UPDATE_AZK}" != "true" ] && brew install azukiapp/azk/azk; then
     step_done
   else
     step_fail
+    add_report "${FAIL_TO_INSTALL_MSG}"
+    fail
   fi
 }
 
@@ -485,7 +563,12 @@ fail() {
 success() {
   echo ""
   IFS="${ARRAY_SEPARATOR}"
-  add_report "azk has been successfully installed."
+  if [ "${UPDATE_AZK}" = "true" ]; then
+    add_report "azk has been successfully updated."
+    add_report 'Restart `azk agent` in order for changes to take effect.'
+  else
+    add_report "azk has been successfully installed."
+  fi
   for report_message in $report; do
     info "$report_message"
   done
