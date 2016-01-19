@@ -22,7 +22,7 @@ Ubuntu:
 ```bash
 $ azk agent stop
 $ sudo apt-get update
-$ sudo apt-get upgrade azk
+$ sudo apt-get install azk
 ```
 
 Fedora:
