@@ -517,7 +517,7 @@ log() {
 }
 
 step() {
-  printf "$( log info -n $@ | sed -e :a -e 's/^.\{1,72\}$/&./;ta' )"
+  printf "$( log info $@ | sed -e :a -e 's/^.\{1,72\}$/&./;ta' )"
 }
 
 step_wait() {
