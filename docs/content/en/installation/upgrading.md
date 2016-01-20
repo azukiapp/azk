@@ -7,6 +7,10 @@
 
 Once `azk` has been installed via packages the upgrade process becomes really simple:
 
+### Express upgrade
+
+!INCLUDE "express.md"
+
 ### Mac OS X
 
 ```bash
@@ -22,7 +26,7 @@ $ brew upgrade azukiapp/azk/azk
 ```bash
 $ azk agent stop
 $ sudo apt-get update
-$ sudo apt-get upgrade azk
+$ sudo apt-get install azk
 ```
 
 #### Fedora:

@@ -16,6 +16,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Suggestions] Changing postgres version to 9.4 and env prefix to `POSTGRES`;
   * [Docs] Adding instructions about "Expandable Properties";
   * [Package] Installation script (`install.sh`) now supports other shells besides `bash` #583;
+  * [Package] Installation script now supports Arch Linux #596;
   * [Package] Moving CI test scripts into azk's source code;
   * [Crash-report] A `crash-report` system added. It reports `azk` internal errors that may arise during its use to the Azuki team. It first informs the user before sending the report (not sending is `opt-out`). It also  gives the option to inform an e-mail address for notifications about solutions;
   * [Tracking] The anonymous user activity tracking system is now `opt-out`. Users must accept the terms of use before starting to use `azk`.
