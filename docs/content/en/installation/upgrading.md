@@ -7,6 +7,10 @@
 
 Once `azk` has been installed via packages the upgrade process becomes really simple:
 
+### Express upgrade
+
+!INCLUDE "express.md"
+
 ### Mac OS X
 
 ```bash

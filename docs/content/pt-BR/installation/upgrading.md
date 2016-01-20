@@ -7,6 +7,10 @@
 
 Uma vez que o `azk` tenha sido instalado por pacotes o processo de atualização se torna realmente simples:
 
+### Atualização expressa
+
+!INCLUDE "express.md"
+
 ### Mac OS X
 
 ```bash

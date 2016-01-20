@@ -81,6 +81,8 @@ será executado automaticamente no próximo login. Para isso execute os comandos
 
 ### Instalação expressa
 
+A forma mais fácil de instalar o `azk` é utilizar o script abaixo. Ele vai identificar o sistema operacional que está usando e, se for compatível, realizar todos os processos de instalação.
+
 !INCLUDE "express.md"
 
 ### Ubuntu
