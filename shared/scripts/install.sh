@@ -323,8 +323,10 @@ install_azk_mac_osx() {
   check_homebrew_installation
 
   step_wait "${INSTALL_STEP_LABEL}"
-  if [ "${UPDATE_AZK}" = "true" ]  && brew update && brew upgrade azukiapp/azk/azk || \
-     [ "${UPDATE_AZK}" != "true" ] && brew install azukiapp/azk/azk; then
+  if [ "${UPDATE_AZK}" = "true" ]  && \
+     brew untap azukiapp/azk && brew tap azukiapp/azk && brew upgrade azukiapp/azk/azk || \
+     [ "${UPDATE_AZK}" != "true" ] && \
+     brew install azukiapp/azk/azk; then
     step_done
   else
     step_fail
