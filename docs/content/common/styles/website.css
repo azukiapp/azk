@@ -1,0 +1,14 @@
+.book .book-body .page-wrapper .page-inner section.normal {
+  overflow: visible;
+}
+
+a.plugin-anchor span {
+  font-size: 17px !important;
+  position: relative;
+  left: -10px;
+  top: -3px;
+}
+
+a.plugin-anchor:hover span {
+  color: rgba(66,139,202,.8);
+}
