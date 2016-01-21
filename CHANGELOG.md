@@ -6,31 +6,32 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## dev
 
 * Enhancements
-  * [Cli] Updating `i18n-cli`, now support syntax with colors;
-  * [Cli] Replacing `colors` for `chalk` and adding `--no-color` option that print every output in only one color;
-  * [Cli] Improving `ui.isInteractive()`, now not only the existence of a `tty` is checked but also the parameter `--quiet`;
-  * [Cli] Adding support to more verbose mode in `azk start`;
+  * [Cli] Updating `i18n-cli`: now, it supports color syntax highlight;
+  * [Cli] Replacing `colors` for `chalk` and adding `--no-color` option that outputs in only one color;
+  * [Cli] Improving `ui.isInteractive()`: now, not only the existence of a `tty` is checked but also the parameter `--quiet`;
+  * [Cli] Adding support to a more verbose mode in `azk start`;
   * [Cli] More options added to the `azk config` command. Now it uses a `key-value` system. The `azk config list` subcommand shows a list of the options users can choose from;
-  * [Generators] Adding suggestion to cake-php framework;
-  * [Suggestions] Adding `php artisan migrate` to php_laravel;
-  * [Suggestions] Changing postgres version to 9.4 and env prefix to `POSTGRES`;
+  * [Generators] Adding suggestion to CakePHP framework;
+  * [Suggestions] Adding `php artisan migrate` to Laravel PHP framework;
+  * [Suggestions] Changing `postgres` version to 9.4 and env vars prefix to `POSTGRES`;
   * [Docs] Adding instructions about "Expandable Properties";
   * [Package] Installation script (`install.sh`) now supports other shells besides `bash` #583;
   * [Package] Installation script now supports Arch Linux #596;
+  * [Package] Installation script now supports updating `azk` #604;
   * [Package] Moving CI test scripts into azk's source code;
-  * [Crash-report] A `crash-report` system added. It reports `azk` internal errors that may arise during its use to the Azuki team. It first informs the user before sending the report (not sending is `opt-out`). It also  gives the option to inform an e-mail address for notifications about solutions;
+  * [Crash-report] A `crash-report` system has been added. It reports `azk` internal errors that may arise during its use to the Azuki team. It first informs the user before sending the report (not sending is `opt-out`). It also  gives the option to inform an e-mail address for notifications about solutions;
   * [Tracking] The anonymous user activity tracking system is now `opt-out`. Users must accept the terms of use before starting to use `azk`.
   * [Dependency] Updating `archiver`, `crash-report-sender`, `docker-registry-downloader`, `file-async` and `inquirer`;
-  * [Dependency] Updating `insight-keen-io` and fixing tracker connect with it;
+  * [Dependency] Updating `insight-keen-io` and fixing tracker connection to it;
   * [Dependency] Updating `lodash` and fixing use of `template` in `src/utils/index`;
   * [Manifest] Adding type to `ManifestError`, possible values: `syntax`, `logic` and `validate`;
-  * [Dependency] Updating the `bluebird` and fixing the use of `promisify` (now by default does not support more mutiplos returns) made through `nbind`, `ninvoke` and `nfcall`;
-  * [Agent] Expanding error mensage in agent starting process;
-  * [Dependency] Updating the `azk-dev` and exchanging `babel-runtime` with `babel-poliffy`;
-  * [Spec] With the update azk-dev the `--slow` is no longer supported and has been replaced by the reverse option `--skip-slow`;
-  * [Code] Refactoring many parts of the code to suit best the modules of the system `babel> 6`;
-  * [Code] Removing `chai` and replacing by `azk-dev/lib/chai`;
-  * [Code] Adding `azk [node|npm|gulp|clingwrap|ncu]` commands in development mode (AZK_ENV=development);
+  * [Dependency] Updating `bluebird` and fixing the use of `promisify` (now, by default, it does not support mutiple returns anymore) made through `nbind`, `ninvoke` and `nfcall`;
+  * [Agent] Expanding error message in agent starting process;
+  * [Dependency] Updating `azk-dev` and exchanging `babel-runtime` with `babel-polyfill`;
+  * [Spec] Updating `azk-dev`: the `--slow` is no longer supported and has been replaced by the reverse option `--skip-slow`;
+  * [Code] Refactoring many parts of the code to best suit the modules of the `babel> 6` system;
+  * [Code] Replacing `chai` by `azk-dev/lib/chai`;
+  * [Code] Adding `azk [node|npm|gulp|clingwrap|ncu]` commands in development mode (`AZK_ENV=development`);
   * [Code] Adding global dependencies: `npm-check-updates` and `clingwrap`, for manage npm packages;
   * [Docs] All examples of the property `command` were updated as `array` instead of `string`;
 
