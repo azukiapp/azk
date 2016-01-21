@@ -203,10 +203,12 @@ start_agent() {
   export AZK_BALANCER_HOST=$AZK_NAMESPACE
   export AZK_VM_MEMORY=768
 
+  azk config set terms_of_use.accepted 1 > /dev/null 2>&1
+
   azk agent stop
   sleep 3
 
-  ./bin/azk agent start --no-daemon > $AZK_AGENT_LOG_FILE 2>&1 &
+  azk agent start --no-daemon > $AZK_AGENT_LOG_FILE 2>&1 &
   AGENT_PID="$!"
   tail -F $AZK_AGENT_LOG_FILE &
   TAIL_PID="$!"
