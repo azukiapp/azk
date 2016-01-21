@@ -203,6 +203,15 @@ start_agent() {
   export AZK_BALANCER_HOST=$AZK_NAMESPACE
   export AZK_VM_MEMORY=768
 
+  RESOLVER_FILE_NAME="/etc/resolver/${AZK_NAMESPACE}"
+  RESOLVER_FILE_CONTENT="nameserver ${AZK_BALANCER_IP}.${AZK_DNS_PORT}"
+
+  if [ "$(cat ${RESOLVER_FILE_NAME})" != "${RESOLVER_FILE_CONTENT}" ]; then
+    echo "${RESOLVER_FILE_CONTENT}" \
+      | sudo tee ${RESOLVER_FILE_NAME} \
+      > /dev/null 2>&1
+  fi
+
   azk config set terms_of_use.accepted 1 > /dev/null 2>&1
 
   azk agent stop

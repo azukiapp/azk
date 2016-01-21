@@ -51,7 +51,7 @@ setup_resolver() {
   RESOLVER_FILE_CONTENT="nameserver ${AZK_BALANCER_IP}${NS_SEPARATOR}${AZK_DNS_PORT}"
 
   if [ "$(cat ${RESOLVER_FILE_NAME})" != "${RESOLVER_FILE_CONTENT}" ]; then
-    echo "nameserver ${AZK_BALANCER_IP}${NS_SEPARATOR}${AZK_DNS_PORT}" \
+    echo "${RESOLVER_FILE_CONTENT}" \
       | sudo tee ${RESOLVER_FILE_NAME} \
       > /dev/null 2>&1
   fi
