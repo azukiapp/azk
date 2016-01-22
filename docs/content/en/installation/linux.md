@@ -4,7 +4,7 @@
 
 ## Requirements
 
-* **Distributions (tested)**: Ubuntu 12.04/14.04/15.04 and Fedora 20/21/22
+* **Distributions (tested)**: Ubuntu 12.04/14.04/15.10 and Fedora 20/21/22
 * **Architecture**: 64-bits
 * [Docker][docker] 1.8.1
 * Not running any services on ports `80` and `53`
