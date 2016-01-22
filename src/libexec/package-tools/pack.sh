@@ -333,7 +333,8 @@ if [[ $BUILD_RPM == true ]]; then
       step_run "Generating ${FEDORA_VERSION} repository" \
         linux_generate fedora ${FEDORA_VERSION} ${CLEAN_REPO}
       if [[ $NO_TEST != true ]]; then
-        step "Testing ${FEDORA_VERSION} repository" ${AZK_BUILD_TOOLS_PATH}/test.sh ${FEDORA_VERSION} ${TEST_ARGS}
+        step_run "Testing ${FEDORA_VERSION} repository" \
+          ${AZK_BUILD_TOOLS_PATH}/test.sh ${FEDORA_VERSION} ${TEST_ARGS}
       fi
     done
 
