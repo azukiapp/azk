@@ -202,6 +202,7 @@ start_agent() {
   export AZK_NAMESPACE="${RELEASE_CHANNEL}.release.azk.io"
   export AZK_BALANCER_HOST=$AZK_NAMESPACE
   export AZK_VM_MEMORY=768
+  export AZK_DNS_PORT=53
 
   RESOLVER_FILE_NAME="/etc/resolver/${AZK_NAMESPACE}"
   RESOLVER_FILE_CONTENT="nameserver ${AZK_BALANCER_IP}.${AZK_DNS_PORT}"
