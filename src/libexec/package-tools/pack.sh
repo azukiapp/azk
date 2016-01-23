@@ -44,6 +44,11 @@ abs_dir() {
   if [ -z "$link" ]; then pwd; else abs_dir $link; fi
 }
 
+#Clean environment
+unset BUILD_DEB BUILD_RPM BUILD_MAC SECRET_KEY RELEASE_CHANNEL \
+      NO_VERSION NO_MAKE NO_CLEAN_LINUX CLEAN_REPO CLEAN_REPO_ARGS \
+      NO_AGENT NO_TEST PUBLISH NO_TAG VERBOSE
+
 export AZK_ROOT_PATH=`cd \`abs_dir ${BASH_SOURCE:-$0}\`/../../..; pwd`
 export AZK_BUILD_TOOLS_PATH=${AZK_ROOT_PATH}/src/libexec/package-tools
 
@@ -76,7 +81,8 @@ while [[ $# -gt 0 ]]; do
     --no-linux-clean )
       NO_CLEAN_LINUX=true;;
     --clean-repo )
-      CLEAN_REPO='--clean-repo';;
+      CLEAN_REPO=true
+      CLEAN_REPO_ARGS='--clean-repo';;
     --no-agent )
       NO_AGENT=true;;
     --no-test )
@@ -113,11 +119,11 @@ if [[ -z "${BUILD_DEB}" ]] && [[ -z "${BUILD_RPM}" ]] && [[ -z "${BUILD_MAC}" ]]
   BUILD_MAC=true
 fi
 
-if [[ ! -z "${BUILD_DEB}" ]] || [[ ! -z "${BUILD_RPM}" ]]; then
-  [[ ! -e $SECRET_KEY ]] && echo >&2 "Please inform an valid GPG key." && exit 3
+if [[ ${BUILD_DEB} == true ]] || [[ ${BUILD_RPM} == true ]]; then
+  [[ ! -e "${SECRET_KEY}" ]] && echo >&2 "Please inform a valid GPG key." && exit 3
 fi
 
-bump_version() {
+calculate_azk_version() {
   VERSION_NUMBER=$( cat package.json | grep -e "version" | cut -d' ' -f4 | sed -n 's/\"//p' | sed -n 's/\"//p' | sed -n 's/,//p' | sed s/-.*// )
 
   if [[ $RELEASE_CHANNEL != 'stable' ]]; then
@@ -130,20 +136,20 @@ bump_version() {
 
   VERSION="${VERSION_NUMBER}${VERSION_SUFFIX}"
   VERSION_NO_META="${VERSION_NUMBER}${VERSION_SUFFIX_NO_META}"
+}
 
-  if [[ $NO_VERSION != true ]]; then
-    files=( package.json npm-shrinkwrap.json )
-    for f in "${files[@]}"; do
-      VERSION_LINE_NUMBER=`cat ${f} | grep -n "version" | head -1 | cut -d ":" -f1`
-      rm -Rf ${f}r # Avoiding conflicts
-      sed -ir "${VERSION_LINE_NUMBER}s/\([[:digit:]]*\.[[:digit:]]*\.[[:digit:]]*\)[^\"]*/\1${VERSION_SUFFIX}/" ${f}
-      rm -Rf ${f}r
-      git add ${f}
-    done
-    git commit -m "Bumping version to azk v${VERSION_NO_META}"
+bump_version() {
+  files=( package.json npm-shrinkwrap.json )
+  for f in "${files[@]}"; do
+    VERSION_LINE_NUMBER=`cat ${f} | grep -n "version" | head -1 | cut -d ":" -f1`
+    rm -Rf ${f}r # Avoiding conflicts
+    sed -ir "${VERSION_LINE_NUMBER}s/\([[:digit:]]*\.[[:digit:]]*\.[[:digit:]]*\)[^\"]*/\1${VERSION_SUFFIX}/" ${f}
+    rm -Rf ${f}r
+    git add ${f}
+  done
+  git commit -m "Bumping version to azk v${VERSION_NO_META}"
 
-    echo "Version bumped to v${VERSION}."
-  fi
+  echo "Version bumped to v${VERSION}."
 }
 
 make_tag() {
@@ -247,8 +253,9 @@ source .dependencies
 
 LINUX_BUILD_WAS_EXECUTED=false
 
-step_run "Bumping version" --exit bump_version
+calculate_azk_version
 
+[[ $NO_VERSION != true ]] && step_run "Bumping version" --exit bump_version
 [[ $NO_MAKE != true ]]    && step_run "Running make" --exit run_make
 [[ $NO_AGENT != true ]]   && step_run "Starting agent" --exit start_agent
 [[ $NO_TEST != true ]]    && step_run "Preparing testing env" setup_test && TEST_ARGS=$TEST_DIR
@@ -266,8 +273,10 @@ if [[ $BUILD_DEB == true ]]; then
   (
     set -e
 
-    [[ ! -z "${CLEAN_REPO}" ]] && step_run "Cleaning current aptly repo" azk shell --shell=/bin/sh package -c "rm -Rf /azk/aptly/*"
-    [[ ! -z "${CLEAN_REPO}" ]] && step_run "Cleaning environment" rm -Rf package/deb package/public
+    if [[ ${CLEAN_REPO} == true ]]; then
+      step_run "Cleaning current aptly repo" azk shell --shell=/bin/sh package -c "rm -Rf /azk/aptly/*"
+      step_run "Cleaning environment" rm -Rf package/deb package/public
+    fi
 
     step_run "Downloading libnss-resolver" \
     mkdir -p package/deb \
@@ -289,7 +298,7 @@ if [[ $BUILD_DEB == true ]]; then
       UBUNTU_VERSION_CODENAME="${UBUNTU_VERSION##*:}"
 
       step_run "Generating ${UBUNTU_VERSION_NUMBER} repository" \
-        linux_generate ubuntu ${LIBNSS_RESOLVER_VERSION} ${UBUNTU_VERSION_CODENAME} ${CLEAN_REPO}
+        linux_generate ubuntu ${LIBNSS_RESOLVER_VERSION} ${UBUNTU_VERSION_CODENAME} ${CLEAN_REPO_ARGS}
 
       if [[ $NO_TEST != true ]]; then
         step_run "Testing ${UBUNTU_VERSION_NUMBER} repository" \
@@ -314,7 +323,7 @@ if [[ $BUILD_RPM == true ]]; then
   (
     set -e
 
-    [[ ! -z "${CLEAN_REPO}" ]] && step_run "Cleaning environment" rm -Rf package/rpm package/fedora20 package/fedora23
+    [[ ${CLEAN_REPO} == true ]] && step_run "Cleaning environment" rm -Rf package/rpm package/fedora20 package/fedora23
 
     step_run "Downloading libnss-resolver" \
     mkdir -p package/rpm \
@@ -331,7 +340,7 @@ if [[ $BUILD_RPM == true ]]; then
     FEDORA_VERSIONS=( "fedora20" "fedora23" )
     for FEDORA_VERSION in "${FEDORA_VERSIONS[@]}"; do
       step_run "Generating ${FEDORA_VERSION} repository" \
-        linux_generate fedora ${FEDORA_VERSION} ${CLEAN_REPO}
+        linux_generate fedora ${FEDORA_VERSION} ${CLEAN_REPO_ARGS}
       if [[ $NO_TEST != true ]]; then
         step_run "Testing ${FEDORA_VERSION} repository" \
           ${AZK_BUILD_TOOLS_PATH}/test.sh ${FEDORA_VERSION} ${TEST_ARGS}
