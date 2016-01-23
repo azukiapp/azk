@@ -72,8 +72,12 @@ FORMULA_FILE="azk${CHANNEL_SUFFIX}.rb"
 cat $FORMULA_DIR/$FORMULA_FILE | sed "s#url.*#url \"file://${BASE_DIR}/package/brew/azk_${VERSION}.tar.gz\"#" > $TMP_FILE
 mv $TMP_FILE $FORMULA_DIR/$FORMULA_FILE
 
-brew unlink azk${CHANNEL_SUFFIX} > /dev/null 2>&1
-brew install azukiapp/azk/azk${CHANNEL_SUFFIX}
+if brew install azukiapp/azk/azk${CHANNEL_SUFFIX} > /dev/null 2>&1; then
+  echo "brew install passed"
+else
+  echo "brew install failed"
+  exit 1
+fi
 
 cd $FORMULA_DIR
 git checkout $FORMULA_FILE
@@ -82,7 +86,7 @@ if [[ "$( bazk version )" == "azk ${VERSION}" ]]; then
   echo "azk ${VERSION} has been successfully installed."
 else
   echo "Failed to install azk ${VERSION}."
-  exit 3
+  exit 1
 fi
 
 if [[ ! -z "${TEST_DIR}" ]]; then
