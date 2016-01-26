@@ -26,6 +26,8 @@ function copyOwnFrom(target, source) {
 function AzkError(translation_key) {
   var superInstance = Error.apply(null, [translation_key]);
   copyOwnFrom(this, superInstance);
+
+  this.base_translation_key = 'errors.';
   this.translation_key = translation_key;
 
   // if true will report errors to crash report
@@ -40,7 +42,7 @@ function AzkError(translation_key) {
 AzkError.prototype = Object.create(Error.prototype);
 AzkError.prototype.constructor = AzkError;
 AzkError.prototype.toString = function() {
-  return t('errors.' + this.translation_key, this);
+  return t(this.base_translation_key + this.translation_key, this);
 };
 
 export { AzkError };
