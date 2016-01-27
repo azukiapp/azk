@@ -2,7 +2,7 @@ import { path, lazy_require, config, log, fsAsync } from 'azk';
 import { async, promiseResolve, promiseReject } from 'azk/utils/promises';
 import { UIProxy } from 'azk/cli/ui';
 import { matchFirstRegex, matchAllRegex, fulltrim, groupFromRegex } from 'azk/utils/regex_helper';
-import { spawnAsync } from 'azk/utils/spawn_helper';
+import { spawnAsync, printOutput } from 'azk/utils/spawn_helper';
 import { GitCallError } from 'azk/utils/errors';
 
 var lazy = lazy_require({
@@ -11,10 +11,16 @@ var lazy = lazy_require({
 
 export class GetProject extends UIProxy {
 
-  constructor(...args) {
-    super(...args);
+  constructor(ui, args) {
+    super(ui, args);
     this.IS_NEW_GIT_VERSION_AFTER = '1.7.10';
     this.is_new_git = null;
+
+    this.gitOutput = (data) => printOutput(
+      this.ok.bind(this),
+      args.verbose_level,
+      '[git]',
+      data);
   }
 
   static valid(url) {
@@ -196,8 +202,8 @@ export class GetProject extends UIProxy {
       null));
   }
 
-  _getGitRemoteInfo(git_url, verbose_level) {
-    return this._gitspawn_LsRemoteAsync(git_url, verbose_level)
+  _getGitRemoteInfo(git_url) {
+    return this._gitspawn_LsRemoteAsync(git_url)
     .then((git_result_obj) => {
       this.ok('commands.start.get_project.getting_remote_info', {git_url});
       var parsed_result = this._parseGitLsRemoteResult(git_result_obj.message);
@@ -357,32 +363,15 @@ export class GetProject extends UIProxy {
   /**********************
     gitspaw _Async calls *
    **********************/
-  _gitspawn_VersionAsync(verbose_level) {
-    return spawnAsync({
-      executable   : 'git',
-      params_array : [
-        '--version'
-      ],
-      verbose_level : verbose_level,
-      uiOk          : this.ok.bind(this),
-      spawn_prefix  : '[git]'
-    });
+  _gitspawn_VersionAsync() {
+    return spawnAsync('git', ['--version'], this.gitOutput);
   }
 
-  _gitspawn_LsRemoteAsync(git_url, verbose_level) {
-    return spawnAsync({
-      executable   : 'git',
-      params_array : [
-        'ls-remote',
-        git_url
-      ],
-      verbose_level : verbose_level,
-      uiOk          : this.ok.bind(this),
-      spawn_prefix  : '[git]'
-    });
+  _gitspawn_LsRemoteAsync(git_url) {
+    return spawnAsync('git', ['ls-remote', git_url], this.gitOutput);
   }
 
-  _gitspawn_PullAsync(git_url, git_branch_tag_commit, dest_folder, verbose_level) {
+  _gitspawn_PullAsync(git_url, git_branch_tag_commit, dest_folder) {
 
     var git_params = [
       '--git-dir',
@@ -394,16 +383,10 @@ export class GetProject extends UIProxy {
       git_branch_tag_commit
     ];
 
-    return spawnAsync({
-      executable    : 'git',
-      params_array  : git_params,
-      verbose_level : verbose_level,
-      uiOk          : this.ok.bind(this),
-      spawn_prefix  : '[git]'
-    });
+    return spawnAsync('git', git_params, this.gitOutput);
   }
 
-  _gitspawn_CloneAsync(git_url, git_branch_tag_commit, dest_folder, verbose_level) {
+  _gitspawn_CloneAsync(git_url, git_branch_tag_commit, dest_folder) {
 
     var git_params = [
       'clone',
@@ -418,27 +401,11 @@ export class GetProject extends UIProxy {
       git_params.push(git_branch_tag_commit);
     }
 
-    return spawnAsync({
-      executable    : 'git',
-      params_array  : git_params,
-      verbose_level : verbose_level,
-      uiOk          : this.ok.bind(this),
-      spawn_prefix  : '[git]'
-    });
+    return spawnAsync('git', git_params, this.gitOutput);
   }
 
-  _gitspawn_CheckoutInFolderAsync(git_url, git_branch_tag_commit, dest_folder, verbose_level) {
-    return spawnAsync({
-      executable   : 'git',
-      params_array : [
-        '-C',
-        dest_folder,
-        'checkout',
-        git_branch_tag_commit
-      ],
-      verbose_level : verbose_level,
-      uiOk          : this.ok.bind(this),
-      spawn_prefix  : '[git]'
-    });
+  _gitspawn_CheckoutInFolderAsync(git_url, git_branch_tag_commit, dest_folder) {
+    return spawnAsync('git', ['-C', dest_folder, 'checkout', git_branch_tag_commit],
+      this.gitOutput);
   }
 }
