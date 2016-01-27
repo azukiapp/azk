@@ -100,7 +100,7 @@ export default class Agent extends CliTrackerController {
     if (config('agent:requires_vm')) {
       if (!config('agent:dev:force_disable_vm')) {
         var cmd_vm = new lazy.VMController({ ui: this.ui });
-        return cmd_vm.index({ action: 'remove', fail: () => {} });
+        return cmd_vm.index({ action: 'remove'}).catch(() => {});
       } else {
         this.ui.ok("Force skip use vm");
       }

@@ -75,11 +75,13 @@ describe("Azk utils promises:", function() {
     var will_fail =  () => promiseReject(new Error());
 
     it("should return a error in promise scope", function() {
-      var promise = defer(() => {
-        self.test(); // jshint ignore:line
-      });
-
+      var promise = defer(() => { throw new Error(); });
       return h.expect(promise).to.eventually.rejectedWith(Error);
+    });
+
+    it("shoudl convert return in a promise", function() {
+      var promise = defer(() => 1);
+      return h.expect(promise).to.eventually.equal(1);
     });
 
     describe('all:', function () {
