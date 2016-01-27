@@ -295,7 +295,7 @@ ${ZSH_COMPLETION_PATH}/_azk: ${ZSH_COMPLETION_FILE}
 install_shell_completion: ${COMPLETIONS_FILES}
 
 # Mark not a file tasks
-.PHONY: bootstrap clean package_brew package_mac package_deb package_rpm package_build package_clean copy_transpiled_files fix_permissions creating_symbolic_links dependencies check_version slow_test test generate_shell_completion install_shell_completion
+.PHONY: bootstrap clean package_brew package_mac package_deb package_rpm package_build package_clean copy_transpiled_files fix_permissions creating_symbolic_links dependencies check_version fast_test test generate_shell_completion install_shell_completion
 
 # Just for fast reference, use this for debug a variable
 # $(info $(value VARIABLE_NAME))
