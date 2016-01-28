@@ -54,7 +54,10 @@ export class CrashReport {
     }
 
     if (isBlank(bug_sender)) {
-      bug_sender = new lazy.CrashReportSender({}, { logger: log, error_level: 'info' });
+      var sender_opts = {
+        environment: config('env'),
+      };
+      bug_sender = new lazy.CrashReportSender(sender_opts, { logger: log, error_level: 'info' });
     }
 
     // make sender options
