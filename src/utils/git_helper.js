@@ -7,6 +7,21 @@ var lazy = lazy_require({
 var gitHelper = {
   version: (scanFunction) => {
     return lazy.spawnAsync('git', ['--version'], scanFunction);
+  },
+
+  revParse: (revision, location, scanFunction) => {
+    return lazy.spawnAsync('git', [
+      // --git-dir=.git rev-parse --verify HEAD
+      '--git-dir',
+      location,
+      'rev-parse',
+      '--verify',
+      revision
+    ], scanFunction)
+    .then((result) => {
+      return result.message
+        .substring(0, 7);
+    });
   }
 };
 

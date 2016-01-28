@@ -52,6 +52,7 @@ var options = mergeConfig({
     manifest : "Azkfile.js",
     locale   : 'en-US',
     azk_dir  : azk_dir,
+    azk_last_commit: envs("AZK_LAST_COMMIT"),
     flags    : {
       show_deprecate: envs('AZK_HIDE_DEPRECATE', false),
       require_accept_use_terms: envs('AZK_REQUIRE_TERMS', true),
@@ -79,7 +80,7 @@ var options = mergeConfig({
       data_mnt_path     : data_mnt_path,
       persistent_folders: path.join(data_mnt_path, 'persistent_folders'),
       sync_folders      : path.join(data_mnt_path, 'sync_folders'),
-      analytics         : path.join(data_path, azk_dir, "analytics"),
+      analytics         : path.join(data_path, azk_dir, "analytics")
     },
     logs_level: {
       console: (envs('AZK_DEBUG') ? 'debug' : envs('AZK_OUTPUT_LOG_LEVEL', 'error')),

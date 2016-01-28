@@ -8,7 +8,9 @@ export default class Version extends CliTrackerController {
   }
 
   index() {
-    this.ui.output("azk %s", Azk.version);
-    return 0;
+    return Azk.gitCommitId.then((commitId) => {
+      this.ui.output(`azk version ${Azk.version}, build ${commitId}`);
+      return 0;
+    });
   }
 }

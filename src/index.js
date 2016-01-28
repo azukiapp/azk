@@ -8,12 +8,21 @@ class Azk {
   static get version() {
     return require('package.json').version;
   }
-  static get isDev() {
-    const currentDir = __dirname;
-    const azkRootPath = process.env.AZK_ROOT_PATH;
-    const azkDevPathMatch = currentDir.match(azkRootPath);
-    const isAzkDev = azkDevPathMatch !== null;
-    return isAzkDev;
+  static get gitCommitId() {
+    const config = GeralLib.config;
+    const path = GeralLib.path;
+
+    // git commit id from ENV
+    const azk_last_commit = config('azk_last_commit');
+    if (azk_last_commit) {
+      return azk_last_commit;
+    }
+
+    // git commit id from git_helper
+    const azkRootPath = config('paths:azk_root');
+    const git_path = path.join(azkRootPath, '.git');
+    const gitHelper = require('azk/utils/git_helper');
+    return gitHelper.revParse('HEAD', git_path);
   }
 }
 
@@ -49,14 +58,14 @@ var GeralLib = {
   },
 
   // Internals alias
-  get os     () { return require('os'); },
-  get path   () { return require('path'); },
-  get fs     () { return require('fs'); },
-  get fsAsync() { return require('file-async'); },
-  get utils  () { return require('azk/utils'); },
-  get version() { return Azk.version; },
-  get isDev()   { return Azk.isDev; },
-  get isBlank() { return isBlank; },
+  get os         () { return require('os'); },
+  get path       () { return require('path'); },
+  get fs         () { return require('fs'); },
+  get fsAsync    () { return require('file-async'); },
+  get utils      () { return require('azk/utils'); },
+  get version    () { return Azk.version; },
+  get gitCommitId() { return Azk.gitCommitId; },
+  get isBlank    () { return isBlank; },
 
   get lazy_require() {
     return require('azk/utils').lazy_require;
