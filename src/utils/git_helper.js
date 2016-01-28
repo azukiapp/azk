@@ -5,17 +5,8 @@ var lazy = lazy_require({
 });
 
 var gitHelper = {
-  version: ({verbose_level, ui}) => {
-    return lazy.spawnAsync({
-      executable   : 'git',
-      params_array : [
-        '--version'
-      ],
-      verbose_level : verbose_level,
-      uiOk          : ui.ok.bind(ui),
-      spawn_prefix  : ''
-    });
-
+  version: (scanFunction) => {
+    return lazy.spawnAsync('git', ['--version'], scanFunction);
   }
 };
 

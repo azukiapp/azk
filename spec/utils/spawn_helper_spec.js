@@ -21,6 +21,16 @@ describe("Spawn Helper", function() {
     h.expect(outputs[0]).to.match(/\[azk\] DATA/);
   });
 
+  it("should spawnAsync should return result even without scanFunction", function() {
+    const spawnAsync_promise = lazy.spawnAsync('git', ['--version'], undefined);
+
+    return spawnAsync_promise.then((result) => {
+      h.expect(result.error_code).to.equal(0);
+      h.expect(result.message).to.match(/git version/);
+      h.expect(outputs.length).to.equal(0);
+    });
+  });
+
   it("should spawnAsync should return result and call scanFunction", function() {
     const scanFunction = stdOut;
     const spawnAsync_promise = lazy.spawnAsync('git', ['--version'], scanFunction);
@@ -30,16 +40,6 @@ describe("Spawn Helper", function() {
       h.expect(result.message).to.match(/git version/);
       h.expect(outputs[0]).to.equal('$> git --version');
       h.expect(outputs[1]).to.match(/git version/);
-    });
-  });
-
-  it("should spawnAsync should return result even without scanFunction", function() {
-    const spawnAsync_promise = lazy.spawnAsync('git', ['--version'], undefined);
-
-    return spawnAsync_promise.then((result) => {
-      h.expect(result.error_code).to.equal(0);
-      h.expect(result.message).to.match(/git version/);
-      h.expect(outputs.length).to.equal(0);
     });
   });
 

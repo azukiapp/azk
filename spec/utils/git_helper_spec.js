@@ -6,16 +6,20 @@ describe("Git Helper", function() {
   let ui = h.mockUI(beforeEach, outputs);
 
   it("should run git --version", function() {
-    const command = gitHelper.version({verbose_level: 1, ui});
+    const command = gitHelper.version(ui.stdout().write);
     return h.expect(command)
       .to.eventually.not.be.undefined
       .then(() => {
-        /**/console.log('\n>>---------\n outputs:\n', outputs, '\n>>---------\n');/*-debug-*/
+        h.expect(outputs[0]).to.equal('$> git --version');
+        h.expect(outputs[1]).to.match(/git version/);
       });
   });
 
   it("should run git rev-parse HEAD", function() {
-    /**/console.log('\n>>---------\n __dirname:\n', __dirname, '\n>>---------\n');/*-debug-*/
+    const azkDevPathMatch = __dirname.match(process.env.AZK_ROOT_PATH);
+    /**/console.log('\n>>---------\n azkDevPathMatch:\n', azkDevPathMatch, '\n>>---------\n');/*-debug-*/
+    const isAzkDev = azkDevPathMatch !== null;
+    /**/console.log('\n>>---------\n isAzkDev:\n', isAzkDev, '\n>>---------\n');/*-debug-*/
   });
 
 });

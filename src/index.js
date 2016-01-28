@@ -8,6 +8,13 @@ class Azk {
   static get version() {
     return require('package.json').version;
   }
+  static get isDev() {
+    const currentDir = __dirname;
+    const azkRootPath = process.env.AZK_ROOT_PATH;
+    const azkDevPathMatch = currentDir.match(azkRootPath);
+    const isAzkDev = azkDevPathMatch !== null;
+    return isAzkDev;
+  }
 }
 
 // Default i18n method
@@ -48,6 +55,7 @@ var GeralLib = {
   get fsAsync() { return require('file-async'); },
   get utils  () { return require('azk/utils'); },
   get version() { return Azk.version; },
+  get isDev()   { return Azk.isDev; },
   get isBlank() { return isBlank; },
 
   get lazy_require() {
