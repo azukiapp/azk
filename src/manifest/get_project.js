@@ -1,12 +1,13 @@
 import { path, lazy_require, config, log, fsAsync } from 'azk';
 import { async, promiseResolve, promiseReject } from 'azk/utils/promises';
 import { UIProxy } from 'azk/cli/ui';
-import { matchFirstRegex, matchAllRegex, fulltrim, groupFromRegex } from 'azk/utils/regex_helper';
+import { matchFirstRegex, matchAllRegex, fulltrim } from 'azk/utils/regex_helper';
 import { spawnAsync, printOutput } from 'azk/utils/spawn_helper';
 import { GitCallError } from 'azk/utils/errors';
 
 var lazy = lazy_require({
   semver: 'semver',
+  git_helper: 'azk/utils/git_helper',
 });
 
 export class GetProject extends UIProxy {
@@ -15,6 +16,7 @@ export class GetProject extends UIProxy {
     super(ui, args);
     this.IS_NEW_GIT_VERSION_AFTER = '1.7.10';
     this.is_new_git = null;
+    this._gitHelper = lazy.git_helper;
 
     this.gitOutput = (data) => printOutput(
       this.ok.bind(this),
@@ -187,12 +189,11 @@ export class GetProject extends UIProxy {
     });
   }
 
-  _checkGitVersion(verbose_level) {
+  _checkGitVersion() {
     this.ok('commands.start.get_project.getting_git_version');
 
-    return this._gitspawn_VersionAsync(verbose_level)
-    .then((git_result_obj) => {
-      var git_version = groupFromRegex(git_result_obj.message, /.*?(\d+\.\d+\.\d+)/, 1);
+    return this._gitHelper.version(this.gitOutput)
+    .then((git_version) => {
       this.is_new_git = lazy.semver.gte(git_version, this.IS_NEW_GIT_VERSION_AFTER);
       return git_version;
     })
@@ -363,10 +364,6 @@ export class GetProject extends UIProxy {
   /**********************
     gitspaw _Async calls *
    **********************/
-  _gitspawn_VersionAsync() {
-    return spawnAsync('git', ['--version'], this.gitOutput);
-  }
-
   _gitspawn_LsRemoteAsync(git_url) {
     return spawnAsync('git', ['ls-remote', git_url], this.gitOutput);
   }

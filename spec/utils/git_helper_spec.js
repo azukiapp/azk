@@ -28,4 +28,5 @@ describe("Git Helper", function() {
       });
     });
   });
+
 });

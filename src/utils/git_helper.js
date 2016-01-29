@@ -1,5 +1,7 @@
 import { lazy_require } from 'azk';
 import { promiseResolve } from 'azk/utils/promises';
+import { groupFromRegex } from 'azk/utils/regex_helper';
+// matchFirstRegex, matchAllRegex, fulltrim,
 
 var lazy = lazy_require({
   spawnAsync : ['azk/utils/spawn_helper'],
@@ -7,7 +9,11 @@ var lazy = lazy_require({
 
 var gitHelper = {
   version: (scanFunction) => {
-    return lazy.spawnAsync('git', ['--version'], scanFunction);
+    return lazy.spawnAsync('git', ['--version'], scanFunction)
+    .then((result) => {
+      var git_version = groupFromRegex(result.message, /.*?(\d+\.\d+\.\d+)/, 1);
+      return promiseResolve(git_version);
+    });
   },
 
   revParse: (revision, location, scanFunction) => {
