@@ -204,10 +204,10 @@ export class GetProject extends UIProxy {
   }
 
   _getGitRemoteInfo(git_url) {
-    return this._gitspawn_LsRemoteAsync(git_url)
-    .then((git_result_obj) => {
+    return this._gitHelper.lsRemote(git_url, this.gitOutput)
+    .then((lsRemote_result) => {
       this.ok('commands.start.get_project.getting_remote_info', {git_url});
-      var parsed_result = this._parseGitLsRemoteResult(git_result_obj.message);
+      var parsed_result = this._parseGitLsRemoteResult(lsRemote_result);
       return parsed_result;
     })
     .catch(this._checkGitError(
@@ -364,10 +364,6 @@ export class GetProject extends UIProxy {
   /**********************
     gitspaw _Async calls *
    **********************/
-  _gitspawn_LsRemoteAsync(git_url) {
-    return spawnAsync('git', ['ls-remote', git_url], this.gitOutput);
-  }
-
   _gitspawn_PullAsync(git_url, git_branch_tag_commit, dest_folder) {
 
     var git_params = [

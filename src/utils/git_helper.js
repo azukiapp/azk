@@ -16,11 +16,10 @@ var gitHelper = {
     });
   },
 
-  revParse: (revision, location, scanFunction) => {
+  revParse: (revision, git_path, scanFunction) => {
     return lazy.spawnAsync('git', [
-      // --git-dir=.git rev-parse --verify HEAD
       '--git-dir',
-      location,
+      git_path,
       'rev-parse',
       '--verify',
       revision
@@ -29,7 +28,17 @@ var gitHelper = {
       const commit_id = result.message.substring(0, 7);
       return promiseResolve(commit_id);
     });
-  }
+  },
+
+  lsRemote: (git_url, scanFunction) => {
+    return lazy.spawnAsync('git', [
+      'ls-remote',
+      git_url,
+    ], scanFunction)
+    .then((result) => {
+      return promiseResolve(result.message);
+    });
+  },
 };
 
 export default gitHelper;
