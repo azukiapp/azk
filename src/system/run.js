@@ -462,7 +462,7 @@ var Run = {
       // Script to fix sync folder
       var script = [
         `mkdir -p ${current_sync_folder}`,
-        `chown -R ${uid_gid} ${mounted_sync_folders}`
+        `chown -R ${uid_gid} ${current_sync_folder}`
       ].join(" && ");
 
       // Docker params
