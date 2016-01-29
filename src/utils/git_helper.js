@@ -1,4 +1,5 @@
 import { lazy_require } from 'azk';
+import { promiseResolve } from 'azk/utils/promises';
 
 var lazy = lazy_require({
   spawnAsync : ['azk/utils/spawn_helper'],
@@ -19,8 +20,8 @@ var gitHelper = {
       revision
     ], scanFunction)
     .then((result) => {
-      return result.message
-        .substring(0, 7);
+      const commit_id = result.message.substring(0, 7);
+      return promiseResolve(commit_id);
     });
   }
 };

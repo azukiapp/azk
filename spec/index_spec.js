@@ -7,8 +7,14 @@ describe('azk main module', function() {
     h.expect(Azk.version).to.match(/\d+\.\d+\.\d+/);
   });
 
-  it('should `gitCommitId` check if current azk is a dev version', function() {
-    return h.expect(Azk.gitCommitId).to.eventually.not.be.undefined;
+  it('should `gitCommitIdAsync` get current commit id from ENV', function() {
+    const last_commit_id = '123';
+    return h.expect(Azk.gitCommitIdAsync(last_commit_id))
+      .to.eventually.to.equal(last_commit_id);
+  });
+
+  it('should `gitCommitIdAsync` get current commit id from dev project', function() {
+    return h.expect(Azk.gitCommitIdAsync()).to.eventually.not.be.undefined;
   });
 
 });

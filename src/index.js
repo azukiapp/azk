@@ -1,21 +1,24 @@
 import { _, isBlank } from 'azk/utils';
+import { promiseResolve } from 'azk/utils/promises';
 
 try {
   require("babel-polyfill");
 } catch (e) {}
 
 class Azk {
+
   static get version() {
     return require('package.json').version;
   }
-  static get gitCommitId() {
-    const config = GeralLib.config;
+
+  static gitCommitIdAsync(azk_last_commit) {
     const path = GeralLib.path;
+    const config = GeralLib.config;
 
     // git commit id from ENV
-    const azk_last_commit = config('azk_last_commit');
-    if (azk_last_commit) {
-      return azk_last_commit;
+    const commit_id = azk_last_commit;
+    if (commit_id) {
+      return promiseResolve(commit_id);
     }
 
     // git commit id from git_helper
@@ -64,7 +67,7 @@ var GeralLib = {
   get fsAsync    () { return require('file-async'); },
   get utils      () { return require('azk/utils'); },
   get version    () { return Azk.version; },
-  get gitCommitId() { return Azk.gitCommitId; },
+  get gitCommitIdAsync() { return Azk.gitCommitIdAsync; },
   get isBlank    () { return isBlank; },
 
   get lazy_require() {
