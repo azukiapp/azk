@@ -449,11 +449,14 @@ var Run = {
 
   _clean_sync_folder(system, host_folder) {
     return async(this, function* () {
-      var uid_gid;
+      var local_user = config('agent:vm:user');
+      var uid, gid;
       if (config('agent:requires_vm')) {
-        uid_gid = `\$(id -u ${config('agent:vm:user')}):\$(id -g ${config('agent:vm:user')})`;
+        uid = `\$(id -u ${local_user})`;
+        gid = `\$(id -g ${local_user})`;
       } else {
-        uid_gid = `${process.getuid()}:${process.getuid()}`;
+        uid = `${process.getuid()}`;
+        gid = uid;
       }
 
       var mounted_sync_folders = '/sync_folders';
@@ -462,7 +465,7 @@ var Run = {
       // Script to fix sync folder
       var script = [
         `mkdir -p ${current_sync_folder}`,
-        `chown -R ${uid_gid} ${mounted_sync_folders}`
+        `find ${current_sync_folder} -not -user ${uid} -or -not -group ${gid} -exec chown ${uid}:${gid} '{}' \\;`
       ].join(" && ");
 
       // Docker params
