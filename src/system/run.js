@@ -465,7 +465,7 @@ var Run = {
       // Script to fix sync folder
       var script = [
         `mkdir -p ${current_sync_folder}`,
-        `find ${current_sync_folder} -not -user ${uid} -or -not -group ${gid} -exec chown ${uid}:${gid} '{}' \\;`
+        `find ${current_sync_folder} \\( -not -user ${uid} -or -not -group ${gid} \\) -exec chown ${uid}:${gid} '{}' \\;`
       ].join(" && ");
 
       // Docker params
