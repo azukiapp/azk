@@ -2,7 +2,7 @@ import { path, lazy_require, config, log, fsAsync } from 'azk';
 import { async, promiseResolve, promiseReject } from 'azk/utils/promises';
 import { UIProxy } from 'azk/cli/ui';
 import { matchFirstRegex, matchAllRegex, fulltrim } from 'azk/utils/regex_helper';
-import { spawnAsync, printOutput } from 'azk/utils/spawn_helper';
+import { printOutput } from 'azk/utils/spawn_helper';
 import { GitCallError } from 'azk/utils/errors';
 
 var lazy = lazy_require({
@@ -18,7 +18,7 @@ export class GetProject extends UIProxy {
     this.is_new_git = null;
     this._gitHelper = lazy.git_helper;
 
-    this.gitOutput = (data) => printOutput(
+    this._gitOutput = (data) => printOutput(
       this.ok.bind(this),
       args.verbose_level,
       '[git]',
@@ -102,7 +102,8 @@ export class GetProject extends UIProxy {
       var force_azk_start_url_endpoint = config('urls:force:endpoints:start');
       this._sendForceAzkStart(command_parse_result, force_azk_start_url_endpoint);
 
-      yield this._checkGitVersion(command_parse_result.verbose_level);
+      var git_version = yield this._gitHelper.version(this._gitOutput);
+      this._checkGitVersion(git_version);
 
       var remoteInfo = yield this._getGitRemoteInfo(
         command_parse_result.git_url,
@@ -129,14 +130,6 @@ export class GetProject extends UIProxy {
             git_destination_path : command_parse_result.git_destination_path,
           });
         }
-
-        // TODO: show menu options
-        // yield this._pullDestination(
-        //   command_parse_result.git_url,
-        //   command_parse_result.git_branch_tag_commit,
-        //   command_parse_result.git_destination_path,
-        //   command_parse_result.verbose_level);
-
       } else {
         // clone to specific branch
         if (_isBranchOrTag && this.is_new_git) {
@@ -189,22 +182,14 @@ export class GetProject extends UIProxy {
     });
   }
 
-  _checkGitVersion() {
+  _checkGitVersion(git_version) {
     this.ok('commands.start.get_project.getting_git_version');
-
-    return this._gitHelper.version(this.gitOutput)
-    .then((git_version) => {
-      this.is_new_git = lazy.semver.gte(git_version, this.IS_NEW_GIT_VERSION_AFTER);
-      return git_version;
-    })
-    .catch(this._checkGitError(
-      null,
-      null,
-      null));
+    this.is_new_git = lazy.semver.gte(git_version, this.IS_NEW_GIT_VERSION_AFTER);
+    return git_version;
   }
 
   _getGitRemoteInfo(git_url) {
-    return this._gitHelper.lsRemote(git_url, this.gitOutput)
+    return this._gitHelper.lsRemote(git_url, this._gitOutput)
     .then((lsRemote_result) => {
       this.ok('commands.start.get_project.getting_remote_info', {git_url});
       var parsed_result = this._parseGitLsRemoteResult(lsRemote_result);
@@ -304,7 +289,7 @@ export class GetProject extends UIProxy {
     return filtered.length > 0;
   }
 
-  _checkDestinationFolder(git_destination_path/*, verbose_level*/) {
+  _checkDestinationFolder(git_destination_path) {
     this.ok('commands.start.get_project.checking_destination', {
       git_destination_path,
     });
@@ -312,21 +297,21 @@ export class GetProject extends UIProxy {
     return fsAsync.exists(git_destination_path);
   }
 
-  _pullDestination(git_url, git_branch_tag_commit, git_destination_path, verbose_level) {
+  _pullDestination(git_url, git_branch_tag_commit, git_destination_path) {
     this.ok('commands.start.get_project.git_pull', {
       git_url,
       git_branch_tag_commit,
       git_destination_path,
     });
 
-    return this._gitspawn_PullAsync(git_url,
-                                    git_branch_tag_commit,
-                                    git_destination_path,
-                                    verbose_level)
+    return this._gitHelper.pull(git_url,
+                                git_branch_tag_commit,
+                                git_destination_path,
+                                this._gitOutput)
       .catch(this._checkGitError(git_url, git_branch_tag_commit, git_destination_path));
   }
 
-  _cloneToFolder(git_url, git_branch_tag_commit, git_destination_path, verbose_level) {
+  _cloneToFolder(git_url, git_branch_tag_commit, git_destination_path) {
     if (git_branch_tag_commit === 'master') {
       this.ok('commands.start.get_project.cloning_master_to_folder', {
         git_url,
@@ -341,64 +326,23 @@ export class GetProject extends UIProxy {
       });
     }
 
-    return this._gitspawn_CloneAsync(git_url,
-                                     git_branch_tag_commit,
-                                     git_destination_path,
-                                     verbose_level)
+    return this._gitHelper.clone(git_url,
+                                git_branch_tag_commit,
+                                git_destination_path,
+                                this.is_new_git,
+                                this._gitOutput)
       .catch(this._checkGitError(git_url, git_branch_tag_commit, git_destination_path));
   }
 
   _checkoutToCommit(parsed_args) {
     this.ok('commands.start.get_project.checkout_to_commit', parsed_args);
 
-    return this._gitspawn_CheckoutInFolderAsync(parsed_args.git_url,
-                                                parsed_args.git_branch_tag_commit,
-                                                parsed_args.git_destination_path,
-                                                parsed_args.verbose_level)
+    return this._gitHelper.checkout(parsed_args.git_branch_tag_commit,
+                                    parsed_args.git_destination_path,
+                                    this._gitOutput)
     .catch(this._checkGitError(
       parsed_args.git_url,
       parsed_args.git_branch_tag_commit,
       parsed_args.git_destination_path));
-  }
-
-  /**********************
-    gitspaw _Async calls *
-   **********************/
-  _gitspawn_PullAsync(git_url, git_branch_tag_commit, dest_folder) {
-
-    var git_params = [
-      '--git-dir',
-      path.resolve(dest_folder, '.git'),
-      '--work-tree',
-      path.resolve(dest_folder),
-      'pull',
-      git_url,
-      git_branch_tag_commit
-    ];
-
-    return spawnAsync('git', git_params, this.gitOutput);
-  }
-
-  _gitspawn_CloneAsync(git_url, git_branch_tag_commit, dest_folder) {
-
-    var git_params = [
-      'clone',
-      git_url,
-      dest_folder,
-      '--recursive'
-    ];
-
-    if (this.is_new_git) {
-      git_params.push('--single-branch');
-      git_params.push('--branch');
-      git_params.push(git_branch_tag_commit);
-    }
-
-    return spawnAsync('git', git_params, this.gitOutput);
-  }
-
-  _gitspawn_CheckoutInFolderAsync(git_url, git_branch_tag_commit, dest_folder) {
-    return spawnAsync('git', ['-C', dest_folder, 'checkout', git_branch_tag_commit],
-      this.gitOutput);
   }
 }

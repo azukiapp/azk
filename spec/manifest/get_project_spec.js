@@ -1,7 +1,6 @@
 import h from 'spec/spec_helper';
 import { GetProject } from 'azk/manifest/get_project';
 import { Cli } from 'azk/cli';
-import { promiseResolve } from 'azk/utils/promises';
 
 describe('GetProject:', function() {
 
@@ -126,19 +125,13 @@ describe('GetProject:', function() {
     });
 
     it('should be an old git version when <  1.7.10', function() {
-      getProject._gitHelper.version = () => promiseResolve('1.7.9');
-      return getProject._checkGitVersion()
-      .then(function() {
-        h.expect(getProject.is_new_git).to.be.false;
-      });
+      getProject._checkGitVersion('1.7.9');
+      h.expect(getProject.is_new_git).to.be.false;
     });
 
     it('should be a new git version when >= 1.7.10', function() {
-      getProject._gitHelper.version = () => promiseResolve('1.7.10');
-      return getProject._checkGitVersion()
-      .then(function() {
-        h.expect(getProject.is_new_git).to.be.true;
-      });
+      getProject._checkGitVersion('1.7.10');
+      h.expect(getProject.is_new_git).to.be.true;
     });
 
     it('should _gitHelper.version get real current git version', function() {
