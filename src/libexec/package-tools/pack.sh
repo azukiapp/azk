@@ -99,17 +99,17 @@ while [[ $# -gt 0 ]]; do
    esac
 done
 
-[[ -z "${RELEASE_CHANNEL}" ]] && RELEASE_CHANNEL='stable'
-VERSION_SUFFIX="-${RELEASE_CHANNEL}"
+PACKAGE_SUFFIX="-${RELEASE_CHANNEL}"
 
 case $RELEASE_CHANNEL in
-  nightly )
-    AZK_BALANCER_IP=192.168.60.4;;
+  "" | stable )
+    AZK_BALANCER_IP=192.168.62.4
+    RELEASE_CHANNEL=stable
+    PACKAGE_SUFFIX=;;
   rc )
     AZK_BALANCER_IP=192.168.61.4;;
-  stable )
-    AZK_BALANCER_IP=192.168.62.4
-    VERSION_SUFFIX=;;
+  nightly )
+    AZK_BALANCER_IP=192.168.60.4;;
   * ) echo >&2 "Invalid release channel: ${RELEASE_CHANNEL}." && exit 2;;
 esac
 
@@ -130,7 +130,7 @@ calculate_azk_version() {
     RELEASE_COUNTER=$(curl -s https://api.github.com/repos/azukiapp/azk/tags | grep 'name' | \
       grep -c "${VERSION_NUMBER}-${RELEASE_CHANNEL}" | awk '{print $1 + 1}' )
     RELEASE_DATE=$( date +%Y%m%d )
-    VERSION_SUFFIX_NO_META="${VERSION_SUFFIX}.${RELEASE_COUNTER}"
+    VERSION_SUFFIX_NO_META="${PACKAGE_SUFFIX}.${RELEASE_COUNTER}"
     VERSION_SUFFIX="${VERSION_SUFFIX_NO_META}+${RELEASE_DATE}"
   fi
 
@@ -289,7 +289,9 @@ if [[ $BUILD_DEB == true ]]; then
       EXTRA_FLAGS="LINUX_CLEAN="
     fi
 
-    step_run "Creating deb packages" make package_deb ${EXTRA_FLAGS}
+    step_run "Creating deb packages" \
+    rm -rf /azk/aptly/public/pool/main/a/azk${PACKAGE_SUFFIX}/azk${PACKAGE_SUFFIX}_${VERSION}_amd64.deb \
+    && make package_deb ${EXTRA_FLAGS}
 
     UBUNTU_VERSIONS=( "ubuntu12:precise" "ubuntu14:trusty" "ubuntu15:wily" )
     for UBUNTU_VERSION in "${UBUNTU_VERSIONS[@]}"; do
