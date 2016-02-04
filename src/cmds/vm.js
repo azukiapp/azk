@@ -62,7 +62,7 @@ export default class VM extends CliTrackerController {
       var script   = `ssh -i ${config('agent:vm:ssh_key')} -o ${ssh_opts} ${ssh_url} "${args}"`;
 
       log.debug("vm ssh command:", script);
-      return this.ui.execSh(script).then(() => 0);
+      return this.ui.execSh(script);
     });
   }
 
