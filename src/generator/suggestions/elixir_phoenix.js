@@ -30,9 +30,6 @@ export class Suggestion extends ElixirSuggestion {
       ports: {
         http: "4000",
       },
-      envs    : {
-        MIX_ENV: 'dev',
-      }
     });
   }
 }
