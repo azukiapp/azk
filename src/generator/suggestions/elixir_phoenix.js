@@ -1,4 +1,4 @@
-import { Suggestion as ElixirSuggestion } from 'azk/generator/suggestions/elixir';
+import { Suggestion as ElixirSuggestion } from 'azk/generator/suggestions/elixir-1.2';
 
 export class Suggestion extends ElixirSuggestion {
   constructor(...args) {

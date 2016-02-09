@@ -3,8 +3,6 @@ var lazy = lazy_require({
   semver: 'semver',
 });
 
-// var last  = require('lodash/array/last');
-
 /**
  * Versions: Abstraction above the [semver](https://www.npmjs.com/package/semver).
  */
