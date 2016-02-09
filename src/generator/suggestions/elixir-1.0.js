@@ -20,6 +20,7 @@ export class Suggestion extends DefaultSuggestion {
         "mix do deps.get, compile",
       ],
       command: ["mix", "app.start"],
+      shell: false,
       mounts: {
         "/azk/#{app.dir}"       : {type: 'sync', value: '.'},
         "/azk/#{app.dir}/deps"  : {type: 'persistent', value: "#{app.relative}/deps"},
