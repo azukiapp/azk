@@ -38,6 +38,24 @@ var gitHelper = {
     });
   },
 
+  show: (revision, format, git_path, scanFunction) => {
+    return lazy.spawnAsync('git', [
+      '--git-dir',
+      git_path,
+      'show',
+      '-s',
+      '--format=' + format,
+      revision,
+    ], scanFunction)
+    .then((result) => {
+      if (result.error_code === 0) {
+        return promiseResolve(result.message);
+      } else {
+        return promiseReject(result.message);
+      }
+    });
+  },
+
   lsRemote: (git_url, scanFunction) => {
     return lazy.spawnAsync('git', [
       'ls-remote',

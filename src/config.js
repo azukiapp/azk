@@ -52,7 +52,8 @@ var options = mergeConfig({
     manifest : "Azkfile.js",
     locale   : 'en-US',
     azk_dir  : azk_dir,
-    azk_last_commit: envs("AZK_LAST_COMMIT"),
+    azk_last_commit_id: envs("AZK_LAST_COMMIT_ID"),
+    azk_last_commit_date: envs("AZK_LAST_COMMIT_DATE"),
     flags    : {
       show_deprecate: envs('AZK_HIDE_DEPRECATE', false),
       require_accept_use_terms: envs('AZK_REQUIRE_TERMS', true),

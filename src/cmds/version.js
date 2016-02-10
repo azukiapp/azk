@@ -8,11 +8,19 @@ export default class Version extends CliTrackerController {
     this.require_terms = false;
   }
 
+  // get version, commit id and commit date to create output
   index() {
-    const azk_last_commit = config('azk_last_commit');
-    return Azk.gitCommitIdAsync(azk_last_commit)
+    let versionOutput = `azk version ${Azk.version}, build `;
+    const azk_last_commit_id = config('azk_last_commit_id');
+    return Azk.commitId(azk_last_commit_id)
     .then((commitId) => {
-      this.ui.output(`azk version ${Azk.version}, build ${commitId}`);
+      versionOutput = versionOutput + commitId + ', date ';
+      const azk_last_commit_date = config('azk_last_commit_date');
+      return Azk.commitDate(azk_last_commit_date);
+    })
+    .then((commitDate) => {
+      versionOutput = versionOutput + commitDate;
+      this.ui.output(versionOutput);
       return 0;
     });
   }

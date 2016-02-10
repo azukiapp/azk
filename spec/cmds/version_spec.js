@@ -11,7 +11,7 @@ describe('Azk cli, version controller', function() {
 
   var doc_opts    = { exit: false };
   var run_options = { ui: ui };
-  var version_regex = /azk version \d+\.\d+\.\d+, build \w+/;
+  var version_regex = /azk version \d+\.\d+\.\d+, build \w+, date \d+-\d+-\d+/;
 
   it('should run a version command', function() {
     doc_opts.argv = 'version';

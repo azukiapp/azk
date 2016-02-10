@@ -29,6 +29,12 @@ describe('Git Helper', function() {
       .to.eventually.to.not.be.undefined;
   });
 
+  it('should run git show', function() {
+    const command = gitHelper.show('HEAD', '%ci', git_path, null);
+    return h.expect(command)
+      .to.eventually.to.match(/\d+-\d+-\d+.*/);
+  });
+
   it('should lsRemote get remote data @slow', function() {
     const GIT_URL = 'https://github.com/azukiapp/azkdemo';
     const command = gitHelper.lsRemote(GIT_URL, null);
