@@ -56,6 +56,7 @@ class ${CLASS_NAME} < Formula
     prefix.install Dir['*']
     prefix.install Dir['.nvmrc']
     prefix.install Dir['.dependencies']
+    prefix.install Dir['.package-envs']
   end
 end
 

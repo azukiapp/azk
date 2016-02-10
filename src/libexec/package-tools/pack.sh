@@ -117,6 +117,15 @@ if [[ ! -z "${BUILD_DEB}" ]] || [[ ! -z "${BUILD_RPM}" ]]; then
   [[ ! -e $SECRET_KEY ]] && echo >&2 "Please inform an valid GPG key." && exit 3
 fi
 
+create_package_envs() {
+  AZK_LAST_COMMIT_ID=$(git rev-parse HEAD | cut -c 1-7)
+  AZK_LAST_COMMIT_DATE=$(git log -1 --format=%cd --date=short)
+  (
+    echo "export AZK_LAST_COMMIT_ID=${AZK_LAST_COMMIT_ID}"
+    echo "export AZK_LAST_COMMIT_DATE=${AZK_LAST_COMMIT_DATE}"
+  ) > .package-envs
+}
+
 bump_version() {
   VERSION_NUMBER=$( cat package.json | grep -e "version" | cut -d' ' -f4 | sed -n 's/\"//p' | sed -n 's/\"//p' | sed -n 's/,//p' | sed s/-.*// )
 
@@ -234,6 +243,8 @@ cd $AZK_ROOT_PATH
 source .dependencies
 
 LINUX_BUILD_WAS_EXECUTED=false
+
+step_run "Creating .package-env file" --exit create_package_envs
 
 step_run "Bumping version" --exit bump_version
 

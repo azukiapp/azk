@@ -208,7 +208,7 @@ $(abspath $(2)/$(3)): $(abspath $(1)/$(3))
 endef
 
 # copy regular files
-FILES_FILTER  = package.json bin shared .nvmrc CHANGELOG.md LICENSE README.md .dependencies
+FILES_FILTER  = package.json bin shared .nvmrc CHANGELOG.md LICENSE README.md .dependencies .package-envs
 FILES_ALL     = $(shell cd ${AZK_ROOT_PATH} && find $(FILES_FILTER) -print 2>/dev/null | grep -v shared/completions)
 FILES_TARGETS = $(foreach file,$(addprefix $(PATH_USR_LIB_AZK)/, $(FILES_ALL)),$(abspath $(file)))
 $(foreach file,$(FILES_ALL),$(eval $(call COPY_FILES,$(AZK_ROOT_PATH),$(PATH_USR_LIB_AZK),$(file))))
