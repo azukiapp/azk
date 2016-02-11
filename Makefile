@@ -160,10 +160,10 @@ package_clean:
 	@echo "task: $@"
 	@rm -Rf ${AZK_PACKAGE_PREFIX}/..?* ${AZK_PACKAGE_PREFIX}/.[!.]* ${AZK_PACKAGE_PREFIX}/*
 
-check_version: NEW_AZK_VERSION=$(shell ${PATH_USR_LIB_AZK}/bin/azk version)
+check_version: NEW_AZK_VERSION=$(shell ${PATH_USR_LIB_AZK}/bin/azk version | sed -e 's/^azk version\ //; s/,.*//')
 check_version:
 	@echo "task: $@"
-	@if [ ! "azk ${AZK_VERSION}" = "${NEW_AZK_VERSION}" ] ; then \
+	@if [ ! "${AZK_VERSION}" = "${NEW_AZK_VERSION}" ] ; then \
 		echo 'Error to run: ${PATH_USR_LIB_AZK}/bin/azk version'; \
 		echo 'Expect: azk ${AZK_VERSION}'; \
 		echo 'Output: ${NEW_AZK_VERSION}'; \

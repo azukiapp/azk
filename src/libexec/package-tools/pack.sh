@@ -279,7 +279,7 @@ if [[ $BUILD_DEB == true ]]; then
       EXTRA_FLAGS="LINUX_CLEAN="
     fi
 
-    step_run "Creating deb packages" make package_deb ${EXTRA_FLAGS}
+    step_run "Creating deb packages" --exit make package_deb ${EXTRA_FLAGS}
 
     UBUNTU_VERSIONS=( "ubuntu12:precise" "ubuntu14:trusty" "ubuntu15:wily" )
     for UBUNTU_VERSION in "${UBUNTU_VERSIONS[@]}"; do
@@ -325,7 +325,7 @@ if [[ $BUILD_RPM == true ]]; then
       EXTRA_FLAGS="LINUX_CLEAN="
     fi
 
-    step_run "Creating rpm packages" make package_rpm ${EXTRA_FLAGS}
+    step_run "Creating rpm packages" --exit make package_rpm ${EXTRA_FLAGS}
 
     FEDORA_VERSIONS=( "fedora20" "fedora23" )
     for FEDORA_VERSION in "${FEDORA_VERSIONS[@]}"; do
@@ -355,7 +355,7 @@ if [[ $BUILD_MAC == true ]]; then
   (
     set -e
     step_run "Cleaning environment" rm -Rf package/brew
-    step_run "Creating Mac packages" make package_mac
+    step_run "Creating Mac packages" --exit make package_mac
     step_run "Generating Mac repository" ${AZK_BUILD_TOOLS_PATH}/mac/generate.sh
     if [[ $NO_TEST != true ]]; then
       step_run "Testing Mac repository" ${AZK_BUILD_TOOLS_PATH}/mac/test.sh $TEST_ARGS
