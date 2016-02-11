@@ -1,10 +1,16 @@
 ## Deploying to DigitalOcean
 
-When using `azk`, deploying to [DigitalOcean][digital_ocean] is very simple.
+When using `azk`, deploying an app to [DigitalOcean][digital_ocean] is very simple.
+
+### Configuring SSH keys
 
 First, we'll have to configure the SSH keys on your machine. We'll need them to connect your local machine to your droplet and send your project's files to it. If you don't have SSH keys on your machine yet (or if you aren't sure about it), just follow steps 1 and 2 of [this tutorial](https://help.github.com/articles/generating-ssh-keys/).
 
-Then, add the `deploy` system into you `Azkfile.js`:
+### Updating your Azkfile.js
+
+> **Note:** If the app was run from the [Run Project gallery](http://run.azk.io/), the Azkfile.js is properly configured, hence you can skip this step.
+
+Then, add the `deploy` system into your `Azkfile.js`:
 
 ```
 systems({
@@ -44,6 +50,8 @@ systems({
 });
 ```
 
+### Getting a Personal Access Token for Digital Ocean API
+
 Get a [personal access token](https://cloud.digitalocean.com/settings/applications) *(must be logged in)* from DigitalOcean and put it into a file named `.env`:
 
 ```bash
@@ -51,7 +59,9 @@ $ cd path/to/the/project
 $ echo "DEPLOY_API_TOKEN=YOUR-PERSONAL-ACCESS-TOKEN" >> .env
 ```
 
-Finally, just run the following:
+### Deploying application
+
+Finally, deploy the application by running the following:
 
 ```bash
 $ azk deploy
