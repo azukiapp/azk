@@ -405,11 +405,17 @@ module.exports = {
         checkout_to_commit       : "Checkout to `%(git_branch_tag_commit)s` in `%(git_destination_path)s`...",
         final_started_message: [
           "",
-          "Your app was cloned and started.",
-          "Now you can go to your folder and run azk commands:",
+          "The app was cloned and started.",
+          "Now you can go to its folder and run azk commands:",
           "$ cd '%(git_destination_path)s'",
           "$ azk status",
           "",
+          "You can also easily deploy it to DigitalOcean.",
+          "To learn how, check http://docs.azk.io/en/deploy",
+          "",
+          "If you need any support, check our chat support at:",
+          "https://gitter.im/azukiapp/azk",
+          ""
         ].join('\n'),
         dest_exists_branch: [
           ">   ",
