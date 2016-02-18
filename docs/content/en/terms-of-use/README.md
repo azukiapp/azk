@@ -49,7 +49,7 @@ Then, at this point, data collection will be activated by default.
 
 When the first error take place, you'll be informed and asked to inform your e-mail if you wish to do so.
 
-Any of these choices can be reverted at any time. Check these instructions to learn how.
+Any of these choices can be reverted at any time. Check [these instructions](http://docs.azk.io/en/reference/cli/config.html) to learn how.
 
 ## Collected Data
 
