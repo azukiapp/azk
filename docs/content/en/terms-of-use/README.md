@@ -1,23 +1,83 @@
+Welcome and thank you for using `azk`!
+
+We wish to make your experience using `azk` the best possible.
+
+Please, read the terms below carefully in order to better understand how you can help us reach that goal.
+
+```
+Effective since: February 18th, 2016.
+Last uptdated: February 18th, 2016.
+```
+
 # Terms of Use
 
-This document describes how Azuki will treat the data provided by individuals that have agreed to share their usage information through the **azk** command-line tool.
+Using `azk`, command line interface tool, implies in the acceptance of the terms below.
 
-## How we collect data
+Azuki (the company that created and maintains `azk`) wishes to obtain your permission to collect certain usage data.
 
-With your permission, **azk** will transmit your usage data to Azuki. The first time you attempt to execute **azk**, version 0.12.0 or above, you will be requested to grant permission of transmission. If you decline the request, **azk** will not collect or send any data, until you decide to re-enable it. If you grant permission, **azk** will collect and transmit data for the information listed below. Since **azk** is open-source, you can also find all the code responsible for sending usage data in the source code.
+These terms describe the motivation to collect that data as well as list the data to be collected and how it will be treated.
 
-After providing your initial permission, you may discontinue to transmit data by disabling it in the command-line tool using the "track" option.
+These terms can be altered without any notice, which you accept with continued use of `azk`.
 
-## Which data is collected
+## Motivation
 
-We collect different kinds of information, non-identifying or aggregated. Here are the types of information we collect or receive:
+The collected data will be mainly employed for the purposes below:
 
-**azk usage information:** This is information about which commands, **azk** version, Docker version, usage of Docker image or Dockerfile, and Docker image repository name you use.
++ Detection of hardware and software configurations in which `azk` is used as well as their recurrence;
++ Detection and prioritization (by recurrence) of internal errors to be corrected in `azk`;
++ Inference and prioritization of new features to be added to future versions of `azk`.
 
-**Hardware information:** In addition to **azk** usage information, we may also collect information about the hardware in which you’re using **azk**, including what operating system you’re using, your CPU model, its total number of cores,  your processor architecture, and total RAM memory. In case the Operating System is a Mac OS X, we also collect information from the virtual machine, total number of cores, and total RAM memory.
+## Modalities
 
-**Geo-location information:** IP address received from your computer may be used to determine approximate location.
+Data collection is automatic and ongoing.
 
-## How we use your information
+There are two kinds of data collection: anonymous and non-anonymous.
 
-**Understanding and improving azk:** To make **azk** better we have to understand how users are using it. We intend to use the data we collect in many different ways to improve our products, including research.
+In the first case, no personally identifiable information will be collected or associated to the corresponding usage data set collected.
+
+In the second case, users will have the option to inform an e-mail address to be associtated to their usage data set collected.
+
+This e-mail address will be used for support purposes (Azuki may send solutions to automatically reported errors in `azk` even if users don't ever request them).
+
+By informing an e-mail address, you assume to be the owner of that e-mail, to have access to its inbox and the authorization for Azuki to send it solutions to the errors reported by `azk`.
+
+Data collection is optional.
+
+When using `azk` for the first time (version 0.17.0 or higher), every user must accept these Terms of Use. `azk` won't start completely till users accept them.
+
+Then, at this point, data collection will be activated by default.
+
+When the first error take place, you'll be informed and asked to inform your e-mail if you wish to do so.
+
+Any of these choices can be reverted at any time. Check these instructions to learn how.
+
+## Collected Data
+
+**Remember:** `azk` is open source software and thus it can be easily verified by any person or entity to confirm the veracity of the list below as well as the information on the last topic ("Modalities") without any permission from Azuki or any other party.
+
+No personally identifiable information will ever be shared by Azuki with third parties without previous user authorization.
+
+### Usage data:
+
++ `azk` version;
++ commands used;
++ Docker images used;
++ name of images repository used;
+
+### System data (Hardware e Software):
+
++ operating system (and version);
++ processor architecture;
++ CPU name and model;
++ number of CPU cores;
++ total RAM memory;
++ IP address;
+
+### Internal erros in `azk`:
+
++ returned error message;
++ error stacktrace;
+
+### Geo-localization:
+
+Your computer's IP address informs your approximated location.

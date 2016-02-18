@@ -1,23 +1,83 @@
+Bem-vindo(a) e obrigado por usar o `azk`!
+
+Esperamos fazer da sua experiência de uso a melhor possível.
+
+Por favor, leia com atenção os termos abaixo para entender como nos ajudar a atingir esse objetivo.
+
+```
+Válidos desde: 18 de fevereiro de 2016.
+Data da última atualização: 18 de fevereiro de 2016.
+```
+
 # Termos de Uso
 
-Este documento descreve como a Azuki irá tratar os dados fornecidos pelos indivíduos que concordaram em compartilhar suas informações de uso, por meio da ferramenta de linha de comando **azk**.
+O uso do `azk`, ferramenta de linha de comando, implica na aceitação destes termos.
 
-## Como coletamos dados
+A Azuki (empresa criadora e mantenedora do `azk`), deseja obter sua permissão para coleta de certos dados de uso.
 
-Com sua permissão, o **azk** irá transmitir os dados de uso para a Azuki. A primeira vez que você tenta executar o **azk**, versão 0.12.0 ou acima, você será solicitado a conceder permissão de transmissão. Se você recusar o pedido, o **azk** não coleta ou envia quaisquer dados, até que você decida reativá-lo. Se você conceder permissão, o **azk** irá coletar e transmitir os dados relacionados as informações listadas abaixo. Como o **azk** é open-source, você também pode encontrar todo o código responsável por enviar os dados de uso no código-fonte.
+Estes termos descrevem a motivação da coleta desses dados assim como listam quais dados serão coletados e como eles serão tratados.
 
-Depois de fornecer a sua autorização inicial, você pode interromper a transmissão de dados na ferramenta de linha de comando usando a opção "track".
+Estes termos podem sofrer alteração a qualquer momento sem aviso prévio e o uso continuado do `azk` implicará automaticamente na sua aceitação.
 
-## Quais os dados coletados
+## Motivação
 
-A Azuki coleta os diferentes tipos de informação, não-identificáveis ou agregadas. Aqui estão os tipos de informações que coletamos ou recebemos:
+Os dados coletados serão principalmente para as finalidades listas abaixo:
 
-**Informações de uso do azk:** Esta é a informação sobre quais os comandos, versão do **azk**, versão do Docker, uso de imagem Docker ou Dockerfile, e nome do repositório da imagem do Docker que você utiliza.
++ Detecção de configurações de hardware e software em que o `azk` é utilizado assim como a sua recorrência;
++ Detecção e priorização (segundo recorrência) de erros internos de funcionamento do `azk` a serem corrigidos;
++ Inferência e priorização de novas funcionalidades a serem adicionadas a futuras versões do `azk`;
 
-**As informações de hardware:** Além de informações de uso do **azk**, também podemos coletar informações sobre o hardware em que você estiver usando o **azk**, incluindo o sistema operacional que você está usando, o seu modelo de CPU, o número total de núcleos da CPU, a arquitetura do processador, e memória RAM total. No caso do sistema operacional ser um Mac OS X, também podemos coletar informações da máquina virtual, número total de núcleos e memória RAM total.
+## Modalidades
 
-**Informações de Geo-localização:** endereço IP recebido do seu computador pode ser usado para determinar a localização aproximada.
+A coleta de dados é automática e contínua.
 
-## Como usamos as suas informações
+Ela pode ser de dois tipos: anônima e não-anônima.
 
-**Entendimento e melhora do azk:** Para fazer o **azk** melhor temos que entender como os usuários estão usando-o. Pretendemos utilizar os dados que coletamos de muitas maneiras diferentes para melhorar nossos produtos, incluindo pesquisa.
+No primeiro caso, nenhuma informação que permita a identificação do usuário referente a um conjunto de dados de uso será coletada.
+
+No segundo caso, o usuário terá a opção de informar um endereço de e-mail de contato que será associado ao conjunto de dados de uso coletados.
+
+Este endereço será utilizado pela Azuki para fins de suporte (soluções de erros reportados automaticamente pelo `azk` poderão ser enviadas aos usuários mesmo sem terem sido requisitadas).
+
+Ao informar um endereço de e-mail, você assume ser o titular desta conta de e-mail, ter acesso à sua caixa de entrada e a autorização do envio de correções pela Azuki para os erros reportados pelo `azk`.
+
+A coleta de dados é opcional.
+
+Ao usarem o `azk` pela primeira vez (versão 0.17.0 ou superior), todos os usuários deverão aceitar estes Temos de Uso. O `azk` não será iniciado até que eles sejam aceitos.
+
+Neste momento, a coleta de dados anônima será então ativada por padrão.
+
+Quando o primeiro erro ocorrer, você será avisado e poderá então informar o seu e-mail se desejar.
+
+Todas essas opções podem ser revertidas a qualquer momento. [Confira aqui](http://docs.azk.io/pt-BR/reference/cli/config.html) como fazer.
+
+## Dados Coletados
+
+**Lembre-se:** o `azk` é software de código aberto e, por isso, ele pode ser facilmente inspecionado por qualquer pessoa ou entidade interessada em confirmar a veracidade da lista abaixo assim como as informações do item anterior ("Modalidades") sem a permissão da Azuki ou de qualquer outra parte.
+
+Nenhum dado de identificação pessoal será compartilhado pela Azuki com terceiros sem a expressa autorização prévia do usuário.
+
+### Dados de uso:
+
++ versão do `azk`;
++ comandos utilizados;
++ imagens de Docker utilizadas;
++ nome do repositório de imagens utilizado;
+
+### Dados de sistema (Hardware e Software):
+
++ sistema operacional (e versão);
++ arquitetura do processador;
++ nome e modelo do processador;
++ número de núcleos do processador;
++ memória RAM total;
++ endereço IP;
+
+### Erros internos de funcionamento do `azk`:
+
++ mensagem de erro retornada;
++ *stacktrace* do erro;
+
+### Geo-localização:
+
+O endereço IP do seu computador informa a sua localização aproximada.
