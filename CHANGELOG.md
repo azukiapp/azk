@@ -34,6 +34,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Code] Adding `azk [node|npm|gulp|clingwrap|ncu]` commands in development mode (`AZK_ENV=development`);
   * [Code] Adding global dependencies: `npm-check-updates` and `clingwrap`, for manage npm packages;
   * [File sharing] Avoiding to fix the synced files permissions for all systems every time a system was started #616;
+  * [Docker] Upgrading azk's VM ISO to use Docker 1.9.1;
   * [Docs] All examples of the property `command` were updated as `array` instead of `string`;
 
 * Bug
