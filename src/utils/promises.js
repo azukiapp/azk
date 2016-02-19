@@ -50,15 +50,7 @@ export function defer(func) {
 }
 
 export function asyncUnsubscribe(obj, subscription, ...args) {
-  return async(obj, ...args)
-  .then(function (result) {
-    subscription.unsubscribe();
-    return result;
-  })
-  .catch(function (err) {
-    subscription.unsubscribe();
-    throw err;
-  });
+  return async(obj, ...args).finally(() => subscription.unsubscribe());
 }
 
 export function promisifyClass(Klass) {

@@ -15,9 +15,7 @@ export default class Docker extends CliTrackerController {
         args = _.map(args, (arg) => arg.match(/^.* .*$/) ? `"${arg}"` : arg);
         cmd  = `/bin/sh -c 'docker ${args.join(" ")}'`;
         log.debug("docker direct options: %s", cmd);
-        return this.ui.execSh(cmd)
-          .then(() => 0)
-          .catch((err) => err.code || 1);
+        return this.ui.execSh(cmd);
       } else {
         // Require agent is started
         yield Helpers.requireAgent(this.ui);

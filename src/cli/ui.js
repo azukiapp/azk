@@ -156,7 +156,7 @@ var UI = {
     } else {
       var result = (err) => { return (err) ? err.code : 0; };
       var execShLib = promisify(lazy.execShLib, { multiArgs: true });
-      return execShLib(command, options).spread(result, result);
+      return execShLib(command, options).spread(result).catch(result);
     }
   },
 

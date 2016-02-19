@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## dev
+## v0.17.0 - (2016-02-19)
 
 * Enhancements
   * [Cli] Updating `i18n-cli`: now, it supports color syntax highlight;
@@ -33,7 +33,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Code] Replacing `chai` by `azk-dev/lib/chai`;
   * [Code] Adding `azk [node|npm|gulp|clingwrap|ncu]` commands in development mode (`AZK_ENV=development`);
   * [Code] Adding global dependencies: `npm-check-updates` and `clingwrap`, for manage npm packages;
+  * [File sharing] Avoiding to fix the synced files permissions for all systems every time a system was started #616;
+  * [Docker] Upgrading azk's VM ISO to use Docker 1.9.1;
   * [Docs] All examples of the property `command` were updated as `array` instead of `string`;
+  * [Docs] Upgrading azk's TOS;
 
 * Bug
   * [Pull] When pulling in verbose mode do not print several `undefined` anymore. Instead print Docker downloading bar provided by Docker API;

@@ -1,8 +1,9 @@
 import { CliTrackerController } from 'azk/cli/cli_tracker_controller.js';
 import { Helpers } from 'azk/cli/helpers';
 import { config, lazy_require, log, _ } from 'azk';
-import { async, promiseResolve, promiseReject } from 'azk/utils/promises';
+import { async, asyncUnsubscribe, defer } from 'azk/utils/promises';
 import { subscribe } from 'azk/utils/postal';
+import { AzkError } from 'azk/utils/errors';
 
 var lazy = lazy_require({
   VM    : ['azk/agent/vm'],
@@ -10,17 +11,17 @@ var lazy = lazy_require({
   Client: ['azk/agent/client'],
 });
 
-class RequiredError extends Error {
-  constructor(key) {
-    super();
-    this.key = key;
+class VMCmdError extends AzkError {
+  constructor(...args) {
+    super(...args);
+    this.base_translation_key = '';
   }
 }
 
 export default class VM extends CliTrackerController {
   require_installed(vm_info) {
     if (!vm_info.installed) {
-      throw new RequiredError("commands.vm.not_installed");
+      throw new VMCmdError("commands.vm.not_installed");
     }
   }
 
@@ -28,40 +29,25 @@ export default class VM extends CliTrackerController {
     this.require_installed(vm_info);
     log.info('[vm] vm is running: %s', vm_info.running);
     if (!vm_info.running) {
-      throw new RequiredError("commands.vm.not_running");
+      throw new VMCmdError("commands.vm.not_running");
     }
   }
 
-  index(options={}) {
+  index(options = {}) {
     if (!config('agent:requires_vm')) {
-      this.ui.fail('commands.vm.not_required');
-      return promiseResolve(1);
+      throw new VMCmdError("commands.vm.not_required");
     }
 
-    return async(this, function* () {
+    var _subscription = subscribe('vm.action.status', (data) => {
+      Helpers.vmStartProgress(this.ui)(data);
+    });
+
+    return asyncUnsubscribe(this, _subscription, function* () {
       var action  = _.head((this.route && this.route.actions)) || options.action;
       var vm_name = config("agent:vm:name");
       var vm_info = yield lazy.VM.info(vm_name);
 
-      var promise = this[`action_${action}`](vm_info, options);
-
-      var _subscription = subscribe('vm.action.status', (data) => {
-        Helpers.vmStartProgress(this.ui)(data);
-      });
-
-      return promise
-        .then(function (result) {
-          _subscription.unsubscribe();
-          return result;
-        })
-        .catch(options.fail || ((error) => {
-          if (error instanceof RequiredError) {
-            this.ui.fail(error.key);
-            return 1;
-          }
-          _subscription.unsubscribe();
-          throw error;
-        }));
+      return this[`action_${action}`](vm_info, options);
     });
   }
 
@@ -75,18 +61,15 @@ export default class VM extends CliTrackerController {
       var args     = (params['ssh-args'] || []).join(`" "`);
       var script   = `ssh -i ${config('agent:vm:ssh_key')} -o ${ssh_opts} ${ssh_url} "${args}"`;
 
-      log.debug(script);
-      return this.ui.execSh(script)
-      .then(() => 0)
-      .catch((err) => err.code || 1);
+      log.debug("vm ssh command:", script);
+      return this.ui.execSh(script);
     });
   }
 
   action_start(vm_info/*, _opts*/) {
     return async(this, function* () {
       if (vm_info.running) {
-        this.ui.fail("commands.vm.already_running");
-        return 1;
+        throw new VMCmdError("commands.vm.already_running");
       }
       this.require_installed(vm_info);
       yield lazy.Server.installVM(true, false);
@@ -101,23 +84,19 @@ export default class VM extends CliTrackerController {
   }
 
   action_status(vm_info) {
-    try {
+    return defer(() => {
       this.require_running(vm_info);
-    } catch (e) {
-      return promiseReject(e);
-    }
-    this.ui.ok("commands.vm.running");
-    return promiseResolve(0);
+      this.ui.ok("commands.vm.running");
+      return 0;
+    });
   }
 
   action_installed(vm_info) {
-    try {
+    return defer(() => {
       this.require_installed(vm_info);
-    } catch (e) {
-      return promiseReject(e);
-    }
-    this.ui.ok("commands.vm.already_installed");
-    return promiseResolve(0);
+      this.ui.ok("commands.vm.already_installed");
+      return 0;
+    });
   }
 
   action_remove(vm_info, opts) {

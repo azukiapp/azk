@@ -68,7 +68,9 @@ export function extend(Helpers) {
 
     after((done) => {
       process.nextTick(() => {
-        _subscription.unsubscribe();
+        if (_subscription) {
+          _subscription.unsubscribe();
+        }
         done();
       });
     });
