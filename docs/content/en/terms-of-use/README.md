@@ -6,7 +6,7 @@ Please, read the terms below carefully in order to better understand how you can
 
 > Online version: http://docs.azk.io/en/terms-of-use/
 
-> Printer-friendly version: https://github.com/azukiapp/azk/blob/master/docs/content/pt-BR/terms-of-use/README.md
+> Printer-friendly version: https://github.com/azukiapp/azk/blob/master/docs/content/en/terms-of-use/README.md
 
 ```
 Effective since: February 18th, 2016.
