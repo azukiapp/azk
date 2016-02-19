@@ -4,6 +4,10 @@ Esperamos fazer da sua experiência de uso a melhor possível.
 
 Por favor, leia com atenção os termos abaixo para entender como nos ajudar a atingir esse objetivo.
 
+> Versão online: http://docs.azk.io/pt-BR/terms-of-use/
+
+> Versão para impressão: https://github.com/azukiapp/azk/blob/master/docs/content/pt-BR/terms-of-use/README.md
+
 ```
 Válidos desde: 18 de fevereiro de 2016.
 Data da última atualização: 18 de fevereiro de 2016.
