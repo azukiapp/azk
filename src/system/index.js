@@ -359,7 +359,7 @@ export class System {
         (options.interactive ? 'interactive' : 'script')
     );
 
-    _.merge(opts, {
+    _.assign(opts, {
       command: this._shell_command(options),
       tty    : options.interactive ? options.stdout.isTTY : false,
       stdout : options.stdout,
@@ -381,6 +381,7 @@ export class System {
       ports_order: [],
       sequencies: {},
       docker: null,
+      verbose: false,
       dns_servers: this.options.dns_servers,
     });
 
@@ -422,6 +423,7 @@ export class System {
     var finalOptions = {
       daemon: daemon,
       command: options.command,
+      verbose: options.verbose,
       ports: ports,
       ports_orderly: ports_orderly,
       stdout: options.stdout,
@@ -472,6 +474,8 @@ export class System {
 
     if (empty_img_entry && _.isString(command)) {
       command = ["/bin/sh", "-c", command];
+    } else if (!empty_img_entry && _.isString(command)) {
+      command = utils.splitCmd(command);
     } else if (empty_img_entry && empty_cmd && empty_img_cmd) {
       command = ["/bin/sh", "-c", cmd_not_set];
     } else if (empty_cmd) {

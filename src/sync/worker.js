@@ -2,8 +2,8 @@ import { _, lazy_require, path, log, fsAsync } from 'azk';
 import { defer, async } from 'azk/utils/promises';
 
 var lazy = lazy_require({
-  Sync     : ['azk/sync'],
-  chokidar : 'chokidar'
+  Sync    : ['azk/sync'],
+  chokidar: 'chokidar'
 });
 
 export class Worker {

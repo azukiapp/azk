@@ -4,6 +4,7 @@ O **Azkfile.js** é a espinha dorsal do funcionamento do `azk`. Sua principal fu
 
 Como sugere a extensão `.js` o **Azkfile.js** é escrito em JavaScript, mas nenhum conhecimento avançado de JavaScript é necessário para edita-lo. Abaixo estão os parâmetros suportados no `azk`:
 
+- [Propriedades expansíveis](expandable_properties.md)
 - [command](command.md)
 - [depends](depends.md)
 - [dns_servers](dns_servers.md)

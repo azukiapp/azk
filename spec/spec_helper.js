@@ -1,18 +1,16 @@
 require('source-map-support').install();
 
 import { pp, config, t, _, fsAsync, lazy_require } from 'azk';
-import { nfcall } from 'azk/utils/promises';
+import { nfcall, promisify } from 'azk/utils/promises';
 import { Client as AgentClient } from 'azk/agent/client';
 import Utils from 'azk/utils';
 
 var lazy = lazy_require({
   MemoryStream: 'memorystream',
-  dirdiff : 'dirdiff',
-  tmp     : 'tmp'
+  dirdiff     : 'dirdiff',
+  tmp         : 'tmp',
+  UI          : ['azk/cli/ui'],
 });
-
-var chai = require('azk-dev/chai');
-chai.use(require('chai-subset'));
 
 if (process.env.AZK_SUBSCRIBE_POSTAL) {
   var SubscriptionLogger = require("azk/utils/postal").SubscriptionLogger;
@@ -22,7 +20,7 @@ if (process.env.AZK_SUBSCRIBE_POSTAL) {
 
 var Helpers = {
   pp: pp,
-  expect: chai.expect,
+  expect: require('azk-dev/lib/chai').expect,
 
   get no_required_agent() {
     return (_.contains(process.argv, '--no-required-agent') || process.env.AZK_NO_REQUIRED_AGENT);
@@ -33,15 +31,15 @@ var Helpers = {
   },
 
   tmp_dir(opts = { prefix: "azk-test-"}) {
-    return nfcall(lazy.tmp.dir, opts).then((dir) => {
-      return Utils.resolve(dir);
-    });
+    var context = lazy.tmp;
+    var mk_dir  = promisify(context.dir, { multiArgs: true, context });
+    return mk_dir(opts).spread((dir) => Utils.resolve(dir));
   },
 
   tmpFile(opts = { prefix: "azk-test-"}) {
-    return nfcall(lazy.tmp.file, opts).spread((file) => {
-      return Utils.resolve(file);
-    });
+    var context = lazy.tmp;
+    var mk_file = promisify(context.file, { multiArgs: true, context });
+    return mk_file(opts).spread((file) => Utils.resolve(file));
   },
 
   copyToTmp(origin) {
@@ -81,24 +79,30 @@ var Helpers = {
     return Utils.escapeRegExp(...args);
   },
 
+  regexFromT(...args) {
+    return new RegExp(this.escapeRegExp(t(...args)));
+  },
+
   describeRequireVm(...args) {
     return config('agent:requires_vm') ? describe(...args) : describe.skip(...args);
   },
 };
 
 // In specs the virtual machine is required
-if (!Helpers.no_required_agent) {
-  before(() => {
-    console.log(t('test.before'));
+before(() => {
+  console.log(t('test.before'));
+  // Disable colors by default
+  lazy.UI.useColours(false);
+  if (!Helpers.no_required_agent) {
     return AgentClient.require();
-  });
-}
-
-after(() => {
-  if (process.env.AZK_ENABLE_NJS_TRACE_PROFILER) {
-    global.njstrace.save('/home/julio/_git/njstrace/examples/02-es5/execute/TRACE_RESULT.json');
   }
-  require('azk/utils/postal').unsubscribeAll();
+});
+
+after((done) => {
+  process.nextTick(() => {
+    require('azk/utils/postal').unsubscribeAll();
+    done();
+  });
 });
 
 // Helpers

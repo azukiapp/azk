@@ -7,6 +7,10 @@
 
 Uma vez que o `azk` tenha sido instalado por pacotes o processo de atualização se torna realmente simples:
 
+### Atualização expressa
+
+!INCLUDE "express.md"
+
 ### Mac OS X
 
 ```bash
@@ -22,7 +26,7 @@ Ubuntu:
 ```bash
 $ azk agent stop
 $ sudo apt-get update
-$ sudo apt-get upgrade azk
+$ sudo apt-get install azk
 ```
 
 Fedora:

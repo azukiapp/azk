@@ -1,37 +1,62 @@
-require('colors');
 
 // jscs:disable maximumLineLength
 module.exports = {
-  analytics: {
-    question: [
-      '=========================================================================\n'.grey,
-      '  We\'re constantly looking for ways to make'.yellow,
-      ' azk '.red,
-      'better!\n'.yellow,
-      '  May we anonymously report usage statistics to improve the tool over time? \n'.yellow,
-      '  More info: https://github.com/azukiapp/azk and http://docs.azk.io/en/terms-of-use\n'.yellow,
-      ' =========================================================================\n'.grey,
+  terms_of_use: {
+    first_question: [
+      '${gray}=========================================================================\n${gray.close}',
+      '${yellow}  Thank you for using${yellow.close}',
+      '${red} azk${red.close}',
+      '${yellow}! Welcome!\n${yellow.close}',
+      '${yellow}  Before we start, we need to ask: do you accept our Terms of Use?\n${yellow.close}',
+      '${yellow}  http://docs.azk.io/en/terms-of-use\n${yellow.close}',
+      '${gray} =========================================================================\n${gray.close}',
     ].join(''),
-    message_optIn: [
-      'cool! Thanks for helping us make azk better :)'.green,
-    ].join(' '),
-    message_optOut: [
-      'No problem! If you change your mind and want to help us improve azk, just run `%(command)s`\n'.grey,
-      'You can always find that command in `azk help`'.grey,
+    you_need_question: [
+      '${gray}=========================================================================\n${gray.close}',
+      '${yellow}  So… you can\'t start to use ${yellow.close}',
+      '${red}azk${red.close}',
+      '${yellow} before accepting the Terms of Use. Sorry.\n${yellow.close}',
+      '${yellow}  Do you accept our Terms of Use?${yellow.close}',
+      '${yellow}  http://docs.azk.io/en/terms-of-use\n${yellow.close}',
+      '${gray} =========================================================================\n${gray.close}',
     ].join(''),
   },
+  crashReport: {
+    message_error_occured: [
+      'Sorry, an error has occurred.\n',
+      'A crash report about this error will be sent to azk team in order to make azk better.',
+    ].join(''),
+    sending: 'Sending bug report to Azuki...',
+    was_sent: 'Bug report was sent. Thanks.',
+    was_not_sent: 'Bug report can not be shipped. Sorry.',
+
+    email: {
+      question: [
+        '${yellow}Bonus: if you\'re ok with telling us your email address,${yellow.close}',
+        '${yellow} we\'ll be able to reply you with a solution for this issue.\n${yellow.close}',
+        '${yellow}Important: Your email will be saved for future crash reports (we\'ll never share your email).\n${yellow.close}',
+        '${yellow}You can always delete/update your email at any time. See http://docs.azk.io/en/reference/cli/config.html#azk-config\n${yellow.close}',
+          '${white}Enter your email${white.close}' + '${gray} [optional]${gray.close}' + '${white}:${white.close}',
+      ].join(''),
+      question_always_ask_email: [
+        'Ask email again for future crash report solutions?',
+      ].join(''),
+    },
+  },
   errors: {
+    unknown_error               : "Unknown error: %(error)j",
     no_vm_started               : "Unable to install and configure virtual machine",
     no_internet_connection      : "\nNo internet connection!",
-    lost_internet_connection    : "\nLost internet connection:\n%(output)s",
+    lost_internet_connection    : "\nLost internet connection or error while connecting to docker registry:\n%(output)s",
+    must_accept_terms_of_use    : "${red}Sorry, must accept terms of use before use azk.${red.close}",
     connect_docker_unavailable  : "Could not initialize balancer because docker was not available",
     agent_not_running           : "azk agent is required but is not running (try `azk agent status`)",
     agent_start                 : "azk agent start error: %(err_message)s",
-    agent_stop                  :  "azk agent stop error (try `azk agent status`)",
+    agent_stop                  : "azk agent stop error (try `azk agent status`)",
     not_been_implemented        : "This feature: `%(feature)s` has not been implemented yet",
     system_not_found            : "System `%(system)s` not found in `%(manifest)s`",
     manifest_required           : "Manifest file (`Azkfile.js`) was not found at `%(cwd)s` (see more at http://docs.azk.io/en/azkfilejs/)",
-    manifest_error              : "Manifest file (`Azkfile.js`) is not valid,\nSee more at http://docs.azk.io/en/azkfilejs/\n\nError:\n%(err_message)s",
+    manifest_error              : "Manifest file (%(file)s) is not valid (erro type: %(type)s),\nSee more at http://docs.azk.io/en/azkfilejs/\n\nError:\n%(err_message)s",
     system_depend_error         : "System `%(system)s` depends on the system `%(depend)s`",
     system_run_error            : "Run system `%(system)s` return: (%(exitCode)d), for command: %(command)s:\n%(log)s\n\nLook for azk start troubleshooting documentation for more info at: http://bit.ly/azk_start_troubleshooting\n",
     system_not_scalable         : "System `%(system)s` is not scalable only one instance is allowed.",
@@ -49,6 +74,32 @@ module.exports = {
       "[timeout] Make sure the start command binds `port` to the `0.0.0.0` interface, not only to the `localhost` interface.",
       "[timeout] You might want to edit your `Azkfile.js` in order to increase the maximum timeout.",
     ].join("\n"),
+    configuration: {
+      invalid_key_error : [
+        "${red}%(key)s${red.close}",
+        "${yellow} it is not a valid configuration key.\n${yellow.close}",
+        "${yellow}Please, run command bellow to check all existent configurations keys:\n${yellow.close}",
+        "${gray} $ ${gray.close}",
+        "${white}azk config list${white.close}",
+      ].join(""),
+      invalid_value_regex_error : [
+        "${red}%(value)s${red.close}",
+        "${yellow} it is not valid value for ${yellow.close}",
+        "${white}%(key)s${white.close}",
+        "${yellow}.${yellow.close}",
+      ].join(""),
+      void_value_error : [
+        "${yellow}Please, provide a value for ${yellow.close}",
+        "${white}%(key)s${white.close}",
+        "${yellow}.${yellow.close}",
+      ].join(""),
+      invalid_value_boolean_error : [
+        "${red}%(value)s${red.close}",
+        "${yellow} it is not valid value for ${yellow.close}",
+        "${white}%(key)s${white.close}",
+        "${yellow}.${yellow.close}",
+      ].join(""),
+    },
 
     vm_start: [
       "Error starting virtual machine.",
@@ -293,9 +344,9 @@ module.exports = {
     errors: {
       unmatched_dns_port: 'The current dns port `%(old)s` set in `%(file)s` differs from env var `AZK_DNS_PORT=%(new)s`',
       invalid_current_ip: 'Current ip `%(ip)s` conflicts with network interface `%(inter_name)s inet %(inter_ip)s`',
-      ip_invalid        : "`%(ip)s`".yellow + " is an invalid v4 ip, try again.",
-      ip_loopback       : "`%(ip)s`".yellow + " conflict with loopback network",
-      ip_conflict       : "`%(ip)s`".yellow + " conflict with network interface `%(inter_name)s inet %(inter_ip)s`",
+      ip_invalid        : "${yellow}`%(ip)s`${yellow.close}" + " is an invalid v4 ip, try again.",
+      ip_loopback       : "${yellow}`%(ip)s`${yellow.close}" + " conflict with loopback network",
+      ip_conflict       : "${yellow}`%(ip)s`${yellow.close}" + " conflict with network interface `%(inter_name)s inet %(inter_ip)s`",
     },
   },
 
@@ -315,23 +366,23 @@ module.exports = {
       },
     },
     help: {
-      actions  : "Actions:".red,
-      arguments: "Arguments:".cyan,
-      commands : "Commands:".yellow,
-      examples : "Examples:".magenta,
-      options  : "Options:".green,
-      usage    : 'Usage:'.blue,
+      actions  : "${red}Actions:${red.close}",
+      arguments: "${cyan}Arguments:${cyan.close}",
+      commands : "${yellow}Commands:${yellow.close}",
+      examples : "${magenta}Examples:${magenta.close}",
+      options  : "${green}Options:${green.close}",
+      usage    : '${blue}Usage:${blue.close}',
     },
     helpers: {
       pull: {
         pulling           : 'Pulling repository %s...',
         bar_progress      : '  :title [:bar] :percent :progress',
         bar_status        : '  :title :msg',
-        pull_getLayersDiff: "⇲".blue    + " comparing registry layers and local layers...",
-        pull_layers_left  : "⇲".blue    + " %(non_existent_locally_ids_count)s layers left to download.",
-        pull_start        : "⇲".blue    + " pulling %(left_to_download_count)s/%(total_registry_layers)s layers.",
-        pull_ended        : "\n" + "✓".blue    + " completed download of `" + "%(image)s".yellow + "`\n",
-        already_being     : "⇲".yellow  + " image already being pulled. Please wait...",
+        pull_getLayersDiff: "${blue}⇲${blue.close}"    + " comparing registry layers and local layers...",
+        pull_layers_left  : "${blue}⇲${blue.close}"    + " %(non_existent_locally_ids_count)s layers left to download.",
+        pull_start        : "${blue}⇲${blue.close}"    + " pulling %(left_to_download_count)s/%(total_registry_layers)s layers.",
+        pull_ended        : "\n" + "${blue}✓${blue.close}"    + " completed download of `" + "${yellow}%(image)s${yellow.close}" + "`\n",
+        already_being     : "${yellow}⇲${yellow.close}"  + " image already being pulled. Please wait...",
       }
     },
     init: {
@@ -342,8 +393,8 @@ module.exports = {
     },
     start: {
       already_started: "System `%(name)s` already started",
-      skip           : "Skip starting, system `" + "%(name)s".blue + "` does not scale.",
-      fail           : "Due to the above error azk will stop all instances already running.\n",
+      skip           : "Skip starting, system `" + "${blue}%(name)s${blue.close}" + "` does not scale.",
+      fail           : "An error occurred. It will stop all instances already running. See details below.\n",
       get_project: {
         getting_git_version      : "Checking Git version...",
         getting_remote_info      : "Getting remote info from `%(git_url)s`...",
@@ -354,11 +405,17 @@ module.exports = {
         checkout_to_commit       : "Checkout to `%(git_branch_tag_commit)s` in `%(git_destination_path)s`...",
         final_started_message: [
           "",
-          "Your app was cloned and started.",
-          "Now you can go to your folder and run azk commands:",
+          "The app was cloned and started.",
+          "Now you can go to its folder and run azk commands:",
           "$ cd '%(git_destination_path)s'",
           "$ azk status",
           "",
+          "You can also easily deploy it to DigitalOcean.",
+          "To learn how, check http://docs.azk.io/en/deploy",
+          "",
+          "If you need any support, check our chat support at:",
+          "https://gitter.im/azukiapp/azk",
+          ""
         ].join('\n'),
         dest_exists_branch: [
           ">   ",
@@ -410,29 +467,54 @@ module.exports = {
       },
     },
     stop: {
-      not_running: "System `" + "%(name)s".blue + "` not running",
-      skip: "Skip stoping, system `" + "%(name)s".blue + "` does not scale.",
+      not_running: "System `" + "${blue}%(name)s${blue.close}" + "` not running",
+      skip: "Skip stoping, system `" + "${blue}%(name)s${blue.close}" + "` does not scale.",
     },
     scale: {
-      instances   : "from " + "%(from)d".red             + " to " + "%(to)d".green + " instances",
-      sync        : "⎘".yellow  + " syncing files for `" + "%(system)s".blue     + "` system...",
-      wait_port   : "◴".magenta + " waiting for `"       + "%(system)s".blue     + "` system to start, trying connection to port %(name)s/%(protocol)s...",
-      check_image : "✓".cyan    + " checking `"          + "%(image)s".yellow    + "` image...",
-      pull_image  : "⇲".blue    + " downloading `"       + "%(image)s".yellow    + "` image...",
-      build_image : "⇲".blue    + " building `"          + "%(image)s".yellow    + "` image...",
-      provision   : "↻".yellow  + " provisioning `"      + "%(system)s".blue     + "` system...",
-      starting    : "↑".green   + " starting `"          + "%(system)s".blue     + "` system, " + "%(to)d".green + " new instances...",
-      stopping    : "↓".red     + " stopping `"          + "%(system)s".blue     + "` system, " + "%(from)d".red + " instances...",
-      scaling_up  : "↑".green   + " scaling `"           + "%(system)s".blue     + "` system %(instances)s...",
-      scaling_down: "↓".red     + " scaling `"           + "%(system)s".blue     + "` system %(instances)s...",
+      instances   : "from " + "${red}%(from)d${red.close}"             + " to " + "${green}%(to)d${green.close}" + " instances",
+      sync        : "${yellow}⎘${yellow.close}"  + " syncing files for `" + "${blue}%(system)s${blue.close}"     + "` system...",
+      wait_port   : "${magenta}◴${magenta.close}" + " waiting for `"       + "${blue}%(system)s${blue.close}"     + "` system to start, trying connection to port %(name)s/%(protocol)s...",
+      check_image : "${cyan}✓${cyan.close}"    + " checking `"          + "${yellow}%(image)s${yellow.close}"    + "` image...",
+      pull_image  : "${blue}⇲${blue.close}"    + " downloading `"       + "${yellow}%(image)s${yellow.close}"    + "` image...",
+      build_image : "${blue}⇲${blue.close}"    + " building `"          + "${yellow}%(image)s${yellow.close}"    + "` image...",
+      provision   : "${yellow}↻${yellow.close}"  + " provisioning `"      + "${blue}%(system)s${blue.close}"     + "` system...",
+      starting    : "${green}↑${green.close}"   + " starting `"          + "${blue}%(system)s${blue.close}"     + "` system, " + "${green}%(to)d${green.close}" + " new instances...",
+      stopping    : "${red}↓${red.close}"     + " stopping `"          + "${blue}%(system)s${blue.close}"     + "` system, " + "${red}%(from)d${red.close}" + " instances...",
+      scaling_up  : "${green}↑${green.close}"   + " scaling `"           + "${blue}%(system)s${blue.close}"     + "` system %(instances)s...",
+      scaling_down: "${red}↓${red.close}"     + " scaling `"           + "${blue}%(system)s${blue.close}"     + "` system %(instances)s...",
     },
     status: {
       status          : "%(system)s: %(instances)d instances - %(hosts)s",
       status_with_dead: "%(system)s: %(instances)d up and %(down)d down - %(hosts)s",
     },
     config: {
-      'tracking-false': 'currently azk is not tracking any data',
-      'tracking-true' : 'currently azk is tracking data, more info: https://github.com/azukiapp/azk and http://docs.azk.io/en/terms-of-use',
+      reset: {
+        ask_confirmation      : 'Are you sure to reset all configuration?',
+        confirmed             : 'All configuration has been reset.',
+      },
+      'email_current'         : 'Current email: %(email)s',
+      'email_saved'           : 'Email: %(email)s',
+      'email_undefined'       : 'Email: no email set yet.',
+      'email_not-valid'       : '${red}Invalid email: (%(email)s). Please insert a valid email.${red.close}',
+      'email_valid'           : '${green}email: %(email)s${green.close}',
+      'email_reset-to-null'   : 'Email: there is no email set-up.',
+      'set_ok'                : '`%(key)s` was set to `%(value)s`',
+      'key_not_found'         : '`%(key)s` does not exist.',
+      descriptions: {
+        user: {
+          email: 'User\'s email.',
+          email_always_ask: 'Always ask for user’s email when an error occurs.',
+          email_ask_count: 'How many times azk asked for user’s email.',
+        },
+        terms_of_use: {
+          accepted: 'Indicates whether user has accepted terms of use or not.',
+          ask_count: 'How many times azk asked about terms of use acceptance.',
+        },
+        crash_reports: {
+          always_send: 'Always send crash reports when an error occurs (opt-out).',
+        },
+        tracker_permission: 'Always send tracking information (opt-out).',
+      }
     },
     vm: {
       already_installed: "Virtual machine already installed.",
@@ -444,19 +526,19 @@ module.exports = {
       not_required     : "This system does not require a virtual machine, to try to force this behavior set `AZK_USE_VM=true`",
     },
     open: {
-      success                       : "Opening " + "%(hostname)s".underline.blue + " in browser.",
-      system_not_running            : "System " + "%(name)s".red + " is not running to open.",
-      system_not_balanceable        : "The system " + "%(name)s".red + " does not have ports http to open.",
-      default_system_not_balanceable: "The default system " + "%(name)s".red + " does not have ports http to open.",
+      success                       : "Opening ${blue}${underline}%(hostname)s${underline.close}${blue.close} in browser.",
+      system_not_running            : "System " + "${red}%(name)s${red.close}" + " is not running to open.",
+      system_not_balanceable        : "The system " + "${red}%(name)s${red.close}" + " does not have ports http to open.",
+      default_system_not_balanceable: "The default system " + "${red}%(name)s${red.close}" + " does not have ports http to open.",
     },
   },
 
   docker: {
     connect: "Connecting to Docker: %s...",
     monitor: {
-      start : "[docker:monitor]".green + " Monitoring Docker host (%(docker_host)s) with %(retry)s retries.",
-      passed: "[docker:monitor]".green + " Docker host (%s) is OK.",
-      failed: "[docker:monitor]".red + " Docker host (%s) has stopped! Stopping agent...",
+      start : "${green}[docker:monitor]${green.close}" + " Monitoring Docker host (%(docker_host)s) with %(retry)s retries.",
+      passed: "${green}[docker:monitor]${green.close}" + " Docker host (%s) is OK.",
+      failed: "${red}[docker:monitor]${red.close}" + " Docker host (%s) has stopped! Stopping agent...",
     },
   },
 

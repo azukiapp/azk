@@ -19,6 +19,7 @@
   --no-timestamps           Hides log timestamps.
   --follow, -f              Follows log output.
   --lines=<n>, -n           Outputs the specified number of lines at the end of logs [default: all].
+  --no-color                Remove colors from output
   --quiet, -q               Never prompt.
   --help, -h                Shows help usage.
   --log=<level>, -l         Sets log level (default: error).

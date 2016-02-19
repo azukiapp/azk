@@ -66,10 +66,13 @@ export function extend(Helpers) {
       return funcs.reduce(when, promiseResolve());
     });
 
-    after(() => {
-      if (_subscription) {
-        _subscription.unsubscribe();
-      }
+    after((done) => {
+      process.nextTick(() => {
+        if (_subscription) {
+          _subscription.unsubscribe();
+        }
+        done();
+      });
     });
   }
 }

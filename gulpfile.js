@@ -2,7 +2,7 @@
 var path = require('path');
 var lib  = process.env.AZK_LIB_PATH || 'lib';
 
-var azk_gulp = require('azk-dev/gulp')({
+var azk_gulp = require('azk-dev/lib/gulp')({
   cwd  : __dirname,
   src  : { src: "./src" , dest: path.join(lib, "/azk") },
   spec : { src: "./spec", dest: path.join(lib, "/spec") },
@@ -105,18 +105,3 @@ gulp.task('publish', function() {
     // print upload updates to console
     .pipe(awspublish.reporter());
 });
-
-// usefull to see execution timeline
-if (process.env.AZK_ENABLE_NJS_TRACE_PROFILER) {
-  var path = require('path');
-  var rel = path.relative(process.cwd(), __dirname);
-  var source_files = path.join(rel, 'lib/azk', '**', '*.js');
-  var source_files_specs = path.join(rel, 'lib/spec', '**', '*.js');
-
-  global.njstrace = null;
-  delete global.njstrace;
-
-  global.njstrace = require('njstrace').inject({
-    files: [source_files, source_files_specs]
-  });
-}

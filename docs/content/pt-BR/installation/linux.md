@@ -4,7 +4,7 @@
 
 ## Requisitos
 
-* **Distribuições (testadas)**: Ubuntu 12.04/14.04/15.04 e Fedora 20/21/22
+* **Distribuições (testadas)**: Ubuntu 12.04/14.04/15.10 e Fedora 20/21/22
 * **Arquitetura**: 64-bits
 * [Docker][docker] 1.8.1
 * Não estar rodando nenhum serviço nas portas `80` e `53`
@@ -80,6 +80,8 @@ será executado automaticamente no próximo login. Para isso execute os comandos
 ## Instalando o azk
 
 ### Instalação expressa
+
+A forma mais fácil de instalar o `azk` é utilizar o script abaixo. Ele vai identificar o sistema operacional que está usando e, se for compatível, realizar todos os processos de instalação.
 
 !INCLUDE "express.md"
 

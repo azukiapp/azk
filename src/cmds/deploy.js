@@ -1,6 +1,6 @@
 import { CliTrackerController } from 'azk/cli/cli_tracker_controller.js';
 import { lazy_require, _ } from 'azk';
-import { async } from 'azk/utils/promises';
+import { async, promiseReject } from 'azk/utils/promises';
 import { AzkError } from 'azk/utils/errors';
 import { Helpers } from 'azk/cli/helpers';
 import { run as cli_run } from 'azk/cli';
@@ -9,7 +9,7 @@ var lazy = lazy_require({
   Manifest: ['azk/manifest']
 });
 
-class Deploy extends CliTrackerController {
+export default class Deploy extends CliTrackerController {
   index() {
     return async(this, function* () {
       yield Helpers.requireAgent(this.ui);
@@ -45,21 +45,14 @@ class Deploy extends CliTrackerController {
       }
 
       // Call internaly cli and return result
-      return this.runShell(cmd_head.concat(["--", command, ...cmd_tail]));
+      return this.runShellInternally(cmd_head.concat(["--", command, ...cmd_tail]));
     })
     .catch((err) => {
       if (err instanceof AzkError) {
         this.ui.fail(err.toString());
-      } else {
-        this.ui.fail(err.stack);
       }
-      return 1;
+      return promiseReject(err);
     });
-  }
-
-  runShell(cmd) {
-    var [, result] = cli_run(cmd, this.cwd, this.ui);
-    return result;
   }
 
   _escape_quotes(cmd) {
@@ -71,5 +64,3 @@ class Deploy extends CliTrackerController {
     return manifest.system("deploy", true);
   }
 }
-
-module.exports = Deploy;

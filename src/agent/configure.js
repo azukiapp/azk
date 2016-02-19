@@ -1,23 +1,29 @@
 import { _, t, os, log, lazy_require, fsAsync } from 'azk';
 import { publish } from 'azk/utils/postal';
-import { async, ninvoke, nfcall, thenAll, promiseResolve } from 'azk/utils/promises';
+import { async, promisify, nfcall, thenAll, promiseResolve } from 'azk/utils/promises';
 import { config, set_config } from 'azk';
 import { UIProxy } from 'azk/cli/ui';
 import { OSNotSupported, DependencyError } from 'azk/utils/errors';
 import { net, envDefaultArray } from 'azk/utils';
 import Azk from 'azk';
 
-var which      = require('which');   // Search for command in path
-var request    = require('request');
-var semver     = require('semver');
-var { isIPv4 } = require('net');
+import which from 'which'; // Search for command in path
+import semver from 'semver';
+import { isIPv4 } from 'net';
 
 var lazy = lazy_require({
   docker     : ['azk/docker', 'default'],
   Migrations : ['azk/agent/migrations'],
-  exec       : ['child_process'],
+  exec       : function() {
+    var context = require('child_process');
+    return promisify(context.exec, { multiArgs: true, context });
+  },
   Netmask    : ['netmask'],
   Sync       : ['azk/sync'],
+  request_get: function() {
+    var request = require('request');
+    return promisify(request.get, { multiArgs: true, context: request });
+  }
 });
 
 var ports_tabs = {
@@ -127,7 +133,7 @@ export class Configure extends UIProxy {
         };
 
         publish("agent.configure.check_version.status", { type: "status", keys: "configure.check_version"});
-        var [response, body] = yield ninvoke(request, 'get', config('urls:github:content:package_json'), options);
+        let [response, body] = yield lazy.request_get(config('urls:github:content:package_json'), options);
         var statusCode = response.statusCode;
 
         if (statusCode !== 200) {
@@ -456,7 +462,7 @@ export class Configure extends UIProxy {
     var regex = /docker0.*inet\s(.*?)\//;
     var cmd   = "/sbin/ip -o addr show";
 
-    return nfcall(lazy.exec, cmd)
+    return lazy.exec(cmd)
       .spread((stdout) => {
         var match = stdout.match(regex);
         if (match) { return match[1]; }

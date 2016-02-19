@@ -4,7 +4,7 @@
 
 ## Requirements
 
-* **Distributions (tested)**: Ubuntu 12.04/14.04/15.04 and Fedora 20/21/22
+* **Distributions (tested)**: Ubuntu 12.04/14.04/15.10 and Fedora 20/21/22
 * **Architecture**: 64-bits
 * [Docker][docker] 1.8.1
 * Not running any services on ports `80` and `53`
@@ -80,6 +80,8 @@ To do this, run:
 ## Installing azk
 
 ### Express installation
+
+The easiest way to install `azk` is to use the script below. It will identify your operating system, and if it is compatible perform all installation tasks.
 
 !INCLUDE "express.md"
 

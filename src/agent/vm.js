@@ -1,6 +1,6 @@
 import { _, path, config, log, isBlank, fsAsync } from 'azk';
 import { subscribe, publish } from 'azk/utils/postal';
-import { async, nbind, nfcall, thenAll, promisifyModule } from 'azk/utils/promises';
+import { async, promisify, thenAll, promisifyModule } from 'azk/utils/promises';
 import Utils from 'azk/utils';
 import { Tools } from 'azk/agent/tools';
 import { SSH } from 'azk/agent/ssh';
@@ -11,7 +11,7 @@ var machine  = promisifyModule(vbm.machine );
 var instance = promisifyModule(vbm.instance);
 var hostonly = promisifyModule(vbm.hostonly);
 var dhcp     = promisifyModule(vbm.dhcp    );
-var _exec    = nbind(vbm.command.exec, vbm.command);
+var _exec    = promisify(vbm.command.exec, { multiArgs: true, context: vbm.command });
 
 function exec(...args) {
   return _exec(...args).then((result) => {
@@ -300,7 +300,7 @@ var vm = {
         "--boot1", "dvd",
       ];
 
-      var usage = yield nfcall(vbm.command.exec, "modifyvm");
+      var usage = yield _exec("modifyvm");
       if (usage.join("\n").match(/--vtxux/)) {
         cmd.push('--vtxux', 'on');
       }

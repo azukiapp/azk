@@ -1,11 +1,10 @@
 import { _, log, lazy_require, config, t } from 'azk';
-import { async } from 'azk/utils/promises';
 import { SmartProgressBar } from 'azk/cli/smart_progress_bar';
 import { ManifestError } from 'azk/utils/errors';
 
 var lazy = lazy_require({
   AgentClient: ['azk/agent/client', 'Client'],
-  Configure: ['azk/agent/configure', 'Configure'],
+  Configure  : ['azk/agent/configure', 'Configure'],
 });
 
 var Helpers = {
@@ -13,12 +12,12 @@ var Helpers = {
     return lazy.AgentClient
       .status()
       .then((status) => {
-        if (!status.agent && !cli.non_interactive) {
+        if (!status.agent && cli.isInteractive()) {
           var question = {
             type    : 'confirm',
             name    : 'start',
             message : 'commands.agent.start_before',
-            default : 'Y'
+            default : true
           };
 
           return cli.prompt(question)
@@ -31,39 +30,6 @@ var Helpers = {
       .then(() => {
         return lazy.AgentClient.require();
       });
-  },
-
-  askPermissionToTrack(cli, force = false) {
-    return async(this, function* () {
-      // check if user already answered
-      var trackerPermission = cli.tracker.loadTrackerPermission(); // Boolean
-
-      var should_ask_permission = (force || typeof trackerPermission === 'undefined');
-      if (should_ask_permission) {
-        if (!cli.isInteractive()) { return false; }
-
-        var question = {
-          type    : 'confirm',
-          name    : 'track_ask',
-          message : 'analytics.question',
-          default : 'Y'
-        };
-
-        var answers = yield cli.prompt(question);
-        cli.tracker.saveTrackerPermission(answers.track_ask);
-
-        if (answers.track_ask) {
-          cli.ok('analytics.message_optIn');
-          yield cli.tracker.sendEvent("tracker", { event_type: "accepted" });
-        } else {
-          cli.ok('analytics.message_optOut', {command: 'azk config track-toggle'});
-        }
-
-        return answers.track_ask;
-      }
-
-      return trackerPermission;
-    });
   },
 
   configure(cli) {

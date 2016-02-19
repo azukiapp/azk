@@ -5,10 +5,10 @@ import { async } from 'azk/utils/promises';
 
 var lazy = lazy_require({
   Manifest: ['azk/manifest'],
-  moment: 'moment',
+  moment  : 'moment',
 });
 
-class Status extends CliTrackerController {
+export default class Status extends CliTrackerController {
   index(opts) {
     return Helpers.requireAgent(this.ui)
       .then(() => {
@@ -31,7 +31,7 @@ class Status extends CliTrackerController {
       }
 
       var table = cli.ui.table_add('status', {
-        head: Status._head(opts, cli.ui.outputColumns()),
+        head: Status._head(opts, cli.ui.c, cli.ui.outputColumns()),
         text: opts.text
       });
 
@@ -41,25 +41,25 @@ class Status extends CliTrackerController {
         var ports_string;
 
         if (system.balanceable && instances.length > 0) {
-          hostname = system.url.underline;
+          hostname = cli.ui.c.underline(system.url);
         } else {
           hostname = system.hostname;
         }
         var name;
         var status;
         if (instances.length > 0) {
-          name   = `${system.name}`.green;
-          status = `↑`.green;
+          name   = cli.ui.c.green(`${system.name}`);
+          status = cli.ui.c.green(`↑`);
         } else if (!system.auto_start) {
-          name   = `${system.name}`.yellow;
-          status = `−`.yellow;
+          name   = cli.ui.c.yellow(`${system.name}`);
+          status = cli.ui.c.yellow(`−`);
         } else {
-          name   = `${system.name}`.red;
-          status = `↓`.red;
+          name   = cli.ui.c.red(`${system.name}`);
+          status = cli.ui.c.red(`↓`);
         }
 
-        var ports   = Status._ports_map(system, instances);
-        var counter = instances.length.toString().blue;
+        var ports   = Status._ports_map(system, instances, cli.ui.c);
+        var counter = cli.ui.c.blue(instances.length.toString());
 
         // Provisioned
         var provisioned = system.provisioned;
@@ -87,7 +87,7 @@ class Status extends CliTrackerController {
           line.push(provisioned);
         }
         if (opts.long) {
-          line.push(system.image.name.white);
+          line.push(cli.ui.c.white(system.image.name));
         }
 
         cli.ui.table_push(table, line);
@@ -97,7 +97,7 @@ class Status extends CliTrackerController {
     });
   }
 
-  static _ports_map(system, instances) {
+  static _ports_map(system, instances, colors) {
     var instance, ports = [];
 
     instances = _.clone(instances);
@@ -105,7 +105,7 @@ class Status extends CliTrackerController {
       _.each(instance.NetworkSettings.Access, (port) => {
         var name = system.portName(port.name);
         ports.push(
-          `${instance.Annotations.azk.seq}-${name}:${port.port || "n/m".red}`
+          `${instance.Annotations.azk.seq}-${name}:${port.port || colors.red("n/m")}`
         );
       });
     }
@@ -113,19 +113,19 @@ class Status extends CliTrackerController {
     return _.isEmpty(ports) ? ["-"] : ports;
   }
 
-  static _head(opts, columns_size = -1) {
+  static _head(opts, colors, columns_size = -1) {
     var columns = [
-      "System".green,
-      (columns_size > 80 ? 'Instances' : 'Inst.').blue,
-      'Hostname/url'.yellow,
-      'Instances-Ports'.magenta,
+      colors.green("System"),
+      colors.blue(columns_size > 80 ? 'Instances' : 'Inst.'),
+      colors.yellow('Hostname/url'),
+      colors.magenta('Instances-Ports'),
     ];
 
     if (!opts.short) {
-      columns.push('Provisioned'.cyan);
+      columns.push(colors.cyan('Provisioned'));
     }
     if (opts.long) {
-      columns.push('Image'.white);
+      columns.push(colors.white('Image'));
     }
     if (!opts.text && !opts.short) {
       columns.unshift('');
@@ -134,5 +134,3 @@ class Status extends CliTrackerController {
     return columns;
   }
 }
-
-module.exports = Status;

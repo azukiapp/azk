@@ -86,10 +86,6 @@
   "requireSpacesInFunctionExpression": {
     "beforeOpeningCurlyBrace": true
   },
-  "validateJSDoc": {
-    "checkParamNames": true,
-    "requireParamTypes": true
-  },
   "disallowMultipleLineBreaks": true,
   "disallowNewlineBeforeBlockStatements": true
 }

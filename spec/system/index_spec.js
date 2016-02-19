@@ -248,7 +248,8 @@ describe("Azk system class, main set", function() {
         var options = system.daemonOptions({}, {
           Entrypoint: ["/entry.sh"]
         });
-        h.expect(options).to.have.property("command").and.eql(system.command);
+        var cmd = utils.splitCmd(system.command);
+        h.expect(options).to.have.property("command").and.eql(cmd);
       });
 
       it("should prepend shell before command if image.entrypoint is empty but image.cmd not", function() {
@@ -281,7 +282,8 @@ describe("Azk system class, main set", function() {
 
       it("should return only system.command if image entrypoint and cmd and system.command aren't empty", function() {
         var options = system.daemonOptions({}, { Entrypoint: ["/entry.sh"], Cmd: ["ls -l"]});
-        h.expect(options).to.have.property("command").and.eql(system.command);
+        var cmd = utils.splitCmd(system.command);
+        h.expect(options).to.have.property("command").and.eql(cmd);
       });
 
       it("should return options with annotations", function() {
@@ -528,8 +530,8 @@ describe("Azk system class, main set", function() {
         });
 
         it("should have `/bin/sh -c` append if the cmd.command is present", function() {
-          var command   = ['ls -l'];
-          var final_cmd = [system.shell, "-c", ...command];
+          var command   = 'ls -l';
+          var final_cmd = [system.shell, "-c", command];
           var options   = system.shellOptions({ command });
           h.expect(options).to.have.property("command").and.eql(final_cmd);
         });

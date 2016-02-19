@@ -10,13 +10,20 @@ var lazy = lazy_require({
   VMController: 'azk/cmds/vm',
 });
 
-class Agent extends CliTrackerController {
+export default class Agent extends CliTrackerController {
   get docker() {
     return require('azk/docker').default;
   }
 
   index(opts) {
-    return this.callAgent(opts);
+    return this
+      .callAgent(opts)
+      .then((result) => {
+        if (!_.isNumber(result)) {
+          result = result.agent ? 0 : 1;
+        }
+        return result;
+      });
   }
 
   callAgent(opts) {
@@ -93,7 +100,7 @@ class Agent extends CliTrackerController {
     if (config('agent:requires_vm')) {
       if (!config('agent:dev:force_disable_vm')) {
         var cmd_vm = new lazy.VMController({ ui: this.ui });
-        return cmd_vm.index({ action: 'remove', fail: () => {} });
+        return cmd_vm.index({ action: 'remove'}).catch(() => {});
       } else {
         this.ui.ok("Force skip use vm");
       }
@@ -103,21 +110,30 @@ class Agent extends CliTrackerController {
 
   _runDaemon(args, configs) {
     return async(this, function* () {
+
+      // Configure file
       var file = config("paths:agent_config");
       log.debug("[agent] save config file", file);
       yield fsAsync.writeFile(file, JSON.stringify(configs));
-
       args = args.concat(["--configure", file]);
+
+      // Color options
+      var envs = _.clone(process.env);
+      if (this.ui.useColours()) {
+        envs.AZK_FORCE_COLOR = true;
+      }
+
       var cmd  = `azk agent-daemon --no-daemon "${args.join('" "')}"`;
-      return this._runDaemonCommand(cmd);
+      return this._runDaemonCommand(cmd, envs);
     });
   }
 
-  _runDaemonCommand(cmd) {
+  _runDaemonCommand(cmd, env) {
     return defer((resolve) => {
       var opts  = {
         detached: false,
-        stdio: [ 'ignore', process.stdout, process.stderr ]
+        stdio: [ 'ignore', process.stdout, process.stderr ],
+        env: env,
       };
 
       var child = this.ui.execSh(cmd, opts, (err) => {
@@ -167,5 +183,3 @@ class Agent extends CliTrackerController {
     });
   }
 }
-
-module.exports = Agent;

@@ -10,156 +10,143 @@ BB.onPossiblyUnhandledRejection((error) => {
   }
 });
 
-var PromisesHelper = {
-  __esModule: true,
+export function async(obj, func, ...args) {
+  if (typeof obj == "function") {
+    [func, obj] = [obj, null];
+  }
 
-  async(obj, func, ...args) {
-    if (typeof obj == "function") {
-      [func, obj] = [obj, null];
+  if (typeof obj == "object") {
+    func = func.bind(obj);
+  }
+
+  BB.coroutine.addYieldHandler(function(yieldedValue) {
+    if (typeof yieldedValue !== 'function') {
+      return BB.resolve(yieldedValue);
     }
+  });
 
-    if (typeof obj == "object") {
-      func = func.bind(obj);
-    }
+  return BB.coroutine(func).apply(func, [...args]);
+}
 
-    BB.coroutine.addYieldHandler(function(yieldedValue) {
-      if (typeof yieldedValue !== 'function') {
-        return BB.resolve(yieldedValue);
+export function defer(func) {
+  return new BB.Promise((resolve, reject) => {
+    setImmediate(() => {
+      var result;
+
+      try {
+        resolve = _.extend(resolve, { resolve: resolve, reject: reject });
+        result  = func(resolve, reject);
+      } catch (e) {
+        return reject(e);
+      }
+
+      if (isPromise(result)) {
+        result.then(resolve, reject);
+      } else if (typeof(result) != "undefined") {
+        resolve(result);
       }
     });
+  });
+}
 
-    return BB.coroutine(func).apply(func, [...args]);
-  },
+export function asyncUnsubscribe(obj, subscription, ...args) {
+  return async(obj, ...args).finally(() => subscription.unsubscribe());
+}
 
-  defer(func) {
-    return new BB.Promise((resolve, reject) => {
-      setImmediate(() => {
-        var result;
+export function promisifyClass(Klass) {
+  if (_.isString(Klass)) {
+    Klass = require(Klass);
+  }
 
-        try {
-          resolve = _.extend(resolve, { resolve: resolve, reject: reject });
-          result  = func(resolve, reject);
-        } catch (e) {
-          return reject(e);
-        }
+  var NewClass = function(...args) {
+    Klass.call(this, ...args);
+  };
 
-        if (PromisesHelper.isPromise(result)) {
-          result.then(resolve, reject);
-        } else if (typeof(result) != "undefined") {
-          resolve(result);
-        }
-      });
-    });
-  },
+  NewClass.prototype = Object.create(Klass.prototype);
+  NewClass.prototype.constructor = Klass;
 
-  asyncUnsubscribe(obj, subscription, ...args) {
-    return this.async(obj, ...args)
-    .then(function (result) {
-      subscription.unsubscribe();
-      return result;
-    })
-    .catch(function (err) {
-      subscription.unsubscribe();
-      throw err;
-    });
-  },
-
-  promisifyClass(Klass) {
-    if (_.isString(Klass)) {
-      Klass = require(Klass);
-    }
-
-    var NewClass = function(...args) {
-      Klass.call(this, ...args);
+  _.each(_.methods(Klass.prototype), (method) => {
+    var original = Klass.prototype[method];
+    NewClass.prototype[method] = function(...args) {
+      return BB.promisify(original.bind(this))(...args);
     };
+  });
 
-    NewClass.prototype = Object.create(Klass.prototype);
-    NewClass.prototype.constructor = Klass;
+  return NewClass;
+}
 
-    _.each(_.methods(Klass.prototype), (method) => {
-      var original = Klass.prototype[method];
-      NewClass.prototype[method] = function(...args) {
-        return BB.promisify(original.bind(this))(...args);
-      };
-    });
+export function promisifyModule(mod) {
+  var newMod = _.clone(mod);
 
-    return NewClass;
-  },
+  _.each(_.methods(mod), (method) => {
+    var original = mod[method];
+    newMod[method] = function(...args) {
+      return BB.promisify(original.bind(this))(...args);
+    };
+  });
 
-  promisifyModule(mod) {
-    var newMod = _.clone(mod);
+  return newMod;
+}
 
-    _.each(_.methods(mod), (method) => {
-      var original = mod[method];
-      newMod[method] = function(...args) {
-        return BB.promisify(original.bind(this))(...args);
-      };
-    });
+export function when(previous, next) {
+  return BB.cast(previous).then((result) => {
+    return _.isFunction(next) ? next(result) : next;
+  });
+}
 
-    return newMod;
-  },
+export function promisify(...args) {
+  return BB.promisify(...args);
+}
 
-  when(previous, next) {
-    return BB.cast(previous).then((result) => {
-      return _.isFunction(next) ? next(result) : next;
-    });
-  },
+export function promisifyAll(...args) {
+  return BB.promisifyAll(...args);
+}
 
-  promisify(method) {
-    return BB.promisify(method);
-  },
+export function nfcall(method, ...args) {
+  return BB.promisify(method)(...args);
+}
 
-  nfcall(method, ...args) {
-    return BB.promisify(method)(...args);
-  },
+export function ninvoke(obj, method, ...args) {
+  return BB.promisify(obj[method].bind(obj))(...args);
+}
 
-  ninvoke(obj, method, ...args) {
-    return BB.promisify(obj[method].bind(obj))(...args);
-  },
+export function nbind(obj, context) {
+  return BB.promisify(obj, { context });
+}
 
-  nbind(obj, context) {
-    return BB.promisify(obj.bind(context));
-  },
+export function thenAll(...args) {
+  return BB.all(...args);
+}
 
-  thenAll(...args) {
-    return BB.all(...args);
-  },
+export function all(...args) {
+  return BB.all(...args);
+}
 
-  all(...args) {
-    return BB.all(...args);
-  },
+export function delay(...args) {
+  return BB.delay(...args);
+}
 
-  delay(...args) {
-    return BB.delay(...args);
-  },
+export function isPromise(obj) {
+  if (typeof obj === 'object') {
+    return obj.hasOwnProperty('_promise0'); // bluebird promise
+  }
+  return false;
+}
 
-  isPromise(obj) {
-    if (typeof obj === 'object') {
-      return obj.hasOwnProperty('_promise0'); // bluebird promise
-    }
-    return false;
-  },
+export function promiseResolve(...args) {
+  return BB.resolve(...args);
+}
 
-  promiseResolve(...args) {
-    return BB.resolve(...args);
-  },
+export function promiseReject(...args) {
+  return BB.reject(...args);
+}
 
-  promiseReject(...args) {
-    return BB.reject(...args);
-  },
+export function originalDefer(...args) {
+  return BB.defer(...args);
+}
 
-  originalDefer(...args) {
-    return BB.defer(...args);
-  },
+export function mapPromises(...args) {
+  return BB.map(...args);
+}
 
-  promisifyAll(...args) {
-    return BB.promisifyAll(...args);
-  },
-
-  mapPromises(...args) {
-    return BB.map(...args);
-  },
-
-};
-
-module.exports = PromisesHelper;
+export var TimeoutError = BB.TimeoutError;

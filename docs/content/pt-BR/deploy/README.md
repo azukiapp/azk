@@ -1,8 +1,14 @@
-## Deployando para a DigitalOcean
+## Fazendo o deployment para a DigitalOcean
 
-Com o `azk`, deployar para a [DigitalOcean][digital_ocean] é muito simples.
+Com o `azk`, fazer o deployment de uma aplicação para a [DigitalOcean][digital_ocean] é muito simples.
+
+### Configurando suas chaves SSH
 
 O primeiro passo é configurar as chaves SSH em sua máquina. Elas vão ser úteis para fazermos a conexão ao droplet e para enviarmos os arquivos de seu projeto. Se você ainda não tem chaves SSH criadas em sua máquina (ou não tem certeza sobre isso), siga os passos 1 e 2 [deste tutorial](https://help.github.com/articles/generating-ssh-keys/).
+
+### Atualizando seu Azkfile.js
+
+> **Nota:** Caso você tenha executado a aplicação a partir da [galeria do Run Project](http://run.azk.io/), o Azkfile.js já está devidamente configurado e você pode pular esta etapa.
 
 Em seguida, adicione o sistema `deploy` ao seu `Azkfile.js`:
 
@@ -44,6 +50,8 @@ systems({
 });
 ```
 
+### Obtendo uma chave de acesso para a API da DigitalOcean
+
 Obtenha uma [chave de acesso](https://cloud.digitalocean.com/settings/applications) (personal access token - *precisa estar logado*) da DigitalOcean e coloque-o em um arquivo chamado `.env`:
 
 ```bash
@@ -51,7 +59,9 @@ $ cd path/to/the/project
 $ echo "DEPLOY_API_TOKEN=COLOQUE-SEU-TOKEN-AQUI" >> .env
 ```
 
-Por fim, basta rodar o seguinte comando:
+### Fazendo o deployment da aplicação
+
+Por fim, faça o deployment da aplicação rodando o seguinte comando:
 
 ```bash
 $ azk deploy

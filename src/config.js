@@ -54,6 +54,8 @@ var options = mergeConfig({
     azk_dir  : azk_dir,
     flags    : {
       show_deprecate: envs('AZK_HIDE_DEPRECATE', false),
+      require_accept_use_terms: envs('AZK_REQUIRE_TERMS', true),
+      force_color: envs('AZK_FORCE_COLOR', envs('FORCE_COLOR', null)),
     },
     paths    : {
       azk_root,
@@ -83,6 +85,9 @@ var options = mergeConfig({
       console: (envs('AZK_DEBUG') ? 'debug' : envs('AZK_OUTPUT_LOG_LEVEL', 'error')),
       file: envs('AZK_LOG_LEVEL', 'warn'),
     },
+    configuration: {
+      namespace: null,
+    },
     docker: {
       socket          : envs('AZK_DOCKER_SOCKER', "/var/run/docker.sock"),
       host            : new Dynamic("docker:host"),
@@ -102,12 +107,18 @@ var options = mergeConfig({
     },
     // jscs:disable maximumLineLength
     tracker: {
-      permission_key: 'tracker_permission',
-      disable: envs('AZK_DISABLE_TRACKER', false),
-      projectId: envs('AZK_KEEN_PROJECT_ID', '552818c790e4bd7f7bd8baba'),
-      writeKey:  envs('AZK_KEEN_WRITE_KEY', 'e2c70b3dd3ed3003a09a1bc7d8622ad9220fe33069d81164f0fafa13baf11458e48736f6cbcc995a8346183b290597504feb4bef06f71350f4859df5eb271a1d845f7cff5c9dfddf2f03de1e39760c6e51a06fb9e347c2e1fb98d3c6d370e6916e5db8810ddd9c0d5d83540386ccfe2e'),
+      disable           : envs('AZK_DISABLE_TRACKER', false),
+      projectId         : envs('AZK_KEEN_PROJECT_ID', '552818c790e4bd7f7bd8baba'),
+      writeKey          : envs('AZK_KEEN_WRITE_KEY', 'e2c70b3dd3ed3003a09a1bc7d8622ad9220fe33069d81164f0fafa13baf11458e48736f6cbcc995a8346183b290597504feb4bef06f71350f4859df5eb271a1d845f7cff5c9dfddf2f03de1e39760c6e51a06fb9e347c2e1fb98d3c6d370e6916e5db8810ddd9c0d5d83540386ccfe2e'),
+      send_in_background: envs('AZK_KEEN_SEND_IN_BACKGROUND', true)
     },
     // jscs:enable maximumLineLength
+    report: {
+      disable: envs('AZK_REPORT_DISABLE', false),
+      url    : envs('AZK_REPORT_URL', "http://api.azk.io/report/N2ekMXt7OlwscGV8V40o4WMI6gzT31WM"),
+      // TODO: Adding support to filters
+      // filters: envs('AZK_REPORT_FITLERS', "*"),
+    },
     agent: {
       requires_vm     : requires_vm,
       portrange_start : 11000,
@@ -164,24 +175,26 @@ var options = mergeConfig({
       },
       force: {
         endpoints: {
-          start: 'http://api.azk.io/systems/start'
+          start: 'http://api.azk.io/systems/start',
         }
       }
     },
   },
   development: {
+    flags: {
+      require_accept_use_terms: envs('AZK_REQUIRE_TERMS', false),
+    },
     logs_level: {
       console: (envs('AZK_DEBUG') ? 'debug' : envs('AZK_OUTPUT_LOG_LEVEL', 'warn')),
       file: envs('AZK_LOG_LEVEL', 'debug'),
     },
-    // jscs:disable maximumLineLength
     tracker: {
-      permission_key: 'tracker_permission',
-      disable       : envs('AZK_DISABLE_TRACKER', true),
-      projectId     : envs('AZK_KEEN_PROJECT_ID', '5526968d672e6c5a0d0ebec6'),
-      writeKey      : envs('AZK_KEEN_WRITE_KEY', '5dbce13e376070e36eec0c7dd1e7f42e49f39b4db041f208054617863832309c14a797409e12d976630c3a4b479004f26b362506e82a46dd54df0c977a7378da280c05ae733c97abb445f58abb56ae15f561ac9ad774cea12c3ad8628d896c39f6e702f6b035541fc1a562997cb05768'),
+      // jscs:disable maximumLineLength
+      disable  : envs('AZK_DISABLE_TRACKER', false),
+      projectId: envs('AZK_KEEN_PROJECT_ID', '5526968d672e6c5a0d0ebec6'),
+      writeKey : envs('AZK_KEEN_WRITE_KEY', '5dbce13e376070e36eec0c7dd1e7f42e49f39b4db041f208054617863832309c14a797409e12d976630c3a4b479004f26b362506e82a46dd54df0c977a7378da280c05ae733c97abb445f58abb56ae15f561ac9ad774cea12c3ad8628d896c39f6e702f6b035541fc1a562997cb05768'),
+      // jscs:enable maximumLineLength
     },
-    // jscs:enable maximumLineLength
     urls: {
       github: {
         content: {
@@ -190,29 +203,37 @@ var options = mergeConfig({
       },
       force: {
         endpoints: {
-          start: 'http://force-stage.azk.io/systems/start'
+          start: 'http://force-stage.azk.io/systems/start',
         }
       }
     },
   },
   test: {
+    flags: {
+      require_accept_use_terms: false,
+    },
     paths: {
       log     : path.join(paths.logs, 'azk_test.log'),
       azk_meta: path.join(data_path, azk_dir, "shared", "test-Azkfile.js"),
     },
+    configuration: {
+      namespace: 'test',
+    },
     docker: {
-      namespace   : 'azk.test',
-      repository  : 'azk_test',
-      build_name  : 'azkbuildtest',
-      image_empty : 'cevich/empty_base_image:latest',
+      namespace  : 'azk.test',
+      repository : 'azk_test',
+      build_name : 'azkbuildtest',
+      image_empty: 'cevich/empty_base_image:latest',
     },
     tracker: {
       disable: true,
       // jscs:disable maximumLineLength
-      permission_key: 'tracker_permission_test',
-      projectId : envs('AZK_KEEN_PROJECT_ID', '5526968d672e6c5a0d0ebec6'),
-      writeKey  : envs('AZK_KEEN_WRITE_KEY', '5dbce13e376070e36eec0c7dd1e7f42e49f39b4db041f208054617863832309c14a797409e12d976630c3a4b479004f26b362506e82a46dd54df0c977a7378da280c05ae733c97abb445f58abb56ae15f561ac9ad774cea12c3ad8628d896c39f6e702f6b035541fc1a562997cb05768'),
+      projectId: envs('AZK_KEEN_PROJECT_ID', '5526968d672e6c5a0d0ebec6'),
+      writeKey : envs('AZK_KEEN_WRITE_KEY', '5dbce13e376070e36eec0c7dd1e7f42e49f39b4db041f208054617863832309c14a797409e12d976630c3a4b479004f26b362506e82a46dd54df0c977a7378da280c05ae733c97abb445f58abb56ae15f561ac9ad774cea12c3ad8628d896c39f6e702f6b035541fc1a562997cb05768'),
       // jscs:enabled maximumLineLength
+    },
+    report: {
+      disable: envs('AZK_REPORT_DISABLE', true),
     },
     logs_level: {
       console: (envs('AZK_DEBUG') ? 'debug' : 'warn'),

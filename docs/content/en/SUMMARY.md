@@ -25,6 +25,7 @@
   * [Node.js](starting-from-scratch/nodejs.md)*
   * PHP
     * [PHP / Laravel](starting-from-scratch/php-laravel.md)*
+    * [PHP / CakePHP](starting-from-scratch/php-cakephp.md)*
     * [PHP / Wordpress / phpMyAdmin](starting-from-scratch/php-wordpress-phpmyadmin.md)*
   * Python
     * [Django](starting-from-scratch/python-django.md)*
@@ -52,6 +53,7 @@
 * [Reference](reference/README.md)
    * [Azkfile.js](reference/azkfilejs/README.md)
      * [System name](reference/azkfilejs/system_name.md)
+     * [Expandable properties](reference/azkfilejs/expandable_properties.md)
      * [command](reference/azkfilejs/command.md)
      * [depends](reference/azkfilejs/depends.md)
      * [dns_servers](reference/azkfilejs/dns_servers.md)

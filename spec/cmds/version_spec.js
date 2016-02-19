@@ -12,8 +12,7 @@ describe('Azk cli, version controller', function() {
 
   var doc_opts    = { exit: false };
   var run_options = { ui: ui };
-
-  var version = `azk ${Azk.version}`;
+  var version     = `azk ${Azk.version}`;
 
   it('should run a version command', function() {
     doc_opts.argv = 'version';

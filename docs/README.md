@@ -22,7 +22,7 @@ gitbook serve content
 azk nvm gitbook serve content
 ```
 
-Now you can open [http://localhost:4000]. :)
+Now you can open [http://localhost:4000](http://localhost:4000). :)
 
 ## Deploying
 

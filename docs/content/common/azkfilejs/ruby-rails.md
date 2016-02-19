@@ -9,7 +9,7 @@ systems({
     ],
     workdir: "/azk/#{manifest.dir}",
     shell: "/bin/bash",
-    command: "bundle exec puma -C config/puma.rb",
+    command: ["bundle", "exec", "puma", "-C", "config/puma.rb"],
     wait: 20,
     mounts: {
       '/azk/#{manifest.dir}': sync("."),
@@ -63,7 +63,7 @@ systems({
   test: {
     extends: "my-app",
     depends: ["mysql-test"],
-    command: "bundle exec rake test && exit 0",
+    command: ["bundle", "exec", "rake", "test", "&&", "exit 0"],
     provision: [
       "bundle install --no-deployment --path /azk/bundler",
       "bundle exec rake db:create",

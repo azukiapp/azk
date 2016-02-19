@@ -27,6 +27,7 @@
   --silent                  Impede a exibição das mensagens do comando em execução. É útil quando usado a opção `-c` e a saída é usada como entrada para outro comando utilizando o operador pipe `|`.
   --tty, -t                 Força o alocação de pseudo-tty.
   --no-tty, -T              Desativa a alicação de pseudo-tty.
+  --no-color                Remove cores na saída padrão
   --quiet, -q               Nunca perguntar.
   --help, -h                Mostrar ajuda de uso.
   --log=<level>, -l         Defini o nível de log (padrão: error).

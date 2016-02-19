@@ -8,6 +8,7 @@ AZK_LIB_PATH:=${AZK_ROOT_PATH}/lib
 AZK_NPM_PATH:=${AZK_ROOT_PATH}/node_modules
 NVM_BIN_PATH:=${AZK_ROOT_PATH}/src/libexec/nvm.sh
 
+export AZK_ENV:=development
 AZK_BIN:=${AZK_ROOT_PATH}/bin/azk
 
 # Load dependencies versions
@@ -23,16 +24,24 @@ NVM_NODE_VERSION := $(shell cat ${AZK_ROOT_PATH}/.nvmrc)
 NODE = ${NVM_DIR}/${NVM_NODE_VERSION}/bin/node
 VM_DISKS_DIR := ${AZK_LIB_PATH}/vm/${AZK_ISO_VERSION}
 
-# Locking npm version
+# Locking npm and clingwrap version
 NPM_VERSION_FILE := ${NVM_DIR}/npm_version
+CLINGWRAP_VERSION_FILE := ${NVM_DIR}/clingwrap_version
+NCU_VERSION_FILE := ${NVM_DIR}/ncu_version
 
 finished:
 	@echo "Finished!"
 
-clean_nvm_versions: ${NODE}
-	@echo "Checking npm version..."
+check_node_dependencies: ${NODE}
+	@echo "Checking node dependencies versions..."
 	@if [ ! "$$(${AZK_BIN} nvm npm --version)" = "${NPM_VERSION}" ] ; then \
 		rm -f ${NPM_VERSION_FILE}; \
+	fi
+	@if [ ! "$$(${AZK_BIN} nvm clingwrap --version)" = "${CLINGWRAP_VERSION}" ] ; then \
+		rm -f ${CLINGWRAP_VERSION_FILE}; \
+	fi
+	@if [ ! "$$(${AZK_BIN} nvm ncu --version)" = "${NCU_VERSION}" ] ; then \
+		rm -f ${NCU_VERSION_FILE}; \
 	fi
 
 SRC_JS = $(shell cd ${AZK_ROOT_PATH} && find ./src -name '*.*' -print 2>/dev/null)
@@ -41,7 +50,7 @@ teste_envs:
 	@echo ${LIBNSS_RESOLVER_VERSION}
 	@echo ${AZK_ISO_VERSION}
 
-${AZK_LIB_PATH}/azk: $(SRC_JS) ${NPM_VERSION_FILE} ${AZK_NPM_PATH}/.install
+${AZK_LIB_PATH}/azk: $(SRC_JS) ${NPM_VERSION_FILE} ${CLINGWRAP_VERSION_FILE} ${NCU_VERSION_FILE} ${AZK_NPM_PATH}/.install
 	@echo "task: $@"
 	@export AZK_LIB_PATH=${AZK_LIB_PATH} && \
 		export AZK_NPM_PATH=${AZK_NPM_PATH} && \
@@ -62,6 +71,16 @@ ${NPM_VERSION_FILE}:
 	@${AZK_BIN} nvm npm install npm@${NPM_VERSION} -g
 	@${AZK_BIN} nvm npm --version > ${NPM_VERSION_FILE}
 
+${CLINGWRAP_VERSION_FILE}:
+	@echo "task: install clingwrap ${CLINGWRAP_VERSION}"
+	@${AZK_BIN} nvm npm install clingwrap@${CLINGWRAP_VERSION} -g
+	@${AZK_BIN} nvm clingwrap --version > ${CLINGWRAP_VERSION_FILE}
+
+${NCU_VERSION_FILE}:
+	@echo "task: install npm-check-updates ${NCU_VERSION}"
+	@${AZK_BIN} nvm npm install npm-check-updates@${NCU_VERSION} -g
+	@${AZK_BIN} nvm ncu --version > ${NCU_VERSION_FILE}
+
 ${NODE}:
 	@echo "task: $@: ${NVM_NODE_VERSION}"
 	@export NVM_DIR=${NVM_DIR} && \
@@ -75,7 +94,7 @@ clean:
 	@rm -Rf ${AZK_NPM_PATH}/..?* ${AZK_NPM_PATH}/.[!.]* ${AZK_NPM_PATH}/*
 	@rm -Rf ${NVM_DIR}/..?* ${NVM_DIR}/.[!.]* ${NVM_DIR}/*
 
-bootstrap: clean_nvm_versions ${AZK_LIB_PATH}/azk dependencies finished
+bootstrap: check_node_dependencies ${AZK_LIB_PATH}/azk dependencies finished
 
 dependencies: ${AZK_LIB_PATH}/bats ${VM_DISKS_DIR}/azk.iso ${VM_DISKS_DIR}/azk-agent.vmdk.gz
 
@@ -92,13 +111,13 @@ ${VM_DISKS_DIR}/azk-agent.vmdk.gz:
 ${AZK_LIB_PATH}/bats:
 	@git clone -b ${BATS_VERSION} https://github.com/sstephenson/bats ${AZK_LIB_PATH}/bats
 
-slow_test: TEST_SLOW="--slow"
-slow_test: test
+fast_test: TEST_FAST=:fast
+fast_test: test
 	@echo "task: $@"
 
 test: bootstrap
 	@echo "task: $@"
-	${AZK_BIN} nvm gulp test ${TEST_SLOW} $(if $(filter undefined,$(origin TEST_GREP)),"",--grep "${TEST_GREP}")
+	${AZK_BIN} nvm npm run test${TEST_FAST} $(if $(filter undefined,$(origin TEST_GREP)),,-- --grep "${TEST_GREP}")
 
 ###### Package session ######
 
@@ -115,7 +134,7 @@ PATH_MAC_PACKAGE:=${AZK_PACKAGE_PATH}/azk_${AZK_VERSION}.tar.gz
 # Locking npm version
 PACKAGE_NPM_VERSION_FILE := ${PATH_AZK_NVM}/npm_versions
 
-package_clean_nvm_versions: ${NODE_PACKAGE}
+package_check_node_dependencies: ${NODE_PACKAGE}
 	@if [ ! "$$(${AZK_BIN} nvm npm --version)" = "${NPM_VERSION}" ] ; then \
 		rm ${PACKAGE_NPM_VERSION_FILE}; \
 	fi
@@ -216,7 +235,7 @@ ${PATH_AZK_LIB}/vm/${AZK_ISO_VERSION}: ${AZK_LIB_PATH}/vm
 ${PATH_MAC_PACKAGE}: ${AZK_PACKAGE_PREFIX}
 	@cd ${PATH_USR_LIB_AZK}/.. && tar -czf ${PATH_MAC_PACKAGE} ./
 
-package_build: bootstrap $(FILES_TARGETS) copy_transpiled_files package_clean_nvm_versions ${PATH_NODE_MODULES}
+package_build: bootstrap $(FILES_TARGETS) copy_transpiled_files package_check_node_dependencies ${PATH_NODE_MODULES}
 
 ###### Shell completion session ######
 
@@ -276,7 +295,7 @@ ${ZSH_COMPLETION_PATH}/_azk: ${ZSH_COMPLETION_FILE}
 install_shell_completion: ${COMPLETIONS_FILES}
 
 # Mark not a file tasks
-.PHONY: bootstrap clean package_brew package_mac package_deb package_rpm package_build package_clean copy_transpiled_files fix_permissions creating_symbolic_links dependencies check_version slow_test test generate_shell_completion install_shell_completion
+.PHONY: bootstrap clean package_brew package_mac package_deb package_rpm package_build package_clean copy_transpiled_files fix_permissions creating_symbolic_links dependencies check_version fast_test test generate_shell_completion install_shell_completion
 
 # Just for fast reference, use this for debug a variable
 # $(info $(value VARIABLE_NAME))

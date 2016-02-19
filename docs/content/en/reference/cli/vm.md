@@ -29,6 +29,7 @@
 
 ```
   --force, -F               Force mode on.
+  --no-color                Remove colors from output
   --quiet, -q               Never prompt.
   --help, -h                Shows help usage.
   --log=<level>, -l         Sets log level (default: error).

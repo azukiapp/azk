@@ -8,7 +8,7 @@ var lazy = lazy_require({
   Client: ['azk/agent/client'],
 });
 
-class Doctor extends CliTrackerController {
+export default class Doctor extends CliTrackerController {
   get docker() {
     return require('azk/docker').default;
   }
@@ -27,14 +27,14 @@ class Doctor extends CliTrackerController {
       // Mount data to render
       var data = {
         version: Azk.version,
-        docker: require_vm && !agent.agent ? { Version: "down".red } : yield this.docker.version(),
-        use_vm: require_vm ? "yes".green : "no".yellow,
-        agent_running: agent.agent ? "up".green : "down".red,
+        docker: require_vm && !agent.agent ? { Version: this.ui.c.red("down") } : yield this.docker.version(),
+        use_vm: require_vm ? this.ui.c.green("yes") : this.ui.c.yellow("no"),
+        agent_running: agent.agent ? this.ui.c.green("up") : this.ui.c.red("down"),
       };
 
       if (require_vm && agent.agent) {
         var ip = config('agent:vm:ip');
-        data.use_vm = data.use_vm + ', ip: ' + ip.yellow;
+        data.use_vm = data.use_vm + ', ip: ' + this.ui.c.yellow(ip);
       }
 
       var render = opts.logo ? this.render_with_logo : this.render_normal;
@@ -48,21 +48,21 @@ class Doctor extends CliTrackerController {
     data_string = data_string.split("\n");
 
     var azk_logo = `
-               ${"##########".blue}
-           ${"##################".blue}
-         ${"######################".blue}
-        ${"########################".blue}      ${data_string[1]}
-       ${"#################  #######".blue}     ${data_string[2]}
-      ${"##################  ########".blue}    ${data_string[3]}
-     ${"####     ##       #  ###  ####".blue}   ${data_string[4]}
-     ${"########  ####   ##  #  ######".blue}
-     ${"###  ###  ##   ####  ##  #####".blue}
-      ${"##    #  #       #  ###  ###".blue}
-       ${"##########################".blue}
-        ${"########################".blue}
-         ${"######################".blue}
-            ${"################".blue}
-               ${"##########".blue}
+               ${this.ui.c.blue("##########")}
+           ${this.ui.c.blue("##################")}
+         ${this.ui.c.blue("######################")}
+        ${this.ui.c.blue("########################")}      ${data_string[1]}
+       ${this.ui.c.blue("#################  #######")}     ${data_string[2]}
+      ${this.ui.c.blue("##################  ########")}    ${data_string[3]}
+     ${this.ui.c.blue("####     ##       #  ###  ####")}   ${data_string[4]}
+     ${this.ui.c.blue("########  ####   ##  #  ######")}
+     ${this.ui.c.blue("###  ###  ##   ####  ##  #####")}
+      ${this.ui.c.blue("##    #  #       #  ###  ###")}
+       ${this.ui.c.blue("##########################")}
+        ${this.ui.c.blue("########################")}
+         ${this.ui.c.blue("######################")}
+            ${this.ui.c.blue("################")}
+               ${this.ui.c.blue("##########")}
     `;
 
     return azk_logo;
@@ -70,13 +70,11 @@ class Doctor extends CliTrackerController {
 
   render_normal(data) {
     var result = `
-      ${"Version".cyan} : ${data.version.blue}
-      ${"Agent".cyan}   : ${data.agent_running}
-      ${"Docker".cyan}  : ${data.docker.Version}
-      ${"Use vm".cyan}  : ${data.use_vm}
+      ${this.ui.c.cyan("Version")} : ${this.ui.c.blue(data.version)}
+      ${this.ui.c.cyan("Agent")}   : ${data.agent_running}
+      ${this.ui.c.cyan("Docker")}  : ${data.docker.Version}
+      ${this.ui.c.cyan("Use vm")}  : ${data.use_vm}
     `;
     return result;
   }
 }
-
-module.exports = Doctor;

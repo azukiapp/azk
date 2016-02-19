@@ -108,7 +108,7 @@ describe('Azk generator tool court veredict:', function() {
                fullpath:'/tmp/azk-test-302101g49y9s/front/Gemfile',
                ruleType:'database',
                name:'postgres',
-               ruleName:'postgres-9.3'   <----------  [1][0]
+               ruleName:'postgres-9.4'   <----------  [1][0]
             }
             {
                fullpath:'/tmp/azk-test-302101g49y9s/front/Gemfile',
@@ -125,7 +125,7 @@ describe('Azk generator tool court veredict:', function() {
 
       h.expect(filteredEvidences[0][0]).to.have.property('ruleName', 'node-0.12');
       h.expect(filteredEvidences[1]).to.containSubset([{'ruleName': 'ruby_on_rails'}]);
-      h.expect(filteredEvidences[1]).to.containSubset([{'ruleName': 'postgres-9.3'}]);
+      h.expect(filteredEvidences[1]).to.containSubset([{'ruleName': 'postgres-9.4'}]);
     });
   });
 

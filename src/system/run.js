@@ -10,6 +10,7 @@ var lazy = lazy_require({
   MemoryStream: 'memorystream',
   docker      : ['azk/docker', 'default'],
   Client      : ['azk/agent/client'],
+  colors      : ['azk/utils/colors'],
 });
 
 var Run = {
@@ -111,7 +112,6 @@ var Run = {
   runDaemon(system, options = {}) {
     return async(this, function* () {
       // TODO: add instances and dependencies options
-
       // Prepare options
       var image = yield this._check_image(system, options);
       options.image_data = image;
@@ -191,12 +191,12 @@ var Run = {
           options     : sync_data.options
         };
 
-        publish(topic, _.merge({ type : "sync_start" }, pub_data));
+        publish(topic, _.assign({ type : "sync_start" }, pub_data));
 
         return lazy.Client
           .watch(host_folder, sync_data.guest_folder, sync_data.options)
           .then(() => {
-            publish(topic, _.merge({ type : "sync_done" }, pub_data));
+            publish(topic, _.assign({ type : "sync_done" }, pub_data));
           });
       });
     }));
@@ -299,7 +299,7 @@ var Run = {
           system: system.name,
           port: port_data && port_data.port,
           timeout: timeout,
-          hostname: system.url.underline,
+          hostname: lazy.colors.underline(system.url),
         });
 
         // Format command
@@ -449,20 +449,26 @@ var Run = {
 
   _clean_sync_folder(system, host_folder) {
     return async(this, function* () {
-      var uid_gid;
+      var local_user = config('agent:vm:user');
+      var uid, gid;
       if (config('agent:requires_vm')) {
-        uid_gid = `\$(id -u ${config('agent:vm:user')}):\$(id -g ${config('agent:vm:user')})`;
+        uid = `\$(id -u ${local_user})`;
+        gid = `\$(id -g ${local_user})`;
       } else {
-        uid_gid = `${process.getuid()}:${process.getuid()}`;
+        uid = `${process.getuid()}`;
+        gid = uid;
       }
 
       var mounted_sync_folders = '/sync_folders';
       var current_sync_folder = path.join(mounted_sync_folders, system.manifest.namespace, system.name, host_folder);
 
+      var find_exec = `-exec chown ${uid}:${gid} '{}' \\;`;
+      var find_args = `${current_sync_folder} \\( -not -user ${uid} -or -not -group ${gid} \\) ${find_exec}`;
+
       // Script to fix sync folder
       var script = [
         `mkdir -p ${current_sync_folder}`,
-        `chown -R ${uid_gid} ${mounted_sync_folders}`
+        `find ${find_args}`,
       ].join(" && ");
 
       // Docker params

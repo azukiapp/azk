@@ -8,7 +8,7 @@ systems({
     ],
     workdir: "/azk/#{manifest.dir}",
     shell: "/bin/bash",
-    command: "python manage.py runserver 0.0.0.0:$HTTP_PORT",
+    command: ["python", "manage.py", "runserver", "0.0.0.0:$HTTP_PORT"],
     wait: 20,
     mounts: {
       '/azk/#{manifest.dir}': sync("."),

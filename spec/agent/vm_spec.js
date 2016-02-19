@@ -1,7 +1,7 @@
 import h from 'spec/spec_helper';
 import { _, path, config, log, fsAsync } from 'azk';
 import { subscribe } from 'azk/utils/postal';
-import { async, nbind, all } from 'azk/utils/promises';
+import { async, promisify, all } from 'azk/utils/promises';
 import { lazy_require } from 'azk';
 import { net } from 'azk/utils';
 
@@ -11,7 +11,7 @@ var lazy = lazy_require({
   hostonly: ['azk/agent/vm'],
   vbm     : 'vboxmanage',
   exec    : function() {
-    return nbind(lazy.vbm.command.exec, lazy.vbm.command);
+    return promisify(lazy.vbm.command.exec, { cmultiArgs: true, context: lazy.vbm.command });
   }
 });
 

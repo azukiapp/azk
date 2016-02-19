@@ -17,6 +17,7 @@ Escalona (para cima ou para baixo) um ou mais sistemas.
 
 ```
   --no-remove, -r           Não remove a instância do container após a parada.
+  --no-color                Remove cores na saída padrão
   --quiet, -q               Nunca perguntar.
   --help, -h                Mostrar ajuda de uso.
   --log=<level>, -l         Defini o nível de log (padrão: error).

@@ -17,11 +17,11 @@ function new_resize(container) {
 }
 
 export function run(docker, Container, image, cmd, opts = { }) {
-
   var container = null;
 
-  opts.stdout = opts.stdout || process.stdout;
-  opts.stderr = opts.stderr || opts.stdout;
+  opts.stdout = opts.stdout  || process.stdout;
+  opts.stderr = opts.stderr  || opts.stdout;
+  var verbose = opts.verbose || false;
   var daemon  = opts.daemon || false;
   var interactive = opts.stdin ? true : false;
   var nameservers = opts.dns || null;
@@ -101,7 +101,7 @@ export function run(docker, Container, image, cmd, opts = { }) {
     }
 
     // Attach container
-    if (!daemon) {
+    if ((!daemon) || verbose) {
       stream = yield container.attach({
         log: true, stream: true,
         stdin: interactive, stdout: true, stderr: true
@@ -139,19 +139,6 @@ export function run(docker, Container, image, cmd, opts = { }) {
     log.debug("[docker] attaching a container with ", start_opts);
     yield container.start(start_opts);
 
-    //track
-    try {
-      var imageObj = (image.indexOf('azkbuild') === -1) ? {type: 'docker', name: image} : {type: 'dockerfile'};
-      yield tracker.sendEvent("container", {
-        event_type: 'run',
-        container_type: annotations.azk.type,
-        manifest_id: annotations.azk.mid,
-        image: imageObj
-      });
-    } catch (err) {
-      tracker.logAnalyticsError(err);
-    }
-
     c_publish("started");
 
     if (!daemon) {
@@ -176,6 +163,17 @@ export function run(docker, Container, image, cmd, opts = { }) {
       }
     }
 
+    var imageObj = (image.indexOf('azkbuild') === -1) ? {type: 'docker', name: image} : {type: 'dockerfile'};
+    tracker.sendEvent("container", {
+      event_type: 'run',
+      container_type: annotations.azk.type,
+      manifest_id: annotations.azk.mid,
+      image: imageObj
+    }).then(() => {
+      // yield was not working
+    });
+
     return container;
+
   });
 }

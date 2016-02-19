@@ -3,6 +3,49 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## v0.17.0 - (2015-02-19)
+
+* Enhancements
+  * [Cli] Updating `i18n-cli`: now, it supports color syntax highlight;
+  * [Cli] Replacing `colors` for `chalk` and adding `--no-color` option that outputs in only one color;
+  * [Cli] Improving `ui.isInteractive()`: now, not only the existence of a `tty` is checked but also the parameter `--quiet`;
+  * [Cli] Adding support to a more verbose mode in `azk start`;
+  * [Cli] More options added to the `azk config` command. Now it uses a `key-value` system. The `azk config list` subcommand shows a list of the options users can choose from;
+  * [Generators] Adding suggestion to CakePHP framework;
+  * [Suggestions] Adding `php artisan migrate` to Laravel PHP framework;
+  * [Suggestions] Changing `postgres` version to 9.4 and env vars prefix to `POSTGRES`;
+  * [Docs] Adding instructions about "Expandable Properties";
+  * [Package] Installation script (`install.sh`) now supports other shells besides `bash` #583;
+  * [Package] Installation script now supports Arch Linux #596;
+  * [Package] Installation script now supports updating `azk` #604;
+  * [Package] Moving CI test scripts into azk's source code;
+  * [Crash-report] A `crash-report` system has been added. It reports `azk` internal errors that may arise during its use to the Azuki team. It first informs the user before sending the report (not sending is `opt-out`). It also  gives the option to inform an e-mail address for notifications about solutions;
+  * [Tracking] The anonymous user activity tracking system is now `opt-out`. Users must accept the terms of use before starting to use `azk`.
+  * [Dependency] Updating `archiver`, `crash-report-sender`, `docker-registry-downloader`, `file-async` and `inquirer`;
+  * [Dependency] Updating `insight-keen-io` and fixing tracker connection to it;
+  * [Dependency] Updating `lodash` and fixing use of `template` in `src/utils/index`;
+  * [Manifest] Adding type to `ManifestError`, possible values: `syntax`, `logic` and `validate`;
+  * [Dependency] Updating `bluebird` and fixing the use of `promisify` (now, by default, it does not support mutiple returns anymore) made through `nbind`, `ninvoke` and `nfcall`;
+  * [Agent] Expanding error message in agent starting process;
+  * [Dependency] Updating `azk-dev` and exchanging `babel-runtime` with `babel-polyfill`;
+  * [Spec] Updating `azk-dev`: the `--slow` is no longer supported and has been replaced by the reverse option `--skip-slow`;
+  * [Code] Refactoring many parts of the code to best suit the modules of the `babel> 6` system;
+  * [Code] Replacing `chai` by `azk-dev/lib/chai`;
+  * [Code] Adding `azk [node|npm|gulp|clingwrap|ncu]` commands in development mode (`AZK_ENV=development`);
+  * [Code] Adding global dependencies: `npm-check-updates` and `clingwrap`, for manage npm packages;
+  * [File sharing] Avoiding to fix the synced files permissions for all systems every time a system was started #616;
+  * [Docker] Upgrading azk's VM ISO to use Docker 1.9.1;
+  * [Docs] All examples of the property `command` were updated as `array` instead of `string`;
+  * [Docs] Upgrading azk's TOS;
+
+* Bug
+  * [Pull] When pulling in verbose mode do not print several `undefined` anymore. Instead print Docker downloading bar provided by Docker API;
+  * [Core] Converting string commands to array when a Docker image has a defined `ENTRYPOINT`;
+  * [Cli] Fixing return code in `azk start [url]`;
+  * [Cli] Fixing return code in `azk agent stop`;
+  * [Tracking] Fix a bug that could send duplicate data (stopping sending others) to the tracker system;
+  * [Specs] Fix a bug in `after` hooks, this bug has caused the end of the test process returns to `0` even when the failed tests;
+
 ## v0.16.3 - (2015-12-08)
 
 * Enhancements
@@ -16,8 +59,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## v0.16.2 - (2015-11-17)
 
 * Enhancements
-  * [Core] Upgrading node to v0.10.40
-  * [Suggesting] Changing suggestions to suggest a command based in Array in replace of String
+  * [Core] Upgrading node to v0.10.40;
+  * [Suggesting] Changing suggestions to suggest a command based in Array in replace of String;
 
 * Bug
   * [Core] Fixing a bug that could generate an invalid command when `azk start` runs, making systems fail by not properly overriding the image Docker command by the custom command defined in the `Azkfile`;

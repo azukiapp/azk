@@ -39,6 +39,7 @@ fail() {
 }
 
 start_agent() {
+  azk config set terms_of_use.accepted 1 > /dev/null 2>&1
   azk agent start --no-daemon > $AZK_AGENT_LOG_FILE 2>&1 &
   AGENT_PID="$!"
   tail -F $AZK_AGENT_LOG_FILE &

@@ -10,7 +10,7 @@ import { build as build_func } from 'azk/docker/build';
 
 var lazy = lazy_require({
   parseRepositoryTag: ['dockerode/lib/util'],
-  uuid: 'node-uuid',
+  uuid              : 'node-uuid',
 });
 
 export class Image extends promisifyClass('dockerode/lib/image') {

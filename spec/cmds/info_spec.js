@@ -37,13 +37,13 @@ describe('Azk cli, info controller, run in an', function() {
     });
 
     it("should show systems information no colored", function() {
-      doc_opts.argv   = `info --no-colored`.split(' ');
+      doc_opts.argv   = `info --no-color`.split(' ');
       run_options.cwd = manifest.manifestPath;
       var options = cli.router.cleanParams(cli.docopt(doc_opts));
       return cli.run(doc_opts, run_options).then((code) => {
         h.expect(code).to.equal(0);
         h.expect(options).to.have.property('info', true);
-        h.expect(options).to.have.property('no-colored', true);
+        h.expect(options).to.have.property('no-color', true);
         h.expect(outputs[0]).to.match(/^manifest/);
       });
     });
@@ -56,7 +56,7 @@ describe('Azk cli, info controller, run in an', function() {
       return cli.run(doc_opts, run_options).then((code) => {
         h.expect(code).to.equal(0);
 
-        var rx_color = /^\u001b\[32mmanifest/;
+        var rx_color = /^manifest/;
         h.expect(outputs[0]).to.match(rx_color);
 
         var rx_manifest = RegExp("manifest:.*" + h.escapeRegExp(manifest.file));
@@ -71,7 +71,7 @@ describe('Azk cli, info controller, run in an', function() {
         var rx_default = RegExp("default_system:.*" + h.escapeRegExp(manifest.default_system));
         h.expect(outputs[0]).to.match(rx_default);
 
-        var rx_name = RegExp(`${h.escapeRegExp("example".yellow)}:`);
+        var rx_name = /example/;
         h.expect(outputs[0]).to.match(rx_name);
 
         h.expect(outputs[0]).to.match(RegExp(config('docker:image_default')));

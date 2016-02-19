@@ -1,29 +1,39 @@
-import { _, t, lazy_require } from 'azk';
-import { defer, nfcall } from 'azk/utils/promises';
+import { _, t, lazy_require, isBlank } from 'azk';
+import { defer, promisify } from 'azk/utils/promises';
 import { AzkError } from 'azk/utils/errors';
 
-require('colors');
-
 var lazy = lazy_require({
-  'Table'    : 'cli-table',
-  'printf'   : 'printf',
-  'inquirer' : 'inquirer',
-  'execShLib': 'exec-sh',
-  'open'     : 'open',
+  Table    : 'cli-table',
+  printf   : 'printf',
+  inquirer : 'inquirer',
+  execShLib: 'exec-sh',
+  open     : 'open',
+  colors   : ['azk/utils/colors'],
 });
 
 var tables    = {};
 
+let colors_labels = {
+  ok  : 'green',
+  fail: 'red',
+  info: 'blue',
+  warning  : 'yellow',
+  deprecate: 'cyan',
+};
+
 // Status labels
-var azk_ok        = 'azk'.green;
-var azk_fail      = 'azk'.red;
-var azk_warning   = 'azk'.yellow;
-var azk_info      = 'azk'.blue;
-var azk_deprecate = 'azk'.cyan;
+function label_color(label) {
+  return lazy.colors[colors_labels[label]]('azk');
+}
 
 var UI = {
   isUI: true,
   t: t,
+  _interactive: true,
+
+  get c() {
+    return lazy.colors;
+  },
 
   dir(...args) {
     console.dir(...args);
@@ -56,13 +66,13 @@ var UI = {
   },
 
   // Helpers to print status
-  ok(...args) {        this._status(azk_ok, ...args);      },
-  info(...args) {      this._status(azk_info, ...args);    },
-  fail(...args) {      this._status(azk_fail, ...args);    },
-  warning(...args) {   this._status(azk_warning, ...args); },
-  deprecate(...args) { this._status(azk_deprecate, ...args); },
+  ok(...args) {        this._status('ok'  , ...args); },
+  info(...args) {      this._status('info', ...args); },
+  fail(...args) {      this._status('fail', ...args); },
+  warning(...args) {   this._status('warning'  , ...args); },
+  deprecate(...args) { this._status('deprecate', ...args); },
 
-  _status(tag, second, ...args) {
+  _status(label, second, ...args) {
     var message;
 
     if (second instanceof Error) {
@@ -75,7 +85,7 @@ var UI = {
       message = t(second, ...args);
     }
 
-    message = message.replace(/^(.+)/gm, `${tag}: $1`);
+    message = message.replace(/^(.+)/gm, `${label_color(label)}: $1`);
     this.stderr().write(message + "\n");
   },
 
@@ -145,7 +155,8 @@ var UI = {
       return lazy.execShLib(command, options, callback);
     } else {
       var result = (err) => { return (err) ? err.code : 0; };
-      return nfcall(lazy.execShLib, command, options).spread(result, result);
+      var execShLib = promisify(lazy.execShLib, { multiArgs: true });
+      return execShLib(command, options).spread(result).catch(result);
     }
   },
 
@@ -167,8 +178,19 @@ var UI = {
     });
   },
 
+  setInteractive(value) {
+    this._interactive = value;
+  },
+
   isInteractive() {
-    return this.stdout().isTTY === true;
+    return this._interactive === true && this.stdout().isTTY === true;
+  },
+
+  useColours(output_colors = null) {
+    if (_.isBoolean(output_colors)) {
+      this.c.enabled = output_colors;
+    }
+    return this.c.enabled;
   },
 
   outputColumns() {
@@ -177,7 +199,7 @@ var UI = {
 
   open(hostname, open_with) {
     lazy.open(hostname, open_with);
-  }
+  },
 
 };
 
@@ -185,6 +207,7 @@ export { UI };
 
 export class UIProxy {
   constructor(ui) {
+    ui = isBlank(ui) ? UI : ui;
     if (ui.isUI) {
       this.__user_interface = ui;
     } else {

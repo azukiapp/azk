@@ -44,7 +44,7 @@ systems({
     ],
     workdir: "/azk/#{manifest.dir}",
     shell: "/bin/bash",
-    command: "npm start",
+    command: ["npm", "start"],
     wait: {"retry": 20, "timeout": 1000},
     mounts: {
       '/azk/#{manifest.dir}': path("."),

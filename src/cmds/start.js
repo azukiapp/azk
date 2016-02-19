@@ -1,25 +1,26 @@
 import Scale from 'azk/cmds/scale';
 import { _, lazy_require } from 'azk';
-import { async } from 'azk/utils/promises';
+import { async, promiseReject } from 'azk/utils/promises';
 
 var lazy = lazy_require({
   GetProject: ['azk/manifest/get_project'],
 });
 
 var action_opts = {
-  start: { instances: {}, key: "already_started" },
-  stop:  { instances: 0 , key: "not_running" },
+  start     : { instances: {}, key: "already_started" },
+  stop      : { instances: 0 , key: "not_running" },
   skip_start: { key: "skip" },
-  skip_stop: { key: "skip" },
+  skip_stop : { key: "skip" },
 };
 
-class Start extends Scale {
+export default class Start extends Scale {
   _scale(systems, action, opts) {
     var args = this.normalized_params.arguments;
     var args_systems = (args.system || '').split(',');
     args_systems = _.map(args_systems, (s) => (s || '').trim());
 
     opts.instances = opts.instances || {};
+    let _super_scale = super._scale.bind(this);
 
     return async(this, function* () {
       var system, result = 0;
@@ -50,7 +51,7 @@ class Start extends Scale {
         }
 
         this.verbose([...ns].concat("verbose"), system);
-        var icc = yield super._scale(system, instances, opts);
+        var icc = yield _super_scale(system, instances, opts);
 
         if (icc === 0) {
           this.ui[ui_status]([...ns].concat(scale_options.key), system);
@@ -96,15 +97,14 @@ class Start extends Scale {
           this.ui.warning(`${tKey}.default_system_not_balanceable`, tOpt);
         }
       }
-
       return result;
     })
     .catch((error) => {
-      this.ui.fail(error);
       this.ui.fail('commands.start.fail', error);
-      return this
-        .stop(manifest, systems, opts)
-        .then(() => { return error.code ? error.code : 127; });
+      return this.stop(manifest, systems, opts)
+      .then(() => {
+        return promiseReject(error);
+      });
     });
   }
 
@@ -130,15 +130,16 @@ class Start extends Scale {
         opts.system = null;
 
         // call scale
-        return this.index(opts, command_parse_result)
-        .then(() => {
-          this.ui.ok('commands.start.get_project.final_started_message', {
-            git_destination_path: command_parse_result.git_destination_path
+        return this
+          .index(opts, command_parse_result)
+          .then((result) => {
+            this.ui.ok('commands.start.get_project.final_started_message', {
+              git_destination_path: command_parse_result.git_destination_path
+            });
+            return result;
           });
-        });
       });
     }
+    return 1;
   }
 }
-
-module.exports = Start;

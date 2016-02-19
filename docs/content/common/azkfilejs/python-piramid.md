@@ -11,7 +11,7 @@ systems({
     ],
     workdir: "/azk/#{manifest.dir}",
     shell: "/bin/bash",
-    command: "pserve development.ini --reload http_port=$HTTP_PORT",
+    command: ["pserve", "development.ini", "--reload", "http_port=$HTTP_PORT"],
     wait: {
       "retry": 20,
       "timeout": 1000
