@@ -9,7 +9,7 @@ Por favor, leia com atenção os termos abaixo para entender como nos ajudar a a
 > Versão para impressão: https://github.com/azukiapp/azk/blob/master/docs/content/pt-BR/terms-of-use/README.md
 
 ```
-Válidos desde: 18 de fevereiro de 2016.
+Termos válidos desde: 18 de fevereiro de 2016.
 Data da última atualização: 18 de fevereiro de 2016.
 ```
 
@@ -25,7 +25,7 @@ Estes termos podem sofrer alteração a qualquer momento sem aviso prévio e o u
 
 ## Motivação
 
-Os dados coletados serão principalmente para as finalidades listas abaixo:
+Os dados coletados serão usados principalmente para as finalidades listas abaixo:
 
 + Detecção de configurações de hardware e software em que o `azk` é utilizado assim como a sua recorrência;
 + Detecção e priorização (segundo recorrência) de erros internos de funcionamento do `azk` a serem corrigidos;
@@ -35,7 +35,7 @@ Os dados coletados serão principalmente para as finalidades listas abaixo:
 
 A coleta de dados é automática e contínua.
 
-Ela pode ser de dois tipos: anônima e não-anônima.
+Ela pode ser de dois tipos: **anônima** e **não-anônima**.
 
 No primeiro caso, nenhuma informação que permita a identificação do usuário referente a um conjunto de dados de uso será coletada.
 
@@ -53,7 +53,7 @@ Neste momento, a coleta de dados anônima será então ativada por padrão.
 
 Quando o primeiro erro ocorrer, você será avisado e poderá então informar o seu e-mail se desejar.
 
-Todas essas opções podem ser revertidas a qualquer momento. [Confira aqui](http://docs.azk.io/pt-BR/reference/cli/config.html) como fazer.
+A coleta de dados (anônima e não-anônima) pode ser desativada (e reativada) sempre que você desejar. Da mesma forma, você poder mudar do modo anônimo para o não-anônimo e vice-versa. [Confira aqui](http://docs.azk.io/pt-BR/reference/cli/config.html) como fazer.
 
 ## Dados Coletados
 
@@ -66,7 +66,7 @@ Nenhum dado de identificação pessoal será compartilhado pela Azuki com tercei
 + versão do `azk`;
 + comandos utilizados;
 + imagens de Docker utilizadas;
-+ nome do repositório de imagens utilizado;
++ nome do repositório de imagens utilizado.
 
 ### Dados de sistema (Hardware e Software):
 
@@ -75,12 +75,12 @@ Nenhum dado de identificação pessoal será compartilhado pela Azuki com tercei
 + nome e modelo do processador;
 + número de núcleos do processador;
 + memória RAM total;
-+ endereço IP;
++ endereço IP.
 
 ### Erros internos de funcionamento do `azk`:
 
 + mensagem de erro retornada;
-+ *stacktrace* do erro;
++ *stacktrace* do erro.
 
 ### Geo-localização:
 

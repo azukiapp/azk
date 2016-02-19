@@ -35,11 +35,11 @@ The collected data will be mainly employed for the purposes below:
 
 Data collection is automatic and ongoing.
 
-There are two kinds of data collection: anonymous and non-anonymous.
+There are two kinds of data collection: **anonymous** and **non-anonymous**.
 
 In the first case, no personally identifiable information will be collected or associated to the corresponding usage data set collected.
 
-In the second case, users will have the option to inform an e-mail address to be associtated to their usage data set collected.
+In the second case, users will have the option to inform an e-mail address to be associated to their usage data set collected.
 
 This e-mail address will be used for support purposes (Azuki may send solutions to automatically reported errors in `azk` even if users don't ever request them).
 
@@ -53,7 +53,7 @@ Then, at this point, data collection will be activated by default.
 
 When the first error take place, you'll be informed and asked to inform your e-mail if you wish to do so.
 
-Any of these choices can be reverted at any time. Check [these instructions](http://docs.azk.io/en/reference/cli/config.html) to learn how.
+Data collection (anonymous and non-anonymous) can be deactivated whenever you want. The same applies to switching from anonymous to non-anonymous modes and vice-versa. Check [these instructions](http://docs.azk.io/en/reference/cli/config.html) to learn how.
 
 ## Collected Data
 
@@ -66,7 +66,7 @@ No personally identifiable information will ever be shared by Azuki with third p
 + `azk` version;
 + commands used;
 + Docker images used;
-+ name of images repository used;
++ name of images repository used.
 
 ### System data (Hardware e Software):
 
@@ -75,12 +75,12 @@ No personally identifiable information will ever be shared by Azuki with third p
 + CPU name and model;
 + number of CPU cores;
 + total RAM memory;
-+ IP address;
++ IP address.
 
 ### Internal erros in `azk`:
 
 + returned error message;
-+ error stacktrace;
++ error stacktrace.
 
 ### Geo-localization:
 
