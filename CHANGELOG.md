@@ -36,6 +36,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [File sharing] Avoiding to fix the synced files permissions for all systems every time a system was started #616;
   * [Docker] Upgrading azk's VM ISO to use Docker 1.9.1;
   * [Docs] All examples of the property `command` were updated as `array` instead of `string`;
+  * [Docs] Upgrading azk's TOS;
 
 * Bug
   * [Pull] When pulling in verbose mode do not print several `undefined` anymore. Instead print Docker downloading bar provided by Docker API;
