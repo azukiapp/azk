@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## v0.17.0 - (2015-02-19)
+## v0.17.0 - (2016-02-19)
 
 * Enhancements
   * [Cli] Updating `i18n-cli`: now, it supports color syntax highlight;
