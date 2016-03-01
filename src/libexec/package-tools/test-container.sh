@@ -69,7 +69,7 @@ setup() {
 
 run_test() {
   set -e
-  DETECTED_VERSION=$( azk version | sed -e 's/^azk version\ //; s/,.*//' )
+  DETECTED_VERSION=$( azk version | sed -e 's/^azk //; s/^version //; s/,.*//' )
 
   if [[ "${DETECTED_VERSION}" != "${VERSION}" ]]; then
     echo "Version check failed."

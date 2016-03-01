@@ -288,7 +288,7 @@ if [[ $BUILD_DEB == true ]]; then
       step_run "Cleaning environment" rm -Rf package/deb package/public
     fi
 
-    step_run "Downloading libnss-resolver" \
+    step_run "Downloading libnss-resolver" --exit \
     mkdir -p package/deb \
     && wget -q "${LIBNSS_RESOLVER_REPO}/ubuntu12-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb" -O "package/deb/precise-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb" \
     && wget -q "${LIBNSS_RESOLVER_REPO}/ubuntu14-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb" -O "package/deb/trusty-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb" \
@@ -337,7 +337,7 @@ if [[ $BUILD_RPM == true ]]; then
 
     [[ ${CLEAN_REPO} == true ]] && step_run "Cleaning environment" rm -Rf package/rpm package/fedora20 package/fedora23
 
-    step_run "Downloading libnss-resolver" \
+    step_run "Downloading libnss-resolver" --exit \
     mkdir -p package/rpm \
     && wget "${LIBNSS_RESOLVER_REPO}/fedora20-libnss-resolver-${LIBNSS_RESOLVER_VERSION}-1.x86_64.rpm" -O "package/rpm/fedora20-libnss-resolver-${LIBNSS_RESOLVER_VERSION}-1.x86_64.rpm" \
     && wget "${LIBNSS_RESOLVER_REPO}/fedora23-libnss-resolver-${LIBNSS_RESOLVER_VERSION}-1.x86_64.rpm" -O "package/rpm/fedora23-libnss-resolver-${LIBNSS_RESOLVER_VERSION}-1.x86_64.rpm"
