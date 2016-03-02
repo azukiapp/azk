@@ -6,6 +6,7 @@ var mounts = {
   "/azk/#{manifest.dir}": sync('./', { shell: true }),
   "/azk/#{manifest.dir}/package": path("./package"),
   "/azk/#{manifest.dir}/node_modules": persistent('node_modules-#{system.name}'),
+  "/azk/#{manifest.dir}/.package-envs": path("./.package-envs"),
   "/azk/demos"          : path("../demos"),
   "/azk/build"          : persistent('build-#{system.name}'),
   "/azk/lib"            : persistent('lib-#{system.name}'),

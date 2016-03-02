@@ -263,9 +263,8 @@ source .dependencies
 LINUX_BUILD_WAS_EXECUTED=false
 
 calculate_azk_version
-step_run "Creating .package-env file" --exit create_package_envs
-step_run "Bumping version" --exit bump_version
 
+step_run "Creating .package-env file" --exit create_package_envs
 [[ $NO_VERSION != true ]] && step_run "Bumping version" --exit bump_version
 [[ $NO_MAKE != true ]]    && step_run "Running make" --exit run_make
 [[ $NO_AGENT != true ]]   && step_run "Starting agent" --exit start_agent
@@ -301,7 +300,7 @@ if [[ $BUILD_DEB == true ]]; then
     fi
 
     step_run "Creating deb packages" --exit \
-    rm -rf /azk/aptly/public/pool/main/a/azk${PACKAGE_SUFFIX}/azk${PACKAGE_SUFFIX}_${VERSION}_amd64.deb \
+    azk shell package -- rm -rf /azk/aptly/public/pool/main/a/azk${PACKAGE_SUFFIX}/azk${PACKAGE_SUFFIX}_${VERSION_NUMBER}*_amd64.deb \
     && make package_deb ${EXTRA_FLAGS}
 
     UBUNTU_VERSIONS=( "ubuntu12:precise" "ubuntu14:trusty" "ubuntu15:wily" )
