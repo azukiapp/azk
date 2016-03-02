@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## dev
 
 * Enhancements
+  * [Cli] `azk version` changes to display the first 7 digits of the commit hash and the date of the corresponding commite version;
   * [Cli] Updating `i18n-cli`: now, it supports color syntax highlight;
   * [Cli] Replacing `colors` for `chalk` and adding `--no-color` option that outputs in only one color;
   * [Cli] Improving `ui.isInteractive()`: now, not only the existence of a `tty` is checked but also the parameter `--quiet`;
