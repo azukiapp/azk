@@ -1,26 +1,26 @@
 import h from 'spec/spec_helper';
 import { GetProject } from 'azk/manifest/get_project';
 import { Cli } from 'azk/cli';
-import { promiseResolve } from 'azk/utils/promises';
 
 describe('GetProject:', function() {
 
+  // cli-router to parse arguments
+  const cli_options = {};
+  const cli = new Cli(cli_options);
+
+  // parse arguments with parseCommandOptions
+  const cliRouterCleanParams = function (command_args) {
+    const doc_opts    = { exit: false };
+    doc_opts.argv = command_args.split(' ').splice(1);
+
+    // parsed arguments
+    const cli_options = cli.router.cleanParams(cli.docopt(doc_opts));
+
+    // azk start git repo parsed arguments
+    return GetProject.parseCommandOptions(cli_options);
+  };
+
   describe('parseCommandOptions:', function () {
-    // cli-router to parse arguments
-    var cli_options = {};
-    var cli = new Cli(cli_options);
-
-    // parse arguments with parseCommandOptions
-    var cliRouterCleanParams = function (command_args) {
-      var doc_opts    = { exit: false };
-      doc_opts.argv = command_args.split(' ').splice(1);
-
-      // parsed arguments
-      var cli_options = cli.router.cleanParams(cli.docopt(doc_opts));
-
-      // azk start git repo parsed arguments
-      return GetProject.parseCommandOptions(cli_options);
-    };
 
     it('should git-ref=master with git-repo argument only', function() {
       var parsed_options = cliRouterCleanParams([
@@ -125,18 +125,25 @@ describe('GetProject:', function() {
     });
 
     it('should be an old git version when <  1.7.10', function() {
-      getProject._gitspawn_VersionAsync = () => promiseResolve({code: 0, message: '1.7.9'});
-      return getProject._checkGitVersion(0)
-      .then(function() {
-        h.expect(getProject.is_new_git).to.be.false;
-      });
+      getProject._checkGitVersion('1.7.9');
+      h.expect(getProject.is_new_git).to.be.false;
     });
 
-    it('should be a  new git version when >= 1.7.10', function() {
-      getProject._gitspawn_VersionAsync = () => promiseResolve({code: 0, message: '1.7.10'});
-      return getProject._checkGitVersion(0)
-      .then(function() {
-        h.expect(getProject.is_new_git).to.be.true;
+    it('should be a new git version when >= 1.7.10', function() {
+      getProject._checkGitVersion('1.7.10');
+      h.expect(getProject.is_new_git).to.be.true;
+    });
+
+    it('should _gitHelper.version get real current git version', function() {
+      var parsed_options = cliRouterCleanParams([
+        'azk start git@github.com:azukiapp/azkdemo.git',
+        '--git-ref master',
+        '-vv',
+      ].join(' '));
+      getProject = new GetProject(ui, parsed_options);
+      return getProject._gitHelper.version(getProject.gitOutput)
+      .then(function(git_version) {
+        h.expect(git_version).to.match(/\d+\.\d+\.\d+/);
       });
     });
 

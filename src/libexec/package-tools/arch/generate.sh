@@ -21,7 +21,7 @@ abs_dir() {
 export AZK_ROOT_PATH=`cd \`abs_dir ${BASH_SOURCE:-$0}\`/../../..; pwd`
 export PATH=${AZK_ROOT_PATH}/bin:$PATH
 
-export VERSION=${1:-$( azk version | awk '{ print $2 }' )}
+export VERSION=${1:-$( azk version | sed -e 's/^azk version\ //; s/,.*//' )}
 export AUR_REPO_DIR=${2:-"/tmp/aur-azk"}
 
 RELEASE_CHANNEL=$( echo "${VERSION}" | sed s/[^\\-]*// | sed s/^\\-// | sed s/\\..*// )

@@ -123,6 +123,15 @@ if [[ ${BUILD_DEB} == true ]] || [[ ${BUILD_RPM} == true ]]; then
   [[ ! -e "${SECRET_KEY}" ]] && echo >&2 "Please inform a valid GPG key." && exit 3
 fi
 
+create_package_envs() {
+  AZK_LAST_COMMIT_ID=$(git rev-parse HEAD | cut -c 1-7)
+  AZK_LAST_COMMIT_DATE=$(git log -1 --format=%cd --date=short)
+  (
+    echo "export AZK_LAST_COMMIT_ID=${AZK_LAST_COMMIT_ID}"
+    echo "export AZK_LAST_COMMIT_DATE=${AZK_LAST_COMMIT_DATE}"
+  ) > .package-envs
+}
+
 calculate_azk_version() {
   VERSION_NUMBER=$( cat package.json | grep -e "version" | cut -d' ' -f4 | sed -n 's/\"//p' | sed -n 's/\"//p' | sed -n 's/,//p' | sed s/-.*// )
 
@@ -254,6 +263,8 @@ source .dependencies
 LINUX_BUILD_WAS_EXECUTED=false
 
 calculate_azk_version
+step_run "Creating .package-env file" --exit create_package_envs
+step_run "Bumping version" --exit bump_version
 
 [[ $NO_VERSION != true ]] && step_run "Bumping version" --exit bump_version
 [[ $NO_MAKE != true ]]    && step_run "Running make" --exit run_make
@@ -289,7 +300,7 @@ if [[ $BUILD_DEB == true ]]; then
       EXTRA_FLAGS="LINUX_CLEAN="
     fi
 
-    step_run "Creating deb packages" \
+    step_run "Creating deb packages" --exit \
     rm -rf /azk/aptly/public/pool/main/a/azk${PACKAGE_SUFFIX}/azk${PACKAGE_SUFFIX}_${VERSION}_amd64.deb \
     && make package_deb ${EXTRA_FLAGS}
 
@@ -337,7 +348,7 @@ if [[ $BUILD_RPM == true ]]; then
       EXTRA_FLAGS="LINUX_CLEAN="
     fi
 
-    step_run "Creating rpm packages" make package_rpm ${EXTRA_FLAGS}
+    step_run "Creating rpm packages" --exit make package_rpm ${EXTRA_FLAGS}
 
     FEDORA_VERSIONS=( "fedora20" "fedora23" )
     for FEDORA_VERSION in "${FEDORA_VERSIONS[@]}"; do
@@ -368,7 +379,7 @@ if [[ $BUILD_MAC == true ]]; then
   (
     set -e
     step_run "Cleaning environment" rm -Rf package/brew
-    step_run "Creating Mac packages" make package_mac
+    step_run "Creating Mac packages" --exit make package_mac
     step_run "Generating Mac repository" ${AZK_BUILD_TOOLS_PATH}/mac/generate.sh
     if [[ $NO_TEST != true ]]; then
       step_run "Testing Mac repository" ${AZK_BUILD_TOOLS_PATH}/mac/test.sh $TEST_ARGS

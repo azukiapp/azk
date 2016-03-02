@@ -28,7 +28,7 @@ set -e
 export PATH=`pwd`/bin:$PATH
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
-export VERSION=$( azk version | awk '{ print $2 }' )
+export VERSION=$( azk version | sed -e 's/^azk version\ //; s/,.*//' )
 export SECRET_KEY=$1
 export LIBNSS_RESOLVER_VERSION=$2
 export DISTRO=$3 && export REPO=azk-${DISTRO}

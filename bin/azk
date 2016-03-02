@@ -49,6 +49,9 @@ export PATH=$AZK_NPM_PATH/.bin:$PATH
 
 # Load dependencies versions
 . ${AZK_ROOT_PATH}/.dependencies
+if [ -e ${AZK_ROOT_PATH}/.package-envs ]; then
+  . ${AZK_ROOT_PATH}/.package-envs
+fi
 export AZK_DOCKER_MIN_VERSION=${AZK_DOCKER_MIN_VERSION}
 export AZK_DOCKER_API_VERSION=${AZK_DOCKER_API_VERSION}
 export AZK_ISO_VERSION=${AZK_ISO_VERSION}
