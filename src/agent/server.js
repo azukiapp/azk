@@ -95,6 +95,7 @@ var Server = {
         var file    = config("agent:vm:ssh_key") + ".pub";
         var content = yield fsAsync.readFile(file);
         VM.setProperty(vm_name, "/VirtualBox/D2D/SSH_KEY", content.toString());
+        VM.setProperty(vm_name, "/VirtualBox/D2D/swap_factor", config("agent:vm:swap_factor"));
       }
 
       if (!running && start) {

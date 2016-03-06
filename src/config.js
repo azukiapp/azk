@@ -154,6 +154,7 @@ var options = mergeConfig({
         blank_disk    : path.join(envs('AZK_LIB_PATH'), "vm", envs('AZK_ISO_VERSION'), "azk-agent.vmdk.gz"),
         mount_point   : '/media/sf_Root',
         authorized_key: '/home/docker/.ssh/authorized_keys',
+        swap_factor   : envs('AZK_VM_SWAP_FACTOR', 1.5),
       },
 
       // Used to carry global configuration switches the agent
