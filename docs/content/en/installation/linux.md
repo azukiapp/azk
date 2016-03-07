@@ -4,9 +4,9 @@
 
 ## Requirements
 
-* **Distributions (tested)**: Ubuntu 12.04/14.04/15.10 and Fedora 20/21/22
+* **Distributions (tested)**: Ubuntu 12.04/14.04/15.10, Fedora 20/21/22 and Arch Linux
 * **Architecture**: 64-bits
-* [Docker][docker] 1.8.1
+* [Docker][docker] 1.8.1 or later
 * Not running any services on ports `80` and `53`
 
 **Important**: If you are running any service on port `80` and/or `53` you must customize the configuration of `azk` setting the following variables `AZK_BALANCER_PORT` and `AZK_DNS_PORT` respectively, before running `azk agent start`.
@@ -27,6 +27,7 @@ There are two ways to install Docker:
 
   - [Ubuntu][docker_ubuntu_installation]
   - [Fedora][docker_fedora_installation]
+  - [Arch Linux][docker_arch_installation]
 
 ## Granting access to Docker service to your user
 
@@ -38,7 +39,7 @@ To avoid having to use sudo when you use the docker command, create a Unix group
 
 To create the docker group and add your user:
 
-1. Log into Ubuntu as a user with sudo privileges;
+1. Log in as a user with sudo privileges;
 
 2. Create the docker group and add your user
 
@@ -147,6 +148,17 @@ The easiest way to install `azk` is to use the script below. It will identify yo
 
 4. You can [start the azk agent](../getting-started/starting-agent.md) now, but, **make sure that the Docker service is running**;
 
+### Arch Linux
+
+> You'll need `yaourt` or some other tool to get packages from [AUR](https://aur.archlinux.org/). To learn how to install `yaourt`, check [these instructions](https://archlinux.fr/yaourt-en).
+
+1. Install `azk` and its dependencies:
+
+  ```bash
+  $ yaourt -S azk
+  ```
+
+2. You can [start the azk agent](../getting-started/starting-agent.md) now, but, **make sure that the Docker service is running**;
 
 ### Other distributions
 
