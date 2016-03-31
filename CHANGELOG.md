@@ -7,6 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 * Enhancements
   * [Code] Adding github issue and PR templates;
+  * [Docs] The instructions for use `azk` and `Wordpress` have been improved;
 
 ## v0.17.0 - (2016-02-19)
 
