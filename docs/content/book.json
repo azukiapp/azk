@@ -3,7 +3,7 @@
   "description": "Gitbook documentation for azk",
   "version": "2.6.4",
   "azkVersion": "0.13.0",
-  "releaseNotes": "http://......",
+  "releaseNotes": "https://github.com/azukiapp/azk/blob/master/CHANGELOG.md",
   "plugins": [
     "ga",
     "hotjar",
