@@ -404,9 +404,8 @@ export class System {
       ports[data.name] = [data.config];
     });
 
-    var type = daemon ? "daemon" : "shell";
-
     // Make mounts options
+    var type   = daemon ? "daemon" : "shell";
     var mounts = _.merge(
       {}, this._mounts_to_volumes(this.options.mounts || {}, daemon),
       this._mounts_to_volumes(options.mounts, daemon)
@@ -551,6 +550,7 @@ export class System {
         version       : version,
         default_domain: config('agent:balancer:host'),
         default_dns   : net.nameServers(),
+        dns_port      : config('agent:dns:port'),
         balancer_port : config('agent:balancer:port'),
         balancer_ip   : config('agent:balancer:ip'),
       },
@@ -591,17 +591,21 @@ export class System {
         mount = { type: 'path', value: mount };
       }
 
+      mount.options = _.defaults(mount.options || {}, {resolve: true});
+
       var target = null;
       switch (mount.type) {
         case 'path':
           target = mount.value;
 
-          if (!target.match(/^\//)) {
-            target = this._resolved_path(target);
-          }
+          if (mount.options.resolve) {
+            if (!target.match(/^\//)) {
+              target = this._resolved_path(target);
+            }
 
-          target = (fs.existsSync(target)) ?
-            utils.docker.resolvePath(target) : null;
+            target = (fs.existsSync(target)) ?
+              utils.docker.resolvePath(target) : null;
+          }
 
           break;
         case 'persistent':
