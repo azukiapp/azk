@@ -1,4 +1,3 @@
-import { _ } from 'azk';
 import { Rule as ElixirRule } from 'azk/generator/rules/elixir';
 import { Versions } from 'azk/utils';
 import { last } from 'lodash/array';

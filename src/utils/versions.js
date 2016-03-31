@@ -21,9 +21,9 @@ var Versions = {
     // fix cached regex
     regex = new RegExp(regex);
     var match = regex.exec(content) || [];
-    match = match.slice(1, match.length)
+    match = match.slice(1, match.length);
     var versions = [];
-    match.forEach((version) =>{
+    match.forEach((version) => {
       if (version) {
         version = this.parse(version);
         versions.push(version);
@@ -43,7 +43,7 @@ var Versions = {
     if (version) {
       // force valid format: eg: 1.0 => 1.0.0 (with depth=3)
       var splited = version.split('.');
-      for(var i = 0; i < depth; i++) {
+      for (var i = 0; i < depth; i++) {
         splited[i] = splited[i] || '0';
       }
       version = splited.join('.');

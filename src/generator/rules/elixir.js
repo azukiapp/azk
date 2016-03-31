@@ -1,4 +1,3 @@
-import { _ } from 'azk';
 import { BaseRule } from 'azk/generator/rules';
 import { Versions } from 'azk/utils';
 import { last } from 'lodash/array';
