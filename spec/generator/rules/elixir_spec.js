@@ -1,7 +1,6 @@
 import h from 'spec/spec_helper';
 import { Rule } from 'azk/generator/rules/elixir';
 import { path, fs } from 'azk';
-var last  = require('lodash/array/last');
 
 describe('Azk generators, Elixir rule', function() {
   var outputs = [];
