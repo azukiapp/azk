@@ -10,6 +10,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Docs] The instructions for use `azk` and `Wordpress` have been improved;
   * [Manifest] Adding `resolve` options to `path`, with default `true` value;
 
+* Bug
+  * [Sync] Fixing ownership of the symlink itself, not of the target file;
+
 ## v0.17.0 - (2016-02-19)
 
 * Enhancements
