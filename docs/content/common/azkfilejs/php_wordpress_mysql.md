@@ -1,7 +1,9 @@
 ```js
 systems({
-  "wordpress": {
-    depends: ["mysql"],
+  wordpress: {
+    // Dependent systems
+    depends: ['mysql'],
+    // More images:  http://images.azk.io
     image: {"docker": "azukiapp/php-fpm"},
     workdir: "/azk/#{manifest.dir}",
     shell: "/bin/bash",
@@ -14,9 +16,13 @@ systems({
       domains: [ "#{system.name}.#{azk.default_domain}" ]
     },
     ports: {
+      // exports global variables
       http: "80/tcp",
     },
     envs: {
+      // Make sure that the PORT value is the same as the one
+      // in ports/http below, and that it's also the same
+      // if you're setting it in a .env file
       APP_DIR: "/azk/#{manifest.dir}",
     },
   },
@@ -49,18 +55,20 @@ systems({
       MYSQL_DATABASE: "#{envs.MYSQL_DATABASE}"
     },
   },
-  "phpmyadmin": {
+  phpmyadmin: {
+    // Dependent systems
     depends: ["mysql"],
+    // More images:  http://images.azk.io
     image: { docker: "reduto/phpmyadmin" },
     wait: {retry: 20, timeout: 1000},
-    scalable: {default: 0, limit: 1},
+    scalable: {default: 1, limit: 1},
     http: {
       domains: [ "#{system.name}.#{azk.default_domain}" ]
     },
     ports: {
       http: "80/tcp",
     },
-  },
+  }
 });
 
 // Sets a default system (to use: start, stop, status, scale)
