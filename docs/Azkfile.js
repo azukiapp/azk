@@ -18,7 +18,7 @@ systems({
     wait: {"retry": 20, "timeout": 2000},
     mounts: {
       '/azk/#{manifest.dir}': path("."),
-      '/azk/CONTRIBUTING.md': path("../CONTRIBUTING.md"),
+      '/azk/CONTRIBUTING.md': path("../.github/CONTRIBUTING.md"),
       '/azk/node_modules': persistent("node_modules"),
     },
     scalable: {"default": 1},
