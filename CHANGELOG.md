@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## dev
+
+* Enhancements
+  * [Code] Adding github issue and PR templates;
+
 ## v0.17.0 - (2016-02-19)
 
 * Enhancements
