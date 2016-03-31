@@ -70,8 +70,7 @@ gulp.task('build', function(callback) {
 });
 
 // Deploying zipped files
-// gulp.task('deploy', ['build'], function() {
-gulp.task('deploy', function() {
+gulp.task('deploy', ['build'], function() {
   var awspublish  = require("gulp-awspublish");
   var parallelize = require("concurrent-transform");
   var awspublishRouter = require("gulp-awspublish-router");
