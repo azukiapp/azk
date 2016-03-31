@@ -5,10 +5,11 @@ var fs     = require('fs');
 var defer  = require('azk/utils/promises').defer;
 
 var Utils = {
-  get default() { return Utils; },
-  get _      () { return _; },
-  get net    () { return require('azk/utils/net'); },
-  get docker () { return require('azk/utils/docker'); },
+  get default () { return Utils; },
+  get _       () { return _; },
+  get net     () { return require('azk/utils/net'); },
+  get docker  () { return require('azk/utils/docker'); },
+  get Versions() { return require('azk/utils/versions'); },
 
   /**
    * `lazy_require` can postpone loading of external dependencies.

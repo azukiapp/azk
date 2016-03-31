@@ -1,4 +1,4 @@
-import { Suggestion as ElixirSuggestion } from 'azk/generator/suggestions/elixir';
+import { Suggestion as ElixirSuggestion } from 'azk/generator/suggestions/elixir-1.2';
 
 export class Suggestion extends ElixirSuggestion {
   constructor(...args) {
@@ -30,9 +30,6 @@ export class Suggestion extends ElixirSuggestion {
       ports: {
         http: "4000",
       },
-      envs    : {
-        MIX_ENV: 'dev',
-      }
     });
   }
 }

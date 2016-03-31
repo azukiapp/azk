@@ -5,20 +5,22 @@ export class Suggestion extends DefaultSuggestion {
     super(...args);
 
     var name = `elixir`;
+    var version = '1.0';
+
     // Readable name for this suggestion
-    this.name = `${name}`;
+    this.name = `${name}-${version}`;
 
     // Which rules they suggestion is valid
-    this.ruleNamesList = [`${name}`];
-
+    this.ruleNamesList = [`${name}-${version}`];
     // Initial Azkfile.js suggestion
     this.suggestion = this.extend(this.suggestion, {
-      __type   : `${name}`,
-      image    : { docker: `azukiapp/${name}` },
+      __type: `${name} ${version}`,
+      image : { docker: `azukiapp/${name}:${version}` },
       provision: [
         "mix do deps.get, compile",
       ],
       command: ["mix", "app.start"],
+      shell: false,
       mounts: {
         "/azk/#{app.dir}"       : {type: 'sync', value: '.'},
         "/azk/#{app.dir}/deps"  : {type: 'persistent', value: "#{app.relative}/deps"},
@@ -30,9 +32,6 @@ export class Suggestion extends DefaultSuggestion {
       ports: {
         http: "4000",
       },
-      envs    : {
-        MIX_ENV: 'dev',
-      }
     });
   }
 }

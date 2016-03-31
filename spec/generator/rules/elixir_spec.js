@@ -27,40 +27,64 @@ describe('Azk generators, Elixir rule', function() {
     h.expect(evidence).to.have.deep.property('fullpath', mixfilePath);
     h.expect(evidence).to.have.deep.property('ruleType', 'runtime');
     h.expect(evidence).to.have.deep.property('name'    , 'elixir');
-    h.expect(evidence).to.have.deep.property('ruleName', 'elixir');
+    h.expect(evidence).to.have.deep.property('ruleName', 'elixir-1.0');
     h.expect(evidence).to.have.deep.property('version' , '1.0.0');
   });
 
-  it('should version 1.0.0 when set 1', () => {
-    content = content.replace(regex, 'elixir: "~> 1",');
-    var evidence = rule.getEvidence(mixfilePath, content);
+  describe('should version is', function () {
+    it('1.0.0 from 1', () => {
+      content = content.replace(regex, 'elixir: "~> 1",');
+      var evidence = rule.getEvidence(mixfilePath, content);
 
-    h.expect(evidence).to.have.deep.property('fullpath', mixfilePath);
-    h.expect(evidence).to.have.deep.property('ruleType', 'runtime');
-    h.expect(evidence).to.have.deep.property('name'    , 'elixir');
-    h.expect(evidence).to.have.deep.property('ruleName', 'elixir');
-    h.expect(evidence).to.have.deep.property('version' , '1.0.0');
-  });
+      h.expect(evidence).to.have.deep.property('fullpath', mixfilePath);
+      h.expect(evidence).to.have.deep.property('ruleType', 'runtime');
+      h.expect(evidence).to.have.deep.property('name'    , 'elixir');
+      h.expect(evidence).to.have.deep.property('ruleName', 'elixir-1.0');
+      h.expect(evidence).to.have.deep.property('version' , '1.0.0');
+    });
 
-  it('should version 0.8.0 when set 0.8', () => {
-    content = content.replace(regex, 'elixir: "~> 0.8",');
-    var evidence = rule.getEvidence(mixfilePath, content);
+    it('0.8.0 from 0.8', () => {
+      content = content.replace(regex, 'elixir: "~> 0.8",');
+      var evidence = rule.getEvidence(mixfilePath, content);
 
-    h.expect(evidence).to.have.deep.property('fullpath', mixfilePath);
-    h.expect(evidence).to.have.deep.property('ruleType', 'runtime');
-    h.expect(evidence).to.have.deep.property('name'    , 'elixir');
-    h.expect(evidence).to.have.deep.property('ruleName', 'elixir');
-    h.expect(evidence).to.have.deep.property('version' , '0.8.0');
-  });
+      h.expect(evidence).to.have.deep.property('fullpath', mixfilePath);
+      h.expect(evidence).to.have.deep.property('ruleType', 'runtime');
+      h.expect(evidence).to.have.deep.property('name'    , 'elixir');
+      h.expect(evidence).to.have.deep.property('ruleName', 'elixir-1.0');
+      h.expect(evidence).to.have.deep.property('version' , '0.8.0');
+    });
 
-  it('should get latest version when do not found engine', () => {
-    content = content.replace(regex, '');
-    var evidence = rule.getEvidence(mixfilePath, content);
+    it('1.1.0 from 1.1', () => {
+      content = content.replace(regex, 'elixir: "~> 1.1",');
+      var evidence = rule.getEvidence(mixfilePath, content);
 
-    h.expect(evidence).to.have.deep.property('fullpath', mixfilePath);
-    h.expect(evidence).to.have.deep.property('ruleType', 'runtime');
-    h.expect(evidence).to.have.deep.property('name'    , 'elixir');
-    h.expect(evidence).to.have.deep.property('ruleName', 'elixir');
-    h.expect(evidence).to.have.deep.property('version' , null);
+      h.expect(evidence).to.have.deep.property('fullpath', mixfilePath);
+      h.expect(evidence).to.have.deep.property('ruleType', 'runtime');
+      h.expect(evidence).to.have.deep.property('name'    , 'elixir');
+      h.expect(evidence).to.have.deep.property('ruleName', 'elixir-1.1');
+      h.expect(evidence).to.have.deep.property('version' , '1.1.0');
+    });
+
+    it('1.2.0 from 1.2', () => {
+      content = content.replace(regex, 'elixir: "~> 1.2",');
+      var evidence = rule.getEvidence(mixfilePath, content);
+
+      h.expect(evidence).to.have.deep.property('fullpath', mixfilePath);
+      h.expect(evidence).to.have.deep.property('ruleType', 'runtime');
+      h.expect(evidence).to.have.deep.property('name'    , 'elixir');
+      h.expect(evidence).to.have.deep.property('ruleName', 'elixir-1.2');
+      h.expect(evidence).to.have.deep.property('version' , '1.2.0');
+    });
+
+    it('latest from not found engine', () => {
+      content = content.replace(regex, '');
+      var evidence = rule.getEvidence(mixfilePath, content);
+
+      h.expect(evidence).to.have.deep.property('fullpath', mixfilePath);
+      h.expect(evidence).to.have.deep.property('ruleType', 'runtime');
+      h.expect(evidence).to.have.deep.property('name'    , 'elixir');
+      h.expect(evidence).to.have.deep.property('ruleName', 'elixir-1.2');
+      h.expect(evidence).to.have.deep.property('version' , undefined);
+    });
   });
 });
