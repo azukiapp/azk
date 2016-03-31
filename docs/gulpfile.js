@@ -22,25 +22,6 @@ gulp.task('replace-font-path-en', function(){
     .pipe(gulp.dest('./content/_book/en/gitbook/'));
 });
 
-gulp.task('replace-style.css-path-on-index', function(){
-  return gulp.src(['./content/_book/index.html'])
-    .pipe(replace(/gitbook\/style\.css/gm, 'pt-BR/gitbook/style.css'))
-    .pipe(gulp.dest('./content/_book/'));
-});
-
-gulp.task('replace-ga-tokens', function() {
-  return gulp.src(['./content/_book/**/*.html'])
-    .pipe(replace(/GA_UA_ID/gm, process.env.GA_UA))
-    .pipe(replace(/GA_LEGACY_COOKIE_DOMAIN/gm, process.env.GA_LEGACY_COOKIE_DOMAIN))
-    .pipe(gulp.dest('./content/_book'));
-});
-
-gulp.task('replace-hotjar-token', function() {
-  return gulp.src(['./content/_book/**/*.html'])
-    .pipe(replace(/12345678901/gm, process.env.HOTJAR_ID))
-    .pipe(gulp.dest('./content/_book'));
-});
-
 gulp.task('copy-index-to-readme', function() {
   var rename = require("gulp-rename");
   return gulp.src(['./content/_book/**/index.html'])
@@ -94,7 +75,7 @@ gulp.task('deploy', ['build'], function() {
   });
 
   var src = gulp.src(['./content/_book/**/*.*', '!./content/_book/gitbook/**']);
-  if (!production) {
+  if (production) {
     src = src
     // Replacing analytics ua-code
     .pipe(
