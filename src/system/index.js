@@ -14,6 +14,9 @@ var regex_port = new XRegExp(
   "(?<public>[0-9]{1,})(:(?<private>[0-9]{1,})){0,1}(/(?<protocol>tcp|udp)){0,1}", "x"
 );
 
+// https://regex101.com/r/rK1eJ0/2
+var regex_envs = /(?:\${[=|-]?([A-Z|\d|_]+)})|(?:\$[=|-]?([A-Z|\d|_]+))/g;
+
 export class System {
   constructor(manifest, name, image, options = {}) {
     this.manifest  = manifest;
@@ -29,9 +32,12 @@ export class System {
 
     // Options
     this.__options = {};
-
     this.options   = _.merge({}, this.default_options, options);
-    this.options   = this._expand_template(this.options);
+
+    var raw = this.options.raw;
+    delete this.options.raw;
+    this.options     = this._expand_template(this.options);
+    this.options.raw = raw;
   }
 
   get image_name_suggest() {
@@ -351,6 +357,7 @@ export class System {
       interactive: false,
     });
 
+    options.command = this._shell_command(options);
     var opts = this._make_options(false, options, image_conf);
 
     // Shell extra options
@@ -360,7 +367,6 @@ export class System {
     );
 
     _.assign(opts, {
-      command: this._shell_command(options),
       tty    : options.interactive ? options.stdout.isTTY : false,
       stdout : options.stdout,
       stderr : options.stderr || options.stdout,
@@ -425,10 +431,8 @@ export class System {
       verbose: options.verbose,
       ports: ports,
       ports_orderly: ports_orderly,
-      stdout: options.stdout,
       volumes: mounts,
       working_dir: options.workdir || this.workdir,
-      env: envs,
       dns: dns_servers,
       extra: options.docker || this.options.docker_extra || {},
       annotations: { azk: {
@@ -438,6 +442,15 @@ export class System {
         seq  : (options.sequencies[type] || 1),
       }}
     };
+
+    // Expand envs
+    var template = JSON.stringify(finalOptions);
+    template = template.replace(regex_envs, "$${envs.$1$2}");
+    finalOptions = JSON.parse(utils.template(template, { envs }));
+
+    // Not expand and not stringify
+    finalOptions.env = envs;
+    finalOptions.stdout = options.stdout;
 
     return finalOptions;
   }
@@ -535,8 +548,8 @@ export class System {
 
   _expand_template(options) {
     var data = {
-      _keep_key(key) {
-        return "#{" + key + "}";
+      _keep_key(key, token = "#") {
+        return `${token}{${key}}`;
       },
       system: {
         name: this.name,
@@ -562,8 +575,14 @@ export class System {
   }
 
   _replace_keep_keys(template) {
-    var regex = /(?:(?:[#|$]{|<%)[=|-]?)\s*((?:envs|net)\.[\S]+?)\s*(?:}|%>)/g;
-    return template.replace(regex, "#{_keep_key('$1')}");
+    // https://regex101.com/r/gF4uT4/1
+    let regexes = {
+      net_envs: /(?:(?:[#|$]{|<%)[=|-]?)\s*((?:envs|net)\.[\S]+?)\s*(?:}|%>)/g,
+      envs    : regex_envs,
+    };
+    return template
+      .replace(regexes.net_envs, "#{_keep_key('$1')}")
+      .replace(regexes.envs    , "#{_keep_key('$1$2', '$$')}");
   }
 
   _resolved_path(mount_path) {

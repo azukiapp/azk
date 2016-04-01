@@ -19,3 +19,7 @@
 [libnss-resolver]: https://github.com/azukiapp/libnss-resolver
 
 [digital_ocean]: http://digitalocean.com/
+
+
+[environment_variable]: https://en.wikipedia.org/wiki/Environment_variable
+[dotenv_ref]: https://github.com/bkeepers/dotenv
