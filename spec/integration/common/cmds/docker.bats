@@ -28,7 +28,7 @@ image_name="azukiapp/azktcl"
 
   run azk docker -- build -t $image .
   assert_success
-  assert_match "Step 0 : FROM ${image_name}:${image_tag}"
+  assert_match "Step 1 : FROM ${image_name}:${image_tag}"
 
   run azk docker rmi $image
   assert_success

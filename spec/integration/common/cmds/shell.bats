@@ -17,7 +17,7 @@ image_name="azukiapp/azktcl"
 
 @test "$test_label run shell with shell-args" {
   cmd="ls -l /; echo 'foo bar'; uname"
-  run azk --log=debug shell --image "${image_name}:${image_tag}" --shell /bin/bash -- -c "${cmd}"
+  run azk --log=debug shell --image "${image_name}:${image_tag}" --shell /bin/bash -- "${cmd}"
   assert_success
   assert_match "d.*bin"
   assert_match "d.*etc"
