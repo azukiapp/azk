@@ -42,18 +42,23 @@ var Helpers = {
       });
   },
 
-  manifestValidate(cmd, manifest) {
+  manifestValidate(ui, manifest) {
     var validation_errors = manifest.validate();
     if (validation_errors.length === 0) { return; }
 
     // has deprecate errors?
-    if (config('flags:show_deprecate')) {
+    if (!config('flags:hide_deprecate')) {
       var deprecate_val_errors = _.filter(validation_errors, function (item) {
         return item.level === 'deprecate';
       });
-      _.each(deprecate_val_errors, (deprecate_val_error) => {
-        cmd.deprecate(`manifest.validate.${deprecate_val_error.key}`, deprecate_val_error);
-      });
+      if (deprecate_val_errors.length > 0) {
+        ui.output("");
+        ui.deprecate("manifest.validate.deprecated_title");
+        _.each(deprecate_val_errors, (deprecate_val_error) => {
+          ui.deprecate(`manifest.validate.${deprecate_val_error.key}`, deprecate_val_error);
+        });
+        ui.output("");
+      }
     }
 
     // has fails level errors?
@@ -61,12 +66,10 @@ var Helpers = {
       return item.level === 'fail';
     });
 
-    if (config('flags:show_deprecate')) {
-      _.each(val_errors, (val_error) => {
-        var msg = t(`manifest.validate.${val_error.key}`, val_error);
-        throw new ManifestError(this.file, msg);
-      });
-    }
+    _.each(val_errors, (val_error) => {
+      var msg = t(`manifest.validate.${val_error.key}`, val_error);
+      throw new ManifestError(this.file, msg);
+    });
   },
 
   vmStartProgress(cmd) {

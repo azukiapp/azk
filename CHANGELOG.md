@@ -13,6 +13,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 * Bug
   * [Sync] Fixing ownership of the symlink itself, not of the target file;
+  * [Cli] Enabling back deprecation warnings;
 
 ## v0.17.0 - (2016-02-19)
 
