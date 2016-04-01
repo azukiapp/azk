@@ -15,6 +15,16 @@ describe('Azk cli, init controller', function() {
   var doc_opts    = { exit: false };
   var run_options = { ui: ui };
 
+  it("should return manifest filename", function() {
+    doc_opts.argv = ['init', '--filename'];
+    var options = cli.docopt(doc_opts);
+    return cli.run(doc_opts, run_options).then((code) => {
+      h.expect(options).to.have.property('--filename', true);
+      h.expect(code).to.equal(0);
+      h.expect(outputs[0]).to.equal(config('manifest'));
+    });
+  });
+
   describe("run in a project already has a manifest", function() {
     var message = t("commands.init.already_exists", manifest);
 

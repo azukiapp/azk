@@ -1,6 +1,6 @@
 import { CliController } from 'cli-router';
 import { _, config, fsAsync, path, lazy_require, log } from 'azk';
-import { async, promiseResolve } from 'azk/utils/promises';
+import { async } from 'azk/utils/promises';
 
 var lazy = lazy_require({
   Generator     : ['azk/generator'],
@@ -11,7 +11,8 @@ export default class Init extends CliController {
   index(params) {
     return async(this, function* () {
       if (params.filename) {
-        return this.showFilename();
+        this.showFilename();
+        return 0;
       }
 
       var generator = new lazy.Generator(this.ui);
@@ -22,7 +23,7 @@ export default class Init extends CliController {
       var manifest_exists = yield fsAsync.exists(file);
       if (manifest_exists && !params.force) {
         this.ui.fail(this.ui.tKeyPath(this.name, "already_exists"), manifest);
-        return promiseResolve(1);
+        return 1;
       }
 
       var systemsData = yield generator.findSystems(cwd);
@@ -42,7 +43,7 @@ export default class Init extends CliController {
         this.ui.ok(this.ui.tKeyPath(this.name, 'github'));
       }
 
-      return promiseResolve(0);
+      return 0;
     });
   }
 
