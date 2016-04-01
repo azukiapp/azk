@@ -1,11 +1,10 @@
 {
   "name": "azk-docs",
   "description": "azk documentation gitbook repo",
-  "devDependencies": {
+  "dependencies": {
     "concurrent-transform": "^1.0.0",
     "del": "^1.1.1",
     "dotenv": "^0.4.0",
-    "gitbook": "^1.0.0",
     "gulp": "^3.8.10",
     "gulp-awspublish": "0.0.24",
     "gulp-newer": "^0.5.0",
@@ -16,7 +15,12 @@
     "minimist": "^1.1.0",
     "run-sequence": "^1.0.2",
     "stream-combiner2": "^1.0.2",
-    "vinyl-paths": "^1.0.0"
+    "vinyl-paths": "^1.0.0",
+    "gitbook-cli": "^1.0.1",
+    "gulp-awspublish": "^3.0.1",
+    "gulp-awspublish-router": "bvanvugt/gulp-awspublish-router",
+    "gulp-if": "^1.2.5",
+    "yargs": "^3.32.0"
   },
   "repository": {
     "type": "git",
@@ -26,9 +30,5 @@
   "bugs": {
     "url": "https://github.com/azukiapp/azk-docs/issues"
   },
-  "homepage": "http://docs.azk.io",
-  "dependencies": {
-    "gulp-awspublish-router": "bvanvugt/gulp-awspublish-router",
-    "gulp-if": "^1.2.5"
-  }
+  "homepage": "http://docs.azk.io"
 }

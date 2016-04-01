@@ -9,6 +9,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Code] Adding github issue and PR templates;
   * [Docs] The instructions for use `azk` and `Wordpress` have been improved;
   * [Manifest] Adding `resolve` options to `path`, with default `true` value;
+  * [Docs] Updating whole docs structure: Azkfile, Gitbook version and plugins;
 
 * Bug
   * [Sync] Fixing ownership of the symlink itself, not of the target file;
