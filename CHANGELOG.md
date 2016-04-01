@@ -11,6 +11,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Manifest] Adding `resolve` options to `path`, with default `true` value;
   * [Docs] Updating whole docs structure: Azkfile, Gitbook version and plugins;
 
+* Deprecations
+  * [Manifest] Deprecating template expander tokens `${}` and  `<%%>`;
+
 * Bug
   * [Sync] Fixing ownership of the symlink itself, not of the target file;
   * [Cli] Enabling back deprecation warnings;

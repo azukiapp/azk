@@ -34,14 +34,14 @@ var ManifestDsl = {
   },
 
   // Systems
-  system(name, data) {
-    this.addSystem(name, data);
+  system(name, properties) {
+    this.addSystem(name, properties);
   },
 
   systems(allSystems) {
     this.extendsSystems(allSystems);
-    _.each(allSystems, (data, name) => {
-      this.addSystem(name, data);
+    _.each(allSystems, (properties, name) => {
+      this.addSystem(name, properties);
     });
   },
 
@@ -134,17 +134,19 @@ export class Manifest {
   }
 
   extendsSystems(allSystems) {
-    _.each(allSystems, (data, name) => {
-      if (!(data instanceof System)) {
-        if (data.extends) {
+    _.each(allSystems, (properties, name) => {
+      if (!(properties instanceof System)) {
+        if (properties.extends) {
+          let raw = _.cloneDeep(properties);
+
           // validate is extends system exists
-          if (!allSystems[data.extends]) {
-            var msg = t("manifest.extends_system_invalid", { system_source: data.extends,
+          if (!allSystems[properties.extends]) {
+            var msg = t("manifest.extends_system_invalid", { system_source: properties.extends,
               system_to_extend: name });
             throw new ManifestError(this.file, msg);
           }
 
-          var sourceSystem = _.cloneDeep(allSystems[data.extends]);
+          var sourceSystem = _.cloneDeep(allSystems[properties.extends]);
           var destinationSystem = allSystems[name];
 
           // if "depends" or "image" is null ignore these properties
@@ -158,6 +160,9 @@ export class Manifest {
           // get all from sourceSystem but override with destinationSystem
           _.assign(sourceSystem, destinationSystem);
           allSystems[name] = sourceSystem;
+
+          // Set raw data
+          allSystems[name].raw = raw;
         }
       }
     });
@@ -165,15 +170,16 @@ export class Manifest {
     return allSystems;
   }
 
-  addSystem(name, data) {
-    if (!(data instanceof System)) {
-      this._system_validate(name, data);
-      var image = data.image;
-      delete data.image;
-      data = new System(this, name, image, data);
+  addSystem(name, properties) {
+    if (!(properties instanceof System)) {
+      properties.raw = properties.raw || _.cloneDeep(properties);
+      this._system_validate(name, properties);
+      var image = properties.image;
+      delete properties.image;
+      properties = new System(this, name, image, properties);
     }
 
-    this.systems[name] = data;
+    this.systems[name] = properties;
     if (!this._default) {
       this._default = name;
     }
@@ -182,39 +188,39 @@ export class Manifest {
   }
 
   // TODO: refactoring to use validate
-  _system_validate(name, data) {
+  _system_validate(name, properties) {
     var msg, opts;
     // system_name must not contain anything not valid in docker container name
     if (!name.match(/^[a-zA-Z0-9-]+$/)) {
       msg = t("manifest.system_name_invalid", { system: name });
       throw new ManifestError(this.file, msg);
     }
-    if (data.extends === name) {
+    if (properties.extends === name) {
       msg = t("manifest.cannot_extends_itself", { system: name });
       throw new ManifestError(this.file, msg);
     }
-    if (_.isEmpty(data.image)) {
+    if (_.isEmpty(properties.image)) {
       msg = t("manifest.image_required", { system: name });
       throw new ManifestError(this.file, msg);
     }
-    if (!_.isEmpty(data.balancer)) {
+    if (!_.isEmpty(properties.balancer)) {
       msg = t("manifest.balancer_deprecated", { system: name });
       throw new ManifestError(this.file, msg);
     }
-    if (!_.isEmpty(data.mount_folders)) {
+    if (!_.isEmpty(properties.mount_folders)) {
       opts = { option: 'mount_folders', system: name, manifest: this.file };
       msg  = t("manifest.mount_and_persistent_deprecated", opts);
       throw new ManifestError(this.file, msg);
     }
-    if (!_.isEmpty(data.persistent_folders)) {
+    if (!_.isEmpty(properties.persistent_folders)) {
       opts = { option: 'persistent_folders', system: name, manifest: this.file };
       msg  = t("manifest.mount_and_persistent_deprecated", opts);
       throw new ManifestError(this.file, msg);
     }
 
     // Not support docker_extra.start and docker_extra.create
-    var extra = data.docker_extra;
-    if (_.has(extra, "start") || _.has(data, "create")) {
+    var extra = properties.docker_extra;
+    if (_.has(extra, "start") || _.has(properties, "create")) {
       var option = _.has(extra, "start") ? "start" : "create";
       opts = { option: `docker_extra.${option}`, system: name, manifest: this.file };
       msg  = t("manifest.extra_docker_start_deprecated", opts);
@@ -269,9 +275,9 @@ export class Manifest {
 
     var result = tsort(edges);
     if (result.error) {
-      var data = result.error.message.match(/^(.*?)\s.*\s(.*)$/);
+      var properties = result.error.message.match(/^(.*?)\s.*\s(.*)$/);
       var msg  = t("manifest.circular_dependency", {
-        system1: data[1], system2: data[2]
+        system1: properties[1], system2: properties[2]
       });
       throw new ManifestError(this.file, msg);
     }
