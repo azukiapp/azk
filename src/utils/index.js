@@ -211,6 +211,17 @@ var Utils = {
     return _.compact(_.isArray(value) ? value : [value]);
   },
 
+  deviceInfo() {
+    let os = require('os');
+    return {
+      "os"          : require('os-name')(),
+      "proc_arch"   : os.arch(),
+      "total_memory": Math.floor(os.totalmem() / 1024 / 1024),
+      "cpu_info"    : os.cpus()[0].model,
+      "cpu_count"   : os.cpus().length
+    };
+  },
+
 };
 
 export default Utils;

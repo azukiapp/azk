@@ -11,6 +11,23 @@ class Azk {
     return require('package.json').version;
   }
 
+  static fullVersion() {
+    let config = GeralLib.config;
+    let versionOutput = `azk version ${this.version}, build `;
+
+    const azk_last_commit_id = config('azk_last_commit_id');
+    return this.gitCommitIdAsync(azk_last_commit_id)
+    .then((commitId) => {
+      versionOutput = versionOutput + commitId + ', date ';
+      const azk_last_commit_date = config('azk_last_commit_date');
+      return this.gitCommitDateAsync(azk_last_commit_date);
+    })
+    .then((commitDate) => {
+      versionOutput = versionOutput + commitDate;
+      return versionOutput;
+    });
+  }
+
   static gitCommitIdAsync(azk_last_commit_id) {
     const path = GeralLib.path;
     const config = GeralLib.config;
@@ -88,6 +105,7 @@ var GeralLib = {
   get fsAsync    () { return require('file-async'); },
   get utils      () { return require('azk/utils'); },
   get version    () { return Azk.version; },
+  fullVersion    () { return Azk.fullVersion(); },
   get commitId   () { return Azk.gitCommitIdAsync; },
   get commitDate () { return Azk.gitCommitDateAsync; },
   get isBlank    () { return isBlank; },
