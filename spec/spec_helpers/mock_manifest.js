@@ -182,7 +182,6 @@ export function extend(h) {
           image: { docker: default_img },
           provision: [
             "system.name: #{system.name}",
-            "system.persistent_folders: #{system.persistent_folders}",
             "manifest.dir: #{manifest.dir}",
             "manifest.path: #{manifest.path}",
             "manifest.project_name: #{manifest.project_name}",
@@ -191,8 +190,10 @@ export function extend(h) {
             "azk.default_dns: #{azk.default_dns}",
             "azk.balancer_port: #{azk.balancer_port}",
             "azk.balancer_ip: #{azk.balancer_ip}",
-            "env.FOO: #{env.FOO}",
-            "env.BAR: #{env.BAR}",
+            "env.FOO (host): #{env.FOO}",
+            "env.BAR (host): #{env.BAR}",
+            "PORT: ${PORT}",
+            "HOST_DOMAIN: ${HOST_DOMAIN}",
           ],
         },
         'example-sync': {

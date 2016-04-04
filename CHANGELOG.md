@@ -16,8 +16,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 * Deprecations
   * [Cli]  Deprecating `azk doctor` command, now use `azk version --full`;
 
+* Deprecations
+  * [Manifest] Deprecating template expander tokens `${}` and  `<%%>`;
+
 * Bug
   * [Sync] Fixing ownership of the symlink itself, not of the target file;
+  * [Cli] Enabling back deprecation warnings;
 
 ## v0.17.0 - (2016-02-19)
 

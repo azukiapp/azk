@@ -15,7 +15,7 @@ systems({
     workdir: "/azk/#{manifest.dir}",
     shell: "/bin/bash",
     command: "gitbook serve --port $HTTP_PORT content --lrport $LIVERELOAD_PORT",
-    wait: {"retry": 20, "timeout": 3000},
+    wait: 20,
     mounts: {
       '/azk/#{manifest.dir}'         : sync(".", {shell: true}),
       '/azk/.github/CONTRIBUTING.md' : path("../.github/CONTRIBUTING.md"),

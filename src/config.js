@@ -55,7 +55,7 @@ var options = mergeConfig({
     azk_last_commit_id: envs("AZK_LAST_COMMIT_ID"),
     azk_last_commit_date: envs("AZK_LAST_COMMIT_DATE"),
     flags    : {
-      show_deprecate: envs('AZK_HIDE_DEPRECATE', false),
+      hide_deprecate: envs('AZK_HIDE_DEPRECATE', false),
       require_accept_use_terms: envs('AZK_REQUIRE_TERMS', true),
       force_color: envs('AZK_FORCE_COLOR', envs('FORCE_COLOR', null)),
     },

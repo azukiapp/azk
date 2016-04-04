@@ -2,6 +2,8 @@
 
 We can use some properties inside _strings_ in `Azkfile.js`. These special properties are replaced with runtime values.
 
+The pattern used for these properties is `#{group.name}` for general properties and `${VAR_NAME}` for environment variables.
+
 ## Table of contents:
 
 1. [General Expandable Properties](#general-expandable-properties)
@@ -19,6 +21,7 @@ We can use some properties inside _strings_ in `Azkfile.js`. These special prope
 1. [Load Balancer Expandable Properties](#load-balancer-expandable-properties)
   1. [#{azk.balancer_ip}](#azkbalancer_ip)
   1. [#{azk.balancer_port}](#azkbalancer_port)
+1. [Environment variables](#environment-variables)
 
 ## General Expandable Properties:
 
@@ -294,4 +297,27 @@ systems: {
 $ azk shell -c 'env'
 BALANCER_IP=172.17.0.1
 BALANCER_PORT=80
+```
+
+
+## Environment variables
+
+Besides the expandable properties, which allow us to access `azk` configuration values, it's possible to use environment variables in properties such as [command](./command.md) and [provision](./provision.md).
+
+Unlike expandable properties, the pattern used for environment variables is `${VAR_NAME}` or `$VAR_NAME`.
+
+**Obs**: Don't mistake this option with the properties `#{env}` and `#{envs}` described above, which have a different kind of use.
+
+Examples of usage of environment variables:
+
+```js
+systems({
+  web: {
+    image: { docker: "azukiapp/ruby" },
+    command: ["bundle", "exec", "rails", "-p", "$HTTP_PORT"],
+    envs: {
+      HTTP_PORT: "8080",
+    },
+  },
+});
 ```

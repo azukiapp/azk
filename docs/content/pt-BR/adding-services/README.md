@@ -1,6 +1,6 @@
 # Adicionando serviços
 
-Antes de começar, certifique-se de ter o [azk instalado](../instalação/README.md).
+Antes de começar, certifique-se de ter o [azk instalado](../installation/README.md).
 
 Este tutorial assume que você tenha seguido a seção anterior [Começando](../getting-started/README.md), e que já está um pouco familiarizado com o `azk` e o `Azkfile.js`.
 
