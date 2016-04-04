@@ -10,6 +10,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Docs] The instructions for use `azk` and `Wordpress` have been improved;
   * [Manifest] Adding `resolve` options to `path`, with default `true` value;
   * [Docs] Updating whole docs structure: Azkfile, Gitbook version and plugins;
+  * [Cli] `azk version` changes to display the first 7 digits of the commit hash and the date of the corresponding commit version;
 
 * Bug
   * [Sync] Fixing ownership of the symlink itself, not of the target file;
@@ -17,7 +18,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## v0.17.0 - (2016-02-19)
 
 * Enhancements
-  * [Cli] `azk version` changes to display the first 7 digits of the commit hash and the date of the corresponding commite version;
   * [Cli] Updating `i18n-cli`: now, it supports color syntax highlight;
   * [Cli] Replacing `colors` for `chalk` and adding `--no-color` option that outputs in only one color;
   * [Cli] Improving `ui.isInteractive()`: now, not only the existence of a `tty` is checked but also the parameter `--quiet`;
