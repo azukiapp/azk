@@ -2,6 +2,8 @@
 
 Podemos utilizar algumas propriedades dentro de _strings_ no `Azkfile.js`. Essas propriedades especiais são substituídas para seu respectivos valores em tempo de execução.
 
+O formato para essas propriedades é `#{grup.name}` para propriedades em geral e `${VAR_NAME}` para variáveis de ambiente.
+
 ## Índice:
 
 1. [Propriedades Expansíveis Gerais](#propriedades-expansíveis-gerais)
@@ -19,6 +21,7 @@ Podemos utilizar algumas propriedades dentro de _strings_ no `Azkfile.js`. Essas
 1. [Propriedades Expansíveis do Load Balancer](#propriedades-expansíveis-do-load-balancer)
   1. [#{azk.balancer_ip}](#azkbalancer_ip)
   1. [#{azk.balancer_port}](#azkbalancer_port)
+1. [Variáveis de ambiente](#variáveis-de-ambiente)
 
 ## Propriedades Expansíveis Gerais:
 
@@ -179,7 +182,6 @@ Objeto com as variáveis de ambiente disponíveis na máquina local. Use com not
 
 __Alerta de Segurança:__ Observe que, como o `Azkfile.js` é parte do código, dados confidenciais (como senhas e tokens privados) não devem ser colocados aqui. Ao invés disso, use um arquivo `.env` e não adicione-o ao seu sistema de controle de versão.
 
-
 _Exemplo_:
 
 ```js
@@ -294,4 +296,26 @@ systems: {
 $ azk shell -c 'env'
 BALANCER_IP=172.17.0.1
 BALANCER_PORT=80
+```
+
+## Variáveis de ambiente
+
+Além das propriedades expansíveis que permitem ter acesso as configurações do `azk` é possível usar em propriedades como [command](./command.md) e [provision](./provision.md) variáveis de ambiente.
+
+Mas diferentes das outras propriedades expansíveis o formato para variáveis de ambiente é `${VAR_NAME}` ou ainda `$VAR_NAME`.
+
+**Obs**: Não confunda essa opção com as propriedades `#{env}` e `#{envs}` descritas mais acima e que tem outro tipo de uso.
+
+Exemplo de uso de variável de ambiente:
+
+```js
+systems({
+  web: {
+    image: { docker: "azukiapp/ruby" },
+    command: ["bundle", "exec", "rails", "-p", "$HTTP_PORT"],
+    envs: {
+      HTTP_PORT: "8080",
+    },
+  },
+});
 ```
