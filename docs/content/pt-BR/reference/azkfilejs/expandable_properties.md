@@ -2,7 +2,7 @@
 
 Podemos utilizar algumas propriedades dentro de _strings_ no `Azkfile.js`. Essas propriedades especiais são substituídas para seu respectivos valores em tempo de execução.
 
-O formato para essas propriedades é `#{grup.name}` para propriedades em geral e `${VAR_NAME}` para variáveis de ambiente.
+O formato para essas propriedades é `#{group.name}` para propriedades em geral e `${VAR_NAME}` para variáveis de ambiente.
 
 ## Índice:
 
