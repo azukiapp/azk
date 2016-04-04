@@ -40,7 +40,7 @@ export class Suggestion extends UIProxy {
       ],
       export_envs: {
         DATABASE_URL: "postgres://#{envs.POSTGRES_USER}:#{envs.POSTGRES_PASS}" +
-          "@#{net.host}:#{net.port.data}/${envs.POSTGRES_DB}",
+          "@#{net.host}:#{net.port.data}/#{envs.POSTGRES_DB}",
       },
     });
   }

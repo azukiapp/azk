@@ -39,7 +39,7 @@ export class Suggestion extends DefaultSuggestion {
       ],
       export_envs: {
         DATABASE_URL: "mysql2://#{envs.MYSQL_USER}:#{envs.MYSQL_PASSWORD}@#{net.host}" +
-                      ":#{net.port.data}/${envs.MYSQL_DATABASE}",
+                      ":#{net.port.data}/#{envs.MYSQL_DATABASE}",
       },
     });
   }
