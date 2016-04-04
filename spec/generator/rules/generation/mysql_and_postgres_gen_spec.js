@@ -97,7 +97,7 @@ describe('Azk generator db', function() {
         // __options
         h.expect(system).to.have.deep.property('options.depends').and.to.eql([]);
         h.expect(system).to.have.deep.property('options.shell', '/bin/bash');
-        h.expect(system).to.have.deep.property('options.wait', 25);
+        h.expect(system).to.have.deep.property('options.wait', 150);
         h.expect(system).to.not.have.deep.property('options.workdir');
         h.expect(system).to.have.deep.property('options.mounts').and.to.eql(
           { '/var/lib/mysql': { type: 'persistent',
@@ -124,7 +124,7 @@ describe('Azk generator db', function() {
         // __options
         h.expect(system).to.have.deep.property('options.depends').and.to.eql([]);
         h.expect(system).to.have.deep.property('options.shell', '/bin/bash');
-        h.expect(system).to.have.deep.property('options.wait', 20);
+        h.expect(system).to.have.deep.property('options.wait', 150);
         h.expect(system).to.not.have.deep.property('options.workdir');
         h.expect(system).to.have.deep.property('options.mounts').and.to.eql(
           { '/var/lib/postgresql/data': { type: 'persistent', value: 'postgresql', options: {} },
