@@ -4,9 +4,9 @@
 
 ## Requisitos
 
-* **Distribuições (testadas)**: Ubuntu 12.04/14.04/15.10 e Fedora 20/21/22
+* **Distribuições (testadas)**: Ubuntu 12.04/14.04/15.10, Fedora 20/21/22 e Arch Linux
 * **Arquitetura**: 64-bits
-* [Docker][docker] 1.8.1
+* [Docker][docker] 1.8.1 ou mais recente
 * Não estar rodando nenhum serviço nas portas `80` e `53`
 
 **Importante**: Se você estiver rodando algum serviço nas portas `80` e/ou `53` você deve customizar a configuração do `azk` definindo as seguintes variáveis `AZK_BALANCER_PORT` e `AZK_DNS_PORT` respectivamente, antes de executar o `azk agent start`.
@@ -27,6 +27,7 @@ Existem duas formas de instalação do Docker:
 
   - [Ubuntu][docker_ubuntu_installation]
   - [Fedora][docker_fedora_installation]
+  - [Arch Linux][docker_arch_installation]
 
 ## Dando acesso ao serviço do Docker para o seu usuário
 
@@ -146,6 +147,18 @@ A forma mais fácil de instalar o `azk` é utilizar o script abaixo. Ele vai ide
   ```
 
 4. Você pode [iniciar o agent](../getting-started/starting-agent.md) agora, porém, **tenha certeza de que o serviço do Docker está rodando**;
+
+### Arch Linux
+
+> Você precisará do `yaourt` ou de alguma outra ferramenta para obter pacotes do [AUR](https://aur.archlinux.org/). Para aprender como instalar o `yaourt`, [siga essas instruções](https://archlinux.fr/yaourt-en) como instalar o `yaourt`.
+
+1. Instale o `azk` e suas dependências:
+
+  ```bash
+  $ yaourt -S azk
+  ```
+
+2. Você pode [iniciar o agent](../getting-started/starting-agent.md) agora, porém, **tenha certeza de que o serviço do Docker está rodando**;
 
 ### Outras distribuições
 
