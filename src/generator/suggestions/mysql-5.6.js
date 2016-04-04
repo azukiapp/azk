@@ -26,7 +26,7 @@ export class Suggestion extends DefaultSuggestion {
       mounts: {
         '/var/lib/mysql': {type: 'persistent', value: '#{manifest.dir}/mysql'},
       },
-      wait: 25,
+      wait: 150,
       envs: {
         // set instances variables
         MYSQL_USER    : "azk",
