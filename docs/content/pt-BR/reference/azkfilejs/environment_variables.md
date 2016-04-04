@@ -1,4 +1,3 @@
-
 # Variáveis de ambiente
 
 Em geral, quase toda aplicação requer alguma forma de configuração. O `azk` utiliza a abordagem de [variáveis de ambiente][environment_variable] para configuração dos sistemas.
@@ -20,7 +19,7 @@ ENV NAME=david
 
 ## No `Azkfile`
 
-No [Azkfile](../../azkfilejs/README.md), conforme descrito [aqui](envs.md), cada sistema declarado pode conter uma propriedade chamada [envs](envs.md), conforme o exemplo abaixo:
+No [Azkfile](../../azkfilejs/README.md), cada sistema declarado pode conter uma propriedade chamada [envs](envs.md), conforme o exemplo abaixo:
 
 ```js
 systems({
@@ -38,7 +37,7 @@ Nesse exemplo, estamos sobrescrevendo a variável `NAME` declarada no exemplo an
 
 ## No arquivo `.env`
 
-Conforme a referência da propriedade [envs](envs.md) para o `Azkfile`, não é aconselhado a adição de informações sensíveis (senhas, chaves de api, etc.) diretamente na propriedade `envs` do `Azkfile`.
+Conforme a referência da propriedade [envs](envs.md) para o `Azkfile`, não é aconselhado a adição de informações sensíveis (senhas, chaves de API, etc.) diretamente na propriedade `envs` do `Azkfile`.
 
 Como alternativa deve-se utilizar um arquivo `.env` no mesmo diretório do `Azkfile`, conforme descrito nesta [biblioteca][dotenv_ref]:
 
@@ -51,7 +50,7 @@ Nesse exemplo, estamos sobrescrevendo a variável `NAME` declarada no `Azkfile` 
 
 ## Auto inserida
 
-Atualmente temos dois casos onde variáveis de ambiente são adicionadas automaticamente no sistema:
+Atualmente, temos dois casos onde variáveis de ambiente são adicionadas automaticamente no sistema:
 
 ### Portas
 
@@ -78,7 +77,7 @@ Quando você declara que um sistema **A** depende do outro **B**, utilizando a p
     - `[B_SYSTEM_NAME]_[PORT_NAME]_HOST`
     - `[B_SYSTEM_NAME]_[PORT_NUMBER]_HOST`
 
-- **export_envs**: as variáveis de ambiente definidas na propriedade [export_envs][export_envs] do sistema **B** são inseridas no sistema **A**.
+- **export_envs**: as variáveis de ambiente definidas na propriedade [export_envs](export_envs.md) do sistema **B** são inseridas no sistema **A**.
 
 ## No shell
 

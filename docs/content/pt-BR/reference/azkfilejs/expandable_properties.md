@@ -300,13 +300,13 @@ BALANCER_PORT=80
 
 ## Variáveis de ambiente
 
-Além das propriedades expansíveis que permitem ter acesso as configurações do `azk` é possível usar em propriedades como [command](./command.md) e [provision](./provision.md) variáveis de ambiente.
+Além das propriedades expansíveis, que permitem ter acesso as configurações do `azk`, é possível usar em propriedades como [command](./command.md) e [provision](./provision.md) variáveis de ambiente.
 
-Mas diferentes das outras propriedades expansíveis o formato para variáveis de ambiente é `${VAR_NAME}` ou ainda `$VAR_NAME`.
+Mas, diferente das outras propriedades expansíveis, o formato para variáveis de ambiente é `${VAR_NAME}` ou ainda `$VAR_NAME`.
 
 **Obs**: Não confunda essa opção com as propriedades `#{env}` e `#{envs}` descritas mais acima e que tem outro tipo de uso.
 
-Exemplo de uso de variável de ambiente:
+Exemplo de uso de variáveis de ambiente:
 
 ```js
 systems({
