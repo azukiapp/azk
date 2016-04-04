@@ -531,6 +531,9 @@ module.exports = {
       system_not_balanceable        : "The system " + "${red}%(name)s${red.close}" + " does not have ports http to open.",
       default_system_not_balanceable: "The default system " + "${red}%(name)s${red.close}" + " does not have ports http to open.",
     },
+    doctor: {
+      deprecated: "Command `azk doctor` is deprecated, use `azk version --full` instead.",
+    },
   },
 
   docker: {

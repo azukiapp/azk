@@ -7,6 +7,12 @@ describe('azk main module', function() {
     h.expect(Azk.version).to.match(/\d+\.\d+\.\d+/);
   });
 
+  it('should `fullVersion` get current version, build id and build date', function*() {
+    var version = yield Azk.fullVersion();
+    var version_regex = /azk version \d+\.\d+\.\d+, build \w+, date \d+-\d+-\d+/;
+    h.expect(version).to.match(version_regex);
+  });
+
   it('should commitId() get current commit id from ENV', function() {
     const last_commit_id = '123';
     return h.expect(Azk.commitId(last_commit_id))

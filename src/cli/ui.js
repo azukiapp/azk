@@ -223,6 +223,10 @@ export class UIProxy {
   get userInterface() {
     return this.parent ? this.parent.userInterface : this.__user_interface;
   }
+
+  get c() {
+    return this.userInterface.c;
+  }
 }
 
 _.each(_.methods(UI), (method) => {

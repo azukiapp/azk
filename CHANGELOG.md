@@ -11,6 +11,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Manifest] Adding `resolve` options to `path`, with default `true` value;
   * [Docs] Updating whole docs structure: Azkfile, Gitbook version and plugins;
   * [Cli] `azk version` changes to display the first 7 digits of the commit hash and the date of the corresponding commit version;
+  * [Cli] Adding options `--full` and `--logo` the command `azk version`, to show more information (old `azk doctor`);
+
+* Deprecations
+  * [Cli]  Deprecating `azk doctor` command, now use `azk version --full`;
 
 * Bug
   * [Sync] Fixing ownership of the symlink itself, not of the target file;

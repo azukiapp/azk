@@ -248,6 +248,10 @@ function acpipowerbutton(name) {
 }
 
 var vm = {
+  version() {
+    return exec("--version");
+  },
+
   info(vm_name) {
     return machine.info(vm_name).then((info) => {
       if (info['Forwarding(0)']) {

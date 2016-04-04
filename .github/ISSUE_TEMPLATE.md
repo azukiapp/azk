@@ -30,6 +30,8 @@ a. Which OS / distro?
 b. Uses VirtualBox? Which version?
 c. Can you provide us your Azkfile.js?
 
+**ProTip**: run `azk version --full` to gather those info.
+
 5. Do you have any suggestions on how to tackle this?
 
 [Optional]
