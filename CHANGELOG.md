@@ -12,6 +12,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Docs] Updating whole docs structure: Azkfile, Gitbook version and plugins;
   * [Cli] `azk version` changes to display the first 7 digits of the commit hash and the date of the corresponding commit version;
   * [Cli] Adding options `--full` and `--logo` the command `azk version`, to show more information (old `azk doctor`);
+  * [Cli] Adding more options to `azk info`, now have a `--filter` and `--json`;
 
 * Deprecations
   * [Cli]  Deprecating `azk doctor` command, now use `azk version --full`;
