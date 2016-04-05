@@ -20,7 +20,10 @@ setup_test() {
 
   cd $TEST_DIR
   rm -Rf Azkfile.js .azk/
+
+  export AZK_ENV=development
   bazk config set terms_of_use.accepted 1 > /dev/null 2>&1
+
   bazk init
   ls Azkfile.js > /dev/null 2>&1
   bazk start --reprovision
