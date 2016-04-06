@@ -40,7 +40,9 @@ fail() {
 
 start_agent() {
   azk config set terms_of_use.accepted 1 > /dev/null 2>&1
+
   azk agent start --no-daemon > $AZK_AGENT_LOG_FILE 2>&1 &
+
   AGENT_PID="$!"
   tail -F $AZK_AGENT_LOG_FILE &
   TAIL_PID="$!"
@@ -55,6 +57,8 @@ start_agent() {
 setup() {
   set -e
   /usr/local/bin/wrapdocker
+  export AZK_ENV=development
+
   ${BASE_DIR}/${DISTRO}/install.sh ${CODENAME} ${PKG_SUFFIX}
   start_agent
 

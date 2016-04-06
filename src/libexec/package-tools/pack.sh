@@ -23,6 +23,7 @@ Options:
   --publish, -p           Publish the generated packages after build
   --no-version            Don't create a new commit bumping azk version into package.json (adding release channel and date)
   --no-tag                Don't create git version tag to last commit
+  --dry                   Don't run the steps and set -x
   --verbose, -v           Displays more detailed info about each building  and packaging step
   --help, -h              Show this message
 "
@@ -91,6 +92,8 @@ while [[ $# -gt 0 ]]; do
       PUBLISH=true;;
     --no-tag )
       NO_TAG=true;;
+    --dry )
+      DRY_RUNNING=true;;
     --verbose | -v )
       VERBOSE=true;;
     --help | -h )
@@ -98,6 +101,10 @@ while [[ $# -gt 0 ]]; do
     *) echo >&2 "Invalid option: $opt"; exit 1;;
    esac
 done
+
+if [[ ${DRY_RUNNING} == true ]]; then
+  set -x
+fi
 
 PACKAGE_SUFFIX="-${RELEASE_CHANNEL}"
 
@@ -192,6 +199,11 @@ step_done() {
 }
 
 step_run() {
+  if [[ ${DRY_RUNNING} == true ]]; then
+    step_skip "${@}"
+    return
+  fi
+
   step $1; shift
 
   STEP_EXIT=""
@@ -228,6 +240,7 @@ start_agent() {
       > /dev/null 2>&1
   fi
 
+  export AZK_ENV=development
   azk config set terms_of_use.accepted 1 > /dev/null 2>&1
 
   azk agent stop
