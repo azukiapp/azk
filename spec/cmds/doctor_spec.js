@@ -20,7 +20,7 @@ describe('Azk cli, doctor controller', function() {
       h.expect(code).to.equal(0);
       h.expect(options).to.have.property('doctor', true);
       h.expect(outputs[0]).to.match(RegExp(`Version.*\:.*${h.escapeRegExp(Azk.version)}`));
-      h.expect(outputs[0]).to.match(RegExp(`Agent.*\:.*up`));
+      h.expect(outputs[0]).to.match(RegExp(`Agent.*\:.*Running`));
     });
   });
 
@@ -31,7 +31,7 @@ describe('Azk cli, doctor controller', function() {
       h.expect(code).to.equal(0);
       h.expect(options).to.have.property('doctor', true);
       h.expect(outputs[0]).to.match(RegExp(`Version.*\:.*${h.escapeRegExp(Azk.version)}`));
-      h.expect(outputs[0]).to.match(RegExp(`Agent.*\:.*up`));
+      h.expect(outputs[0]).to.match(RegExp(`Agent.*\:.*Running`));
     });
   });
 });

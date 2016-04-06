@@ -47,11 +47,11 @@ export class VersionView extends View {
 
   format(data) {
     return [
-      `${this.c.cyan("Version")}   : ${this.c.blue(data.version)}`,
-      `${this.c.cyan("OS")}        : ${this.c.blue(data.os)}`,
+      `${this.c.cyan("Version")}   : ${data.version}`,
+      `${this.c.cyan("OS")}        : ${data.os}`,
       `${this.c.cyan("Agent")}     : ${data.agent_running}`,
       `${this.c.cyan("Docker")}    : ${data.docker.Version}`,
-      `${this.c.cyan("Use vm")}    : ${data.use_vm}`,
+      `${this.c.cyan("Uses VM")}   : ${data.use_vm}`,
       `${this.c.cyan("VirtualBox")}: ${_.trim(data.vbox_version)}`,
     ];
   }

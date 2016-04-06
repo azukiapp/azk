@@ -154,9 +154,15 @@ var UI = {
     if (callback) {
       return lazy.execShLib(command, options, callback);
     } else {
-      var result = (err) => { return (err) ? err.code : 0; };
       var execShLib = promisify(lazy.execShLib, { multiArgs: true });
-      return execShLib(command, options).spread(result).catch(result);
+      return execShLib(command, options)
+        .spread((stdout, stderr) => {
+          if (options === true) {
+            return { stdout, stderr };
+          }
+          return 0;
+        })
+        .catch((err) => err.code);
     }
   },
 

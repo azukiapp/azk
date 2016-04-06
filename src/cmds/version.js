@@ -38,20 +38,28 @@ export default class Version extends CliTrackerController {
       var agent = yield lazy.Client.status();
       var require_vm = config("agent:requires_vm");
 
+      let docker_version = null;
+
       // Load configs from agent
       if (agent.agent) {
         yield Helpers.requireAgent(this.ui);
+        docker_version = yield lazy.docker.version();
       }
 
       // Mount data to render
       let device = deviceInfo();
+
+      if (device.os.match(/^Linux\ /) && !docker_version) {
+        docker_version = yield this._getDockerVersionByCli();
+      }
+
       let data = {
-        os     : `${device.os} - [${device.proc_arch}], memory: ${device.total_memory}MB`,
+        os     : `${device.os} (${device.proc_arch}), Memory: ${device.total_memory}MB`,
         version: yield Azk.fullVersion(),
-        docker : require_vm && !agent.agent ? { Version: this.ui.c.red("down") } : yield lazy.docker.version(),
-        use_vm : require_vm ? this.ui.c.green("yes") : this.ui.c.yellow("no"),
-        agent_running: agent.agent ? this.ui.c.green("up") : this.ui.c.red("down"),
-        vbox_version : require_vm ? yield lazy.VM.version() : this.ui.c.red('not applicable'),
+        docker : docker_version || { Version: "Down" },
+        use_vm : require_vm ? "Yes" : "No",
+        agent_running: agent.agent ? "Running" : "Stopped",
+        vbox_version : require_vm ? yield lazy.VM.version() : "N/A",
       };
 
       if (require_vm && agent.agent) {
@@ -63,6 +71,19 @@ export default class Version extends CliTrackerController {
       (new VersionView(this.ui)).render(data, opts.logo);
 
       return 0;
+    });
+  }
+
+  _getDockerVersionByCli() {
+    let cmd   = 'docker --version';
+    let regex = /^Docker\ version\ (\d+.\d+.\d+)/;
+
+    return this.ui.execSh(cmd, true).then((result) => {
+      if (!result.stdout) {
+        return null;
+      }
+      let match = result.stdout.match(regex);
+      return match ? { Version: `${match[1]} (CLI)` } : null;
     });
   }
 }
