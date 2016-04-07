@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## dev
+## v0.18.0 - (2016-04-07)
 
 * Enhancements
   * [Code] Adding github issue and PR templates;
@@ -16,8 +16,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 * Deprecations
   * [Cli]  Deprecating `azk doctor` command, now use `azk version --full`;
-
-* Deprecations
   * [Manifest] Deprecating template expander tokens `${}` and  `<%%>`;
 
 * Bug
