@@ -7,6 +7,7 @@
 [docker_install]: https://docs.docker.com/installation/#installation
 [docker_ubuntu_installation]: http://docs.docker.com/engine/installation/ubuntulinux/
 [docker_fedora_installation]: http://docs.docker.com/engine/installation/fedora/
+[docker_arch_installation]: http://docs.docker.com/engine/installation/linux/archlinux/
 [docker_daemon_attack_surface]: https://docs.docker.com/engine/articles/security/#docker-daemon-attack-surface
 
 [postgres]: http://www.postgresql.org/
@@ -19,3 +20,7 @@
 [libnss-resolver]: https://github.com/azukiapp/libnss-resolver
 
 [digital_ocean]: http://digitalocean.com/
+
+
+[environment_variable]: https://en.wikipedia.org/wiki/Environment_variable
+[dotenv_ref]: https://github.com/bkeepers/dotenv

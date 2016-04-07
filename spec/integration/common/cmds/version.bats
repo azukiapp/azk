@@ -8,5 +8,5 @@ load ../../test_helper
 
   run azk version
   assert_success
-  assert_output "azk $version"
+  assert_match "azk version $version, build .*, date .*"
 }

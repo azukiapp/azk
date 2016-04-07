@@ -12,7 +12,7 @@ if [[ -z "${MAC_REPO_STAGE_BRANCH}" ]]; then
   exit 2
 fi
 
-export VERSION=$( azk version | awk '{ print $2 }' )
+export VERSION=$( azk version | sed -e 's/^azk //; s/^version //; s/,.*//'  )
 
 SHA256=$(shasum -a 256 shasum -a 256 "package/brew/azk_${VERSION}.tar.gz" | awk '{print $1}')
 
@@ -56,6 +56,7 @@ class ${CLASS_NAME} < Formula
     prefix.install Dir['*']
     prefix.install Dir['.nvmrc']
     prefix.install Dir['.dependencies']
+    prefix.install Dir['.package-envs']
   end
 end
 

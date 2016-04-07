@@ -18,7 +18,7 @@ describe('Azk generators, Elixir Phoenix rule', function() {
 
   beforeEach(function () {
     content = mixfileContent;
-    regex = new RegExp(h.escapeRegExp('{:phoenix, "~> 0.13.1"},'));
+    regex = /\{:phoenix\,\ "(.*)"\}\,/gm;
   });
 
   it('should return an evidence object', () => {
@@ -26,10 +26,10 @@ describe('Azk generators, Elixir Phoenix rule', function() {
 
     h.expect(evidence).to.have.deep.property('fullpath'  , mixfilePath);
     h.expect(evidence).to.have.deep.property('ruleType'  , 'framework');
-    h.expect(evidence).to.have.deep.property('name'      , 'elixir');
+    h.expect(evidence).to.have.deep.property('name'      , 'elixir_phoenix');
     h.expect(evidence).to.have.deep.property('ruleName'  , 'elixir_phoenix');
     h.expect(evidence).to.have.deep.property('version'   , '1.0.0');
-    h.expect(evidence).to.have.deep.property('framework' , '0.13.1');
+    h.expect(evidence).to.have.deep.property('framework' , '1.1.4');
     h.expect(evidence).to.have.deep.property('replaces').deep.eql(['elixir', 'node']);
   });
 
@@ -39,7 +39,7 @@ describe('Azk generators, Elixir Phoenix rule', function() {
 
     h.expect(evidence).to.have.deep.property('fullpath'  , mixfilePath);
     h.expect(evidence).to.have.deep.property('ruleType'  , 'framework');
-    h.expect(evidence).to.have.deep.property('name'      , 'elixir');
+    h.expect(evidence).to.have.deep.property('name'      , 'elixir_phoenix');
     h.expect(evidence).to.have.deep.property('ruleName'  , 'elixir_phoenix');
     h.expect(evidence).to.have.deep.property('version'   , '1.0.0');
     h.expect(evidence).to.have.deep.property('framework' , '0.12.0');
@@ -52,7 +52,7 @@ describe('Azk generators, Elixir Phoenix rule', function() {
 
     h.expect(evidence).to.have.deep.property('fullpath'  , mixfilePath);
     h.expect(evidence).to.have.deep.property('ruleType'  , 'framework');
-    h.expect(evidence).to.have.deep.property('name'      , 'elixir');
+    h.expect(evidence).to.have.deep.property('name'      , 'elixir_phoenix');
     h.expect(evidence).to.have.deep.property('ruleName'  , 'elixir_phoenix');
     h.expect(evidence).to.have.deep.property('version'   , '1.0.0');
     h.expect(evidence).to.have.deep.property('framework' , '0.0.0');

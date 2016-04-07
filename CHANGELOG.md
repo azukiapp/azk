@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## v0.18.0 - (2016-04-07)
+
+* Enhancements
+  * [Code] Adding github issue and PR templates;
+  * [Docs] The instructions for use `azk` and `Wordpress` have been improved;
+  * [Manifest] Adding `resolve` options to `path`, with default `true` value;
+  * [Docs] Updating whole docs structure: Azkfile, Gitbook version and plugins;
+  * [Cli] `azk version` changes to display the first 7 digits of the commit hash and the date of the corresponding commit version;
+  * [Cli] Adding options `--full` and `--logo` the command `azk version`, to show more information (old `azk doctor`);
+  * [Cli] Adding more options to `azk info`, now have a `--filter` and `--json`;
+
+* Deprecations
+  * [Cli]  Deprecating `azk doctor` command, now use `azk version --full`;
+  * [Manifest] Deprecating template expander tokens `${}` and  `<%%>`;
+
+* Bug
+  * [Sync] Fixing ownership of the symlink itself, not of the target file;
+  * [Cli] Enabling back deprecation warnings;
+
 ## v0.17.0 - (2016-02-19)
 
 * Enhancements

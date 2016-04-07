@@ -23,6 +23,7 @@ Options:
   --publish, -p           Publish the generated packages after build
   --no-version            Don't create a new commit bumping azk version into package.json (adding release channel and date)
   --no-tag                Don't create git version tag to last commit
+  --dry                   Don't run the steps and set -x
   --verbose, -v           Displays more detailed info about each building  and packaging step
   --help, -h              Show this message
 "
@@ -91,6 +92,8 @@ while [[ $# -gt 0 ]]; do
       PUBLISH=true;;
     --no-tag )
       NO_TAG=true;;
+    --dry )
+      DRY_RUNNING=true;;
     --verbose | -v )
       VERBOSE=true;;
     --help | -h )
@@ -98,6 +101,10 @@ while [[ $# -gt 0 ]]; do
     *) echo >&2 "Invalid option: $opt"; exit 1;;
    esac
 done
+
+if [[ ${DRY_RUNNING} == true ]]; then
+  set -x
+fi
 
 PACKAGE_SUFFIX="-${RELEASE_CHANNEL}"
 
@@ -122,6 +129,15 @@ fi
 if [[ ${BUILD_DEB} == true ]] || [[ ${BUILD_RPM} == true ]]; then
   [[ ! -e "${SECRET_KEY}" ]] && echo >&2 "Please inform a valid GPG key." && exit 3
 fi
+
+create_package_envs() {
+  AZK_LAST_COMMIT_ID=$(git rev-parse HEAD | cut -c 1-7)
+  AZK_LAST_COMMIT_DATE=$(git log -1 --format=%cd --date=short)
+  (
+    echo "export AZK_LAST_COMMIT_ID=${AZK_LAST_COMMIT_ID}"
+    echo "export AZK_LAST_COMMIT_DATE=${AZK_LAST_COMMIT_DATE}"
+  ) > .package-envs
+}
 
 calculate_azk_version() {
   VERSION_NUMBER=$( cat package.json | grep -e "version" | cut -d' ' -f4 | sed -n 's/\"//p' | sed -n 's/\"//p' | sed -n 's/,//p' | sed s/-.*// )
@@ -183,6 +199,11 @@ step_done() {
 }
 
 step_run() {
+  if [[ ${DRY_RUNNING} == true ]]; then
+    step_skip "${@}"
+    return
+  fi
+
   step $1; shift
 
   STEP_EXIT=""
@@ -219,6 +240,7 @@ start_agent() {
       > /dev/null 2>&1
   fi
 
+  export AZK_ENV=development
   azk config set terms_of_use.accepted 1 > /dev/null 2>&1
 
   azk agent stop
@@ -255,6 +277,7 @@ LINUX_BUILD_WAS_EXECUTED=false
 
 calculate_azk_version
 
+step_run "Creating .package-env file" --exit create_package_envs
 [[ $NO_VERSION != true ]] && step_run "Bumping version" --exit bump_version
 [[ $NO_MAKE != true ]]    && step_run "Running make" --exit run_make
 [[ $NO_AGENT != true ]]   && step_run "Starting agent" --exit start_agent
@@ -278,7 +301,7 @@ if [[ $BUILD_DEB == true ]]; then
       step_run "Cleaning environment" rm -Rf package/deb package/public
     fi
 
-    step_run "Downloading libnss-resolver" \
+    step_run "Downloading libnss-resolver" --exit \
     mkdir -p package/deb \
     && wget -q "${LIBNSS_RESOLVER_REPO}/ubuntu12-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb" -O "package/deb/precise-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb" \
     && wget -q "${LIBNSS_RESOLVER_REPO}/ubuntu14-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb" -O "package/deb/trusty-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb" \
@@ -289,8 +312,8 @@ if [[ $BUILD_DEB == true ]]; then
       EXTRA_FLAGS="LINUX_CLEAN="
     fi
 
-    step_run "Creating deb packages" \
-    rm -rf /azk/aptly/public/pool/main/a/azk${PACKAGE_SUFFIX}/azk${PACKAGE_SUFFIX}_${VERSION}_amd64.deb \
+    step_run "Creating deb packages" --exit \
+    azk shell package -- rm -rf /azk/aptly/public/pool/main/a/azk${PACKAGE_SUFFIX}/azk${PACKAGE_SUFFIX}_${VERSION_NUMBER}*_amd64.deb \
     && make package_deb ${EXTRA_FLAGS}
 
     UBUNTU_VERSIONS=( "ubuntu12:precise" "ubuntu14:trusty" "ubuntu15:wily" )
@@ -327,7 +350,7 @@ if [[ $BUILD_RPM == true ]]; then
 
     [[ ${CLEAN_REPO} == true ]] && step_run "Cleaning environment" rm -Rf package/rpm package/fedora20 package/fedora23
 
-    step_run "Downloading libnss-resolver" \
+    step_run "Downloading libnss-resolver" --exit \
     mkdir -p package/rpm \
     && wget "${LIBNSS_RESOLVER_REPO}/fedora20-libnss-resolver-${LIBNSS_RESOLVER_VERSION}-1.x86_64.rpm" -O "package/rpm/fedora20-libnss-resolver-${LIBNSS_RESOLVER_VERSION}-1.x86_64.rpm" \
     && wget "${LIBNSS_RESOLVER_REPO}/fedora23-libnss-resolver-${LIBNSS_RESOLVER_VERSION}-1.x86_64.rpm" -O "package/rpm/fedora23-libnss-resolver-${LIBNSS_RESOLVER_VERSION}-1.x86_64.rpm"
@@ -337,7 +360,7 @@ if [[ $BUILD_RPM == true ]]; then
       EXTRA_FLAGS="LINUX_CLEAN="
     fi
 
-    step_run "Creating rpm packages" make package_rpm ${EXTRA_FLAGS}
+    step_run "Creating rpm packages" --exit make package_rpm ${EXTRA_FLAGS}
 
     FEDORA_VERSIONS=( "fedora20" "fedora23" )
     for FEDORA_VERSION in "${FEDORA_VERSIONS[@]}"; do
@@ -368,7 +391,7 @@ if [[ $BUILD_MAC == true ]]; then
   (
     set -e
     step_run "Cleaning environment" rm -Rf package/brew
-    step_run "Creating Mac packages" make package_mac
+    step_run "Creating Mac packages" --exit make package_mac
     step_run "Generating Mac repository" ${AZK_BUILD_TOOLS_PATH}/mac/generate.sh
     if [[ $NO_TEST != true ]]; then
       step_run "Testing Mac repository" ${AZK_BUILD_TOOLS_PATH}/mac/test.sh $TEST_ARGS

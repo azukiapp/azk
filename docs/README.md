@@ -1,39 +1,27 @@
 # azk documentation
 
-This documentation is made using Gitbook.
+`azk` documentation was built upon Gitbook.
 
-To start contributing:
-
-### Prepare your environment
+### Starting Gitbook server with azk
 
 ```sh
-azk nvm npm install
-azk nvm gitbook install content
-azk nvm gitbook build   content
+azk start -o && azk logs --follow
 ```
 
-### Start server
-
-```sh
-# if you have node and gitbook installed
-gitbook serve content
-
-# this will work if you have azk instaled
-azk nvm gitbook serve content
-```
-
-Now you can open [http://localhost:4000](http://localhost:4000). :)
+After a few minutes, `azk` docs will be up and running on [docs-azk.dev.azk.io](docs-azk.dev.azk.io). :)
 
 ## Deploying
 
-Before deploying you must create a file named `.env` or copy and update `.env.sample`
+Before deploying you must create a file called `.env` or copy and update `.env.sample`
 
 ```ini
 AWS_ACCESS_KEY_ID=XXXXXXXXXXXXXX
 AWS_SECRET_KEY=XXXXXXXXXXXXXXXXX
 AWS_BUCKET_PROD=[bucket to prod deploy]
 AWS_BUCKET_STAGE=[bucket to stage deploy]
-MIXPANEL_TOKEN=XXXXXXXXXXXXXXXXX
+UA_CODE=UA-XXXXXXXX-X
+GA_LEGACY_COOKIE_DOMAIN=azk.io
+HOTJAR_ID=XXXXXXX
 ```
 
 ### azk buckets
@@ -49,8 +37,8 @@ docs.azk.io
 ### Build and deploy
 
 ```sh
-azk nvm gulp deploy-stage
-azk nvm gulp deploy-prod
+azk shell -- gulp deploy --stage
+azk shell -- gulp deploy --prod
 ```
 
 #### [! danger !] to remove all files from a bucket use s3cmd

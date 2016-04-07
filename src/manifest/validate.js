@@ -8,10 +8,10 @@ export class Validate {
     var validations = [ this._have_systems(manifest),
                         this._have_old_http_hostname(manifest),
                         this._have_old_image_definition(manifest),
-                        this._validate_wait_option(manifest)];
+                        this._validate_wait_option(manifest),
+                        this._have_dollar_sign_string_interpotation(manifest)];
 
     validations.forEach(function(validation) {
-
       if (validation && validation.length > 0) {
         errors = errors.concat(validation);
       }
@@ -44,6 +44,41 @@ export class Validate {
       } else {
         return errors;
       }
+    }, []);
+  }
+
+  static _have_dollar_sign_string_interpotation(manifest) {
+    // https://regex101.com/r/eZ4mQ6/3
+    var dollar_check = /((?:[$]{|<%|#{-|#{=)[=|-]?)(.*\..*)(}|%>)/;
+    return _.reduce(manifest.systems, (errors, system) => {
+      var raw = system.options.raw;
+      var check = (value, key) => {
+        if (_.isString(value)) {
+          let match = value.match(dollar_check);
+          if (match) {
+            errors.push(
+              this._entry('deprecate', 'deprecated_token', manifest, {
+                token_open: match[1],
+                token_close: match[3],
+                original: match[0],
+                suggestion: `#{${match[2]}}`,
+                option: key,
+                value: value,
+                system: system.name,
+              })
+            );
+          }
+        } else if (_.isArray(value)) {
+          _.each(value, (v) => check(v, key));
+        } else if (_.isObject(value)) {
+          _.each(value, (v, k) => {
+            check(k, key);
+            check(v, `${key}.${k}`);
+          });
+        }
+      };
+      _.each(raw, check);
+      return errors;
     }, []);
   }
 

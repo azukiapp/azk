@@ -5,10 +5,11 @@ var fs     = require('fs');
 var defer  = require('azk/utils/promises').defer;
 
 var Utils = {
-  get default() { return Utils; },
-  get _      () { return _; },
-  get net    () { return require('azk/utils/net'); },
-  get docker () { return require('azk/utils/docker'); },
+  get default () { return Utils; },
+  get _       () { return _; },
+  get net     () { return require('azk/utils/net'); },
+  get docker  () { return require('azk/utils/docker'); },
+  get Versions() { return require('azk/utils/versions'); },
 
   /**
    * `lazy_require` can postpone loading of external dependencies.
@@ -208,6 +209,17 @@ var Utils = {
 
   requireArray(value) {
     return _.compact(_.isArray(value) ? value : [value]);
+  },
+
+  deviceInfo() {
+    let os = require('os');
+    return {
+      "os"          : require('os-name')(),
+      "proc_arch"   : os.arch(),
+      "total_memory": Math.floor(os.totalmem() / 1024 / 1024),
+      "cpu_info"    : os.cpus()[0].model,
+      "cpu_count"   : os.cpus().length
+    };
   },
 
 };

@@ -155,6 +155,17 @@ describe("Azk system class, run set", function() {
       it("load from .env file", function() {
         h.expect(envs).to.include.something.that.match(/FROM_DOT_ENV=azk is beautiful/);
       });
+
+      it("should expand envs in properties", function*() {
+        var system = manifest.system('example');
+        var exitResult = yield system.runShell({
+          shell: "./bin/test-app",
+          command: ["echo", "${ECHO_DATA}"],
+          stdout: mocks.stdout, stderr: mocks.stderr
+        });
+        h.expect(exitResult).to.have.property("code", 0);
+        h.expect(outputs).to.have.property("stdout").match(/-c echo data/);
+      });
     });
 
     describe("run mutiple same system and type", function() {

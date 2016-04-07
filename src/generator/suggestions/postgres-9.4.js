@@ -27,6 +27,7 @@ export class Suggestion extends UIProxy {
         '/var/lib/postgresql/data' : {type: 'persistent', value: 'postgresql'},
         '/var/log/postgresql' : {type: 'path', value: './log/postgresql'},
       },
+      wait: 150,
       envs: {
         // set instances variables
         // Move this to .env file
@@ -40,7 +41,7 @@ export class Suggestion extends UIProxy {
       ],
       export_envs: {
         DATABASE_URL: "postgres://#{envs.POSTGRES_USER}:#{envs.POSTGRES_PASS}" +
-          "@#{net.host}:#{net.port.data}/${envs.POSTGRES_DB}",
+          "@#{net.host}:#{net.port.data}/#{envs.POSTGRES_DB}",
       },
     });
   }

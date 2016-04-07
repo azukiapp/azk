@@ -126,7 +126,7 @@ Share the love and star us here in Github!
 
 ## License
 
-"Azuki", "azk" and the Azuki logo are copyright (c) 2013-2015 Azuki Serviços de Internet LTDA.
+"Azuki", "azk" and the Azuki logo are copyright (c) 2013-2016 Azuki Serviços de Internet LTDA.
 
 **azk** source code is released under Apache 2 License.
 

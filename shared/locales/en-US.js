@@ -292,7 +292,9 @@ module.exports = {
     system_name_invalid: "The system name `%(system)s` is not valid.",
     required_path      : "Manifest class require a project path",
     validate           : {
-      deprecated : "The `%(option)s` used in `%(system)s` is deprecated, check the documentation for `%(new_option)s`",
+      deprecated_title: "${red}List of deprecations:${red.close}",
+      deprecated : "- The `%(option)s` used in `%(system)s` is deprecated, check the documentation for `%(new_option)s`",
+      deprecated_token: "- `%(token_open)s%(token_close)s` is deprecated, use `${green}%(suggestion)s${green.close}` instead of `${red}%(original)s${red.close}` on `${yellow}%(system)s.%(option)s${yellow.close}`",
       no_system_set: "No system has been set yet, check the documentation",
       invalid_option_value: [
         "Invalid value for `%(option)s`. Value: `%(value)s`.",
@@ -530,6 +532,9 @@ module.exports = {
       system_not_running            : "System " + "${red}%(name)s${red.close}" + " is not running to open.",
       system_not_balanceable        : "The system " + "${red}%(name)s${red.close}" + " does not have ports http to open.",
       default_system_not_balanceable: "The default system " + "${red}%(name)s${red.close}" + " does not have ports http to open.",
+    },
+    doctor: {
+      deprecated: "Command `azk doctor` is deprecated, use `azk version --full` instead.",
     },
   },
 

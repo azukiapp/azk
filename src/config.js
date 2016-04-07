@@ -52,8 +52,10 @@ var options = mergeConfig({
     manifest : "Azkfile.js",
     locale   : 'en-US',
     azk_dir  : azk_dir,
+    azk_last_commit_id: envs("AZK_LAST_COMMIT_ID"),
+    azk_last_commit_date: envs("AZK_LAST_COMMIT_DATE"),
     flags    : {
-      show_deprecate: envs('AZK_HIDE_DEPRECATE', false),
+      hide_deprecate: envs('AZK_HIDE_DEPRECATE', false),
       require_accept_use_terms: envs('AZK_REQUIRE_TERMS', true),
       force_color: envs('AZK_FORCE_COLOR', envs('FORCE_COLOR', null)),
     },
@@ -79,7 +81,7 @@ var options = mergeConfig({
       data_mnt_path     : data_mnt_path,
       persistent_folders: path.join(data_mnt_path, 'persistent_folders'),
       sync_folders      : path.join(data_mnt_path, 'sync_folders'),
-      analytics         : path.join(data_path, azk_dir, "analytics"),
+      analytics         : path.join(data_path, azk_dir, "analytics")
     },
     logs_level: {
       console: (envs('AZK_DEBUG') ? 'debug' : envs('AZK_OUTPUT_LOG_LEVEL', 'error')),
@@ -152,6 +154,7 @@ var options = mergeConfig({
         blank_disk    : path.join(envs('AZK_LIB_PATH'), "vm", envs('AZK_ISO_VERSION'), "azk-agent.vmdk.gz"),
         mount_point   : '/media/sf_Root',
         authorized_key: '/home/docker/.ssh/authorized_keys',
+        swap_factor   : envs('AZK_VM_SWAP_FACTOR', 1.5),
       },
 
       // Used to carry global configuration switches the agent

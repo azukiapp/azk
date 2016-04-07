@@ -2,7 +2,7 @@
 
 set -x
 
-export VERSION=$( azk version | awk '{ print $2 }' )
+export VERSION=$( azk version | sed -e 's/^azk //; s/^version //; s/,.*//' )
 
 BASE_DIR=$( pwd )
 SHA256=$(shasum -a 256 shasum -a 256 "package/brew/azk_${VERSION}.tar.gz" | awk '{print $1}')
@@ -20,7 +20,10 @@ setup_test() {
 
   cd $TEST_DIR
   rm -Rf Azkfile.js .azk/
+
+  export AZK_ENV=development
   bazk config set terms_of_use.accepted 1 > /dev/null 2>&1
+
   bazk init
   ls Azkfile.js > /dev/null 2>&1
   bazk start --reprovision
@@ -82,7 +85,8 @@ fi
 cd $FORMULA_DIR
 git checkout $FORMULA_FILE
 
-if [[ "$( bazk version )" == "azk ${VERSION}" ]]; then
+BAZK_VERSION=$(bazk version | sed -e 's/^azk //; s/^version //; s/,.*//')
+if [[ "${BAZK_VERSION}" == "${VERSION}" ]]; then
   echo "azk ${VERSION} has been successfully installed."
 else
   echo "Failed to install azk ${VERSION}."

@@ -4,10 +4,9 @@ import Azk from 'azk';
 import { _, config, log, t, lazy_require } from 'azk';
 import { meta as azkMeta } from 'azk';
 import { promisify, TimeoutError, promiseResolve } from 'azk/utils/promises';
+import { deviceInfo } from 'azk/utils';
 
 var lazy = lazy_require({
-  os           : 'os',
-  osName       : 'os-name',
   uuid         : 'node-uuid',
   InsightKeenIo: 'insight-keen-io',
   InsightKeenIoWithMeta: () => {
@@ -121,13 +120,7 @@ export class Tracker {
       "azk_version"     : Azk.version,
 
       // device config
-      "device_info": {
-        "os"          : lazy.osName(),
-        "proc_arch"   : lazy.os.arch(),
-        "total_memory": Math.floor(lazy.os.totalmem() / 1024 / 1024),
-        "cpu_info"    : lazy.os.cpus()[0].model,
-        "cpu_count"   : lazy.os.cpus().length
-      }
+      "device_info": deviceInfo(),
     };
 
     log.debug(`[tracker] permission to tracker: ${this.loadTrackerPermission()}`);

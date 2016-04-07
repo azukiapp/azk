@@ -10,7 +10,7 @@ Usage:
   azk deploy rollback [<ref>] [-qh --no-color -l <level>] [-v]...
   azk deploy [-qh --no-color -l <level>] [-v]...
   azk docker [-qh --no-color -l <level>] [-v]... [-- <docker-args>...]
-  azk info [-qh --no-color -l <level>] [-v]...
+  azk info [<system>] [--json --filter=<f>] [-qh --no-color -l <level>] [-v]...
   azk init [<path>] [--filename --force] [-qh --no-color -l <level>] [-v]...
   azk logs [<system> <instances>] [--no-timestamps --follow --lines=<n>] [-qh --no-color -l <level>] [-v]...
   azk open [<system>] [--open-with=<app>] [-qh --no-color -l <level>] [-v]...
@@ -22,8 +22,9 @@ Usage:
   azk status [<system>] [--long --short --text] [-qh --no-color -l <level>] [-v]...
   azk stop [<system>] [--no-remove] [-qh --no-color -l <level>] [-v]...
   azk vm (ssh|start|status|installed|stop|remove) [--force] [-qh --no-color -l <level>] [-v]... [-- <ssh-args>...]
-  azk [agent|config|vm|version] [--help] [-qh --no-color -l <level>] [-v]...
+  azk [agent|config|vm] [--help] [-qh --no-color -l <level>] [-v]...
   azk help [<command>] [-q --no-color -l <level>] [-v]...
+  azk version [--full --logo] [-qh --no-color -l <level>] [-v]...
   azk [--version] [-qh --no-color -l <level>] [-v]...
 
 Commands:
@@ -83,14 +84,19 @@ Options:
   --cwd=<dir>, -C           Sets the current working directory.
   --env=<data>, -e          Additional environment variables - multiple supported (`-e HTTP_PORT=5000 -e PORT=5000`).
   --filename                Shows the manifest filename.
+  --filter=<props>          Filter system properties [default: all].
   --force, -F               Force mode on.
   --follow, -f              Follows log output.
+  --git-ref=<git-ref>       Git branch, tag or commit to clone
   --help, -h                Shows help usage.
   --image=<name>, -i        Defines the image in which the command will be executed.
+  --json                    Outputs in json format.
   --log=<level>, -l         Sets log level (default: error).
   --logo                    Shows the azk logo before showing health information.
+  --full                    Shows full version information.
   --long                    Show all columns.
   --mount=<paths>, -m       Additional mounting points - multiple supported (`-m ~/Home:/azk/user -m ~/data:/var/data`).
+  --mounts                  Only show mounts options.
   --lines=<n>, -n           Outputs the specified number of lines at the end of logs [default: all].
   --no-daemon               Runs `azk agent` in foreground.
   --no-reload-vm            Do not reload Virtual Machine settings.
@@ -108,7 +114,6 @@ Options:
   --tty, -t                 Forces pseudo-tty allocation.
   --text                    Shows output in plain text mode.
   --verbose, -v             Sets the level of detail - multiple supported (-vv == --verbose 2) [default: 0].
-  --git-ref=<git-ref>       Git branch, tag or commit to clone
   --silent                  Prevents any log message about command execution. It's useful when using the `-c` option and the output is used as input to another command using the pipe `|` operator.
   --version                 Shows azk version.
 

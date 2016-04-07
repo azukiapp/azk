@@ -72,18 +72,20 @@ describe("Azk system class, main set", function() {
           var manifest = mf;
           var system   = manifest.system('expand-test');
 
-          var provision = system.options.provision;
-          h.expect(provision).to.include(`system.name: ${system.name}`);
-          h.expect(provision).to.include(`manifest.dir: ${manifest.manifestDirName}`);
-          h.expect(provision).to.include(`manifest.path: ${manifest.manifestPath}`);
-          h.expect(provision).to.include(`manifest.project_name: ${manifest.manifestDirName}`);
-          h.expect(provision).to.include(`azk.version: ${version}`);
-          h.expect(provision).to.include(`azk.default_domain: ${config('agent:balancer:host')}`);
-          h.expect(provision).to.include(`azk.default_dns: ${net.nameServers().toString()}`);
-          h.expect(provision).to.include(`azk.balancer_port: ${config('agent:balancer:port').toString()}`);
-          h.expect(provision).to.include(`azk.balancer_ip: ${config('agent:balancer:ip')}`);
-          h.expect(provision).to.include(`env.FOO: ${process.env.FOO}`);
-          h.expect(provision).to.include(`env.BAR: `);
+          h.expect(system.options.provision).to.containSubset([
+            `system.name: ${system.name}`,
+            `manifest.dir: ${manifest.manifestDirName}`,
+            `manifest.path: ${manifest.manifestPath}`,
+            `manifest.project_name: ${manifest.manifestDirName}`,
+            `azk.version: ${version}`,
+            `azk.default_domain: ${config('agent:balancer:host')}`,
+            `azk.default_dns: ${net.nameServers().toString()}`,
+            `azk.balancer_port: ${config('agent:balancer:port').toString()}`,
+            `azk.balancer_ip: ${config('agent:balancer:ip')}`,
+            `env.FOO (host): ${process.env.FOO}`,
+            `env.BAR (host): `,
+            `PORT: \${PORT}`,
+          ]);
         }).finally(() => {
           process.env.FOO = undefined;
         });
@@ -98,6 +100,7 @@ describe("Azk system class, main set", function() {
         h.expect(mounts).to.have.property(
           "/azk/root", utils.docker.resolvePath(path.resolve(manifest.manifestPath, "/"))
         );
+        h.expect(mounts).to.have.property("/azk/not-resolve", "/azk/not-resolve");
         h.expect(mounts).to.not.have.property('/azk/not-exists');
       });
 
@@ -240,7 +243,7 @@ describe("Azk system class, main set", function() {
       });
 
       it("should prepend shell before command if image doesn't have entrypoint nor cmd", function() {
-        var cmd = ["/bin/sh", "-c", system.command];
+        var cmd = ["/bin/sh", "-c", system.command.replace(/\${HTTP_PORT}/, "5000")];
         h.expect(options).to.have.property("command").and.eql(cmd);
       });
 
@@ -248,7 +251,7 @@ describe("Azk system class, main set", function() {
         var options = system.daemonOptions({}, {
           Entrypoint: ["/entry.sh"]
         });
-        var cmd = utils.splitCmd(system.command);
+        var cmd = utils.splitCmd(system.command.replace(/\${HTTP_PORT}/, "5000"));
         h.expect(options).to.have.property("command").and.eql(cmd);
       });
 
@@ -256,7 +259,7 @@ describe("Azk system class, main set", function() {
         var options = system.daemonOptions({}, {
           Cmd: ["bash"]
         });
-        var cmd = ["/bin/sh", "-c", system.command];
+        var cmd = ["/bin/sh", "-c", system.command.replace(/\${HTTP_PORT}/, "5000")];
         h.expect(options).to.have.property("command").and.eql(cmd);
       });
 
@@ -282,7 +285,7 @@ describe("Azk system class, main set", function() {
 
       it("should return only system.command if image entrypoint and cmd and system.command aren't empty", function() {
         var options = system.daemonOptions({}, { Entrypoint: ["/entry.sh"], Cmd: ["ls -l"]});
-        var cmd = utils.splitCmd(system.command);
+        var cmd = utils.splitCmd(system.command.replace(/\${HTTP_PORT}/, "5000"));
         h.expect(options).to.have.property("command").and.eql(cmd);
       });
 

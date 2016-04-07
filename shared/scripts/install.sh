@@ -422,9 +422,8 @@ check_azk_installation() {
 }
 
 azk_is_up_to_date() {
+  AZK_CURRENT_VERSION=$(azk version | sed -e 's/^azk //; s/^version //; s/,.*//')
   AZK_TAGS_URL="https://api.github.com/repos/azukiapp/azk/tags"
-  AZK_VERSIONS=$(curl -sSL ${AZK_TAGS_URL} | grep name)
-  AZK_CURRENT_VERSION=$(azk version | cut -d ' ' -f2)
   AZK_LATEST_VERSION=$( curl -sSL ${AZK_TAGS_URL} | \
                         grep name | \
                         head -1 | \

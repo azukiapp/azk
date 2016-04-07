@@ -1,6 +1,5 @@
 import h from 'spec/spec_helper';
 import { Cli } from 'azk/cli';
-import Azk from 'azk';
 
 describe('Azk cli, version controller', function() {
   var outputs = [];
@@ -12,7 +11,7 @@ describe('Azk cli, version controller', function() {
 
   var doc_opts    = { exit: false };
   var run_options = { ui: ui };
-  var version     = `azk ${Azk.version}`;
+  var version_regex = /azk version \d+\.\d+\.\d+, build \w+, date \d+-\d+-\d+/;
 
   it('should run a version command', function() {
     doc_opts.argv = 'version';
@@ -20,7 +19,7 @@ describe('Azk cli, version controller', function() {
     return cli.run(doc_opts, run_options).then((code) => {
       h.expect(code).to.eql(0);
       h.expect(options).to.have.property('version', true);
-      h.expect(outputs[0]).to.eql(version);
+      h.expect(outputs[0]).to.match(version_regex);
     });
   });
 
@@ -28,7 +27,7 @@ describe('Azk cli, version controller', function() {
     doc_opts.argv = '--version';
     return cli.run(doc_opts, run_options).then((code) => {
       h.expect(code).to.eql(0);
-      h.expect(outputs[0]).to.eql(version);
+      h.expect(outputs[0]).to.match(version_regex);
     });
   });
 });

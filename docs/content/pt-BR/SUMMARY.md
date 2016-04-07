@@ -23,9 +23,12 @@
 /*****************************************************/
 * [Começando uma aplicação do zero](starting-from-scratch/README.md)
    * [Node.js](starting-from-scratch/nodejs.md)*
-   * [PHP / Laravel](starting-from-scratch/php-laravel.md)*
-   * [PHP / Wordpress / phpMyAdmin](starting-from-scratch/php-wordpress-phpmyadmin.md)*
-   * [Python / Django](starting-from-scratch/python-django.md)*
+   * PHP
+     * [PHP / Laravel](starting-from-scratch/php-laravel.md)*
+     * [PHP / CakePHP](starting-from-scratch/php-cakephp.md)*
+     * [PHP / Wordpress / phpMyAdmin](starting-from-scratch/php-wordpress-phpmyadmin.md)*
+   * Python
+     * [Python / Django](starting-from-scratch/python-django.md)*
    * [Ruby on Rails](starting-from-scratch/ruby-rails.md)*
 /*****************************************************/
 * [Adicionando serviços](adding-services/README.md)
@@ -51,6 +54,7 @@
    * [Azkfile.js](reference/azkfilejs/README.md)
      * [Nome de sistema](reference/azkfilejs/system_name.md)
      * [Propriedades expansíveis](reference/azkfilejs/expandable_properties.md)
+     * [Variáveis de ambiente](reference/azkfilejs/environment_variables.md)
      * [command](reference/azkfilejs/command.md)
      * [depends](reference/azkfilejs/depends.md)
      * [dns_servers](reference/azkfilejs/dns_servers.md)
