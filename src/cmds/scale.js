@@ -48,6 +48,7 @@ export default class Scale extends CliTrackerController {
         var system = systems[i];
         yield this._scale(system, parseInt(opts.to || 1), opts);
       }
+      return 0;
     });
   }
 

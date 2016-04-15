@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## dev
+
+* Bug
+  * [Cli] Fixing error thrown when 'azk scale' command was run, regardless it was successful or not;
+
 ## v0.18.0 - (2016-04-07)
 
 * Enhancements
