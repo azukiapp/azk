@@ -1,6 +1,9 @@
 ## azk restart
 
-  Stops either all instances of the systems in the current `Azkfile.js` or the one specified and starts them back again. If an error occurs during reboot, all systems will be stopped.
+  Restart works by memorizing the current status of the systems in the current `Azkfile`, stops them and then get them back online again.
+  If a `[system]` is specified with the command, `azk` will just restart the specified system and it's dependencies.
+
+  If an error occurs during the reboot, all systems will be stopped.
 
 #### Usage:
 
