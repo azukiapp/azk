@@ -14,8 +14,8 @@ var regex_port = new XRegExp(
   "(?<public>[0-9]{1,})(:(?<private>[0-9]{1,})){0,1}(/(?<protocol>tcp|udp)){0,1}", "x"
 );
 
-// https://regex101.com/r/rK1eJ0/2
-var regex_envs = /(?:\${[=|-]?([A-Z|\d|_]+)})|(?:\$[=|-]?([A-Z|\d|_]+))/g;
+// https://regex101.com/r/rK1eJ0/3
+var regex_envs = /(?:\${[=|-]?([A-Z0-9_]*[A-Z_]+[A-Z0-9_]*)})|(?:\$[=|-]?([A-Z0-9_]*[A-Z_]+[A-Z0-9_]*))/g;
 
 export class System {
   constructor(manifest, name, image, options = {}) {
