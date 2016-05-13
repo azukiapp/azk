@@ -120,7 +120,7 @@ More information [here][azkfile].
 
 ## Contributions
 
-Check our [Contributing Guide](CONTRIBUTING.md) for instructions on how to help the project!
+Check our [Contributing Guide](.github/CONTRIBUTING.md) for instructions on how to help the project!
 
 Share the love and star us here in Github!
 
