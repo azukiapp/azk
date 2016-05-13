@@ -377,7 +377,7 @@ export class System {
   }
 
   // Private methods
-  _make_options(daemon, options = {}) {
+  _make_options(daemon, options = {}, image_conf = {}) {
     // Default values
     options = _.defaults(options, {
       workdir: this.options.workdir,
@@ -391,8 +391,14 @@ export class System {
       dns_servers: this.options.dns_servers,
     });
 
+    var img_envs = {};
+    _.forEach(image_conf.Env, (env_data) => {
+      env_data = env_data.split("=");
+      img_envs[env_data[0]] = env_data[1];
+    });
+
     // Map ports to docker configs: ports and envs
-    var envs  = _.merge({}, this.envs, this._envs_from_file(), options.envs);
+    var envs  = _.merge({}, img_envs, this.envs, this._envs_from_file(), options.envs);
     var ports = {};
     var parsed_ports = this._parse_ports(options.ports);
 
