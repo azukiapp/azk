@@ -7,15 +7,13 @@ var lazy = lazy_require({
   Run      : ['azk/system/run'],
   Scale    : ['azk/system/scale'],
   Balancer : ['azk/system/balancer'],
+  replaceEnvs : ['azk/utils/shell']
 });
 
 var XRegExp = require('xregexp').XRegExp;
 var regex_port = new XRegExp(
   "(?<public>[0-9]{1,})(:(?<private>[0-9]{1,})){0,1}(/(?<protocol>tcp|udp)){0,1}", "x"
 );
-
-// https://regex101.com/r/rK1eJ0/3
-var regex_envs = /(?:\${[=|-]?([A-Z0-9_]*[A-Z_]+[A-Z0-9_]*)})|(?:\$[=|-]?([A-Z0-9_]*[A-Z_]+[A-Z0-9_]*))/g;
 
 export class System {
   constructor(manifest, name, image, options = {}) {
@@ -450,15 +448,32 @@ export class System {
     };
 
     // Expand envs
-    var template = JSON.stringify(finalOptions);
-    template = template.replace(regex_envs, "$${envs.$1$2}");
-    finalOptions = JSON.parse(utils.template(template, { envs }));
+    finalOptions = this._expand_envs(finalOptions, envs);
 
     // Not expand and not stringify
     finalOptions.env = envs;
     finalOptions.stdout = options.stdout;
 
     return finalOptions;
+  }
+
+  _expand_envs(options, envs) {
+    // https://regex101.com/r/zX1qU4/1
+    var keep_special = /\${((?:[^\d]*?[@?\#])|(?:\d*?))}/g;
+
+    // Prepare template
+    var template = JSON.stringify(options);
+    template = lazy.replaceEnvs(template, "#{envs.$1}", true);
+    template = template.replace(keep_special, "#{_keep_special('$1')}");
+
+    // Replaces
+    var expanded = utils.template(template, {
+      envs,
+      _keep_special: (special) => `\${${special}}`,
+    });
+
+    // Parse result
+    return JSON.parse(expanded);
   }
 
   _shell_command(options) {
@@ -580,15 +595,11 @@ export class System {
     return JSON.parse(utils.template(template, data));
   }
 
-  _replace_keep_keys(template) {
+  _replace_keep_keys(str) {
     // https://regex101.com/r/gF4uT4/1
-    let regexes = {
-      net_envs: /(?:(?:[#|$]{|<%)[=|-]?)\s*((?:envs|net)\.[\S]+?)\s*(?:}|%>)/g,
-      envs    : regex_envs,
-    };
-    return template
-      .replace(regexes.net_envs, "#{_keep_key('$1')}")
-      .replace(regexes.envs    , "#{_keep_key('$1$2', '$$')}");
+    let net_envs = /(?:(?:[#|$]{|<%)[=|-]?)\s*((?:envs|net)\.[\S]+?)\s*(?:}|%>)/g;
+    str = str.replace(net_envs, "#{_keep_key('$1')}");
+    return lazy.replaceEnvs(str, "#{_keep_key('$1', '$')}", true);
   }
 
   _resolved_path(mount_path) {
