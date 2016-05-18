@@ -32,6 +32,7 @@ export class Suggestion extends DefaultSuggestion {
         MYSQL_USER    : "azk",
         MYSQL_PASSWORD: "azk",
         MYSQL_DATABASE: "#{manifest.dir}_development",
+        MYSQL_ROOT_PASSWORD: "azk",
       },
       export_envs_comment: [
         'check this gist to configure your database',
