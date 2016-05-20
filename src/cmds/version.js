@@ -63,8 +63,8 @@ export default class Version extends CliTrackerController {
       };
 
       if (require_vm && agent.agent) {
-        var ip = config('agent:vm:ip');
-        data.use_vm = data.use_vm + ', ip: ' + this.ui.c.yellow(ip);
+        let ip = config('agent:vm:ip');
+        data.use_vm = `${data.use_vm}, IP: ${ip}`;
       }
 
       // Show doctor info
