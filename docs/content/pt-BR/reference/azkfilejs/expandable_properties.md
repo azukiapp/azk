@@ -319,3 +319,23 @@ systems({
   },
 });
 ```
+
+Caso seja necessário é possível escapar uma variável para que ela não seja expandida:
+
+```js
+systems({
+  web: {
+    image: { docker: "azukiapp/ruby" },
+    command: ["bundle", "exec", "rails", "-p", "\\$HTTP_PORT"],
+    envs: {
+      HTTP_PORT: "8080",
+    },
+  },
+});
+```
+
+O mesmo se aplica para o comando [shell][../cli/shell.md]:
+
+```sh
+$ azk shell web -c `echo \$PATH`
+```
