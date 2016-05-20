@@ -27,8 +27,14 @@ We strongly recommend you to write your message in English for 2 main reasons:
 4. Further info
 
 a. Which OS / distro?
-b. Uses VirtualBox? Which version?
+b. Which VirtualBox version? (If running Mac OS X)
 c. Can you provide us your Azkfile.js?
+
+```js
+systems({
+  'my-app': {}
+  });
+```
 
 **ProTip**: run `azk version --full` to gather those info.
 
