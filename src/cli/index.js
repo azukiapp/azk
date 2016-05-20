@@ -66,13 +66,17 @@ export function cli(args, cwd, ui = UI) {
 
   if (isPromise(result)) {
     result
-      .then((code) => {
+      .then((code_or_err) => {
         // Convert a not number in a UnknownError
-        if (!_.isNumber(code)) {
-          log.warn('[cli] command not return error or code, return: %j', code);
-          throw new UnknownError(code);
+        if (!_.isNumber(code_or_err)) {
+          log.warn('[cli] command not return error or code, return: %j', code_or_err);
+          // If is undefined, skip throwing the exception
+          if (_.isUndefined(code_or_err)) {
+            return 0;
+          }
+          throw new UnknownError(code_or_err);
         }
-        return code;
+        return code_or_err;
       })
       .catch((error) => {
         return error_handler(error, { ui });
