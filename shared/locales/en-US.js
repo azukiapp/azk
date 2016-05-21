@@ -255,16 +255,14 @@ module.exports = {
   generator: {
     found              : [
       "",
-      "[%(systemName)s] `A %(__type)s` system was detected at '%(dir)s'.",
-      "[%(systemName)s] The image suggested was `%(image)s`.",
+      "A `%(__type)s` system was detected at `%(dir)s`:",
+      "- The image suggested was `%(image)s`.",
     ].join("\n"),
     foundWithoutVersion: [
       "",
-      "[%(systemName)s] A `%(__type)s` system was detected at '%(dir)s'.",
-      "[%(systemName)s] The image suggested was `%(image)s`.",
-      "[%(systemName)s] ! It was not possible to detect the `%(__type)s` specific version, so the standard version was suggested instead.",
-      "[%(systemName)s] ! To change the image version you must edit the `Azkfile.js` file.",
-      "[%(systemName)s] ! For more information see the documentation at http://docs.azk.io/en/images/index.html.",
+      "It was not possible to detect specific version(s) for `%(types)s`, so the standard(s) version was suggested instead.",
+      "To change the image(s) version you must edit the `Azkfile.js` file.",
+      "For more information see the documentation at http://docs.azk.io/en/images/index.html.",
     ].join("\n")
   },
 
@@ -389,7 +387,7 @@ module.exports = {
     },
     init: {
       already_exists: "'%s' already exists (try: `--force`)",
-      generated     : "'%s' generated",
+      generated     : "\n'%s' generated",
       github        : "\nTip:\n  Adds the `.azk` to .gitignore\n  echo '.azk' >> .gitignore \n",
       not_found     : "System(s) not found, generating with example system.",
     },

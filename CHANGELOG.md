@@ -11,6 +11,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Core] Adding support to escape variables in command options (shell and system);
   * [Cli] Fixing error thrown when 'azk scale' command was run, regardless it was successful or not;
 
+* Enhancements
+  * [Suggestions] Refactoring court to support more suggestion for one evidence;
+
 ## v0.18.0 - (2016-04-07)
 
 * Enhancements

@@ -58,7 +58,7 @@ export class Court extends UIProxy {
   constructor(rules_folder, ui) {
     super(ui);
 
-    this.sugestionChooser = new SugestionChooser(path.join(__dirname, "suggestions"), this);
+    this.sugestionChooser = new SugestionChooser(this, path.join(__dirname, "suggestions"));
 
     this.__rules = {
       runtime   : [],
@@ -226,7 +226,7 @@ export class Court extends UIProxy {
   }
 
   _getEvidencesByFolder() {
-    return _.groupBy(this.__evidences, function(evidence) {
+    return _.groupBy(this.__evidences, (evidence) => {
       return path.dirname(evidence.fullpath);
     });
   }
@@ -237,14 +237,12 @@ export class Court extends UIProxy {
 
   _analysis() {
     this._replacesEvidences();
-    this.__folder_evidences_suggestion = [];
-    _.forEach(this.__evidences_by_folder, function(value, key) {
-      var folders_evidence_suggestion = this.sugestionChooser.suggest(value);
-      this.__folder_evidences_suggestion.push({
+    this.__folder_evidences_suggestion = _.map(this.__evidences_by_folder, (value, key) => {
+      return {
         path: key,
-        suggestions: folders_evidence_suggestion
-      });
-    }, this);
+        suggestions: this.sugestionChooser.suggest(value)
+      };
+    });
   }
 
   _veredict() {
@@ -292,11 +290,13 @@ export class Court extends UIProxy {
     }, this);
 
     this.__systems_suggestions = this.__convertFoldersToSystems(this.__folder_evidences_suggestion);
+    // console.log("this.__systems_suggestions", this.__systems_suggestions);
   }
 
   // convert __folder_evidences_suggestion to 'systems data' to mustache templates
   __convertFoldersToSystems() {
-    var systems = {};
+    let systems = {};
+    let not_version = [];
 
     _.forEach(this.__folder_evidences_suggestion, function(folder_evidence_suggestion) {
       var folderName = folder_evidence_suggestion.path;
@@ -350,20 +350,16 @@ export class Court extends UIProxy {
         // create a new system
         var systemSuggestion = systems[suggestion.name] = suggestion;
 
-        if (!evidence_suggestion.version) {
-          this.ok('generator.foundWithoutVersion', {
-            __type: evidence_suggestion.name,
-            dir: folderName,
-            systemName: suggestion.name,
-            image: JSON.stringify(systemSuggestion.image)
-          });
-        } else {
-          this.ok('generator.found', {
-            __type: evidence_suggestion.name,
-            dir: folderName,
-            systemName: suggestion.name,
-            image: JSON.stringify(systemSuggestion.image)
-          });
+        var data_info = {
+          __type: evidence_suggestion.name,
+          dir: folderName,
+          systemName: suggestion.name,
+          image: JSON.stringify(systemSuggestion.image)
+        };
+
+        this.ok('generator.found', data_info);
+        if (!evidence_suggestion.version && evidence_suggestion.ruleType !== "database") {
+          not_version.push(evidence_suggestion.name);
         }
 
         // replace `#{app.dir}` by system template path
@@ -372,6 +368,12 @@ export class Court extends UIProxy {
         systemSuggestion.envs    = replaceFolderTemplate(systemSuggestion.envs);
       }, this);
     }, this);
+
+    if (not_version.length > 0) {
+      this.info('generator.foundWithoutVersion', {
+        types: not_version.join(',')
+      });
+    }
 
     return systems;
   }

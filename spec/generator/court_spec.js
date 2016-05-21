@@ -125,7 +125,7 @@ describe('Azk generator tool court veredict:', function() {
 
       h.expect(filteredEvidences[0][0]).to.have.property('ruleName', 'node-0.12');
       h.expect(filteredEvidences[1]).to.containSubset([{'ruleName': 'ruby_on_rails'}]);
-      h.expect(filteredEvidences[1]).to.containSubset([{'ruleName': 'postgres-9.4'}]);
+      h.expect(filteredEvidences[1]).to.containSubset([{'ruleName': 'postgres'}]);
     });
   });
 
