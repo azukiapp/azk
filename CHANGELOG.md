@@ -13,6 +13,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 * Enhancements
   * [Suggestions] Refactoring court to support more suggestion for one evidence;
+  * [Suggestions] Adding support wordpress;
 
 ## v0.18.0 - (2016-04-07)
 
