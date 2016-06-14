@@ -611,7 +611,7 @@ export class System {
 
   _sync_path(mount_path) {
     var sync_base_path = config('paths:sync_folders');
-    sync_base_path = path.join(sync_base_path, this.manifest.namespace, this.name);
+    sync_base_path = path.join(sync_base_path, this.manifest.namespace);
     return path.join(sync_base_path, this._resolved_path(mount_path));
   }
 

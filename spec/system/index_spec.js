@@ -124,7 +124,7 @@ describe("Azk system class, main set", function() {
         }
         var sync_folder  = path.join(
           config("paths:sync_folders"),
-          manifest.namespace, system.name, manifest.cwd
+          manifest.namespace, manifest.cwd
         );
         var persistent_folder  = path.join(
           config("paths:persistent_folders"),

@@ -30,10 +30,11 @@ describe("Azk sync, main module", function() {
   it("should sync two folders", function() {
     return async(function* () {
       var [origin, dest] = yield make_copy();
-      var code   = yield lazy.Sync.sync(origin, dest);
-      var result = yield h.diff(origin, dest);
-      h.expect(code).to.eql(0);
-      h.expect(result).to.have.property('deviation', 0);
+      var result   = yield lazy.Sync.sync(origin, dest);
+      var diff     = yield h.diff(origin, dest);
+
+      h.expect(result).to.have.property('code', 0);
+      h.expect(diff).to.have.property('deviation', 0);
     });
   });
 
@@ -41,13 +42,13 @@ describe("Azk sync, main module", function() {
     return async(function* () {
       var include = "bar/clothes/barney.txt";
       var [origin, dest] = yield make_copy();
-      var code   = yield lazy.Sync.sync(origin, dest, { include });
+      var result = yield lazy.Sync.sync(origin, dest, { include });
 
       // Compare folders and files
       var result_folder = yield h.diff(origin, dest);
       var result_file   = yield h.diff(path.join(origin, include), path.join(dest, include));
 
-      h.expect(code).to.eql(0);
+      h.expect(result).to.have.property('code', 0);
       h.expect(result_file).to.have.property('deviation', 0);
       h.expect(result_folder).to.have.property('deviation', 10);
     });
@@ -57,13 +58,13 @@ describe("Azk sync, main module", function() {
     return async(function* () {
       var except = "foo/";
       var [origin, dest] = yield make_copy();
-      var code   = yield lazy.Sync.sync(origin, dest, { except });
+      var result = yield lazy.Sync.sync(origin, dest, { except });
 
       // Compare folders and subfolders
       var result_folder    = yield h.diff(origin, dest);
       var result_subfolder = yield h.diff(path.join(origin, "bar"), path.join(dest, "bar"));
 
-      h.expect(code).to.eql(0);
+      h.expect(result).to.have.property('code', 0);
       h.expect(result_folder).to.have.property('deviation', 3);
       h.expect(result_subfolder).to.have.property('deviation', 0);
     });
@@ -73,13 +74,13 @@ describe("Azk sync, main module", function() {
     return async(function* () {
       var except_from = h.fixture_path("sync/rsyncignore.txt");
       var [origin, dest] = yield make_copy();
-      var code   = yield lazy.Sync.sync(origin, dest, { except_from });
+      var result = yield lazy.Sync.sync(origin, dest, { except_from });
 
       // Compare folders and subfolders
       var result_folder    = yield h.diff(origin, dest);
       var result_subfolder = yield h.diff(path.join(origin, "foo"), path.join(dest, "foo"));
 
-      h.expect(code).to.eql(0);
+      h.expect(result).to.have.property('code', 0);
       h.expect(result_folder).to.have.property('deviation', 7);
       h.expect(result_subfolder).to.have.property('deviation', 0);
     });
@@ -107,8 +108,8 @@ describe("Azk sync, main module", function() {
         h.expect(vm_code).to.equal(0);
 
         // Sync folders
-        var code = yield lazy.Sync.sync(example_fixtures, dest, opts);
-        h.expect(code).to.eql(0);
+        var result = yield lazy.Sync.sync(example_fixtures, dest, opts);
+        h.expect(result).to.have.property('code', 0);
 
         // Test destination folder in vm
         var file    = path.join(dest, "bar/Fred.txt");

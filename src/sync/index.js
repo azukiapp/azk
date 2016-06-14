@@ -1,4 +1,4 @@
-import { _, log, path, t } from 'azk';
+import { _, path, t } from 'azk';
 import { defer } from 'azk/utils/promises';
 
 // Module
@@ -26,13 +26,11 @@ var Sync = {
 
     return defer((resolve, reject) => {
       r.execute(function(err, code, cmd) {
-        log.debug('[sync] rsync command:', cmd);
         if (err) {
           err = err.stack ? err.stack : err.toString();
-          log.error('[sync] fail', err);
-          return reject({ err, code });
+          return reject({ err, code, cmd });
         }
-        return resolve(code);
+        return resolve({ code, cmd });
       });
     });
   },
