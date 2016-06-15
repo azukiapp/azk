@@ -198,6 +198,7 @@ export function extend(h) {
         },
         'example-sync': {
           extends: "example",
+          command: "exit 0",
           mounts: _.cloneDeep(mounts_with_sync),
         },
         'example-http-domain': {

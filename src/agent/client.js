@@ -60,7 +60,7 @@ var WebSocketClient = {
           this._cb[message.id] = item.callback;
           this._ws.send(JSON.stringify(message));
         }
-        resolve();
+        return resolve();
       });
 
       this._ws.on('close', () => {
@@ -124,7 +124,7 @@ var WebSocketClient = {
   },
 
   _generate_msg_id() {
-    return lazy.uuid.v1().split('-')[0];
+    return lazy.uuid.v4().split('-')[4];
   }
 };
 

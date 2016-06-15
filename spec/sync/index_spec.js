@@ -13,9 +13,10 @@ describe("Azk sync, main module", function() {
   var example_fixtures = h.fixture_path('sync/test_1/');
   var invalid_fixtures = path.join(h.fixture_path('sync/test_1/'), 'invalid');
 
-  function make_copy() {
+  function make_copy(fixture_path = 'sync/test_1/') {
+    var fixtures = h.fixture_path(fixture_path);
     return all([
-      h.copyToTmp(example_fixtures),
+      h.copyToTmp(fixtures),
       h.tmp_dir()
     ]);
   }
@@ -30,8 +31,8 @@ describe("Azk sync, main module", function() {
   it("should sync two folders", function() {
     return async(function* () {
       var [origin, dest] = yield make_copy();
-      var result   = yield lazy.Sync.sync(origin, dest);
-      var diff     = yield h.diff(origin, dest);
+      var result         = yield lazy.Sync.sync(origin, dest);
+      var diff           = yield h.diff(origin, dest);
 
       h.expect(result).to.have.property('code', 0);
       h.expect(diff).to.have.property('deviation', 0);
@@ -40,9 +41,9 @@ describe("Azk sync, main module", function() {
 
   it("should sync one file between two folders", function() {
     return async(function* () {
-      var include = "bar/clothes/barney.txt";
+      var include        = "bar/clothes/barney.txt";
       var [origin, dest] = yield make_copy();
-      var result = yield lazy.Sync.sync(origin, dest, { include });
+      var result         = yield lazy.Sync.sync(origin, dest, { include });
 
       // Compare folders and files
       var result_folder = yield h.diff(origin, dest);
@@ -56,9 +57,9 @@ describe("Azk sync, main module", function() {
 
   it("should sync two folders but exclude a file list", function() {
     return async(function* () {
-      var except = "foo/";
+      var except         = "foo/";
       var [origin, dest] = yield make_copy();
-      var result = yield lazy.Sync.sync(origin, dest, { except });
+      var result         = yield lazy.Sync.sync(origin, dest, { except });
 
       // Compare folders and subfolders
       var result_folder    = yield h.diff(origin, dest);
@@ -72,9 +73,9 @@ describe("Azk sync, main module", function() {
 
   it("should sync two folders but exclude paths from text file", function() {
     return async(function* () {
-      var except_from = h.fixture_path("sync/rsyncignore.txt");
+      var except_from    = h.fixture_path("sync/rsyncignore.txt");
       var [origin, dest] = yield make_copy();
-      var result = yield lazy.Sync.sync(origin, dest, { except_from });
+      var result         = yield lazy.Sync.sync(origin, dest, { except_from });
 
       // Compare folders and subfolders
       var result_folder    = yield h.diff(origin, dest);
@@ -83,6 +84,18 @@ describe("Azk sync, main module", function() {
       h.expect(result).to.have.property('code', 0);
       h.expect(result_folder).to.have.property('deviation', 7);
       h.expect(result_subfolder).to.have.property('deviation', 0);
+    });
+  });
+
+  it("should sync two folders containing whitespace on path", function() {
+    return async(function* () {
+      var [origin, dest] = yield make_copy('sync/test_2/');
+
+      var result = yield lazy.Sync.sync(origin, dest);
+      var diff   = yield h.diff(origin, dest);
+
+      h.expect(result).to.have.property('code', 0);
+      h.expect(diff).to.have.property('deviation', 0);
     });
   });
 
