@@ -89,11 +89,15 @@ export class Image {
 
         // get size and layers count
         try {
-          registry_result = yield this.getDownloadInfo(
-            lazy.docker.modem,
-            namespace,
-            repository,
-            this.tag);
+          try {
+            registry_result = yield this.getDownloadInfo(
+              lazy.docker.modem,
+              namespace,
+              repository,
+              this.tag);
+          }catch(err) {
+            console.log('Warning: Unable to get Download Info, proceeding anyways: ', err);
+          }
 
           output = _.isObject(stdout) && stdout;
           // docker pull
