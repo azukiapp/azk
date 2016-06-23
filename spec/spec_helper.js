@@ -5,6 +5,10 @@ import { nfcall, promisify } from 'azk/utils/promises';
 import { Client as AgentClient } from 'azk/agent/client';
 import Utils from 'azk/utils';
 
+// Active to debug event loop
+// https://github.com/nodejs/node/issues/1128
+// import activeHandles from 'active-handles';
+
 var lazy = lazy_require({
   MemoryStream: 'memorystream',
   dirdiff     : 'dirdiff',
@@ -105,6 +109,7 @@ before(() => {
 after((done) => {
   process.nextTick(() => {
     require('azk/utils/postal').unsubscribeAll();
+    // activeHandles.print();
     done();
   });
 });

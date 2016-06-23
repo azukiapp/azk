@@ -7412,6 +7412,44 @@
           "version": "1.1.2"
         }
       }
+    },
+    "active-handles": {
+      "version": "1.1.0",
+      "dependencies": {
+        "ansicolors": {
+          "version": "0.3.2"
+        },
+        "cardinal": {
+          "version": "0.5.0",
+          "dependencies": {
+            "redeyed": {
+              "version": "0.5.0",
+              "dependencies": {
+                "esprima-fb": {
+                  "version": "12001.1.0-dev-harmony-fb"
+                }
+              }
+            },
+            "ansicolors": {
+              "version": "0.2.1"
+            }
+          }
+        },
+        "function-origin": {
+          "version": "1.1.1",
+          "dependencies": {
+            "bindings": {
+              "version": "1.2.1"
+            },
+            "nan": {
+              "version": "2.3.5"
+            }
+          }
+        },
+        "xtend": {
+          "version": "4.0.1"
+        }
+      }
     }
   }
 }

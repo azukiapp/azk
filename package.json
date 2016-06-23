@@ -87,6 +87,7 @@
     "xregexp": "^2.0.0"
   },
   "devDependencies": {
+    "active-handles": "^1.1.0",
     "archy": "^1.0.0",
     "azk-dev": "^0.3.0",
     "babel": "^6.3.26",
