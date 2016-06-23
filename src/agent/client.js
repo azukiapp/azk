@@ -85,15 +85,29 @@ var WebSocketClient = {
   },
 
   close() {
-    this._ws.on('error', (err) => {
-      log.error('Error closing websocket:', err);
-    });
+    return defer((resolve, reject) => {
+      let status = this._status;
+      if (status !== 'closed' && status !== 'closing') {
+        this._ws.removeAllListeners('error');
+        this._ws.removeAllListeners('close');
 
-    if (this._status !== 'closed') {
-      this._ws.close();
-    }
-    this._status = 'closed';
-    return true;
+        this._ws.on('close', () => {
+          this._status = 'closed';
+          log.debug('Websocket closed.');
+          resolve(true);
+        });
+
+        this._ws.on('error', (err) => {
+          log.error('Error closing websocket:', err);
+          reject(err);
+        });
+
+        this._status = 'closing';
+        this._ws.terminate();
+      } else {
+        resolve(false);
+      }
+    });
   },
 
   send(message, callback = null, retry = 0) {
@@ -229,7 +243,7 @@ var Client = {
     };
   },
 
-  close_ws() {
+  closeWs() {
     return WebSocketClient.close();
   },
 
