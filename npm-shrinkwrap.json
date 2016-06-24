@@ -7841,6 +7841,14 @@
           "version": "2.0.0"
         }
       }
+    },
+    "multi-progress": {
+      "version": "1.0.0",
+      "dependencies": {
+        "progress": {
+          "version": "1.1.8"
+        }
+      }
     }
   }
 }

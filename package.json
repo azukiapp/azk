@@ -61,6 +61,7 @@
     "memcachedjs": "0.0.1",
     "memorystream": "^0.2.0",
     "moment": "^2.8.1",
+    "multi-progress": "^1.0.0",
     "netmask": "^1.0.5",
     "node-uuid": "^1.4.1",
     "open": "0.0.5",
