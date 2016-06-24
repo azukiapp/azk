@@ -70,7 +70,6 @@
     "postal": "^1.0.2",
     "prettyjson": "^1.0.0",
     "printf": "^0.2.0",
-    "progress": "git+https://github.com/nuxlli/node-progress",
     "request": "^2.45.0",
     "retry": "^0.6.1",
     "rsync": "^0.4.0",

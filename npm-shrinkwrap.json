@@ -7000,10 +7000,6 @@
     "printf": {
       "version": "0.2.0"
     },
-    "progress": {
-      "version": "1.1.5",
-      "resolved": "git://github.com/nuxlli/node-progress.git#f9ab9f0f663628ea236ecdd2c7317c48c84fd8d6"
-    },
     "request": {
       "version": "2.51.0",
       "dependencies": {
