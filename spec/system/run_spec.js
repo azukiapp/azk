@@ -1,7 +1,7 @@
 import h from 'spec/spec_helper';
 import { _ } from 'azk';
-import { publish, subscribe } from 'azk/utils/postal';
-import { async, defer, promiseResolve, promiseReject } from 'azk/utils/promises';
+import { publish } from 'azk/utils/postal';
+import { async, defer, promiseResolve } from 'azk/utils/promises';
 import { ImageNotAvailable } from 'azk/utils/errors';
 
 describe("Azk system class, run set", function() {
@@ -189,94 +189,54 @@ describe("Azk system class, run set", function() {
     });
 
     describe("check image before run", function() {
-      // TODO: Replace this merge for a mock class
-      var system, image_mock = {
-        pull() {
-          return defer((resolve) => {
-            process.nextTick(() => {
-              publish("spec.image_mock.status", { type: "event" });
-              resolve(this);
-            });
-          });
-        },
-
-        check() {
-          return promiseResolve(null);
-        },
-
-        inspect() {
-          return promiseReject({});
-        }
-      };
-
-      var events;
-      var _subscription;
-      var _subscription2;
-
-      before(() => {
-        system = manifest.system("empty");
-        system.image = _.merge({}, system.image, image_mock);
-
-        _subscription = subscribe('spec.image_mock.status', (event) => {
-          events.push(event);
-        });
-
-      });
-      after(() => {
-        _subscription.unsubscribe();
-      });
+      let system, subscription;
+      let stubs = [];
 
       beforeEach(() => {
-        events   = [];
+        system = manifest.system("empty");
+      });
+
+      afterEach(() => {
+        _.each(stubs, (stub) => stub.restore());
+        stubs = [];
+        if (!_.isEmpty(subscription)) {
+          subscription.unsubscribe();
+          subscription = null;
+        }
       });
 
       it("should raise error if image not found", function() {
-
-        // mock check to return null
-        system.image.check = function () {
-          return defer((resolve) => {
-            process.nextTick(() => {
-              publish("image.check.status", { type: "action", context: "image", action: "check_image" });
-              resolve(null);
-            });
-          });
-        };
-
+        stubs.push(h.sinon.stub(system.image, 'pull').returns(promiseResolve(false)));
+        stubs.push(h.sinon.stub(system.image, 'check').returns(promiseResolve(null)));
         var result = system.runShell({ command: [], image_pull: false});
         return h.expect(result).to.rejectedWith(ImageNotAvailable);
       });
 
-      it("should add system to event object", function() {
-        return async(function* () {
-
-          // force azk to think that the image is builded
-          system.image.builded = true;
-
-          // mock check to return null
-          system.image.check = function () {
-            return defer((resolve) => {
-              process.nextTick(() => {
-                publish("image.check.status", { type: "action", context: "image", action: "check_image" });
-                resolve(system.image);
-              });
+      it("should add system to event object", function* () {
+        // stub to generate a event
+        var stub = h.sinon.stub(system.image, 'check', () => {
+          return defer((resolve) => {
+            process.nextTick(() => {
+              publish("image.check.status", { type: "action", context: "image", action: "check_image" });
+              resolve(system.image);
             });
-          };
-
-          _subscription2 = subscribe('system.run.image.check.status', (event) => {
-            events.push(event);
           });
+        });
+        stubs.push(stub);
 
-          yield system.runDaemon()
-                .catch(() => {});
+        var wait_msg = null;
+        var topic    = 'system.run.image.check.status';
+        [wait_msg, subscription] = yield h.wait_subscription(topic);
 
-          _subscription2.unsubscribe();
+        yield system.runDaemon().catch(() => {});
 
-          h.expect(events).to.have.deep.property("[0]").and.eql(
-            { type: 'action',
-              context: 'image',
-              action: 'check_image',
-              system: system }
-          );
+        let msg = (yield wait_msg)[0];
+
+        h.expect(msg).to.eql({
+          type: 'action',
+          context: 'image',
+          action: 'check_image',
+          system: system
         });
       });
     });

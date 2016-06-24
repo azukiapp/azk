@@ -36,7 +36,7 @@ describe("Azk docker module, image pull @slow", function() {
   });
 
   it("should raise error to internal error", function() {
-    var result = h.docker.pull('http://127.0.0.1/invalid', 'not_exist');
+    var result = h.docker.pull('scratch', 'not_exist');
     return h.expect(result).to.be.rejectedWith(Error, /500/);
   });
 });

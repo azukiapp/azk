@@ -4,7 +4,8 @@ import { defer } from 'azk/utils/promises';
 import { ProvisionNotFound, ProvisionPullError } from 'azk/utils/errors';
 
 var lazy = lazy_require({
-  XRegExp: ['xregexp', 'XRegExp']
+  XRegExp: ['xregexp', 'XRegExp'],
+  JStream : 'jstream',
 });
 
 var msg_regex = {
@@ -14,6 +15,7 @@ var msg_regex = {
   pulling_complete   : 'Pull complete',
   pulling_digest     : 'Digest: (?<digest>.*)',
   pulling_repository : 'Pulling repository (?<repository>.*)',
+  pulling_from       : 'Pulling from (?<repository>.*)',
   pulling_layers     : 'Pulling dependent layers',
   pulling_metadata   : 'Pulling metadata',
   pulling_fs_layer   : 'Pulling fs layer',
@@ -48,7 +50,16 @@ function parse_status(msg) {
   return result;
 }
 
-export function pull(docker, repository, tag, stdout, registry_result) {
+function publish_status(data) {
+  publish("docker.pull.status", data);
+}
+
+function parse_progress_label(progress) {
+  let match = progress.match(/\]\s*(.*)$/);
+  return match[1];
+}
+
+export function pull(docker, repository, tag) {
   var image   = `${repository}:${tag}`;
   var promise = docker.createImage({
     fromImage: repository,
@@ -56,27 +67,25 @@ export function pull(docker, repository, tag, stdout, registry_result) {
   });
   return promise.then((stream) => {
     return defer((resolve, reject) => {
-      stream.on('data', (data) => {
-        try {
-          var msg             = JSON.parse(data.toString());
-          msg.type            = "pull_msg";
-          msg.registry_result = registry_result;
-
-          if (msg.error) {
-            if (msg.error.match(/404/) || msg.error.match(/not found$/)) {
-              return reject(new ProvisionNotFound(image));
-            }
-            reject(new ProvisionPullError(image, msg.error));
-          } else {
-            // parse message
-            msg.statusParsed = parse_status(msg.status);
-            publish("docker.pull.status", msg);
+      stream.pipe(new lazy.JStream()).on('data', (msg) => {
+        msg.type = "pull_msg";
+        if (msg.error) {
+          if (msg.error.match(/404/) || msg.error.match(/not found$/)) {
+            return reject(new ProvisionNotFound(image));
           }
-        } catch (e) {}
+          reject(new ProvisionPullError(image, msg.error));
+        } else {
+          // parse message
+          msg.statusParsed = parse_status(msg.status);
+          if (!_.isEmpty(msg.progress)) {
+            msg.progressDetail.label = parse_progress_label(msg.progress);
+          }
+          publish_status(msg);
+        }
       });
 
       stream.on('end', () => {
-        publish("docker.pull.status", { type: "pull_msg", statusParsed: {}, end: true, image});
+        publish_status({ type: "pull_msg", statusParsed: {}, end: true, image});
         resolve(docker.findImage(image));
       });
     });

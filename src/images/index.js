@@ -1,18 +1,17 @@
 import { _, fs, t, path, isBlank, lazy_require } from 'azk';
 import { publish } from 'azk/utils/postal';
-import { async, defer } from 'azk/utils/promises';
-import { ManifestError, NoInternetConnection, LostInternetConnection } from 'azk/utils/errors';
+import { async } from 'azk/utils/promises';
+import { ManifestError, NoInternetConnection } from 'azk/utils/errors';
 import { net } from 'azk/utils';
 import Utils from 'azk/utils';
 import { default as tracker } from 'azk/utils/tracker';
 
-var AVAILABLE_PROVIDERS = ["docker", "dockerfile"];
-var default_tag      = "latest";
+const AVAILABLE_PROVIDERS = ["docker", "dockerfile"];
+const DEFAULT_TAG = "latest";
 
 var lazy = lazy_require({
   DImage     : ['azk/docker', 'Image'],
   docker     : ['azk/docker', 'default'],
-  Syncronizer: ['docker-registry-downloader'],
 });
 
 export class Image {
@@ -35,7 +34,7 @@ export class Image {
         this.path = options.path;
       }
       this.repository = options.repository;
-      this.tag        = this.tag || options.tag || default_tag;
+      this.tag        = this.tag || options.tag || DEFAULT_TAG;
     }
 
     if (_.isEmpty(this.name)) {
@@ -43,134 +42,65 @@ export class Image {
     }
   }
 
-  check() {
-    return defer(() => {
-      publish("image.check.status", { type: "action", context: "image", action: "check_image" });
-      return lazy.docker.findImage(this.name);
-    });
+  check(notify = true) {
+    if (notify) {
+      publish("image.check.status", {
+        type: "action", context: "image", action: "check_image"
+      });
+    }
+    return lazy.docker.findImage(this.name);
   }
 
-  pull(options, stdout) {
-    return async(this, function* () {
-      // split docker namespace and docker repository
-      var namespace   = '';
-      var repository  = '';
-      var splited = this.repository.split('\/');
-      if (splited.length === 2) {
-        namespace   = splited[0];
-        repository  = splited[1];
-      } else {
-        namespace   = 'library';
-        repository  = this.repository;
-      }
-
-      // check if exists local image
-      this.repository = namespace + '/' + repository;
-      var image = yield this.check();
-
-      // check official docker image without "library/" namespace
-      if (isBlank(image) && namespace === 'library') {
-        this.repository = repository;
-        image = yield this.check();
-      }
-
-      // download from registry
-      if (isBlank(image) || options.build_force) {
-        this.repository = namespace + '/' + repository;
-        publish("image.pull.status", { type: "action", context: "image", action: "pull_image", data: this });
-
-        var registry_result;
-        var output;
-
-        var currentOnline = yield net.isOnlineCheck();
-        if ( !currentOnline ) {
-          throw new NoInternetConnection();
-        }
-
-        // get size and layers count
-        try {
-          try {
-            registry_result = yield this.getDownloadInfo(
-              lazy.docker.modem,
-              namespace,
-              repository,
-              this.tag);
-          }catch(err) {
-            console.log('Warning: Unable to get Download Info, proceeding anyways: ', err);
-          }
-
-          output = _.isObject(stdout) && stdout;
-          // docker pull
-          image = yield lazy.docker.pull(this.repository, this.tag, output, registry_result);
-        } catch (err) {
-          output = (err || '').toString();
-          throw new LostInternetConnection('  ' + output);
-        }
-
-        yield this._track('pull');
-      }
-      return this.check();
-    });
+  pullOrBuild(options) {
+    return (this.provider === "dockerfile") ? this.build(options) : this.pull(options);
   }
 
-  getDownloadInfo(dockerode_modem, namespace, repository, repo_tag) {
+  checkOrGet(options, force = false) {
+    if (force) {
+      return this.pullOrBuild(options);
+    } else {
+      return this.check().then((image) => {
+        return (isBlank(image)) ? this.checkOrGet(options, true) : image;
+      });
+    }
+  }
+
+  pull() {
     return async(this, function* () {
-
-      var docker_socket   = { dockerode_modem: dockerode_modem };
-      var request_options = {
-        timeout: 10000,
-        maxAttempts: 3,
-        retryDelay: 500
-      };
-
-      var syncronizer = new lazy.Syncronizer(docker_socket, request_options);
-      yield syncronizer.initialize();
-      var tag = repo_tag;
-
-      // get token from Docker Hub
-      var registry_infos;
-      var hubResult;
-      var getLayersDiff_result;
-
-      hubResult = yield syncronizer.dockerHub.images(namespace, repository);
-
-      // Get layers diff
-      getLayersDiff_result = yield syncronizer.getLayersDiff(hubResult, tag);
-
-      // Check what layer we do not have locally
-      var registry_layers_ids       = getLayersDiff_result.registry_layers_ids;
-      var non_existent_locally_ids  = getLayersDiff_result.non_existent_locally_ids;
-
-      registry_infos = {
-        registry_layers_ids_count      : registry_layers_ids.length,
-        non_existent_locally_ids_count : non_existent_locally_ids.length
-      };
-
-      publish("image.getDownloadInfo.status", {
-        type       : "pull_msg",
-        traslation : "commands.helpers.pull.pull_getLayersDiff",
-        data       : registry_infos
+      publish("image.pull.status", {
+        type: "action", context: "image", action: "pull_image", data: this
       });
 
-      return registry_infos;
+      // Check is online before try pull
+      var currentOnline = yield net.isOnlineCheck();
+      if ( !currentOnline ) {
+        throw new NoInternetConnection();
+      }
+
+      yield this._track('pull');
+      yield lazy.docker.pull(this.repository, this.tag);
+
+      return this.check(false);
     });
   }
 
   build(options) {
     return async(this, function* () {
-      var image = yield this.check();
-      if (options.build_force || isBlank(image)) {
-        publish("image.build.status",
-          { type: 'action', context: 'image', action: 'build_image', data: this });
-        image = yield lazy.docker.build({
-                                    dockerfile: this.path,
-                                    tag: this.name,
-                                    verbose: options.provision_verbose,
-                                    stdout: options.stdout
-                                  });
-      }
+      publish("image.build.status", {
+        type: 'action', context: 'image', action: 'build_image', data: this
+      });
+
+      let build_opts = {
+        dockerfile: this.path,
+        tag: this.name,
+        verbose: options.provision_verbose,
+        stdout: options.stdout
+      };
+
+      yield lazy.docker.build(build_opts);
       yield this._track('build');
-      return image;
+
+      return this.check(false);
     });
   }
 
@@ -226,7 +156,7 @@ export class Image {
 
     var imageParsed = lazy.DImage.parseRepositoryTag(value);
     this.repository = imageParsed.repository;
-    this.tag        = imageParsed.tag || default_tag;
+    this.tag        = imageParsed.tag || DEFAULT_TAG;
   }
 
   get name() {
@@ -271,9 +201,7 @@ export class Image {
     return provider;
   }
 
-  //
-  // Tracker
-  //
+  // Tracker pull and build
   _track(event_type_name) {
     return tracker.sendEvent("image", (trackerEvent) => {
       // get event_type
