@@ -15,7 +15,7 @@ export default class Shell extends CliTrackerController {
     var args = this.normalized_params.arguments;
 
     var _subscription = subscribe('docker.pull.status', (data) => {
-      Helpers.newPullProgressBar(this.ui)(data);
+      this.view('image_pull').render(data);
     });
 
     return asyncUnsubscribe(this, _subscription, function* () {
@@ -132,7 +132,6 @@ export default class Shell extends CliTrackerController {
 
   _escapeAndPullProgress(escape, system, show_logs, verbose) {
     return (event) => {
-      var pullProgressBar = Helpers.newPullProgressBar(this.ui);
       var escapeCapture   = Helpers.escapeCapture(escape);
 
       // show verbose output
@@ -144,7 +143,7 @@ export default class Shell extends CliTrackerController {
         escapeCapture(event);
       } else if (show_logs) {
         if (show_logs && event.type === "pull_msg") {
-          pullProgressBar(event);
+          this.view('image_pull').render(event);
         } else if (event.type === "action") {
           var keys = ["commands", "scale"];
           var actions = ["pull_image", "build_image"];
