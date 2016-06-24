@@ -6,6 +6,7 @@ export class CliController extends RouterController {
   constructor(...args) {
     super(...args);
     this._verbose_level = 0;
+    this._views = {};
   }
 
   _configure(opts) {
@@ -62,5 +63,13 @@ export class CliController extends RouterController {
   runShellInternally(cmd) {
     var [, result] = cli_run(cmd, this.cwd, this.ui);
     return result;
+  }
+
+  view(name) {
+    if (_.isEmpty(this._views[name])) {
+      let View = require(`./views/${name}_view`);
+      this._views[name] = new View(this.ui, this);
+    }
+    return this._views[name];
   }
 }
