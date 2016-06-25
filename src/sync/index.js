@@ -4,33 +4,51 @@ import { defer } from 'azk/utils/promises';
 // Module
 var Sync = {
   sync(origin, destination, opts = {}) {
-    var shell   = opts.ssh ? `ssh ${opts.ssh.opts}` : '/bin/bash';
-    destination = opts.ssh ? `${opts.ssh.url}:${destination}` : destination;
-
-    var r = new require('rsync')()
-      .shell(shell)
-      .flags('az')
-      .set('delete')
-      .source(path.join(origin, '/'))
-      .destination(destination);
+    let args = ['-az'];
+    let include = [], exclude = [];
 
     if (opts.include) {
-      r.include(this._process_include(opts.include));
-      r.exclude(['*/', '*']);
+      include = this._process_include(opts.include);
+      exclude = ['*/', '*'];
     } else {
-      if (opts.except) { r.exclude(opts.except); }
+      if (opts.except) {
+        exclude = _.isArray(opts.except) ? opts.except : [opts.except];
+      }
       if (opts.except_from) {
-        r.set('exclude-from', path.resolve(origin, opts.except_from));
+        args.push('--exclude-from');
+        args.push(path.resolve(origin, opts.except_from));
       }
     }
 
+    origin = origin.replace(/(["`\\])/g,'\\$1');
+    destination = destination.replace(/(['\s\\])/g,'\\\\$1');
+    destination = destination.replace(/(")/g,'\\\\\\\\$1');
+    destination = destination.replace(/(`)/g,'\\\\\\$1');
+
+    let rsync_options = {
+      args, include, exclude,
+      src : `"${path.join(origin, '/')}"`,
+      delete: true,
+    };
+
+    if (opts.ssh) {
+      destination = `"${opts.ssh.url}:${destination}"`;
+      rsync_options.ssh  = true;
+      rsync_options.sshCmdArgs = [opts.ssh.opts];
+    }
+
+    rsync_options.dest = `${destination}`;
+
+    var rsync = require('rsyncwrapper');
     return defer((resolve, reject) => {
-      r.execute(function(err, code, cmd) {
+      rsync(rsync_options, (err, stdout, stderr, cmd) => {
+        let result = { err, stdout, stderr, cmd, code: 0 };
         if (err) {
-          err = err.stack ? err.stack : err.toString();
-          return reject({ err, code, cmd });
+          result.code = err.code;
+          result.err  = err.toString();
+          return reject(result);
         }
-        return resolve({ code, cmd });
+        return resolve(result);
       });
     });
   },

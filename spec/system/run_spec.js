@@ -34,11 +34,11 @@ describe("Azk system class, run set", function() {
     it("should run a command in a shell for a system", function() {
       return async(function* () {
         var exitResult = yield system.runShell({
-          command: ["ls -ls; exit"],
+          command: ["ls -ls bin; exit"],
           stdout: mocks.stdout, stderr: mocks.stderr
         });
         h.expect(exitResult).to.have.property("code", 0);
-        h.expect(outputs).to.have.property("stdout").match(/.*src/);
+        h.expect(outputs).to.have.property("stdout").match(/test\-app/);
       });
     });
 

@@ -7120,9 +7120,6 @@
     "retry": {
       "version": "0.6.1"
     },
-    "rsync": {
-      "version": "0.4.0"
-    },
     "scp2": {
       "version": "0.1.4",
       "dependencies": {
@@ -7448,6 +7445,15 @@
         },
         "xtend": {
           "version": "4.0.1"
+        }
+      }
+    },
+    "rsyncwrapper": {
+      "version": "1.0.0",
+      "resolved": "git+https://github.com/nuxlli/rsyncwrapper.git#37e01ce4cb328b8ee5d8709c507296d26e3127bc",
+      "dependencies": {
+        "lodash": {
+          "version": "2.4.2"
         }
       }
     }

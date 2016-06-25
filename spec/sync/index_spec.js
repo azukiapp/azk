@@ -10,7 +10,6 @@ var lazy = lazy_require({
 });
 
 describe("Azk sync, main module", function() {
-  var example_fixtures = h.fixture_path('sync/test_1/');
   var invalid_fixtures = path.join(h.fixture_path('sync/test_1/'), 'invalid');
 
   function make_copy(fixture_path = 'sync/test_1/') {
@@ -113,11 +112,12 @@ describe("Azk sync, main module", function() {
     it("should sync two folders", function() {
       return async(function* () {
         var name = config("agent:vm:name");
-        var dest = path.join("/tmp", lazy.uuid.v4());
+        var dest = path.join("/tmp", lazy.uuid.v4(), "a b'`\\\"");
         var opts = { ssh: lazy.Client.ssh_opts() };
+        var example_fixtures = h.fixture_path('test-app/special:\'` "\\');
 
         // Make destination folder
-        var vm_code = yield lazy.VM.ssh(name, "mkdir -p " + dest);
+        var vm_code = yield lazy.VM.ssh(name, "mkdir -p " + path.join(dest, ".."));
         h.expect(vm_code).to.equal(0);
 
         // Sync folders
@@ -125,11 +125,13 @@ describe("Azk sync, main module", function() {
         h.expect(result).to.have.property('code', 0);
 
         // Test destination folder in vm
-        var file    = path.join(dest, "bar/Fred.txt");
-        var folder  = path.join(dest, "bar/clothes");
-        var cmd     = "test -f " + file + " && test -d " + folder;
+        dest = dest.replace(/([`"\\])/g, '\\$1');
+        var file   = path.join(dest, "test file 1");
+        var folder = path.join(dest, "test file 2");
+        var cmd    = `test -f "${file}" && test -f "${folder}"`;
         vm_code = yield lazy.VM.ssh(name, cmd);
-        h.expect(vm_code).to.equal(0);
+
+        h.expect(vm_code).to.equal(0, "files no synced to destination");
       });
     });
   });

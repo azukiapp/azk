@@ -74,6 +74,7 @@ export function extend(h) {
 
     var mounts_with_sync = {
       '/azk'           : { type: 'sync', value: '.' },
+      '/azk/special'   : { type: 'sync', value: 'special:\'` "\\'},
       '/azk/bin'       : { type: 'sync', value: 'bin', shell: true },
       '/azk/lib'       : { type: 'sync', value: 'lib', shell: true, daemon: false },
       '/azk/tmp'       : { type: 'persistent', value: 'tmp' },
