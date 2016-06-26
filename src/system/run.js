@@ -31,6 +31,7 @@ var Run = {
       if ((!options.provision_force) && system.provisioned) {
         return null;
       }
+      system.provisioned = null;
       log.debug('provision steps', steps);
 
       // provision command (require /bin/sh)
@@ -76,7 +77,7 @@ var Run = {
       var deps_envs = yield system.checkDependsAndReturnEnvs(options, false);
       options.envs  = _.merge(deps_envs, options.envs || {});
 
-      var image = yield this._check_image(system, options);
+      var image = _.isEmpty(options.image_data) ? yield this._check_image(system, options) : options.image_data;
       var docker_opt = system.shellOptions(options, image.Config);
 
       // Force env TERM in interatives shells (like a ssh)
@@ -364,10 +365,10 @@ var Run = {
     });
   },
 
-  // Check and pull image
+  // Check image, pull or build if not found
   _check_image(system, options) {
     options = _.defaults(options, {
-      image_pull: true,
+      build_force: false,
     });
 
     var _subscription = subscribe("image.check.status", (msg, env) => {
@@ -376,32 +377,15 @@ var Run = {
     });
 
     return asyncUnsubscribe(this, _subscription, function* () {
-      var promise;
-
-      if ((options.build_force || options.image_pull) && !system.image.builded) {
-        if (system.image.provider === 'docker') {
-          promise = system.image.pull(options);
-        } else if (system.image.provider === 'dockerfile') {
-          promise = system.image.build(options);
+      let promise = system.image.checkOrGet(options, options.build_force);
+      var image = yield promise.then((image) => {
+        if (isBlank(image)) {
+          throw new ImageNotAvailable(system.name, system.image.name);
         }
+        return image;
+      });
 
-        // save the date provisioning
-        system.image.builded = new Date();
-      } else {
-        promise = system.image.check()
-          .then((image) => {
-            if (isBlank(image)) {
-              throw new ImageNotAvailable(system.name, system.image.name);
-            }
-            return image;
-          });
-      }
-
-      var image = yield promise;
-
-      if (!isBlank(image)) {
-        return image.inspect();
-      }
+      return image.inspect();
     });
   },
 

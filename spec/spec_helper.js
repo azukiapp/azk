@@ -26,6 +26,10 @@ var Helpers = {
     return (_.contains(process.argv, '--no-required-agent') || process.env.AZK_NO_REQUIRED_AGENT);
   },
 
+  get sinon() {
+    return require('sinon');
+  },
+
   get docker() {
     return require('azk/docker').default;
   },

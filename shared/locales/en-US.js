@@ -373,18 +373,6 @@ module.exports = {
       options  : "${green}Options:${green.close}",
       usage    : '${blue}Usage:${blue.close}',
     },
-    helpers: {
-      pull: {
-        pulling           : 'Pulling repository %s...',
-        bar_progress      : '  :title [:bar] :percent :progress',
-        bar_status        : '  :title :msg',
-        pull_getLayersDiff: "${blue}⇲${blue.close}"    + " comparing registry layers and local layers...",
-        pull_layers_left  : "${blue}⇲${blue.close}"    + " %(non_existent_locally_ids_count)s layers left to download.",
-        pull_start        : "${blue}⇲${blue.close}"    + " pulling %(left_to_download_count)s/%(total_registry_layers)s layers.",
-        pull_ended        : "\n" + "${blue}✓${blue.close}"    + " completed download of `" + "${yellow}%(image)s${yellow.close}" + "`\n",
-        already_being     : "${yellow}⇲${yellow.close}"  + " image already being pulled. Please wait...",
-      }
-    },
     init: {
       already_exists: "'%s' already exists (try: `--force`)",
       generated     : "\n'%s' generated",
@@ -534,6 +522,16 @@ module.exports = {
     doctor: {
       deprecated: "Command `azk doctor` is deprecated, use `azk version --full` instead.",
     },
+    views: {
+      image_pull: {
+        pull_ended        : "\n${blue}✓${blue.close} completed download of `${yellow}%(image)s${yellow.close}`",
+        digest            : "\n${blue}✓${blue.close} digest `${yellow}%(digest)s${yellow.close}`",
+        bar_progress      : ':id: :msg [:bar] :percent :etas',
+        download          : '${blue}⇲${blue.close} layer %(id)s',
+        pulling_fs_layer  : '${blue}⇲${blue.close} layer %(id)s',
+        pulling_extracting: '${yellow}↻${yellow.close} layer %(id)s',
+      }
+    }
   },
 
   docker: {

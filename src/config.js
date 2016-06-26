@@ -226,7 +226,7 @@ var options = mergeConfig({
       namespace  : 'azk.test',
       repository : 'azk_test',
       build_name : 'azkbuildtest',
-      image_empty: 'cevich/empty_base_image:latest',
+      image_empty: 'nerwysh/empty:latest',
     },
     tracker: {
       disable: true,

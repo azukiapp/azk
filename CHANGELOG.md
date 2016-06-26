@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## dev
 
 * Bug
+  * [Core] Simplification the images downloads process;
   * [Core] Fixing regex bug in expand envs (not expand numbers: `$1` or `${2}`);
   * [Core] Adding image envs in expand envs variable process;
   * [Core] Adding support to escape variables in command options (shell and system);
@@ -14,6 +15,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 * Enhancements
   * [Suggestions] Refactoring court to support more suggestion for one evidence;
   * [Suggestions] Adding support wordpress;
+  * [Core] Support images of other repositories beyond Docker Hub;
 
 ## v0.18.0 - (2016-04-07)
 

@@ -9,9 +9,12 @@ var lazy = lazy_require({
   execShLib: 'exec-sh',
   open     : 'open',
   colors   : ['azk/utils/colors'],
+  Multiprogress: 'multi-progress',
 });
 
-var tables    = {};
+var multiprogress = null;
+var bars   = {};
+var tables = {};
 
 let colors_labels = {
   ok  : 'green',
@@ -97,11 +100,6 @@ var UI = {
     }, 500);
   },
 
-  createProgressBar(...args) {
-    var ProgressBar = require('progress');
-    return new ProgressBar(...args);
-  },
-
   stdout() {
     return process.stdout;
   },
@@ -143,6 +141,39 @@ var UI = {
 
   table_show(name) {
     this.output(tables[name].toString());
+  },
+
+  newProgress(format, options, output) {
+    output = output || this.stdout();
+    this.terminateProgress();
+    multiprogress = {
+      multi : new lazy.Multiprogress(output),
+      format: `${label_color('ok')}: ${format}`,
+      options
+    };
+  },
+
+  terminateProgress() {
+    if (!_.isEmpty(multiprogress)) { multiprogress.multi.terminate(); }
+    multiprogress = null;
+    bars = {};
+  },
+
+  newBar(name, format = null, options = null) {
+    format  = format  || multiprogress.format;
+    options = options || multiprogress.options;
+    bars[name] = multiprogress.multi.newBar(format, options);
+    return bars[name];
+  },
+
+  tickBar(name, len, tokens = {}, total = null) {
+    let bar = bars[name] || this.newBar(name);
+    if (total) {
+      bar.total = total;
+      bar.curr  = len;
+      len = 0;
+    }
+    bar.tick(len, tokens);
   },
 
   // User interactions methods

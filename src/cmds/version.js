@@ -3,7 +3,6 @@ import { Helpers } from 'azk/cli/helpers';
 import { config, lazy_require } from 'azk';
 import { async } from 'azk/utils/promises';
 import { deviceInfo } from 'azk/utils';
-import { VersionView } from 'azk/cli/views/version_view';
 import Azk from 'azk';
 
 var lazy = lazy_require({
@@ -68,7 +67,7 @@ export default class Version extends CliTrackerController {
       }
 
       // Show doctor info
-      (new VersionView(this.ui)).render(data, opts.logo);
+      this.view('version').render(data, opts.logo);
 
       return 0;
     });
