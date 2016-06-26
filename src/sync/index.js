@@ -1,67 +1,84 @@
-import { _, log, path, t } from 'azk';
+import { _, path, t } from 'azk';
 import { defer } from 'azk/utils/promises';
+import { which } from 'azk/utils';
+import { spawnAsync } from 'azk/utils/spawn_helper';
 
 // Module
-var Sync = {
-  sync(origin, destination, opts = {}) {
-    var shell   = opts.ssh ? `ssh ${opts.ssh.opts}` : '/bin/bash';
-    destination = opts.ssh ? `${opts.ssh.url}:${destination}` : destination;
-
-    var r = new require('rsync')()
-      .shell(shell)
-      .flags('az')
-      .set('delete')
-      .source(path.join(origin, '/'))
-      .destination(destination);
+export default class Sync {
+  static sync(origin, destination, opts = {}) {
+    let args = ['-az'];
+    let include = [], exclude = [];
 
     if (opts.include) {
-      r.include(this._process_include(opts.include));
-      r.exclude(['*/', '*']);
+      exclude = ['*/', '*'];
+      include = this._process_include(opts.include);
+      include = _.map(include, this._escape_arg);
     } else {
-      if (opts.except) { r.exclude(opts.except); }
+      if (opts.except) {
+        exclude = _.isArray(opts.except) ? opts.except : [opts.except];
+        exclude = _.map(exclude, this._escape_arg);
+      }
       if (opts.except_from) {
-        r.set('exclude-from', path.resolve(origin, opts.except_from));
+        args.push('--exclude-from');
+        args.push(this._escape_arg(path.resolve(origin, opts.except_from)));
       }
     }
 
+    let rsync_options = {
+      args, include, exclude,
+      src : this._escape_arg(path.join(origin, '/')),
+      delete: true,
+    };
+
+    if (opts.ssh) {
+      // Extra escape for use in ssh command
+      destination = destination.replace(/(['\s\\])/g,'\\\\$1');
+      destination = destination.replace(/(")/g,'\\\\\\\\$1');
+      destination = destination.replace(/(`)/g,'\\\\\\$1');
+
+      rsync_options.dest = `"${opts.ssh.url}:${destination}"`;
+      rsync_options.ssh  = true;
+      rsync_options.sshCmdArgs = [opts.ssh.opts];
+    } else {
+      rsync_options.dest = this._escape_arg(destination);
+    }
+
+    var rsync = require('rsyncwrapper');
     return defer((resolve, reject) => {
-      r.execute(function(err, code, cmd) {
-        log.debug('[sync] rsync command:', cmd);
+      rsync(rsync_options, (err, stdout, stderr, cmd) => {
+        let result = { err, stdout, stderr, cmd, code: 0 };
         if (err) {
-          err = err.stack ? err.stack : err.toString();
-          log.error('[sync] fail', err);
-          return reject({ err, code });
+          result.code = err.code;
+          result.err  = err.toString();
+          return reject(result);
         }
-        return resolve(code);
+        return resolve(result);
       });
     });
-  },
+  }
 
-  version() {
-    var version_output = '';
-    var r = new require('rsync')().set('version').output((data) => {
-      version_output += data.toString();
-    });
-    return defer((resolve, reject) => {
-      r.execute(function(err, code) {
-        if (err) {
-          return reject({ err, code });
-        }
-        var _version = version_output.match(/.*version\ (\d+\.\d+\.\d+)/);
-        if (!_.isEmpty(_version) && _version.length >= 2) {
-          return resolve(_version[1]);
-        } else {
-          return reject({
-            err: t('errors.rsync_invalid_version_format', {
-              rsync_version: version_output
-            })
-          });
-        }
-      });
-    });
-  },
+  static version() {
+    return which('rsync')
+    .then((fullpath) => {
+      return spawnAsync(fullpath, ['--version']);
+    })
+    .then(({error_code, message}) => {
+      if (error_code !== 0) {
+        throw { err: message, code: error_code };
+      }
 
-  _process_include(include) {
+      var _version = message.match(/.*version\ (\d+\.\d+\.\d+)/);
+      if (!_.isEmpty(_version) && _version.length >= 2) {
+        return _version[1];
+      } else {
+        throw({
+          err: t('errors.rsync_invalid_version_format', { rsync_version: message })
+        });
+      }
+    });
+  }
+
+  static _process_include(include) {
     if (!_.isArray(include)) { include = [include]; }
 
     var includes = [];
@@ -77,6 +94,9 @@ var Sync = {
     return includes;
   }
 
-};
+  static _escape_arg(arg) {
+    return `"${arg.replace(/(["`\\])/g,'\\$1')}"`;
+  }
+}
 
 export { Sync };

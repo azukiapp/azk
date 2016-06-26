@@ -11,6 +11,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Core] Adding image envs in expand envs variable process;
   * [Core] Adding support to escape variables in command options (shell and system);
   * [Cli] Fixing error thrown when 'azk scale' command was run, regardless it was successful or not;
+  * [Sync] Fixing bug when the path to be synced contained whitespace (#672);
+  * [Sync] Removing `system.name` from the destination sync path, which avoids multiple syncs for extended systems;
+  * [Cli] Fixing escape character in `azk vm ssh`;
 
 * Enhancements
   * [Suggestions] Refactoring court to support more suggestion for one evidence;

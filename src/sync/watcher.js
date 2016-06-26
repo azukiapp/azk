@@ -14,11 +14,14 @@ export class Watcher extends IPublisher {
     var id = this.calculate_id(origin, destination);
 
     return defer((resolve, reject) => {
-      log.debug('Adding watcher from folder', origin, 'to', destination);
+      log.info('[sync] Adding watcher',
+       '\n      [sync] from:', origin,
+       '\n      [sync]   to:', destination);
       if (this.workers[id]) {
         this.workers[id].count++;
         this.publish('init', { status: 'exists' });
-        log.debug('Current watchers:\n', this.workers);
+        log.info ('[sync] Existing watcher ', id, ', count:', this.workers[id].count);
+        log.debug('[sync] Current watchers:', _.keys(this.workers));
         return resolve();
       }
 
@@ -39,29 +42,52 @@ export class Watcher extends IPublisher {
       child.on('restart', () => {
         this.publish('restart', { op: 'restart', status: 'init' });
         child.send({origin, destination, opts});
-        log.info('[sync] Sync process restarted', { origin, destination });
+        log.info('[sync] Sync process restarted',
+         '\n      [sync] from:', origin,
+         '\n      [sync]   to:', destination);
       });
 
       child.on('exit:code', (code) => {
-        var level = code !== null && code > 0 && code !== 130 ? 'warn' : 'info';
-        log[level]('[sync] Sync process exited with code', code, { origin, destination });
+        var level         = code !== null && code > 0 && code !== 130 ? 'warn' : 'info';
+        var with_code_msg = code ? 'with code ' + code : '';
+
+        log[level]('[sync] Sync process exited', with_code_msg,
+           '\n      [sync] from:', origin,
+           '\n      [sync]   to:', destination);
       });
 
       child.on('message', (data) => {
         log.debug('[sync] Watcher received message', data);
         data = JSON.parse(data);
         this.publish(data.op, data);
-        if (data.op === "watch" && data.status === 'ready') {
-          return resolve(true);
-        } else if (data.op === "sync" && data.status === "fail") {
-          this.unwatch(origin, destination);
-          return reject(data.err);
+
+        if (data.op === 'watch') {
+          switch (data.status) {
+            case 'ready':
+              return resolve(true);
+          }
+        } else if (data.op === "sync") {
+          if (data.cmd) {
+            log.debug('[sync] Rsync command:\n', data.cmd);
+          }
+
+          switch (data.status) {
+            case 'done':
+              log.info('[sync] Sync completed',
+               '\n      [sync] from:', origin,
+               '\n      [sync]   to:', destination);
+              break;
+            case 'fail':
+              this.unwatch(origin, destination);
+              log.error('[sync] Sync failed:\n', (data.err.stack ? data.err.stack : data.err));
+              return reject(data.err);
+          }
         }
       });
 
       child.on('start', (process) => {
-        log.debug('[sync] process started with pid', process);
-        child.send({origin, destination, opts});
+        log.debug('[sync] Sync process started with PID', process.childData.pid);
+        child.send({ origin, destination, opts });
       });
 
       child.start();
@@ -69,9 +95,15 @@ export class Watcher extends IPublisher {
   }
 
   unwatch(origin, destination) {
-    log.info('[sync] Removing watcher from folder', origin, 'to', destination);
-    var result = this._remove_worker(this.calculate_id(origin, destination));
-    log.debug('[sync] Current watchers: ' + _.keys(this.workers));
+    log.info('[sync] Removing watcher\n      [sync] from:', origin, '\n      [sync]   to:', destination);
+    var id     = this.calculate_id(origin, destination);
+    var result = this._remove_worker(id);
+
+    if (this.workers[id]) {
+      log.info ('[sync] Watcher ', id, ', count:', this.workers[id].count);
+    }
+
+    log.debug('[sync] Current watchers:',  _.keys(this.workers));
     this.publish('finish', { op: 'finish', status: 'done' });
     return result;
   }
@@ -99,8 +131,6 @@ export class Watcher extends IPublisher {
   }
 
   _remove_worker(id) {
-    log.info('[sync] workers ' + _.keys(this.workers));
-    log.info('[sync] call to remove worker id ' + id);
     var worker = this.workers[id];
     if (worker) {
       if (--worker.count <= 0) {

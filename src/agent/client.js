@@ -60,7 +60,7 @@ var WebSocketClient = {
           this._cb[message.id] = item.callback;
           this._ws.send(JSON.stringify(message));
         }
-        resolve();
+        return resolve();
       });
 
       this._ws.on('close', () => {
@@ -85,15 +85,29 @@ var WebSocketClient = {
   },
 
   close() {
-    this._ws.on('error', (err) => {
-      log.error('Error closing websocket:', err);
-    });
+    return defer((resolve, reject) => {
+      let status = this._status;
+      if (status !== 'closed' && status !== 'closing') {
+        this._ws.removeAllListeners('error');
+        this._ws.removeAllListeners('close');
 
-    if (this._status !== 'closed') {
-      this._ws.close();
-    }
-    this._status = 'closed';
-    return true;
+        this._ws.on('close', () => {
+          this._status = 'closed';
+          log.debug('Websocket closed.');
+          resolve(true);
+        });
+
+        this._ws.on('error', (err) => {
+          log.error('Error closing websocket:', err);
+          reject(err);
+        });
+
+        this._status = 'closing';
+        this._ws.terminate();
+      } else {
+        resolve(false);
+      }
+    });
   },
 
   send(message, callback = null, retry = 0) {
@@ -124,7 +138,7 @@ var WebSocketClient = {
   },
 
   _generate_msg_id() {
-    return lazy.uuid.v1().split('-')[0];
+    return lazy.uuid.v4().split('-')[4];
   }
 };
 
@@ -229,7 +243,7 @@ var Client = {
     };
   },
 
-  close_ws() {
+  closeWs() {
     return WebSocketClient.close();
   },
 

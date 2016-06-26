@@ -1,8 +1,14 @@
 import h from 'spec/spec_helper';
-import { _ } from 'azk';
+import { _, path, config, lazy_require } from 'azk';
 import { publish } from 'azk/utils/postal';
 import { async, defer, promiseResolve } from 'azk/utils/promises';
 import { ImageNotAvailable } from 'azk/utils/errors';
+
+var lazy = lazy_require({
+  VM         : ['azk/agent/vm'],
+  spawnAsync : ['azk/utils/spawn_helper'],
+  Client     : ['azk/agent/client'],
+});
 
 describe("Azk system class, run set", function() {
   var manifest, system;
@@ -28,11 +34,11 @@ describe("Azk system class, run set", function() {
     it("should run a command in a shell for a system", function() {
       return async(function* () {
         var exitResult = yield system.runShell({
-          command: ["ls -ls; exit"],
+          command: ["ls -ls bin; exit"],
           stdout: mocks.stdout, stderr: mocks.stderr
         });
         h.expect(exitResult).to.have.property("code", 0);
-        h.expect(outputs).to.have.property("stdout").match(/.*src/);
+        h.expect(outputs).to.have.property("stdout").match(/test\-app/);
       });
     });
 
@@ -239,6 +245,46 @@ describe("Azk system class, run set", function() {
           system: system
         });
       });
+    });
+  });
+
+  h.describeRequireVm("with enabled vm", function () {
+    this.timeout(20000);
+
+    var system, name;
+
+    beforeEach(() => {
+      name   = config("agent:vm:name");
+      system = manifest.system('example-sync');
+      system.provisioned = new Date();
+    });
+
+    afterEach(function* () {
+      yield system.stopWatching();
+      yield lazy.Client.closeWs();
+    });
+
+    it("run watch and sync files", function* () {
+      yield system.runWatch(true);
+
+      var dest = system.syncs[_.keys(system.syncs)[0]].guest_folder;
+      var cmd, result;
+
+      cmd = "test -d " + path.join(dest, 'bin');
+      result = yield lazy.VM.ssh(name, cmd);
+      h.expect(result).to.eq(0);
+
+      cmd = "test -d " + path.join(dest, 'src');
+      result = yield lazy.VM.ssh(name, cmd);
+      h.expect(result).to.eq(0);
+
+      cmd = "test -d " + path.join(dest, 'lib');
+      result = yield lazy.VM.ssh(name, cmd);
+      h.expect(result).to.eq(1);
+
+      cmd = "test -d " + path.join(dest, 'ignore');
+      result = yield lazy.VM.ssh(name, cmd);
+      h.expect(result).to.eq(1);
     });
   });
 });

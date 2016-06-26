@@ -444,14 +444,15 @@ var Run = {
       }
 
       var mounted_sync_folders = '/sync_folders';
-      var current_sync_folder = path.join(mounted_sync_folders, system.manifest.namespace, system.name, host_folder);
+      var current_sync_folder = path.join(mounted_sync_folders, system.manifest.namespace, host_folder);
+      current_sync_folder = current_sync_folder.replace(/([\s\\`"])/g,'\\$1');
 
       var find_exec = `-exec chown -h ${uid}:${gid} '{}' \\;`;
-      var find_args = `${current_sync_folder} \\( -not -user ${uid} -or -not -group ${gid} \\) ${find_exec}`;
+      var find_args = `"${current_sync_folder}" \\( -not -user ${uid} -or -not -group ${gid} \\) ${find_exec}`;
 
       // Script to fix sync folder
       var script = [
-        `mkdir -p ${current_sync_folder}`,
+        `mkdir -p "${current_sync_folder}"`,
         `find ${find_args}`,
       ].join(" && ");
 

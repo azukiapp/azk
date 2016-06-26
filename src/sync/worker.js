@@ -1,4 +1,4 @@
-import { _, lazy_require, path, log, fsAsync } from 'azk';
+import { _, lazy_require, path, fsAsync } from 'azk';
 import { defer, async } from 'azk/utils/promises';
 
 var lazy = lazy_require({
@@ -6,23 +6,28 @@ var lazy = lazy_require({
   chokidar: 'chokidar'
 });
 
+const WATCH_IDLE = 0, WATCH_INIT = 1, WATCH_READY = 2;
+
 export class Worker {
   constructor(process) {
+    this.chok    = null;
+    this.status  = WATCH_IDLE;
     this.process = process;
     this.process.on('message', (data) => {
       process.title = "azk sync worker " + data.origin + " " + data.destination;
       this.watch(data.origin, data.destination, data.opts).then(() => {}, () => {});
     });
-
-    this.chok = null;
   }
 
   watch(origin, destination, opts = {}) {
     this.unwatch();
+    this.status = WATCH_INIT;
 
-    log.debug('[sync] call to watch and sync: %s => %s', origin, destination);
     return async(this, function* () {
       try {
+        // Be sure watcher is in proper status
+        if (this.status !== WATCH_INIT) { return; }
+
         var exists = yield fsAsync.exists(origin);
         if (!exists) {
           throw { err: 'Sync: origin path not exist', code: 101 };
@@ -37,12 +42,23 @@ export class Worker {
           opts = yield this._check_for_except_from(origin, opts);
         }
 
+        // Be sure watcher is in proper status
+        if (this.status !== WATCH_INIT) { return; }
+
         yield lazy.Sync.sync(origin, destination, opts);
         this._send('sync', 'done');
-        yield this._start_watcher(origin, destination, opts);
+
+        // Be sure watcher is in proper status
+        if (this.status !== WATCH_INIT) { return; }
+        var patterns_ary = yield this._watch_patterns_ary(origin, opts);
+
+        // Be sure watcher is in proper status
+        if (this.status !== WATCH_INIT) { return; }
+        yield this._start_watcher(patterns_ary, origin, destination, opts);
         this._send('watch', 'ready');
+        this.status = WATCH_READY;
       } catch (err) {
-        log.error('[sync] fail', (err.stack ? err.stack : err.toString()));
+        this.unwatch();
         this._send('sync', 'fail', { err });
         throw err;
       }
@@ -55,10 +71,10 @@ export class Worker {
       this.chok.close();
       this.chok = null;
     }
+    this.status = WATCH_IDLE;
   }
 
-  _start_watcher(origin, destination, opts = {}) {
-    var patterns_ary = this._watch_patterns_ary(origin, opts);
+  _start_watcher(patterns_ary, origin, destination, opts = {}) {
     return defer((resolve, reject) => {
       this.chok = lazy.chokidar.watch(patterns_ary, { ignoreInitial: true });
       this.chok.on('all', (event, filepath) => {
@@ -67,10 +83,8 @@ export class Worker {
         var include = (event === 'unlinkDir') ? [`${filepath}/\*`, filepath] : [ filepath ];
         var sync_opts = { include, ssh: opts.ssh || null };
 
-        log.debug('[sync]', event, 'file', filepath);
-
         lazy.Sync
-          .sync(origin, destination, sync_opts )
+          .sync(origin, destination, sync_opts)
           .then(() => this._send(event, 'done', { filepath }))
           .catch((err) => this._send(event, 'fail', _.merge(err, { filepath })));
       })
@@ -85,7 +99,7 @@ export class Worker {
       opts = _.clone(opts);
       opts.except = _.flatten([opts.except || []]);
 
-      var exists, file, file_content = '';
+      var exists, file;
       var candidates = opts.except_from ? [opts.except_from] : [];
       candidates = candidates.concat([
         path.join(origin, ".syncignore"),
@@ -99,31 +113,40 @@ export class Worker {
         exists = yield fsAsync.exists(file);
         if (exists) {
           opts.except_from = file;
-          file_content = yield fsAsync.readFile(file);
-          file_content = file_content.toString();
           break;
         }
       }
-
-      opts.except = opts.except.concat(
-        _.without(file_content.split('\n'), '')
-      );
 
       return opts;
     });
   }
 
   _watch_patterns_ary(origin, opts = {}) {
-    // TODO Support include
-    opts = _.clone(opts);
-    opts.include = ['.'];
-    opts.except  = _.flatten([opts.except || []]);
+    return async(this, function* () {
+      // TODO Support include
+      opts = _.clone(opts);
+      opts.include = ['.'];
+      opts.except  = _.flatten([opts.except || []]);
 
-    return opts.include.map((pattern) => {
-      return path.resolve(origin, pattern);
-    }).concat(opts.except.map((pattern) => {
-      return '!' + path.resolve(origin, pattern);
-    }));
+      var except_from_content = [];
+
+      if (opts.except_from) {
+        except_from_content = yield fsAsync.readFile(opts.except_from);
+        except_from_content = except_from_content.toString().split('\n');
+      }
+
+      var except_from_ary = _.filter(except_from_content, (pattern) => {
+        return !_.isEmpty(pattern) && !pattern.match(/^\s*#/);
+      }).map((pattern) => {
+        return '!' + path.resolve(origin, pattern);
+      }, []);
+
+      return opts.include.map((pattern) => {
+        return path.resolve(origin, pattern);
+      }, []).concat(opts.except.map((pattern) => {
+        return '!' + path.resolve(origin, pattern);
+      }, [])).concat(except_from_ary);
+    });
   }
 
   _send(op, status, opts = {}) {
@@ -137,6 +160,5 @@ export class Worker {
 //
 if (require.main === module) {
   process.title = 'azk sync worker';
-  log.debug('[sync]', "sync worker spawned");
   new Worker(process);
 }

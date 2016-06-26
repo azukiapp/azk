@@ -181,12 +181,12 @@ describe("Azk sync, Worker module", function() {
     var [bus] = create_worker();
     var opts  = { except: ["foo/"] };
 
-    var msg = yield run_and_wait_msg(bus, () => {
+    var msg = yield run_and_wait_msg(bus, 'watch', () => {
       return bus.emit("message", { origin, destination: dest, opts });
     });
 
-    h.expect(msg).to.have.property('op', 'sync');
-    h.expect(msg).to.have.property('status', 'done');
+    h.expect(msg).to.have.property('op', 'watch');
+    h.expect(msg).to.have.property('status', 'ready');
 
     var exists = yield fsAsync.exists(path.join(dest, "foo"));
     h.expect(exists).to.fail;
