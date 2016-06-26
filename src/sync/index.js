@@ -1,5 +1,7 @@
 import { _, path, t } from 'azk';
 import { defer } from 'azk/utils/promises';
+import { which } from 'azk/utils';
+import { spawnAsync } from 'azk/utils/spawn_helper';
 
 // Module
 export default class Sync {
@@ -55,27 +57,24 @@ export default class Sync {
     });
   }
 
-  version() {
-    var version_output = '';
-    var r = new require('rsync')().set('version').output((data) => {
-      version_output += data.toString();
-    });
-    return defer((resolve, reject) => {
-      r.execute(function(err, code) {
-        if (err) {
-          return reject({ err, code });
-        }
-        var _version = version_output.match(/.*version\ (\d+\.\d+\.\d+)/);
-        if (!_.isEmpty(_version) && _version.length >= 2) {
-          return resolve(_version[1]);
-        } else {
-          return reject({
-            err: t('errors.rsync_invalid_version_format', {
-              rsync_version: version_output
-            })
-          });
-        }
-      });
+  static version() {
+    return which('rsync')
+    .then((fullpath) => {
+      return spawnAsync(fullpath, ['--version']);
+    })
+    .then(({error_code, message}) => {
+      if (error_code !== 0) {
+        throw { err: message, code: error_code };
+      }
+
+      var _version = message.match(/.*version\ (\d+\.\d+\.\d+)/);
+      if (!_.isEmpty(_version) && _version.length >= 2) {
+        return _version[1];
+      } else {
+        throw({
+          err: t('errors.rsync_invalid_version_format', { rsync_version: message })
+        });
+      }
     });
   }
 
