@@ -1,6 +1,6 @@
 ## azk scale
 
-  Scales (up or down) one or more systems.
+  Scales the default or a specified system to a total amount of instances.
 
 #### Usage:
 
@@ -10,7 +10,7 @@
 
 ```
   system                    System name where the action will take place.
-  to                        Number of available instances after scaling.
+  to                        New total amount of instances.
 ```
 
 #### Options:

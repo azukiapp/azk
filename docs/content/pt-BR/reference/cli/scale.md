@@ -1,6 +1,6 @@
 ## azk scale
 
-Escalona (para cima ou para baixo) um ou mais sistemas.
+Escalona o sistema padrão ou o específicado para um número total de instâncias.
 
 #### Uso:
 
@@ -10,7 +10,7 @@ Escalona (para cima ou para baixo) um ou mais sistemas.
 
 ```
   system                    Nome do sistema que receberá a ação.
-  to                        Número de instâncias disponívels após o escalonamento.
+  to                        Nova quantidade total de instâncias.
 ```
 
 #### Opções:
