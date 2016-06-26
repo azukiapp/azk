@@ -86,9 +86,10 @@ describe("Azk sync, main module", function() {
     });
   });
 
-  it("should sync two folders containing whitespace on path", function() {
+  it("should sync two folders containing special character on path", function() {
     return async(function* () {
-      var [origin, dest] = yield make_copy('sync/test_2/');
+      var [origin, dest] = yield make_copy('test-app/special:\'` "\\');
+      dest = path.join(dest, 'special:\'` "\\');
 
       var result = yield lazy.Sync.sync(origin, dest);
       var diff   = yield h.diff(origin, dest);
@@ -111,9 +112,9 @@ describe("Azk sync, main module", function() {
   h.describeRequireVm("with enabled vm", function() {
     it("should sync two folders", function() {
       return async(function* () {
-        var name = config("agent:vm:name");
-        var dest = path.join("/tmp", lazy.uuid.v4(), "a b'`\\\"");
-        var opts = { ssh: lazy.Client.ssh_opts() };
+        var name = config('agent:vm:name');
+        var dest = path.join('/tmp', lazy.uuid.v4(), "a b'`\\\"");
+        var opts = { ssh: lazy.Client.ssh_opts(), except: ['test file 2'] };
         var example_fixtures = h.fixture_path('test-app/special:\'` "\\');
 
         // Make destination folder
@@ -126,12 +127,12 @@ describe("Azk sync, main module", function() {
 
         // Test destination folder in vm
         dest = dest.replace(/([`"\\])/g, '\\$1');
-        var file   = path.join(dest, "test file 1");
-        var folder = path.join(dest, "test file 2");
-        var cmd    = `test -f "${file}" && test -f "${folder}"`;
+        var file   = path.join(dest, 'test file 1');
+        var folder = path.join(dest, 'test file 2');
+        var cmd    = `test -f "${file}" && test ! -f "${folder}"`;
         vm_code = yield lazy.VM.ssh(name, cmd);
 
-        h.expect(vm_code).to.equal(0, "files no synced to destination");
+        h.expect(vm_code).to.equal(0, 'files no synced to destination');
       });
     });
   });

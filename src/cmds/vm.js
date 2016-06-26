@@ -61,9 +61,9 @@ export default class VM extends CliTrackerController {
       cmd.push('-o', "StrictHostKeyChecking=no");
       cmd.push('-o', "LogLevel=quiet");
       cmd.push('-o', "UserKnownHostsFile=/dev/null");
-      cmd.push(`${config('agent:vm:user')}@${config('agent:vm:ip')}`)
+      cmd.push(`${config('agent:vm:user')}@${config('agent:vm:ip')}`);
 
-      if (params['tty'] && this.ui.isInteractive()) {
+      if (params.tty && this.ui.isInteractive()) {
         cmd.push('-t');
       } else if (params['no-tty']) {
         cmd.push('-T');

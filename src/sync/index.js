@@ -2,42 +2,44 @@ import { _, path, t } from 'azk';
 import { defer } from 'azk/utils/promises';
 
 // Module
-var Sync = {
-  sync(origin, destination, opts = {}) {
+export default class Sync {
+  static sync(origin, destination, opts = {}) {
     let args = ['-az'];
     let include = [], exclude = [];
 
     if (opts.include) {
-      include = this._process_include(opts.include);
       exclude = ['*/', '*'];
+      include = this._process_include(opts.include);
+      include = _.map(include, this._escape_arg);
     } else {
       if (opts.except) {
         exclude = _.isArray(opts.except) ? opts.except : [opts.except];
+        exclude = _.map(exclude, this._escape_arg);
       }
       if (opts.except_from) {
         args.push('--exclude-from');
-        args.push(path.resolve(origin, opts.except_from));
+        args.push(this._escape_arg(path.resolve(origin, opts.except_from)));
       }
     }
 
-    origin = origin.replace(/(["`\\])/g,'\\$1');
-    destination = destination.replace(/(['\s\\])/g,'\\\\$1');
-    destination = destination.replace(/(")/g,'\\\\\\\\$1');
-    destination = destination.replace(/(`)/g,'\\\\\\$1');
-
     let rsync_options = {
       args, include, exclude,
-      src : `"${path.join(origin, '/')}"`,
+      src : this._escape_arg(path.join(origin, '/')),
       delete: true,
     };
 
     if (opts.ssh) {
-      destination = `"${opts.ssh.url}:${destination}"`;
+      // Extra escape for use in ssh command
+      destination = destination.replace(/(['\s\\])/g,'\\\\$1');
+      destination = destination.replace(/(")/g,'\\\\\\\\$1');
+      destination = destination.replace(/(`)/g,'\\\\\\$1');
+
+      rsync_options.dest = `"${opts.ssh.url}:${destination}"`;
       rsync_options.ssh  = true;
       rsync_options.sshCmdArgs = [opts.ssh.opts];
+    } else {
+      rsync_options.dest = this._escape_arg(destination);
     }
-
-    rsync_options.dest = `${destination}`;
 
     var rsync = require('rsyncwrapper');
     return defer((resolve, reject) => {
@@ -51,7 +53,7 @@ var Sync = {
         return resolve(result);
       });
     });
-  },
+  }
 
   version() {
     var version_output = '';
@@ -75,9 +77,9 @@ var Sync = {
         }
       });
     });
-  },
+  }
 
-  _process_include(include) {
+  static _process_include(include) {
     if (!_.isArray(include)) { include = [include]; }
 
     var includes = [];
@@ -93,6 +95,9 @@ var Sync = {
     return includes;
   }
 
-};
+  static _escape_arg(arg) {
+    return `"${arg.replace(/(["`\\])/g,'\\$1')}"`;
+  }
+}
 
 export { Sync };
