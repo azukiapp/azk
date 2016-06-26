@@ -1,9 +1,12 @@
 ## azk restart
 
-  Restart funciona por memorizar o estatus atual dos sistemas do `Azfile.js`, para eles e inicia novamente.
-  Se um `[system]` for especificado com o comando, `azk` irá reiniciar apenas este sistema e suas dependências.
+Restart funciona por memorizar o estatus atual dos sistemas do `Azfile.js`, para eles e inicia novamente.
 
-  Se ocorrer algum erro durante a inicialização de algum sistema, todos sistemas serão parados.
+Se um `[system]` for especificado com o comando, `azk` irá reiniciar apenas este sistema.
+
+Para reiniciar um sistema e suas dependências é necessário passar uma lista de sistemas a serem reiniciados: `azk restart system_dependency,system_top`.
+
+Se ocorrer algum erro durante a inicialização de algum sistema, todos sistemas serão parados.
 
 #### Uso:
 
