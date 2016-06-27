@@ -301,12 +301,6 @@ if [[ $BUILD_DEB == true ]]; then
       step_run "Cleaning environment" rm -Rf package/deb package/public
     fi
 
-    step_run "Downloading libnss-resolver" --exit \
-    mkdir -p package/deb \
-    && wget -q "${LIBNSS_RESOLVER_REPO}/ubuntu12-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb" -O "package/deb/precise-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb" \
-    && wget -q "${LIBNSS_RESOLVER_REPO}/ubuntu14-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb" -O "package/deb/trusty-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb" \
-    && wget -q "${LIBNSS_RESOLVER_REPO}/ubuntu15-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb" -O "package/deb/wily-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb"
-
     EXTRA_FLAGS=""
     if [[ $LINUX_BUILD_WAS_EXECUTED == true || $NO_CLEAN_LINUX == true ]]; then
       EXTRA_FLAGS="LINUX_CLEAN="
@@ -316,11 +310,15 @@ if [[ $BUILD_DEB == true ]]; then
     azk shell package -- rm -rf /azk/aptly/public/pool/main/a/azk${PACKAGE_SUFFIX}/azk${PACKAGE_SUFFIX}_${VERSION_NUMBER}*_amd64.deb \
     && make package_deb ${EXTRA_FLAGS}
 
-    UBUNTU_VERSIONS=( "ubuntu12:precise" "ubuntu14:trusty" "ubuntu15:wily" )
+    UBUNTU_VERSIONS=( "ubuntu12:precise" "ubuntu14:trusty" "ubuntu15:wily" "ubuntu16:xenial")
     for UBUNTU_VERSION in "${UBUNTU_VERSIONS[@]}"; do
 
       UBUNTU_VERSION_NUMBER="${UBUNTU_VERSION%%:*}"
       UBUNTU_VERSION_CODENAME="${UBUNTU_VERSION##*:}"
+
+      step_run "Downloading libnss-resolver for ${UBUNTU_VERSION}" --exit \
+      mkdir -p package/deb \
+      && wget -q "${LIBNSS_RESOLVER_REPO}/${UBUNTU_VERSION_NUMBER}-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb" -O "package/deb/${UBUNTU_VERSION_CODENAME}-libnss-resolver_${LIBNSS_RESOLVER_VERSION}_amd64.deb"
 
       step_run "Generating ${UBUNTU_VERSION_NUMBER} repository" \
         linux_generate ubuntu ${LIBNSS_RESOLVER_VERSION} ${UBUNTU_VERSION_CODENAME} ${CLEAN_REPO_ARGS}

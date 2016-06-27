@@ -19,6 +19,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Suggestions] Refactoring court to support more suggestion for one evidence;
   * [Suggestions] Adding support wordpress;
   * [Core] Support images of other repositories beyond Docker Hub;
+  * [Package] Adding `ubuntu 16.04` support;
 
 ## v0.18.0 - (2016-04-07)
 

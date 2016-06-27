@@ -3,35 +3,39 @@
  */
 
 var mounts = {
-  "/azk/#{manifest.dir}" :         sync('./', { shell: true }),
+  "/azk/#{manifest.dir}"         : sync('./', { shell: true }),
+  "/azk/#{manifest.dir}/docs"    : path("./docs"),
   "/azk/#{manifest.dir}/package" : path("./package"),
-  "/azk/#{manifest.dir}/docs" :    path("./docs"),
   "/azk/#{manifest.dir}/node_modules" :  persistent('node_modules-#{system.name}'),
-  "/azk/#{manifest.dir}/.package-envs" : path("./.package-envs"),
-  "/azk/demos"          : path("../demos"),
-  "/azk/build"          : persistent('build-#{system.name}'),
-  "/azk/lib"            : persistent('lib-#{system.name}'),
-  "/azk/data"           : persistent('data-#{system.name}'),
-  "/azk/aptly"          : persistent('aptly-#{system.name}'),
-  "/var/lib/docker"     : persistent('docker_files-#{system.name}'),
-  "/root/.npm"          : persistent('npm-cache'),
-  "/usr/local/bin/make" : path("./src/libexec/make"),
-  "/root/.aptly.conf"   : path("./src/libexec/aptly.json"),
-  "/.tmux.conf"         : path(env.HOME + "/.tmux.conf"),
+  "/azk/#{manifest.dir}/.package-envs": path("./.package-envs"),
+  "/azk/demos"         : path("../demos"),
+  "/azk/build"         : persistent('build-#{system.name}'),
+  "/azk/lib"           : persistent('lib-#{system.name}'),
+  "/azk/data"          : persistent('data-#{system.name}'),
+  "/azk/aptly"         : persistent('aptly-#{system.name}'),
+  "/var/lib/docker"    : persistent('docker_files-#{system.name}'),
+  "/root/.npm"         : persistent('npm-cache'),
+  "/usr/local/bin/make": path("./src/libexec/make"), // Force `make -e`
+  "/root/.aptly.conf"  : path("./src/libexec/aptly.json"),
+  "/.tmux.conf"        : path(env.HOME + "/.tmux.conf"),
 };
 
 var envs = {
-  PATH: "/azk/#{manifest.dir}/bin:/usr/local/bundle/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+  VERSION: "#{azk.version}",
+  PATH   : "/azk/#{manifest.dir}/bin:/usr/local/bundle/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
   AZK_ENV      : "development",
   AZK_DATA_PATH: "/azk/data",
   AZK_LIB_PATH : "/azk/lib",
   AZK_NAMESPACE: "azk.linux",
   AZK_PACKAGE_PATH: "/azk/build",
+
+  // dind options
+  LOG    : "file",
+  EXTRA_SCRIPT : "/azk/#{manifest.dir}/src/libexec/init_azk",
+
+  // Balancer configuration to not conflict
   AZK_BALANCER_HOST: "linux.azk.io",
   AZK_BALANCER_PORT: 8080,
-  LOG: "file",
-  EXTRA_SCRIPT: "/azk/#{manifest.dir}/src/libexec/init_azk",
-  VERSION: "#{azk.version}",
 };
 
 systems({
@@ -73,6 +77,11 @@ systems({
     image: { docker: 'azukiapp/dind:ubuntu15' },
   },
 
+  'dind-ubuntu16': {
+    extends: "dind-ubuntu12",
+    image: { docker: 'azukiapp/dind:ubuntu16' },
+  },
+
   'dind-fedora': {
     extends: "dind-ubuntu12",
     image: { docker: 'azukiapp/dind:fedora20' },
@@ -107,6 +116,11 @@ systems({
   'pkg-ubuntu15-test': {
     extends: "pkg-ubuntu12-test",
     image: { docker: 'azukiapp/dind:ubuntu15' },
+  },
+
+  'pkg-ubuntu16-test': {
+    extends: "pkg-ubuntu12-test",
+    image: { docker: 'azukiapp/dind:ubuntu16' },
   },
 
   'pkg-fedora20-test': {
