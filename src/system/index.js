@@ -683,8 +683,9 @@ export class System {
 
         var mounted_subpaths = _.reduce(mounts, (subpaths, mount, dir) => {
           if ( dir !== mount_key && dir.indexOf(mount_key) === 0) {
-            var regex = new RegExp(`^${mount_key}`);
-            subpaths = subpaths.concat([path.normalize(dir.replace(regex, './'))]);
+            let regex = new RegExp(`^${mount_key}`);
+            let exclude = `/${path.normalize(dir.replace(regex, './'))}`;
+            subpaths.push(exclude);
           }
           return subpaths;
         }, []);

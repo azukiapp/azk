@@ -85,6 +85,12 @@ var Controller = {
     if (!data.id) {
       data.id = id;
     }
-    ws.send(JSON.stringify(data));
+    try {
+      ws.send(JSON.stringify(data));
+    } catch (err) {
+      let keys = ["message", "arguments", "type", "name", ...Object.keys(err)];
+      err = JSON.stringify(err, keys);
+      log.error("send websocket error %s", err, {});
+    }
   }
 };

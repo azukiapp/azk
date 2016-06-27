@@ -35,7 +35,7 @@
     "babel-polyfill": "^6.3.14",
     "bluebird": "^3.1.1",
     "chalk": "^1.1.1",
-    "chokidar": "^1.0.1",
+    "chokidar": "^1.6.0",
     "cli-router": "^0.3.7",
     "cli-table": "git+https://github.com/gullitmiranda/cli-table#master",
     "connectivity": "^0.1.1",
