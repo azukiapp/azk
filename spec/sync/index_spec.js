@@ -1,6 +1,7 @@
 import h from 'spec/spec_helper';
 import { config, path, lazy_require } from 'azk';
 import { async, all } from 'azk/utils/promises';
+import { mkdirp } from 'file-async';
 
 var lazy = lazy_require({
   Sync  : ['azk/sync'],
@@ -40,23 +41,24 @@ describe("Azk sync, main module", function() {
 
   it("should sync one file between two folders", function() {
     return async(function* () {
-      var include        = "bar/clothes/barney.txt";
       var [origin, dest] = yield make_copy();
-      var result         = yield lazy.Sync.sync(origin, dest, { include });
+      var file = "bar/clothes/blue_fir.json";
+      origin = path.join(origin, file);
+      dest   = path.join(dest, file);
+      yield mkdirp(path.join(dest, ".."));
+      var result = yield lazy.Sync.sync(origin, dest);
 
       // Compare folders and files
-      var result_folder = yield h.diff(origin, dest);
-      var result_file   = yield h.diff(path.join(origin, include), path.join(dest, include));
+      var result_file = yield h.diff(origin, dest);
 
       h.expect(result).to.have.property('code', 0);
       h.expect(result_file).to.have.property('deviation', 0);
-      h.expect(result_folder).to.have.property('deviation', 10);
     });
   });
 
   it("should sync two folders but exclude a file list", function() {
     return async(function* () {
-      var except         = "foo/";
+      var except         = "/foo/";
       var [origin, dest] = yield make_copy();
       var result         = yield lazy.Sync.sync(origin, dest, { except });
 
@@ -105,7 +107,7 @@ describe("Azk sync, main module", function() {
       var dest   = yield h.tmp_dir();
 
       var promise = lazy.Sync.sync(origin, dest);
-      return h.expect(promise).to.be.rejected.and.eventually.have.property('code', 23);
+      return h.expect(promise).to.be.rejected.and.eventually.have.property('code', 'ENOENT');
     });
   });
 
