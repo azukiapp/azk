@@ -11,14 +11,20 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Core] Adding image envs in expand envs variable process;
   * [Core] Adding support to escape variables in command options (shell and system);
   * [Cli] Fixing error thrown when 'azk scale' command was run, regardless it was successful or not;
+  * [Cli] Fixing escape character in `azk vm ssh`;
   * [Sync] Fixing bug when the path to be synced contained whitespace (#672);
   * [Sync] Removing `system.name` from the destination sync path, which avoids multiple syncs for extended systems;
-  * [Cli] Fixing escape character in `azk vm ssh`;
 
 * Enhancements
   * [Suggestions] Refactoring court to support more suggestion for one evidence;
   * [Suggestions] Adding support wordpress;
   * [Core] Support images of other repositories beyond Docker Hub;
+  * [Sync] Adding support special characters in sync paths;
+  * [Sync] Updating `chokidar` lib (file watching), for a better performance and bug fixes;
+  * [Sync] Refactoring the sync system to sync the file tree from the modified file, not the whole tree;
+  * [Sync] Improving support to `.gitignore` file, ensuring all the paths listed in it are properly resolved;
+  * [Sync] Improving fault tolerance for the sync process;
+  * [Sync] Removing a synced folder shouldn't break the agent nor the sync process;
 
 ## v0.18.0 - (2016-04-07)
 

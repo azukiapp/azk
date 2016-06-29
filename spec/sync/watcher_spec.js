@@ -68,7 +68,7 @@ describe("Azk sync, Watcher module", function() {
       var msg = yield wait_msg;
 
       h.expect(msg).to.have.deep.property('op', 'change');
-      h.expect(msg).to.have.deep.property('filepath', file);
+      h.expect(msg).to.have.deep.property('filepath', origin_file);
       h.expect(msg).to.have.deep.property('status', 'done');
 
       var content = yield fsAsync.readFile(dest_file);
@@ -117,7 +117,7 @@ describe("Azk sync, Watcher module", function() {
 
       var msg_change = yield wait_msgs;
       h.expect(msg_change).to.have.property('op', 'change');
-      h.expect(msg_change).to.have.property('filepath', file);
+      h.expect(msg_change).to.have.property('filepath', origin_file);
       h.expect(msg_change).to.have.property('status', 'done');
 
       var content = yield fsAsync.readFile(dest_file);

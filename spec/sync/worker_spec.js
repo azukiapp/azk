@@ -2,6 +2,8 @@ import h from 'spec/spec_helper';
 import { _, path, lazy_require, fsAsync } from 'azk';
 import { defer, async, all } from 'azk/utils/promises';
 
+require('source-map-support').install({});
+
 var lazy = lazy_require({
   Sync         : ['azk/sync'],
   Worker       : ['azk/sync/worker'],
@@ -12,7 +14,7 @@ var lazy = lazy_require({
 describe("Azk sync, Worker module", function() {
   this.timeout(20000);
 
-  var worker;
+  var workers = [];
   var example_fixtures = h.fixture_path('sync/test_1/');
   var invalid_fixtures = path.join(h.fixture_path('sync/test_1/'), 'invalid');
 
@@ -29,8 +31,9 @@ describe("Azk sync, Worker module", function() {
         return this.emit('sending', ...args);
       }
     }
-    var bus = new FakeProcess();
-    worker  = new lazy.Worker(bus);
+    let bus = new FakeProcess();
+    let worker = new lazy.Worker(bus);
+    workers.push(worker);
     return [bus, worker];
   }
 
@@ -56,23 +59,25 @@ describe("Azk sync, Worker module", function() {
     });
   }
 
-  afterEach(() => worker.unwatch());
+  afterEach(() => {
+    _.each(workers, (worker) => worker.unwatch());
+  });
 
   describe("with a watch to sync a two folders", function() {
     var origin, dest, bus;
-    beforeEach(() => {
-      return async(function* () {
-        [origin, dest] = yield make_copy();
-        [bus] = create_worker();
-        yield fsAsync.remove(path.join(origin, ".syncignore"));
+    beforeEach(function* () {
+      [origin, dest] = yield make_copy();
+      [bus] = create_worker();
 
-        var msg = yield run_and_wait_msg(bus, "watch", () => {
-          return bus.emit("message", { origin, destination: dest });
-        });
+      // No test excludes yet
+      yield fsAsync.remove(path.join(origin, ".syncignore"));
 
-        h.expect(msg).to.have.property('op', 'watch');
-        h.expect(msg).to.have.property('status', 'ready');
+      var msg = yield run_and_wait_msg(bus, "watch", () => {
+        return bus.emit("message", { origin, destination: dest });
       });
+
+      h.expect(msg).to.have.property('op', 'watch');
+      h.expect(msg).to.have.property('status', 'ready');
     });
 
     it("should have done initial sync", function() {
@@ -80,22 +85,20 @@ describe("Azk sync, Worker module", function() {
       return h.expect(result).to.eventually.have.property('deviation', 0);
     });
 
-    it("should sync a added file", function() {
-      return async(function* () {
-        var file = "bar/foo.bar.txt";
-        var origin_file = path.join(origin, file);
+    it("should sync a added file", function* () {
+      var file = "bar/foo.bar.txt";
+      var origin_file = path.join(origin, file);
 
-        var msg = yield run_and_wait_msg(bus, () => {
-          return fsAsync.writeFile(origin_file, "foobar");
-        });
-
-        h.expect(msg).to.have.property('op', 'add');
-        h.expect(msg).to.have.property('filepath', file);
-        h.expect(msg).to.have.property('status', 'done');
-
-        var result = yield h.diff(origin, dest);
-        return h.expect(result).to.have.property('deviation', 0);
+      var msg = yield run_and_wait_msg(bus, () => {
+        return fsAsync.writeFile(origin_file, "foobar");
       });
+
+      h.expect(msg).to.have.property('op', 'add');
+      h.expect(msg).to.have.property('filepath', origin_file);
+      h.expect(msg).to.have.property('status', 'done');
+
+      var result = yield h.diff(origin, dest);
+      return h.expect(result).to.have.property('deviation', 0);
     });
 
     it("should sync a changed file", function() {
@@ -109,7 +112,7 @@ describe("Azk sync, Worker module", function() {
         });
 
         h.expect(msg).to.have.property('op', 'change');
-        h.expect(msg).to.have.property('filepath', file);
+        h.expect(msg).to.have.property('filepath', origin_file);
         h.expect(msg).to.have.property('status', 'done');
 
         var content = yield fsAsync.readFile(dest_file);
@@ -117,7 +120,7 @@ describe("Azk sync, Worker module", function() {
       });
     });
 
-    it("should sync a removed file", function() {
+    it("should sync a removed file, syncing your parent", function() {
       return async(function* () {
         var file = "foo/Moe.txt";
         var origin_file = path.join(origin, file);
@@ -127,7 +130,7 @@ describe("Azk sync, Worker module", function() {
           return fsAsync.remove(origin_file);
         });
         h.expect(msg).to.have.property('op', 'unlink');
-        h.expect(msg).to.have.property('filepath', file);
+        h.expect(msg).to.have.property('filepath', path.join(origin_file, '..'));
         h.expect(msg).to.have.property('status', 'done');
 
         var exists = yield fsAsync.exists(dest_file);
@@ -135,44 +138,40 @@ describe("Azk sync, Worker module", function() {
       });
     });
 
-    it("should sync a removed folder", function() {
-      return async(function* () {
-        var folder = "foo";
-        var origin_folder = path.join(origin, folder);
-        var dest_folder   = path.join(origin, folder);
+    it("should sync a removed folder", function* () {
+      var folder = "foo";
+      var origin_folder = path.join(origin, folder);
+      var dest_folder   = path.join(origin, folder);
 
-        // Save all messages and call check via event emitter
-        var wait_msgs = defer((resolve) => {
-          var msgs = [];
-          var call = (msg) => {
-            msgs.push(JSON.parse(msg));
-            if (msgs.length >= 3) {
-              bus.removeListener('sending', call);
-              resolve(msgs);
-            }
-          };
-          bus.on('sending', call);
-        });
-
-        var msg = yield run_and_wait_msg(bus, 'unlinkDir', () => {
-          return fsAsync.remove(origin_folder);
-        });
-        h.expect(msg).to.have.property('op', 'unlinkDir');
-        h.expect(msg).to.have.property('filepath', folder);
-        h.expect(msg).to.have.property('status', 'done');
-
-        // Check unlink partials
-        var msgs = yield wait_msgs;
-        h.expect(msgs).to.include.something.that.deep.eql(
-          {"op": "unlink", "status":"done", "filepath":"foo/Barney.txt"}
-        );
-        h.expect(msgs).to.include.something.that.deep.eql(
-          {"op": "unlink", "status":"done", "filepath":"foo/Moe.txt"}
-        );
-
-        var exists = yield fsAsync.exists(dest_folder);
-        h.expect(exists).to.fail;
+      // Save all messages and call check via event emitter
+      var wait_msgs = defer((resolve) => {
+        var msgs = [];
+        var call = (msg) => {
+          msgs.push(JSON.parse(msg));
+          if (msgs.length >= 3) {
+            bus.removeListener('sending', call);
+            resolve(msgs);
+          }
+        };
+        bus.on('sending', call);
       });
+
+      var msg = yield run_and_wait_msg(bus, 'unlinkDir', () => {
+        return fsAsync.remove(origin_folder);
+      });
+      h.expect(msg).to.have.property('op', 'unlinkDir');
+      h.expect(msg).to.have.property('filepath', origin);
+      h.expect(msg).to.have.property('status', 'done');
+
+      // Check unlink partials
+      var msgs = yield wait_msgs;
+      h.expect(msgs).to.length(3);
+      h.expect(msgs).to.containSubset([
+        {"op": "unlink", "status":"done", "filepath": origin}
+      ]);
+
+      var exists = yield fsAsync.exists(dest_folder);
+      h.expect(exists).to.fail;
     });
   });
 
@@ -197,10 +196,10 @@ describe("Azk sync, Worker module", function() {
 
   it("should not include content patterns files from except_from option", function* () {
     var [origin, dest]  = yield make_copy();
-    worker = create_worker()[1];
+    let worker = create_worker()[1];
     yield worker.watch(origin, dest, {
       except_from: h.fixture_path("sync/rsyncignore.txt"),
-      except: [ "ignored" ]
+      except: [ "/ignored" ]
     });
 
     var wait = defer((resolve) => {
@@ -221,10 +220,10 @@ describe("Azk sync, Worker module", function() {
 
   it("should exclude the .gitignore content for default", function* () {
     var [origin, dest]  = yield make_copy();
-    yield fsAsync.writeFile(path.join(origin, ".gitignore"), "ignored/");
+    yield fsAsync.writeFile(path.join(origin, ".gitignore"), "/ignored");
     yield fsAsync.remove(path.join(origin, ".syncignore"));
 
-    worker = create_worker()[1];
+    let worker = create_worker()[1];
     yield worker.watch(origin, dest, {});
 
     var exists = yield fsAsync.exists(path.join(dest, "ignored"));
@@ -247,7 +246,7 @@ describe("Azk sync, Worker module", function() {
   it("should exclude the .syncignore content for default in preference to .gitignore", function* () {
     var [origin, dest]  = yield make_copy();
 
-    worker = create_worker()[1];
+    let worker = create_worker()[1];
     yield worker.watch(origin, dest, {});
 
     var exists = yield fsAsync.exists(path.join(dest, "ignored"));
@@ -321,11 +320,11 @@ describe("Azk sync, Worker module", function() {
       h.expect(msg).to.have.property('status', 'fail');
 
       if (lazy.semver.cmp(rsync_version, '>=', '3.1.0')) {
-        h.expect(msg).to.have.deep.property('err.code', 3);
-        h.expect(msg).to.have.deep.property('err.err').and.match(/Error: rsync.*3/);
+        h.expect(msg).to.have.deep.property('code', 3);
+        h.expect(msg).to.have.deep.property('message').and.match(/rsync.*3/);
       } else {
-        h.expect(msg).to.have.deep.property('err.code', 12);
-        h.expect(msg).to.have.deep.property('err.err').and.match(/Error: rsync.*12/);
+        h.expect(msg).to.have.deep.property('code', 12);
+        h.expect(msg).to.have.deep.property('message').and.match(/rsync.*12/);
       }
     });
   });
@@ -342,8 +341,8 @@ describe("Azk sync, Worker module", function() {
 
       h.expect(msg).to.have.property('op', 'sync');
       h.expect(msg).to.have.property('status', 'fail');
-      h.expect(msg).to.have.deep.property('err.code', 101);
-      h.expect(msg).to.have.deep.property('err.err').and.match(/Sync: origin path not exist/);
+      h.expect(msg).to.have.deep.property('code', 101);
+      h.expect(msg).to.have.deep.property('err').and.match(/Sync: origin path not exist/);
     });
   });
 });
