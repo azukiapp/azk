@@ -78,7 +78,9 @@ export class Worker {
   _start_watcher(patterns_ary, ignored, src, dest, opts = {}) {
     let promise = defer((resolve, reject) => {
       this.chok = lazy.chokidar.watch(patterns_ary, { ignored: ignored, ignoreInitial: true })
-        .on('all', (event, filepath) => this._sync(event, filepath, src, dest, opts))
+        .on('all', (event, filepath) => {
+          this._sync(event, filepath, src, dest, opts);
+        })
         .on('ready', () => {
           this.chok.removeAllListeners('error');
           resolve(true);
@@ -99,7 +101,6 @@ export class Worker {
   }
 
   _sync(event, filepath, src, dest, opts) {
-    let sync_opts = { ssh: opts.ssh || null };
     return async(this, function* () {
       if (event === "unlink" || event === "unlinkDir") {
         var exists = yield fsAsync.exists(filepath);
@@ -109,35 +110,44 @@ export class Worker {
         }
       }
 
-      let origin = filepath;
       let destination = path.join(dest, path.relative(src, filepath));
-
-      if (origin === src) {
-        sync_opts.include = opts.include;
-        sync_opts.except = opts.except;
-      } else {
-        let relative = path.relative(src, origin);
-        let regex  = new RegExp(`^\/${relative}\/`);
-        let reduce_fn = (acc, file) => {
-          if ((file.match(/^\//) || file.match(/^\.\//)) && regex.test(file)) {
-            acc.push(file.replace(regex, '/'));
-          } else if (!(file.match(/^\//) || file.match(/^\.\//))) {
-            acc.push(file);
-          }
-          return acc;
-        };
-        sync_opts.include = _.reduce(opts.include, reduce_fn, []);
-        sync_opts.except  = _.reduce(opts.except, reduce_fn, []);
-      }
+      let [ include, except ] = this._include_and_except(filepath, src, dest, opts);
+      let sync_opts = {
+        ssh: opts.ssh || null,
+        relative_sufix: opts.relative_sufix,
+        include, except,
+      };
 
       return lazy.Sync
-        .sync(origin, destination, sync_opts)
+        .sync(filepath, destination, sync_opts)
         .then((result) => this._send(event, 'done', _.merge(result, { filepath })))
         .catch((err) => {
           err = _.assign(err, { filepath, level: "warning" });
           this._send(event, 'fail', err);
         });
     });
+  }
+
+  _include_and_except(origin, src, dest, opts) {
+    let include = opts.include;
+    let except  = opts.except;
+
+    if (origin !== src) {
+      let relative  = path.relative(src, origin);
+      let regex     = new RegExp(`^\/${relative}\/`);
+      let reduce_fn = (acc, file) => {
+        if ((file.match(/^\//) || file.match(/^\.\//)) && regex.test(file)) {
+          acc.push(file.replace(regex, '/'));
+        } else if (!(file.match(/^\//) || file.match(/^\.\//))) {
+          acc.push(file);
+        }
+        return acc;
+      };
+      include = _.reduce(include, reduce_fn, []);
+      except  = _.reduce(except, reduce_fn, []);
+    }
+
+    return [include, except];
   }
 
   _check_for_except_from(origin, is_dir, except_from) {

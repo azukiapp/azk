@@ -44,10 +44,9 @@ export class Watcher extends IPublisher {
       });
 
       child.on('exit:code', (code) => {
-        var level         = code !== null && code > 0 && code !== 130 ? 'warn' : 'info';
-        var with_code_msg = code ? 'with code ' + code : '';
-
-        log[level]('[sync] Sync process exited, from: %s, to: %s, msg:', origin, destination, with_code_msg, {});
+        let level = code !== null && code > 0 && code !== 130 ? 'warn' : 'info';
+        let msg   = '[sync] Sync process exited, from: %s, to: %s, msg: %s';
+        log[level](msg, origin, destination, code, {});
       });
 
       child.on('message', (data) => {
@@ -136,7 +135,7 @@ export class Watcher extends IPublisher {
       }
     } else {
       id = JSON.parse(id);
-      log.info('[sync] Trying to stop an unexisting watcher:', id);
+      log.info('[sync] Trying to stop an unexisting watcher: %j', id, {});
     }
     return true;
   }

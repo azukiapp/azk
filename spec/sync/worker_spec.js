@@ -85,22 +85,20 @@ describe("Azk sync, Worker module", function() {
       return h.expect(result).to.eventually.have.property('deviation', 0);
     });
 
-    it("should sync a added file", function() {
-      return async(function* () {
-        var file = "bar/foo.bar.txt";
-        var origin_file = path.join(origin, file);
+    it("should sync a added file", function* () {
+      var file = "bar/foo.bar.txt";
+      var origin_file = path.join(origin, file);
 
-        var msg = yield run_and_wait_msg(bus, () => {
-          return fsAsync.writeFile(origin_file, "foobar");
-        });
-
-        h.expect(msg).to.have.property('op', 'add');
-        h.expect(msg).to.have.property('filepath', origin_file);
-        h.expect(msg).to.have.property('status', 'done');
-
-        var result = yield h.diff(origin, dest);
-        return h.expect(result).to.have.property('deviation', 0);
+      var msg = yield run_and_wait_msg(bus, () => {
+        return fsAsync.writeFile(origin_file, "foobar");
       });
+
+      h.expect(msg).to.have.property('op', 'add');
+      h.expect(msg).to.have.property('filepath', origin_file);
+      h.expect(msg).to.have.property('status', 'done');
+
+      var result = yield h.diff(origin, dest);
+      return h.expect(result).to.have.property('deviation', 0);
     });
 
     it("should sync a changed file", function() {
@@ -140,42 +138,40 @@ describe("Azk sync, Worker module", function() {
       });
     });
 
-    it("should sync a removed folder", function() {
-      return async(function* () {
-        var folder = "foo";
-        var origin_folder = path.join(origin, folder);
-        var dest_folder   = path.join(origin, folder);
+    it("should sync a removed folder", function* () {
+      var folder = "foo";
+      var origin_folder = path.join(origin, folder);
+      var dest_folder   = path.join(origin, folder);
 
-        // Save all messages and call check via event emitter
-        var wait_msgs = defer((resolve) => {
-          var msgs = [];
-          var call = (msg) => {
-            msgs.push(JSON.parse(msg));
-            if (msgs.length >= 3) {
-              bus.removeListener('sending', call);
-              resolve(msgs);
-            }
-          };
-          bus.on('sending', call);
-        });
-
-        var msg = yield run_and_wait_msg(bus, 'unlinkDir', () => {
-          return fsAsync.remove(origin_folder);
-        });
-        h.expect(msg).to.have.property('op', 'unlinkDir');
-        h.expect(msg).to.have.property('filepath', origin);
-        h.expect(msg).to.have.property('status', 'done');
-
-        // Check unlink partials
-        var msgs = yield wait_msgs;
-        h.expect(msgs).to.length(3);
-        h.expect(msgs).to.containSubset([
-          {"op": "unlink", "status":"done", "filepath": origin}
-        ]);
-
-        var exists = yield fsAsync.exists(dest_folder);
-        h.expect(exists).to.fail;
+      // Save all messages and call check via event emitter
+      var wait_msgs = defer((resolve) => {
+        var msgs = [];
+        var call = (msg) => {
+          msgs.push(JSON.parse(msg));
+          if (msgs.length >= 3) {
+            bus.removeListener('sending', call);
+            resolve(msgs);
+          }
+        };
+        bus.on('sending', call);
       });
+
+      var msg = yield run_and_wait_msg(bus, 'unlinkDir', () => {
+        return fsAsync.remove(origin_folder);
+      });
+      h.expect(msg).to.have.property('op', 'unlinkDir');
+      h.expect(msg).to.have.property('filepath', origin);
+      h.expect(msg).to.have.property('status', 'done');
+
+      // Check unlink partials
+      var msgs = yield wait_msgs;
+      h.expect(msgs).to.length(3);
+      h.expect(msgs).to.containSubset([
+        {"op": "unlink", "status":"done", "filepath": origin}
+      ]);
+
+      var exists = yield fsAsync.exists(dest_folder);
+      h.expect(exists).to.fail;
     });
   });
 

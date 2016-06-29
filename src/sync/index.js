@@ -10,17 +10,20 @@ function wrap(value) {
   return value;
 }
 
+const SEP = path.sep;
+
 // Module
 export default class Sync {
   static sync(origin, destination, opts = {}) {
     return stat(origin).then((stats) => {
       let args = ['-az'];
       let include = [], exclude = [];
+      let DIR_SEP = '';
 
       if (!stats.isFile()) {
-        origin  = path.join(origin, '/');
-        include = _.map(wrap(opts.include || []), this._escape_arg);
-        exclude = _.map(wrap(opts.except || []), this._escape_arg);
+        DIR_SEP = SEP;
+        include = wrap(opts.include || []);
+        exclude = wrap(opts.except || []);
 
         if (opts.except_from) {
           args.push('--exclude-from');
@@ -28,10 +31,25 @@ export default class Sync {
         }
       }
 
+      if (!_.isEmpty(opts.relative_sufix)) {
+        let relative = path.relative(opts.relative_sufix, origin);
+        origin = `${opts.relative_sufix}${SEP}.${SEP}${relative}`;
+        args.push('--relative');
+        let fix_relatives = (item) => {
+          item = (item.match(/^\//)) ? path.join(SEP, relative, item) : item;
+          return item;
+        };
+        include = _.map(include, fix_relatives);
+        exclude = _.map(exclude, fix_relatives);
+      }
+
+      include = _.map(include, this._escape_arg);
+      exclude = _.map(exclude, this._escape_arg);
+
       let rsync_options = {
         args, include, exclude,
-        src : this._escape_arg(origin),
-        syncDest: true,
+        src : this._escape_arg(`${origin}${DIR_SEP}`),
+        delete: true,
       };
 
       if (opts.ssh) {
@@ -55,6 +73,7 @@ export default class Sync {
     var rsync = require('rsyncwrapper');
     return defer((resolve, reject) => {
       rsync(rsync_options, (err, stdout, stderr, cmd) => {
+        // console.log(cmd);
         let result = { stdout, stderr, cmd, code: 0 };
         if (err) {
           result.code = err.code;
