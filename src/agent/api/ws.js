@@ -53,7 +53,7 @@ var Controller = {
     return module.cache.rsync_watcher;
   },
 
-  watch: function(ws, data, req_id) {
+  watch(ws, data, req_id) {
     var host_folder  = data.host_folder;
     var guest_folder = data.guest_folder;
     var opts         = data.opts;
@@ -69,28 +69,37 @@ var Controller = {
     });
   },
 
-  unwatch: function(ws, data, req_id) {
+  unwatch(ws, data, req_id) {
     var host_folder  = data.host_folder;
     var guest_folder = data.guest_folder;
-    var result = this.rsync_watcher.unwatch(host_folder, guest_folder) ? 'done' : 'fail';
-    this._send(ws, req_id, { status: result });
+    try {
+      var result = this.rsync_watcher.unwatch(host_folder, guest_folder) ? 'done' : 'fail';
+      this._send(ws, req_id, { status: result });
+    } catch (err) {
+      this._logError(err);
+      this._send(ws, req_id, { status: 'fail' });
+    }
   },
 
-  watchers: function(ws, data, req_id) {
+  watchers(ws, data, req_id) {
     var result = this.rsync_watcher.wathcers();
     this._send(ws, req_id, result);
   },
 
-  _send: function(ws, id, data) {
+  _send(ws, id, data) {
     if (!data.id) {
       data.id = id;
     }
     try {
       ws.send(JSON.stringify(data));
     } catch (err) {
-      let keys = ["message", "arguments", "type", "name", ...Object.keys(err)];
-      err = JSON.stringify(err, keys);
-      log.error("send websocket error %s", err, {});
+      this._logError(err);
     }
+  },
+
+  _logError(err) {
+    let keys  = ["message", "arguments", "type", "name", ...Object.keys(err)];
+    let error = JSON.stringify(err, keys);
+    log.error("send websocket error %s", error, {});
   }
 };
