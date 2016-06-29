@@ -25,6 +25,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Sync] Improving support to `.gitignore` file, ensuring all the paths listed in it are properly resolved;
   * [Sync] Improving fault tolerance for the sync process;
   * [Sync] Removing a synced folder shouldn't break the agent nor the sync process;
+  * [Package] Adding `ubuntu 16.04` support;
 
 ## v0.18.0 - (2016-04-07)
 

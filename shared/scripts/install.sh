@@ -84,6 +84,9 @@ main(){
         "15.10" )
           UBUNTU_CODENAME="wily"
           ;;
+        "16.04" )
+          UBUNTU_CODENAME="xenial"
+          ;;
       esac
 
       if [ -z "${UBUNTU_CODENAME}" ]; then

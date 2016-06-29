@@ -4,7 +4,7 @@
 
 ## Requirements
 
-* **Distributions (tested)**: Ubuntu 12.04/14.04/15.10, Fedora 20/21/22 and Arch Linux
+* **Distributions (tested)**: Ubuntu 12.04/14.04/15.10/16.04, Fedora 20/21/22 and Arch Linux
 * **Architecture**: 64-bits
 * [Docker][docker] 1.8.1 or later
 * Not running any services on ports `80` and `53`
@@ -108,6 +108,10 @@ The easiest way to install `azk` is to use the script below. It will identify yo
 
   # Ubuntu Wily (15.10)
   $ echo "deb [arch=amd64] http://repo.azukiapp.com wily main" | \
+    sudo tee /etc/apt/sources.list.d/azuki.list
+
+  # Ubuntu Xenial Xerus (16.04)
+  $ echo "deb [arch=amd64] http://repo.azukiapp.com xenial main" | \
     sudo tee /etc/apt/sources.list.d/azuki.list
   ```
 
