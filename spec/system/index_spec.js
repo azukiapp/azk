@@ -122,32 +122,28 @@ describe("Azk system class, main set", function() {
         } else {
           share_folder = manifest.cwd;
         }
-        var sync_folder  = path.join(
-          config("paths:sync_folders"),
-          manifest.namespace, manifest.cwd
-        );
         var persistent_folder  = path.join(
           config("paths:persistent_folders"),
           manifest.namespace
         );
 
         var mounts  = system.mounts;
-        h.expect(mounts).to.have.property('/azk',     path.join(sync_folder,       '.'));
-        h.expect(mounts).to.have.property('/azk/bin', path.join(sync_folder,       'bin'));
+        h.expect(mounts).to.have.property('/azk'    , system.sync_folder('/azk'));
+        h.expect(mounts).to.have.property('/azk/bin', system.sync_folder('/azk/bin'));
         h.expect(mounts).to.have.property('/azk/lib', path.join(share_folder,      'lib'));
         h.expect(mounts).to.have.property('/azk/tmp', path.join(persistent_folder, 'tmp'));
         h.expect(mounts).to.have.property('/azk/log', path.join(persistent_folder, 'log'));
 
         var shellVolumes = system.shellOptions().volumes;
-        h.expect(shellVolumes).to.have.property('/azk',     path.join(share_folder,      '.'));
-        h.expect(shellVolumes).to.have.property('/azk/bin', path.join(sync_folder,       'bin'));
-        h.expect(shellVolumes).to.have.property('/azk/lib', path.join(sync_folder,       'lib'));
+        h.expect(shellVolumes).to.have.property('/azk/bin', system.sync_folder('/azk/bin'));
+        h.expect(shellVolumes).to.have.property('/azk/lib', system.sync_folder('/azk/lib'));
+        h.expect(shellVolumes).to.have.property('/azk'    , path.join(share_folder,      '.'));
         h.expect(shellVolumes).to.have.property('/azk/tmp', path.join(persistent_folder, 'tmp'));
         h.expect(shellVolumes).to.have.property('/azk/log', path.join(persistent_folder, 'log'));
 
         var daemonVolumes = system.daemonOptions().volumes;
-        h.expect(daemonVolumes).to.have.property('/azk',     path.join(sync_folder,       '.'));
-        h.expect(daemonVolumes).to.have.property('/azk/bin', path.join(sync_folder,       'bin'));
+        h.expect(daemonVolumes).to.have.property('/azk'    , system.sync_folder('/azk'));
+        h.expect(daemonVolumes).to.have.property('/azk/bin', system.sync_folder('/azk/bin'));
         h.expect(daemonVolumes).to.have.property('/azk/lib', path.join(share_folder,      'lib'));
         h.expect(daemonVolumes).to.have.property('/azk/tmp', path.join(persistent_folder, 'tmp'));
         h.expect(daemonVolumes).to.have.property('/azk/log', path.join(persistent_folder, 'log'));

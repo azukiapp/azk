@@ -267,22 +267,20 @@ describe("Azk system class, run set", function() {
     it("run watch and sync files", function* () {
       yield system.runWatch(true);
 
-      var dest = system.syncs[_.keys(system.syncs)[0]].guest_folder;
-      var cmd, result;
+      var cmd, result, dest;
 
-      cmd = "test -d " + path.join(dest, 'bin');
+      dest = system.sync_folder('/azk/bin');
+      cmd = "test -f " + path.join(dest, 'test-app');
       result = yield lazy.VM.ssh(name, cmd);
       h.expect(result).to.eq(0);
 
-      cmd = "test -d " + path.join(dest, 'src');
+      dest = system.sync_folder('/azk');
+      cmd = "test -f " + path.join(dest, 'src', 'bashttpd');
       result = yield lazy.VM.ssh(name, cmd);
       h.expect(result).to.eq(0);
 
+      dest = system.sync_folder('/azk');
       cmd = "test -d " + path.join(dest, 'lib');
-      result = yield lazy.VM.ssh(name, cmd);
-      h.expect(result).to.eq(1);
-
-      cmd = "test -d " + path.join(dest, 'ignore');
       result = yield lazy.VM.ssh(name, cmd);
       h.expect(result).to.eq(1);
     });
