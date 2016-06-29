@@ -218,10 +218,8 @@ export class Worker {
   }
 }
 
-//
 // If this file is a main process, it means that
 // this process is being forked by azk itself
-//
 if (require.main === module) {
   process.title = 'azk sync worker';
   new Worker(process);

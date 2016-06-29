@@ -438,7 +438,6 @@ var Run = {
 
       let sync_folder  = path.join(system.sync_folder(), '..');
       let sync_folders = path.join(sync_folder, '..');
-      // current_sync_folder = current_sync_folder.replace(/([\s\\`"])/g,'\\$1');
 
       let find_exec = `-exec chown -h ${uid}:${gid} '{}' \\;`;
       let find_args = `"${sync_folder}" \\( -not -user ${uid} -or -not -group ${gid} \\) ${find_exec}`;

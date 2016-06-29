@@ -73,7 +73,6 @@ export default class Sync {
     var rsync = require('rsyncwrapper');
     return defer((resolve, reject) => {
       rsync(rsync_options, (err, stdout, stderr, cmd) => {
-        // console.log(cmd);
         let result = { stdout, stderr, cmd, code: 0 };
         if (err) {
           result.code = err.code;
