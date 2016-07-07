@@ -3,11 +3,12 @@ import { version, config } from 'azk';
 import { net } from 'azk/utils';
 
 var lazy = lazy_require({
-  Image    : ['azk/images'],
-  Run      : ['azk/system/run'],
-  Scale    : ['azk/system/scale'],
-  Balancer : ['azk/system/balancer'],
-  replaceEnvs : ['azk/utils/shell']
+  Image      : ['azk/images'],
+  Run        : ['azk/system/run'],
+  Scale      : ['azk/system/scale'],
+  Balancer   : ['azk/system/balancer'],
+  replaceEnvs: ['azk/utils/shell'],
+  dotenv     : 'dotenv',
 });
 
 var XRegExp = require('xregexp').XRegExp;
@@ -519,17 +520,12 @@ export class System {
   }
 
   _envs_from_file() {
-    var envs = {};
-    var file = path.join(this.manifest.manifestPath, '.env');
+    let envs = {};
+    const file = path.join(this.manifest.manifestPath, '.env');
 
     if (fs.existsSync(file)) {
       var content = fs.readFileSync(file).toString();
-      _.each(content.split('\n'), (entry) => {
-        if (entry.match(/.*=.*/)) {
-          entry = entry.split('=');
-          envs[entry[0]] = entry[1];
-        }
-      });
+      envs = lazy.dotenv.parse(content);
     }
 
     return envs;
