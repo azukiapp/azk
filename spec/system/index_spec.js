@@ -227,7 +227,10 @@ describe("Azk system class, main set", function() {
         h.expect(options).to.have.property("working_dir").and.eql(system.workdir);
         h.expect(options).to.have.property("dns").and.eql(net.nameServers());
         h.expect(options).to.have.property("env").and.eql({
-          HTTP_PORT: "5000", ECHO_DATA: "data", FROM_DOT_ENV: "azk is beautiful"
+          BASE64      : "base64 hash==",
+          HTTP_PORT   : "5000",
+          ECHO_DATA   : "data",
+          FROM_DOT_ENV: "azk is beautiful"
         });
       });
 
@@ -427,10 +430,11 @@ describe("Azk system class, main set", function() {
         h.expect(options).to.have.property("volumes");
         h.expect(options).to.have.deep.property("annotations.azk.seq", 2);
         h.expect(options).to.have.property("env").and.eql({
-          ECHO_DATA    : "data",
-          FROM_DOT_ENV : "azk is beautiful",
-          HTTP_PORT    : "5000",
-          FOO          : "BAR"
+          BASE64      : "base64 hash==",
+          ECHO_DATA   : "data",
+          FROM_DOT_ENV: "azk is beautiful",
+          HTTP_PORT   : "5000",
+          FOO         : "BAR"
         });
 
         h.expect(mounts).to.have.property(
@@ -484,7 +488,9 @@ describe("Azk system class, main set", function() {
         h.expect(options).to.have.property("working_dir").and.eql(system.workdir);
         h.expect(options).to.have.property("dns").and.eql(net.nameServers());
         h.expect(options).to.have.property("env").and.eql({
-          ECHO_DATA: "data", FROM_DOT_ENV: "azk is beautiful"
+          BASE64      : "base64 hash==",
+          ECHO_DATA   : "data",
+          FROM_DOT_ENV: "azk is beautiful",
         });
       });
 
