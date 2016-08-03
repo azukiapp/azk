@@ -160,6 +160,7 @@ describe("Azk system class, run set", function() {
 
       it("load from .env file", function() {
         h.expect(envs).to.include.something.that.match(/FROM_DOT_ENV=azk is beautiful/);
+        h.expect(envs).to.include.something.that.match(/BASE64=base64 hash==/);
       });
 
       it("should expand envs in properties", function*() {
