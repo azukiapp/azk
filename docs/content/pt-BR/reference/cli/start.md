@@ -23,12 +23,12 @@
   --rebuild, -B             Força a recriação ou o download da imagem antes de iniciar a instância.
   --open, -o                Abre a URL do sistema no navegador padrão.
   --open-with=<app>, -a     Abre a URL do sistema no navegador espeficado.
-  --no-color                Remove cores na saída padrão
+  --no-color                Remove cores na saída padrão.
   --quiet, -q               Nunca perguntar.
   --help, -h                Mostrar ajuda de uso.
-  --log=<level>, -l         Defini o nível de log (padrão: error).
-  --verbose, -v             Defini o nível de detalhes da saída - suporta múltiplos (-vv == --verbose 2) [padrão: 0].
-  --git-ref=<git-ref>       branch, tag ou commit para clonar no Git
+  --log=<level>, -l         Define o nível de log (padrão: error).
+  --verbose, -v             Define o nível de detalhes da saída - suporta múltiplos (-vv == --verbose 2) [padrão: 0].
+  --git-ref=<git-ref>       branch, tag ou commit para clonar no Git.
 ```
 
 #### Exemplos:
