@@ -130,6 +130,10 @@ var options = mergeConfig({
         ip  : new Dynamic("agent:balancer:ip"),
         host: envs('AZK_BALANCER_HOST'),
         port: envs('AZK_BALANCER_PORT', 80),
+        workers:            envs('AZK_BALANCER_WORKERS', 3),
+        worker_max_sockets: envs('AZK_BALANCER_WORKER_MAX_SOCKETS', 100),
+        tcp_timeout:        envs('AZK_BALANCER_TCP_TIMEOUT', 63), // weird enough default that it can be greped easily
+        dead_backend_ttl:   envs('AZK_BALANCER_DEAD_BACKEND_TTL', 30),
         file_dns: "/etc/resolver/" + envs('AZK_BALANCER_HOST'),
       },
       dns: {

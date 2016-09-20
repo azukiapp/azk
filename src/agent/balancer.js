@@ -337,9 +337,10 @@ var Balancer = {
       user: process.getuid(),
       server: {
         accessLog: log,
-        workers: 3,
-        maxSockets: 100,
-        deadBackendTTL: 30
+        workers:        config('agent:balancer:workers'),
+        maxSockets:     config('agent:balancer:worker_max_sockets'),
+        tcpTimeout:     config('agent:balancer:tcp_timeout'),
+        deadBackendTTL: config('agent:balancer:dead_backend_ttl'),
       },
       http: { port, bind },
       driver: ["memcached://" + memcached_socket]
