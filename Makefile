@@ -136,7 +136,7 @@ PACKAGE_NPM_VERSION_FILE := ${PATH_AZK_NVM}/npm_versions
 
 package_check_node_dependencies: ${NODE_PACKAGE}
 	@if [ ! "$$(${AZK_BIN} nvm npm --version)" = "${NPM_VERSION}" ] ; then \
-		rm ${PACKAGE_NPM_VERSION_FILE}; \
+		rm -f ${PACKAGE_NPM_VERSION_FILE}; \
 	fi
 
 # Build package folders tree
