@@ -19,7 +19,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Suggestions] Refactoring court to support more suggestion for one evidence;
   * [Suggestions] Adding support wordpress;
   * [Core] Support images of other repositories beyond Docker Hub;
-  * [Core] Support for tweaking Load Balancer settings via environment (`AZK_BALANCER_{WORKERS,WORKER_MAX_SOCKETS,TCP_TIMEOUT,DEAD_BACKEND_TTL}`);
   * [Sync] Adding support special characters in sync paths;
   * [Sync] Updating `chokidar` lib (file watching), for a better performance and bug fixes;
   * [Sync] Refactoring the sync system to sync the file tree from the modified file, not the whole tree;
@@ -27,6 +26,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Sync] Improving fault tolerance for the sync process;
   * [Sync] Removing a synced folder shouldn't break the agent nor the sync process;
   * [Package] Adding `ubuntu 16.04` support;
+  * [Balancer] Support for tweaking Load Balancer settings via environment (`AZK_BALANCER_{WORKERS,WORKER_MAX_SOCKETS,TCP_TIMEOUT,DEAD_BACKEND_TTL}`);
 
 ## v0.18.0 - (2016-04-07)
 
