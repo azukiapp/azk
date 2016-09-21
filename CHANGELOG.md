@@ -26,6 +26,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Sync] Improving fault tolerance for the sync process;
   * [Sync] Removing a synced folder shouldn't break the agent nor the sync process;
   * [Package] Adding `ubuntu 16.04` support;
+  * [Balancer] Support for tweaking Load Balancer settings via environment (`AZK_BALANCER_{WORKERS,WORKER_MAX_SOCKETS,TCP_TIMEOUT,DEAD_BACKEND_TTL}`);
 
 ## v0.18.0 - (2016-04-07)
 
