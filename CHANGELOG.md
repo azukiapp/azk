@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## dev
+## v0.19.0 - (2016-09-28)
 
 * Bug
   * [Core] Simplification the images downloads process;
@@ -14,6 +14,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   * [Cli] Fixing escape character in `azk vm ssh`;
   * [Sync] Fixing bug when the path to be synced contained whitespace (#672);
   * [Sync] Removing `system.name` from the destination sync path, which avoids multiple syncs for extended systems;
+  * [Systems] Fixing load envs from file with `=` in value;
 
 * Enhancements
   * [Suggestions] Refactoring court to support more suggestion for one evidence;
