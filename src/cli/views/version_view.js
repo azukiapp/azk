@@ -1,7 +1,7 @@
 import { _ } from 'azk';
-import { View } from './view';
+import View from './view';
 
-export class VersionView extends View {
+export default class VersionView extends View {
   render(data, with_logo = false) {
     let formated = this.format(data);
     this.output(with_logo ? this.add_logo(formated) : formated.join("\n"));

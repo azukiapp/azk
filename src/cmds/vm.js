@@ -56,13 +56,30 @@ export default class VM extends CliTrackerController {
       this.require_running(vm_info);
       yield Helpers.requireAgent(this.ui);
 
-      var ssh_url  = `${config('agent:vm:user')}@${config('agent:vm:ip')}`;
-      var ssh_opts = "StrictHostKeyChecking=no -o LogLevel=quiet -o UserKnownHostsFile=/dev/null";
-      var args     = (params['ssh-args'] || []).join(`" "`);
-      var script   = `ssh -i ${config('agent:vm:ssh_key')} -o ${ssh_opts} ${ssh_url} "${args}"`;
+      var cmd = ["ssh"];
+      cmd.push('-i', config('agent:vm:ssh_key'));
+      cmd.push('-o', "StrictHostKeyChecking=no");
+      cmd.push('-o', "LogLevel=quiet");
+      cmd.push('-o', "UserKnownHostsFile=/dev/null");
+      cmd.push(`${config('agent:vm:user')}@${config('agent:vm:ip')}`);
 
-      log.debug("vm ssh command:", script);
-      return this.ui.execSh(script);
+      if (params.tty && this.ui.isInteractive()) {
+        cmd.push('-t');
+      } else if (params['no-tty']) {
+        cmd.push('-T');
+      }
+
+      var args = _.map((params['ssh-args'] || []), (arg) => {
+        return arg
+          .replace(/(\\)/g, '\\\\\\')
+          .replace(/([\s'"\\])/g, '\\$1')
+          .replace(/([`])/g, "\\\\\\$1");
+      });
+      cmd.push("--", `"${args.join('" "')}"`);
+
+      cmd = cmd.join(' ');
+      log.debug("vm ssh command:", cmd);
+      return this.ui.execSh(cmd);
     });
   }
 

@@ -175,9 +175,10 @@ export class Docker extends promisifyClass('dockerode') {
   azkListContainers(...args) {
     return this.listContainers(...args).then((containers) => {
       return _.reduce(containers, (result, container) => {
-        if (container.Names && container.Names[0].match(this.c_regex)) {
-          container.Name = container.Names[0];
-          container.Annotations = Container.unserializeAnnotations(container.Name);
+        let name = _.find(container.Names, (name) => name.match(this.c_regex));
+        if (!_.isEmpty(name)) {
+          container.Name = name;
+          container.Annotations = Container.unserializeAnnotations(name);
           container.State = Container.parseStatus(container.Status);
           container.NetworkSettings = { Access: Container.parsePorts(container.Ports) };
           result.push(container);

@@ -1,13 +1,12 @@
 import { _, t, os, log, lazy_require, fsAsync } from 'azk';
 import { publish } from 'azk/utils/postal';
-import { async, promisify, nfcall, thenAll, promiseResolve } from 'azk/utils/promises';
+import { async, promisify, thenAll, promiseResolve } from 'azk/utils/promises';
 import { config, set_config } from 'azk';
 import { UIProxy } from 'azk/cli/ui';
 import { OSNotSupported, DependencyError } from 'azk/utils/errors';
-import { net, envDefaultArray } from 'azk/utils';
+import { net, envDefaultArray, which } from 'azk/utils';
 import Azk from 'azk';
 
-import which from 'which'; // Search for command in path
 import semver from 'semver';
 import { isIPv4 } from 'net';
 
@@ -270,7 +269,7 @@ export class Configure extends UIProxy {
   }
 
   _which(command, save_key = null) {
-    return nfcall(which, command)
+    return which(command)
       .then((fullpath) => {
         if (save_key) {
           var obj = {};

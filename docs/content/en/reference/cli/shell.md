@@ -1,6 +1,6 @@
 ## azk shell
 
-  Initializes a shell with the instance context, or executes an arbitrary command.
+  Initializes a new shell instance with the application context, or executes an arbitrary command if provided.
 
 #### Usage:
 

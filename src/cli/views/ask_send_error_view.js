@@ -1,5 +1,5 @@
 import { _, t, isBlank, lazy_require } from 'azk';
-import { View } from './view';
+import View from './view';
 import { async, promiseResolve } from 'azk/utils/promises';
 
 var lazy = lazy_require({
@@ -109,3 +109,5 @@ export class AskSendErrorView extends View {
     });
   }
 }
+
+export default AskSendErrorView;

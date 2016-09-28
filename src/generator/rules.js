@@ -69,7 +69,7 @@ export class BaseRule extends UIProxy {
     var version = this.getVersion(content);
 
     if (this.type === 'database') {
-      if (!this.checkDatabase(content)) { return null; }
+      if (!this.checkDatabase(content, path)) { return null; }
     }
 
     var ruleFilter = framework && !_.isEmpty(this.version_rules) ? framework : version;

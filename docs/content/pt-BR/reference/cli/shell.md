@@ -1,6 +1,6 @@
 ## azk shell
 
-  Inicializa um shell com o contexto da instância, ou executa um comando arbitrário.
+Inicializa uma nova instância shell com o contexto da aplicação ou executa um comando arbitrário se provido.
 
 #### Uso:
 

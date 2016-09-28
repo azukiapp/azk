@@ -6,6 +6,7 @@ if [[ $# < 1 ]] || [[ $# > 2 ]]; then
     echo "    - ubuntu12"
     echo "    - ubuntu14"
     echo "    - ubuntu15"
+    echo "    - ubuntu16"
     echo "    - fedora20"
     echo "    - fedora23"
     exit 1
@@ -37,6 +38,10 @@ case "${SO}" in
     ubuntu15 )
         DISTRO='ubuntu'
         CODENAME='wily'
+        ;;
+    ubuntu16 )
+        DISTRO='ubuntu'
+        CODENAME='xenial'
         ;;
     fedora20 )
         DISTRO='fedora'

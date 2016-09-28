@@ -126,9 +126,14 @@ describe('Azk generator db', function() {
         h.expect(system).to.have.deep.property('options.shell', '/bin/bash');
         h.expect(system).to.have.deep.property('options.wait', 150);
         h.expect(system).to.not.have.deep.property('options.workdir');
-        h.expect(system).to.have.deep.property('options.mounts').and.to.eql(
-          { '/var/lib/postgresql/data': { type: 'persistent', value: 'postgresql', options: {} },
-            '/var/log/postgresql': { type: 'path',       value: './log/postgresql', options: {} } } );
+        h.expect(system).to.have.deep.property('options.mounts').and.to.eql({
+          '/var/lib/postgresql/data': {
+            type: 'persistent', value: 'postgres-data', options: {}
+          },
+          '/var/log/postgresql': {
+            type: 'persistent', value: 'postgres-log', options: {}
+          }
+        });
       });
     });
 

@@ -1,28 +1,36 @@
-import { _, lazy_require, path, log, fsAsync } from 'azk';
-import { defer, async } from 'azk/utils/promises';
+import { _, lazy_require, path, fsAsync } from 'azk';
+import { defer, async, promiseResolve } from 'azk/utils/promises';
+
+// Only for debug
+// require('source-map-support').install({});
 
 var lazy = lazy_require({
   Sync    : ['azk/sync'],
   chokidar: 'chokidar'
 });
 
+const WATCH_IDLE = 0, WATCH_INIT = 1, WATCH_READY = 2;
+
 export class Worker {
   constructor(process) {
+    this.chok    = null;
+    this.status  = WATCH_IDLE;
     this.process = process;
     this.process.on('message', (data) => {
       process.title = "azk sync worker " + data.origin + " " + data.destination;
       this.watch(data.origin, data.destination, data.opts).then(() => {}, () => {});
     });
-
-    this.chok = null;
   }
 
   watch(origin, destination, opts = {}) {
     this.unwatch();
+    this.status = WATCH_INIT;
 
-    log.debug('[sync] call to watch and sync: %s => %s', origin, destination);
     return async(this, function* () {
       try {
+        // Be sure watcher is in proper status
+        if (this.status !== WATCH_INIT) { return; }
+
         var exists = yield fsAsync.exists(origin);
         if (!exists) {
           throw { err: 'Sync: origin path not exist', code: 101 };
@@ -33,17 +41,26 @@ export class Worker {
           throw new Error(`The type of the file ${origin} is not supported for synchronization`);
         }
 
-        if (stats.isDirectory()) {
-          opts = yield this._check_for_except_from(origin, opts);
-        }
+        // Calculate includes, excludes and watch pattern
+        let patterns_ary = [], ignored = [];
+        let except_from  = yield this._check_for_except_from(origin, stats.isDirectory(), opts.except_from);
+        [ patterns_ary, ignored, opts.include, opts.except ] = yield this._process_patterns(origin, except_from, opts);
+        delete opts.except_from;
+
+        // Be sure watcher is in proper status
+        if (this.status !== WATCH_INIT) { return; }
 
         yield lazy.Sync.sync(origin, destination, opts);
         this._send('sync', 'done');
-        yield this._start_watcher(origin, destination, opts);
+
+        // Be sure watcher is in proper status
+        if (this.status !== WATCH_INIT) { return; }
+        yield this._start_watcher(patterns_ary, ignored, origin, destination, opts);
         this._send('watch', 'ready');
+        this.status = WATCH_READY;
       } catch (err) {
-        log.error('[sync] fail', (err.stack ? err.stack : err.toString()));
-        this._send('sync', 'fail', { err });
+        this.unwatch();
+        this._send('sync', 'fail', err);
         throw err;
       }
     });
@@ -55,88 +72,155 @@ export class Worker {
       this.chok.close();
       this.chok = null;
     }
+    this.status = WATCH_IDLE;
   }
 
-  _start_watcher(origin, destination, opts = {}) {
-    var patterns_ary = this._watch_patterns_ary(origin, opts);
-    return defer((resolve, reject) => {
-      this.chok = lazy.chokidar.watch(patterns_ary, { ignoreInitial: true });
-      this.chok.on('all', (event, filepath) => {
-        filepath = path.relative(origin, filepath);
+  _start_watcher(patterns_ary, ignored, src, dest, opts = {}) {
+    let promise = defer((resolve, reject) => {
+      this.chok = lazy.chokidar.watch(patterns_ary, { ignored: ignored, ignoreInitial: true })
+        .on('all', (event, filepath) => {
+          this._sync(event, filepath, src, dest, opts);
+        })
+        .on('ready', () => {
+          this.chok.removeAllListeners('error');
+          resolve(true);
+        })
+        .on('error', (err) => {
+          if (promise.isFulfilled()) {
+            err.level = "warning";
+            this._send('watch', 'fail', err);
+            // restart
+            this.watch(src, dest, opts);
+          } else {
+            err.level = "critical";
+            reject(err);
+          }
+        });
+    });
+    return promise;
+  }
 
-        var include = (event === 'unlinkDir') ? [`${filepath}/\*`, filepath] : [ filepath ];
-        var sync_opts = { include, ssh: opts.ssh || null };
+  _sync(event, filepath, src, dest, opts) {
+    return async(this, function* () {
+      if (event === "unlink" || event === "unlinkDir") {
+        var exists = yield fsAsync.exists(filepath);
+        if (!exists) {
+          filepath = path.join(filepath, '..');
+          return this._sync(event, filepath, src, dest, opts);
+        }
+      }
 
-        log.debug('[sync]', event, 'file', filepath);
+      let destination = path.join(dest, path.relative(src, filepath));
+      let [ include, except ] = this._include_and_except(filepath, src, dest, opts);
+      let sync_opts = {
+        ssh: opts.ssh || null,
+        relative_sufix: opts.relative_sufix,
+        include, except,
+      };
 
-        lazy.Sync
-          .sync(origin, destination, sync_opts )
-          .then(() => this._send(event, 'done', { filepath }))
-          .catch((err) => this._send(event, 'fail', _.merge(err, { filepath })));
-      })
-      .on('ready', () => resolve(true))
-      .on('error', (err) => reject(err));
+      return lazy.Sync
+        .sync(filepath, destination, sync_opts)
+        .then((result) => this._send(event, 'done', _.merge(result, { filepath })))
+        .catch((err) => {
+          err = _.assign(err, { filepath, level: "warning" });
+          this._send(event, 'fail', err);
+        });
     });
   }
 
-  _check_for_except_from(origin, opts) {
-    return async(this, function* () {
-      // Find from exceptions in files
-      opts = _.clone(opts);
-      opts.except = _.flatten([opts.except || []]);
+  _include_and_except(origin, src, dest, opts) {
+    let include = opts.include;
+    let except  = opts.except;
 
-      var exists, file, file_content = '';
-      var candidates = opts.except_from ? [opts.except_from] : [];
+    if (origin !== src) {
+      let relative  = path.relative(src, origin);
+      let regex     = new RegExp(`^\/${relative}\/`);
+      let reduce_fn = (acc, file) => {
+        if ((file.match(/^\//) || file.match(/^\.\//)) && regex.test(file)) {
+          acc.push(file.replace(regex, '/'));
+        } else if (!(file.match(/^\//) || file.match(/^\.\//))) {
+          acc.push(file);
+        }
+        return acc;
+      };
+      include = _.reduce(include, reduce_fn, []);
+      except  = _.reduce(except, reduce_fn, []);
+    }
+
+    return [include, except];
+  }
+
+  _check_for_except_from(origin, is_dir, except_from) {
+    return async(this, function* () {
+      if (!is_dir) { return null; }
+
+      let candidates = except_from ? [except_from] : [];
       candidates = candidates.concat([
         path.join(origin, ".syncignore"),
         path.join(origin, ".gitignore"),
       ]);
 
-      delete opts.except_from;
-
-      for (var i = 0; i < candidates.length; i++) {
-        file   = candidates[i];
-        exists = yield fsAsync.exists(file);
-        if (exists) {
-          opts.except_from = file;
-          file_content = yield fsAsync.readFile(file);
-          file_content = file_content.toString();
-          break;
-        }
+      let exists;
+      for (let i = 0; i < candidates.length; i++) {
+        exists = yield fsAsync.exists(candidates[i]);
+        if (exists) { return candidates[i]; }
       }
 
-      opts.except = opts.except.concat(
-        _.without(file_content.split('\n'), '')
-      );
-
-      return opts;
+      return null;
     });
   }
 
-  _watch_patterns_ary(origin, opts = {}) {
-    // TODO Support include
-    opts = _.clone(opts);
-    opts.include = ['.'];
-    opts.except  = _.flatten([opts.except || []]);
+  _process_patterns(origin, except_from, opts = {}) {
+    return this
+      ._exclude_candidates(opts.except || [], except_from)
+      .then((candidates) => {
+        let include = [...(opts.include || [])];
+        let watch   = _.map([".", ...include], (i) => path.resolve(origin, i));
+        let unwatch = [];
 
-    return opts.include.map((pattern) => {
-      return path.resolve(origin, pattern);
-    }).concat(opts.except.map((pattern) => {
-      return '!' + path.resolve(origin, pattern);
-    }));
+        let exclude = _.reduce(candidates, (acc, pattern) => {
+          if (pattern.match(/^!/)) {
+            pattern = pattern.replace(/^!(.*)/, '$1');
+            include.push(pattern);
+            watch.push(path.join(origin, pattern));
+          } else if (pattern.match(/^\//) || pattern.match(/^\.\//) || pattern.match(/\*\*/)) {
+            acc.push(pattern);
+            unwatch.push(path.join(origin, pattern));
+          } else {
+            acc.push(pattern);
+            unwatch.push(path.join(origin, '**', pattern));
+          }
+          return acc;
+        }, []);
+
+        return [watch, unwatch, include, exclude];
+      });
+  }
+
+  _exclude_candidates(except, except_from) {
+    if (!_.isEmpty(except_from)) {
+      return fsAsync.readFile(except_from).then((content) => {
+        content = content.toString().split('\n');
+        return except.concat(_.filter(content, (pattern) => {
+          return !_.isEmpty(pattern) && !pattern.match(/^\s*#/);
+        }));
+      });
+    }
+    return promiseResolve(except);
   }
 
   _send(op, status, opts = {}) {
+    if (opts instanceof Error) {
+      opts = JSON.stringify(opts, ["message", "arguments", "type", "name"].concat(Object.keys(opts)));
+      opts = JSON.parse(opts);
+    }
     this.process.send(JSON.stringify(_.merge({ op, status }, opts)));
   }
 }
 
-//
 // If this file is a main process, it means that
 // this process is being forked by azk itself
-//
 if (require.main === module) {
   process.title = 'azk sync worker';
-  log.debug('[sync]', "sync worker spawned");
   new Worker(process);
 }

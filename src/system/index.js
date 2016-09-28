@@ -3,19 +3,18 @@ import { version, config } from 'azk';
 import { net } from 'azk/utils';
 
 var lazy = lazy_require({
-  Image    : ['azk/images'],
-  Run      : ['azk/system/run'],
-  Scale    : ['azk/system/scale'],
-  Balancer : ['azk/system/balancer'],
+  Image      : ['azk/images'],
+  Run        : ['azk/system/run'],
+  Scale      : ['azk/system/scale'],
+  Balancer   : ['azk/system/balancer'],
+  replaceEnvs: ['azk/utils/shell'],
+  dotenv     : 'dotenv',
 });
 
 var XRegExp = require('xregexp').XRegExp;
 var regex_port = new XRegExp(
   "(?<public>[0-9]{1,})(:(?<private>[0-9]{1,})){0,1}(/(?<protocol>tcp|udp)){0,1}", "x"
 );
-
-// https://regex101.com/r/rK1eJ0/2
-var regex_envs = /(?:\${[=|-]?([A-Z|\d|_]+)})|(?:\$[=|-]?([A-Z|\d|_]+))/g;
 
 export class System {
   constructor(manifest, name, image, options = {}) {
@@ -377,7 +376,7 @@ export class System {
   }
 
   // Private methods
-  _make_options(daemon, options = {}) {
+  _make_options(daemon, options = {}, image_conf = {}) {
     // Default values
     options = _.defaults(options, {
       workdir: this.options.workdir,
@@ -391,8 +390,14 @@ export class System {
       dns_servers: this.options.dns_servers,
     });
 
+    var img_envs = {};
+    _.forEach(image_conf.Env, (env_data) => {
+      env_data = env_data.split("=");
+      img_envs[env_data[0]] = env_data[1];
+    });
+
     // Map ports to docker configs: ports and envs
-    var envs  = _.merge({}, this.envs, this._envs_from_file(), options.envs);
+    var envs  = _.merge({}, img_envs, this.envs, this._envs_from_file(), options.envs);
     var ports = {};
     var parsed_ports = this._parse_ports(options.ports);
 
@@ -444,15 +449,32 @@ export class System {
     };
 
     // Expand envs
-    var template = JSON.stringify(finalOptions);
-    template = template.replace(regex_envs, "$${envs.$1$2}");
-    finalOptions = JSON.parse(utils.template(template, { envs }));
+    finalOptions = this._expand_envs(finalOptions, envs);
 
     // Not expand and not stringify
     finalOptions.env = envs;
     finalOptions.stdout = options.stdout;
 
     return finalOptions;
+  }
+
+  _expand_envs(options, envs) {
+    // https://regex101.com/r/zX1qU4/1
+    var keep_special = /\${((?:[^\d]*?[@?\#])|(?:\d*?))}/g;
+
+    // Prepare template
+    var template = JSON.stringify(options);
+    template = lazy.replaceEnvs(template, "#{envs.$1}", true);
+    template = template.replace(keep_special, "#{_keep_special('$1')}");
+
+    // Replaces
+    var expanded = utils.template(template, {
+      envs,
+      _keep_special: (special) => `\${${special}}`,
+    });
+
+    // Parse result
+    return JSON.parse(expanded);
   }
 
   _shell_command(options) {
@@ -498,17 +520,12 @@ export class System {
   }
 
   _envs_from_file() {
-    var envs = {};
-    var file = path.join(this.manifest.manifestPath, '.env');
+    let envs = {};
+    const file = path.join(this.manifest.manifestPath, '.env');
 
     if (fs.existsSync(file)) {
       var content = fs.readFileSync(file).toString();
-      _.each(content.split('\n'), (entry) => {
-        if (entry.match(/.*=.*/)) {
-          entry = entry.split('=');
-          envs[entry[0]] = entry[1];
-        }
-      });
+      envs = lazy.dotenv.parse(content);
     }
 
     return envs;
@@ -574,15 +591,11 @@ export class System {
     return JSON.parse(utils.template(template, data));
   }
 
-  _replace_keep_keys(template) {
+  _replace_keep_keys(str) {
     // https://regex101.com/r/gF4uT4/1
-    let regexes = {
-      net_envs: /(?:(?:[#|$]{|<%)[=|-]?)\s*((?:envs|net)\.[\S]+?)\s*(?:}|%>)/g,
-      envs    : regex_envs,
-    };
-    return template
-      .replace(regexes.net_envs, "#{_keep_key('$1')}")
-      .replace(regexes.envs    , "#{_keep_key('$1$2', '$$')}");
+    let net_envs = /(?:(?:[#|$]{|<%)[=|-]?)\s*((?:envs|net)\.[\S]+?)\s*(?:}|%>)/g;
+    str = str.replace(net_envs, "#{_keep_key('$1')}");
+    return lazy.replaceEnvs(str, "#{_keep_key('$1', '$')}", true);
   }
 
   _resolved_path(mount_path) {
@@ -590,12 +603,6 @@ export class System {
       return this.manifest.manifestPath;
     }
     return path.resolve(this.manifest.manifestPath, mount_path);
-  }
-
-  _sync_path(mount_path) {
-    var sync_base_path = config('paths:sync_folders');
-    sync_base_path = path.join(sync_base_path, this.manifest.namespace, this.name);
-    return path.join(sync_base_path, this._resolved_path(mount_path));
   }
 
   _mounts_to_volumes(mounts, daemon = true) {
@@ -612,21 +619,21 @@ export class System {
 
       mount.options = _.defaults(mount.options || {}, {resolve: true});
 
-      var target = null;
-      switch (mount.type) {
-        case 'path':
-          target = mount.value;
+      let target = null;
+      let path_fn = () => {
+        target = mount.value;
 
-          if (mount.options.resolve) {
-            if (!target.match(/^\//)) {
-              target = this._resolved_path(target);
-            }
-
-            target = (fs.existsSync(target)) ?
-              utils.docker.resolvePath(target) : null;
+        if (mount.options.resolve) {
+          if (!target.match(/^\//)) {
+            target = this._resolved_path(target);
           }
 
-          break;
+          target = (fs.existsSync(target)) ?
+            utils.docker.resolvePath(target) : null;
+        }
+      };
+
+      switch (mount.type) {
         case 'persistent':
           target = path.join(persist_base, mount.value);
           break;
@@ -634,17 +641,14 @@ export class System {
         case 'sync':
           if (daemon && mount.options.daemon !== false ||
              !daemon && mount.options.shell === true) {
-            target = this._sync_path(mount.value);
+            target = this.sync_folder(point);
           } else {
-            target = mount.value;
-
-            if (!target.match(/^\//)) {
-              target = this._resolved_path(target);
-            }
-
-            target = (fs.existsSync(target)) ?
-              utils.docker.resolvePath(target) : null;
+            path_fn();
           }
+          break;
+
+        case 'path':
+          path_fn();
           break;
       }
 
@@ -656,18 +660,19 @@ export class System {
     }, volumes);
   }
 
-  _mounts_to_syncs(mounts) {
-    var syncs = {};
+  sync_folder(point = '') {
+    let id = utils.calculateHash(path.join(this.name, point));
+    return path.join(config('paths:sync_folders'), this.manifest.namespace, id);
+  }
 
+  _mounts_to_syncs(mounts) {
     return _.reduce(mounts, (syncs, mount, mount_key) => {
       if (mount.type === 'sync') {
-
-        var host_sync_path = this._resolved_path(mount.value);
-
         var mounted_subpaths = _.reduce(mounts, (subpaths, mount, dir) => {
           if ( dir !== mount_key && dir.indexOf(mount_key) === 0) {
-            var regex = new RegExp(`^${mount_key}`);
-            subpaths = subpaths.concat([path.normalize(dir.replace(regex, './'))]);
+            let regex = new RegExp(`^${mount_key}`);
+            let exclude = `/${path.normalize(dir.replace(regex, './'))}`;
+            subpaths.push(exclude);
           }
           return subpaths;
         }, []);
@@ -677,12 +682,13 @@ export class System {
           .concat(mounted_subpaths)
           .concat(['.syncignore', '.gitignore', '.azk/', '.git/']));
 
+        var host_sync_path = this._resolved_path(mount.value);
         syncs[host_sync_path] = {
-          guest_folder: this._sync_path(mount.value),
-          options     : mount.options,
+          guest_folder  : this.sync_folder(mount_key),
+          options       : mount.options,
         };
       }
       return syncs;
-    }, syncs);
+    }, {});
   }
 }

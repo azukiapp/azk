@@ -31,6 +31,7 @@ var Run = {
       if ((!options.provision_force) && system.provisioned) {
         return null;
       }
+      system.provisioned = null;
       log.debug('provision steps', steps);
 
       // provision command (require /bin/sh)
@@ -76,7 +77,7 @@ var Run = {
       var deps_envs = yield system.checkDependsAndReturnEnvs(options, false);
       options.envs  = _.merge(deps_envs, options.envs || {});
 
-      var image = yield this._check_image(system, options);
+      var image = _.isEmpty(options.image_data) ? yield this._check_image(system, options) : options.image_data;
       var docker_opt = system.shellOptions(options, image.Config);
 
       // Force env TERM in interatives shells (like a ssh)
@@ -159,46 +160,39 @@ var Run = {
 
   runWatch(system, daemon = true, silent = false) {
     var topic = "system.sync.status";
-    if (_.isEmpty(system.syncs)) {
-      return true;
-    }
+    let syncs = system.syncs || {};
+    if (_.isEmpty(syncs)) { return promiseResolve(true); }
+    if (!silent) { publish(topic, { type : "sync", system : system.name }); }
+    return this
+      ._clean_sync_folder(system, syncs)
+      .then(() => this._watch_syncs(system, syncs, topic, daemon));
+  },
 
-    if (!silent) {
-      publish(topic, { type : "sync", system : system.name });
-    }
+  _watch_syncs(system, syncs, topic, daemon) {
+    return thenAll(_.map(syncs, (sync_data, host_folder) => {
+      if (daemon && sync_data.options.daemon === false ||
+         !daemon && sync_data.options.shell !== true) {
+        return promiseResolve();
+      }
 
-    return thenAll(_.map(system.syncs || {}, (sync_data, host_folder) => {
-      return async(this, function* () {
-        if (daemon && sync_data.options.daemon === false ||
-           !daemon && sync_data.options.shell !== true) {
-          return promiseResolve();
-        }
+      if (config('agent:requires_vm')) {
+        sync_data.options = _.defaults(sync_data.options, { use_vm: true, ssh: lazy.Client.ssh_opts() });
+      }
 
-        if (config('agent:requires_vm')) {
-          sync_data.options = _.defaults(sync_data.options, { use_vm: true, ssh: lazy.Client.ssh_opts() });
-        }
+      var pub_data = {
+        system      : system.name,
+        host_folder : host_folder,
+        guest_folder: sync_data.guest_folder,
+        options     : sync_data.options
+      };
 
-        var clean_sync_folder = yield this._clean_sync_folder(system, host_folder);
-        if (clean_sync_folder !== 0) {
-          // TODO: throw proper error
-          throw new NotBeenImplementedError('SyncError');
-        }
+      publish(topic, _.assign({ type : "sync_start" }, pub_data));
 
-        var pub_data = {
-          system      : system.name,
-          host_folder : host_folder,
-          guest_folder: sync_data.guest_folder,
-          options     : sync_data.options
-        };
-
-        publish(topic, _.assign({ type : "sync_start" }, pub_data));
-
-        return lazy.Client
-          .watch(host_folder, sync_data.guest_folder, sync_data.options)
-          .then(() => {
-            publish(topic, _.assign({ type : "sync_done" }, pub_data));
-          });
-      });
+      return lazy.Client
+        .watch(host_folder, sync_data.guest_folder, sync_data.options)
+        .then(() => {
+          publish(topic, _.assign({ type : "sync_done" }, pub_data));
+        });
     }));
   },
 
@@ -364,10 +358,10 @@ var Run = {
     });
   },
 
-  // Check and pull image
+  // Check image, pull or build if not found
   _check_image(system, options) {
     options = _.defaults(options, {
-      image_pull: true,
+      build_force: false,
     });
 
     var _subscription = subscribe("image.check.status", (msg, env) => {
@@ -376,32 +370,15 @@ var Run = {
     });
 
     return asyncUnsubscribe(this, _subscription, function* () {
-      var promise;
-
-      if ((options.build_force || options.image_pull) && !system.image.builded) {
-        if (system.image.provider === 'docker') {
-          promise = system.image.pull(options);
-        } else if (system.image.provider === 'dockerfile') {
-          promise = system.image.build(options);
+      let promise = system.image.checkOrGet(options, options.build_force);
+      var image = yield promise.then((image) => {
+        if (isBlank(image)) {
+          throw new ImageNotAvailable(system.name, system.image.name);
         }
+        return image;
+      });
 
-        // save the date provisioning
-        system.image.builded = new Date();
-      } else {
-        promise = system.image.check()
-          .then((image) => {
-            if (isBlank(image)) {
-              throw new ImageNotAvailable(system.name, system.image.name);
-            }
-            return image;
-          });
-      }
-
-      var image = yield promise;
-
-      if (!isBlank(image)) {
-        return image.inspect();
-      }
+      return image.inspect();
     });
   },
 
@@ -447,7 +424,7 @@ var Run = {
     });
   },
 
-  _clean_sync_folder(system, host_folder) {
+  _clean_sync_folder(system, syncs) {
     return async(this, function* () {
       var local_user = config('agent:vm:user');
       var uid, gid;
@@ -459,27 +436,26 @@ var Run = {
         gid = uid;
       }
 
-      var mounted_sync_folders = '/sync_folders';
-      var current_sync_folder = path.join(mounted_sync_folders, system.manifest.namespace, system.name, host_folder);
+      let sync_folder  = path.join(system.sync_folder(), '..');
+      let sync_folders = path.join(sync_folder, '..');
 
-      var find_exec = `-exec chown -h ${uid}:${gid} '{}' \\;`;
-      var find_args = `${current_sync_folder} \\( -not -user ${uid} -or -not -group ${gid} \\) ${find_exec}`;
+      let find_exec = `-exec chown -h ${uid}:${gid} '{}' \\;`;
+      let find_args = `"${sync_folder}" \\( -not -user ${uid} -or -not -group ${gid} \\) ${find_exec}`;
 
       // Script to fix sync folder
-      var script = [
-        `mkdir -p ${current_sync_folder}`,
-        `find ${find_args}`,
-      ].join(" && ");
+      let cmds = _.map(syncs, (sync_data) => `mkdir -p "${sync_data.guest_folder}"`);
+      cmds.push(`find ${find_args}`);
+      let script = cmds.join(' && ');
 
       // Docker params
-      var image_name = config('docker:image_default');
-      var cmd = ["/bin/bash", "-c", script];
-      var docker_opts = {
+      let image_name = config('docker:image_default');
+      let cmd = ["/bin/bash", "-c", script];
+      let docker_opts = {
         interactive: false,
         extra: {
           HostConfig: {
             Binds: [
-              `${config('paths:sync_folders')}:${mounted_sync_folders}`,
+              `${config('paths:sync_folders')}:${sync_folders}`,
               "/etc/passwd:/etc/passwd"
             ]
           }
@@ -491,7 +467,10 @@ var Run = {
       var data      = yield container.inspect();
       yield container.remove();
 
-      return data.State.ExitCode;
+      if (data.State.ExitCode !== 0) {
+        // TODO: throw proper error
+        throw new NotBeenImplementedError('SyncError');
+      }
     });
   },
 

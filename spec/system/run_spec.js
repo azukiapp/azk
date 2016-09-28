@@ -1,8 +1,14 @@
 import h from 'spec/spec_helper';
-import { _ } from 'azk';
-import { publish, subscribe } from 'azk/utils/postal';
-import { async, defer, promiseResolve, promiseReject } from 'azk/utils/promises';
+import { _, path, config, lazy_require } from 'azk';
+import { publish } from 'azk/utils/postal';
+import { async, defer, promiseResolve } from 'azk/utils/promises';
 import { ImageNotAvailable } from 'azk/utils/errors';
+
+var lazy = lazy_require({
+  VM         : ['azk/agent/vm'],
+  spawnAsync : ['azk/utils/spawn_helper'],
+  Client     : ['azk/agent/client'],
+});
 
 describe("Azk system class, run set", function() {
   var manifest, system;
@@ -28,11 +34,11 @@ describe("Azk system class, run set", function() {
     it("should run a command in a shell for a system", function() {
       return async(function* () {
         var exitResult = yield system.runShell({
-          command: ["ls -ls; exit"],
+          command: ["ls -ls bin; exit"],
           stdout: mocks.stdout, stderr: mocks.stderr
         });
         h.expect(exitResult).to.have.property("code", 0);
-        h.expect(outputs).to.have.property("stdout").match(/.*src/);
+        h.expect(outputs).to.have.property("stdout").match(/test\-app/);
       });
     });
 
@@ -154,6 +160,7 @@ describe("Azk system class, run set", function() {
 
       it("load from .env file", function() {
         h.expect(envs).to.include.something.that.match(/FROM_DOT_ENV=azk is beautiful/);
+        h.expect(envs).to.include.something.that.match(/BASE64=base64 hash==/);
       });
 
       it("should expand envs in properties", function*() {
@@ -189,96 +196,94 @@ describe("Azk system class, run set", function() {
     });
 
     describe("check image before run", function() {
-      // TODO: Replace this merge for a mock class
-      var system, image_mock = {
-        pull() {
-          return defer((resolve) => {
-            process.nextTick(() => {
-              publish("spec.image_mock.status", { type: "event" });
-              resolve(this);
-            });
-          });
-        },
-
-        check() {
-          return promiseResolve(null);
-        },
-
-        inspect() {
-          return promiseReject({});
-        }
-      };
-
-      var events;
-      var _subscription;
-      var _subscription2;
-
-      before(() => {
-        system = manifest.system("empty");
-        system.image = _.merge({}, system.image, image_mock);
-
-        _subscription = subscribe('spec.image_mock.status', (event) => {
-          events.push(event);
-        });
-
-      });
-      after(() => {
-        _subscription.unsubscribe();
-      });
+      let system, subscription;
+      let stubs = [];
 
       beforeEach(() => {
-        events   = [];
+        system = manifest.system("empty");
+      });
+
+      afterEach(() => {
+        _.each(stubs, (stub) => stub.restore());
+        stubs = [];
+        if (!_.isEmpty(subscription)) {
+          subscription.unsubscribe();
+          subscription = null;
+        }
       });
 
       it("should raise error if image not found", function() {
-
-        // mock check to return null
-        system.image.check = function () {
-          return defer((resolve) => {
-            process.nextTick(() => {
-              publish("image.check.status", { type: "action", context: "image", action: "check_image" });
-              resolve(null);
-            });
-          });
-        };
-
+        stubs.push(h.sinon.stub(system.image, 'pull').returns(promiseResolve(false)));
+        stubs.push(h.sinon.stub(system.image, 'check').returns(promiseResolve(null)));
         var result = system.runShell({ command: [], image_pull: false});
         return h.expect(result).to.rejectedWith(ImageNotAvailable);
       });
 
-      it("should add system to event object", function() {
-        return async(function* () {
-
-          // force azk to think that the image is builded
-          system.image.builded = true;
-
-          // mock check to return null
-          system.image.check = function () {
-            return defer((resolve) => {
-              process.nextTick(() => {
-                publish("image.check.status", { type: "action", context: "image", action: "check_image" });
-                resolve(system.image);
-              });
+      it("should add system to event object", function* () {
+        // stub to generate a event
+        var stub = h.sinon.stub(system.image, 'check', () => {
+          return defer((resolve) => {
+            process.nextTick(() => {
+              publish("image.check.status", { type: "action", context: "image", action: "check_image" });
+              resolve(system.image);
             });
-          };
-
-          _subscription2 = subscribe('system.run.image.check.status', (event) => {
-            events.push(event);
           });
+        });
+        stubs.push(stub);
 
-          yield system.runDaemon()
-                .catch(() => {});
+        var wait_msg = null;
+        var topic    = 'system.run.image.check.status';
+        [wait_msg, subscription] = yield h.wait_subscription(topic);
 
-          _subscription2.unsubscribe();
+        yield system.runDaemon().catch(() => {});
 
-          h.expect(events).to.have.deep.property("[0]").and.eql(
-            { type: 'action',
-              context: 'image',
-              action: 'check_image',
-              system: system }
-          );
+        let msg = (yield wait_msg)[0];
+
+        h.expect(msg).to.eql({
+          type: 'action',
+          context: 'image',
+          action: 'check_image',
+          system: system
         });
       });
+    });
+  });
+
+  h.describeRequireVm("with enabled vm", function () {
+    this.timeout(20000);
+
+    var system, name;
+
+    beforeEach(() => {
+      name   = config("agent:vm:name");
+      system = manifest.system('example-sync');
+      system.provisioned = new Date();
+    });
+
+    afterEach(function* () {
+      yield system.stopWatching();
+      yield lazy.Client.closeWs();
+    });
+
+    it("run watch and sync files", function* () {
+      yield system.runWatch(true);
+
+      var cmd, result, dest;
+
+      dest = system.sync_folder('/azk/bin');
+      cmd = "test -f " + path.join(dest, 'test-app');
+      result = yield lazy.VM.ssh(name, cmd);
+      h.expect(result).to.eq(0);
+
+      dest = system.sync_folder('/azk');
+      cmd = "test -f " + path.join(dest, 'src', 'bashttpd');
+      result = yield lazy.VM.ssh(name, cmd);
+      h.expect(result).to.eq(0);
+
+      dest = system.sync_folder('/azk');
+      cmd = "test -d " + path.join(dest, 'lib');
+      result = yield lazy.VM.ssh(name, cmd);
+      h.expect(result).to.eq(1);
     });
   });
 });

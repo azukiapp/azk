@@ -48,6 +48,7 @@ export default class Scale extends CliTrackerController {
         var system = systems[i];
         yield this._scale(system, parseInt(opts.to || 1), opts);
       }
+      return 0;
     });
   }
 
@@ -71,8 +72,7 @@ export default class Scale extends CliTrackerController {
       if (!event) { return; }
       var type;
       if (event.type === "pull_msg") {
-        var pullProgressBar = Helpers.newPullProgressBar(this.ui);
-        pullProgressBar(event);
+        this.view('image_pull').render(event);
       } else {
         var keys = ["commands", "scale"];
         switch (event.type) {

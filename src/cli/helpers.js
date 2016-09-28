@@ -1,5 +1,4 @@
 import { _, log, lazy_require, config, t } from 'azk';
-import { SmartProgressBar } from 'azk/cli/smart_progress_bar';
 import { ManifestError } from 'azk/utils/errors';
 
 var lazy = lazy_require({
@@ -128,68 +127,6 @@ var Helpers = {
         default:
           log.debug({ log_label: "[vm_progress]", data: event});
       }
-    };
-  },
-
-  newPullProgressBar(cmd) {
-    return (msg) => {
-      if (msg.type !== "pull_msg") {
-        return msg;
-      }
-
-      // pull end
-      if (msg.end) {
-        cmd.ok('commands.helpers.pull.pull_ended', msg);
-        return false;
-      }
-
-      // manual message, not parsed
-      if (msg.traslation) {
-        cmd.ok(msg.traslation, msg.data);
-        return false;
-      }
-
-      if (!_.isNumber(this.non_existent_locally_ids_count)) {
-        this.non_existent_locally_ids_count = msg.registry_result.non_existent_locally_ids_count;
-      }
-
-      // parse messages by type
-      var status = msg.statusParsed;
-      switch (status.type) {
-        case 'download_complete':
-          this.smartProgressBar && this.smartProgressBar.receiveMessage(msg, status.type);
-          break;
-
-        case 'download':
-          if (_.isUndefined(this.bar)) {
-            // show message: ⇲ pulling 5/14 layers.
-            cmd.ok('commands.helpers.pull.pull_start', {
-              left_to_download_count : msg.registry_result.non_existent_locally_ids_count,
-              total_registry_layers  : msg.registry_result.registry_layers_ids_count,
-            });
-
-            // create a new progress-bar
-            this.bar = cmd.createProgressBar('     [:bar] :percent :layers_left/:layers_total ', {
-              complete: '=',
-              incomplete: ' ',
-              width: 50,
-              total: 50
-            });
-
-            // control progress-bar with SmartProgressBar
-            this.smartProgressBar = new SmartProgressBar(
-              50,
-              this.non_existent_locally_ids_count,
-              this.bar);
-          }
-          this.smartProgressBar.receiveMessage(msg, status.type);
-          break;
-
-        case 'pulling_another':
-          cmd.ok('commands.helpers.pull.already_being', msg);
-          break;
-      }
-      return false;
     };
   },
 

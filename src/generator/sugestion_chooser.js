@@ -5,31 +5,32 @@ var glob = require('glob');
 var path = require('path');
 
 export class SugestionChooser extends UIProxy {
-  constructor(sugestions_folder, ui) {
+  constructor(ui, sugestions_folder) {
     super(ui);
-    this.__sugestions = [];
+    this.__suggestions = [];
     this.load(sugestions_folder);
   }
 
   get suggestions() {
-    return this.__sugestions;
+    return this.__suggestions;
   }
 
   load(dir) {
-    _.each(glob.sync(path.join(dir, '**/*.js')), (file) => {
-      var Suggestion = require(file).Suggestion;
-      if (Suggestion) {
-        var suggestion = new Suggestion(this);
-        this.__sugestions.push(suggestion);
-      }
+    let suggestions = glob.sync(path.join(dir, '**/*.js'));
+    this.__suggestions = _.map(suggestions, (file) => {
+      return new (require(file).Suggestion)();
     });
   }
 
   suggest(evidences) {
     return _.map(evidences, (evidence) => {
       var suggestionChoosen = _.find(this.suggestions, (suggestion) => {
-        var diff = _.difference([ evidence.ruleName ], suggestion.ruleNamesList);
-        return diff.length === 0;
+        if (suggestion.analytics) {
+          return suggestion.examine(evidence, evidences);
+        } else {
+          var list = suggestion.ruleNamesList || [];
+          return list.indexOf(evidence.ruleName) > -1;
+        }
       });
 
       if (suggestionChoosen) {

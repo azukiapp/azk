@@ -5,7 +5,7 @@ export class Rule extends BaseRule {
     super(ui);
     this.type      = "database";
     this.name      = "postgres";
-    this.rule_name = "postgres-9.4";
+    this.rule_name = "postgres";
 
     // Suggest a docker image
     // http://images.azk.io/#/mysql

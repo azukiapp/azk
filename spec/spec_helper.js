@@ -5,6 +5,10 @@ import { nfcall, promisify } from 'azk/utils/promises';
 import { Client as AgentClient } from 'azk/agent/client';
 import Utils from 'azk/utils';
 
+// Active to debug event loop
+// https://github.com/nodejs/node/issues/1128
+// import activeHandles from 'active-handles';
+
 var lazy = lazy_require({
   MemoryStream: 'memorystream',
   dirdiff     : 'dirdiff',
@@ -24,6 +28,10 @@ var Helpers = {
 
   get no_required_agent() {
     return (_.contains(process.argv, '--no-required-agent') || process.env.AZK_NO_REQUIRED_AGENT);
+  },
+
+  get sinon() {
+    return require('sinon');
   },
 
   get docker() {
@@ -101,6 +109,7 @@ before(() => {
 after((done) => {
   process.nextTick(() => {
     require('azk/utils/postal').unsubscribeAll();
+    // activeHandles.print();
     done();
   });
 });

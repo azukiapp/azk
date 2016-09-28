@@ -3,6 +3,32 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## v0.19.0 - (2016-09-28)
+
+* Bug
+  * [Core] Simplification the images downloads process;
+  * [Core] Fixing regex bug in expand envs (not expand numbers: `$1` or `${2}`);
+  * [Core] Adding image envs in expand envs variable process;
+  * [Core] Adding support to escape variables in command options (shell and system);
+  * [Cli] Fixing error thrown when 'azk scale' command was run, regardless it was successful or not;
+  * [Cli] Fixing escape character in `azk vm ssh`;
+  * [Sync] Fixing bug when the path to be synced contained whitespace (#672);
+  * [Sync] Removing `system.name` from the destination sync path, which avoids multiple syncs for extended systems;
+  * [Systems] Fixing load envs from file with `=` in value;
+
+* Enhancements
+  * [Suggestions] Refactoring court to support more suggestion for one evidence;
+  * [Suggestions] Adding support wordpress;
+  * [Core] Support images of other repositories beyond Docker Hub;
+  * [Sync] Adding support special characters in sync paths;
+  * [Sync] Updating `chokidar` lib (file watching), for a better performance and bug fixes;
+  * [Sync] Refactoring the sync system to sync the file tree from the modified file, not the whole tree;
+  * [Sync] Improving support to `.gitignore` file, ensuring all the paths listed in it are properly resolved;
+  * [Sync] Improving fault tolerance for the sync process;
+  * [Sync] Removing a synced folder shouldn't break the agent nor the sync process;
+  * [Package] Adding `ubuntu 16.04` support;
+  * [Balancer] Support for tweaking Load Balancer settings via environment (`AZK_BALANCER_{WORKERS,WORKER_MAX_SOCKETS,TCP_TIMEOUT,DEAD_BACKEND_TTL}`);
+
 ## v0.18.0 - (2016-04-07)
 
 * Enhancements

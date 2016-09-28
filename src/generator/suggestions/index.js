@@ -1,3 +1,4 @@
+import { _ } from 'azk';
 import { UIProxy } from 'azk/cli/ui';
 
 export class Suggestion extends UIProxy {
@@ -5,7 +6,7 @@ export class Suggestion extends UIProxy {
     super(...args);
 
     // Initial Azkfile.js suggestion
-    this.suggestion = {
+    this.__suggestion = {
       __type  : 'example',
       name    : 'example',
       depends : [],
@@ -29,11 +30,24 @@ export class Suggestion extends UIProxy {
     };
   }
 
+  get suggestion() {
+    return this.__suggestion;
+  }
+
+  set suggestion(value) {
+    this.__suggestion = value;
+  }
+
   extend(...args) {
     return require('azk/utils')._.extend({}, ...args);
   }
 
   suggest() {
     return this.suggestion;
+  }
+
+  hasEvidence(evidences, criteria) {
+    var evidence = _.find(evidences, criteria);
+    return !_.isEmpty(evidence);
   }
 }
